@@ -47,7 +47,9 @@ et B = 1/2 b T0² + a T0
 COMMENTAIRES SUR LA SOLUTION
 -------------------------------------------------
 - on observe une bonne convergence.
-
+- provisoirement, le calcul était en fait en DISSIPATIVE_FLUX=FULL (défaut)
+  pour les versions 0.1.2 et 0.1.3 : la carte d'entrée a été modifiée pour
+  imposer DISSIPATIVE_FLUX=COMPACT
 
 -------------------------------------------------
 Benchmark
@@ -59,5 +61,6 @@ Blasius:
 Version    Harfang         Akira
 0.1.0     1.0  (1.4Ko) 
 0.1.1     2.4  (1.5Ko)            
-0.1.2     8.3s (2.4Ko)
-0.1.3     8.9s (2.4Ko)
+0.1.2     3.6s (2.4Ko)
+0.1.3     3.5s (2.4Ko)
+0.1.4     3.2s (2.4Ko)

@@ -37,6 +37,7 @@ character, parameter :: prb_iter   = 'I'       ! pour chaque itération interne d
 type mnu_capteur
   character             :: type        ! type de capteur
   character             :: store       ! type de stockage
+  logical               :: write       ! ecriture des données
   character(len=strlen) :: name        ! 
   character(len=strlen) :: boco_name   ! famille associée (si nécessaire)
                                        !   DEV: on peut extrapoler à plusieurs familles

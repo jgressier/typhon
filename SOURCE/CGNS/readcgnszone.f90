@@ -101,7 +101,7 @@ endselect
 call cg_nbocos_f(unit, ib, iz, zone%nboco, ier)
 if (ier /= 0) call erreur("Lecture CGNS","Problème à la lecture du nombre BoCo")
 
-write(str_w,*) ". lecture de ",zone%nboco," conditions aux limites"
+write(str_w,'(a,i3,a)') ". lecture de ",zone%nboco," conditions aux limites"
 call print_info(5, adjustl(str_w))
 
 allocate(zone%boco(zone%nboco))

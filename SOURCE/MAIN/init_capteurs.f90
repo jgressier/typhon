@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : init_capteurs               Auteur : J. Gressier
 !                                         Date   : Janvier 2004
-! Fonction                                Modif  :
+! Fonction                                Modif  : see history
 !   Initialisation des capteurs
 !     - capteurs par défaut
 !     - capteurs défnis par l'utilisateur
@@ -32,13 +32,23 @@ integer :: i             ! index de domaine/capteurs
 
 do i = 1, zone%defsolver%nprobe
 
+  select case(zone%info%typ_temps)
+
+  case(stationnaire)
+
+  case(instationnaire)
+  
+  case(periodique)
+  
+  endselect
+
 enddo
 
 endsubroutine init_capteurs
-
 
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
 ! jan  2004 : création de la procédure
+! july 2004 : initialization of default probes
 !------------------------------------------------------------------------------!

@@ -371,13 +371,18 @@ Task 0054 (Jérémie) : NS : Validation on 2D shock reflection (debug HLLE)
 - Bug HLLE flux
 
 ---------------------------------------------------------------------------------
+Task 0057 (Jérémie) : GUI : TYMON user interface (Typhon monitor)
+---------------------------------------------------------------------------------
+- basic display / no file reading
+
+---------------------------------------------------------------------------------
 Task 0058 (Jérémie) : Mesh : Bug correction for mesh with QUAD faces
 ---------------------------------------------------------------------------------
 - known problem : bad position of prism center (KDIF/SPHERE/HYB)
 - calc_ust_face : bug in the computation of face gravity center
 
 ---------------------------------------------------------------------------------
-Task 0059 (Jérémie) : Val : NS : validation case for inviscid flow (SHOCK-REFX/DIFFRACTION)
+Task 0059 (Jérémie) : Val/NS : validation case for inviscid flow (SHOCK-REFX/DIFFRACTION)
 ---------------------------------------------------------------------------------
 - unsteady moving shock wave past a corner
 

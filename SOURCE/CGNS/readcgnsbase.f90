@@ -46,7 +46,7 @@ call print_info(5,"- BASE "//trim(base%nom)//" : maillage "//type_maillage(base%
 
 call cg_nzones_f(unit, ib, base%nzone, ier)
 
-write(str_w,'(2x,i2,a,i2)') base%nzone,"zone(s) dans la base",ib
+write(str_w,'(2x,i2,a,i2)') base%nzone," zone(s) dans la base ",ib
 call print_info(8, "   "//adjustl(str_w))
 
 if (ier /= 0) call erreur("Lecture CGNS","Problème à la lecture du nombre de zones")
@@ -77,7 +77,6 @@ do iz = 1, base%nzone
 
 enddo
  
-
 
 !-------------------------
 endsubroutine readcgnsbase

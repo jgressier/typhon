@@ -159,8 +159,8 @@ proc gui:splash {} {
 
   set sw [winfo screenwidth .]
   set sh [winfo screenheight .]
-  set x [expr {($sw - 169)/2}]
-  set y [expr {($sh - 157)/2}]
+  set x [expr {($sw - 444)/2}]
+  set y [expr {($sh - 264)/2-50}]
 
   wm geometry  .splash +$x+$y
   wm deiconify .splash

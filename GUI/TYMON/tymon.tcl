@@ -32,8 +32,8 @@ proc tymon:init {} {
 #----------------------------------------------------------------------
 # CORPS DU PROGRAMME
 
-wm withdraw .
 tymon:init
+#wm withdraw .splash
 
 #toplevel .
 tymon:initproject
