@@ -81,30 +81,41 @@ integer           :: ib
 
   call delete(defsolver%defkdif%materiau%Kd)
 
+  ! -- destruction des paramètres d'initialisation --
+
   if (defsolver%ninit >= 1) then
     deallocate(defsolver%init)
   endif
   
+  ! -- destruction des paramètres des capteurs --
+
   if (defsolver%nprobe >= 1) then
+    do ib = 1, defsolver%nprobe
+      call delete(defsolver%probe(ib))
+    enddo
     deallocate(defsolver%probe)
   endif
   
-  do ib = 1, defsolver%nboco
-    select case(defsolver%boco(ib)%boco_unif)
-    case(nonuniform)
-      if (defsolver%boco(ib)%boco_kdif%alloctemp == .true.) then
-        deallocate(defsolver%boco(ib)%boco_kdif%temp)
-        defsolver%boco(ib)%boco_kdif%alloctemp = .false.
-      endif
-      if (defsolver%boco(ib)%boco_kdif%allocflux == .true.) then
-        deallocate(defsolver%boco(ib)%boco_kdif%flux_nunif)
-        defsolver%boco(ib)%boco_kdif%allocflux = .false.
-      endif
-    endselect
-  enddo
+  ! -- destruction des paramètres de conditions limites --
 
   if (defsolver%nboco >= 1) then
+    ! DEV : définition d'un delete_mnu_boco
+    do ib = 1, defsolver%nboco
+      select case(defsolver%boco(ib)%boco_unif)
+      case(nonuniform)
+        if (defsolver%boco(ib)%boco_kdif%alloctemp == .true.) then
+          deallocate(defsolver%boco(ib)%boco_kdif%temp)
+          defsolver%boco(ib)%boco_kdif%alloctemp = .false.
+        endif
+        if (defsolver%boco(ib)%boco_kdif%allocflux == .true.) then
+          deallocate(defsolver%boco(ib)%boco_kdif%flux_nunif)
+          defsolver%boco(ib)%boco_kdif%allocflux = .false.
+        endif
+      endselect
+    enddo
+
     deallocate(defsolver%boco)
+
   endif
 
 endsubroutine delete_mnu_solver
@@ -131,6 +142,40 @@ character(len=*) str
 endfunction quantity
 
 
+!------------------------------------------------------------------------------!
+! Fonction : retourne l'index de condition limite correspondant au nom "str"
+!------------------------------------------------------------------------------!
+integer function indexboco(defsolver, str)
+implicit none
+type(mnu_solver) :: defsolver
+character(len=*) :: str
+integer          :: i
+
+  indexboco = inull
+  do i = 1, defsolver%nboco
+    if (samestring(str, defsolver%boco(i)%family)) indexboco = i
+  enddo
+
+endfunction indexboco
+
+
+!------------------------------------------------------------------------------!
+! Fonction : retourne l'index de capteur correspondant au nom "str"
+!------------------------------------------------------------------------------!
+integer function indexcapteur(defsolver, str)
+implicit none
+type(mnu_solver) :: defsolver
+character(len=*) :: str
+integer          :: i
+
+  indexcapteur = inull
+  do i = 1, defsolver%nprobe
+    if (samestring(str, defsolver%probe(i)%name)) indexcapteur = i
+  enddo
+
+endfunction indexcapteur
+
+
 
 endmodule MENU_SOLVER
 
@@ -143,6 +188,7 @@ endmodule MENU_SOLVER
 ! juil 2003 : procédure delete : Kd
 ! nov  2003 : tableau de paramètres pour les capteurs
 !             définition des quantités
+!             index de conditions limites ou de capteurs en fonction du nom
 !------------------------------------------------------------------------------!
 
 

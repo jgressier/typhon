@@ -42,6 +42,15 @@ fichiers : integration, integration_cycle, integration_ustdomaine, integration_z
  echange_zonedata, echange_zonematch, corr_varprim_kdif, MODINFO, def_project
 
 ---------------------------------------------------------------------------------
+Task 0005 (Jérémie) : Out : Définition de capteurs
+---------------------------------------------------------------------------------
+Définition des structures de données "capteurs", paramétrés par des blocs "PROBE"
+- définition des types de capteurs
+- définition des quantités
+- lecture de paramètres BOCO_FIELD, BOCO_INTEGRAL
+- vérification de la condition limite cible
+
+---------------------------------------------------------------------------------
 Task 0006 (Emmanuel) : COUPL : modification du type de condition COUPLING :
                                orientation vers des conditions "naturelles"
 ---------------------------------------------------------------------------------
@@ -59,11 +68,12 @@ Mise à jour après chaque cycle des type de condition aux limites au raccord :
 possibilité de changer à chaque cycle.
 
 fichiers : MENU_BOCO, MENU_SOLVER, trait_zoneparam, def_boco, ZONE_COUPLING, 
- calcboco_ust, integration, comp_flux, init_world, echange_zonematch, echange, 
- MENU_KDIF, echange_kdif, stock_kdif_cond_coupling, def_boco_kdif, 
- accumulfluxcorr_kdif, init_coupling_kdif
+           calcboco_ust, integration, comp_flux, init_world, echange_zonematch, echange, 
+           MENU_KDIF, echange_kdif, stock_kdif_cond_coupling, def_boco_kdif, 
+           accumulfluxcorr_kdif, init_coupling_kdif
 fichiers nouveaux : init_boco, init_boco_ust, calcboco_ust_unif, 
- calcboco_ust_nunif, init_boco_kdif, calcboco_kdif_ust_unif, 
- calcboco_kdif_ust_nunif, setboco_kdif_isoth_unif, setboco_kdif_isoth_nunif
+           calcboco_ust_nunif, init_boco_kdif, calcboco_kdif_ust_unif, 
+           calcboco_kdif_ust_nunif, setboco_kdif_isoth_unif, setboco_kdif_isoth_nunif
 fichiers supprimés : calcboco_ust_coupling, calcboco_ust_coupling_face, 
- calcboco_kdif_coupling_face, calcboco_kdif_ust
+           calcboco_kdif_coupling_face, calcboco_kdif_ust
+

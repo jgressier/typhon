@@ -79,9 +79,11 @@ else
 
     case(boco_field, boco_integral)
       call rpmgetkeyvalstr(pcour, "BOCO", str)
-      defsolver%probe(ip)%boco_name = str
-      ! DEV : RECHERCHE DE L'INDEX DANS LA LISTE DES NOM BOCO
-      call erreur("Développement","PROBE: Recherche de l'index boco dans la liste des noms")
+      defsolver%probe(ip)%boco_name  = str
+      defsolver%probe(ip)%boco_index = indexboco(defsolver, str)
+      if (defsolver%probe(ip)%boco_index == inull) then
+        call erreur("définition de capteurs",trim(str)//" nom de condition limite inexistant")
+      endif
 
     case(residuals)
       call erreur("Développement","PROBE: type RESIDUALS non implémenté")

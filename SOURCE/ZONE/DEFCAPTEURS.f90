@@ -54,7 +54,9 @@ contains
 subroutine delete_capteur(capteur)
 implicit none
 type(st_capteur)  :: capteur
-integer        :: i     
+integer           :: i     
+
+  deallocate(capteur%tab)
 
 endsubroutine delete_capteur
 

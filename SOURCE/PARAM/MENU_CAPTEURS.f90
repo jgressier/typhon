@@ -66,7 +66,7 @@ subroutine delete_mnu_capteur(defcapteur)
 implicit none
 type(mnu_capteur)  :: defcapteur
 
-  print*,'!! DEBUG destruction de structure "paramètres" à compléter'
+  !print*,'!! DEBUG destruction de structure "paramètres" à compléter'
 
 endsubroutine delete_mnu_capteur
 
