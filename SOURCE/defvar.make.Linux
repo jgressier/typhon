@@ -6,7 +6,7 @@ MOD     = mod
 CF = ifc
 
 # Options de base (include d'entetes de module)
-FB = -I$(PRJINC)
+FB = -implicitnone -I$(PRJINC)
 
 # Optimisation classique
 # -tpp7 (optimisation P4)    -xW (instructions P4)
@@ -15,7 +15,7 @@ FB = -I$(PRJINC)
 # Profiling
 # -pg (informations pour gprof)
 #FO = -O3 -tpp7 -xW -pg
-# Débuggage
+# Extensive runtime error checking
 FO = -C
 
 ####### Definition de l'éditeur de lien et des options
@@ -24,5 +24,8 @@ FO = -C
 LINKER = ifc
 
 # Options de base
-LINKFB  = $(FO) -L$(LIBDIR)
+LINKFB  = $(FO) #-L/usr/lib
 
+####### Librairies systèmes
+
+LAPACKLIBS = -llapack3 -lblas3 # installation locale

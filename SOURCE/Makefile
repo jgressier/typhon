@@ -24,7 +24,7 @@ PRGNAME = Typhon
 
 all: $(PRGNAME)
 
-EXTLIBS   = 
+EXTLIBS   = $(LAPACKLIBS)
 
 include librairies.make
 
@@ -37,7 +37,7 @@ LIBRARIES = libt_main.a libt_xio.a    \
             libt_eqns.a               \
             libt_eqkdif.a             \
             libt_pio.a libt_modcom.a  \
-            libcgns.a
+            libcgns.a 
 
 D_LIBRARIES = $(LIBRARIES:%=$(PRJLIB)/%)
 
@@ -68,7 +68,7 @@ $(PRGNAME) : $(D_LIBRARIES) $(MAKEFILE)
 	@echo EDITION DE LIEN DE $(PRGNAME) ---
 	@echo Librairies externes : $(EXTLIBS)
 	@echo Librairies TYPHON   : $(LIBRARIES)
-	@$(LINKER) $(LINKFB) $(D_LIBRARIES) $(EXTLIBS) -o $(PRGNAME)
+	@$(LINKER) -L/usr/lib $(LINKFB) $(D_LIBRARIES) $(EXTLIBS) -o $(PRGNAME)
 	@echo --- Création de $(PRGNAME) terminée ---
 
 clean:  CGNS_clean  MAIN_clean  MESH_clean  MODCOM_clean  PARAM_clean  \
