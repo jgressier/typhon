@@ -12,9 +12,11 @@ EXCHSEQ_MOD = #.$(MOD)      \
 EXCHMPI_MOD = #.$(MOD)      \
 
 EXCHSEQ_OBJ := $(EXCHANGE_MOD:.$(MOD)=.o)  \
+               finalize_exch_seq.o         \
                init_exch_protocol_seq.o
 
 EXCHMPI_OBJ := $(EXCHANGE_MOD:.$(MOD)=.o)  \
+               finalize_exch_mpi.o         \
                init_exch_protocol_mpi.o
 
 D_EXCHSEQ_OBJ := $(EXCHSEQ_OBJ:%=$(PRJOBJ)/%)
