@@ -26,28 +26,30 @@ integer             :: nbc1, nbc2       ! indices des conditions limites des zon
 type(st_world)      :: lworld
 
 ! -- Declaration des variables internes --
+real(krp)           :: dtexch ! pas de temps entre deux échanges
 
 ! -- Debut de la procedure --
 
 select case(lworld%coupling(ir)%typ_calc)
    
 case(mesh_match)
-!print*,"!!! DEBUG echange zone data : maillages coincidants "  
+
+! pas de temps entre deux échanges
+dtexch = lworld%coupling(ir)%n_tpsbase*lworld%prj%dtbase 
 
 ! ----PROVISOIRE pour affichage des champs avt et apres cor de flux-------------
 !call echange_zonematch(lworld%zone(iz1), lworld%zone(iz2), &
 !                      lworld%coupling(ir)%typ_interpol, &
 !                      lworld%zone(iz1)%ust_mesh%boco(nbc1)%nface,&
-!                      nbc1, nbc2, ncoupl1, ncoupl2, &
-!                      lworld%coupling(ir)%corcoef, lworld%info%icycle, &
-!                      lworld%prj%typ_temps)
+!                      nbc1, nbc2, ncoupl1, ncoupl2, lworld%info%icycle, &
+!                      lworld%prj%typ_temps, lworld%prj%dtbase)
 !-------------------------------------------------------------------------------
 
 call echange_zonematch(lworld%zone(iz1), lworld%zone(iz2), &
                       lworld%coupling(ir)%typ_interpol, &
-                      lworld%zone(iz1)%ust_mesh%boco(nbc1)%nface,&
-                      nbc1, nbc2, ncoupl1, ncoupl2, &
-                      lworld%coupling(ir)%corcoef, lworld%prj%typ_temps)
+                      lworld%zone(iz1)%ust_mesh%boco(nbc1)%nface, &
+                      nbc1, nbc2, ncoupl1, ncoupl2, lworld%prj%typ_temps, &
+                      dtexch)
   
 case(mesh_nonmatch)
 call erreur("Développement","'nonmatch' : Cas non implémenté")

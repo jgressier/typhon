@@ -77,3 +77,27 @@ fichiers nouveaux : init_boco, init_boco_ust, calcboco_ust_unif,
 fichiers supprimés : calcboco_ust_coupling, calcboco_ust_coupling_face, 
            calcboco_kdif_coupling_face, calcboco_kdif_ust
 
+---------------------------------------------------------------------------------
+Task 0011 (Emmanuel) : COUPL : orientation des types de correction selon
+                               les cas (avant ou après échange, valeur du
+                               coefficient de correction)
+---------------------------------------------------------------------------------
+Selon les valeurs des nombres de Fourier dans les deux zones couplées,
+on oriente vers une correction avant (précision)  ou après (stabilité) 
+l'échange (calcul des quantités d'interface).
+Cas d'égalité des nombres de Fourier d'intégration : 
+* si le nombre de Fourier de cycle (basé sur le pas de cycle et le 
+  pas de maillage) est inférieur à 3 (théorie 1D : 4) dans les deux zones,
+  correction AVANT, coeff de correction de 0.5.
+* sinon, correction APRES, coeff de correction 0.5.
+Cas de rapport supérieur à 10 (choix arbitraire de rapport important) 
+  (ou inférieur à 0.1) : correction AVANT, coeff de correction 1 (ou 0).
+Autres cas : correction APRES, coeff de correction 0.5.
+
+Calcul de nombre de Fourier d'intégration et de cycle : choix provisoire (?) de
+  prendre la valeur maximale sur l'ensemble des cellules de la zone.
+
+fichiers : echange_zonematch.f90, echange_zonedata.f90
+fichiers nouveaux : calc_fourier.f90, calc_fouriercycle.f90, 
+                    calc_kdif_fourier.f90
+

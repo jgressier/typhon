@@ -1,14 +1,14 @@
 !------------------------------------------------------------------------------!
-! Procedure : calc_fourier                Auteur : E. Radenac / J. Gressier
+! Procedure : calc_fouriercycle           Auteur : E. Radenac / J. Gressier
 !                                         Date   : janvier 2004
 ! Fonction                                Modif  : (cf historique)
-!   Calcul du nombre de Fourier global d'une zone
+!   Calcul du nombre de Fourier de cycle d'une zone
 !
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
 
-subroutine calc_fourier(lzone, fourier)
+subroutine calc_fouriercycle(lzone, fint, dtcycle, fcycle)
 
 use TYPHMAKE
 use OUTPUT
@@ -19,56 +19,57 @@ implicit none
 
 ! -- Declaration des entrées --
 type(st_zone) :: lzone
+real(krp)     :: fint ! nombre de Fourier d'intégration
+real(krp)     :: dtcycle ! durée de cycle
 
 ! -- Declaration des sorties --
-real(krp)      :: fourier
+real(krp)      :: fcycle
 
 ! -- Declaration des variables internes --
-real(krp), dimension(:), allocatable :: fourierloc    ! tableau de nb de Fourier local
+real(krp), dimension(:), allocatable :: fourierloc    ! tableau de pas de temps local
 integer                              :: ncell    ! nombre de cellules pour le calcul
 
 
 ! -- Debut de la procedure --
 
-
-! -- Calcul des nombres de Fourier locaux --
-
-ncell = lzone%ust_mesh%ncell_int
-allocate(fourierloc(ncell))
-
 select case(lzone%deftime%stab_meth)
 
-case(stab_cond)   ! -- Pas de temps imposé --
-  fourierloc(1:ncell) = lzone%deftime%stabnb
+case(given_dt)   ! -- Pas de temps imposé --
+  fcycle = fint * dtcycle / lzone%deftime%dt
 
-case(given_dt)  ! -- Calcul par condition de stabilité (deftim%stabnb) --
+case(stab_cond)  ! -- Calcul par condition de stabilité (deftim%stabnb) --
+
   select case(lzone%defsolver%typ_solver)
+  
   case(solKDIF)
-    call calc_kdif_fourier(lzone%deftime%dt, lzone%defsolver%defkdif%materiau,&
+
+    ncell = lzone%ust_mesh%ncell_int
+    allocate(fourierloc(ncell))
+
+    call calc_kdif_fourier(dtcycle, lzone%defsolver%defkdif%materiau, &
                             lzone%ust_mesh, lzone%field, fourierloc, ncell)
+    ! -- DEV -- choix du nombre de Fourier global encore à faire
+
+    ! valeur maximale des cellules de la zone
+    fcycle = maxval(fourierloc)
+
+    ! moyenne :
+    !fcycle = 0
+    !do ic = 1, ncell
+    !  fcycle = fcycle + fourierloc(ic)
+    !enddo
+    !fcycle = fcycle/ncell
+    
+    deallocate(fourierloc)
+
   case default
     call erreur("incohérence interne (calc_fourier)", "solveur inconnu")
   endselect
 
 endselect
 
-! -- DEV -- choix du nombre de Fourier global encore à faire
 
-! valeur maximale des cellules de la zone
-fourier = maxval(fourierloc)
-
-! moyenne :
-!fourier = 0
-!do ic = 1, ncell
-!  fourier = fourier + fourierloc(ic)
-!enddo
-!fourier = fourier/ncell
-
-deallocate(fourierloc)
-
-
-
-endsubroutine calc_fourier
+endsubroutine calc_fouriercycle
 
 !------------------------------------------------------------------------------!
 ! Historique des modifications

@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : echange_zonematch           Auteur : E. Radenac
 !                                         Date   : Mai 2003
-! Fonction                                Modif  : Juillet 2003
+! Fonction                                Modif  : Janvier 2004
 !   Echange des donnees entre deux zones
 !
 ! Defauts/Limitations/Divers : pour l'instant, une methode de calcul commune 
@@ -9,9 +9,9 @@
 !------------------------------------------------------------------------------!
 
 ! -----------------PROVISOIRE-----------------------------------------------
-!subroutine echange_zonematch(zone1, zone2, typcalc, nfacelim, nbc1, nbc2, ncoupl1, ncoupl2, corcoef, icycle, typtemps)
+!subroutine echange_zonematch(zone1, zone2, typcalc, nfacelim, nbc1, nbc2, ncoupl1, ncoupl2, icycle, typtemps, dtexch)
 ! --------------------------------------------------------------------------
-subroutine echange_zonematch(zone1, zone2, typcalc, nfacelim, nbc1, nbc2, ncoupl1, ncoupl2, corcoef, typtemps)
+subroutine echange_zonematch(zone1, zone2, typcalc, nfacelim, nbc1, nbc2, ncoupl1, ncoupl2, typtemps, dtexch)
 
 use OUTPUT
 use VARCOM
@@ -29,9 +29,10 @@ integer                    :: nfacelim            ! nombre de faces limites
 integer                    :: nbc1, nbc2          ! indice des conditions aux limites 
                                                   ! concernées dans les zones 1 et 2                                                  
 integer                    :: ncoupl1, ncoupl2    ! numéro (identité) du raccord
-                                                  ! dans les zones 1 et 2                                                 
-real(krp)                  :: corcoef             ! coefficient de correction de flux
+                                                  ! dans les zones 1 et 2      
 character                  :: typtemps
+real(krp)                  :: dtexch             ! pas de temps entre 
+                                                 ! deux échanges
 
 ! -----------------PROVISOIRE-----------------------------------------------
 !integer     :: icycle
@@ -51,7 +52,12 @@ integer                        :: typmethod
 type(v3d)                      :: cg1, cg2, cgface ! centres des cellules des zones 1 et 2, et des faces
 integer                        :: typsolver1, typsolver2
 real(krp)                      :: dif_enflux     ! différence des énergies d'interface dans les deuxzones
-
+real(krp)                      :: corcoef   ! coefficient de correction de flux
+real(krp)                      :: rap_f ! rapport des nb de Fourier des 2 zones
+real(krp)                      :: fcycle1, fcycle2 ! nb de Fourier de cycle
+                                                   ! des deux zones
+integer                        :: avant, apres, placement ! variables pour le
+                                                   ! placement des corrections
 
 ! -----------------PROVISOIRE-----------------------------------------------
 !integer     :: uf
@@ -70,17 +76,65 @@ real(krp)                      :: dif_enflux     ! différence des énergies d'int
 !endif
 !-----------------------------------------------------------------------------
 
+avant = 0
+apres = 1
+placement = apres ! placement apres (le plus stable) sauf les cas où il est
+                  ! possible de faire la correction avant (plus précise)
+
+corcoef = 0.5     ! valeur du coefficient de correction pour la meilleure 
+                  !  précision
+
 select case(typtemps)
 
  case(instationnaire) ! On applique des corrections de flux entre les échanges
 
- ! Supplément de flux pour les échanges espacés : calcul de la différence à appliquer
+ ! Calcul du nombre de Fourier des deux zones
+ call calc_fourier(zone1, zone1%deftime%stabnb)
+ call calc_fourier(zone2, zone2%deftime%stabnb)
+
+ ! Rapport de ces nombres de Fourier
+ ! En fonction de la valeur, orientation vers une correction AVANT ou APRES
+ ! et choix de la valeur du coefficient de correction
+ rap_f = zone2%deftime%stabnb / zone1%deftime%stabnb
+
+  if (rap_f == 1) then
+
+    ! Calcul du nombre de Fourier de cycle (basé sur la durée entre deux 
+    ! échanges 
+    ! et sur le pas de maillage)
+    call calc_fouriercycle(zone1, zone1%deftime%stabnb, dtexch, fcycle1)
+    call calc_fouriercycle(zone2, zone2%deftime%stabnb, dtexch, fcycle2)
+
+    ! si les nb de Fourier de cycle des deux zones sont inférieurs à 3 
+    ! (en théorie 4), on effectue la correction avant, plus précise
+    ! avec un coefficient de correction de 0.5
+    ! sinon : correction après avec le meme coef de correction
+    if ((fcycle1 .lt. 3).and.(fcycle2 .lt. 3)) then
+      placement = avant
+      corcoef = 0.5
+    endif 
+
+  else if (rap_f .lt. 0.1) then
+    ! cas où on peut placer la correction avant avec un coef de correction de 0
+    placement = avant
+    corcoef = 0
+
+  else if (rap_f .gt. 10) then
+    ! cas où on peut placer la correction avant avec un coef de correction de 1
+    placement = avant
+    corcoef = 1
+
+  endif
+
+
+ ! Supplément de flux pour éch. espacés : calcul de la différence à appliquer
 
  call calcdifflux(zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal, &
                   zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal, &
                   nfacelim, zone1%coupling(ncoupl1)%zcoupling%solvercoupling, &
                   corcoef )
 
+if (placement == avant) then
  ! Calcul des variables primitives avec correction de flux
  do ifield = 1, zone1%ndom
    call corr_varprim(zone1%field(ifield), &
@@ -95,6 +149,7 @@ select case(typtemps)
                      zone2%defsolver, &
                      zone2%coupling(ncoupl2)%zcoupling%etatcons, nbc2)
  enddo
+endif
 
 endselect
 
@@ -158,6 +213,32 @@ call echange(zone1%coupling(ncoupl1)%zcoupling%echdata, &
 
 !endif
 
+select case(typtemps)
+
+ case(instationnaire) ! On applique des corrections de flux entre les échanges
+
+ if (placement == apres) then
+   ! Calcul des variables primitives avec correction de flux
+   do ifield = 1, zone1%ndom
+     call corr_varprim(zone1%field(ifield), &
+                       zone1%ust_mesh, &
+                       zone1%defsolver, &
+                       zone1%coupling(ncoupl1)%zcoupling%etatcons, nbc1)
+   enddo
+
+   do ifield = 1, zone2%ndom
+     call corr_varprim(zone2%field(ifield), &
+                       zone2%ust_mesh, &
+                       zone2%defsolver, &
+                       zone2%coupling(ncoupl2)%zcoupling%etatcons, nbc2)
+   enddo
+
+   call print_info(10," !! CORRECTION APRÈS ÉCHANGE !! ")
+
+ endif
+
+endselect
+
 endsubroutine echange_zonematch
 
 !------------------------------------------------------------------------------!
@@ -167,4 +248,6 @@ endsubroutine echange_zonematch
 ! juillet 2003      : ajouts pour corrections de  flux
 ! oct 2003          : ajout coef correction de flux
 ! oct 2003          : correction de flux seulement pour le cas instationnaire
+! jan 2004          : orientation vers des corrections de flux avant ou apres
+!                     le calcul des quantités d'interface selon les cas
 !------------------------------------------------------------------------------!
