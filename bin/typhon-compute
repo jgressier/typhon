@@ -11,6 +11,7 @@ echo
 echo Quel cas voulez-vous lancer \?
 read CAS
 #
+cp $CAS/coef*   $COMPDIR
 cp $CAS/*.rpm   $COMPDIR
 cp $CAS/*.cgns  $COMPDIR
 $EXEDIR/Typhon

@@ -27,4 +27,16 @@ de faire le calcul des conditions aux limites avant le calcul des gradients.
 Dans calc_gradient, les contributions sont codées deux fois pour éviter des "if"
 dans les boucles.
 fichiers: integration_zone, calc_gradient
- 
+
+---------------------------------------------------------------------------------
+Task 0004 (Emmanuel) : COUPL : Première version de couplage instationnaire
+---------------------------------------------------------------------------------
+A chaque cycle, décroissance de residumax_cycle (provisoirement affecté à la main
+dans le code) dans toutes les zones, à partir du residu de référence local.
+Arret quand les résidus de toutes les zones ont décru d'au moins  residumax (fixé 
+dans le menu) à partir du résidu de référence du premier cycle.
+Pas de corrections de flux en stationnaire
+Modification du déclenchement des échanges : plus en instant d'échange mais en
+numéro de cycle d'échange.
+fichiers : integration, integration_cycle, integration_ustdomaine, integration_zone,
+ echange_zonedata, echange_zonematch, corr_varprim_kdif, MODINFO, def_project

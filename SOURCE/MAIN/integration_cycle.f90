@@ -8,7 +8,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine integration_cycle(lworld, excht, ncoupling)
+subroutine integration_cycle(lworld, exchcycle, ncoupling)
 
 use TYPHMAKE
 use OUTPUT
@@ -19,7 +19,7 @@ implicit none
 
 ! -- Declaration des entrées --
 integer                 :: ncoupling        ! nombre de couplages
-real(krp), dimension(1:ncoupling) :: excht  ! instant d'échange (pour les différents couplages de zones)
+integer, dimension(1:ncoupling) :: exchcycle  ! indice du cycle d'échange (pour les différents couplages de zones)
 
 ! -- Declaration des entrées/sorties --
 type(st_world) :: lworld
@@ -27,14 +27,11 @@ type(st_world) :: lworld
 ! -- Declaration des sorties --
 
 ! -- Declaration des variables internes --
-real(krp) :: mdt              ! pas de temps macro (sens physique)
 integer   :: izone, ir, ifield, if
 integer   :: iz1, iz2, ic, ncoupl1, ncoupl2, ib, nbc1, nbc2
 
 ! -- Debut de la procedure --
 
-! PROVISOIRE pour compatibilité - à effacer
-mdt = lworld%prj%dtbase
 
 ! allocation des champs de résidus
 !do izone = 1, lworld%prj%nzone
@@ -43,11 +40,13 @@ mdt = lworld%prj%dtbase
 !  enddo
 !enddo
 
+! -- Procédure d'échange, en début de cycle
+
 if (ncoupling > 0) then
 
 do ir = 1, ncoupling
 
-  if (lworld%info%curtps >= excht(ir)) then
+  if (lworld%info%icycle.eq.exchcycle(ir)) then
 
     ! calcul des données de raccord : indices de raccord, de CL pour 
     ! les deux zones couplées
@@ -56,13 +55,18 @@ do ir = 1, ncoupling
     ! appel procédure d'échange
     call echange_zonedata(lworld,ir, iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2)
 
-    ! réinitialisation à 0 des tableaux de cumul de flux pour la correction 
-    ! de flux
-    lworld%zone(iz1)%coupling(ncoupl1)%zcoupling%etatcons%tabscal(1)%scal(:) = 0._krp
-    lworld%zone(iz2)%coupling(ncoupl2)%zcoupling%etatcons%tabscal(1)%scal(:) = 0._krp
+    select case(lworld%prj%typ_temps)
+     
+     case(instationnaire)
+     ! réinitialisation à 0 des tableaux de cumul de flux pour la correction 
+     ! de flux
+     lworld%zone(iz1)%coupling(ncoupl1)%zcoupling%etatcons%tabscal(1)%scal(:) = 0._krp
+     lworld%zone(iz2)%coupling(ncoupl2)%zcoupling%etatcons%tabscal(1)%scal(:) = 0._krp
+
+    endselect
 
     ! calcul du nouvel instant d'échange
-    excht(ir) = excht(ir) + lworld%coupling(ir)%n_tpsbase * mdt
+    exchcycle(ir) = exchcycle(ir) + lworld%coupling(ir)%n_tpsbase
 
   endif
 
@@ -99,6 +103,9 @@ endif
 ! Intégration d'un cycle de chacune des zones 
 ! --------------------------------------------
 
+! -- Initialisation du résidu courant de world à 0 :
+lworld%info%cur_res = 0
+
 do izone = 1, lworld%prj%nzone
  
   ! -- Initialisation des infos pour le cycle
@@ -108,8 +115,8 @@ do izone = 1, lworld%prj%nzone
   select case(lworld%prj%typ_temps)
 
   case(stationnaire)
-    lworld%zone(izone)%info%residumax  = lworld%prj%residumax 
-    lworld%zone(izone)%info%residu_ref = lworld%info%residu_ref
+    lworld%zone(izone)%info%residumax  = 0.1_krp! lworld%prj%residumax * 10 !PROVISOIRE 
+    lworld%zone(izone)%info%residu_ref = 0
 
   case(instationnaire)
     lworld%zone(izone)%info%cycle_dt = lworld%prj%dtbase
@@ -123,6 +130,12 @@ do izone = 1, lworld%prj%nzone
   call integrationmacro_zone(lworld%zone(izone))
   !-------------------------------------
 
+  ! -- Initialisation de residu_reforigine : valeur du résidu de référence 
+  !    du premier cycle pour chaque zone.
+  if(lworld%info%icycle.eq.1) then
+    lworld%zone(izone)%info%residu_reforigine = lworld%zone(izone)%info%residu_ref
+  endif
+
   ! -- Retour d'informations d'intégration du cycle
 
   lworld%zone(izone)%info%typ_temps = lworld%prj%typ_temps
@@ -130,8 +143,18 @@ do izone = 1, lworld%prj%nzone
   select case(lworld%prj%typ_temps)
 
   case(stationnaire)
-    lworld%info%cur_res    = lworld%zone(izone)%info%cur_res
-    lworld%info%residu_ref = max(lworld%info%residu_ref, lworld%zone(izone)%info%residu_ref)
+
+   
+  ! On attribue les residus courant et de référence de la zone la moins avancée, c'est-à-dire
+  ! celle dont le rapport (residu courant/residu de référence (d'origine)) est le plus grand.
+  ! Ainsi, la fin est atteinte quand toutes les zones ont vu leur résidu diminuer de la valeur
+  ! voulue au moins.
+
+    if( (lworld%zone(izone)%info%cur_res / lworld%zone(izone)%info%residu_reforigine) &
+        .ge.(lworld%info%cur_res / lworld%info%residu_ref) ) then
+      lworld%info%cur_res    = lworld%zone(izone)%info%cur_res
+      lworld%info%residu_ref = lworld%zone(izone)%info%residu_reforigine !max(lworld%info%residu_ref, lworld%zone(izone)%info%residu_ref)
+    endif
 
   case(instationnaire)
     lworld%zone(izone)%info%cycle_dt = lworld%prj%dtbase
@@ -158,4 +181,8 @@ endsubroutine integration_cycle
 ! sept  2003 : changement de nom de la procédure (ancien: integration_macrodt)
 !              gestion du calcul selon résidus 
 ! oct 2003   : suppression correction de flux APRES
+! oct 2003   : remplacement instant d'échange excht par cycle d'échange exchcycle
+! oct 2003   : modification de la gestion selon résidus pour le calcul stationnaire 
+!               multizone.
+! oct 2003   : corrections de flux seulement en instationnaire
 !------------------------------------------------------------------------------!

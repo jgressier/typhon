@@ -72,7 +72,7 @@ do i=1, domaine%boco(nb)%nface
   do ip= 1, field%nvect
     field%etatcons%tabvect(ip)%vect(ic1) = field%etatcons%tabvect(ip)%vect(ic1) &
                                           + field%residu%tabvect(ip)%vect(ic1)
-    field%etatprim%tabscal(ip)%scal(ic1) = field%etatcons%tabscal(ip)%scal(ic1) &
+    field%etatprim%tabvect(ip)%vect(ic1) = field%etatcons%tabvect(ip)%vect(ic1) &
                                           / defkdif%materiau%Cp
   enddo
 

@@ -20,6 +20,7 @@ Task Dévlp.  R. cible début fin   Type  Développement
                0.1.4              Val   maillage 3D TETRA et/ou HEXA
                0.1.4              IHM   affichage intermittent des itérations (mod(it,10))
      Emmanuel  0.2.0  18/07             Corrections de flux pour échanges espacés
+     Emmanuel  0.2.0        07/11 Coupl Première version de couplage stationnaire
      Jérémie   0.2.0  15/09             Solveur Fluide Parfait - fonctionnalités de base
                0.2.0              Out   Sorties multiples (block:output)
                0.2.0                    Restructuration de MAIN/integration_cycle (split)

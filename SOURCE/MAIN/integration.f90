@@ -26,8 +26,8 @@ type(st_world) :: lworld
 
 ! -- Declaration des variables internes --
 !real(krp)      :: macro_dt
-real(krp), dimension(:), allocatable &
-               :: excht ! instants d'échange pour les différents couplages de zones
+integer, dimension(:), allocatable &
+               :: exchcycle ! indices des cycles d'échange pour les différents couplages de zones
 integer        :: ir, izone, if
 integer        :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
 
@@ -43,10 +43,10 @@ lworld%info%residu_ref      = 0._krp
 lworld%info%fin_integration = .false.
 
 
-!if (lworld%prj%ncoupling > 0) then
-  allocate(excht(lworld%prj%ncoupling))
-  excht(:) = 0._krp
-!endif
+! Allocation du tableau des inidices de cycle d'échange pour les calculs couplés
+allocate(exchcycle(lworld%prj%ncoupling))
+exchcycle(:) = 1 ! initialisation à 1 : 1er échange au 1er cycle, à partir des conditions initiales
+
 
 ! allocation des champs de résidus
 do izone = 1, lworld%prj%nzone
@@ -90,7 +90,7 @@ do while (.not. lworld%info%fin_integration)
 
   ! -- intégration d'un cycle --
 
-  call integration_cycle(lworld, excht, lworld%prj%ncoupling)  
+  call integration_cycle(lworld, exchcycle, lworld%prj%ncoupling)  
     
   ! -- écriture d'informations en fin de cycle --
 
@@ -132,10 +132,12 @@ enddo
 ! DVT : Fermeture du fichier de comparaison des flux à l'interface
 !-----------------------------------------------------------------------------------------------------------------------
 !if (lworld%prj%ncoupling > 0) then
-  deallocate(excht)
   close(uf_compflux)
 !endif
 !-----------------------------------------------------------------------------------------------------------------------
+
+! Désallocation du tableau d'indice de cycle d'échange pour le calcul couplé :
+deallocate(exchcycle)
 
 do izone = 1, lworld%prj%nzone
  do if = 1, lworld%zone(izone)%ndom
@@ -153,4 +155,6 @@ endsubroutine integration
 ! juin 2003 : instant d'échange excht
 !             mise à jour des CL pour le fichier de sortie
 ! sept 2003 : gestion du calcul par résidus (optionnel) + réorganisation
+! oct 2003  : remplacement d'instant d'échange excht par indice de cycle d'échange
+!              exchcycle
 !------------------------------------------------------------------------------!

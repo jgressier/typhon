@@ -53,8 +53,9 @@ endif
 
 do if = 1, zone%ndom
   call integration_ustdomaine(dt, zone%defsolver, zone%defspat,  &
-                              zone%ust_mesh, zone%field(if),     &
-                              zone%coupling, zone%ncoupling)
+                              zone%ust_mesh, zone%field(if), &
+                              zone%coupling, zone%ncoupling, &
+                              zone%info%typ_temps)
 enddo
 
 
@@ -67,6 +68,7 @@ endsubroutine integration_zone
 !
 ! août 2002 : création de la procédure
 ! juil 2003 : modification arguments integration_ustdomaine
+! oct  2003  : modification arguments integration_ustdomaine : ajout typ_temps
 ! oct  2003 : insertion des procédures de calcul var. primitives et gradients
 !             (calcul des conditions aux limites avant calcul de gradients)
 !             ajout du calcul des gradients aux limites (set_gradient_limite)

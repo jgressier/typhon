@@ -8,9 +8,13 @@
 !				aux deux zones
 !------------------------------------------------------------------------------!
 
-subroutine echange_zonematch(zone1, zone2, typcalc, nfacelim, nbc1, nbc2, ncoupl1, ncoupl2, corcoef)
+! ------PROVISOIRE pour affichage des champs avt et apres cor de flux-----------
+!subroutine echange_zonematch(zone1, zone2, typcalc, nfacelim, nbc1, nbc2, ncoupl1, ncoupl2, corcoef, icycle, typtemps)
+! --------------------------------------------------------------------------
+subroutine echange_zonematch(zone1, zone2, typcalc, nfacelim, nbc1, nbc2, ncoupl1, ncoupl2, corcoef, typtemps)
 
 use OUTPUT
+use VARCOM
 use DEFZONE
 use DEFFIELD
 use GEO3D
@@ -27,6 +31,13 @@ integer                    :: nbc1, nbc2          ! indice des conditions aux li
 integer                    :: ncoupl1, ncoupl2    ! numéro (identité) du raccord
                                                   ! dans les zones 1 et 2                                                 
 real(krp)                  :: corcoef             ! coefficient de correction de flux
+character                  :: typtemps
+
+! ------PROVISOIRE pour affichage des champs avt et apres cor de flux-----------
+!integer     :: icycle
+!---------------------------------------------------------------------------
+
+
 
 ! -- Declaration des sorties --
 
@@ -41,29 +52,56 @@ type(v3d)                      :: cg1, cg2, cgface ! centres des cellules des zo
 integer                        :: typsolver1, typsolver2
 real(krp)                      :: dif_enflux     ! différence des énergies d'interface dans les deuxzones
 
+! ------PROVISOIRE pour affichage des champs avt et apres cor de flux-----------
+integer     :: uf
+!---------------------------------------------------------------------------
+
 ! -- Debut de la procedure --
+! ------PROVISOIRE pour affichage des champs avt et apres cor de flux-----------
+!  uf = 556
+!if ((icycle.lt.10)) then
+!  open(unit = uf, file = "t"//trim(adjustl(strof(icycle,3)))//".dat", form = 'formatted')
+!  write(uf, '(a)') 'VARIABLES="X","Y","Z", "T"'
+!
+!  call output_field(uf, zone1%ust_mesh, zone2%ust_mesh, zone1%field, &
+!                    zone2%field,"FIN DU CYCLE PRECEDENT")
+!endif
+!-----------------------------------------------------------------------------
 
-! Supplément de flux pour les échanges espacés : calcul de la différence à appliquer
+select case(typtemps)
 
-call calcdifflux(zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal, &
-                 zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal, &
-                 nfacelim, zone1%coupling(ncoupl1)%zcoupling%solvercoupling, &
-                 corcoef )
+ case(instationnaire) ! On applique des corrections de flux entre les échanges
 
-! Calcul des variables primitives avec correction de flux
-do ifield = 1, zone1%ndom
-  call corr_varprim(zone1%field(ifield), &
-                    zone1%ust_mesh, &
-                    zone1%defsolver, &
-                    zone1%coupling(ncoupl1)%zcoupling%etatcons, nbc1)
-enddo
+ ! Supplément de flux pour les échanges espacés : calcul de la différence à appliquer
 
-do ifield = 1, zone2%ndom
-  call corr_varprim(zone2%field(ifield), &
-                    zone2%ust_mesh, &
-                    zone2%defsolver, &
-                    zone2%coupling(ncoupl2)%zcoupling%etatcons, nbc2)
-enddo
+ call calcdifflux(zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal, &
+                  zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal, &
+                  nfacelim, zone1%coupling(ncoupl1)%zcoupling%solvercoupling, &
+                  corcoef )
+
+ ! Calcul des variables primitives avec correction de flux
+ do ifield = 1, zone1%ndom
+   call corr_varprim(zone1%field(ifield), &
+                     zone1%ust_mesh, &
+                     zone1%defsolver, &
+                     zone1%coupling(ncoupl1)%zcoupling%etatcons, nbc1)
+ enddo
+
+ do ifield = 1, zone2%ndom
+   call corr_varprim(zone2%field(ifield), &
+                     zone2%ust_mesh, &
+                     zone2%defsolver, &
+                     zone2%coupling(ncoupl2)%zcoupling%etatcons, nbc2)
+ enddo
+
+endselect
+
+! --------PROVISOIRE pour affichage des champs avt et apres cor de flux---------
+!if ((icycle.lt.10)) then
+!  call output_field(uf, zone1%ust_mesh, zone2%ust_mesh, zone1%field, &
+!                    zone2%field,"APRES CORRECTION")
+!endif
+!-----------------------------------------------------------------------------
 
 
 typsolver1 = zone1%defsolver%typ_solver
@@ -126,4 +164,5 @@ endsubroutine echange_zonematch
 ! mai 2003 (v0.0.1b): création de la procédure
 ! juillet 2003      : ajouts pour corrections de  flux
 ! oct 2003          : ajout coef correction de flux
+! oct 2003          : correction de flux seulement pour le cas instationnaire
 !------------------------------------------------------------------------------!

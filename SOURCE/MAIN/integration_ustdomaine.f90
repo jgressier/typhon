@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine integration_ustdomaine(dt, defsolver, defspat, domaine, field, coupling, ncoupling)
+subroutine integration_ustdomaine(dt, defsolver, defspat, domaine, field, coupling, ncoupling, typtemps)
 
 use TYPHMAKE
 use OUTPUT
@@ -26,7 +26,7 @@ type(mnu_solver) :: defsolver        ! type d'équation à résoudre
 type(mnu_spat)   :: defspat          ! paramètres d'intégration spatiale
 type(st_ustmesh) :: domaine          ! domaine non structuré à intégrer
 integer          :: ncoupling        ! nombre de couplages de la zone
-
+character        :: typtemps         ! type d'integration (stat, instat, period)
 ! -- Declaration des entrées/sorties --
 type(st_field)   :: field            ! champ des valeurs et résidus
 type(mnu_zonecoupling), dimension(1:ncoupling) &
@@ -108,14 +108,20 @@ enddo
 
 !!print*,"!! DEBUG-residu :", field%residu%tabscal(1)%scal(1:10)
 
-! Calcul de l'"énergie" à l'interface, en vue de la correction de flux, pour 
-! le couplage avec échanges espacés
-!DVT : flux%tabscal(1) !
-if (ncoupling>0) then
-  call accumulfluxcorr(dt, defsolver, domaine%nboco, domaine%boco, &
-                       domaine%nface, flux%tabscal(1)%scal, ncoupling, &
-                       coupling)
-endif
+select case(typtemps)
+
+ case(instationnaire) ! corrections de flux seulement en instationnaire
+
+ ! Calcul de l'"énergie" à l'interface, en vue de la correction de flux, pour 
+ ! le couplage avec échanges espacés
+ !DVT : flux%tabscal(1) !
+ if (ncoupling>0) then
+   call accumulfluxcorr(dt, defsolver, domaine%nboco, domaine%boco, &
+                        domaine%nface, flux%tabscal(1)%scal, ncoupling, &
+                        coupling)
+ endif
+
+endselect
 
 call delete(flux)
 
@@ -126,4 +132,5 @@ endsubroutine integration_ustdomaine
 !
 ! avr  2003 : création de la procédure
 ! juil 2003 : ajout corrections de  flux
+! oct 2003  : corrections de flux seulement en instattionnaire
 !------------------------------------------------------------------------------!

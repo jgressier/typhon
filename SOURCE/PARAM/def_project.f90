@@ -95,11 +95,7 @@ case(stationnaire) ! Evolution pseudo-instationnaire
   call rpmgetkeyvalreal(pcour, "RESIDUALS", prj%residumax)
   call rpmgetkeyvalint (pcour, "NCYCLE",    prj%ncycle, 1)
   ! DEV : TRAITER LES MOTS CLEFS INTERDITS
-  if (prj%nzone /= 1) then
-    call erreur("Développement","calcul stationnaire prévu pour une seule zone")
-    ! réfléchir aux tests de fin de cycle de chaque zone pour un calcul
-    ! stationnaire convergé (critères de convergence)
-  endif
+
   
 case(instationnaire) ! Evolution instationnaire
   call print_info(10,"calcul instationnaire")

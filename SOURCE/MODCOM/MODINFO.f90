@@ -42,6 +42,7 @@ type st_infozone
   real(krp) :: cycle_dt             ! durée du cycle
   real(krp) :: residumax            ! residu maximal admissible pour le cycle
   real(krp) :: residu_ref, cur_res  ! residu de référence (world) et courant (cycle)
+  real(krp) :: residu_reforigine    ! residu de référence du premier cycle
 endtype st_infozone
 
 
@@ -69,4 +70,5 @@ endmodule MODINFO
 !
 ! mars 2003 : création du module
 ! sept 2003 : informations spécifiques pour l'intégration d'un cycle
+! oct 2003  : ajout de residu_ref_origine
 !------------------------------------------------------------------------------!

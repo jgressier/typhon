@@ -33,11 +33,21 @@ select case(lworld%coupling(ir)%typ_calc)
    
 case(mesh_match)
 !print*,"!!! DEBUG echange zone data : maillages coincidants "  
+
+! ----PROVISOIRE pour affichage des champs avt et apres cor de flux-------------
+!call echange_zonematch(lworld%zone(iz1), lworld%zone(iz2), &
+!                      lworld%coupling(ir)%typ_interpol, &
+!                      lworld%zone(iz1)%ust_mesh%boco(nbc1)%nface,&
+!                      nbc1, nbc2, ncoupl1, ncoupl2, &
+!                      lworld%coupling(ir)%corcoef, lworld%info%icycle, &
+!                      lworld%prj%typ_temps)
+!-------------------------------------------------------------------------------
+
 call echange_zonematch(lworld%zone(iz1), lworld%zone(iz2), &
                       lworld%coupling(ir)%typ_interpol, &
                       lworld%zone(iz1)%ust_mesh%boco(nbc1)%nface,&
                       nbc1, nbc2, ncoupl1, ncoupl2, &
-                      lworld%coupling(ir)%corcoef )
+                      lworld%coupling(ir)%corcoef, lworld%prj%typ_temps)
   
 case(mesh_nonmatch)
 call erreur("Développement","'nonmatch' : Cas non implémenté")
@@ -57,4 +67,6 @@ endsubroutine echange_zonedata
 !
 ! mai 2003 (v0.0.1b): création de la procédure
 ! oct 2003          : ajout coef correction de flux
+! oct 2003          : ajout du type temporel d'intégration pour choix dans
+!                      echange_zonematch
 !------------------------------------------------------------------------------!
