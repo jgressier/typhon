@@ -8,18 +8,20 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine def_time(block, solver, deftime)
+subroutine def_time(prj, block, solver, deftime)
 
 use VARCOM
 use RPM
 use TYPHMAKE
 use OUTPUT
 use VARCOM
+use MENU_GEN
 use MENU_NUM
 
 implicit none
 
 ! -- Declaration des entrées --
+type(mnu_project)      :: prj
 type(rpmblock), target :: block
 integer                :: solver
 
@@ -69,6 +71,10 @@ case(stab_cond)
   endselect
 endselect
 
+! -- si stationnaire, critère d'arrêt --
+
+call  rpmgetkeyvalreal(pcour, "RESIDUALS", deftime%maxres, prj%residumax)
+
 ! -- type d'intégration temporelle --
 
 deftime%local_dt = .false.
@@ -106,8 +112,17 @@ case(tps_impl)
     ! pas de paramètre supplémentaire
 
   case(alg_jac)
+    call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 10_kpp)
+    call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-4_krp)
+
+  case(alg_gs)
+    call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 10_kpp)
+    call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-4_krp)
+
+  case(alg_sor)
     call rpmgetkeyvalint (pcour, "MAX_IT",    deftime%implicite%max_it, 10_kpp)
-    call rpmgetkeyvalreal(pcour, "RESIDUALS", deftime%implicite%maxres, 1.e-4_krp)
+    call rpmgetkeyvalreal(pcour, "INV_RES",   deftime%implicite%maxres, 1.e-4_krp)
+    call rpmgetkeyvalreal(pcour, "OVERRELAX", deftime%implicite%maxres, 1.e-4_krp)
 
   case default
     call erreur("algèbre","méthode d'inversion inconnue")

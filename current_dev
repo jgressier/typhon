@@ -18,15 +18,16 @@ Task Dévlp.  R. cible début fin   Type  Développement
 0024 Jérémie   0.1.4  10/04 10/04 Make  Suppression des structures de données STRMESH (1)
 0025 Jérémie   0.1.4  10/04 12/04 Make  Integration de KDIF dans les structures MGRID
 0026 Jérémie   0.1.4  13/04 16/04 KDIF  implicitation méthode directe LU
-     Jérémie   0.1.4              KDIF  implicitation méthode JACOBI
+0027 Jérémie   0.1.4  16/04 16/04 IHM   affichage intermittent des itérations (mod(it,10))
+0028 Jérémie   0.1.4  16/04 16/04 Solv  résolution par méthode JACOBI
+0029 Jérémie   0.1.4  16/04 16/04 IHM   choix du résidu maximal de cycle (residu max global sinon)
+0030           0.1.4              Out   Sorties au format VTK
+0031           0.1.4              Val   maillage 3D TETRA et/ou HEXA
                0.1.4              Coupl structures de cumul de flux dans MGRID
      Jérémie   0.1.4              Make  Sauvegarde de capteurs BOCO_FIELD
                0.1.4              Make  calcul des index de conditions limites connectées à la lecture
      Jérémie   0.1.4              Opt   explosion temps de calcul VALIDATION/KDIF/KNL2
-               0.1.4              Val   maillage 3D TETRA et/ou HEXA
-               0.1.4              IHM   choix du résidu maximal de cycle (residu max global sinon)
-               0.1.4              IHM   affichage intermittent des itérations (mod(it,10))
-               0.1.4              Out   Sorties au format VTK
+     Jérémie   0.1.5              Solv  Optimisation de la structure DLU (SPARSE_MAT) (faces limites)
                0.1.5              KDIF  condition limite de rayonnement
                0.1.5              Opt   Optimisation des calculs GEO3D et proc. appelantes
      Jérémie   0.1.5              IHM   Lecture de vecteurs par menu RPM

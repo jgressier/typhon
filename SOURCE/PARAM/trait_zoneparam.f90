@@ -7,17 +7,19 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine trait_zoneparam(block, solver, zone)
+subroutine trait_zoneparam(prj, block, solver, zone)
 
 use RPM
 use VARCOM
 use OUTPUT
 use DEFZONE
+use MENU_GEN
 use MENU_BOCO
 
 implicit none
 
 ! -- Declaration des entrées --
+type(mnu_project)       :: prj
 type(rpmblock), target  :: block    ! blocks RPM (paramètres de la zone à lire)
 integer                 :: solver  ! type de solveur
 
@@ -62,7 +64,7 @@ call def_mesh(block, zone%defmesh)
 ! -------------------------
 ! Définition des paramètres de simulation
 
-call def_time(block, solver, zone%deftime)
+call def_time(prj, block, solver, zone%deftime)
 
 call def_spat(block, solver, zone%defspat)
 

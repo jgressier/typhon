@@ -91,7 +91,7 @@ do izone = 1, world%prj%nzone
     
   endif
 
-  call trait_zoneparam(pzone, solver, world%zone(izone))
+  call trait_zoneparam(world%prj, pzone, solver, world%zone(izone))
 
 enddo
 

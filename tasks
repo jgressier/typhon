@@ -183,3 +183,20 @@ Task 0026 (Jérémie) : Make : Implicitation directe LU
 - définition de routines d'inversion algébrique (SPARSE_MAT, dlu_lu)
 - modification des appels de routines d'integration temporelle
   (integration_grid, explicit_step, implicit_step)
+
+---------------------------------------------------------------------------------
+Task 0027 (Jérémie) : IHM : affichage intermittent des itérations
+---------------------------------------------------------------------------------
+- intégrer en dur dans le source de integrationmacro_zone
+
+---------------------------------------------------------------------------------
+Task 0028 (Jérémie) : SOLV : résolution par la méthode de Jacobi
+---------------------------------------------------------------------------------
+- procédure de calcul dlu_jacobi
+- lecture paramètres MAX_IT et INV_RES pour convergence de la méthode itérative
+
+---------------------------------------------------------------------------------
+Task 0029 (Jérémie) : IHM : choix du critère de convergence de zone
+---------------------------------------------------------------------------------
+- critère de convergence global par défaut
+- possibilité de choix d'un autre critère dans le bloc TIME_PARAM / clef RESIDUALS

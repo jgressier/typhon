@@ -71,10 +71,11 @@ endtype mnu_rk
 ! structure MNU_IMP : options numériques pour l'implicitation
 !------------------------------------------------------------------------------!
 type mnu_imp
-  integer(kpp)    :: methode      ! (A)DI
+  integer(kpp)    :: methode      ! méthode d'inversion matricielle
   integer(kpp)    :: max_it       ! nombre d'itération maximal
   real(krp)       :: ponderation  ! ponderation implicite/explicite
   real(krp)       :: maxres       ! residu maximal pour convergence de l'inversion
+  real(krp)       :: overrelax    ! paramètre de surrelaxation
 endtype mnu_imp
 
 !------------------------------------------------------------------------------!
@@ -87,6 +88,7 @@ type mnu_time
   integer(kpp)    :: stab_meth  ! methode de calcul de la stabilité
   real(krp)       :: dt, stabnb ! pas de temps fixe ou nombre de stabilité associé
                                 !                      (CFL/Fourier)
+  real(krp)       :: maxres     ! résidu maximal pour convergence de la zone
   type(mnu_rk)    :: rk         ! paramètres de la méthode Runge Kutta
   type(mnu_imp)   :: implicite  ! paramètres pour la méthode d'implicitation
 endtype mnu_time

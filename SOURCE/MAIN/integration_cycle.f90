@@ -115,7 +115,7 @@ do izone = 1, lworld%prj%nzone
   select case(lworld%prj%typ_temps)
 
   case(stationnaire)
-    lworld%zone(izone)%info%residumax  = 0.1_krp! lworld%prj%residumax * 10 !PROVISOIRE 
+    lworld%zone(izone)%info%residumax  = lworld%zone(izone)%deftime%maxres
     lworld%zone(izone)%info%residu_ref = 0._krp
 
   case(instationnaire)
