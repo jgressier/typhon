@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : integrationmacro_zone       Auteur : J. Gressier
 !                                         Date   : Juillet 2002
-! Fonction                                Modif  : Juin 2003 (cf Historique)
+! Fonction                                Modif  : Juillet 2003 (cf Historique)
 !   Intégration d'une zone sur un écart de temps donné,
 !   d'une représentation physique uniquement
 !
@@ -16,6 +16,7 @@ use VARCOM
 use DEFZONE
 use DEFFIELD
 use GEO3D
+use MATER_LOI
 
 implicit none
 
@@ -105,8 +106,10 @@ do while (local_t < mdt)
   do if = 1, lzone%ndom
     print*,'!! DEBUG update dom =',if
     call update_champ(lzone%field(if))                   ! màj    des var. conservatives
-    call calc_varprim(lzone%defsolver, lzone%field(if), &
-                      lzone%ust_mesh%ncell_int)  ! calcul des var. primitives
+!    call calc_varprim(lzone%defsolver, lzone%field(if), &
+!                      lzone%ust_mesh%ncell_int)  ! calcul des var. primitives
+!DVT
+    call calc_varprim(lzone%defsolver, lzone%field(if))   ! calcul des var. primitives
   enddo
 
 enddo
@@ -124,4 +127,5 @@ endsubroutine integrationmacro_zone
 !
 ! juil  2002 (v0.0.1b) : création de la procédure
 ! juin  2003           : champs multiples
+! juillet 2003         : calcul du nombre de Fourier de la zone
 !------------------------------------------------------------------------------!
