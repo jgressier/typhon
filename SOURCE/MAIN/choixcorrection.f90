@@ -81,7 +81,7 @@ do i=1, nfacelim
   select case(zone1%defsolver%defkdif%materiau%type)
   case(mat_LIN, mat_KNL)
     conduct1 = valeur_loi(zone1%defsolver%defkdif%materiau%Kd, &
-                          zone1%grid%field%etatprim%tabscal(1)%scal(icl1))
+                          zone1%grid%field_loc%etatprim%tabscal(1)%scal(icl1))
   case(mat_XMAT)
     call erreur("Calcul de matériau","Materiau non linéaire interdit")
   endselect
@@ -90,7 +90,7 @@ do i=1, nfacelim
   select case(zone2%defsolver%defkdif%materiau%type)
   case(mat_LIN, mat_KNL)
     conduct2 = valeur_loi(zone2%defsolver%defkdif%materiau%Kd, &
-                          zone2%grid%field%etatprim%tabscal(1)%scal(icl2))
+                          zone2%grid%field_loc%etatprim%tabscal(1)%scal(icl2))
   case(mat_XMAT)
     call erreur("Calcul de matériau","Materiau non linéaire interdit")
   endselect
@@ -110,7 +110,7 @@ do i=1, nfacelim
   if (rapdifth == 1)   corcoef(i) = 0.5
   if (rapdifth .gt. 1) corcoef(i) = 1
   if (rapdifth .lt. 1) corcoef(i) = 0
-print*, "DEBUG", rapdifth, corcoef(i)
+!print*, "DEBUG", rapdifth, corcoef(i)
 enddo
 endsubroutine choixcorrection
 
@@ -118,5 +118,6 @@ endsubroutine choixcorrection
 ! Historique des modifications
 !
 ! février 2003 : création de la procédure
+! oct  2004 : field chained list
 !
 !------------------------------------------------------------------------------

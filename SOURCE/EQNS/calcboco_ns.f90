@@ -39,19 +39,19 @@ select case(defboco%typ_boco)
 
 case(bc_inlet_sup)
   call setboco_ns_inlet_sup(defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
-                            ustboco, grid%umesh, grid%field)
+                            ustboco, grid%umesh, grid%field_loc)
 
 case(bc_inlet_sub)
   call setboco_ns_inlet_sub(defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
-                            ustboco, grid%umesh, grid%field)
+                            ustboco, grid%umesh, grid%field_loc)
 
 case(bc_outlet_sup)
   call setboco_ns_outlet_sup(defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
-                             ustboco, grid%umesh, grid%field)
+                             ustboco, grid%umesh, grid%field_loc)
 
 case(bc_outlet_sub)
   call setboco_ns_outlet_sub(defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
-                             ustboco, grid%umesh, grid%field)
+                             ustboco, grid%umesh, grid%field_loc)
 
 case(bc_wall_isoth)
   call erreur("Développement","Condition limite inconnue non implémentée (calcboco_ns)")
@@ -73,4 +73,5 @@ endsubroutine calcboco_ns
 ! Changes history
 !
 ! july 2004 : creation (called)
+! oct  2004 : field chained list
 !------------------------------------------------------------------------------!

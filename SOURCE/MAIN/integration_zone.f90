@@ -34,7 +34,7 @@ integer                :: if
 
 pgrid => zone%grid
 do while (associated(pgrid))
-  call calc_varprim(zone%defsolver, pgrid%field)     ! calcul des var. primitives
+  call calc_varprim(zone%defsolver, pgrid%field_loc)     ! calcul des var. primitives
   pgrid => pgrid%next
 enddo
 
@@ -48,8 +48,8 @@ if (zone%defspat%calc_grad) then
   pgrid => zone%grid
   do while (associated(pgrid))
     call calc_gradient(zone%defsolver, pgrid%umesh,                 &
-                       pgrid%field%etatprim, pgrid%field%gradient)
-    call calc_gradient_limite(zone%defsolver, pgrid%umesh, pgrid%field%gradient)
+                       pgrid%field_loc%etatprim, pgrid%field_loc%gradient)
+    call calc_gradient_limite(zone%defsolver, pgrid%umesh, pgrid%field_loc%gradient)
     pgrid => pgrid%next
   enddo
 endif
@@ -89,4 +89,5 @@ endsubroutine integration_zone
 ! avr  2004 : traitement des listes chaînées de structures MGRID
 !             changement d'appel integration_ustdomaine -> integration_grid
 ! juin 2004 : désallocation des listes chainées de champ générique en fin de procédure
+! oct  2004 : field chained list
 !------------------------------------------------------------------------------!

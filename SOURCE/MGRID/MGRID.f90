@@ -33,10 +33,13 @@ type st_grid
   type(st_grid), pointer :: next       ! pointeur de liste chaînée
   type(st_grid), pointer :: subgrid    ! pointeur de liste chaînée
   type(st_ustmesh)       :: umesh      ! maillage non structuré
-  type(st_field)         :: field      ! tableau des champs
+  integer                :: nfield     ! nombre de champs
+  type(st_field), pointer:: field      ! tableau des champs
   integer                :: nbocofield ! nombre de champs génériques
   type(st_genericfield), pointer &
                          :: bocofield  ! liste chaînée de champs génériques
+  type(st_field), pointer:: field_loc  ! champ local pour l'intégration
+  type(st_field), pointer:: field_cyclestart  ! champ de début de cycle
 endtype st_grid
 
 
@@ -101,7 +104,8 @@ type(st_grid)  :: grid
 
   ! destruction des champs et maillage de la grille
   call delete(grid%umesh)
-  call delete(grid%field)
+  call delete_chainedfield(grid%field)
+  deallocate(grid%field_loc)
 
   ! destruction des sous-grilles
   call delete_chainedgrid(grid%subgrid)
@@ -166,6 +170,28 @@ integer                        :: dim, nscal, nvect, ntens
 
 endfunction newbocofield
 
+!------------------------------------------------------------------------------!
+! Procédure : ajout avec allocation d'une structure champ (par insertion)
+!------------------------------------------------------------------------------!
+function newfield(grid,nscal,nvect,ncell,nface) result(pfield)
+implicit none
+type(st_field), pointer :: pfield
+type(st_grid)           :: grid
+integer                 :: dim, nscal, nvect, ncell, nface
+
+  grid%nfield = grid%nfield + 1
+
+  if (grid%nfield == 1) then
+   allocate(pfield)
+   call new(pfield,nscal,nvect,ncell,nface)
+   nullify(pfield%next)
+  else
+    pfield => insert_newfield(grid%field,nscal,nvect,ncell,nface)
+  endif
+  grid%field => pfield
+
+endfunction newfield
+
 
 endmodule MGRID
 
@@ -174,4 +200,5 @@ endmodule MGRID
 !
 ! mars 2004 : création du module
 ! juin 2004 : procédure newbocofield
+! oct  2004 : field chained list
 !------------------------------------------------------------------------------!

@@ -178,6 +178,7 @@ integer                :: id
   endif
 
   pgrid%nbocofield = 0
+  pgrid%nfield = 0
 
   zone%grid => pgrid
 

@@ -47,7 +47,7 @@ if (position == end_calc) then  !DEV2602
 
         write(uf_chpresu,'(a)') 'VARIABLES="X","Y","Z","T"'
         call output_tec_ust(uf_chpresu, world%zone(izone)%grid%umesh, &
-                            world%zone(izone)%grid%field, outp_typ)
+                            world%zone(izone)%grid%field_loc, outp_typ)
 
       case(solVORTEX)
 
@@ -112,7 +112,6 @@ if (position == end_calc) then  !DEV2602
   endif
 
 else !DEV2602
-
   if (outp_typ == outp_FLUX) then !DEV2602
     call output_tec_flux(nom, world,io)
   endif
@@ -131,4 +130,5 @@ endsubroutine output_tecplot
 !
 ! dec  2002 : création de la procédure
 ! avr  2004 : cas Vortex
+! oct  2004 : field chained list
 !------------------------------------------------------------------------------!

@@ -406,3 +406,14 @@ Task 0073 (Emmanuel) : KDIF : convection boundary condition
 - bug : bad assignment of the convection parameter h
 - VALIDATION/KDIF/CONV_1D case
 
+---------------------------------------------------------------------------------
+Task 0074 (Emmanuel) : Make : restructuration of fields : chained list
+---------------------------------------------------------------------------------
+- structure field : chained list
+- use of field_loc for integration
+
+---------------------------------------------------------------------------------
+Task 0075 (Emmanuel) : Make : local convergence on cycle
+---------------------------------------------------------------------------------
+- local convergence : iterations on cycle until the right field is obtained
+

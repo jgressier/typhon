@@ -7,7 +7,8 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine init_champ_ust(defsolver, ust_mesh, champ)
+!subroutine init_champ_ust(defsolver, ust_mesh, champ, grid)
+subroutine init_champ_ust(defsolver, ust_mesh, grid)
 
 use TYPHMAKE
 use VARCOM
@@ -21,12 +22,14 @@ implicit none
 ! -- Declaration des entrées --
 type(mnu_solver) :: defsolver            ! paramètres du solveur
 type(st_ustmesh) :: ust_mesh             ! maillage et connectivités
+type(st_grid)    :: grid                 ! grille
 
 ! -- Declaration des sorties --
-type(st_field)   :: champ                ! champ d'état et de gradients
+!type(st_field), pointer :: champ                ! champ d'état et de gradients
 
 ! -- Declaration des variables internes --
 integer :: i
+type(st_field), pointer :: champ
 
 ! -- Debut de la procedure --
 
@@ -36,11 +39,11 @@ call print_info(8, ". initialisation et allocation des champs")
 
 select case(defsolver%typ_solver)
 case(solNS)
-  call new(champ, 2, 1, ust_mesh%ncell, ust_mesh%nface)
+  champ=>newfield(grid, 2, 1, ust_mesh%ncell, ust_mesh%nface)
 case(solKDIF)
-  call new(champ, 1, 0, ust_mesh%ncell, ust_mesh%nface)  ! A MODIFIER SELON GAZ
+  champ=>newfield(grid, 1, 0, ust_mesh%ncell, ust_mesh%nface)  ! A MODIFIER SELON GAZ
 case(solVORTEX)
-  call new(champ, 1, 0, ust_mesh%ncell, ust_mesh%nface)
+  champ=>newfield(grid, 1, 0, ust_mesh%ncell, ust_mesh%nface)
 case default
   call erreur("Incohérence interne (init_champ_ust)","type de solveur inconnu")
 endselect 
@@ -76,6 +79,8 @@ case default
   call erreur("Incohérence interne (init_champ_ust)","type de solveur inconnu")
 endselect
 
+grid%field => champ
+
 endsubroutine init_champ_ust
 
 !------------------------------------------------------------------------------!
@@ -85,4 +90,5 @@ endsubroutine init_champ_ust
 ! juin 2003 : mise à jour 
 ! mars 2004 : ajouts spécifiques au solveur VORTEX
 ! july 2004 : initialization of NS fields
+! oct  2004 : field chained list
 !------------------------------------------------------------------------------!

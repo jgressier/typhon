@@ -43,14 +43,14 @@ do ib = 1, grid%umesh%nboco
   select case(defsolver%boco(idef)%typ_boco)
 
   case(bc_geo_sym)
-    call calcboco_ust_sym(defsolver%boco(idef), grid%umesh%boco(ib), grid%umesh, grid%field)
+    call calcboco_ust_sym(defsolver%boco(idef), grid%umesh%boco(ib), grid%umesh, grid%field_loc)
     !call erreur("Développement","'bc_geo_sym' : Cas non implémenté")
     
   case(bc_geo_period)
     call erreur("Développement","'bc_geo_period' : Cas non implémenté")
     
   case(bc_geo_extrapol)
-    call calcboco_ust_extrapol(defsolver%boco(idef), grid%umesh%boco(ib), grid%umesh, grid%field)
+    call calcboco_ust_extrapol(defsolver%boco(idef), grid%umesh%boco(ib), grid%umesh, grid%field_loc)
 
 ! PROVISOIRE : à retirer
   case(bc_connection)
@@ -81,4 +81,5 @@ endsubroutine calcboco_ust
 !
 ! avril 2003 : création de la procédure
 ! july  2004 : simplification of call tree (uniform or not boundary conditions)
+! oct   2004 : field chained list
 !------------------------------------------------------------------------------!

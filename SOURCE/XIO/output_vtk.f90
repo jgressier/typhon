@@ -49,7 +49,7 @@ if (position == end_calc) then
         write(uf_chpresu,'(a)') 'TYPHON-NS'
         write(uf_chpresu,'(a)') 'ASCII'
         call output_vtk_cell(uf_chpresu, world%zone(izone)%defsolver, &
-                             world%zone(izone)%grid%umesh, world%zone(izone)%grid%field)
+                             world%zone(izone)%grid%umesh, world%zone(izone)%grid%field_loc)
 
       case(solKDIF)
 
@@ -57,7 +57,7 @@ if (position == end_calc) then
         write(uf_chpresu,'(a)') 'TYPHON-KDIF'
         write(uf_chpresu,'(a)') 'ASCII'
         call output_vtk_cell(uf_chpresu, world%zone(izone)%defsolver, &
-                             world%zone(izone)%grid%umesh, world%zone(izone)%grid%field)
+                             world%zone(izone)%grid%umesh, world%zone(izone)%grid%field_loc)
 
       case(solVORTEX)
 
@@ -82,4 +82,5 @@ endsubroutine output_vtk
 ! Historique des modifications
 !
 ! avr  2004 : création de la procédure
+! oct  2004 : field chained list
 !------------------------------------------------------------------------------!

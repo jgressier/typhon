@@ -63,9 +63,9 @@ do i=1, nfacelim
 
   ! Températures
 
-  temp1(i) = zone1%grid%field%etatprim%tabscal(1)%scal(ic1)
-  temp2(i) = zone2%grid%field%etatprim%tabscal(1)%scal(ic2)
-  tempinter(i) = zone1%grid%field%etatprim%tabscal(1)%scal(icg1)
+  temp1(i) = zone1%grid%field_loc%etatprim%tabscal(1)%scal(ic1)
+  temp2(i) = zone2%grid%field_loc%etatprim%tabscal(1)%scal(ic2)
+  tempinter(i) = zone1%grid%field_loc%etatprim%tabscal(1)%scal(icg1)
   
 enddo 
 
@@ -145,4 +145,5 @@ endsubroutine comp_flux
 !
 ! juin 2003 (v0.0.1b): création de la procédure
 ! juillet 2003       : conductivité non constante
+! oct  2004          : field chained list
 !------------------------------------------------------------------------------!

@@ -486,6 +486,20 @@ integer                        :: dim,nscal,nvect,ntens
 
 endfunction insert_newgfield
 
+!------------------------------------------------------------------------------!
+! Procédure : création et lien chaîné d'une structure FIELD
+!------------------------------------------------------------------------------!
+function insert_newfield(field, n_scal, n_vect, ncell, nface) result(pfield)
+implicit none
+type(st_field), pointer :: pfield
+type(st_field), target  :: field
+integer                 :: n_scal,n_vect,ncell,nface
+
+  allocate(pfield)
+  call new(pfield,n_scal,n_vect,ncell,nface)
+  pfield%next => field  
+
+endfunction insert_newfield
 
 !------------------------------------------------------------------------------!
 ! Procédure : desallocation d'une liste chaînée de structure GENERICFIELD
@@ -504,6 +518,23 @@ type(st_genericfield), pointer :: pgfield, dgfield
 
 endsubroutine delete_chainedgfield
 
+!------------------------------------------------------------------------------!
+! Procédure : desallocation d'une liste chaînée de structure FIELD
+!------------------------------------------------------------------------------!
+subroutine delete_chainedfield(field)
+implicit none
+type(st_field), target  :: field
+type(st_field), pointer :: pfield, dfield
+
+  pfield => field
+  do while(associated(pfield))
+    dfield => pfield
+    pfield => pfield%next
+    call delete(dfield)
+  enddo
+
+endsubroutine delete_chainedfield
+
 
 
 
@@ -518,5 +549,6 @@ endmodule DEFFIELD
 ! DEV: interface champ/tableau
 ! DEV: découpage en MGFIELD et MZFIELD pour fonctions haut et bas niveau
 ! juin 2004 : procédures insert_newgfield et delete_chainedgfield
+! oct  2004 : field chained list
 !------------------------------------------------------------------------------!
 

@@ -136,7 +136,7 @@ do while (.not.fin)
                           ! après homogénéisation des solveurs dans MGRID
     select case(lzone%defsolver%typ_solver)
     case(solKDIF, solNS)
-      call update_champ(lzone%info, lzone%grid%field, &
+      call update_champ(lzone%info, lzone%grid%field_loc, &
                         lzone%grid%umesh%ncell_int)  ! màj  des var. conservatives
     case(solVORTEX)
       ! pas de mise à jour pour le moment 
@@ -163,14 +163,16 @@ do while (.not.fin)
 
   case(instationnaire)
     local_t = local_t + dt
-    if (mod(lzone%info%iter_loc,10) == 0) &
-      write(str_w,'(a,i5,a,g10.4)') "    integration",lzone%info%iter_loc," à t local =",local_t
+!   if (mod(lzone%info%iter_loc,10) == 0) &
+    if (fin) &
+     write(str_w,'(a,i5,a,g10.4)') "    integration",lzone%info%iter_loc," à t local =",local_t
   
   case(periodique)
 
   endselect
 
-  if (mod(lzone%info%iter_loc,10) == 0) call print_info(9,str_w)
+!  if (mod(lzone%info%iter_loc,10) == 0) call print_info(9,str_w)
+  if (fin) call print_info(9,str_w)
 
   call capteurs(lzone)
 
@@ -192,4 +194,6 @@ endsubroutine integrationmacro_zone
 ! sept 2003 : calcul des gradients
 ! oct  2003 : déplacement des proc. calc_gradient et calc_varprim dans integration_zone
 ! mars 2004 : integration de zone par technique lagrangienne
+! oct  2004 : field chained list
 !------------------------------------------------------------------------------!
+

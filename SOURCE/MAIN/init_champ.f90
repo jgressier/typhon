@@ -34,8 +34,11 @@ integer                :: id
 pgrid => zone%grid
 
 do while (associated(pgrid))
-  !allocate(pgrid%field))
-  call init_champ_ust(zone%defsolver, pgrid%umesh, pgrid%field)
+  !allocate(pgrid%field)
+  !call init_champ_ust(zone%defsolver, pgrid%umesh, pgrid%field, pgrid)
+  call init_champ_ust(zone%defsolver, pgrid%umesh, pgrid)
+  allocate(pgrid%field_loc)
+  pgrid%field_loc => pgrid%field
   pgrid => pgrid%next
 enddo
 
@@ -49,4 +52,5 @@ endsubroutine init_champ
 !
 ! mars 2003 : création de la procédure
 ! avr  2004 : application à liste chaînée de MGRID
+! oct  2004 : field chained list
 !------------------------------------------------------------------------------!
