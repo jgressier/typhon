@@ -22,6 +22,10 @@ implicit none
 !character, parameter :: instationnaire = 'I'
 !character, parameter :: periodique     = 'P'
 
+! -- Constantes pour le calcul du pas de temps
+character, parameter :: stab_cond = 'S'
+character, parameter :: given_dt  = 'T'
+
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
@@ -39,14 +43,19 @@ endtype mnu_rk
 type mnu_imp
   character       :: methode      ! (A)DI
   real(krp)       :: ponderation  ! ponderation implicite/explicite
+  integer         :: max_it       ! nombre d'itération maximal
 endtype mnu_imp
 
 !------------------------------------------------------------------------------!
 ! structure MNU_TIME : options numériques pour l'intégration temporelle
 !------------------------------------------------------------------------------!
 type mnu_time
-  !character       :: temps      ! (S)tationnaire, (I)nstationnaire, (P)ériodique
+  character       :: temps      ! (S)tationnaire, (I)nstationnaire, (P)ériodique
   character       :: methode    ! méthode d'intégration temporelle
+  logical         :: local_dt   ! methode de calcul du pas de temps (global/local)
+  character       :: stab_meth  ! methode de calcul de la stabilité
+  real(krp)       :: dt, stabnb ! pas de temps fixe ou nombre de stabilité associé
+                                !                      (CFL/Fourier)
   type(mnu_rk)    :: rk         ! paramètres de la méthode Runge Kutta
   type(mnu_imp)   :: implicite  ! paramètres pour la méthode d'implicitation
 endtype mnu_time

@@ -44,8 +44,8 @@ do while (local_t < mdt)
   write(str_w,'(a,i5,a,g10.4)') "  zone",lzone%id," à t local =",local_t
   call print_info(7,str_w)
 
-  !call calc_zonetimestep(lzone, dt)
-  dt = mdt
+  call calc_zonetimestep(lzone, dt)
+  !dt = mdt
 
   !call calc_fourier(fourier, dt, lzone%ust_mesh, &
   !                lzone%defsolver%defkdif%materiau, &

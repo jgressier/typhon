@@ -53,7 +53,7 @@ call def_mesh(block, zone%defmesh)
 ! -------------------------
 ! Définition des paramètres de simulation
 
-call def_time(block, zone%defsolver)
+call def_time(block, solver, zone%deftime)
 
 call def_spat(block, zone%defsolver)
 

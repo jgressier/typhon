@@ -13,6 +13,7 @@ module DEFZONE
 
 use TYPHMAKE      ! Definition de la precision/données informatiques
 use MENU_SOLVER   ! Définition des solveurs
+use MENU_NUM      ! Définition des paramètres numériques d'intégration
 use MENU_MESH     ! Définition du maillage
 use STRMESH       ! Définition des maillages structurés
 use USTMESH       ! Définition des maillages non structurés
@@ -38,6 +39,8 @@ type st_zone
   integer               :: nmesh_str  ! nombre de domaines structurés
   integer               :: nmesh_ust  ! nombre de domaines non structurés
   type(mnu_solver)      :: defsolver  ! type de solveur à utiliser 
+  type(mnu_time)        :: deftime    ! paramètres d'intégration temporelle
+  type(mnu_spat)        :: defspat    ! paramètres d'intégration spatiale
                                       !   cf définitions variables globales
   type(mnu_mesh)        :: defmesh    ! type de maillage
   character             :: typ_mesh   ! type de maillage (cf VARCOM)
@@ -118,11 +121,10 @@ endsubroutine delete_zone
 
 endmodule DEFZONE
 
-
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juil 2002 (v0.0.1b): création du module
-! juin 2003          : structuration des champs par type (scalaire, vecteur...)
-! juillet 2003       : delete zone%defsolver
+! juil 2002 : création du module
+! juin 2003 : structuration des champs par type (scalaire, vecteur...)
+! juil 2003 : delete zone%defsolver
 !------------------------------------------------------------------------------!
