@@ -15,6 +15,7 @@ use OUTPUT
 use VARCOM
 use DEFZONE
 use DEFFIELD
+use GEO3D
 
 implicit none
 
@@ -29,11 +30,60 @@ real(krp)   :: local_t            ! temps local (0 à mdt)
 real(krp)   :: dt                 ! pas de temps de la zone
 integer     :: if                 ! index de champ
 
+!DVT : Nb de Fourier
+integer     :: i, ic1, ic2
+real(krp)   :: fourier, f, dist, conduct
+type(v3d)   :: dcg
 ! -- Debut de la procedure --
 local_t = 0._krp
 
-! allocation des champs de résidus
+!---------------------------------------------------------------------------------------------------------------------
+! DVT : Nb de Fourier de la zone pour un maillage régulier
+!---------------------------------------------------------------------------------------------------------------------
+fourier = 0
 
+do i = 1, lzone%ust_mesh%nface
+
+ic1 = lzone%ust_mesh%facecell%fils(i,1)
+ic2 = lzone%ust_mesh%facecell%fils(i,2)
+!dcg = lzone%ust_mesh%mesh%centre(ic2,1,1) - lzone%ust_mesh%mesh%centre(ic1,1,1)
+!dist = abs(dcg)
+
+if(lzone%ust_mesh%mesh%volume(ic1,1,1) > 0) then
+  conduct = valeur_loi(lzone%defsolver%defkdif%materiau%Kd,lzone%field(1)%etatprim%tabscal(1)%scal(ic1))
+  dcg = lzone%ust_mesh%mesh%centre(ic1,1,1) - lzone%ust_mesh%mesh%iface(i,1,1)%centre
+  dist = 2*abs(dcg)
+  !f = conduct * lzone%ust_mesh%mesh%iface(i,1,1)%surface &
+  !         * mdt/ (lzone%defsolver%defkdif%materiau%Cp * lzone%ust_mesh%mesh%volume(ic1,1,1) &
+  !         *dist)
+  f = conduct * mdt/(lzone%defsolver%defkdif%materiau%Cp*dist**2)
+  if (f>fourier) then
+    fourier = f
+  endif
+endif
+
+if(lzone%ust_mesh%mesh%volume(ic2,1,1) > 0) then
+  conduct = valeur_loi(lzone%defsolver%defkdif%materiau%Kd,lzone%field(1)%etatprim%tabscal(1)%scal(ic2))
+  dcg = lzone%ust_mesh%mesh%centre(ic1,1,1) - lzone%ust_mesh%mesh%iface(i,1,1)%centre
+  dist = 2*abs(dcg)
+  !f = conduct * lzone%ust_mesh%mesh%iface(i,1,1)%surface &
+  !         * mdt/ (lzone%defsolver%defkdif%materiau%Cp * lzone%ust_mesh%mesh%volume(ic1,1,1) &
+  !         *dist)
+  f = conduct * mdt/(lzone%defsolver%defkdif%materiau%Cp*dist**2)
+  if (f>fourier) then
+    fourier = f
+  endif
+endif
+
+enddo
+
+write(str_w,'(a,i,a,g10.4)') "* FOURIER zone ", lzone%id, " : ", fourier
+call print_info(6, str_w)   
+                           
+!-----------------------------------------------------------------------------------------------------------------------
+
+! allocation des champs de résidus
+!print*, "DEBUG INTEGRATIONMACRO_ZONE"
 do if = 1, lzone%ndom
   call alloc_res(lzone%field(if))
 enddo
@@ -53,6 +103,7 @@ do while (local_t < mdt)
   local_t = local_t + dt
 
   do if = 1, lzone%ndom
+    print*,'!! DEBUG update dom =',if
     call update_champ(lzone%field(if))                   ! màj    des var. conservatives
     call calc_varprim(lzone%defsolver, lzone%field(if), &
                       lzone%ust_mesh%ncell_int)  ! calcul des var. primitives
@@ -65,9 +116,7 @@ call capteurs(lzone)
 do if = 1, lzone%ndom
   call dealloc_res(lzone%field(if))
 enddo
-
 !print*, "DEBUG : fin dealloc"
-
 endsubroutine integrationmacro_zone
 
 !------------------------------------------------------------------------------!

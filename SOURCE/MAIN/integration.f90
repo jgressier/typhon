@@ -31,11 +31,6 @@ real(krp), dimension(:), allocatable &
 real(krp)      :: enrtps ! instant d'enregistrement des données (output)
 integer        :: ir, izone
 
-! DVT
-!integer   :: ic1, ic2, i
-!real(krp) :: dist, fourier 
-!type(v3d) :: dcg
-
 ! -- Debut de la procedure --
 
 macro_dt        = lworld%prj%dtbase
@@ -52,23 +47,6 @@ if (lworld%prj%ncoupling > 0) then
   excht(:) = 0._krp
 endif
 
-!---------------------------------------------------------------------------------------------------------------------
-! DVT : Nb de Fourier de chaque zone pour un maillage régulier
-!---------------------------------------------------------------------------------------------------------------------
-!do i = 1, lworld%prj%nzone
-!
-!ic1 = lworld%zone(i)%ust_mesh%facecell%fils(1,1)
-!ic2 = lworld%zone(i)%ust_mesh%facecell%fils(1,2)
-!dcg = lworld%zone(i)%ust_mesh%mesh%centre(ic2,1,1) - lworld%zone(i)%ust_mesh%mesh%centre(ic1,1,1)
-!dist = abs(dcg)
-!fourier = lworld%zone(i)%defsolver%defkdif%materiau%Kd%valeur *lworld%zone(i)%ust_mesh%mesh%iface(1,1,1)%surface &
-!           * macro_dt/ (lworld%zone(i)%defsolver%defkdif%materiau%Cp * lworld%zone(i)%ust_mesh%mesh%volume(ic1,1,1) &
-!           *dist)
-!write(str_w,'(a,i,a,g10.4)') "* FOURIER zone ", i, " : ", fourier
-!call print_info(6, str_w)   
-!
-!enddo                           
-!-----------------------------------------------------------------------------------------------------------------------
 
 !-----------------------------------------------------------------------------------------------------------------------
 ! DVT : Ouverture du fichier de comparaison des flux à l'interface
