@@ -41,3 +41,7 @@ COMMENTAIRES SUR LA SOLUTION
   Cette erreur peut être due au calcul des gradients de manière
   simplifiée alors que la corde entre les centres de gravité ne
   passent pas par les centres de faces.
+
+-------------------------------------------------
+Benchmark
+-------------------------------------------------

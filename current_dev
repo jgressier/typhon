@@ -1,10 +1,30 @@
 --------------------------------------------------------------------
 Liste des développement courants
 --------------------------------------------------------------------
-* à ajouter dans SOURCE/_DOC/VERSION lors de la définition de release
+* à ajouter dans  SOURCE/_DOC/VERSION et  SOURCE/_DOC/VERSION-changes
+  lors de la définition de release
 * en liaison avec les développements à faire dans SOURCE/_DEV/TODO
 
 
+Dévelop.  R. cible  début     fin       Terminé  Développement
+--------------------------------------------------------------------------------------------------------
+Emmanuel   0.2.0   18/07/03                      Corrections de flux pour échanges espacés
+Jérémie    0.2.0   15/09/03                      Solveur Fluide Parfait - fonctionnalités de base
+           0.2.0                                 Restructuration de MAIN/integration_cycle (split)
+           0.2.0                                 Suppression des structures de données STRMESH (1)
+           0.2.0                                 Implicitation du solveur KDIF
+           0.2.0                                 Définition de capteurs et historiques
+           1.0.0                                 Optimisation du calcul de loi polynomiale
+           1.0.0                                 Restructuration des bibliothèques RPM
+           1.0.0                                 Imbrication des blocs RPM
+           1.0.0                                 Optimisation des structures de données pour l'accès mémoire
+--------------------------------------------------------------------------------------------------------
+(1) dans les modules (ZONE etc) et les procédures d'intégration spécifiques
+--------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------------
+release 0.1.2 - 14 octobre 2003
+--------------------------------------------------------------------------------------------------------
 
 Dévelop.  R. cible  début     fin       Terminé  Développement
 --------------------------------------------------------------------------------------------------------
@@ -13,16 +33,9 @@ Jérémie    0.1.2   obsolète                      Optimisation de la procédure "c
 Jérémie    0.1.2   08/09/03  11/09/03    Ok      Calcul de pas de temps à Fourier imposé
 Jérémie    0.1.2   12/09/03  12/09/03    Ok      Optimisation de EQKDIF/calc_kdif_flux (0)
 Jérémie    0.1.2   12/09/03  12/09/03    Ok      Gestions dans librairies externes dans LIBEXT (CGNS)
-                                                 Optimisation du calcul de loi polynomiale
 Jérémie    0.1.2   16/09/03  18/09/03    Ok      Calcul de résidu pour calcul stationnaire
 Jérémie    0.2.0   15/09/03                      Solveur Fluide Parfait - fonctionnalités de base
-                                                 Restructuration de MAIN/integration_macrodt (split)
-                                                 Suppression des structures de données STRMESH
-Jérémie    0.2.0   25/09/03                      Calcul des gradients des champs aux centres des cellules
-           0.2.0                                 Implicitation du solveur KDIF
-           1.0.0                                 Restructuration des bibliothèques RPM
-           1.0.0                                 Imbrication des blocs RPM
-           0.2.0                                 Définition de capteurs et historiques
+Jérémie    0.2.0   25/09/03  15/10/03    Ok      Calcul des gradients des champs aux centres des cellules
 Emmanuel   0.2.0             13/10/03    Ok      Choix du type de sortie (valeurs aux centres ou aux noeuds)
 Emmanuel   0.2.0             13/10/03    Ok      Choix du coefficient de correction de flux
 --------------------------------------------------------------------------------------------------------
@@ -31,7 +44,7 @@ Emmanuel   0.2.0             13/10/03    Ok      Choix du coefficient de correct
 --------------------------------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------------------------------
-release 0.1.1
+release 0.1.1 - aout 2003
 --------------------------------------------------------------------------------------------------------
 
 Développeur  début     fin       Terminé  Développement

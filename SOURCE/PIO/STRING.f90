@@ -52,7 +52,7 @@ function uppercase(str) result(strout)
 endfunction uppercase
 
 !------------------------------------------------------------------------------!
-! Fonction : Mise en majuscule d'une chaîne de caractères
+! Fonction : tranformation entier -> chaîne de caractères
 !------------------------------------------------------------------------------!
 function strof_int(nb, l) result(strout)
   implicit none

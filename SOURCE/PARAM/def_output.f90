@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : def_output                  Auteur : J. Gressier
 !                                         Date   : Novembre 2002
-! Fonction                                Modif  : Octobre 2003
+! Fonction                                Modif  : (cf historique)
 !   Traitement des paramètres du fichier menu principal
 !   Paramètres principaux du projet
 !
@@ -65,8 +65,15 @@ world%output(1)%fichier = str
 
 call rpmgetkeyvalstr(pcour, "TYPE", str, "CENTER")
 
-if (samestring(str,"NODE")) world%output(1)%type = outp_NODE
-if (samestring(str,"CENTER"))   world%output(1)%type = outp_CENTER
+if (samestring(str,"NODE"))   world%output(1)%type = outp_NODE
+if (samestring(str,"CENTER")) world%output(1)%type = outp_CENTER
 
 
+!-----------------------------
 endsubroutine def_output
+!------------------------------------------------------------------------------!
+! Historique des modifications
+!
+! nov  2002 : création de la procédure
+! oct  2003 : choix des sorties NODE ou CENTER pour Tecplot
+!------------------------------------------------------------------------------!

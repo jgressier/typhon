@@ -61,7 +61,7 @@ call def_mesh(block, zone%defmesh)
 
 call def_time(block, solver, zone%deftime)
 
-call def_spat(block, zone%defsolver)
+call def_spat(block, solver, zone%defspat)
 
 ! -------------------------
 ! Définition des conditions aux limites et paramètres de couplage

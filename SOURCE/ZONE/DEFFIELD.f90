@@ -472,7 +472,9 @@ endmodule DEFFIELD
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! oct  2002 (v0.0.1b): création du module
-! juin 2003          : structuration des champs par type (scalaire, vecteur...)
+! oct  2002 : création du module
+! juin 2003 : structuration des champs par type (scalaire, vecteur...)
+! DEV: interface champ/tableau
+! DEV: découpage en MGFIELD et MZFIELD pour fonctions haut et bas niveau
 !------------------------------------------------------------------------------!
 
