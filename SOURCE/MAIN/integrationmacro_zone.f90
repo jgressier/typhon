@@ -91,6 +91,8 @@ do while (.not.fin)
   do if = 1, lzone%ndom
     call update_champ(lzone%info, lzone%field(if), lzone%ust_mesh%ncell_int)  ! màj    des var. conservatives
     call calc_varprim(lzone%defsolver, lzone%field(if))     ! calcul des var. primitives
+    call calc_gradient(lzone%defsolver, lzone%ust_mesh,                 &
+                       lzone%field(if)%etatprim, lzone%field(if)%gradient)
   enddo
 
   ! écriture d'informations

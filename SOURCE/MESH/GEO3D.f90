@@ -20,6 +20,10 @@ endtype
 
 ! -- INTERFACES -------------------------------------------------------------
 
+interface v3d_of
+  module procedure v3d_fromtab
+endinterface
+
 interface abs
   module procedure v3d_norme
 endinterface
@@ -53,6 +57,29 @@ endinterface
 
 ! -- IMPLEMENTATION ---------------------------------------------------------
 contains
+
+!------------------------------------------------------------------------------!
+! Fonction : transtypage real(1:3) -> v3d
+!------------------------------------------------------------------------------!
+type(v3d) function v3d_fromtab(tab)
+implicit none
+real(krp), dimension(3) :: tab
+
+  v3d_fromtab = v3d(tab(1), tab(2), tab(3))
+
+endfunction v3d_fromtab
+
+!------------------------------------------------------------------------------!
+! Fonction : transtypage v3d -> real(1:3)
+!------------------------------------------------------------------------------!
+function tab(v)
+implicit none
+type(v3d), intent(in)   :: v
+real(krp), dimension(3) :: tab
+
+  tab(1:3) = (/ v%x, v%y, v%z /)
+
+endfunction tab
 
 !------------------------------------------------------------------------------!
 ! Fonction : calcul de somme de vecteur
