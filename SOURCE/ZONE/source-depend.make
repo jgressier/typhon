@@ -11,11 +11,11 @@ ZONE_MOD = BOUND.$(MOD)                  \
            DEFCAPTEURS.$(MOD)            \
            DEFFIELD.$(MOD)               \
            DEFZONE.$(MOD)                \
-           MENU_SOLVER.$(MOD)            \
            ZONE_COUPLING.$(MOD)          \
            MENU_ZONECOUPLING.$(MOD) 
 
 ZONE_OBJ := $(ZONE_MOD:.$(MOD)=.o)       \
+            calc_gradient.o              \
             calc_varcons.o               \
             calc_varprim.o               \
             calcboco_ust.o               \

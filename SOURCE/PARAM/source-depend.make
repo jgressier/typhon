@@ -9,13 +9,14 @@ PARAM_LIB = $(PRJLIB)/libt_param.a
 
 PARAM_MOD = MENU_BOCO.$(MOD)     \
             MENU_CAPTEURS.$(MOD) \
+            MENU_COUPLING.$(MOD) \
             MENU_GEN.$(MOD)      \
             MENU_INIT.$(MOD)     \
             MENU_INTEG.$(MOD)    \
             MENU_MESH.$(MOD)     \
             MENU_MPI.$(MOD)      \
             MENU_NUM.$(MOD)      \
-            MENU_COUPLING.$(MOD)
+            MENU_SOLVER.$(MOD)
 
 
 PARAM_OBJ := $(PARAM_MOD:.$(MOD)=.o)  \
