@@ -27,10 +27,11 @@ logical               :: trait_jac  ! choix de traitement des jacobiennes
 
 ! -- Declaration des sorties --
 type(st_genericfield)   :: residu            ! champ de residus
-real(krp), dimension(*) :: jacL, jacR 
+real(krp), dimension(1:umesh%nface) :: jacL, jacR 
 
 ! -- Declaration des variables internes --
-real(krp)             :: surf             ! surface intermediaire
+real(krp), allocatable :: surf(:)         ! intermediate surface
+real(krp), allocatable :: vol(:)          ! intermediate volume
 integer               :: if               ! index de face
 integer               :: ic1, ic2         ! index de cellules
 integer               :: ip               ! index de variables
@@ -40,34 +41,33 @@ integer               :: ic               ! index de couplage
 
 ! -- Debut de la procedure --
 
+allocate(surf(umesh%nface))
+
+do if = 1, umesh%nface
+  surf(if) = umesh%mesh%iface(if,1,1)%surface
+enddo
 
 ! -- flux surfaciques -> flux de surfaces --
 
-do if = 1, umesh%nface
-  surf = umesh%mesh%iface(if,1,1)%surface
-  do ip = 1, flux%nscal
-    flux%tabscal(ip)%scal(if) = surf * flux%tabscal(ip)%scal(if)
-  enddo
-  do ip = 1, flux%nvect
-    flux%tabvect(ip)%vect(if) = surf * flux%tabvect(ip)%vect(if)
-  enddo
+do ip = 1, flux%nscal
+  flux%tabscal(ip)%scal(:) = surf(:) * flux%tabscal(ip)%scal(:)
+enddo
+do ip = 1, flux%nvect
+  flux%tabvect(ip)%vect(:) = surf(:) * flux%tabvect(ip)%vect(:)
 enddo
 
 ! -- idem traitement des jacobiennes
 
 if (trait_jac) then
-  do if = 1, umesh%nface
-    surf = umesh%mesh%iface(if,1,1)%surface
-    jacL(if) = surf * jacL(if)
-    jacR(if) = surf * jacR(if)
-  enddo
+  jacL(1:umesh%nface) = surf(:) * jacL(1:umesh%nface)
+  jacR(1:umesh%nface) = surf(:) * jacR(1:umesh%nface)
 endif
+
+deallocate(surf)
 
 ! -- calcul des residus --
 
 call init_genericfield(residu, 0._krp, v3d(0._krp, 0._krp, 0._krp))
-
-! ??? creation de procedure intrinseques ? // optimisation
 
 do if = 1, umesh%nface
   ic1 = umesh%facecell%fils(if,1)
@@ -86,6 +86,7 @@ enddo
 ! ??? creation de procedure intrinseques ? // optimisation
 
 if (.not.trait_jac) then
+ 
   do ic1 = 1, umesh%ncell_int
     do ip = 1, residu%nscal
       residu%tabscal(ip)%scal(ic1) = dt * residu%tabscal(ip)%scal(ic1) &
@@ -102,7 +103,8 @@ endif
 endsubroutine flux_to_res
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
-! avr  2004 : creation de la procedure
+! avr  2004 : created
+! dec  2004 : optimization (surface multiplication)
 !------------------------------------------------------------------------------!
