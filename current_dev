@@ -1,0 +1,16 @@
+--------------------------------------------------------------------
+Liste des développement courants
+--------------------------------------------------------------------
+
+Développeur   début    fin prévue   Terminé  Développement
+--------------------------------------------------------------------
+Jérémie     11/07/03   fin juillet    Non    Ajout des capteurs (menu et structures)
+
+
+
+
+
+
+PS : Les lignes de développements ne doivent être effacées que lors de la création
+  d'une release (développeur principal). Les développements sont alors cités
+  dans "info_version"    
