@@ -17,6 +17,7 @@ EQNS_OBJ := $(EQNS_MOD:.$(MOD)=.o)    \
             calc_ns_timestep.o        \
             calc_varcons_ns.o         \
             calc_varprim_ns.o         \
+            calcboco_ns.o             \
             def_boco_ns.o             \
             def_init_ns.o             \
             def_model_ns.o            \

@@ -8,7 +8,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine calcboco_ust(defsolver, ustdom, champ, ncoupling, zone, grid)
+subroutine calcboco_ust(defsolver, grid)
 
 use TYPHMAKE
 use OUTPUT
@@ -23,14 +23,9 @@ implicit none
 
 ! -- Declaration des entrées --
 type(mnu_solver)       :: defsolver        ! type d'équation à résoudre
-type(st_ustmesh)       :: ustdom           ! maillage non structuré
-type(st_zone)          :: zone
-!type(mnu_zonecoupling), dimension(ncoupling) :: zcoupling   ! couplages de la zone avec ses voisines
-integer                :: ncoupling        ! nombre de couplages de la zone
-type(st_grid)          :: grid
 
-! -- Declaration des sorties --
-type(st_field)         :: champ            ! champ des états
+! -- Declaration des entrée/sorties --
+type(st_grid)          :: grid             ! maillage en entrée, champ en sortie
 
 ! -- Declaration des variables internes --
 integer :: ib, ir                    ! index de conditions aux limites et de couplage
@@ -39,9 +34,9 @@ integer :: nrac                      ! numéro de raccord
 
 ! -- Debut de la procedure --
 
-do ib = 1, ustdom%nboco
+do ib = 1, grid%umesh%nboco
 
-  idef = ustdom%boco(ib)%idefboco
+  idef = grid%umesh%boco(ib)%idefboco
 
   ! Traitement des conditions aux limites communes aux solveurs
 
@@ -54,34 +49,23 @@ do ib = 1, ustdom%nboco
     call erreur("Développement","'bc_geo_period' : Cas non implémenté")
     
   case(bc_geo_extrapol)
-    call calcboco_ust_extrapol(defsolver%boco(idef), ustdom%boco(ib), ustdom, champ)
+    call calcboco_ust_extrapol(defsolver%boco(idef), grid%umesh%boco(ib), grid%umesh, grid%field)
 
 ! PROVISOIRE : à retirer
   case(bc_connection)
     call erreur("Développement","'bc_connection' : Cas non implémenté")
-!  
-!  case(bc_coupling)
-!    ! -- détermination de l'indice du couplage
-!    do ir = 1, ncoupling
-!      if (samestring(zone%coupling(ir)%family, ustdom%boco(ib)%family)) then
-!        nrac = ir
-!      endif
-!    enddo
-!
-!    call calcboco_ust_coupling(defsolver%boco(idef), ustdom%boco(ib), ustdom, champ, &
-!    				zone%coupling(nrac)%zcoupling%cond_coupling, &
-!                                zone%coupling(nrac)%zcoupling%solvercoupling, &
-!                                zone%coupling(nrac)%zcoupling%bocotype)
-!   
+
   case default 
-    select case(defsolver%boco(idef)%boco_unif)
-    case(uniform)
-      call calcboco_ust_unif(defsolver%boco(idef), ustdom%boco(ib), ustdom, champ, &
-                            defsolver%typ_solver, defsolver, grid)
-    case(nonuniform)
-      call calcboco_ust_nunif(defsolver%boco(idef), ustdom%boco(ib), ustdom, champ, &
-                            defsolver%typ_solver, defsolver, grid)
- 
+
+    select case(defsolver%typ_solver)
+      case(solNS)
+        call calcboco_ns(defsolver, defsolver%boco(idef), grid%umesh%boco(ib), grid)
+      case(solKDIF)
+        call calcboco_kdif(defsolver, defsolver%boco(idef), grid%umesh%boco(ib), grid)
+      case(solVORTEX)
+        ! rien à faire
+      case default
+         call erreur("incohérence interne (def_boco)","solveur inconnu")
     endselect
 
   endselect
@@ -95,4 +79,5 @@ endsubroutine calcboco_ust
 ! Historique des modifications
 !
 ! avril 2003 : création de la procédure
+! july  2004 : simplification of call tree (uniform or not boundary conditions)
 !------------------------------------------------------------------------------!

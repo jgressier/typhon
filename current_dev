@@ -20,12 +20,12 @@ Task Dévlp.  R. cible début fin   Type  Développement
 0044 Jérémie   0.1.5  01/07 05/07 NS    initialization parameters et actual initialization
 0046 Jérémie   0.1.5  04/07 06/07 NS    main computational subroutines 
 0047 Jérémie   0.1.5              Val   KDIF: pas de convergence SPHERE en PRISM/TETRA
+0048 Jérémie   0.1.5  06/07 06/07 Make  Restructuring calcboco subroutines (uniform or not)
      Jérémie   0.1.5              Solv  Surrelaxation Jacobi, SOR, SSOR
      Jérémie   0.1.5              Solv  Gel des matrices d'implicitation en fonction du résidu
                0.1.5              KDIF  condition limite de rayonnement
                0.1.5              Opt   Optimisation des calculs GEO3D et proc. appelantes
      Jérémie   0.1.6              KDIF  Implicitation des conditions limites
-0040 Jérémie   0.2.0              Make  Solveur Fluide Parfait - procédures de base II
                0.2.0              Make  Restructuration des sorties (get_data/calc_data/output)
                0.2.0              Out   Sorties multiples (block:output)
      Jérémie   0.2.0              Opt   Remplacement par boucles FORALL

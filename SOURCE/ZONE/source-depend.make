@@ -18,8 +18,6 @@ ZONE_OBJ := $(ZONE_MOD:.$(MOD)=.o)       \
             calc_varprim.o               \
             calcboco_ust.o               \
             calcboco_ust_extrapol.o      \
-            calcboco_ust_nunif.o         \
-            calcboco_ust_unif.o          \
             calcboco_ust_sym.o           \
             donnees_echange.o            \
             init_champ_ust.o             \

@@ -327,3 +327,11 @@ Task 0046 (Jérémie) : NS : main computational subroutines
 - transformation between primitive and conservative variables
 - flux calls
 
+---------------------------------------------------------------------------------
+Task 0048 (Jérémie) : Make : Restructuring calcboco subroutines (uniform or not)
+---------------------------------------------------------------------------------
+- simplification of call tree (uniform or not)
+  (removing calcboco_ust_unif/nunif)
+- merge EQKDIF calcboco* and setboco*
+
+
