@@ -59,7 +59,7 @@ EQNS_clean:
 
 
 EQNS/depends.make: $(D_EQNS_SRC)
-	(cd EQNS ; ../$(MAKEDEPENDS))
+	(cd EQNS ; $(SHELL) ../$(MAKEDEPENDS))
 
 include EQNS/depends.make
 

@@ -74,7 +74,7 @@ MAIN_clean:
 
 
 MAIN/depends.make: $(D_MAIN_SRC)
-	(cd MAIN ; ../$(MAKEDEPENDS))
+	(cd MAIN ; $(SHELL) ../$(MAKEDEPENDS))
 
 include MAIN/depends.make
 

@@ -60,7 +60,7 @@ $(EXCHMPI_LIB): $(D_EXCHMPI_OBJ)
 
 
 EXCHANGE/depends.make: $(D_EXCHSEQ_SRC) $(D_EXCHMPI_SRC)
-	(cd EXCHANGE ; ../$(MAKEDEPENDS))
+	(cd EXCHANGE ; $(SHELL) ../$(MAKEDEPENDS))
 
 include EXCHANGE/depends.make
 

@@ -78,7 +78,7 @@ EQKDIF_clean:
 
 
 EQKDIF/depends.make: $(D_EQKDIF_SRC)
-	(cd EQKDIF ; ../$(MAKEDEPENDS))
+	(cd EQKDIF ; $(SHELL) ../$(MAKEDEPENDS))
 
 include EQKDIF/depends.make
 

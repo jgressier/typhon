@@ -63,7 +63,7 @@ PARAM_clean:
 
 
 PARAM/depends.make: $(D_PARAM_SRC)
-	(cd PARAM ; ../$(MAKEDEPENDS))
+	(cd PARAM ; $(SHELL) ../$(MAKEDEPENDS))
 
 include PARAM/depends.make
 

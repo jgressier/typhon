@@ -51,7 +51,7 @@ XIO_clean:
 
 
 XIO/depends.make: $(D_XIO_SRC)
-	(cd XIO ; ../$(MAKEDEPENDS))
+	(cd XIO ; $(SHELL) ../$(MAKEDEPENDS))
 
 include XIO/depends.make
 

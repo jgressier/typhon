@@ -53,7 +53,7 @@ MESH_clean:
 ####### Dependencies
 
 MESH/depends.make: $(D_MESH_SRC)
-	(cd MESH ; ../$(MAKEDEPENDS))
+	(cd MESH ; $(SHELL) ../$(MAKEDEPENDS))
 
 include MESH/depends.make
 

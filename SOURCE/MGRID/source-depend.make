@@ -42,7 +42,7 @@ MGRID_clean:
 ####### Dependencies
 
 MGRID/depends.make: $(D_MGRID_SRC)
-	(cd MGRID ; ../$(MAKEDEPENDS))
+	(cd MGRID ; $(SHELL) ../$(MAKEDEPENDS))
 
 include MGRID/depends.make
 
