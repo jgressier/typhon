@@ -9,9 +9,14 @@ Liste des développement courants
 Dévelop.  R. cible  début     fin       Terminé  Développement
 --------------------------------------------------------------------------------------------------------
 Emmanuel   0.2.0   18/07/03                      Corrections de flux pour échanges espacés
-Jérémie    0.1.2                                 Optimisation de la procédure "calc_fourier"
-Jérémie    0.1.2   08/09/03                      Calcul de pas de temps à Fourier imposé
+Jérémie    0.1.2   obsolète                      Optimisation de la procédure "calc_fourier"
+Jérémie    0.1.2   08/09/03  11/09/03    Ok      Calcul de pas de temps à Fourier imposé
+Jérémie    0.1.2   12/09/03  12/09/03    Ok      Optimisation de EQKDIF/calc_kdif_flux (0)
+Jérémie    0.1.2   12/09/03  12/09/03    Ok      Gestions dans librairies externes dans LIBEXT (CGNS)
+                                                 Optimisation du calcul de loi polynomiale
 --------------------------------------------------------------------------------------------------------
+(0) de v0.1.0 à v0.1.1, le temps CPU a été multiplié par 4 : après optimisation, le tps CPU
+    reste supérieur à la version originale pour des raisons indéterminées
 --------------------------------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------------------------------
