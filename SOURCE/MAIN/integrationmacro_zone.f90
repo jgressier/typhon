@@ -173,6 +173,9 @@ do while (.not.fin)
 
 enddo
 
+write(str_w,'(a,i5,a)') "    intégration terminée en ",iter," itérations"
+call print_info(9,str_w)
+
 call capteurs(lzone)
 
 !---------------------------------------

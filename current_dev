@@ -30,6 +30,7 @@ Task Dévlp.  R. cible début fin   Type  Développement
 0055 Jérémie   0.1.5  07/07 08/07 NS    Validation on 2D shock reflection (debug HLLE)
 0057 Jérémie   0.1.6  10/07       GUI   TYMON user interface (Typhon monitor)
 0058 Jérémie   0.1.5  12/07 12/07 Mesh  Bug correction for mesh with QUAD faces
+0059 Jérémie   0.1.5  12/07 13/07 Val   NS : validation case for inviscid flow (SHOCK-REFX/DIFFRACTION)
      Jérémie   0.1.5              Solv  Surrelaxation Jacobi, SOR, SSOR
      Jérémie   0.1.5              Solv  Gel des matrices d'implicitation en fonction du résidu
                0.1.5              KDIF  condition limite de rayonnement
