@@ -9,6 +9,8 @@ GREP = egrep -v "^$$"
 # Les noms des fichiers a generer sans extension
 SRC  = ./SRC
 FIC  = index.html \
+       index_news.html \
+       index_log.html \
        feat.html  \
 
 INC  = general.m4 header.m4 footer.m4 menu.m4
@@ -46,6 +48,6 @@ install: site
 	@echo "---------------------------"
 	@echo "Install Web Site"
 	@echo "---------------------------"
-	@rcp ./HTML/* serv-sun1:HOME_PAGE
+	@scp ./HTML/* shell.sourceforge.net:/home/groups/t/ty/typhon/htdocs
 
 

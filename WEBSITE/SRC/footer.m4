@@ -7,9 +7,8 @@ dnl ========== end main frame ================================================
 
 <table width="100%" border=0 cellspacing="1" cellpadding="1">
   <tr><td colspan=2><span class="quickmenu">
-  hyperlink([m0_home], [home.html])
-  ifelse(id1, [], [], [&raquo; hyperlink([m1_home]id1,      [home]id1.html)])
-  ifelse(id2, [], [], [&raquo; hyperlink([m2_home]id1[]id2, [home]id1[]id2.html)])
+  hyperlink([m_]id1,     id1.html)
+  ifelse(id2, [], [], [&raquo; hyperlink([m_]id1[_]id2, id1[_]id2.html)])
   </span></td></tr>
 
   <tr><td colspan=2><img src=img_dir([line.blue.gif]) height="4" width="100%"></td></tr>

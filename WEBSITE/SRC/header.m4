@@ -7,7 +7,7 @@ dnl  <tr background=img_dir([bg-title.png])><td>
 dnl  <tr bgcolor=d7e6ef><td valign=middle>
   <tr><td valign=middle>
   <span class=banner>imglink([TYPHON], [typhon.png], [http://typhon.sf.net])</span></td></tr>
-  <tr><td colspan=2><img src=img_dir([line.blue.gif]) height="4" width="100%"></td></tr>
+  <tr><td><img src=img_dir([line.blue.gif]) height="4" width="100%"></td></tr>
 dnl  skip_row
 dnl ========== main frame - 2 columns ========================================
 
@@ -23,7 +23,9 @@ dnl ========== menu ==========================================================
 dnl ========== contents frame ================================================
     <td bgcolor=FFFFFF width=100% class="defaut">
     write_menu_head
-    skip_line
-    <span class=titre>page_title</span><br>
+   <br>
+   <table width="80%" border=0 cellspacing=2 cellpadding=0>
+   <tr><td class=titre>page_title</td></tr></table><br>
+
 
 
