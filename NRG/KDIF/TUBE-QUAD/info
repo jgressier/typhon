@@ -22,12 +22,16 @@ tube.cgns     : maillage au format CGNS
 
 * PARAMETRES DE SIMULATION
  - temps total 50. par cycle de 10.
- - pas de temps 1. pour l'intégration explicite
-   (le Fourier équivalent vaut ?)
+ - pas de temps fixe de 1. pour l'intégration explicite
+   (le Fourier équivalent < 0.5)
 
 -------------------------------------------------
 TEST DE NON REGRESSION
 -------------------------------------------------
+- lecture de maillage CGNS 2D en QUAD
+- solveur KDIF, lois constantes, conditions adiabatique et isothermes
+- integration explicite 1er ordre
+- calcul instationnaire à pas fixe
 
 -------------------------------------------------
 COMMENTAIRES 
