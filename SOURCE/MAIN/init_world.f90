@@ -23,6 +23,7 @@ type(st_world) :: world
 
 ! -- Declaration des variables internes --
 integer :: izone, icoupling
+integer :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
 
 ! -- Debut de la procedure --
 
@@ -70,8 +71,10 @@ enddo
 
 do icoupling = 1,  world%prj%ncoupling
   call print_info(5,"Calcul et Initialisation des échanges entre zones")
-  call init_coupling(world%zone(world%coupling(icoupling)%zone1), &
-                     world%zone(world%coupling(icoupling)%zone2))
+  call calcul_raccord(world, icoupling, iz1, iz2, ncoupl1, ncoupl2, nbc1, &
+                      nbc2)
+  call init_coupling(world%zone(iz1), world%zone(iz2), nbc1, nbc2, ncoupl1, &
+                     ncoupl2, world%coupling(icoupling)%boco)
 enddo
 
 !--------------------------------------------------------------------

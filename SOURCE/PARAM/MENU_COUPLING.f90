@@ -24,6 +24,7 @@ type mnu_coupling
   integer               :: typ_interpol  ! type de calcul/interpolation
   integer               :: n_tpsbase     ! périodicité du couplage
   real(krp)             :: corcoef      ! coefficient pour correction de flux
+  integer               :: boco         ! type de condition limite au raccord
 endtype mnu_coupling
 
 

@@ -154,6 +154,13 @@ integer, parameter  :: threed     = 03
 integer, parameter  :: fixed  = 01
 integer, parameter  :: sensor = 02
 
+! -- Constantes pour le choix du paramètre "boco" (coupling)
+
+integer, parameter  :: couplingboco_TT  = 01
+integer, parameter  :: couplingboco_CC  = 02
+integer, parameter  :: couplingboco_CT  = 03
+integer, parameter  :: couplingboco_TC  = 04
+
 ! -- Constantes pour le choix du paramètre "solvercoupling" (zonecoupling)
 integer, parameter  :: kdif_kdif = 01
 integer, parameter  :: kdif_ns   = 02

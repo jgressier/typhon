@@ -51,7 +51,8 @@ EQKDIF_OBJ := $(EQKDIF_MOD:.$(MOD)=.o)        \
               setboco_kdif_hconv_unif.o       \
               setboco_kdif_isoth_nunif.o      \
               setboco_kdif_isoth_unif.o       \
-              stock_kdif_cond_coupling.o
+              stock_kdif_cond_coupling.o      \
+              update_couplingboco_kdif.o
 
 D_EQKDIF_OBJ := $(EQKDIF_OBJ:%=$(PRJOBJ)/%)
 

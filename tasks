@@ -295,3 +295,16 @@ Task 0043 (Jérémie) : NS : reading et set-up of boundary conditions
 ---------------------------------------------------------------------------------
 - sub/supersonic inlet & outlet
 - uniform initialization
+
+---------------------------------------------------------------------------------
+Task 0045 (Emmanuel) : Coupl : raccord par conditions de convection et convection
+                               /Dirichlet
+---------------------------------------------------------------------------------
+Couplage par conditions de convection (COUPLING : BOCOTYPE = CONVECTION), 
+ convection/Dirichlet ( BOCOTYPE = CONV_DIR) ou Dirichlet/convection 
+ (BOCOTYPE = DIR_CONV) (Dirichlet -> BOCOTYPE = DIRICHLET, par défaut)
+
+Fichiers modifiés : VARCOM, MENU_COUPLING, def_coupling, integration, init_world, 
+                    init_coupling, stock_kdif_cond_coupling, echange_kdif
+Fichiers nouveaux : update_couplingboco, update_couplingboco_kdif
+

@@ -98,18 +98,10 @@ do while (.not. lworld%info%fin_integration)
   call integration_cycle(lworld, exchcycle, lworld%prj%ncoupling)  
   
   ! -- Actualisation des conditions aux limites au raccord
-  ! PROVISOIREMENT tout à condition de Dirichlet
-  do izone = 1, lworld%prj%nzone
-    ! Boucle sur les conditiosn aux limites et sur les couplages pour
-    ! repérer les conditions correspondant à des raccords
-    do ib = 1, lworld%zone(izone)%grid%umesh%nboco
-      do ic = 1, lworld%zone(izone)%ncoupling
-        if(samestring(lworld%zone(izone)%coupling(ic)%family, &
-           lworld%zone(izone)%grid%umesh%boco(ib)%family)) then
-          lworld%zone(izone)%defsolver%boco(lworld%zone(izone)%grid%umesh%boco(ib)%idefboco)%typ_boco = bc_wall_isoth
-        endif
-      enddo
-    enddo
+  do ic = 1, lworld%prj%ncoupling
+    call calcul_raccord(lworld, ic, iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2)
+    call update_couplingboco(lworld%zone(iz1), lworld%zone(iz2), nbc1, nbc2, &
+                             ncoupl1, lworld%coupling(ic)%boco)
   enddo
 
   ! -- écriture d'informations en fin de cycle --

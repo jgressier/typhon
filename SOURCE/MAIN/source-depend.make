@@ -42,7 +42,8 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            integrationmacro_zone.o  \
            lecture_maillage.o       \
            lectzone_mesh.o          \
-           output_result.o                
+           output_result.o          \
+           update_couplingboco.o      
 
 D_MAIN_OBJ = $(MAIN_OBJ:%=$(PRJOBJ)/%)
 

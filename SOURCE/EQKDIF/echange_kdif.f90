@@ -70,9 +70,9 @@ do if = 1, nfacelim
   					temp_inter)
 
   !Conditions aux limites des deux zones
-  call stock_kdif_cond_coupling(bocokdif1, temp_inter, flux_inter, if)
+  call stock_kdif_cond_coupling(bocokdif1, temp_inter, flux_inter, if, temp2)
 
-  call stock_kdif_cond_coupling(bocokdif2, temp_inter, flux_inter, connface2(if)) 
+  call stock_kdif_cond_coupling(bocokdif2, temp_inter, -flux_inter, connface2(if), temp1) 
 
 enddo
 

@@ -10,6 +10,7 @@ Liste des développement courants
 Task Dévlp.  R. cible début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
                0.1.4              Coupl structures de cumul de flux dans MGRID
+0045 Emmanuel  0.1.5        01/07 Coupl raccord par conditions de convection et convection/Dirichlet
      Jérémie   0.1.4              Make  Sauvegarde de capteurs BOCO_FIELD
                0.1.4              Make  calcul des index de conditions limites connectées à la lecture
 0038           0.1.5              Val   maillage 3D HEXA 

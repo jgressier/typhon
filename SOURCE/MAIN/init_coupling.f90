@@ -9,7 +9,7 @@
 !
 !------------------------------------------------------------------------------!
 
-subroutine init_coupling(zone1, zone2)
+subroutine init_coupling(zone1, zone2, nbc1, nbc2, ncoupl1, ncoupl2, raccord)
 
 use TYPHMAKE
 use DEFZONE
@@ -19,6 +19,9 @@ use VARCOM
 implicit none
 
 ! -- Declaration des entrées --
+integer :: nbc1, nbc2  ! indices de conditions limites pour les zones 1 et 2
+integer :: ncoupl1, ncoupl2 ! numéro de raccord pour les zones 1 et 2
+integer :: raccord     ! type de conditions limites au raccord
 
 ! -- Declaration des sorties --
 
@@ -27,39 +30,9 @@ type(st_zone) :: zone1, zone2
 
 ! -- Declaration des variables internes --
 integer       :: ic, ib
-integer       :: ncoupl1, ncoupl2
-integer       :: nbc1, nbc2
 integer       :: typsolver1, typsolver2
 
 ! -- Debut de la procedure --
-
-! Détermination des numéros du raccord pour les zones 1 et 2
-
-do ic = 1, zone1%ncoupling
-  if (samestring(zone1%coupling(ic)%connzone, zone2%nom)) then
-    ncoupl1 = ic
-  endif
-enddo
-
-do ic = 1, zone2%ncoupling
-  if (samestring(zone2%coupling(ic)%connzone, zone1%nom)) then
-    ncoupl2 = ic
-  endif
-enddo
-  
-! Détermination des indices de condition aux limites pour les zones 1 et 2
-
-do ib = 1, zone1%grid%umesh%nboco
-  if (samestring(zone1%coupling(ncoupl1)%family, zone1%grid%umesh%boco(ib)%family)) then
-    nbc1 = ib
-  endif
-enddo
-
-do ib = 1, zone2%grid%umesh%nboco
-  if (samestring(zone2%coupling(ncoupl2)%family, zone2%grid%umesh%boco(ib)%family)) then
-    nbc2 = ib
-  endif
-enddo
 
 ! Détermination des solveurs des deux zones couplées
 
@@ -108,6 +81,10 @@ call calc_connface(zone1%grid%umesh, zone1%grid%umesh%boco(nbc1), &
 
   write(uf_log,"(a,5i)")"conn de zones : ", &
                      zone1%coupling(ncoupl1)%zcoupling%connface(1:5:1)!! DEBUG
+
+! Initialisation des conditions aux limites au raccord
+call update_couplingboco(zone1, zone2, nbc1, nbc2, ncoupl1, raccord)
+
 endsubroutine init_coupling
 
 !------------------------------------------------------------------------------!

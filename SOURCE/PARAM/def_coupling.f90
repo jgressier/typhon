@@ -86,6 +86,33 @@ case default
   call erreur("lecture de menu","configuration de maillages inconnue")
 endselect
 
+! -- Détermination des conditions limites de raccord
+
+call rpmgetkeyvalstr(pcour, "BOCOTYPE", str, "DIRICHLET")
+
+if (samestring(str, "DIRICHLET" ))   coupling%boco = couplingboco_TT
+if (samestring(str, "CONVECTION" ))  coupling%boco = couplingboco_CC
+if (samestring(str, "CONV_DIR" ))    coupling%boco = couplingboco_CT
+if (samestring(str, "DIR_CONV" ))    coupling%boco = couplingboco_TC
+
+select case(coupling%boco)
+
+case(couplingboco_TT) ! Raccord par conditions de Dirichlet
+  call print_info(10,"   raccord Dirichlet / Dirichlet")
+
+case(couplingboco_CC) ! Raccord par conditions de convection
+  call print_info(10,"   raccord convection / convection")
+
+case(couplingboco_CT) ! Raccord par conditions de convection (zone1) / Dirichlet (zone2)
+  call print_info(10,"   raccord convection / Dirichlet")
+
+case(couplingboco_TC) ! Raccord par conditions de Dirichlet (zone1) / convection (zone2)
+  call print_info(10,"   raccord Dirichlet / convection")
+
+case default
+  call erreur("lecture de menu","Conditions limites de raccord inconnues")
+endselect
+
 ! -- Détermination du type de calcul d'interpolation
 
 call rpmgetkeyvalstr(pcour, "INTERPOLATION", str)

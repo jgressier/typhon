@@ -8,7 +8,7 @@
 !
 !------------------------------------------------------------------------------!
 
-subroutine stock_kdif_cond_coupling(bocokdif, temp, flux, if)
+subroutine stock_kdif_cond_coupling(bocokdif, temp, flux, if, t_op)
 
 use TYPHMAKE
 use OUTPUT
@@ -21,6 +21,7 @@ implicit none
 real(krp) :: temp     ! température attribuée
 real(krp) :: flux     ! flux attribué
 integer ::   if       ! indice de la face concernée
+real(krp) :: t_op    ! température de la cellule opposée
 
 ! -- Declaration des entrées/sorties --
 type(st_boco_kdif) :: bocokdif ! stockage des conditions
@@ -31,7 +32,12 @@ type(st_boco_kdif) :: bocokdif ! stockage des conditions
 
 bocokdif%temp(if) = temp
 bocokdif%flux_nunif(if) = flux
+if ((temp-t_op).ne.0) then
+  bocokdif%h_nunif(if) = flux/(temp-t_op)
+else
+  bocokdif%h_nunif(if) = 0._krp
+endif
 
-
+bocokdif%tconv_nunif(if) = t_op
 
 endsubroutine stock_kdif_cond_coupling
