@@ -7,8 +7,7 @@ LDIR := MAIN
 
 MAIN_LIB = $(PRJLIB)/libt_main.a
 
-MAIN_MOD = MODINFO.$(MOD)      \
-           MODWORLD.$(MOD)
+MAIN_MOD = MODWORLD.$(MOD)
 
 MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            accumulfluxcorr.o        \
@@ -30,7 +29,7 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            init_maillage.o          \
            init_world.o             \
            integration.o            \
-           integration_macrodt.o    \
+           integration_cycle.o      \
            integration_strdomaine.o \
            integration_ustdomaine.o \
            integration_zone.o       \

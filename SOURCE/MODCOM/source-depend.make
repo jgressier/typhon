@@ -8,6 +8,7 @@ LDIR := MODCOM
 MODCOM_LIB = $(PRJLIB)/libt_modcom.a
 
 MODCOM_MOD = CONNECTIVITY.$(MOD) \
+             MODINFO.$(MOD)      \
              TYPHMAKE.$(MOD)     \
              VARCOM.$(MOD) 
 
