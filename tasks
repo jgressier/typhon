@@ -130,3 +130,9 @@ Task 0012 (Jérémie) : Make : Compilation sur SUN
 * mise à jour de fichiers, suite à la sévérité du compilateur
 * mise à jour des paramètres pour SUN
 * problème de gestions des modules (noms en minuscules)
+
+---------------------------------------------------------------------------------
+Task 0013 (Jérémie) : Make : Mise en forme de la DOC
+---------------------------------------------------------------------------------
+* catalogue DOC
+* fichiers principaux pour compilation avec structure de document
