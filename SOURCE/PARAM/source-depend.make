@@ -16,7 +16,7 @@ PARAM_MOD = MENU_BOCO.$(MOD)     \
             MENU_MESH.$(MOD)     \
             MENU_MPI.$(MOD)      \
             MENU_NUM.$(MOD)      \
-            MENU_SOLVER.$(MOD)
+            MENU_SOLVER.$(MOD)   \
 
 
 PARAM_OBJ := $(PARAM_MOD:.$(MOD)=.o)  \
@@ -54,7 +54,7 @@ $(PARAM_LIB): $(D_PARAM_OBJ)
 	@echo ---------------------------------------------------------------
 
 PARAM_clean:
-	-rm  $(PARAM_LIB) $(D_PARAM_OBJ) $(PARAM_MOD)
+	-rm  $(PARAM_LIB) $(D_PARAM_OBJ) $(PARAM_MOD) PARAM/depends.make
 
 ####### Dependencies
 

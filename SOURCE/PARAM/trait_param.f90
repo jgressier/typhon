@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : trait_param                 Auteur : J. Gressier
 !                                         Date   : Juillet 2002
-! Fonction                                Modif  : Juin 2003 (cf historique)
+! Fonction                                Modif  : (cf historique)
 !   Traitement des paramètres du fichier menu principal
 !
 ! Defauts/Limitations/Divers :
@@ -64,9 +64,10 @@ do izone = 1, world%prj%nzone
   call rpmgetkeyvalstr(pcour, "SOLVER", str)
 
   solver = 0
-  if (samestring(str, "HEAT" ))  solver = solKDIF 
-  if (samestring(str, "EULER" )) solver = solNS
-  if (samestring(str, "NS"))     solver = solNS
+  if (samestring(str, "HEAT" )) solver = solKDIF 
+  if (samestring(str, "EULER")) solver = solNS
+  if (samestring(str, "FLUID")) solver = solNS
+  if (samestring(str, "NS"))    solver = solNS
   if (solver == 0) call erreur("Lecture du menu", &
                                "Type de solveur incorrect : "//trim(str))
   
@@ -108,6 +109,6 @@ endsubroutine trait_param
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! Juil 2002 (v0.0.1b): création de la procédure
-! Juin 2003          : définition des couplages
+! Juil 2002 : création de la procédure
+! Juin 2003 : définition des couplages
 !------------------------------------------------------------------------------!

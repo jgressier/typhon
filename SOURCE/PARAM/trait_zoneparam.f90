@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : trait_zoneparam             Auteur : J. Gressier
 !                                         Date   : Juillet 2002
-! Fonction                                Modif  : Juin 2003 (cf historique)
+! Fonction                                Modif  : (cf historique)
 !   Traitement des paramètres de définition des zones
 !
 ! Defauts/Limitations/Divers :
@@ -42,7 +42,13 @@ zone%defsolver%typ_solver = solver
 
 select case(solver)
 case(solKDIF)
+  if (.not.pass_kdif) call erreur("restriction","solveur Conduction indisponible")
   call def_model_kdif(block, zone%defsolver)
+case(solNS)
+  if (.not.pass_ns) call erreur("restriction","solveur Navier-Stokes indisponible")
+  call def_model_ns(block, zone%defsolver)
+case default
+  call erreur("lecture de menu","solveur inconnu")
 endselect
 
 ! -------------------------
@@ -107,3 +113,10 @@ call def_other(block, solver, zone%defsolver)
 
 
 endsubroutine trait_zoneparam
+
+!------------------------------------------------------------------------------!
+! Historique des modifications
+!
+! Juil 2002 : création de la procédure
+! Sept 2003 : appel à la définition de solveur NS
+!------------------------------------------------------------------------------!

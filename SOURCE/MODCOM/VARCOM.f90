@@ -1,7 +1,7 @@
 !----------------------------------------------------------------------------------------
 ! MODULE : VARCOM                         Auteur : J. Gressier
 !                                         Date   : Octobre 2002
-! Fonction                                Modif  : Juin 2003
+! Fonction                                Modif  : cf historique
 !   Variables globales du code TYPHON
 !
 ! Defauts/Limitations/Divers :
@@ -24,6 +24,15 @@ integer        :: taille_buffer        ! taille de buffer pour la distribution d
 
 
 ! -- CONSTANTES globales du module -------------------------------------------
+
+! -- Définition des fonctionnalités
+
+logical, parameter :: pass_kdif  = .true.
+logical, parameter :: pass_ns    = .false.
+logical, parameter :: pass_mpi   = .false.
+logical, parameter :: pass_amr   = .false.
+logical, parameter :: pass_coupl_int = .true.
+logical, parameter :: pass_coupl_ext = .false.
 
 ! -- Constantes "erreurs"
 
@@ -149,3 +158,9 @@ endsubroutine init_varcom
 
 !----------------------------------------------------------------------------------------
 endmodule VARCOM
+
+!------------------------------------------------------------------------------!
+! Historique des modifications
+!
+! Oct  2002 : création du module
+!------------------------------------------------------------------------------!
