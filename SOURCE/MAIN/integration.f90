@@ -52,6 +52,8 @@ lworld%info%fin_integration = .false.
 do izone = 1, lworld%prj%nzone
   do if = 1, lworld%zone(izone)%ndom
     call alloc_res(lworld%zone(izone)%field(if))
+    !! DEV : l'allocation ne doit se faire que dans certains cas
+    call alloc_grad(lworld%zone(izone)%field(if))
   enddo
 enddo
 
@@ -138,6 +140,7 @@ enddo
 do izone = 1, lworld%prj%nzone
  do if = 1, lworld%zone(izone)%ndom
    call dealloc_res(lworld%zone(izone)%field(if))
+   call dealloc_grad(lworld%zone(izone)%field(if))
  enddo
 enddo
 
