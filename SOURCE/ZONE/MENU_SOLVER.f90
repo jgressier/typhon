@@ -63,7 +63,14 @@ implicit none
 type(mnu_solver)  :: defsolver
 
   print*,'!! DEBUG destruction de structure "paramètres" à compléter'
-
+  call delete(defsolver%defkdif%materiau%Kd)
+  if (defsolver%nboco>1) then
+  deallocate(defsolver%boco)
+  endif
+  if (defsolver%ninit>1) then
+  deallocate(defsolver%init)
+  endif
+  
 endsubroutine delete_mnu_solver
 
 

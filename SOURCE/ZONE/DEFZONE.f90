@@ -86,7 +86,9 @@ integer        :: i
     enddo 
     deallocate(zone%str_mesh)
   endif
-
+  
+  call delete(zone%defsolver)
+  
   if (zone%nmesh_ust >= 1) then
     print*,"desallocation ust_mesh" !! DEBUG
     call delete(zone%ust_mesh)

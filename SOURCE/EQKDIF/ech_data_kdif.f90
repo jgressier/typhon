@@ -32,18 +32,27 @@ real(krp) :: conduct
 
 ! -- Debut de la procedure --
 
-select case(zone%defsolver%defkdif%materiau%type)
-case(mat_LIN)
-  conduct = zone%defsolver%defkdif%materiau%Kd%valeur
-case(mat_KNL, mat_XMAT)
-  call erreur("Calcul de matériau","Materiau non linéaire interdit")
-endselect
+!select case(zone%defsolver%defkdif%materiau%type)
+!case(mat_LIN, mat_KNL)
+!  conduct = valeur_loi(zone%defsolver%defkdif%materiau%Kd, &
+!                       zone%field(1)%etatprim%tabscal(1)%scal(icl))
+!case(mat_XMAT)
+!  call erreur("Calcul de matériau","Materiau non linéaire interdit")
+!endselect
 
 do i=1, zone%ust_mesh%boco(nbc)%nface
   
   if = zone%ust_mesh%boco(nbc)%iface(i)
   icl = zone%ust_mesh%facecell%fils(if,1)
-
+!--DVT-----------------------------------------------------------------
+select case(zone%defsolver%defkdif%materiau%type)
+case(mat_LIN, mat_KNL)
+  conduct = valeur_loi(zone%defsolver%defkdif%materiau%Kd, &
+                       zone%field(1)%etatprim%tabscal(1)%scal(icl))
+case(mat_XMAT)
+  call erreur("Calcul de matériau","Materiau non linéaire interdit")
+endselect
+!----------------------------------------------------------------------
   donnees_echange_inst%tabscal(1)%scal(i) = zone%field(1)%etatprim%tabscal(1)%scal(icl)
   donnees_echange_inst%tabscal(2)%scal(i) = conduct
   !donnees_echange_inst%tabvect(1)%vect(if) = zone%field(1)%gradient%tabvect(1)%vect(icl)

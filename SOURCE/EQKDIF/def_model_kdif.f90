@@ -49,10 +49,59 @@ defsolver%nequat = 1
 call rpmgetkeyvalstr(pcour, "MATERIAL", str)
 
 if (samestring(str,"DEFINITION")) then
-  defsolver%defkdif%materiau%type    = mat_LIN
-  defsolver%defkdif%materiau%Kd%type = LOI_CST
-  call rpmgetkeyvalreal(pcour, "CONDUCT",  defsolver%defkdif%materiau%Kd%valeur)
-  call rpmgetkeyvalreal(pcour, "HEATCAPA", defsolver%defkdif%materiau%Cp)
+
+  call rpmgetkeyvalstr(pcour, "MAT_TYPE", str)
+  if (samestring(str, "LIN")) defsolver%defkdif%materiau%type    = mat_LIN
+  if (samestring(str, "KNL")) defsolver%defkdif%materiau%type    = mat_KNL
+  if (samestring(str, "XMAT")) defsolver%defkdif%materiau%type    = mat_XMAT
+
+  select case(defsolver%defkdif%materiau%type)
+  case(mat_LIN)
+    call print_info(10,"    materiau linéaire")
+    defsolver%defkdif%materiau%Kd%type = LOI_CST
+    call rpmgetkeyvalreal(pcour, "CONDUCT",  defsolver%defkdif%materiau%Kd%valeur)
+    call rpmgetkeyvalreal(pcour, "HEATCAPA", defsolver%defkdif%materiau%Cp)
+
+  case(mat_KNL)
+    call print_info(10,"    materiau à conductivité non constante")
+    call rpmgetkeyvalstr(pcour, "CONDUCT_TYPE", str)
+    if (samestring(str, "CST")) defsolver%defkdif%materiau%Kd%type    = LOI_CST
+    if (samestring(str, "POLY")) defsolver%defkdif%materiau%Kd%type    = LOI_POLY
+    if (samestring(str, "PTS")) defsolver%defkdif%materiau%Kd%type    = LOI_PTS
+    
+    select case(defsolver%defkdif%materiau%Kd%type)
+    case(LOI_CST)
+      call print_info(10,"    conductivité constante")
+      call rpmgetkeyvalreal(pcour, "CONDUCT",  defsolver%defkdif%materiau%Kd%valeur)
+
+    case(LOI_POLY)
+      call print_info(10,"    conductivité définie sous forme polynomiale")
+      call rpmgetkeyvalint(pcour, "POLY_ORDER",  defsolver%defkdif%materiau%Kd%poly%ordre)
+      allocate(defsolver%defkdif%materiau%Kd%poly%coef(defsolver%defkdif%materiau%Kd%poly%ordre+1))
+      call rpmgetkeyvalstr(pcour, "COEFFILE", str)
+      open(unit=1001, file = str, form="formatted")
+      read(1001,*),  (defsolver%defkdif%materiau%Kd%poly%coef(i),i = 1, &
+                      defsolver%defkdif%materiau%Kd%poly%ordre+1) 
+      close(1001)
+
+    case(LOI_PTS)
+      call print_info(10,"    conductivité définie pt par pt")
+
+    case default
+      call erreur("lecture de menu", "type de conductivité inconnu")
+
+    endselect
+
+    call rpmgetkeyvalreal(pcour, "HEATCAPA", defsolver%defkdif%materiau%Cp)
+  
+  case(mat_XMAT)
+    call print_info(10,"    materiau non linéaire")
+
+  case default
+  call erreur("lecture de menu", "type de matériau inconnu")
+  endselect
+
+
 else
   call erreur("lecture de menu","Définition de MATERIAL inconnue")
 endif

@@ -13,6 +13,7 @@
 module MATER_LOI
 
 use TYPHMAKE ! Définition de la précision courante
+use STRING
 
 !------------------------------------------------------------------------------!
 !    DECLARATIONS
@@ -54,13 +55,34 @@ endtype st_loi
 
 ! -- INTERFACES -------------------------------------------------------------
 
+interface delete
+  module procedure delete_loi
+endinterface
 
 ! -- Procédures, Fonctions et Operateurs ------------------------------------
 
-!------------------------------------------------------------------------------!
-!    IMPLEMENTATION 
-!------------------------------------------------------------------------------!
+! -- IMPLEMENTATION ---------------------------------------------------------
 contains
+
+
+!------------------------------------------------------------------------------!
+! Procédure : desallocation d'une structure LOI
+!------------------------------------------------------------------------------!
+subroutine delete_loi(loi)
+implicit none
+type(st_loi)  :: loi     
+
+if (samestring(loi%type, LOI_POLY)) then
+  print*, 'désallocation de loi polynomiale'  !!DEBUG
+  deallocate(loi%poly%coef)
+endif
+
+if (samestring(loi%type, LOI_PTS)) then
+  print*, 'désallocation de loi ptsnomiale'  !!DEBUG
+  deallocate(loi%pts%val)
+endif
+ 
+endsubroutine delete_loi
 
 !------------------------------------------------------------------------------!
 ! Fonction : Calcul de la valeur de la loi au point t de la variable
@@ -74,15 +96,21 @@ type(st_loi) :: loi
 real(krp)           :: t
 
 ! -- variables internes --
+integer      :: i
 
 ! Début de procédure
 
 select case(loi%type)
   case(LOI_CST)
     valeur_loi = loi%valeur
+    !print*, "module MATER_LOI cst : ", i, valeur_loi
   case(LOI_POLY)
-    print*, "module MATER_LOI : type de loi non implémenté"
-    stop
+    valeur_loi = 0
+    do i=1, loi%poly%ordre+1
+      valeur_loi = valeur_loi + loi%poly%coef(i)*(t**(i-1))
+    !print*, "module MATER_LOI poly : ", i, loi%poly%ordre, loi%poly%coef(i), valeur_loi
+    enddo
+
   case(LOI_PTS)
     print*, "module MATER_LOI : type de loi non implémenté"
     stop
