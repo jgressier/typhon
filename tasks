@@ -208,6 +208,12 @@ Task 0030 (Jérémie) : Out : sortie au format VTK
 - format CELL_DATA, connectivité CELL->VTEX
 
 ---------------------------------------------------------------------------------
+Task 0031 (Jérémie) : Val : maillage TETRA
+---------------------------------------------------------------------------------
+- correction de bug à la lecture de maillage CGNS de TETRA
+- cas de validation sur SPHERE
+
+---------------------------------------------------------------------------------
 Task 0032 (Emmanuel) : COUPL : Différents types de correction 
 ---------------------------------------------------------------------------------
 - corrections BEF_EXCH (dans cellules limitrophes avant échange), 

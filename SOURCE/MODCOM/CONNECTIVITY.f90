@@ -56,11 +56,11 @@ endtype st_genconnect
 ! -- INTERFACES -------------------------------------------------------------
 
 interface new
-  module procedure new_connect, new_genconnect, new_genconnect2
+  module procedure new_elemc, new_connect, new_genconnect, new_genconnect2
 endinterface
 
 interface delete
-  module procedure delete_connect, delete_genconnect
+  module procedure delete_elemc, delete_connect, delete_genconnect
 endinterface
 
 interface copy
@@ -82,6 +82,20 @@ endinterface
 
 ! -- IMPLEMENTATION ---------------------------------------------------------
 contains
+
+
+!------------------------------------------------------------------------------!
+! Procédure : allocation d'une structure ELEMC
+!------------------------------------------------------------------------------!
+subroutine new_elemc(conn, dim)
+implicit none
+type(st_elemc) :: conn
+integer        :: dim
+
+  conn%nbfils  = dim
+  allocate(conn%fils(dim))
+
+endsubroutine new_elemc
 
 
 !------------------------------------------------------------------------------!
@@ -135,6 +149,19 @@ type(st_connect) :: copy_connect, source
   copy_connect%fils    = source%fils
 
 endfunction copy_connect
+
+
+!------------------------------------------------------------------------------!
+! Procédure : desallocation d'une structure ELEMC
+!------------------------------------------------------------------------------!
+subroutine delete_elemc(conn)
+implicit none
+type(st_elemc) :: conn
+
+  conn%nbfils = 0
+  if (associated(conn%fils)) deallocate(conn%fils)
+
+endsubroutine delete_elemc
 
 
 !------------------------------------------------------------------------------!
@@ -235,6 +262,7 @@ endmodule CONNECTIVITY
 ! Historique des modifications
 !
 ! juil 2003 : création du module, connectivité simple et généralisée
+! juin 2004 : new et delete pour st_elemc
 !------------------------------------------------------------------------------!
 
 

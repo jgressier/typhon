@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : readcgns_ustboco            Auteur : J. Gressier
 !                                         Date   : Novembre 2002
-! Fonction                                Modif  :
+! Fonction                                Modif  : (cd historique)
 !   Lecture de conditions aux limites pour maillage non structuré
 !
 ! Defauts/Limitations/Divers :
@@ -13,6 +13,7 @@ subroutine readcgns_ustboco(unit, ib, iz, ibc, boco)
 use CGNSLIB       ! définition des mots-clefs
 use CGNS_STRUCT   ! Définition des structures CGNS
 use OUTPUT        ! Sorties standard TYPHON
+use STRING
 
 implicit none
 
@@ -32,13 +33,11 @@ integer             :: n1, n2, n3, nd ! variables fantomes
 
 ! -- Début de procédure
 
-write(str_w,'(a,i3)') ". condition aux limites",ibc
-call print_info(5, adjustl(str_w))
 
 ! --- Lecture des informations ---
 
 boco%nom = ""
-call cg_boco_info_f(unit, ib, iz, ibc, boco%nom, bctyp, pttyp, boco%nvtex, &
+call cg_boco_info_f(unit, ib, iz, ibc, boco%nom, bctyp, pttyp, npts, &
                     n1, n2, n3, nd, ier)
 if (ier /= 0) call erreur("Lecture CGNS","Problème à la lecture des conditions aux limites")
 
@@ -51,24 +50,28 @@ case(FamilySpecified)
 
 case default
   call cg_goto_f(unit, ib, ier, 'Zone_t', iz, 'ZoneBC_t', 1, 'BC_t',ibc, 'end')
-  if (ier /= 0) call erreur("Lecture CGNS","Problème lors de la recherche de noeud")
+  if (ier /= 0) call erreur("Lecture CGNS","Problème lors du parcours ADF")
   call cg_famname_read_f(boco%family, ier)
   if (ier /= 0) call erreur("Lecture CGNS","Problème à la lecture du nom de famille")
-
+  call cg_gridlocation_read_f(boco%gridlocation, ier)
+  if (ier /= 0) then
+    call print_warning("Lecture CGNS : type de connectivité non défini (VERTEX par défaut)")
+    boco%gridlocation = Vertex
+  endif
 endselect
  
-write(str_w,*) ". condition aux limites",ibc," : ",trim(boco%family)
-call print_info(5, adjustl(str_w))
+!write(str_w,*) 
+call print_info(5, ". condition aux limites"//strof(ibc,3)//" : "//trim(boco%family))
 call print_info(8, "type "//trim(BCTypeName(bctyp)))
 
-! --- Lecture des noeuds référencés --
+! --- Lecture des noeuds ou faces référencés --
 
-allocate(boco%ivtex(boco%nvtex))
+call new(boco%list, npts)
 
 select case(pttyp)
 
 case(PointList)
-  call cg_boco_read_f(unit, ib, iz, ibc, boco%ivtex, n1, ier)
+  call cg_boco_read_f(unit, ib, iz, ibc, boco%list%fils(1:npts), n1, ier)
   if (ier /= 0) call erreur("Lecture CGNS", "Problème à la lecture des conditions aux limites")
 
 case(PointRange)

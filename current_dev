@@ -22,7 +22,7 @@ Task Dévlp.  R. cible début fin   Type  Développement
 0028 Jérémie   0.1.4  16/04 16/04 Solv  résolution par méthode JACOBI
 0029 Jérémie   0.1.4  16/04 16/04 IHM   choix du résidu maximal de cycle (residu max global sinon)
 0030           0.1.4  21/04 08/06 Out   Sorties au format VTK
-0031           0.1.4              Val   maillage 3D TETRA et/ou HEXA
+0031           0.1.4  10/06       Val   maillage 3D TETRA 
 0032 Emmanuel  0.1.4        19/04 Coupl différents types de correction
 0033 Emmanuel  0.1.4        19/04 Coupl orientation du coef. de correction en fonction des diffusivités
 0034 Emmanuel  0.1.4        19/04 Out   sortie des val. de température, flux d'interface et corrections

@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! MODULE : CGNS_STRUCT                    Auteur : J. Gressier
 !                                         Date   : Novembre 2002
-! Fonction                                Modif  : 
+! Fonction                                Modif  : (cf historique)
 !   Définition des structures de données pour la lecture et la gestion
 !   de fichiers CGNS
 !
@@ -15,12 +15,11 @@
 
 module CGNS_STRUCT   
 
-use TYPHMAKE             ! Définition de la précision
-use CGNSLIB             ! Définition des constantes pour les types CGNS
+use TYPHMAKE         ! Définition de la précision
+use CGNSLIB          ! Définition des constantes pour les types CGNS
 use GEO3D            ! MES! Compilation conditionnelle ? avec GEO3D_dp
+use CONNECTIVITY
 
-!use mod_nuage_de_points         ! TYPE INCLUS: NUAGE DE POINTS  
-!use mod_connectivite            ! TYPE INCLUS: CONNECTIVITE   
 
 implicit none         
 
@@ -71,12 +70,14 @@ endtype st_cgns_patch
 ! ST_CGNS_BOCO : structure de définition de condition aux limites
 !------------------------------------------------------------------------------!
 type st_cgns_boco
-  character(len=cgnslen)  :: nom          ! nom de la condition aux limites
-  character(len=cgnslen)  :: family       ! nom de la condition aux limites
-  integer                 :: nvtex        ! nombre de sommets
-  integer, dimension(:), pointer &
-                          :: ivtex        ! liste des sommets 
-                                          ! (pointeurs entiers dans zone%mesh)
+  character(len=cgnslen)  :: nom            ! nom de la condition aux limites
+  character(len=cgnslen)  :: family         ! nom de la condition aux limites
+  integer                 :: gridlocation   ! type de connectivité (cf CGNSLIB)
+  type(st_elemc)          :: list           ! liste de noeuds ou de face
+  !integer                 :: nvtex          ! nombre de sommets
+  !integer, dimension(:), pointer &
+  !                        :: ivtex          ! liste des sommets 
+  !                                          ! (pointeurs entiers dans zone%mesh)
 endtype st_cgns_boco
 
 
@@ -135,3 +136,10 @@ endtype st_cgns_world
 
 
 endmodule CGNS_STRUCT
+
+!------------------------------------------------------------------------------!
+! Historique des modifications
+!
+! nov  2002 : création du module, structure pour la lecture CGNS
+! juin 2004 : modificiation de la structure pour lecture des BOCO
+!------------------------------------------------------------------------------!

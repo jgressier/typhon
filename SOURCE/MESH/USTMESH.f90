@@ -326,6 +326,38 @@ endsubroutine delete_cellvtex
 
 
 !------------------------------------------------------------------------------!
+! Fonction : face_invtexlist
+! Teste la face est incluse (selon ses sommets) dans une liste de sommets
+!------------------------------------------------------------------------------!
+logical function face_invtexlist(nsf, face, nsl, vtexlist)
+implicit none
+! -- Entrées --
+integer                   :: nsf, nsl         ! nombre de sommets de la face et de la liste
+integer, dimension(1:nsf) :: face             ! face à rechercher
+integer, dimension(1:nsl) :: vtexlist         ! liste des sommets
+! -- Variables internes --
+integer :: isf, isl
+logical :: same_som
+
+  ! -- Début de procédure
+   
+  do isf = 1, nsf   ! boucle sur les sommets de la face
+    ! recherche sommet par sommet de FACE dans VTEXLIST
+
+    do isl = 1, nsl
+      same_som = (face(isf)==vtexlist(isl)).or.(face(isf)==0)   ! la face peut etre définie avec des 0
+      if (same_som) exit    ! le sommet a été trouvé : on passe au suivant (de la face)
+    enddo
+
+    if (.not.same_som) exit   ! un sommet non trouvé de la face suffit à quitter
+  enddo
+
+  face_invtexlist = same_som
+
+endfunction face_invtexlist
+
+
+!------------------------------------------------------------------------------!
 ! Fonction : typgeo : type de géométrie du maillage
 !------------------------------------------------------------------------------!
 character function typgeo(umesh)

@@ -24,7 +24,10 @@ CGNS_OBJ := $(CGNS_MOD:.$(MOD)=.o)   \
             readcgnsbase.o           \
             readcgnsfile.o           \
             readcgnsvtex.o           \
-            readcgnszone.o
+            readcgnszone.o           \
+            seek_bcface_face.o       \
+            seek_bcface_vtex.o
+
 
 D_CGNS_OBJ := $(CGNS_OBJ:%=$(PRJOBJ)/%)
 

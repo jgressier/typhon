@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : createface_fromcgns.f90     Auteur : J. Gressier
 !                                         Date   : Novembre 2002
-! Fonction                                Modif  :
+! Fonction                                Modif  : (cf historique)
 !   Création des faces à partir de la connectivité CELLULES->SOMMETS (CGNS)
 !   et du type de cellules (cf documentation CGNS)
 !   Création de la connectivité FACES -> CELLULES
@@ -38,14 +38,13 @@ type stloc_vtex_face
 endtype stloc_vtex_face
 
 ! -- Variables internes --
-integer, parameter    :: nmax_face = 20  ! nb max de face dans la connectivité vtex->face
+integer, parameter    :: nmax_face = 100 ! nb max de face dans la connectivité vtex->face
+                                         ! (moyenne de 30 pour des TETRA)
 type(stloc_vtex_face) :: vtex_face       ! connectivité intermédiaire sommets -> faces
 integer               :: i, j, icell     ! indices de boucles
 integer, dimension(:), allocatable &
                       :: face, element   ! face, élément intermédiaires
 integer               :: ns              ! nombre de sommets de la face courante
-!integer               :: nmaxface        ! nombre de faces estimées
-!integer               :: nface           ! nombre de faces crées
 
 ! -- Début de procédure
 
@@ -131,7 +130,7 @@ case(PYRA_5) ! 1 quadrangle (4 sommets) et 4 triangles par élément PYRA
   ! CF PDF : CGNS SIDS pages 21-23
 
 case(PENTA_6) ! 3 quadrangles (4 sommets) et 2 triangles par élément PENTA
-  call erreur("Développement", "Traitement des éléments PYRA_5 non implémenté")
+  call erreur("Développement", "Traitement des éléments PENTA_6 non implémenté")
   ! CF PDF : CGNS SIDS pages 21-23
 
 case(HEXA_8) ! 6 quadrangles (4 sommets)
@@ -143,9 +142,10 @@ case default
               "Type d'élément inattendu dans le calcul de connectivité")
 endselect
 
+!print*,'moyenne des connections:',sum(vtex_face%nface(1:nvtex))/real(nvtex,krp)
    
 ! --- désallocation ---
-!print*,"!!! DEBUG : fin de création des faces" !!! DEBUG
+
 deallocate(face, element, vtex_face%vtex_face, vtex_face%nface)
 
 !-------------------------
@@ -186,6 +186,7 @@ contains      ! SOUS-PROCEDURES
       do i = 1, nsom
         is = face(i)
         vtex_face%nface(is)                          = vtex_face%nface(is) + 1
+        !print*,'nface',is,':',vtex_face%nface(is)
         vtex_face%vtex_face(is, vtex_face%nface(is)) = newf
       enddo
 

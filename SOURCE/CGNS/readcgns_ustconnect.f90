@@ -40,7 +40,7 @@ character(len=cgnslen) :: nom     ! nom fantome
 
 ! -- Début de procédure
 
-write(str_w,'(a,i8,a)') "lecture des connectivités du maillage non structuré :",nmax_elem,"éléments"
+write(str_w,'(a,i8,a)') "lecture des connectivités du maillage non structuré :",nmax_elem," éléments"
 call print_info(5, adjustl(str_w))
 
 ! --- Lecture du nombre de sections ---
@@ -120,8 +120,8 @@ do ifam = 1, nfam               ! Boucle sur l'ensemble des sections
   pfam%nbnodes = ifin - ideb + 1
   allocate(pfam%fils(ideb:ifin, pfam%nbfils))
   
-  write(str_w,'(a,a,a,i8,a,i8,a)') ". ",ElementTypeName(itype)(1:15),": ",pfam%nbnodes,"éléments à", &
-                 pfam%nbfils,"sommets"
+  write(str_w,'(a,a,a,i8,a,i2,a)') ". ",ElementTypeName(itype)(1:12),": ",&
+                                   pfam%nbnodes," éléments à", pfam%nbfils," sommets"
   call print_info(8, adjustl(str_w))
 
   allocate(elem(pfam%nbfils, pfam%nbnodes))  ! tableau intermédiaire pour échanger les indices

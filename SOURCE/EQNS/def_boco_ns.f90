@@ -40,7 +40,8 @@ case(bc_wall_adiab)
   call erreur("Développement","'bc_wall_adiab' : Cas non implémenté")
 
 case(bc_wall_isoth)
-  call rpmgetkeyvalreal(pblock, "WALL_TEMP", boco%temp_wall)
+  !call rpmgetkeyvalreal(pblock, "WALL_TEMP", boco%temp_wall)
+  call erreur("Développement","'bc_wall_isoth' : Cas non implémenté")
 
 case(bc_wall_flux)
   call erreur("Développement","'bc_wall_isoth' : Cas non implémenté")
