@@ -29,7 +29,6 @@ type(st_genericfield) :: grad        ! champ des gradients
 
 ! -- Declaration des variables internes --
 type(v3d), allocatable :: dcg(:)      ! delta cg
-!type(v3d), allocatable :: rhs(:)    ! second membre
 real(krp), allocatable :: rhs(:,:)    ! second membre
 type(t3d), allocatable :: mat(:)      ! matrice AT.A
 real(krp)              :: imat(3,3)   ! matrice locale
@@ -48,6 +47,12 @@ nc  = mesh%ncell_int   ! nombre de cellules internes
 nfi = mesh%nface_int   ! nb de faces internes (connectées avec 2 cellules)
 nf  = mesh%nface       ! nb de faces totales 
 allocate(dcg(nf))
+
+! need OPTIMIZATION
+! - splitting of loops into packets
+! - define some calls (check efficiency)
+! - memorize geometrical matrix
+
 
 ! -- Calcul des différences de centres de cellules --
 !    (toutes les faces, même limites, doivent avoir un centre de cellule)
@@ -139,7 +144,9 @@ if (xinfo /= 0) call erreur("Routine LAPACK","Problème POTRF")
 allocate(rhs(3,nc))    ! allocation
 rhs(:,:) = 0._krp      ! initialisation
 
+!-----------------------------------------------------------------------------
 ! calcul des gradients de scalaires
+!-----------------------------------------------------------------------------
 
 do is = 1, gfield%nscal
 
@@ -158,7 +165,7 @@ do is = 1, gfield%nscal
     rhs(1:3, ic1) = rhs(1:3, ic1) + dsca*tab(dcg(if))
   enddo
 
-  ! Resolution
+  ! Resolution ! (OPT) resolution of one packet of variables
   xinfo = 0
   do ic = 1, nc
     call lapack_potrs('U', 3, 1, mat(ic)%mat, 3, rhs(1:3,ic:ic), 3, info)
@@ -170,11 +177,105 @@ do is = 1, gfield%nscal
   enddo
 enddo
 
+!-----------------------------------------------------------------------------
 ! calcul des gradients de vecteurs
+!-----------------------------------------------------------------------------
+do iv = 1, gfield%nvect
 
-do is = 1, gfield%nvect
-  call erreur("Développement","calcul de gradients de vecteurs non implémenté")
+  !---------------------
+  ! X component
+
+  ! Calcul des seconds membres (cellules internes et limites)
+
+  do if = 1, nfi
+    ic1  = mesh%facecell%fils(if,1)
+    ic2  = mesh%facecell%fils(if,2)
+    dsca = gfield%tabvect(iv)%vect(ic2)%x - gfield%tabvect(iv)%vect(ic1)%x
+    rhs(1:3, ic1) = rhs(1:3, ic1) + dsca*tab(dcg(if))
+    rhs(1:3, ic2) = rhs(1:3, ic2) + dsca*tab(dcg(if))
+  enddo
+  do if = nfi+1, nf
+    ic1  = mesh%facecell%fils(if,1)
+    ic2  = mesh%facecell%fils(if,2)
+    dsca = gfield%tabvect(iv)%vect(ic2)%x - gfield%tabvect(iv)%vect(ic1)%x 
+    rhs(1:3, ic1) = rhs(1:3, ic1) + dsca*tab(dcg(if))
+  enddo
+
+  ! Resolution ! (OPT) resolution of one packet of variables
+  xinfo = 0
+  do ic = 1, nc
+    call lapack_potrs('U', 3, 1, mat(ic)%mat, 3, rhs(1:3,ic:ic), 3, info)
+    if (info /= 0) xinfo = ic
+  enddo
+  if (xinfo /= 0) call erreur("Routine LAPACK","Problème POTRS")
+  do ic = 1, nc
+    grad%tabtens(iv)%tens(ic)%mat(1,1:3) = rhs(1:3,ic)
+  enddo
+
+  !---------------------
+  ! Y component
+
+  ! Calcul des seconds membres (cellules internes et limites)
+
+  do if = 1, nfi
+    ic1  = mesh%facecell%fils(if,1)
+    ic2  = mesh%facecell%fils(if,2)
+    dsca = gfield%tabvect(iv)%vect(ic2)%y - gfield%tabvect(iv)%vect(ic1)%y
+    rhs(1:3, ic1) = rhs(1:3, ic1) + dsca*tab(dcg(if))
+    rhs(1:3, ic2) = rhs(1:3, ic2) + dsca*tab(dcg(if))
+  enddo
+  do if = nfi+1, nf
+    ic1  = mesh%facecell%fils(if,1)
+    ic2  = mesh%facecell%fils(if,2)
+    dsca = gfield%tabvect(iv)%vect(ic2)%y - gfield%tabvect(iv)%vect(ic1)%y 
+    rhs(1:3, ic1) = rhs(1:3, ic1) + dsca*tab(dcg(if))
+  enddo
+
+  ! Resolution ! (OPT) resolution of one packet of variables
+  xinfo = 0
+  do ic = 1, nc
+    call lapack_potrs('U', 3, 1, mat(ic)%mat, 3, rhs(1:3,ic:ic), 3, info)
+    if (info /= 0) xinfo = ic
+  enddo
+  if (xinfo /= 0) call erreur("Routine LAPACK","Problème POTRS")
+  do ic = 1, nc
+    grad%tabtens(iv)%tens(ic)%mat(2,1:3) = rhs(1:3,ic)
+  enddo
+
+  !---------------------
+  ! Z component
+
+  ! Calcul des seconds membres (cellules internes et limites)
+
+  do if = 1, nfi
+    ic1  = mesh%facecell%fils(if,1)
+    ic2  = mesh%facecell%fils(if,2)
+    dsca = gfield%tabvect(iv)%vect(ic2)%z - gfield%tabvect(iv)%vect(ic1)%z
+    rhs(1:3, ic1) = rhs(1:3, ic1) + dsca*tab(dcg(if))
+    rhs(1:3, ic2) = rhs(1:3, ic2) + dsca*tab(dcg(if))
+  enddo
+  do if = nfi+1, nf
+    ic1  = mesh%facecell%fils(if,1)
+    ic2  = mesh%facecell%fils(if,2)
+    dsca = gfield%tabvect(iv)%vect(ic2)%z - gfield%tabvect(iv)%vect(ic1)%z 
+    rhs(1:3, ic1) = rhs(1:3, ic1) + dsca*tab(dcg(if))
+  enddo
+
+  ! Resolution ! (OPT) resolution of one packet of variables
+  xinfo = 0
+  do ic = 1, nc
+    call lapack_potrs('U', 3, 1, mat(ic)%mat, 3, rhs(1:3,ic:ic), 3, info)
+    if (info /= 0) xinfo = ic
+  enddo
+  if (xinfo /= 0) call erreur("Routine LAPACK","Problème POTRS")
+  do ic = 1, nc
+    grad%tabtens(iv)%tens(ic)%mat(3,1:3) = rhs(1:3,ic)
+  enddo
+
+
 enddo
+
+
 
 ! --désallocation
 
@@ -185,9 +286,10 @@ deallocate(dcg, rhs)
 endsubroutine calc_gradient
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! sept 2003 : création de la procédure
+! nov  2004 : computation of vector gradients
 ! DEV: optimiser le calcul de gradient
 ! DEV: création de procédures intrinsèques dans les modules 
 !------------------------------------------------------------------------------!
