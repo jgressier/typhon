@@ -2,7 +2,7 @@
 ! Procedure :calc_flux_fluxface_consistantAuteur : E. Radenac
 !                                         Date   : Mai 2003
 ! Fonction                                Modif  : Juin 2003
-!   Calcul du flux à l'interface par la méthode du flux de face, par le 
+!   Calcul du flux a l'interface par la methode du flux de face, par le 
 !   biais d'une interpolation consistante
 !
 ! Defauts/Limitations/Divers :
@@ -18,12 +18,12 @@ use GEO3D
 
 implicit none
 
-! -- Declaration des entrées --
-real(krp)  :: d1, d2         ! distances des centres de cellules à l'interface
-real(krp)  :: conduct1, conduct2 !  conductivités des matériaux                                         
-type(v3d)  :: gradtemp1, gradtemp2 ! gradients de température échangés
+! -- Declaration des entrees --
+real(krp)  :: d1, d2         ! distances des centres de cellules a l'interface
+real(krp)  :: conduct1, conduct2 !  conductivites des materiaux                                         
+type(v3d)  :: gradtemp1, gradtemp2 ! gradients de temperature echanges
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(v3d) :: flux_inter
 
 ! -- Declaration des variables internes --
@@ -35,17 +35,17 @@ type(v3d) :: gradtemp
 ! -- Debut de la procedure --
 
 
-!attribution des valeurs des paramètres de pondération a et b
-!la pondération est effectuée par les distances
+!attribution des valeurs des parametres de ponderation a et b
+!la ponderation est effectuee par les distances
 
 a = conduct1/d1
 b = conduct2/d2
 
-! "conductivité" à l'interface :
+! "conductivite" a l'interface :
 
 conduct = (d2*conduct1 + d1*conduct2)/(d1 + d2)
 
-! "gradient de température" à l'interface :
+! "gradient de temperature" a l'interface :
 
 gradtemp = (a*gradtemp1 + b*gradtemp2) / (a+b)
 

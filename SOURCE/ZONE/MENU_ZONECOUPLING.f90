@@ -2,7 +2,7 @@
 ! MODULE : MENU_ZONECOUPLING              Auteur : E. Radenac / J. Gressier
 !                                         Date   : Juin 2003
 ! Fonction                                Modif  :
-!   Définition des méthodes de couplage entre zones
+!   Definition des methodes de couplage entre zones
 !
 ! Defauts/Limitations/Divers :
 !
@@ -11,23 +11,23 @@
 module MENU_ZONECOUPLING
 
 use TYPHMAKE   ! Definition de la precision et des types basiques
-use DEFFIELD   ! Définition des champs de valeurs physiques pour les transferts
+use DEFFIELD   ! Definition des champs de valeurs physiques pour les transferts
 use ZONE_COUPLING
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! Définition de la structure MNU_ZONECOUPLING : structures d'échanges entres zones
+! Definition de la structure MNU_ZONECOUPLING : structures d'echanges entres zones
 !------------------------------------------------------------------------------!
 type mnu_zonecoupling
   character(len=strlen)      :: family     ! nom de famille de la CL
-  character(len=strlen)      :: connzone   ! nom de la zone connectée par ce raccord
-  character(len=strlen)      :: connfam    ! nom de famille de la CL connectée
+  character(len=strlen)      :: connzone   ! nom de la zone connectee par ce raccord
+  character(len=strlen)      :: connfam    ! nom de famille de la CL connectee
                                            ! par ce raccord
-  type(st_zonecoupling)      :: zcoupling  ! paramètres de couplage
-  real(krp)                  :: partcor    ! part de correction à faire par 
-                                           ! itération <=1
-  integer                    :: typ_cor    ! type de répartition de correction
+  type(st_zonecoupling)      :: zcoupling  ! parametres de couplage
+  real(krp)                  :: partcor    ! part de correction a faire par 
+                                           ! iteration <=1
+  integer                    :: typ_cor    ! type de repartition de correction
 endtype mnu_zonecoupling 
 
 ! -- INTERFACES -------------------------------------------------------------
@@ -44,7 +44,7 @@ contains
 
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure MNU_ZONECOUPLING
+! Procedure : desallocation d'une structure MNU_ZONECOUPLING
 !------------------------------------------------------------------------------!
 subroutine delete_zonecoupling(zcoupl)
 implicit none
@@ -59,8 +59,8 @@ endmodule MENU_ZONECOUPLING
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juin 2003 (v0.0.1b): création du module
-!                      création de delete
+! juin 2003 (v0.0.1b): creation du module
+!                      creation de delete
 !------------------------------------------------------------------------------!
 
 

@@ -2,7 +2,7 @@
 ! Procedure : init_boco_ns                Auteur : J. Gressier
 !                                         Date   : July 2004
 ! Fonction                                Modif  : 
-!   Traitement des paramètres du fichier menu principal
+!   Traitement des parametres du fichier menu principal
 !   Initialisation des conditions limites
 !
 ! Defauts/Limitations/Divers :
@@ -19,10 +19,10 @@ use VARCOM
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(st_grid)  :: grid
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(mnu_solver)  :: defsolver
 
 ! -- Declaration des variables internes --
@@ -42,7 +42,7 @@ endsubroutine init_boco_ns
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! july 2004 : création de la routine
+! july 2004 : creation de la routine
 !------------------------------------------------------------------------------!
 
 

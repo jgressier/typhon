@@ -2,7 +2,7 @@
 ! Procedure :calc_flux_fluxspe_consistant Auteur : E. Radenac
 !                                         Date   : Avril 2003
 ! Fonction                                Modif  : Juin 2003
-!   Calcul du flux à l'interface par la méthode du flux spécifique, par le 
+!   Calcul du flux a l'interface par la methode du flux specifique, par le 
 !   biais d'une interpolation consistante
 !
 ! Defauts/Limitations/Divers :
@@ -17,11 +17,11 @@ use GEO3D
 
 implicit none
 
-! -- Declaration des entrées --
-real(krp)  :: d1, d2         ! distances des centres de cellules à l'interface                                           
-type(v3d)  :: flux1, flux2 ! densité de flux échangées
+! -- Declaration des entrees --
+real(krp)  :: d1, d2         ! distances des centres de cellules a l'interface                                           
+type(v3d)  :: flux1, flux2 ! densite de flux echangees
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(v3d) :: flux_inter
 
 ! -- Declaration des variables internes --
@@ -31,8 +31,8 @@ real(krp) :: a, b
 ! -- Debut de la procedure --
 
 
-!attribution des valeurs des paramètres de pondération a et b
-!la pondération est effectuée par les distances
+!attribution des valeurs des parametres de ponderation a et b
+!la ponderation est effectuee par les distances
 
 a = d2
 b = d1

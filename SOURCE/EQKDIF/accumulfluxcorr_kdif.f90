@@ -2,8 +2,8 @@
 ! Procedure : accumulfluxcorr_kdif        Auteur : E.Radenac
 !                                         Date   : Juillet 2003
 ! Fonction                                Modif  : 
-!   Accumulation des flux entre deux échanges de données entre zone couplées
-!   pour correction ultérieure des pertes de flux à l'interface. Solver de 
+!   Accumulation des flux entre deux echanges de donnees entre zone couplees
+!   pour correction ulterieure des pertes de flux a l'interface. Solver de 
 !   thermique
 ! Defauts/Limitations/Divers :
 !
@@ -21,7 +21,7 @@ use MENU_ZONECOUPLING
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 real(krp)        :: dt               ! pas de temps CFL
 integer          :: defsolvernboco   ! nb de conditions aux limites du solver
 type(mnu_boco), dimension(1:defsolvernboco) &
@@ -34,9 +34,9 @@ real(krp), dimension(1:nface) &
                  :: flux
 integer          :: ncoupling        ! nombre de couplages de la zone
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(mnu_zonecoupling), dimension(1:ncoupling) &
-                 :: coupling ! données de couplage
+                 :: coupling ! donnees de couplage
 
 ! -- Declaration des variables internes --
 integer               :: if               ! index de face
@@ -47,7 +47,7 @@ real(krp)             :: rflux, etatcons
 
 ! -- Debut de la procedure --
 
-! Calcul de l'"énergie" à l'interface.  On accumule les flux.
+! Calcul de l'"energie" a l'interface.  On accumule les flux.
 
 ! PROVISOIRE : A EFFACER
 !do ib =1, domainenboco
@@ -83,5 +83,5 @@ endsubroutine accumulfluxcorr_kdif
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juillet 2003 (v0.0.1b): création de la procédure
+! juillet 2003 (v0.0.1b): creation de la procedure
 !------------------------------------------------------------------------------!

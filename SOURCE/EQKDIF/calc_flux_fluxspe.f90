@@ -2,7 +2,7 @@
 ! Procedure :  calc_flux_fluxspe          Auteur : E. Radenac
 !                                         Date   : Avril 2003
 ! Fonction                                Modif  : Juin 2003
-!   Calcul du flux à l'interface par la méthode du flux spécifique
+!   Calcul du flux a l'interface par la methode du flux specifique
 !
 ! Defauts/Limitations/Divers :
 !
@@ -18,16 +18,16 @@ use VARCOM
 
 implicit none
 
-! -- Declaration des entrées --
-real(krp)             :: temp1, temp2   ! températures échangées
-real(krp)	      :: conduct1, conduct2  ! conductivités échangées
+! -- Declaration des entrees --
+real(krp)             :: temp1, temp2   ! temperatures echangees
+real(krp)	      :: conduct1, conduct2  ! conductivites echangees
 real(krp)	      :: d1, d2  ! distance entre les centres des cellules et l'interface
 type(v3d)             :: vecinter                ! vecteur unitaire "intercellules"	
-type(v3d)             :: flux1, flux2 ! densités de flux échangées                        
-type(v3d)             :: normale ! normales à l'interface
+type(v3d)             :: flux1, flux2 ! densites de flux echangees                        
+type(v3d)             :: normale ! normales a l'interface
 integer               :: typecalc
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 real(krp) :: flux_inter  ! scalaire
 
 ! -- Declaration des variables internes --

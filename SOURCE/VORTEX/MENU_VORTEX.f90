@@ -1,8 +1,8 @@
 !------------------------------------------------------------------------------!
 ! MODULE : MENU_VORTEX                    Auteur : J. Gressier
-!                                         Date   : Février 2004
+!                                         Date   : Fevrier 2004
 ! Fonction                                Modif  : (cf Historique)
-!   Définition des structures pour les entrées du programme TYPHON
+!   Definition des structures pour les entrees du programme TYPHON
 !   Structures pour les options du solveur VORTEX
 !
 ! Defauts/Limitations/Divers :
@@ -21,7 +21,7 @@ implicit none
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
-! constantes : type de modélisation des vortex libres
+! constantes : type de modelisation des vortex libres
 character, parameter :: vort_sng  = 'S'
 character, parameter :: vort_blob = 'B'
 character, parameter :: vort_ring = 'R'
@@ -33,7 +33,7 @@ character, parameter :: kt_equilibrium = 'E'
 character, parameter :: kt_shedding    = 'V'
 
 !------------------------------------------------------------------------------!
-! structure MNU_VORTEX : options numériques du solveur de diffusion (thermique)
+! structure MNU_VORTEX : options numeriques du solveur de diffusion (thermique)
 !------------------------------------------------------------------------------!
 type mnu_vort
   character :: typ_vortex
@@ -43,18 +43,18 @@ endtype mnu_vort
 
 
 !------------------------------------------------------------------------------!
-! structure ST_BOCO_VORT : Définition des conditions aux limites
+! structure ST_BOCO_VORT : Definition des conditions aux limites
 !------------------------------------------------------------------------------!
 type st_boco_vort
-  integer                 :: element    ! type d'élément si répartition de singularités
+  integer                 :: element    ! type d'element si repartition de singularites
   character               :: mode       ! mode de traitement 
-  type(v3d)               :: vect       ! définition d'un vecteur
+  type(v3d)               :: vect       ! definition d'un vecteur
   type(st_grid), pointer  :: pgrid      ! pointeur sur une grille
 endtype st_boco_vort
 
 
 !------------------------------------------------------------------------------!
-! structure ST_INIT_VORT : Définition des conditions initiales
+! structure ST_INIT_VORT : Definition des conditions initiales
 !------------------------------------------------------------------------------!
 type st_init_vort
   real(krp) :: pipo
@@ -87,7 +87,7 @@ integer bocotype
   case(bc_farfield)
     bctype_of_vortboco = bc_calc_farfield
   case default
-    call erreur("incohérence interne (MENU_VORTEX)",&
+    call erreur("incoherence interne (MENU_VORTEX)",&
                 "type de conditions aux limites inattendu pour le solveur VORTEX")
   endselect
 
@@ -99,5 +99,5 @@ endmodule MENU_VORTEX
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! fev  2004 : création du module
+! fev  2004 : creation du module
 !------------------------------------------------------------------------------!

@@ -2,8 +2,8 @@
 ! MODULE : MENU_INTEG                     Auteur : J. Gressier
 !                                         Date   : Novembre 2002
 ! Fonction                                Modif  : 
-!   Définition des structures pour les entrées du programme TYPHON
-!   Structures pour les paramètres de l'intégration temporelle entre zones
+!   Definition des structures pour les entrees du programme TYPHON
+!   Structures pour les parametres de l'integration temporelle entre zones
 !
 ! Defauts/Limitations/Divers :
 !
@@ -22,10 +22,10 @@ implicit none
 
 
 !------------------------------------------------------------------------------!
-! structure MNU_TEMP : options numériques pour l'intégration temporelle
+! structure MNU_TEMP : options numeriques pour l'integration temporelle
 !------------------------------------------------------------------------------!
 type mnu_integ
-  character       :: temps      ! (S)tationnaire, (I)nstationnaire, (P)ériodique
+  character       :: temps      ! (S)tationnaire, (I)nstationnaire, (P)eriodique
 endtype mnu_integ
 
 

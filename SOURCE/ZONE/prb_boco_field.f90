@@ -16,7 +16,7 @@ use DEFZONE
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(st_zone) :: zone            ! zone 
 
 ! -- Declaration des sorties --
@@ -35,5 +35,5 @@ endsubroutine prb_boco_field
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov 2003 : création
+! nov 2003 : creation
 !------------------------------------------------------------------------------!

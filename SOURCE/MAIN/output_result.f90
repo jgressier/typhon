@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------!
 ! Procedure : output_result               Auteur : J. Gressier
-!                                         Date   : Décembre 2002
+!                                         Date   : Decembre 2002
 ! Fonction                                Modif  :
 !   Ecriture fichier des champs de chaque zone
 !
@@ -16,7 +16,7 @@ use MODWORLD
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(st_world) :: world
 integer        :: position !DEV2602
 
@@ -44,10 +44,10 @@ do i = 1, world%noutput
     !DEV2602 call output_tecplot(world%output(i)%fichier, world, world%output(i)%type)
 
   case(fmt_VIGIE)
-    call erreur("Développement","format VIGIE non implémenté")
+    call erreur("Developpement","format VIGIE non implemente")
 
   case default
-    call erreur("Sauvegarde de résultats","format de fichier inconnu")
+    call erreur("Sauvegarde de resultats","format de fichier inconnu")
 
   endselect
 

@@ -2,7 +2,7 @@
 ! Procedure :  stock_kdif_cond_coupling   Auteur : E. Radenac
 !                                         Date   : Mai 2003
 ! Fonction                                Modif  : Juin 2003
-!   Attribution de ses conditions aux limites de couplage à une zone.
+!   Attribution de ses conditions aux limites de couplage a une zone.
 !
 ! Defauts/Limitations/Divers :
 !
@@ -17,13 +17,13 @@ use MENU_KDIF
 
 implicit none
 
-! -- Declaration des entrées --
-real(krp) :: temp     ! température attribuée
-real(krp) :: flux     ! flux attribué
-integer ::   if       ! indice de la face concernée
-real(krp) :: t_op    ! température de la cellule opposée
+! -- Declaration des entrees --
+real(krp) :: temp     ! temperature attribuee
+real(krp) :: flux     ! flux attribue
+integer ::   if       ! indice de la face concernee
+real(krp) :: t_op    ! temperature de la cellule opposee
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(st_boco_kdif) :: bocokdif ! stockage des conditions
 
 ! -- Declaration des variables internes --

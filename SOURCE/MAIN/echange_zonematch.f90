@@ -22,17 +22,17 @@ use TYPHMAKE
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(st_zone)              :: zone1, zone2
 integer                    :: typcalc             ! type d'interpolation
 integer                    :: nfacelim            ! nombre de faces limites
 integer                    :: nbc1, nbc2          ! indice des conditions aux limites 
-                                                  ! concernées dans les zones 1 et 2                                                  
-integer                    :: ncoupl1, ncoupl2    ! numéro (identité) du raccord
+                                                  ! concernees dans les zones 1 et 2                                                  
+integer                    :: ncoupl1, ncoupl2    ! numero (identite) du raccord
                                                   ! dans les zones 1 et 2      
 character                  :: typtemps
 real(krp)                  :: dtexch             ! pas de temps entre 
-                                                 ! deux échanges
+                                                 ! deux echanges
 
 ! -----------------PROVISOIRE-----------------------------------------------
 !integer     :: icycle
@@ -44,21 +44,21 @@ real(krp)                  :: dtexch             ! pas de temps entre
 
 ! -- Declaration des variables internes --
 integer                        :: i, if, ic, if2, ifield, ic1, ic2, ip
-type(v3d), dimension(nfacelim) :: normale ! normales à l'interface
+type(v3d), dimension(nfacelim) :: normale ! normales a l'interface
 type(v3d), dimension(nfacelim) :: vecinter ! vecteurs inter-cellule
     real(krp), dimension(nfacelim) :: d1, d2  ! distance centre de cellule - centre de face
   				                 ! (gauche, droite)  
 integer                        :: typmethod
 type(v3d)                      :: cg1, cg2, cgface ! centres des cellules des zones 1 et 2, et des faces
 integer                        :: typsolver1, typsolver2
-real(krp)                      :: dif_enflux     ! différence des énergies d'interface dans les deuxzones
+real(krp)                      :: dif_enflux     ! difference des energies d'interface dans les deuxzones
 real(krp), dimension(nfacelim) :: corcoef   ! coefficient de correction de flux
 real(krp)                      :: rap_f ! rapport des nb de Fourier des 2 zones
 real(krp)                      :: fcycle1, fcycle2 ! nb de Fourier de cycle
                                                    ! des deux zones
 integer                        :: placement ! variable pour le
                                             ! placement des corrections
-real(krp)                      :: part_cor1, part_cor2 ! part de correction à
+real(krp)                      :: part_cor1, part_cor2 ! part de correction a
                                                   ! apporter, dans les 2 zones
 integer                        :: typ_cor1, typ_cor2 ! type de correction
 
@@ -87,12 +87,12 @@ part_cor2 = zone2%coupling(ncoupl2)%partcor
 
 if (typ_cor1 .ne. typ_cor2) then 
   call erreur("DEVELOPPEMENT", &
-              "Types de correction differents non implémentés")
+              "Types de correction differents non implementes")
 endif
 
 select case(typtemps)
 
-  case(instationnaire) ! On applique des corrections de flux entre les échanges
+  case(instationnaire) ! On applique des corrections de flux entre les echanges
     call choixcorrection(zone1, zone2, placement, corcoef, typ_cor1, nfacelim,&
                          nbc1, nbc2, ncoupl2)
 
@@ -117,11 +117,11 @@ endselect
 typsolver1 = zone1%defsolver%typ_solver
 typsolver2 = zone2%defsolver%typ_solver
 
-! Données géométriques :
+! Donnees geometriques :
 
 do i=1, nfacelim    
   
-  ! indices des faces concernées
+  ! indices des faces concernees
   if  = zone1%grid%umesh%boco(nbc1)%iface(i)
   if2 = zone2%grid%umesh%boco(nbc2)%iface(zone2%coupling(ncoupl2)%zcoupling%connface(i))
   
@@ -144,11 +144,11 @@ do i=1, nfacelim
 
 enddo 
 
-! Type de méthode de calcul:
+! Type de methode de calcul:
 typmethod = zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%typ_calc
 ! = zone2%defsolver%boco(zone2%grid%umesh%boco(nbc2)%idefboco)%typ_calc
 
-! Valeurs des données instationnaires à échanger
+! Valeurs des donnees instationnaires a echanger
 call donnees_echange(zone1%coupling(ncoupl1)%zcoupling%solvercoupling, &
                      zone1%coupling(ncoupl1)%zcoupling%echdata, &
                      zone1, nbc1, zone2%coupling(ncoupl2)%zcoupling%echdata, &
@@ -166,7 +166,7 @@ call echange(zone1%coupling(ncoupl1)%zcoupling%echdata, &
 
 select case(typtemps)
 
-  case(instationnaire) ! On applique des corrections de flux entre les échanges
+  case(instationnaire) ! On applique des corrections de flux entre les echanges
 
     if (placement == apres) then
 ! DEBUG
@@ -188,11 +188,11 @@ endsubroutine echange_zonematch
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mai  2003 : création de la procédure
+! mai  2003 : creation de la procedure
 ! juil 2003 : ajouts pour corrections de  flux
 ! oct  2003 : ajout coef correction de flux
 ! oct  2003 : correction de flux seulement pour le cas instationnaire
 ! jan  2004 : orientation vers des corrections de flux avant ou apres
-!             le calcul des quantités d'interface selon les cas
-! fev  2004 : procédures choixcorrection, correction
+!             le calcul des quantites d'interface selon les cas
+! fev  2004 : procedures choixcorrection, correction
 !------------------------------------------------------------------------------!

@@ -2,7 +2,7 @@
 ! Procedure : flux_limite                 Auteur : J. Gressier/E. Radenac
 !                                         Date   : Juin 2004
 ! Fonction                                Modif  : (cf Historique)
-!  Flux aux faces limites quand nécessaire
+!  Flux aux faces limites quand necessaire
 !
 ! Defauts/Limitations/Divers :
 !
@@ -19,15 +19,15 @@ use DEFFIELD
 
 implicit none
 
-! -- Declaration des entrées --
-type(mnu_solver) :: defsolver        ! type d'équation à résoudre
-type(st_ustmesh) :: domaine          ! domaine non structuré à intégrer
+! -- Declaration des entrees --
+type(mnu_solver) :: defsolver        ! type d'equation a resoudre
+type(st_ustmesh) :: domaine          ! domaine non structure a integrer
 
 ! -- Declaration des sorties --
 type(st_genericfield)   :: flux        ! flux physiques
 
 ! -- Declaration des variables internes --
-integer          :: ifb, if, ib, idef     ! index de liste, index de face limite et paramètres
+integer          :: ifb, if, ib, idef     ! index de liste, index de face limite et parametres
 
 ! -- Debut de la procedure --
 
@@ -48,5 +48,5 @@ endsubroutine fluxlimite
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juin 2004 : création de la procédure
+! juin 2004 : creation de la procedure
 !------------------------------------------------------------------------------!

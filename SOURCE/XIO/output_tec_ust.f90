@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------!
 ! Procedure : output_tecplot_ust          Auteur : J. Gressier
-!                                         Date   : Décembre 2002
+!                                         Date   : Decembre 2002
 ! Fonction                                Modif  : Octobre 2003
 !   Ecriture fichier des champs de chaque zone au format TECPLOT
 !   Choix entre sortie des valeurs aux noeuds ou aux centres des cellules
@@ -19,9 +19,9 @@ use DEFFIELD
 
 implicit none
 
-! -- Declaration des entrées --
-integer          :: uf            ! unité d'écriture
-type(st_ustmesh) :: ust_mesh      ! maillage à écrire
+! -- Declaration des entrees --
+integer          :: uf            ! unite d'ecriture
+type(st_ustmesh) :: ust_mesh      ! maillage a ecrire
 type(st_field)   :: field         ! champ de valeurs
 integer          :: outp_typ      ! type de sortie
 

@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------!
 ! Procedure : output_tecplot              Auteur : J. Gressier
-!                                         Date   : Décembre 2002
+!                                         Date   : Decembre 2002
 ! Fonction                                Modif  : (cf historique)
 !   Ecriture fichier des champs de chaque zone au format TECPLOT
 !
@@ -17,7 +17,7 @@ use MODWORLD
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 character(len=strlen) :: nom       ! nom du fichier
 type(st_world)        :: world
 integer               :: outp_typ
@@ -128,7 +128,7 @@ endsubroutine output_tecplot
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! dec  2002 : création de la procédure
+! dec  2002 : creation de la procedure
 ! avr  2004 : cas Vortex
 ! oct  2004 : field chained list
 !------------------------------------------------------------------------------!

@@ -2,8 +2,8 @@
 ! Procedure : verify_cellvtex             Auteur : J. Gressier
 !                                         Date   : Aout 2003
 ! Fonction                                Modif  : (cf Historique)
-!   Vérification de l'ordre des sommets dans la définition de la connectivité
-!   cell->vertex, en fonction des coordonnées des points
+!   Verification de l'ordre des sommets dans la definition de la connectivite
+!   cell->vertex, en fonction des coordonnees des points
 !
 ! Defauts/Limitations/Divers :
 !
@@ -15,10 +15,10 @@ use USTMESH
 
 implicit none
 
-! -- Declaration des entrées --
-type(st_mesh) :: mesh              ! données géométriques du maillage
+! -- Declaration des entrees --
+type(st_mesh) :: mesh              ! donnees geometriques du maillage
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(st_cellvtex) :: cellvtex
 
 ! -- Declaration des variables internes --
@@ -29,10 +29,10 @@ real(krp) :: test
 ! -- Debut de la procedure --
 
 ! --- Elements BAR ---
-! Pas de correction à effectuer
+! Pas de correction a effectuer
 
 ! --- Elements TRI ---
-! Pas de correction à effectuer
+! Pas de correction a effectuer
 
 ! --- Elements QUAD ---
 
@@ -50,7 +50,7 @@ do ic = 1, cellvtex%nquad
 enddo
 
 ! --- Elements TETRA ---
-! Pas de correction à effectuer
+! Pas de correction a effectuer
 
 ! --- Elements PYRA ---
 
@@ -65,6 +65,6 @@ endsubroutine verify_cellvtex
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! Aout 2003 : création de la procédure (correction des QUAD)
+! Aout 2003 : creation de la procedure (correction des QUAD)
 ! 
 !------------------------------------------------------------------------------!

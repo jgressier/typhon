@@ -2,8 +2,8 @@
 ! Procedure : integration_zone_lag        Auteur : J. Gressier
 !                                         Date   : Mars 2004
 ! Fonction                                Modif  : (cf historique)
-!   Intégration de tous les domaines d'une zone sur un pas de temps correspondant 
-!   à une itération
+!   Integration de tous les domaines d'une zone sur un pas de temps correspondant 
+!   a une iteration
 !
 ! Defauts/Limitations/Divers :
 !
@@ -18,12 +18,12 @@ use LAPACK      ! linear algebra
 
 implicit none
 
-! -- Declaration des entrées --
-real(krp)     :: dt              ! pas de temps propre à la zone
-type(st_zone) :: zone            ! zone à intégrer
+! -- Declaration des entrees --
+real(krp)     :: dt              ! pas de temps propre a la zone
+type(st_zone) :: zone            ! zone a integrer
 
 ! -- Declaration des sorties --
-! retour des résidus à travers le champ field de la structure zone ??
+! retour des residus a travers le champ field de la structure zone ??
 
 ! -- Declaration des variables internes --
 integer                :: ib, if, nf, dim, i, irhs, info
@@ -41,7 +41,7 @@ type(v3d)              :: vinf
 
 
 !-----------------------------------------------------------------------
-! calcul du champ des vitesses induit (par singularités + vortex libres)
+! calcul du champ des vitesses induit (par singularites + vortex libres)
 ! aux points vortex uniquement
 
 !pgrid => zone%grid
@@ -56,10 +56,10 @@ type(v3d)              :: vinf
 !enddo
 
 ! -- convection des tourbillons --
-! à ajouter ! call calc_new_vortices
+! a ajouter ! call calc_new_vortices
 
 ! -- emission des tourbillons aux limites --
-! à ajouter ! call shed_vortices
+! a ajouter ! call shed_vortices
 
 !-----------------------------------------------------------------------
 ! dimensionnement
@@ -69,12 +69,12 @@ do ib = 1, zone%defsolver%nboco
   if (zone%defsolver%boco(ib)%typ_calc == bc_calc_singpanel) then
     !print*,"TEST DEBUG",associated(zone%defsolver%boco(ib)%boco_vortex%pgrid)
     dim = dim + zone%defsolver%boco(ib)%boco_vortex%pgrid%umesh%mesh%nface + 1
-    ! DEV : mémorisation d'indice ?
+    ! DEV : memorisation d'indice ?
   endif
 enddo
 
 !-----------------------------------------------------------------------
-! calcul de la vitesse normale locale aux centres de panneaux singularités
+! calcul de la vitesse normale locale aux centres de panneaux singularites
 
 allocate(rhs(dim,1))
 rhs(:,1) = 0._krp
@@ -90,7 +90,7 @@ rhs(:,1) = 0._krp
 !-----------------------------------------------------------------------
 ! calcul du nouveau champ des vitesses induit 
 ! (par farfield + vortex libres)
-! aux centres de panneaux singularités
+! aux centres de panneaux singularites
 
 do ib = 1, zone%defsolver%nboco  ! boucle sur boco / rech. de cond. champ lointain
   if (zone%defsolver%boco(ib)%typ_calc == bc_calc_farfield) then
@@ -98,10 +98,10 @@ do ib = 1, zone%defsolver%nboco  ! boucle sur boco / rech. de cond. champ lointa
   endif 
 enddo
 
-do ib = 1, zone%defsolver%nboco  ! boucle sur boco / rech. de cond. singularités
+do ib = 1, zone%defsolver%nboco  ! boucle sur boco / rech. de cond. singularites
   if (zone%defsolver%boco(ib)%typ_calc == bc_calc_singpanel) then
     pgrid => zone%defsolver%boco(ib)%boco_vortex%pgrid
-    ! DEV : mémorisation de l'indice dans la structure boco_vortex
+    ! DEV : memorisation de l'indice dans la structure boco_vortex
     irhs  =  0
     nf    =  pgrid%umesh%nface
     do if = 1, nf
@@ -112,18 +112,18 @@ do ib = 1, zone%defsolver%nboco  ! boucle sur boco / rech. de cond. singularités
 enddo
 
 !-----------------------------------------------------------------------
-! calcul des singularités panneaux
+! calcul des singularites panneaux
 
 allocate(mat(dim, dim)) 
 mat(:,:) = 0._krp
 
-! calcul de la matrice d'effets des singularités
+! calcul de la matrice d'effets des singularites
 !print*,'ngrid :',zone%ngrid
-do ib = 1, zone%defsolver%nboco  ! boucle sur boco / rech. de cond. singularités
+do ib = 1, zone%defsolver%nboco  ! boucle sur boco / rech. de cond. singularites
   if (zone%defsolver%boco(ib)%typ_calc == bc_calc_singpanel) then
     !print*,"TEST SNG DEBUG",associated(zone%defsolver%boco(ib)%boco_vortex%pgrid)
     pgrid => zone%defsolver%boco(ib)%boco_vortex%pgrid
-    ! DEV : mémorisation de l'indice dans la structure boco_vortex
+    ! DEV : memorisation de l'indice dans la structure boco_vortex
     irhs  =  1
     nf    =  pgrid%umesh%nface
     call fillmat_sing_effects(mat, dim, irhs, pgrid, zone%defsolver)
@@ -131,28 +131,28 @@ do ib = 1, zone%defsolver%nboco  ! boucle sur boco / rech. de cond. singularités
   endif
 enddo
 
-! écriture des conditions de Kelvin (en instationnaire) (mat et rhs)
-! DEV : init_boco_vortex !!!!!!!!! (connectivités)
+! ecriture des conditions de Kelvin (en instationnaire) (mat et rhs)
+! DEV : init_boco_vortex !!!!!!!!! (connectivites)
 
-! écriture des conditions de Kutta-Joukowski (mat et rhs)
-! DEV : init_boco_vortex !!!!!!!!! (connectivités)
+! ecriture des conditions de Kutta-Joukowski (mat et rhs)
+! DEV : init_boco_vortex !!!!!!!!! (connectivites)
 
 do ib = 1, zone%defsolver%nboco  ! boucle sur boco / rech. de cond. KUTTA
   if (zone%defsolver%boco(ib)%typ_calc == bc_calc_kutta) then
     !print*,"TEST KT  DEBUG",associated(zone%defsolver%boco(ib)%boco_vortex%pgrid)
     pgrid => zone%defsolver%boco(ib)%boco_vortex%pgrid
     ! print*,pgrid%id
-    !! DEV : mémorisation de l'indice dans la structure boco_vortex
+    !! DEV : memorisation de l'indice dans la structure boco_vortex
     !irhs  =  0
     nf    =  pgrid%umesh%nface
-    ! DEV : PAR DEFAUT : KT sur première et dernière singularité de pgrid
+    ! DEV : PAR DEFAUT : KT sur premiere et derniere singularite de pgrid
     mat(nf+1, 1)    = 1._krp
     mat(nf+1, nf+1) = 1._krp
     rhs(nf+1, 1)    = 0._krp
   endif
 enddo
 
-! résolution
+! resolution
 
 allocate(piv(dim))
 piv(:) = 0
@@ -162,20 +162,20 @@ piv(:) = 0
 
 call lapack_getrf(dim, dim, mat, dim, piv, info)
 
-if (info /= 0) call erreur("calcul des singularités",&
-                           "problème dans la décomposition LU")
+if (info /= 0) call erreur("calcul des singularites",&
+                           "probleme dans la decomposition LU")
 
 call lapack_getrs('N', dim, 1, mat, dim, piv, rhs, dim, info)
 
-if (info /= 0) call erreur("calcul des singularités",&
-                           "problème dans l'inversion")
+if (info /= 0) call erreur("calcul des singularites",&
+                           "probleme dans l'inversion")
 
-! redistribution des singularités
+! redistribution des singularites
 
-do ib = 1, zone%defsolver%nboco  ! boucle sur boco / rech. de cond. singularités
+do ib = 1, zone%defsolver%nboco  ! boucle sur boco / rech. de cond. singularites
   if (zone%defsolver%boco(ib)%typ_calc == bc_calc_singpanel) then
     pgrid => zone%defsolver%boco(ib)%boco_vortex%pgrid
-    ! DEV : mémorisation de l'indice dans la structure boco_vortex
+    ! DEV : memorisation de l'indice dans la structure boco_vortex
     irhs  =  0
     nf    =  pgrid%umesh%nface
     !print*,'debug field scalaires : ',pgrid%bocofield%nscal,'x',pgrid%bocofield%dim
@@ -187,9 +187,9 @@ do ib = 1, zone%defsolver%nboco  ! boucle sur boco / rech. de cond. singularités
   endif
 enddo
 
-!print*,'inversion réussie (debug)'
+!print*,'inversion reussie (debug)'
 
-! -- désallocation --
+! -- desallocation --
 deallocate(mat, rhs, piv)
 
 !-----------------------------
@@ -198,5 +198,5 @@ endsubroutine integration_zone_lag
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mars 2004 : création de la procédure
+! mars 2004 : creation de la procedure
 !------------------------------------------------------------------------------!

@@ -18,11 +18,11 @@ use MODWORLD
 
 implicit none
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 integer :: raccord
 integer :: typ_boco1, typ_boco2
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 
 ! -- Declaration des sorties --
 
@@ -57,5 +57,5 @@ endsubroutine update_couplingboco_kdif
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juin  2004 : création de la procédure
+! juin  2004 : creation de la procedure
 !------------------------------------------------------------------------------!

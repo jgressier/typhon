@@ -2,10 +2,10 @@
 ! MODULE : MENU_SOLVER                    Auteur : J. Gressier
 !                                         Date   : Aout 2002
 ! Fonction                                Modif  : (cf Historique)
-!   Définition des structures pour les entrées du programme TYPHON
+!   Definition des structures pour les entrees du programme TYPHON
 !   Structures pour les options des solveurs 
-!   - Définition du problème (solveur, conditions limites, initiales)
-!   - Paramètres de calcul   (intégration temporelle, spatiale, AMR...)
+!   - Definition du probleme (solveur, conditions limites, initiales)
+!   - Parametres de calcul   (integration temporelle, spatiale, AMR...)
 !
 ! Defauts/Limitations/Divers :
 !
@@ -25,12 +25,12 @@ implicit none
 
 ! -- Variables globales du module -------------------------------------------
 
-! -- Définition des entiers caractéristiques pour le type de solveur -- CF VARCOM
+! -- Definition des entiers caracteristiques pour le type de solveur -- CF VARCOM
 !integer, parameter :: solNS   = 10    ! Equations de Navier-Stokes (EQNS)
 !integer, parameter :: solKDIF = 20    ! Equation  de la chaleur    (EQKDIF)
-!integer, parameter :: solVORTEX = 30   ! Méthode intégrale et lagrangienne VORTEX
+!integer, parameter :: solVORTEX = 30   ! Methode integrale et lagrangienne VORTEX
 
-! -- Définition du type de quantite 
+! -- Definition du type de quantite 
 integer, parameter :: qs_temperature = 010 
 integer, parameter :: qs_pressure    = 011
 integer, parameter :: qs_density     = 012
@@ -43,24 +43,24 @@ integer, parameter :: qv_stress      = 102
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! structure MNU_SOLVER : options numériques les solveurs 
+! structure MNU_SOLVER : options numeriques les solveurs 
 !------------------------------------------------------------------------------!
 type mnu_solver
   integer         :: typ_solver      ! type de solveur (cf definitions VARCOM) 
-  integer         :: nequat          ! nombre d'équations
+  integer         :: nequat          ! nombre d'equations
   type(mnu_ns)    :: defns           ! options si solveur NS
   type(mnu_kdif)  :: defkdif         ! options si solveur KDIF
   type(mnu_vort)  :: defvort         ! options si solveur VORTEX
   type(mnu_amr)   :: defamr          ! options si AMR
   integer         :: nboco           ! nombre de conditions aux limites
   type(mnu_boco), dimension(:), pointer &
-                  :: boco            ! définitions des conditions aux limites
+                  :: boco            ! definitions des conditions aux limites
   integer         :: ninit           ! nombre de conditions initiales
   type(mnu_init), dimension(:), pointer &
-                  :: init            ! définitions des conditions initiales
+                  :: init            ! definitions des conditions initiales
   integer         :: nprobe          ! nombre de capteurs
   type(mnu_capteur), dimension(:), pointer &
-                  :: probe           ! définitions des capteurs
+                  :: probe           ! definitions des capteurs
 endtype mnu_solver
 
 
@@ -77,7 +77,7 @@ endinterface
 contains
 
 !------------------------------------------------------------------------------!
-! Procédure : initialisation d'une structure MNU_SOLVER
+! Procedure : initialisation d'une structure MNU_SOLVER
 !------------------------------------------------------------------------------!
 subroutine init_mnu_solver(defsolver)
 implicit none
@@ -92,7 +92,7 @@ endsubroutine init_mnu_solver
 
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure MNU_SOLVER
+! Procedure : desallocation d'une structure MNU_SOLVER
 !------------------------------------------------------------------------------!
 subroutine delete_mnu_solver(defsolver)
 implicit none
@@ -108,7 +108,7 @@ integer           :: ib
   case(solVORTEX)
   endselect
 
-  ! -- destruction des paramètres d'initialisation --
+  ! -- destruction des parametres d'initialisation --
   select case(defsolver%typ_solver)
   case(solKDIF)
     do ib = 1, defsolver%ninit
@@ -123,7 +123,7 @@ integer           :: ib
     deallocate(defsolver%init)
   endif
   
-  ! -- destruction des paramètres des capteurs --
+  ! -- destruction des parametres des capteurs --
 
   if (defsolver%nprobe >= 1) then
     do ib = 1, defsolver%nprobe
@@ -132,10 +132,10 @@ integer           :: ib
     deallocate(defsolver%probe)
   endif
   
-  ! -- destruction des paramètres de conditions limites --
+  ! -- destruction des parametres de conditions limites --
 
   if (defsolver%nboco >= 1) then
-    ! DEV : définition d'un delete_mnu_boco
+    ! DEV : definition d'un delete_mnu_boco
     do ib = 1, defsolver%nboco
       select case(defsolver%boco(ib)%boco_unif)
       case(nonuniform)
@@ -166,7 +166,7 @@ endsubroutine delete_mnu_solver
 
 
 !------------------------------------------------------------------------------!
-! Fonction : retourne le type entier de quantité physique
+! Fonction : retourne le type entier de quantite physique
 !------------------------------------------------------------------------------!
 integer function quantity(str)
 implicit none
@@ -174,12 +174,12 @@ character(len=*) str
 
   quantity = inull
   
-  ! quantités scalaires
+  ! quantites scalaires
   if (samestring(str, "TEMPERATURE" ))  quantity = qs_temperature
   if (samestring(str, "PRESSURE" ))     quantity = qs_pressure
   if (samestring(str, "DENSITY" ))      quantity = qs_density
 
-  ! quantités vectorielles
+  ! quantites vectorielles
   if (samestring(str, "VELOCITY" ))     quantity = qv_velocity
   if (samestring(str, "STRESS" ))       quantity = qv_stress
 
@@ -226,15 +226,15 @@ endmodule MENU_SOLVER
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! aout 2002 : création du module
+! aout 2002 : creation du module
 ! mars 2003 : ajout des conditions aux limites
 !             ajout des structures d'initialisation
-! juil 2003 : procédure delete : Kd
-! nov  2003 : tableau de paramètres pour les capteurs
-!             définition des quantités
+! juil 2003 : procedure delete : Kd
+! nov  2003 : tableau de parametres pour les capteurs
+!             definition des quantites
 !             index de conditions limites ou de capteurs en fonction du nom
-! fev  2004 : définition du solveur VORTEX
-! juin 2004 : procédure delete : condition limite Fourier non uniforme
+! fev  2004 : definition du solveur VORTEX
+! juin 2004 : procedure delete : condition limite Fourier non uniforme
 ! july 2004 : add AMR parameters
 !------------------------------------------------------------------------------!
 

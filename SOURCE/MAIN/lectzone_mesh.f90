@@ -17,15 +17,15 @@ use CGNS_STRUCT
 
 implicit none
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(st_zone) :: zone
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 
 ! -- Declaration des sorties --
 
 ! -- Declaration des variables internes --
-type(st_cgns_world) :: cgnsworld      ! structure des données CGNS
+type(st_cgns_world) :: cgnsworld      ! structure des donnees CGNS
 
 ! -- Debut de la procedure --
 
@@ -33,16 +33,16 @@ select case(zone%defmesh%format)
 
 case(fmt_CGNS) ! Format de fichier CGNS
 
-  ! DEV : numéro d'unité inutile
+  ! DEV : numero d'unite inutile
   call readcgnsfile(15, zone%defmesh%fichier, cgnsworld)
   call print_info(2, "* CONVERSION DES DONNEES CGNS -> TYPHON")
   if (cgnsworld%nbase /= 1) call erreur("CGNS -> TYPHON",&
                                         "trop de bases dans la structure CGNS")
 
-  ! -- Définition minimale du maillage --
-  !  coordonnées de sommets
-  !  connectivités face->cellules
-  !  connectivités face->sommets
+  ! -- Definition minimale du maillage --
+  !  coordonnees de sommets
+  !  connectivites face->cellules
+  !  connectivites face->sommets
   call cgns2typhon_zone(cgnsworld%base(1), zone)
   ! DEV : call delete(cgnsworld)
 
@@ -65,6 +65,6 @@ endsubroutine lectzone_mesh
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov  2002 : création de la procédure (lecture de maillage CGNS)
+! nov  2002 : creation de la procedure (lecture de maillage CGNS)
 ! fev  2004 : lecture de maillage TYPHMSH 
 !------------------------------------------------------------------------------!

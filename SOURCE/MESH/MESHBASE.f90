@@ -2,8 +2,8 @@
 ! MODULE : MESHBASE                       Auteur : J. Gressier
 !                                         Date   : Octobre 2002
 ! Fonction                                Modif  : (cf historique)
-!   Bibliotheque de procedures et fonctions pour la gestion des éléments
-!   géométriques de base (face...)
+!   Bibliotheque de procedures et fonctions pour la gestion des elements
+!   geometriques de base (face...)
 !
 ! Defauts/Limitations/Divers :
 ! Historique :
@@ -13,7 +13,7 @@
 module MESHBASE
 
 use TYPHMAKE   ! Definition de la precision
-use GEO3D      ! éléments géométriques
+use GEO3D      ! elements geometriques
 
 implicit none
 
@@ -25,34 +25,34 @@ character, parameter :: msh_2Dplan = '2'
 character, parameter :: msh_2Dcurv = 'C'
 character, parameter :: msh_3D     = '3'
 
-! -- Définition des caractères caractéristiques pour le type de maillage --
-!character, parameter :: mshSTR = 'S'   (défini dans VARCOM)
+! -- Definition des caracteres caracteristiques pour le type de maillage --
+!character, parameter :: mshSTR = 'S'   (defini dans VARCOM)
 !character, parameter :: mshUST = 'U'
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! Définition de la structure INFO_MESH
+! Definition de la structure INFO_MESH
 !------------------------------------------------------------------------------!
 type info_mesh
   character :: geom                ! type de maillage (cf constantes)
-  type(v3d) :: min, max            ! coordonnées min et max des vertex
-  real(krp) :: minscale, maxscale  ! échelle de longueur (min et max)
+  type(v3d) :: min, max            ! coordonnees min et max des vertex
+  real(krp) :: minscale, maxscale  ! echelle de longueur (min et max)
 endtype
 
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_FACE : face de cellule
+! Definition de la structure ST_FACE : face de cellule
 !------------------------------------------------------------------------------!
 type st_face
-  type(v3d)   :: normale        ! normale à la face, orientée indice croissant
+  type(v3d)   :: normale        ! normale a la face, orientee indice croissant
   type(v3d)   :: centre         ! centre de face
   real(krp)   :: surface        ! valeur de la surface de la face
 endtype st_face
 
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_MESH : liste de vertex, faces, centres, volumes
+! Definition de la structure ST_MESH : liste de vertex, faces, centres, volumes
 !------------------------------------------------------------------------------!
 type st_mesh
   type(info_mesh) :: info
@@ -60,7 +60,7 @@ type st_mesh
   integer         :: nvtex                 ! nombre de sommets
   integer         :: nface
   integer         :: ncell                 ! nombre de faces et cellules totales
-  type(v3d), dimension(:,:,:), pointer &  ! coordonnées des sommets et centres
+  type(v3d), dimension(:,:,:), pointer &  ! coordonnees des sommets et centres
                   :: vertex, centre        ! de cellules (i,j,k)
   type(st_face), dimension(:,:,:), pointer &
                   :: iface !, jface, kface   ! tableaux de faces
@@ -88,7 +88,7 @@ contains
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation d'une structure MESH
+! Procedure : allocation d'une structure MESH
 !------------------------------------------------------------------------------!
 subroutine new_mesh(mesh, ncell, nface, nvtex)
 implicit none
@@ -109,7 +109,7 @@ endsubroutine new_mesh
 
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure MESH
+! Procedure : desallocation d'une structure MESH
 !------------------------------------------------------------------------------!
 subroutine delete_mesh(mesh)
 implicit none
@@ -128,8 +128,8 @@ endmodule MESHBASE
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! oct  2002 : création du module
-! fev  2004 : suppression de certains éléments propres au structuré
+! oct  2002 : creation du module
+! fev  2004 : suppression de certains elements propres au structure
 !             structure information de MESH
-!             redéfintion de new_mesh (allocation de non structuré)
+!             redefintion de new_mesh (allocation de non structure)
 !------------------------------------------------------------------------------!

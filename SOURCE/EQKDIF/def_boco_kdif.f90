@@ -2,8 +2,8 @@
 ! Procedure : def_boco_kdif                    Auteur : J. Gressier
 !                                         Date   : Mars 2003
 ! Fonction                                Modif  : 
-!   Traitement des paramètres du fichier menu principal
-!   Paramètres principaux du projet
+!   Traitement des parametres du fichier menu principal
+!   Parametres principaux du projet
 !
 ! Defauts/Limitations/Divers :
 !
@@ -19,10 +19,10 @@ use MENU_BOCO
 
 implicit none
 
-! -- Declaration des entrées --
-type(rpmblock), target :: block    ! bloc RPM contenant les définitions
+! -- Declaration des entrees --
+type(rpmblock), target :: block    ! bloc RPM contenant les definitions
 integer                :: type     ! type de condition aux limites
-integer                :: unif     ! uniformité de la condition limite
+integer                :: unif     ! uniformite de la condition limite
 
 ! -- Declaration des sorties --
 type(st_boco_kdif) :: boco
@@ -30,7 +30,7 @@ type(st_boco_kdif) :: boco
 ! -- Declaration des variables internes --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: ib, nkey,i
-character(len=dimrpmlig) :: str            ! chaîne RPM intermédiaire
+character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- Debut de la procedure --
 
@@ -102,7 +102,7 @@ endsubroutine def_boco_kdif
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mars 2003 (v0.0.1b): création de la routine
+! mars 2003 (v0.0.1b): creation de la routine
 ! juin 2004 : conditions de Neumann et de convection
 !------------------------------------------------------------------------------!
 

@@ -2,7 +2,7 @@
 ! Procedure : integration                 Auteur : J. Gressier
 !                                         Date   : Juillet 2002
 ! Fonction                                Modif  : (cf historique)
-!   Integration totale jusqu'au critère d'arrêt du calcul
+!   Integration totale jusqu'au critere d'arret du calcul
 !
 ! Defauts/Limitations/Divers :
 !
@@ -18,10 +18,10 @@ use MODWORLD
 
 implicit none
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(st_world) :: lworld
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 
 ! -- Declaration des sorties --
 
@@ -29,7 +29,7 @@ type(st_world) :: lworld
 type(st_grid), pointer :: pgrid
 !real(krp)             :: macro_dt
 integer, dimension(:), allocatable &
-                       :: exchcycle ! indices des cycles d'échange pour les différents couplages de zones
+                       :: exchcycle ! indices des cycles d'echange pour les differents couplages de zones
 integer                :: ir, izone, if, ib, ic
 integer                :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
 
@@ -44,12 +44,12 @@ lworld%info%curtps          = 0._krp
 lworld%info%residu_ref      = 1._krp
 lworld%info%fin_integration = .false.
 
-! Allocation du tableau des indices de cycle d'échange pour les calculs couplés
+! Allocation du tableau des indices de cycle d'echange pour les calculs couples
 allocate(exchcycle(lworld%prj%ncoupling))
-exchcycle(:) = 1 ! initialisation à 1 : 1er échange au 1er cycle, à partir des conditions initiales
+exchcycle(:) = 1 ! initialisation a 1 : 1er echange au 1er cycle, a partir des conditions initiales
 
 
-! allocation des champs de résidus et gradients
+! allocation des champs de residus et gradients
 
 do izone = 1, lworld%prj%nzone
   pgrid => lworld%zone(izone)%grid
@@ -61,9 +61,9 @@ do izone = 1, lworld%prj%nzone
   enddo
 enddo
 
-! Faire appel à une subroutine contenant l'écriture
+! Faire appel a une subroutine contenant l'ecriture
 !------------------------------------------------------------------------------------------------
-! DVT : Ouverture du fichier de comparaison des flux à l'interface
+! DVT : Ouverture du fichier de comparaison des flux a l'interface
 !------------------------------------------------------------------------------------------------
 !if (lworld%prj%ncoupling > 0) then
 !  open(unit = uf_compflux, file = "compflux.dat", form = 'formatted')
@@ -78,7 +78,7 @@ do while (.not. lworld%info%fin_integration)
 
   lworld%info%icycle = lworld%info%icycle + 1
 
-  ! -- écriture d'informations en début de cycle --
+  ! -- ecriture d'informations en debut de cycle --
 
   select case(lworld%prj%typ_temps)
   case(stationnaire)
@@ -93,7 +93,7 @@ do while (.not. lworld%info%fin_integration)
 
   call print_info(6,str_w)
 
-  ! -- intégration d'un cycle --
+  ! -- integration d'un cycle --
 
   call integration_cycle(lworld, exchcycle, lworld%prj%ncoupling)  
 
@@ -105,12 +105,12 @@ do while (.not. lworld%info%fin_integration)
                              ncoupl1, lworld%coupling(ic)%boco)
   enddo
 
-  ! -- écriture d'informations en fin de cycle --
+  ! -- ecriture d'informations en fin de cycle --
 
   select case(lworld%prj%typ_temps)
 
   case(stationnaire)
-    write(str_w,'(a,g10.4)') "  Résidu de cycle = ", log10(lworld%info%cur_res/lworld%info%residu_ref)
+    write(str_w,'(a,g10.4)') "  Residu de cycle = ", log10(lworld%info%cur_res/lworld%info%residu_ref)
     if (lworld%info%cur_res/lworld%info%residu_ref <= lworld%prj%residumax) then
       lworld%info%fin_integration = .true.
     endif
@@ -129,12 +129,12 @@ do while (.not. lworld%info%fin_integration)
 
 enddo
 
-! Mise à jour des variables primitives
+! Mise a jour des variables primitives
 do izone = 1, lworld%prj%nzone
   call calc_varprim(lworld%zone(izone)%defsolver, lworld%zone(izone)%grid%field_loc)
 enddo
 
-! Mise à jour des conditions aux limites, notamment de couplage pour l'affichage des données :
+! Mise a jour des conditions aux limites, notamment de couplage pour l'affichage des donnees :
 if (lworld%prj%ncoupling > 0) then
   do ir = 1, lworld%prj%ncoupling
       call calcul_raccord(lworld, ir, iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2)
@@ -148,19 +148,19 @@ enddo
 
 
 !-----------------------------------------------------------------------------------------------------------------------
-! DVT : Fermeture du fichier de comparaison des flux à l'interface
+! DVT : Fermeture du fichier de comparaison des flux a l'interface
 !-----------------------------------------------------------------------------------------------------------------------
 !if (lworld%prj%ncoupling > 0) then
   close(uf_compflux)
 !endif
 !-----------------------------------------------------------------------------------------------------------------------
 
-! Désallocation du tableau d'indice de cycle d'échange pour le calcul couplé :
+! Desallocation du tableau d'indice de cycle d'echange pour le calcul couple :
 deallocate(exchcycle)
 
 do izone = 1, lworld%prj%nzone
- select case(lworld%zone(izone)%defsolver%typ_solver)    ! DEV : en attendant homogénéisation
- case(solKDIF)                                           ! de l'accès des champs dans 
+ select case(lworld%zone(izone)%defsolver%typ_solver)    ! DEV : en attendant homogeneisation
+ case(solKDIF)                                           ! de l'acces des champs dans 
    call dealloc_res(lworld%zone(izone)%grid%field_loc)       ! les structures MGRID
    call dealloc_grad(lworld%zone(izone)%grid%field_loc)
  case(solVORTEX)
@@ -172,11 +172,11 @@ endsubroutine integration
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juil 2002 : création de la procédure
-! juin 2003 : instant d'échange excht
-!             mise à jour des CL pour le fichier de sortie
-! sept 2003 : gestion du calcul par résidus (optionnel) + réorganisation
-! oct  2003 : remplacement d'instant d'échange excht par indice de cycle d'échange
+! juil 2002 : creation de la procedure
+! juin 2003 : instant d'echange excht
+!             mise a jour des CL pour le fichier de sortie
+! sept 2003 : gestion du calcul par residus (optionnel) + reorganisation
+! oct  2003 : remplacement d'instant d'echange excht par indice de cycle d'echange
 !              exchcycle
 ! avr  2004 : integration des structures MGRID pour tous les solveurs
 ! oct  2004 : field chained list

@@ -2,7 +2,7 @@
 ! Procedure : calc_varprim_ns             Auteur : J. Gressier
 !                                         Date   : Octobre 2003
 ! Fonction                                Modif  : (cf historique)
-!   Calcul des variables primitives à partir des variables conservatives
+!   Calcul des variables primitives a partir des variables conservatives
 !
 ! Defauts/Limitations/Divers :
 !
@@ -17,10 +17,10 @@ use DEFFIELD
 
 implicit none
 
-! -- Declaration des entrées --
-type(mnu_ns) :: defns       ! définition des paramètres du solveur
+! -- Declaration des entrees --
+type(mnu_ns) :: defns       ! definition des parametres du solveur
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(st_field)   :: field       ! champ primitives->conservatives
 
 ! -- Declaration des variables internes --
@@ -51,6 +51,6 @@ endsubroutine calc_varprim_ns
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! oct  2003 : création de la procédure
+! oct  2003 : creation de la procedure
 ! july 2004 : actual computations
 !------------------------------------------------------------------------------!

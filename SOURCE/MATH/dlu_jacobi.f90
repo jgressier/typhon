@@ -2,14 +2,14 @@
 ! Procedure : dlu_jacobi                  Auteur : J. Gressier
 !                                         Date   : Avril 2004
 ! Fonction                                Modif  : (cf historique)
-!   Resolution d'un systeme linéaire mat.sol = rhs
+!   Resolution d'un systeme lineaire mat.sol = rhs
 !     mat sous forme type(st_dlu)
-!     méthode itérative JACOBI : mat = D + L + U
+!     methode iterative JACOBI : mat = D + L + U
 !       sol(n+1) = D^(-1).-(L+U).sol(n) + D^(-1).rhs
 !
 ! Defauts/Limitations/Divers :
-!   - le tableau sol(*) est censé être déjà alloué
-!   - la résolution passe par l'allocation d'une matrice pleine (dim*dim)
+!   - le tableau sol(*) est cense etre deja alloue
+!   - la resolution passe par l'allocation d'une matrice pleine (dim*dim)
 !
 !------------------------------------------------------------------------------!
 subroutine dlu_jacobi(def_impli, mat, rhs, sol, info)
@@ -21,7 +21,7 @@ use MENU_NUM
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(mnu_imp) :: def_impli
 type(st_dlu)  :: mat
 real(krp)     :: rhs(1:mat%dim)
@@ -92,5 +92,5 @@ endsubroutine dlu_jacobi
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! avr  2004 : création de la procédure
+! avr  2004 : creation de la procedure
 !------------------------------------------------------------------------------!

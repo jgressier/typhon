@@ -2,8 +2,8 @@
 ! Procedure : def_time                    Auteur : J. Gressier
 !                                         Date   : Novembre 2002
 ! Fonction                                Modif  : (cf historique)
-!   Traitement des paramètres du fichier menu principal
-!   Paramètres d'intégration temporelle
+!   Traitement des parametres du fichier menu principal
+!   Parametres d'integration temporelle
 !
 ! Defauts/Limitations/Divers :
 !
@@ -20,7 +20,7 @@ use MENU_NUM
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(mnu_project)      :: prj
 type(rpmblock), target :: block
 integer                :: solver
@@ -32,11 +32,11 @@ type(mnu_time) :: deftime
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nkey           ! nombre de clefs
 integer                  :: i
-character(len=dimrpmlig) :: str            ! chaîne RPM intermédiaire
+character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- Debut de la procedure --
 
-call print_info(5,"- Définition des paramètres d'intégration temporelle")
+call print_info(5,"- Definition des parametres d'integration temporelle")
 
 ! -- Recherche du BLOCK:TIME_PARAM
 
@@ -44,9 +44,9 @@ pblock => block
 call seekrpmblock(pblock, "TIME_PARAM", 0, pcour, nkey)
 
 if (nkey /= 1) call erreur("lecture de menu", &
-                           "bloc TIME_PARAM inexistant ou surnuméraire")
+                           "bloc TIME_PARAM inexistant ou surnumeraire")
 
-! -- type de calcul du pas de temps, et paramètre associés
+! -- type de calcul du pas de temps, et parametre associes
 
 call rpmgetkeyvalstr(pcour, "DTCALC", str, "STABILITY_CONDITION")
 deftime%stab_meth = inull
@@ -67,19 +67,19 @@ case(stab_cond)
   case(solNS)
     call rpmgetkeyvalreal(pcour, "CFL", deftime%stabnb)
   case default
-    call erreur("lecture de menu","solveur inconnu (définition temporelle)")
+    call erreur("lecture de menu","solveur inconnu (definition temporelle)")
   endselect
 endselect
 
-! -- si stationnaire, critère d'arrêt --
+! -- si stationnaire, critere d'arret --
 
 call  rpmgetkeyvalreal(pcour, "RESIDUALS", deftime%maxres, prj%residumax)
 
-! -- type d'intégration temporelle --
+! -- type d'integration temporelle --
 
 deftime%local_dt = .false.
 
-! -- type de schéma temporel --
+! -- type de schema temporel --
 
 call rpmgetkeyvalstr(pcour, "METHOD", str, "EXPLICIT")
 deftime%tps_meth = inull
@@ -90,7 +90,7 @@ if (samestring(str,"IMPLICIT"))    deftime%tps_meth = tps_impl
 if (samestring(str,"DUAL-TIME"))   deftime%tps_meth = tps_dualt
 
 if (deftime%tps_meth == inull) &
-  call erreur("lecture de menu","type d'intégration temporelle inconnu")
+  call erreur("lecture de menu","type d'integration temporelle inconnu")
 
 select case(deftime%tps_meth)
 case(tps_expl)
@@ -109,7 +109,7 @@ case(tps_impl)
 
   select case(deftime%implicite%methode)
   case(alg_lu)
-    ! pas de paramètre supplémentaire
+    ! pas de parametre supplementaire
 
   case(alg_jac)
     call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 10_kpp)
@@ -125,7 +125,7 @@ case(tps_impl)
     call rpmgetkeyvalreal(pcour, "OVERRELAX", deftime%implicite%maxres, 1.e-4_krp)
 
   case default
-    call erreur("algèbre","méthode d'inversion inconnue")
+    call erreur("algebre","methode d'inversion inconnue")
   endselect
 
 case(tps_dualt)
@@ -138,7 +138,7 @@ endsubroutine def_time
 
 !------------------------------------------------------------------------------!
 ! Historique des modifications
-! nov  2002 : création (vide) pour lien avec l'arborescence
-! sept 2003 : lecture des paramètres de calcul du pas de temps
-! avr  2004 : lecture des paramètres d'intégration (implicitation)
+! nov  2002 : creation (vide) pour lien avec l'arborescence
+! sept 2003 : lecture des parametres de calcul du pas de temps
+! avr  2004 : lecture des parametres d'integration (implicitation)
 !------------------------------------------------------------------------------!

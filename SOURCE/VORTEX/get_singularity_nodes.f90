@@ -2,7 +2,7 @@
 ! Procedure : get_singularity_nodes       Auteur : J. Gressier
 !                                         Date   : Mars 2004
 ! Fonction                                Modif  : (cf historique)
-!   Recherche de tous les noeuds de calcul nécessaire des
+!   Recherche de tous les noeuds de calcul necessaire des
 !   vitesses induites
 !
 ! Defauts/Limitations/Divers :
@@ -17,7 +17,7 @@ use MENU_VORTEX
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(st_grid) :: grid
 
 ! -- Declaration des sorties --
@@ -35,7 +35,7 @@ endsubroutine get_singularity_nodes
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mars 2004 : création de la routine
+! mars 2004 : creation de la routine
 !------------------------------------------------------------------------------!
 
 

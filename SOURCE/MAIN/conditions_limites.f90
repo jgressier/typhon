@@ -17,8 +17,8 @@ use MGRID
 
 implicit none
 
-! -- Declaration des entrées --
-type(st_zone) :: lzone            ! zone à intégrer
+! -- Declaration des entrees --
+type(st_zone) :: lzone            ! zone a integrer
 
 ! -- Declaration des sorties --
 
@@ -42,6 +42,6 @@ endsubroutine conditions_limites
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! avr  2003 : création de la procédure
+! avr  2003 : creation de la procedure
 ! avr  2004 : suppression de STRMESH / boucle sur MGRID
 !------------------------------------------------------------------------------!

@@ -2,7 +2,7 @@
 ! Procedure : echange_zonedata            Auteur : E. Radenac
 !                                         Date   : Juin 2003
 ! Fonction                                Modif  :
-!   Echange de données entre zones de calcul
+!   Echange de donnees entre zones de calcul
 !
 ! Defauts/Limitations/Divers :
 !
@@ -16,17 +16,17 @@ use MODWORLD
 
 implicit none
 
-! -- Declaration des entrées         --
+! -- Declaration des entrees         --
 integer             :: ir               ! indice du couplage
 integer             :: iz1, iz2         ! indices des zones
 integer             :: ncoupl1, ncoupl2 ! indices des couplages des zones
 integer             :: nbc1, nbc2       ! indices des conditions limites des zones
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(st_world)      :: lworld
 
 ! -- Declaration des variables internes --
-real(krp)           :: dtexch ! pas de temps entre deux échanges
+real(krp)           :: dtexch ! pas de temps entre deux echanges
 
 ! -- Debut de la procedure --
 
@@ -34,7 +34,7 @@ select case(lworld%coupling(ir)%typ_calc)
    
 case(mesh_match)
 
-! pas de temps entre deux échanges
+! pas de temps entre deux echanges
 dtexch = lworld%coupling(ir)%n_tpsbase*lworld%prj%dtbase 
 
 ! ----PROVISOIRE pour affichage des champs avt et apres cor de flux-------------
@@ -52,13 +52,13 @@ call echange_zonematch(lworld%zone(iz1), lworld%zone(iz2), &
                        dtexch)
   
 case(mesh_nonmatch)
-  call erreur("Développement","'nonmatch' : Cas non implémenté")
+  call erreur("Developpement","'nonmatch' : Cas non implemente")
     
 case(mesh_slide)
-  call erreur("Développement","'slide' : Cas non implémenté")
+  call erreur("Developpement","'slide' : Cas non implemente")
     
 case default
-  call erreur("Développement (echange_zonedata)","Cas non implémenté")
+  call erreur("Developpement (echange_zonedata)","Cas non implemente")
   
 endselect 
 
@@ -67,9 +67,9 @@ endsubroutine echange_zonedata
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mai 2003 : création de la procédure
+! mai 2003 : creation de la procedure
 ! oct 2003 : ajout coef correction de flux
-! oct 2003 : ajout du type temporel d'intégration pour choix dans
+! oct 2003 : ajout du type temporel d'integration pour choix dans
 !            echange_zonematch
-! avr 2004 : modification en structure MGRID, limité à une grille
+! avr 2004 : modification en structure MGRID, limite a une grille
 !------------------------------------------------------------------------------!

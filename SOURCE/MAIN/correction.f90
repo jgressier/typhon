@@ -1,8 +1,8 @@
 !------------------------------------------------------------------------------
 ! Procedure : correction                  Auteur : E. Radenac
-!                                         Date   : Février 2004
+!                                         Date   : Fevrier 2004
 ! Fonction                                Modif  :
-!   Application de la correction cumulée de bilan de flux
+!   Application de la correction cumulee de bilan de flux
 !
 ! Defauts/Limitations/Divers : 
 !------------------------------------------------------------------------------
@@ -20,13 +20,13 @@ use TYPHMAKE
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 integer                    :: nfacelim            ! nombre de faces limites
 real(krp), dimension(nfacelim) &
                            :: corcoef   ! coefficient de correction de flux
 integer                    :: nbc1, nbc2 ! indice des conditions aux limites 
-integer                    :: ncoupl1, ncoupl2 ! numéro (identité) du raccord
-real(krp)                  :: part_cor1, part_cor2 ! part de la correction à 
+integer                    :: ncoupl1, ncoupl2 ! numero (identite) du raccord
+real(krp)                  :: part_cor1, part_cor2 ! part de la correction a 
                                                 ! apporter, dans les deux zones
 integer                    :: typ_cor1, typ_cor2 ! type de correction
 logical                    :: fincycle
@@ -39,7 +39,7 @@ integer                        :: ifield
 
 ! -- Debut de la procedure --
 
-! Supplément de flux pour éch. espacés : calcul de la différence à appliquer
+! Supplement de flux pour ech. espaces : calcul de la difference a appliquer
 
 call calcdifflux(zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal, &
                   zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal, &
@@ -69,7 +69,7 @@ endsubroutine correction
 !------------------------------------------------------------------------------
 ! Historique des modifications
 !
-! fev  2004 : création de la procédure
-! avr  2004 : changement de structure (MGRID) : limité à une grille
+! fev  2004 : creation de la procedure
+! avr  2004 : changement de structure (MGRID) : limite a une grille
 ! oct  2004 : field chained list
 !------------------------------------------------------------------------------

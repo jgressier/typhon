@@ -2,18 +2,18 @@
 ! Procedure : erreur                      Auteur : J. Gressier
 !                                         Date   : Juillet 2002
 ! Fonction                                Modif  : 
-!   Affichage d'une erreur et arrêt du programme
-!   Ecriture sur unité iout et fichier log 
+!   Affichage d'une erreur et arret du programme
+!   Ecriture sur unite iout et fichier log 
 !
 !------------------------------------------------------------------------------!
 subroutine erreur(str1, str2)
 use OUTPUT
 implicit none
 
-! -- Declaration des entrées --
-integer          iout            ! numero d'unité pour les erreurs
-character(len=*) str1            ! chaîne 1
-character(len=*) str2            ! chaîne 2
+! -- Declaration des entrees --
+integer          iout            ! numero d'unite pour les erreurs
+character(len=*) str1            ! chaine 1
+character(len=*) str2            ! chaine 2
 
 ! -- Debut de la procedure --
 

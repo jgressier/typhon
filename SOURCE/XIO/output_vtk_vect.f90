@@ -20,9 +20,9 @@ use DEFFIELD
 
 implicit none
 
-! -- Declaration des entrées --
-integer           :: uf            ! unité d'écriture
-type(st_ustmesh)  :: ust_mesh      ! maillage à écrire
+! -- Declaration des entrees --
+integer           :: uf            ! unite d'ecriture
+type(st_ustmesh)  :: ust_mesh      ! maillage a ecrire
 type(st_vecfield) :: vecfld        ! champ de valeurs
 character(len=*)  :: name          ! nom de la variable
 

@@ -2,13 +2,13 @@
 ! Procedure : dlu_lu                      Auteur : J. Gressier
 !                                         Date   : Avril 2004
 ! Fonction                                Modif  : (cf historique)
-!   Resolution d'un systeme linéaire mat.sol = rhs
+!   Resolution d'un systeme lineaire mat.sol = rhs
 !     mat sous forme type(st_dlu)
-!     méthode directe : décomposition LU et resolution
+!     methode directe : decomposition LU et resolution
 !
 ! Defauts/Limitations/Divers :
-!   - le tableau sol(*) est censé être déjà alloué
-!   - la résolution passe par l'allocation d'une matrice pleine (dim*dim)
+!   - le tableau sol(*) est cense etre deja alloue
+!   - la resolution passe par l'allocation d'une matrice pleine (dim*dim)
 !
 !------------------------------------------------------------------------------!
 subroutine dlu_lu(mat, rhs, sol)
@@ -19,7 +19,7 @@ use LAPACK
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(st_dlu)            :: mat
 real(krp), dimension(*) :: rhs
 
@@ -62,18 +62,18 @@ pvec(1:mat%dim, 1) = rhs(1:mat%dim)
 
 allocate(piv(mat%dim))
 
-! décomposition LU dans pmat
+! decomposition LU dans pmat
 
 call lapack_getrf(mat%dim, mat%dim, pmat, mat%dim, piv, info)
 
-if (info /= 0) call erreur("résolution matricielle",&
-                           "problème dans la décomposition LU")
+if (info /= 0) call erreur("resolution matricielle",&
+                           "probleme dans la decomposition LU")
 
-! resolution RHS dans pvec en entrée, solution en sortie
+! resolution RHS dans pvec en entree, solution en sortie
 call lapack_getrs('N', mat%dim, 1, pmat, mat%dim, piv, pvec, mat%dim, info)
 
-if (info /= 0) call erreur("résolution matricielle",&
-                           "problème dans l'inversion")
+if (info /= 0) call erreur("resolution matricielle",&
+                           "probleme dans l'inversion")
 
 ! -- redistribution --
 sol(1:mat%dim) = pvec(1:mat%dim, 1)
@@ -88,5 +88,5 @@ endsubroutine dlu_lu
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! avr  2004 : création de la procédure
+! avr  2004 : creation de la procedure
 !------------------------------------------------------------------------------!

@@ -3,7 +3,7 @@
 !                                         Date   : Octobre 2002
 ! Fonction                                Modif  : 
 !   Variables globales du code TYPHON
-!   Definition de la précision machine et de tailles générales
+!   Definition de la precision machine et de tailles generales
 !
 ! Defauts/Limitations/Divers :
 !

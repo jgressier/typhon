@@ -2,7 +2,7 @@
 ! Procedure : calc_bilan                  Auteur : J. Gressier
 !                                         Date   : Aout 2002
 ! Fonction                                Modif  :
-!   Calcul des bilans à partir des variables, des termes volumiques
+!   Calcul des bilans a partir des variables, des termes volumiques
 !   et des termes surfaciques
 !
 ! Defauts/Limitations/Divers :
@@ -18,9 +18,9 @@ use STRMESH
 
 implicit none
 
-! -- Declaration des entrées --
-type(mnu_solver) :: typ_solver       ! type d'équation à résoudre
-type(st_block)   :: domaine          ! domaine structuré à intégrer
+! -- Declaration des entrees --
+type(mnu_solver) :: typ_solver       ! type d'equation a resoudre
+type(st_block)   :: domaine          ! domaine structure a integrer
 
 ! -- Declaration des sorties --
 ! domaine

@@ -2,8 +2,8 @@
 ! PROGRAM : TYPHON                        Auteur : J. Gressier
 !                                         Date   : Juillet 2002
 ! 
-! Plateforme de résolution de systèmes d'équations 
-! par discrétisation Volumes Finis / Singularités
+! Plateforme de resolution de systemes d'equations 
+! par discretisation Volumes Finis / Singularites
 !   
 ! Historique des versions (cf fichier VERSIONS)
 !

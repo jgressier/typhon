@@ -45,7 +45,7 @@ type rpmdata
                          :: name        ! noms des variables
   real, dimension(:,:), pointer &
                          :: tab         ! tableau de valeurs (nbvar,nbpts)
-  type(rpmdata), pointer :: next        ! pointeur sur un éventuel bloc suivant
+  type(rpmdata), pointer :: next        ! pointeur sur un eventuel bloc suivant
 endtype
 
 ! -- INTERFACES -------------------------------------------------------------
@@ -66,7 +66,7 @@ interface rpmgetkeyvalreal
   module procedure rpmgetkeyvalrealsp, rpmgetkeyvalrealdp
 endinterface
 
-! -- Procédures, Fonctions et Operateurs ------------------------------------
+! -- Procedures, Fonctions et Operateurs ------------------------------------
 !
 ! subroutine create_rpmblock  (pblock, name)
 ! subroutine create_rpmdata   (pdata)
@@ -90,8 +90,8 @@ endinterface
 !integer numvar_inrpmdata
 !interface numvar_inrpmdata
 !  function numvar_inrpmdata (strvar, data)
-!    character(len=*)       :: strvar  ! nom de variable à chercher
-!    type(rpmdata), pointer :: data    ! structure de données concernée
+!    character(len=*)       :: strvar  ! nom de variable a chercher
+!    type(rpmdata), pointer :: data    ! structure de donnees concernee
 !    integer                :: numvar_inrpmdata
 !  end
 !endinterface
@@ -102,10 +102,10 @@ endinterface
 contains
 
 !------------------------------------------------------------------------------!
-! Les procédures des fichiers F90 sont incluses par commande INCLUDE
-! L'implémentation doit être interne au module car elle affecte des pointeurs
-! en tant que résultat (en particulier, allocation)
-! Les déclarations doivent être explicites
+! Les procedures des fichiers F90 sont incluses par commande INCLUDE
+! L'implementation doit etre interne au module car elle affecte des pointeurs
+! en tant que resultat (en particulier, allocation)
+! Les declarations doivent etre explicites
 !------------------------------------------------------------------------------!
 
   include "rpm_gestalloc.F90"
@@ -124,7 +124,7 @@ endmodule RPM
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! fev  2002 (v0.0.1b): création du module
-! juil 2003          : ajout des procédures "get" double précision
+! fev  2002 (v0.0.1b): creation du module
+! juil 2003          : ajout des procedures "get" double precision
 !------------------------------------------------------------------------------!
 

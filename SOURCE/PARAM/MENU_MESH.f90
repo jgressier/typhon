@@ -2,7 +2,7 @@
 ! MODULE : MENU_MESH                      Auteur : J. Gressier
 !                                         Date   : Novembre 2002
 ! Fonction                                Modif  : 
-!   Définition des structures pour les entrées du programme TYPHON
+!   Definition des structures pour les entrees du programme TYPHON
 !   Structures pour la lecture de maillage
 !
 ! Defauts/Limitations/Divers :
@@ -22,7 +22,7 @@ implicit none
 
 
 !------------------------------------------------------------------------------!
-! structure MNU_MESH : paramètres pour la distribution entre processeurs
+! structure MNU_MESH : parametres pour la distribution entre processeurs
 !------------------------------------------------------------------------------!
 type mnu_mesh
   character             :: format      ! cf VARCOM

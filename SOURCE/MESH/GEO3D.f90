@@ -2,7 +2,7 @@
 ! MODULE : GEO3D                          Auteur : J. Gressier
 !                                         Date   : Mai 2002
 ! Fonction                                Modif  : (cf historique)
-!   Bibliotheque de procedures et fonctions pour le calcul géométrique 3D
+!   Bibliotheque de procedures et fonctions pour le calcul geometrique 3D
 !
 ! Defauts/Limitations/Divers :
 !
@@ -135,7 +135,7 @@ type(v3d), intent(in) :: v1, v2
 endfunction v3d_addition
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul différence de vecteur
+! Fonction : calcul difference de vecteur
 !------------------------------------------------------------------------------!
 type(v3d) function v3d_substraction(v1, v2)
 implicit none
@@ -148,7 +148,7 @@ type(v3d), intent(in) :: v1, v2
 endfunction v3d_substraction
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul de l'opposé d'un vecteur
+! Fonction : calcul de l'oppose d'un vecteur
 !------------------------------------------------------------------------------!
 type(v3d) function v3d_opp(v)
 implicit none
@@ -161,7 +161,7 @@ type(v3d), intent(in) :: v
 endfunction v3d_opp
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul de multiplication de vecteur par réel
+! Fonction : calcul de multiplication de vecteur par reel
 !------------------------------------------------------------------------------!
 type(v3d) function v3d_multiplysp(x, v)
 implicit none
@@ -175,7 +175,7 @@ type(v3d), intent(in) :: v
 endfunction v3d_multiplysp
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul de multiplication de vecteur par réel
+! Fonction : calcul de multiplication de vecteur par reel
 !------------------------------------------------------------------------------!
 type(v3d) function v3d_multiplydp(x, v)
 implicit none
@@ -189,28 +189,28 @@ type(v3d), intent(in) :: v
 endfunction v3d_multiplydp
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul de division de vecteur par réel
+! Fonction : calcul de division de vecteur par reel
 !------------------------------------------------------------------------------!
 type(v3d) function v3d_divisionsp(v,x)
 implicit none
 real(4),   intent(in) :: x
 type(v3d), intent(in) :: v
 
-  v3d_divisionsp%x = v%x / x   ! DEV / à optimiser
+  v3d_divisionsp%x = v%x / x   ! DEV / a optimiser
   v3d_divisionsp%y = v%y / x
   v3d_divisionsp%z = v%z / x 
 
 endfunction v3d_divisionsp
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul de division de vecteur par réel
+! Fonction : calcul de division de vecteur par reel
 !------------------------------------------------------------------------------!
 type(v3d) function v3d_divisiondp(v,x)
 implicit none
 real(8),   intent(in) :: x
 type(v3d), intent(in) :: v
 
-  v3d_divisiondp%x = v%x / x    ! DEV / à optimiser
+  v3d_divisiondp%x = v%x / x    ! DEV / a optimiser
   v3d_divisiondp%y = v%y / x
   v3d_divisiondp%z = v%z / x 
 
@@ -229,7 +229,7 @@ endfunction v3d_norme
 
 
 !------------------------------------------------------------------------------!
-! Fonction : carré de la norme de vecteur
+! Fonction : carre de la norme de vecteur
 !------------------------------------------------------------------------------!
 real(krp) function v3d_sqrnorme(v)
 implicit none
@@ -271,7 +271,7 @@ endmodule GEO3D
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mai  2002 : création du module
-! juil 2003 : compatibilité des opérateurs toute précision
+! mai  2002 : creation du module
+! juil 2003 : compatibilite des operateurs toute precision
 !------------------------------------------------------------------------------!
 

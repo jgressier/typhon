@@ -31,7 +31,7 @@ interface integ_trap_cyl
   module procedure integ_trap_cylsp, integ_trap_cyldp
 endinterface
 
-! -- Procédures, Fonctions et Operateurs ------------------------------------
+! -- Procedures, Fonctions et Operateurs ------------------------------------
 !
 
 !------------------------------------------------------------------------------!
@@ -61,7 +61,7 @@ endsubroutine integ_err
 ! Fonction : integ_trapsp                  Auteur : J. Gressier
 !                                         Date   : Avril 2002
 ! Fonction                                Modif  :
-!   Integration par la méthode des trapèzes à partir de
+!   Integration par la methode des trapezes a partir de
 !   deux couples de valeurs (x,y) 
 !
 ! Defauts/Limitations/Divers :
@@ -70,8 +70,8 @@ endsubroutine integ_err
 !------------------------------------------------------------------------------!
 function integ_trapsp(cp1, cp2)
 implicit none 
-! -- Declaration des entrées --
-real, dimension(2) :: cp1, cp2    ! données pour la définition de la droite
+! -- Declaration des entrees --
+real, dimension(2) :: cp1, cp2    ! donnees pour la definition de la droite
 ! -- Declaration des sorties --
 real               :: integ_trapsp
 ! -- Debut de la procedure --
@@ -86,7 +86,7 @@ endfunction integ_trapsp
 ! Fonction : integ_trapdp                  Auteur : J. Gressier
 !                                         Date   : Avril 2002
 ! Fonction                                Modif  :
-!   Integration par la méthode des trapèzes à partir de
+!   Integration par la methode des trapezes a partir de
 !   deux couples de valeurs (x,y) 
 !
 ! Defauts/Limitations/Divers :
@@ -95,8 +95,8 @@ endfunction integ_trapsp
 !------------------------------------------------------------------------------!
 function integ_trapdp(cp1, cp2)
 implicit none 
-! -- Declaration des entrées --
-double precision, dimension(2) :: cp1, cp2    ! données pour la définition de la droite
+! -- Declaration des entrees --
+double precision, dimension(2) :: cp1, cp2    ! donnees pour la definition de la droite
 ! -- Declaration des sorties --
 double precision               :: integ_trapdp
 ! -- Debut de la procedure --
@@ -111,8 +111,8 @@ endfunction integ_trapdp
 ! Fonction : integ_trap_cylsp                  Auteur : J. Gressier
 !                                         Date   : Avril 2002
 ! Fonction                                Modif  :
-!   Integration par la méthode des trapèzes à partir de
-!   deux couples de valeurs (r,y) dans un repère cylindrique
+!   Integration par la methode des trapezes a partir de
+!   deux couples de valeurs (r,y) dans un repere cylindrique
 !
 ! Defauts/Limitations/Divers :
 !   L'integration est d'ordre 2
@@ -120,8 +120,8 @@ endfunction integ_trapdp
 !------------------------------------------------------------------------------!
 function integ_trap_cylsp(cp1, cp2)
 implicit none 
-! -- Declaration des entrées --
-real, dimension(2) :: cp1, cp2    ! données pour la définition de la droite
+! -- Declaration des entrees --
+real, dimension(2) :: cp1, cp2    ! donnees pour la definition de la droite
 ! -- Declaration des sorties --
 real               :: integ_trap_cylsp
 ! -- Debut de la procedure --
@@ -136,8 +136,8 @@ endfunction integ_trap_cylsp
 ! Fonction : integ_trap_cyldp             Auteur : J. Gressier
 !                                         Date   : Avril 2002
 ! Fonction                                Modif  :
-!   Integration par la méthode des trapèzes à partir de
-!   deux couples de valeurs (r,y) dans un repère cylindrique
+!   Integration par la methode des trapezes a partir de
+!   deux couples de valeurs (r,y) dans un repere cylindrique
 !
 ! Defauts/Limitations/Divers :
 !   L'integration est d'ordre 2
@@ -145,8 +145,8 @@ endfunction integ_trap_cylsp
 !------------------------------------------------------------------------------!
 function integ_trap_cyldp(cp1, cp2)
 implicit none 
-! -- Declaration des entrées --
-double precision, dimension(2) :: cp1, cp2    ! données pour la définition de la droite
+! -- Declaration des entrees --
+double precision, dimension(2) :: cp1, cp2    ! donnees pour la definition de la droite
 ! -- Declaration des sorties --
 double precision               :: integ_trap_cyldp
 ! -- Debut de la procedure --

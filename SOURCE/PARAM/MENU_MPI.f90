@@ -2,8 +2,8 @@
 ! MODULE : MENU_MPI                     Auteur : J. Gressier
 !                                         Date   : Novembre 2002
 ! Fonction                                Modif  : 
-!   Définition des structures pour les entrées du programme TYPHON
-!   Structures pour les paramètres de distribution entre processeurs
+!   Definition des structures pour les entrees du programme TYPHON
+!   Structures pour les parametres de distribution entre processeurs
 !
 ! Defauts/Limitations/Divers :
 !
@@ -22,10 +22,10 @@ implicit none
 
 
 !------------------------------------------------------------------------------!
-! structure MNU_MPI : paramètres pour la distribution entre processeurs
+! structure MNU_MPI : parametres pour la distribution entre processeurs
 !------------------------------------------------------------------------------!
 type mnu_mpi
-  character       :: temps      ! (S)tationnaire, (I)nstationnaire, (P)ériodique
+  character       :: temps      ! (S)tationnaire, (I)nstationnaire, (P)eriodique
 endtype mnu_mpi
 
 

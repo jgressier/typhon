@@ -2,8 +2,8 @@
 ! MODULE : MENU_NUM                       Auteur : J. Gressier
 !                                         Date   : Mai 2002
 ! Fonction                                Modif  : (cf historique)
-!   Définition des structures pour les entrées du programme TYPHON
-!   Structures pour les options numériques
+!   Definition des structures pour les entrees du programme TYPHON
+!   Structures pour les options numeriques
 !
 ! Defauts/Limitations/Divers :
 !
@@ -17,7 +17,7 @@ implicit none
 
 ! -- Variables globales du module -------------------------------------------
 
-! -- Constantes pour le choix du paramètre "temps"
+! -- Constantes pour le choix du parametre "temps"
 !character, parameter :: stationnaire   = 'S'
 !character, parameter :: instationnaire = 'I'
 !character, parameter :: periodique     = 'P'
@@ -26,13 +26,13 @@ implicit none
 integer(kpp), parameter :: given_dt  = 1
 integer(kpp), parameter :: stab_cond = 2
 
-! -- Constantes pour la méthode d'intégration temporelle
-integer(kpp), parameter :: tps_expl  = 10   ! intégration explicite basique
-integer(kpp), parameter :: tps_impl  = 20   ! intégration implicite linéarisé (theta schéma)
-integer(kpp), parameter :: tps_dualt = 25   ! intégration implicite / convergence locale
-integer(kpp), parameter :: tps_rk    = 30   ! intégration en Runge Kutta explicite
+! -- Constantes pour la methode d'integration temporelle
+integer(kpp), parameter :: tps_expl  = 10   ! integration explicite basique
+integer(kpp), parameter :: tps_impl  = 20   ! integration implicite linearise (theta schema)
+integer(kpp), parameter :: tps_dualt = 25   ! integration implicite / convergence locale
+integer(kpp), parameter :: tps_rk    = 30   ! integration en Runge Kutta explicite
 
-! -- Constantes pour schéma de calcul des flux hyperboliques (sch_hyp)
+! -- Constantes pour schema de calcul des flux hyperboliques (sch_hyp)
 integer(kpp), parameter :: sch_roe      = 10
 integer(kpp), parameter :: sch_osher_no = 15
 integer(kpp), parameter :: sch_osher_io = 16
@@ -48,20 +48,20 @@ integer(kpp), parameter :: sch_efm      = 40
 integer(kpp), parameter :: sch_efmo     = 50
 integer(kpp), parameter :: sch_ausmm    = 50
 
-! -- Constantes pour schéma de calcul des flux dissipatifs (sch_dis)
-integer(kpp), parameter :: dis_dif2 = 1     ! différence des 2 états/face (NON CONSISTANT)
+! -- Constantes pour schema de calcul des flux dissipatifs (sch_dis)
+integer(kpp), parameter :: dis_dif2 = 1     ! difference des 2 etats/face (NON CONSISTANT)
 integer(kpp), parameter :: dis_avg2 = 5     ! moyenne des 2 gradients/face
-integer(kpp), parameter :: dis_full = 10    ! évaluation complète (pondérée de 1 et 5)
+integer(kpp), parameter :: dis_full = 10    ! evaluation complete (ponderee de 1 et 5)
 
 ! -- Constantes pour le calcul des gradients (gradmeth)
-integer(kpp), parameter :: lsm1 = 10     ! moindres carrés basée sur les centres voisins
+integer(kpp), parameter :: lsm1 = 10     ! moindres carres basee sur les centres voisins
 
-! -- Constantes pour la méthode de résolution matricielle
-integer(kpp), parameter :: alg_lu    = 10  ! résolution directe LU
-integer(kpp), parameter :: alg_cho   = 15  ! resolution directe (décomposition Choleski) (SYM)
-integer(kpp), parameter :: alg_jac   = 20  ! resolution itérative Jacobi
-integer(kpp), parameter :: alg_gs    = 25  ! resolution itérative Gauss-Seidel
-integer(kpp), parameter :: alg_sor   = 26  ! resolution itérative Gauss-Seidel avec OverRelaxation
+! -- Constantes pour la methode de resolution matricielle
+integer(kpp), parameter :: alg_lu    = 10  ! resolution directe LU
+integer(kpp), parameter :: alg_cho   = 15  ! resolution directe (decomposition Choleski) (SYM)
+integer(kpp), parameter :: alg_jac   = 20  ! resolution iterative Jacobi
+integer(kpp), parameter :: alg_gs    = 25  ! resolution iterative Gauss-Seidel
+integer(kpp), parameter :: alg_sor   = 26  ! resolution iterative Gauss-Seidel avec OverRelaxation
 integer(kpp), parameter :: alg_gmres = 40  ! resol. par proj. : GMRES
 
 
@@ -69,59 +69,59 @@ integer(kpp), parameter :: alg_gmres = 40  ! resol. par proj. : GMRES
 
 
 !------------------------------------------------------------------------------!
-! structure MNU_RK : options numériques pour la méthode Runge Kutta
+! structure MNU_RK : options numeriques pour la methode Runge Kutta
 !------------------------------------------------------------------------------!
 type mnu_rk
-  integer(kpp)    :: ordre        ! ordre d'intégration temporelle Runge-Kutta
+  integer(kpp)    :: ordre        ! ordre d'integration temporelle Runge-Kutta
 endtype mnu_rk
 
 !------------------------------------------------------------------------------!
-! structure MNU_IMP : options numériques pour l'implicitation
+! structure MNU_IMP : options numeriques pour l'implicitation
 !------------------------------------------------------------------------------!
 type mnu_imp
-  integer(kpp)    :: methode      ! méthode d'inversion matricielle
-  integer(kpp)    :: max_it       ! nombre d'itération maximal
+  integer(kpp)    :: methode      ! methode d'inversion matricielle
+  integer(kpp)    :: max_it       ! nombre d'iteration maximal
   real(krp)       :: ponderation  ! ponderation implicite/explicite
   real(krp)       :: maxres       ! residu maximal pour convergence de l'inversion
-  real(krp)       :: overrelax    ! paramètre de surrelaxation
+  real(krp)       :: overrelax    ! parametre de surrelaxation
 endtype mnu_imp
 
 !------------------------------------------------------------------------------!
-! structure MNU_TIME : options numériques pour l'intégration temporelle
+! structure MNU_TIME : options numeriques pour l'integration temporelle
 !------------------------------------------------------------------------------!
 type mnu_time
-  integer(kpp)    :: temps      ! (S)tationnaire, (I)nstationnaire, (P)ériodique
-  integer(kpp)    :: tps_meth   ! méthode d'intégration temporelle
+  integer(kpp)    :: temps      ! (S)tationnaire, (I)nstationnaire, (P)eriodique
+  integer(kpp)    :: tps_meth   ! methode d'integration temporelle
   logical         :: local_dt   ! methode de calcul du pas de temps (global/local)
-  integer(kpp)    :: stab_meth  ! methode de calcul de la stabilité
-  real(krp)       :: dt, stabnb ! pas de temps fixe ou nombre de stabilité associé
+  integer(kpp)    :: stab_meth  ! methode de calcul de la stabilite
+  real(krp)       :: dt, stabnb ! pas de temps fixe ou nombre de stabilite associe
                                 !                      (CFL/Fourier)
-  real(krp)       :: maxres     ! résidu maximal pour convergence de la zone
-  type(mnu_rk)    :: rk         ! paramètres de la méthode Runge Kutta
-  type(mnu_imp)   :: implicite  ! paramètres pour la méthode d'implicitation
+  real(krp)       :: maxres     ! residu maximal pour convergence de la zone
+  type(mnu_rk)    :: rk         ! parametres de la methode Runge Kutta
+  type(mnu_imp)   :: implicite  ! parametres pour la methode d'implicitation
 endtype mnu_time
 
 !------------------------------------------------------------------------------!
-! structure MNU_MUSCL : options numériques pour la méthode MUSCL
+! structure MNU_MUSCL : options numeriques pour la methode MUSCL
 !------------------------------------------------------------------------------!
 type mnu_muscl
-  real(krp)      :: precision     ! paramètre de précision
-  real(krp)      :: compression   ! paramètre de compression
+  real(krp)      :: precision     ! parametre de precision
+  real(krp)      :: compression   ! parametre de compression
   character      :: limiteur      ! limiteur (X) aucun, (M)inmod, (V)an Leer
                                   !          (A) Van Albada, (S)uperbee
 endtype mnu_muscl
 
 !------------------------------------------------------------------------------!
-! structure MNU_SPAT : options numériques pour l'intégration spatiale
+! structure MNU_SPAT : options numeriques pour l'integration spatiale
 !------------------------------------------------------------------------------!
 type mnu_spat
-  integer(kpp)    :: ordre        ! ordre d'intégration spatiale
-  integer(kpp)    :: sch_hyp      ! type de schéma pour les flux hyperboliques
-  integer(kpp)    :: sch_dis      ! type de schéma pour les flux dissipatifs
-  character       :: methode      ! méthode d'ordre élevé (M)USCL, (E)NO
-  integer(kpp)    :: gradmeth     ! méthode de calcul des gradients
-  logical         :: calc_grad    ! nécessite le calcul des gradients
-  type(mnu_muscl) :: muscl        ! paramètres de la méthode MUSCL
+  integer(kpp)    :: ordre        ! ordre d'integration spatiale
+  integer(kpp)    :: sch_hyp      ! type de schema pour les flux hyperboliques
+  integer(kpp)    :: sch_dis      ! type de schema pour les flux dissipatifs
+  character       :: methode      ! methode d'ordre eleve (M)USCL, (E)NO
+  integer(kpp)    :: gradmeth     ! methode de calcul des gradients
+  logical         :: calc_grad    ! necessite le calcul des gradients
+  type(mnu_muscl) :: muscl        ! parametres de la methode MUSCL
 endtype mnu_spat
 
 
@@ -141,7 +141,7 @@ endmodule MENU_NUM
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mai  2002 : création du module
-! aout 2003 : paramètres pour l'intégration temporelle (Fourier, résidu)
-! sept 2003 : paramètres pour l'intégration spatiale (calcul de gradients)
+! mai  2002 : creation du module
+! aout 2003 : parametres pour l'integration temporelle (Fourier, residu)
+! sept 2003 : parametres pour l'integration spatiale (calcul de gradients)
 !------------------------------------------------------------------------------!

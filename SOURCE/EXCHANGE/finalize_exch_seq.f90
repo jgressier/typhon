@@ -16,7 +16,7 @@ use MODINFO
 
 implicit none
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(st_info) :: winfo
 
 ! -- Declaration des sorties --
@@ -35,5 +35,5 @@ endsubroutine finalize_exch
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! july 2004 : création de la procédure
+! july 2004 : creation de la procedure
 !------------------------------------------------------------------------------!

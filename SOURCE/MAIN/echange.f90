@@ -2,7 +2,7 @@
 ! Procedure : echange            	  Auteur : E. Radenac
 !                                         Date   : Mai 2003
 ! Fonction                                Modif  : Juin 2003
-!   Echange de données entre zones de calcul
+!   Echange de donnees entre zones de calcul
 !
 ! Defauts/Limitations/Divers :
 !
@@ -20,13 +20,13 @@ use MENU_BOCO
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(st_genericfield)      :: echdata1, echdata2
 integer                    :: nfacelim   ! nombre de faces limites sur l'interface
 type(v3d), dimension(nfacelim) &
                            :: vecinter                ! vecteur unitaire "intercellules"                       
 type(v3d), dimension(nfacelim) &
-                           :: normale ! normales à l'interface
+                           :: normale ! normales a l'interface
 
 real(krp), dimension(nfacelim) &
 		           :: d1, d2  ! distance entre les centres des cellules gauche,
@@ -36,7 +36,7 @@ integer                    :: solvercoupling
 integer, dimension(nfacelim) &
                            :: connface2
 
-! -- Declaration des entrées/sorties --2
+! -- Declaration des entrees/sorties --2
 type(mnu_boco)             :: boco1, boco2
 
 ! -- Declaration des variables internes --
@@ -50,18 +50,18 @@ call echange_kdif(echdata1, echdata2, normale, vecinter, d1, d2, nfacelim, &
  			typecalcul, typemethode, boco1%boco_kdif, &
                         boco2%boco_kdif, connface2)
 case(kdif_ns)
-call erreur("incohérence interne (echange)", "non implémenté")
+call erreur("incoherence interne (echange)", "non implemente")
 
 case(ns_ns)
-call erreur("incohérence interne (echange)", "non implémenté")
+call erreur("incoherence interne (echange)", "non implemente")
 
 case default
-call erreur("incohérence interne (echange)", "couplage de solvers inconnu")
+call erreur("incoherence interne (echange)", "couplage de solvers inconnu")
 
 endselect
 
 
-! "Détermination" du pas de temps d'échange (minimum, maximum, senseurs) avant l'échange suivant
+! "Determination" du pas de temps d'echange (minimum, maximum, senseurs) avant l'echange suivant
 ! ??
 !call calc_tps_echange()
 

@@ -2,8 +2,8 @@
 ! Procedure : calcboco_ust_extrapol       Auteur : J. Gressier
 !                                         Date   : Avril 2003
 ! Fonction                                Modif  : Juin  2003 (cf Historique)
-!   Intégration d'une zone sur un écart de temps donné,
-!   d'une représentation physique uniquement
+!   Integration d'une zone sur un ecart de temps donne,
+!   d'une representation physique uniquement
 !
 ! Defauts/Limitations/Divers :
 !   ATTENTION : le calcul des conditions aux limites doit se faire sur les
@@ -21,17 +21,17 @@ use DEFFIELD
 
 implicit none
 
-! -- Declaration des entrées --
-type(mnu_boco)   :: defboco          ! paramètres de conditions aux limites
+! -- Declaration des entrees --
+type(mnu_boco)   :: defboco          ! parametres de conditions aux limites
 type(st_ustboco) :: ustboco          ! lieu d'application des conditions aux limites
-type(st_ustmesh) :: ustdom           ! maillage non structuré
+type(st_ustmesh) :: ustdom           ! maillage non structure
 
 ! -- Declaration des sorties --
-type(st_field)   :: champ            ! champ des états
+type(st_field)   :: champ            ! champ des etats
 
 ! -- Declaration des variables internes --
-integer          :: ifb, if, ip      ! index de liste, index de face limite, et paramètre
-integer          :: icell, ighost    ! index de cellule intérieure, et de cellule fictive
+integer          :: ifb, if, ip      ! index de liste, index de face limite, et parametre
+integer          :: icell, ighost    ! index de cellule interieure, et de cellule fictive
 
 ! -- Debut de la procedure --
 
@@ -54,7 +54,7 @@ case(extrap_quantity)
   enddo
   
 case(extrap_gradient)
-  call erreur("Développement","Extrapolation d'ordre 2 non implémentée")
+  call erreur("Developpement","Extrapolation d'ordre 2 non implementee")
 
 endselect
 
@@ -64,6 +64,6 @@ endsubroutine calcboco_ust_extrapol
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! avril 2003 (v0.0.1b) : création de la procédure
-! juin  2003           : mise à jour des types de champs
+! avril 2003 (v0.0.1b) : creation de la procedure
+! juin  2003           : mise a jour des types de champs
 !------------------------------------------------------------------------------!

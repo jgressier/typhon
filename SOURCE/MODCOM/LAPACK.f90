@@ -11,19 +11,19 @@
 module LAPACK
   
 !------------------------------------------------------------------------------!
-! Liste des routines interfacées
+! Liste des routines interfacees
 !------------------------------------------------------------------------------!
 ! GEGV  :
 ! GESV  :
 ! GESVX :
-! GETRF : décomposition LU              (matrice générale)
-! POTRF : décomposition de Choleski     (mat. sym. def. pos.)
-! POTRS : resolution AX=B (après POTRF)
+! GETRF : decomposition LU              (matrice generale)
+! POTRF : decomposition de Choleski     (mat. sym. def. pos.)
+! POTRS : resolution AX=B (apres POTRF)
 !------------------------------------------------------------------------------!
 
 
 !------------------------------------------------------------------------------!
-! GEGV : Calcul de valeurs propres generalisees à partir d'une matrice générale
+! GEGV : Calcul de valeurs propres generalisees a partir d'une matrice generale
 !------------------------------------------------------------------------------!
   interface lapack_gegv    
     
@@ -65,7 +65,7 @@ module LAPACK
 
 
 !------------------------------------------------------------------------------!
-! GESV : Résolution d'un systeme lineaire A.X=B
+! GESV : Resolution d'un systeme lineaire A.X=B
 !   Decomposition LU de A, solution X dans B
 !------------------------------------------------------------------------------!
   interface lapack_gesv    
@@ -96,7 +96,7 @@ module LAPACK
 
   
 !------------------------------------------------------------------------------!
-! GESVX : Résolution (expert) d'un systeme lineaire A.X=B
+! GESVX : Resolution (expert) d'un systeme lineaire A.X=B
 !   Decomposition LU de A, solution X dans B
 !   Estimation des erreurs commises et calcul du nombre de condition
 !------------------------------------------------------------------------------!
@@ -146,7 +146,7 @@ module LAPACK
 
 
 !------------------------------------------------------------------------------!
-! GETRF : Décomposition LU d'une matrice générale
+! GETRF : Decomposition LU d'une matrice generale
 !------------------------------------------------------------------------------!
   interface lapack_getrf   
 
@@ -174,7 +174,7 @@ module LAPACK
 
 
 !------------------------------------------------------------------------------!
-! GETRS : Résolution A.X=B à partir d'une décomposition LU préliminaire
+! GETRS : Resolution A.X=B a partir d'une decomposition LU preliminaire
 !------------------------------------------------------------------------------!
   interface lapack_getrs   
 
@@ -206,10 +206,10 @@ module LAPACK
 
 
 !------------------------------------------------------------------------------!
-! POTRF : Décomposition de Choleski d'une matrice symétrique définie positive
-!   A est écrasée par la matrice U ou L de la décomposition Ut.U ou L.Lt
-!   si uplo='U', seul triang. sup. de A est utilisée en entrée
-!   si uplo='L', seul triang. inf. de A est utilisée en entrée
+! POTRF : Decomposition de Choleski d'une matrice symetrique definie positive
+!   A est ecrasee par la matrice U ou L de la decomposition Ut.U ou L.Lt
+!   si uplo='U', seul triang. sup. de A est utilisee en entree
+!   si uplo='L', seul triang. inf. de A est utilisee en entree
 !------------------------------------------------------------------------------!
   interface lapack_potrf   
 
@@ -241,10 +241,10 @@ module LAPACK
 
 
 !------------------------------------------------------------------------------!
-! POTRS : Résolution de A.X = B (A matrice symétrique ou hermitienne)
-!   A est la décomposition de Choleski Ut.U ou L.Lt, calculée par POTRF
-!   si uplo='U', seul triang. sup. de A est utilisée en entrée
-!   si uplo='L', seul triang. inf. de A est utilisée en entrée
+! POTRS : Resolution de A.X = B (A matrice symetrique ou hermitienne)
+!   A est la decomposition de Choleski Ut.U ou L.Lt, calculee par POTRF
+!   si uplo='U', seul triang. sup. de A est utilisee en entree
+!   si uplo='L', seul triang. inf. de A est utilisee en entree
 !------------------------------------------------------------------------------!
   interface lapack_potrs   
 
@@ -285,5 +285,5 @@ endmodule LAPACK
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! sept 2003 : création du module, interfaces GExxx et POxxx
+! sept 2003 : creation du module, interfaces GExxx et POxxx
 !------------------------------------------------------------------------------!

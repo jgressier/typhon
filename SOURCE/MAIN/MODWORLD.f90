@@ -2,7 +2,7 @@
 ! MODULE : MODWORLD                       Auteur : J. Gressier
 !                                         Date   : Novembre 2002
 ! Fonction                                Modif  : Juin 2003
-!   Définition des structures de donnees generales
+!   Definition des structures de donnees generales
 !   Encapsulation de toutes les structures
 !
 ! Defauts/Limitations/Divers :
@@ -12,8 +12,8 @@
 module MODWORLD
 
 use TYPHMAKE       ! Definition de la precision
-use MENU_GEN       ! Definition des paramètres generaux
-use MENU_COUPLING  ! Definition des paramètre de couplage
+use MENU_GEN       ! Definition des parametres generaux
+use MENU_COUPLING  ! Definition des parametre de couplage
 use MODINFO        ! Definition des informations generales
 use DEFZONE        ! Definition des zones (maillages)
 
@@ -38,7 +38,7 @@ type st_world
                       :: output     ! liste des sorties
   !integer             :: ncoupling  ! nombre de couplages entre zones
   type(mnu_coupling), dimension(:),pointer &
-                      :: coupling   ! paramètres generaux de couplage
+                      :: coupling   ! parametres generaux de couplage
 endtype st_world
 
 

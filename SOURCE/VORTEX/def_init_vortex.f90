@@ -1,9 +1,9 @@
 !------------------------------------------------------------------------------!
 ! Procedure : def_init_vortex             Auteur : J. Gressier
-!                                         Date   : Février 2004
+!                                         Date   : Fevrier 2004
 ! Fonction                                Modif  : (cf historique)
-!   Traitement des paramètres du fichier menu principal
-!   Paramètres d'initialisation (domaine de solveur VORTEX)
+!   Traitement des parametres du fichier menu principal
+!   Parametres d'initialisation (domaine de solveur VORTEX)
 !
 ! Defauts/Limitations/Divers :
 !
@@ -18,8 +18,8 @@ use MENU_VORTEX
 
 implicit none
 
-! -- Declaration des entrées --
-type(rpmblock), target :: block    ! bloc RPM contenant les définitions
+! -- Declaration des entrees --
+type(rpmblock), target :: block    ! bloc RPM contenant les definitions
 integer                :: type     ! type de condition aux limites
 
 ! -- Declaration des sorties --
@@ -28,7 +28,7 @@ type(st_init_vort)     :: initv
 ! -- Declaration des variables internes --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: ib, nkey
-character(len=dimrpmlig) :: str            ! chaîne RPM intermédiaire
+character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- Debut de la procedure --
 
@@ -43,7 +43,7 @@ endsubroutine def_init_vortex
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! fev  2004 : création de la routine
+! fev  2004 : creation de la routine
 !------------------------------------------------------------------------------!
 
 

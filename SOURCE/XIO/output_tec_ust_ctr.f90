@@ -20,9 +20,9 @@ use DEFFIELD
 
 implicit none
 
-! -- Declaration des entrées --
-integer          :: uf            ! unité d'écriture
-type(st_ustmesh) :: ust_mesh      ! maillage à écrire
+! -- Declaration des entrees --
+integer          :: uf            ! unite d'ecriture
+type(st_ustmesh) :: ust_mesh      ! maillage a ecrire
 type(st_field)   :: field         ! champ de valeurs
 
 ! -- Declaration des sorties --
@@ -37,14 +37,14 @@ type(v3d) :: vtex
 write(uf_chpresu,*) 'ZONE T="USTMESH"' !, F=FEPOINT, N=',ust_mesh%nvtex,',E=',ncell
 
 ! attention : il faut recalculer les points au sommets ou
-! écrire le maillage des centres de cellule
+! ecrire le maillage des centres de cellule
 
 do i = 1, ust_mesh%ncell
   vtex = ust_mesh%mesh%centre(i,1,1)
   write(uf_chpresu,'(4e18.8)') vtex%x, vtex%y, vtex%z, field%etatprim%tabscal(1)%scal(i)
 enddo
 
-! calcul de la connectivité sommets -> sommets
+! calcul de la connectivite sommets -> sommets
 
 !do i = 1, ust_mesh%ncell
 !  vtex = ust_mesh%mesh%vertex(i)

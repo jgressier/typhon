@@ -10,24 +10,24 @@
 
 subroutine cgns2typhon_zone(cgnsbase, typhonzone) 
 
-use CGNS_STRUCT   ! Définition des structures CGNS
-use DEFZONE       ! Définition des structures TYPHON
+use CGNS_STRUCT   ! Definition des structures CGNS
+use DEFZONE       ! Definition des structures TYPHON
 use OUTPUT        ! Sorties standard TYPHON
-use VARCOM        ! Variables globales et définition de constantes
+use VARCOM        ! Variables globales et definition de constantes
 
 implicit none 
 
-! -- Entrées --
-type(st_cgns_base) :: cgnsbase        ! structure des données CGNS
+! -- Entrees --
+type(st_cgns_base) :: cgnsbase        ! structure des donnees CGNS
 
 ! -- Sorties --
-type(st_zone)      :: typhonzone      ! structure des données TYPHON
+type(st_zone)      :: typhonzone      ! structure des donnees TYPHON
 
 ! -- Variables internes --
 type(st_grid), pointer :: pgrid
 integer                :: i, ist         ! indices courants
 
-! -- Début de procédure
+! -- Debut de procedure
 
 call print_info(5, "- conversion de la zone "//trim(cgnsbase%nom))
 
@@ -36,7 +36,7 @@ call print_info(5, "- conversion de la zone "//trim(cgnsbase%nom))
 !typhonzone%nmesh_ust = cgnsbase%nzone_ust
 
 if (cgnsbase%nzone_ust > 1) then
-  call erreur("Conversion CGNS/TYPHON","Un seul domaine non structuré admis")
+  call erreur("Conversion CGNS/TYPHON","Un seul domaine non structure admis")
 endif
 
 ist = 0
@@ -47,7 +47,7 @@ do i = 1, cgnsbase%nzone
   
   select case(cgnsbase%zone(i)%type)
   case(Structured)
-    call erreur("Développement","traitement de maillage structuré non implémenté")
+    call erreur("Developpement","traitement de maillage structure non implemente")
     ist = ist + 1
     typhonzone%typ_mesh = mshSTR
     !call cgns2typhon_strmesh(cgnsbase%zone(i), typhonzone%str_mesh(ist))
@@ -57,7 +57,7 @@ do i = 1, cgnsbase%nzone
     call cgns2typhon_ustmesh(cgnsbase%zone(i), pgrid%umesh)
 
   case default
-    call erreur("Développement","Type de maillage non prévu")
+    call erreur("Developpement","Type de maillage non prevu")
   endselect
   
 enddo
@@ -71,7 +71,7 @@ endsubroutine cgns2typhon_zone
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov  2002 : création de la procédure
-! avr  2004 : suppression des maillages structurés 
-!             création de structures MGRID
+! nov  2002 : creation de la procedure
+! avr  2004 : suppression des maillages structures 
+!             creation de structures MGRID
 !------------------------------------------------------------------------------!

@@ -3,7 +3,7 @@
 !                                         Date   : Octobre 2002
 ! Fonction                                Modif  : (cf historique)
 !   Bibliotheque de procedures et fonctions pour la gestion des champs
-!   des différents solveurs
+!   des differents solveurs
 !
 ! Defauts/Limitations/Divers :
 ! Historique :
@@ -26,7 +26,7 @@ integer, parameter :: nghostcell = 1
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_SCAFIELD : Champ physique de scalaire
+! Definition de la structure ST_SCAFIELD : Champ physique de scalaire
 !------------------------------------------------------------------------------!
 
 type st_scafield
@@ -35,7 +35,7 @@ type st_scafield
 endtype
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_VECFIELD : Champ physique de vecteurs
+! Definition de la structure ST_VECFIELD : Champ physique de vecteurs
 !------------------------------------------------------------------------------!
 
 type st_vecfield
@@ -44,7 +44,7 @@ type st_vecfield
 endtype
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_TENFIELD : Champ physique de tenseurs
+! Definition de la structure ST_TENFIELD : Champ physique de tenseurs
 !------------------------------------------------------------------------------!
 
 type st_tenfield
@@ -53,28 +53,28 @@ type st_tenfield
 endtype
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_GENERICFIELD : Champ physique générique
+! Definition de la structure ST_GENERICFIELD : Champ physique generique
 !------------------------------------------------------------------------------!
 
 type st_genericfield
   integer      :: nscal, nvect, ntens        ! dimension de champs
   integer      :: dim                        ! nombre de valeurs par champ
-  type(st_genericfield),           pointer :: next      ! pointeur de liste chaînée
+  type(st_genericfield),           pointer :: next      ! pointeur de liste chainee
   type(st_scafield), dimension(:), pointer :: tabscal   ! champs des scalaires
   type(st_vecfield), dimension(:), pointer :: tabvect   ! champs des vecteurs
   type(st_tenfield), dimension(:), pointer :: tabtens   ! champs des tenseurs
 endtype st_genericfield
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_FIELD : Champ physique et champs dérivés
+! Definition de la structure ST_FIELD : Champ physique et champs derives
 !------------------------------------------------------------------------------!
 
 type st_field
-  type(st_field), pointer :: next          ! pointeur pour liste chaînée
+  type(st_field), pointer :: next          ! pointeur pour liste chainee
   integer                 :: nscal, nvect  ! dimension de base des champs
   integer                 :: ncell, nface  ! nombre de cellules et faces
   logical                 :: allocgrad     ! allocation  des gradients ou non
-  logical                 :: allocres      ! allocation  des résidus
+  logical                 :: allocres      ! allocation  des residus
   logical                 :: allocprim     ! allocation  des valeurs primitives
   logical                 :: calcgrad      ! utilisation des gradients ou non
   type(st_genericfield)   :: etatcons      ! champ des valeurs physiques, conservatives
@@ -111,11 +111,11 @@ contains
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation d'une structure SCAFIELD
+! Procedure : allocation d'une structure SCAFIELD
 !------------------------------------------------------------------------------!
 subroutine new_scafield(scafield, dim)
 implicit none
-type(st_scafield) :: scafield          ! champ à créer
+type(st_scafield) :: scafield          ! champ a creer
 integer           :: dim               ! dimension
 !print*, "DEBUG NEW SCAFIELD"
 
@@ -134,7 +134,7 @@ endsubroutine new_scafield
 
 
 !------------------------------------------------------------------------------!
-! Procédure : deallocation d'une structure SCAFIELD
+! Procedure : deallocation d'une structure SCAFIELD
 !------------------------------------------------------------------------------!
 subroutine delete_scafield(scafield)
 implicit none
@@ -142,17 +142,17 @@ type(st_scafield) :: scafield
 
 !print*, "DEBUG DELETE SCAFIELD2"
   deallocate(scafield%scal)
-!print*, "scal désalloué"
+!print*, "scal desalloue"
 
 endsubroutine delete_scafield
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation d'une structure VECFIELD
+! Procedure : allocation d'une structure VECFIELD
 !------------------------------------------------------------------------------!
 subroutine new_vecfield(vecfield, dim)
 implicit none
-type(st_vecfield) :: vecfield          ! champ à créer
+type(st_vecfield) :: vecfield          ! champ a creer
 integer           :: dim               ! dimension
 
   vecfield%dim = dim
@@ -164,7 +164,7 @@ endsubroutine new_vecfield
 
 
 !------------------------------------------------------------------------------!
-! Procédure : deallocation d'une structure VECFIELD
+! Procedure : deallocation d'une structure VECFIELD
 !------------------------------------------------------------------------------!
 subroutine delete_vecfield(vecfield)
 implicit none
@@ -176,11 +176,11 @@ endsubroutine delete_vecfield
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation d'une structure TENFIELD
+! Procedure : allocation d'une structure TENFIELD
 !------------------------------------------------------------------------------!
 subroutine new_tenfield(tenfield, dim)
 implicit none
-type(st_tenfield) :: tenfield          ! champ à créer
+type(st_tenfield) :: tenfield          ! champ a creer
 integer           :: dim               ! dimension
 
   tenfield%dim = dim
@@ -192,7 +192,7 @@ endsubroutine new_tenfield
 
 
 !------------------------------------------------------------------------------!
-! Procédure : deallocation d'une structure TENFIELD
+! Procedure : deallocation d'une structure TENFIELD
 !------------------------------------------------------------------------------!
 subroutine delete_tenfield(tenfield)
 implicit none
@@ -204,11 +204,11 @@ endsubroutine delete_tenfield
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation d'une structure GENERICFIELD
+! Procedure : allocation d'une structure GENERICFIELD
 !------------------------------------------------------------------------------!
 subroutine new_genericfield(gfield, dim, n_scal, n_vect, n_tens)
 implicit none 
-type(st_genericfield) :: gfield                  ! champ à créer
+type(st_genericfield) :: gfield                  ! champ a creer
 integer               :: dim                     ! nombre de cellules des champs
 integer               :: n_scal, n_vect, n_tens  ! nombre de scalaires, vecteurs et tenseurs
 integer               :: i
@@ -245,11 +245,11 @@ endsubroutine new_genericfield
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation d'une structure FIELD à partir d'une autre structure
+! Procedure : allocation d'une structure FIELD a partir d'une autre structure
 !------------------------------------------------------------------------------!
 subroutine new_genericfield_st(newfield, oldfield)
 implicit none
-type(st_genericfield) :: newfield, oldfield     ! champ à créer, et champ d'origine
+type(st_genericfield) :: newfield, oldfield     ! champ a creer, et champ d'origine
 
   call new(newfield, oldfield%dim, oldfield%nscal, oldfield%nvect, oldfield%ntens)
 
@@ -257,11 +257,11 @@ endsubroutine new_genericfield_st
 
 
 !------------------------------------------------------------------------------!
-! Procédure : initialisation d'une structure GENERICFIELD
+! Procedure : initialisation d'une structure GENERICFIELD
 !------------------------------------------------------------------------------!
 subroutine init_genericfield(gfield, scal, vect)
 implicit none
-type(st_genericfield) :: gfield     ! champ à créer, et champ d'origine
+type(st_genericfield) :: gfield     ! champ a creer, et champ d'origine
 real(krp)             :: scal       ! scalaire pour initialisation
 type(v3d)             :: vect       ! vecteur  pour initialisation
 integer               :: i
@@ -282,7 +282,7 @@ endsubroutine init_genericfield
 
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure GENERICFIELD
+! Procedure : desallocation d'une structure GENERICFIELD
 !------------------------------------------------------------------------------!
 subroutine delete_genericfield(gfield)
 implicit none
@@ -316,7 +316,7 @@ endsubroutine delete_genericfield
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation des gradients
+! Procedure : allocation des gradients
 !------------------------------------------------------------------------------!
 subroutine alloc_grad(field)
 implicit none
@@ -324,7 +324,7 @@ type(st_field) :: field
 integer        :: i
 
   if (field%allocgrad) then
-    call print_info(90,"!!! Tableau de gradients déjà alloué !!!")
+    call print_info(90,"!!! Tableau de gradients deja alloue !!!")
   else
     field%allocgrad = .true.
     call new(field%gradient, field%etatcons%dim, 0, field%etatcons%nscal, field%etatcons%nvect)
@@ -334,7 +334,7 @@ endsubroutine alloc_grad
 
 
 !------------------------------------------------------------------------------!
-! Procédure : deallocation des gradients
+! Procedure : deallocation des gradients
 !------------------------------------------------------------------------------!
 subroutine dealloc_grad(field)
 implicit none
@@ -345,14 +345,14 @@ integer        :: i
     call delete(field%gradient)
     field%allocgrad = .false.
   else
-    call print_info(90,"!!! désallocation impossible : Tableau de gradients non alloué !!!")
+    call print_info(90,"!!! desallocation impossible : Tableau de gradients non alloue !!!")
   endif
 
 endsubroutine dealloc_grad
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation des résidus
+! Procedure : allocation des residus
 !------------------------------------------------------------------------------!
 subroutine alloc_res(field)
 implicit none
@@ -360,7 +360,7 @@ type(st_field) :: field
 integer        :: i
 !print*, "DEBUG ALLOC_RES"
   if (field%allocres) then
-    call print_info(90,"!!! Tableau de résidus déjà alloué !!!")
+    call print_info(90,"!!! Tableau de residus deja alloue !!!")
   else
     field%allocres = .true.
     call new(field%residu, field%etatcons%dim,   field%etatcons%nscal, &
@@ -371,7 +371,7 @@ endsubroutine alloc_res
 
 
 !------------------------------------------------------------------------------!
-! Procédure : deallocation des résidus
+! Procedure : deallocation des residus
 !------------------------------------------------------------------------------!
 subroutine dealloc_res(field)
 implicit none
@@ -382,15 +382,15 @@ integer        :: i
     call delete(field%residu)
     field%allocres = .false.
   else
-    call print_info(90,"!!! désallocation impossible : &
-                       &Tableau de résidus non alloué !!!")
+    call print_info(90,"!!! desallocation impossible : &
+                       &Tableau de residus non alloue !!!")
   endif
 
 endsubroutine dealloc_res
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation des variables primitives
+! Procedure : allocation des variables primitives
 !------------------------------------------------------------------------------!
 subroutine alloc_prim(field)
 implicit none
@@ -398,7 +398,7 @@ type(st_field) :: field
 integer       :: i
 
   if (field%allocprim) then
-    call print_info(90,"!!! Tableau de variables primitives déjà alloué !!!")
+    call print_info(90,"!!! Tableau de variables primitives deja alloue !!!")
   else
     field%allocprim = .true.
     call new(field%etatprim, field%etatcons%dim,   field%etatcons%nscal, &
@@ -409,7 +409,7 @@ endsubroutine alloc_prim
 
 
 !------------------------------------------------------------------------------!
-! Procédure : deallocation des variables primitives
+! Procedure : deallocation des variables primitives
 !------------------------------------------------------------------------------!
 subroutine dealloc_prim(field)
 implicit none
@@ -420,19 +420,19 @@ integer       :: i
     field%allocprim = .false.
     call delete(field%etatprim)
   else
-    call print_info(90,"!!! désallocation impossible : &
-                       &Tableau des variables primitives non alloué !!!")
+    call print_info(90,"!!! desallocation impossible : &
+                       &Tableau des variables primitives non alloue !!!")
   endif
 
 endsubroutine dealloc_prim
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation d'une structure FIELD
+! Procedure : allocation d'une structure FIELD
 !------------------------------------------------------------------------------!
 subroutine new_field(field, n_scal, n_vect, ncell, nface)
 implicit none 
-type(st_field) :: field             ! champ à créer
+type(st_field) :: field             ! champ a creer
 integer        :: ncell, nface      ! nombre de cellules et faces
 integer        :: n_scal, n_vect    ! nombre de scalaires, vecteurs et tenseurs
 integer        :: i
@@ -451,11 +451,11 @@ endsubroutine new_field
 
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure FIELD
+! Procedure : desallocation d'une structure FIELD
 !------------------------------------------------------------------------------!
 subroutine delete_field(field)
 implicit none 
-type(st_field) :: field             ! champ à créer
+type(st_field) :: field             ! champ a creer
 
   !print*,"desallocation FIELD :", field%allocgrad, field%allocres, field%allocprim !! DEBUG
   call delete(field%etatcons)
@@ -472,7 +472,7 @@ endsubroutine delete_field
 
 
 !------------------------------------------------------------------------------!
-! Procédure : création et lien chaîné d'une structure GENERICFIELD
+! Procedure : creation et lien chaine d'une structure GENERICFIELD
 !------------------------------------------------------------------------------!
 function insert_newgfield(gfield,dim,nscal,nvect,ntens) result(pgfield)
 implicit none
@@ -487,7 +487,7 @@ integer                        :: dim,nscal,nvect,ntens
 endfunction insert_newgfield
 
 !------------------------------------------------------------------------------!
-! Procédure : création et lien chaîné d'une structure FIELD
+! Procedure : creation et lien chaine d'une structure FIELD
 !------------------------------------------------------------------------------!
 function insert_newfield(field, n_scal, n_vect, ncell, nface) result(pfield)
 implicit none
@@ -502,7 +502,7 @@ integer                 :: n_scal,n_vect,ncell,nface
 endfunction insert_newfield
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une liste chaînée de structure GENERICFIELD
+! Procedure : desallocation d'une liste chainee de structure GENERICFIELD
 !------------------------------------------------------------------------------!
 subroutine delete_chainedgfield(gfield)
 implicit none
@@ -519,7 +519,7 @@ type(st_genericfield), pointer :: pgfield, dgfield
 endsubroutine delete_chainedgfield
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une liste chaînée de structure FIELD
+! Procedure : desallocation d'une liste chainee de structure FIELD
 !------------------------------------------------------------------------------!
 subroutine delete_chainedfield(field)
 implicit none
@@ -544,11 +544,11 @@ endmodule DEFFIELD
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! oct  2002 : création du module
+! oct  2002 : creation du module
 ! juin 2003 : structuration des champs par type (scalaire, vecteur...)
 ! DEV: interface champ/tableau
-! DEV: découpage en MGFIELD et MZFIELD pour fonctions haut et bas niveau
-! juin 2004 : procédures insert_newgfield et delete_chainedgfield
+! DEV: decoupage en MGFIELD et MZFIELD pour fonctions haut et bas niveau
+! juin 2004 : procedures insert_newgfield et delete_chainedgfield
 ! oct  2004 : field chained list
 !------------------------------------------------------------------------------!
 

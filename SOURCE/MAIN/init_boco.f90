@@ -19,8 +19,8 @@ use MENU_SOLVER
 
 implicit none
 
-! -- Declaration des entrées --
-type(st_zone)    :: zone               ! maillage et connectivités
+! -- Declaration des entrees --
+type(st_zone)    :: zone               ! maillage et connectivites
 
 ! -- Declaration des sorties --
 
@@ -42,7 +42,7 @@ case(solNS)
   enddo
 
 case(solKDIF)
-  if (zone%ngrid /= 1) call erreur("Init BOCO","une seule grille acceptée")
+  if (zone%ngrid /= 1) call erreur("Init BOCO","une seule grille acceptee")
   call init_boco_kdif(zone%defsolver, zone%grid%umesh)
 
 case(solVORTEX)
@@ -53,7 +53,7 @@ case(solVORTEX)
   enddo
 
 case default
-  call erreur("Incohérence interne (init_boco_ust)","type de solveur inconnu")
+  call erreur("Incoherence interne (init_boco_ust)","type de solveur inconnu")
 endselect 
 
 endsubroutine init_boco
@@ -61,7 +61,7 @@ endsubroutine init_boco
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov  2003 : création de la procédure
+! nov  2003 : creation de la procedure
 ! mars 2004 : fusion "init_boco_ust" dans "init_boco"
 !             ajout du solveur VORTEX
 ! july 2004 : NS solver (call init_boco_ns)

@@ -17,7 +17,7 @@ use MENU_INIT
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(mnu_ns)     :: defns
 type(st_init_ns) :: initns
 type(st_mesh)    :: mesh

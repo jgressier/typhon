@@ -2,8 +2,8 @@
 ! Procedure : def_amr                     Auteur : J. Gressier
 !                                         Date   : July 2004
 ! Fonction                                Modif  : (cf historique)
-!   Traitement des paramètres du fichier menu principal
-!   Paramètres AMR
+!   Traitement des parametres du fichier menu principal
+!   Parametres AMR
 !
 ! Defauts/Limitations/Divers :
 !
@@ -18,7 +18,7 @@ use MENU_AMR
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(rpmblock), target :: block
 integer                :: isolver
 
@@ -29,11 +29,11 @@ type(mnu_amr) :: defamr
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nkey           ! nombre de clefs
 integer                  :: i
-character(len=dimrpmlig) :: str            ! chaîne RPM intermédiaire
+character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- Debut de la procedure --
 
-call print_info(5,"- Définition des paramètres de raffinememt automatique (AMR)")
+call print_info(5,"- Definition des parametres de raffinememt automatique (AMR)")
 
 ! -- Initialisation --
 
@@ -44,9 +44,9 @@ call print_info(5,"- Définition des paramètres de raffinememt automatique (AMR)"
 pblock => block
 call seekrpmblock(pblock, "AMR", 0, pcour, nkey)
 
-! DEV : est-ce que la présence du bloc est obligatoire ?
+! DEV : est-ce que la presence du bloc est obligatoire ?
 if (nkey > 1) call erreur("lecture de menu", &
-                           "bloc AMR surnuméraire")
+                           "bloc AMR surnumeraire")
 
 if (nkey == 1) then
 
@@ -55,15 +55,15 @@ if (nkey == 1) then
   if ((defamr%maxlevel > 0).and.(defamr%maxlevel < 10)) then
     call print_info(8,"  niveau maximal de raffinement :"//strof(defamr%maxlevel,2))
   else
-    call erreur("Paramètre AMR","nombre de niveau de raffinement inattendu")
+    call erreur("Parametre AMR","nombre de niveau de raffinement inattendu")
   endif
 
   ! -- refinement degree --
   call rpmgetkeyvalint(pcour, "REFINEMENT", defamr%degree, 2)
   if ((defamr%degree >= 2).and.(defamr%degree <= 4)) then
-    call print_info(8,"  degré de raffinement :"//strof(defamr%degree,2))
+    call print_info(8,"  degre de raffinement :"//strof(defamr%degree,2))
   else
-    call erreur("Paramètre AMR","degré de raffinement inattendu")
+    call erreur("Parametre AMR","degre de raffinement inattendu")
   endif
 
   ! -- method --
@@ -73,11 +73,11 @@ if (nkey == 1) then
   if (samestring(str,"PROGRESSIVE")) defamr%method = amr_progressive
   select case(defamr%method)
   case(amr_evolutive)
-    call print_info(8,"  méthode évolutive (raffinement complet)")
+    call print_info(8,"  methode evolutive (raffinement complet)")
   case(amr_progressive)
-    call print_info(8,"  méthode progressive (niveau par niveau)")
+    call print_info(8,"  methode progressive (niveau par niveau)")
   case default
-    call erreur("Paramètre AMR","méthode inconnue")
+    call erreur("Parametre AMR","methode inconnue")
   endselect
 
   ! -- periodicity --
@@ -87,11 +87,11 @@ if (nkey == 1) then
   if (samestring(str,"CYCLE"))    defamr%period = amr_cycle
   select case(defamr%period)
   case(amr_timestep)
-    call print_info(8,"  raffinement à chaque itération")
+    call print_info(8,"  raffinement a chaque iteration")
   case(amr_cycle)
-    call print_info(8,"  raffinement à chaque cycle")
+    call print_info(8,"  raffinement a chaque cycle")
   case default
-    call erreur("Paramètre AMR","type de périodicité inconnue")
+    call erreur("Parametre AMR","type de periodicite inconnue")
   endselect
 
 

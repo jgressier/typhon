@@ -2,8 +2,8 @@
 ! MODULE : MENU_GEN                       Auteur : J. Gressier
 !                                         Date   : Novembre 2002
 ! Fonction                                Modif  : cf historique
-!   Définition des structures pour les entrées du programme TYPHON
-!   Structures pour les options générales
+!   Definition des structures pour les entrees du programme TYPHON
+!   Structures pour les options generales
 !
 ! Defauts/Limitations/Divers :
 !
@@ -22,23 +22,23 @@ implicit none
 
 
 !------------------------------------------------------------------------------!
-! structure MNU_PROJECT : Paramètres du projet
+! structure MNU_PROJECT : Parametres du projet
 !------------------------------------------------------------------------------!
 type mnu_project
   integer         :: nzone      ! nombre de zones
   integer         :: ncoupling  ! nombre de couplages entre zones
-  character       :: typ_coord  ! type de repère
-  character       :: typ_temps  ! (S)tationnaire, (I)nstationnaire, (P)ériodique
-  real(krp)       :: duree      ! durée de l'intégration ou de la période
+  character       :: typ_coord  ! type de repere
+  character       :: typ_temps  ! (S)tationnaire, (I)nstationnaire, (P)eriodique
+  real(krp)       :: duree      ! duree de l'integration ou de la periode
   real(krp)       :: tpsbase    ! pas de temps de base du couplage
-  integer         :: ncycle     ! nombre de cycle (en stationnaire ou périodique)
-  real(krp)       :: residumax  ! valeur maximale du résidu admise (stationnaire)
+  integer         :: ncycle     ! nombre de cycle (en stationnaire ou periodique)
+  real(krp)       :: residumax  ! valeur maximale du residu admise (stationnaire)
   real(krp)       :: dtbase     ! pas de temps de base d'un cycle 
 endtype mnu_project
 
 
 !------------------------------------------------------------------------------!
-! structure MNU_OUTPUT : Paramètres du projet
+! structure MNU_OUTPUT : Parametres du projet
 !------------------------------------------------------------------------------!
 type mnu_OUTPUT
   character       :: format     ! format de la sortie
@@ -64,7 +64,7 @@ endmodule MENU_GEN
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov  2002 : création du module
+! nov  2002 : creation du module
 !------------------------------------------------------------------------------!
 
 

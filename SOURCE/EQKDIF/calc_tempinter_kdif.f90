@@ -3,8 +3,8 @@
 ! Procedure :  calc_tempinter_kdif        Auteur : E. Radenac
 !                                         Date   : Avril 2003
 ! Fonction                                Modif  : Juin 2003
-!   Calcul de la température de l'interface entre deux cellules appartenant à 
-!   deux zones différentes
+!   Calcul de la temperature de l'interface entre deux cellules appartenant a 
+!   deux zones differentes
 !
 ! Defauts/Limitations/Divers :
 !
@@ -18,13 +18,13 @@ use OUTPUT
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 integer               :: if
-real(krp)             :: temp1, temp2   ! températures échangées
-real(krp)             :: conduct1, conduct2  ! conductivités échangées
+real(krp)             :: temp1, temp2   ! temperatures echangees
+real(krp)             :: conduct1, conduct2  ! conductivites echangees
 real(krp)             :: d1, d2  ! distance entre les centres des cellules et l'interface      		   
 		      		 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 real(krp) :: temp_inter
 
 ! -- Declaration des variables internes --
@@ -37,7 +37,7 @@ a = conduct1/d1
 b = conduct2/d2
 
 temp_inter = (a*temp1+b*temp2)/(a+b)
-!print*, "températures CALC_TEMPINTER_KDIF :", temp1, " et ", temp2
-!print*, "température à l'interface :", temp_inter
+!print*, "temperatures CALC_TEMPINTER_KDIF :", temp1, " et ", temp2
+!print*, "temperature a l'interface :", temp_inter
 
 endsubroutine calc_tempinter_kdif

@@ -2,67 +2,67 @@
 ! Procedure : seek_bcface_face.f90        Auteur : J. Gressier
 !                                         Date   : Juin 2004
 ! Fonction                                Modif  : (cf historique)
-!   Recherche des faces à partir des listes de FACES marquées
+!   Recherche des faces a partir des listes de FACES marquees
 !
 ! Defauts/Limitations/Divers :
-!   On passe par la reconstruction d'une liste de VERTEX marqués et on
+!   On passe par la reconstruction d'une liste de VERTEX marques et on
 !   utilise seek_bcface_vtex
 !
 !------------------------------------------------------------------------------!
 subroutine seek_bcface_face(ib, cgnsboco, nfam, facevtex, mesh, listface) 
 
-use TYPHMAKE      ! définitions générales 
+use TYPHMAKE      ! definitions generales 
 use CONNECTIVITY
-use CGNS_STRUCT   ! Définition des structures CGNS
-use USTMESH       ! Définition des structures maillage non structuré
+use CGNS_STRUCT   ! Definition des structures CGNS
+use USTMESH       ! Definition des structures maillage non structure
 use OUTPUT        ! Sorties standard TYPHON
 
 implicit none 
 
-! -- Entrées --
+! -- Entrees --
 integer             :: ib             ! indice de condition limite
-integer             :: nfam           ! nombre de connectivité facevtex
+integer             :: nfam           ! nombre de connectivite facevtex
 type(st_cgns_boco)  :: cgnsboco       ! zone CGNS contenant conditions aux limites
 type(st_cgns_ustconnect), dimension(1:nfam) &
                     :: facevtex
 
-! -- Entrées/Sorties --
-type(st_ustmesh)    :: mesh            ! connectivités et conditions aux limites
+! -- Entrees/Sorties --
+type(st_ustmesh)    :: mesh            ! connectivites et conditions aux limites
 
 ! -- Variables internes --
 integer, dimension(*) :: listface      ! tableau de travail
-type(st_cgns_boco)    :: cgboco        ! connectivité intermédiaire
+type(st_cgns_boco)    :: cgboco        ! connectivite intermediaire
 logical, dimension(:), allocatable &
-                      :: mkvtex        ! liste de vertex marqués
+                      :: mkvtex        ! liste de vertex marques
 integer               :: iface, pface, ifam, pfam, iv, ivm, dim
 
-! -- Début de procédure
+! -- Debut de procedure
 
-allocate(mkvtex(mesh%mesh%nvtex))    ! allocation du tableau des vertex marqués
-mkvtex(:) = .false.                  ! initialisation à "non marqué"
+allocate(mkvtex(mesh%mesh%nvtex))    ! allocation du tableau des vertex marques
+mkvtex(:) = .false.                  ! initialisation a "non marque"
 
 !print*,"DEBUG:",nfam
 
-! -- marquage de sommets marqués par la liste de faces marquées --
+! -- marquage de sommets marques par la liste de faces marquees --
 
-do iface = 1, cgnsboco%list%nbfils  ! boucle sur la liste de faces marquées
+do iface = 1, cgnsboco%list%nbfils  ! boucle sur la liste de faces marquees
 
-  pface = cgnsboco%list%fils(iface)   ! index réel de face
+  pface = cgnsboco%list%fils(iface)   ! index reel de face
   pfam  = 0                           ! recherche de famille
   do ifam = 1, nfam
     if ((pface >= facevtex(ifam)%ideb).and.(pface <= facevtex(ifam)%ifin)) pfam = ifam
   enddo
 
-  if (pfam == 0) call erreur("Calcul de connectivité","face limite introuvable dans CGNS")
+  if (pfam == 0) call erreur("Calcul de connectivite","face limite introuvable dans CGNS")
 
-  ! on marque les sommets de la face trouvée
+  ! on marque les sommets de la face trouvee
   do iv = 1, facevtex(pfam)%nbfils
     mkvtex(facevtex(pfam)%fils(pface,iv)) = .true.
   enddo
 
 enddo
 
-! -- construction d'une connectivité cgnsboco/vertex associée --
+! -- construction d'une connectivite cgnsboco/vertex associee --
 
 !dim = count(mkvtex==.true.)
 dim = count(mkvtex)
@@ -80,7 +80,7 @@ enddo
 
 deallocate(mkvtex)
 
-! -- contruction de la connectivité boco/face de TYPHON à partir des sommets --
+! -- contruction de la connectivite boco/face de TYPHON a partir des sommets --
 
 call seek_bcface_vtex(ib, cgboco, mesh, listface)
 
@@ -93,5 +93,5 @@ endsubroutine seek_bcface_face
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juin 2004 : création de la procédure
+! juin 2004 : creation de la procedure
 !------------------------------------------------------------------------------!

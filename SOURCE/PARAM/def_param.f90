@@ -2,7 +2,7 @@
 ! Procedure : def_param                   Auteur : J. Gressier
 !                                         Date   : Juillet 2002
 ! Fonction                                Modif  : Novembre 2002
-!   Lecture des menus et traitement pour définition des paramètres
+!   Lecture des menus et traitement pour definition des parametres
 !
 ! Defauts/Limitations/Divers :
 !
@@ -10,14 +10,14 @@
 
 subroutine def_param(lworld)
 
-use RPM        ! librairie de blocs RPM pour la lecture des paramètres
-use TYPHMAKE   ! définition de la précision
-use OUTPUT     ! définition des unités de sortie
-use MODWORLD   ! définition des données globales
+use RPM        ! librairie de blocs RPM pour la lecture des parametres
+use TYPHMAKE   ! definition de la precision
+use OUTPUT     ! definition des unites de sortie
+use MODWORLD   ! definition des donnees globales
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 
 ! -- Declaration des sorties --
 type(st_world) :: lworld
@@ -30,7 +30,7 @@ character(len=strlen)   :: fic
 ! -- Debut de la procedure --
 
 !---------------------------------------------------------
-! Lecture des paramètres
+! Lecture des parametres
 !---------------------------------------------------------
 
 call print_etape("> LECTURE : fichier menu principal")
@@ -44,13 +44,13 @@ if (info /= 0) call erreur("Lecture du menu","fichier "//trim(fic)// &
 !allocate(firstblock)
 !nullify(firstblock)
 
-call readrpmblock(uf_menu, uf_log, 1, firstblock) ! Lecture du fichier de paramètres
+call readrpmblock(uf_menu, uf_log, 1, firstblock) ! Lecture du fichier de parametres
 close(uf_menu)
 
 !call printrpmblock(6, firstblock, .false.)
 
 !---------------------------------------------------------
-! Traitement des paramètres lus et configuration WORLD
+! Traitement des parametres lus et configuration WORLD
 !---------------------------------------------------------
 
 call print_etape("> PARAMETRES : traitement et initialisation")
@@ -59,7 +59,7 @@ call trait_param(firstblock, lworld)
 
 !---------------------------------------------------------
 
-call dealloc_rpmblock(firstblock)        ! Désallocation de la liste RPM
+call dealloc_rpmblock(firstblock)        ! Desallocation de la liste RPM
 
 
 endsubroutine def_param

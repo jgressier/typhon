@@ -2,8 +2,8 @@
 ! Procedure : def_project                 Auteur : J. Gressier
 !                                         Date   : Novembre 2002
 ! Fonction                                Modif  : cf historique
-!   Traitement des paramètres du fichier menu principal
-!   Paramètres principaux du projet
+!   Traitement des parametres du fichier menu principal
+!   Parametres principaux du projet
 !
 ! Defauts/Limitations/Divers :
 !
@@ -18,7 +18,7 @@ use MENU_GEN
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(rpmblock), target :: block
 
 ! -- Declaration des sorties --
@@ -28,11 +28,11 @@ type(mnu_project) :: prj
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nkey, nkey2    ! nombre de clefs
 integer                  :: i
-character(len=dimrpmlig) :: str            ! chaîne RPM intermédiaire
+character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- Debut de la procedure --
 
-call print_info(2,"* Définition du projet")
+call print_info(2,"* Definition du projet")
 
 ! -- Recherche du BLOCK:PROJECT 
 
@@ -40,21 +40,21 @@ pblock => block
 call seekrpmblock(pblock, "PROJECT", 0, pcour, nkey)
 
 if (nkey /= 1) call erreur("lecture de menu", &
-                           "bloc PROJECT inexistant ou surnuméraire")
+                           "bloc PROJECT inexistant ou surnumeraire")
 
-! -- Détermination du nombre de zone (1 par défaut)
+! -- Determination du nombre de zone (1 par defaut)
 
 call rpmgetkeyvalint(pcour, "NZONE", prj%nzone, 1)
 write(str_w,*) ". nombre de zones du projet : ",prj%nzone
 call print_info(8,adjustl(str_w))
 
-! -- Détermination du nombre de couplages entre zones (0 par défaut)
+! -- Determination du nombre de couplages entre zones (0 par defaut)
 
 call rpmgetkeyvalint(pcour, "NCOUPLING", prj%ncoupling, 0)
 write(str_w,*) ". nombre de couplages dans le projet : ",prj%ncoupling
 call print_info(8,adjustl(str_w))
 
-! -- Détermination du type de repère
+! -- Determination du type de repere
 
 call rpmgetkeyvalstr(pcour, "COORD", str)
 
@@ -66,17 +66,17 @@ if (samestring(str, "3D"))      prj%typ_coord = c3dgen
 
 select case(prj%typ_coord)
 case(c2dplan)
-  call print_info(10,"repère 2d plan")
+  call print_info(10,"repere 2d plan")
 case(c2daxi) 
-  call print_info(10,"repère 2d axisymétrique")
+  call print_info(10,"repere 2d axisymetrique")
   ! DEV : lecture de la position de l'axe
 case(c3dgen) 
-  call print_info(10,"repère 3d général")
+  call print_info(10,"repere 3d general")
 case default
-  call erreur("lecture de menu","type de repère inconnu")
+  call erreur("lecture de menu","type de repere inconnu")
 endselect
 
-! -- Détermination du type d'évolution temporelle
+! -- Determination du type d'evolution temporelle
 
 call rpmgetkeyvalstr(pcour, "TIME", str)
 
@@ -90,7 +90,7 @@ select case(prj%typ_temps)
 case(stationnaire) ! Evolution pseudo-instationnaire
   call print_info(10,"calcul stationnaire (convergence pseudo-instationnaire)")
   if (.not.(rpm_existkey(pcour,"RESIDUALS").or.rpm_existkey(pcour,"NCYCLE"))) then
-    call erreur("lecture de menu","paramètre RESIDUALS ou NCYCLE manquant")
+    call erreur("lecture de menu","parametre RESIDUALS ou NCYCLE manquant")
   endif
   call rpmgetkeyvalreal(pcour, "RESIDUALS", prj%residumax)
   call rpmgetkeyvalint (pcour, "NCYCLE",    prj%ncycle, 1)
@@ -104,16 +104,16 @@ case(instationnaire) ! Evolution instationnaire
   prj%tpsbase = prj%dtbase
   ! DEV : TRAITER LES MOTS CLEFS INTERDITS
 
-case(periodique) ! Evolution périodique
+case(periodique) ! Evolution periodique
   call print_info(10,"calcul cyclique")
   call rpmgetkeyvalreal(pcour, "PERIOD", prj%duree)
   call rpmgetkeyvalint (pcour, "NCYCLE", prj%ncycle)
   prj%dtbase = prj%duree / prj%ncycle
   ! DEV : TRAITER LES MOTS CLEFS INTERDITS
-  call erreur("Développement","calcul périodique non implémenté")
+  call erreur("Developpement","calcul periodique non implemente")
 
 case default
-  call erreur("lecture de menu","type d'intégration temporelle inconnu")
+  call erreur("lecture de menu","type d'integration temporelle inconnu")
 endselect
 
 
@@ -123,9 +123,9 @@ endsubroutine def_project
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov  2002 : création de la procédure
-! juin 2003 : ajout de la définition des couplages
-! sept 2003 : paramètres pour le calcul stationnaire
+! nov  2002 : creation de la procedure
+! juin 2003 : ajout de la definition des couplages
+! sept 2003 : parametres pour le calcul stationnaire
 !------------------------------------------------------------------------------!
 
 

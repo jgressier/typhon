@@ -19,10 +19,10 @@ endsubroutine rpmerr
   
 
 !------------------------------------------------------------------------------!
-! Procédure : printrpmblock               Auteur : J. Gressier
+! Procedure : printrpmblock               Auteur : J. Gressier
 !                                         Date   : Fevrier 2002
 ! Fonction                                Modif  :
-!   Ecrit sur le numéro d'unité spécifié (iu) le contenu du bloc spécifié 
+!   Ecrit sur le numero d'unite specifie (iu) le contenu du bloc specifie 
 !
 ! Defauts/Limitations/Divers :
 !
@@ -31,9 +31,9 @@ subroutine printrpmblock(iu, block, debug)
   use RPM
   implicit none 
 
-! -- Declaration des entrées --
-  integer        :: iu      ! numero d'unite pour l'écriture
-  type(rpmblock) :: block   ! bloc à écrire
+! -- Declaration des entrees --
+  integer        :: iu      ! numero d'unite pour l'ecriture
+  type(rpmblock) :: block   ! bloc a ecrire
   logical        :: debug
 
 ! -- Declaration des variables internes --
@@ -51,7 +51,7 @@ subroutine printrpmblock(iu, block, debug)
   enddo
 
   if (debug) then
-    write(iu,*) 'ENDBLOCK ! fin réelle de bloc'
+    write(iu,*) 'ENDBLOCK ! fin reelle de bloc'
   else
     write(iu,*) 'ENDBLOCK'
   endif
@@ -62,10 +62,10 @@ endsubroutine printrpmblock
 
 
 !------------------------------------------------------------------------------!
-! Procédure : printrpm_unread             Auteur : J. Gressier
+! Procedure : printrpm_unread             Auteur : J. Gressier
 !                                         Date   : Fevrier 2002
 ! Fonction                                Modif  :
-!   Ecrit sur le numéro d'unité spécifié (iu) les données non lues
+!   Ecrit sur le numero d'unite specifie (iu) les donnees non lues
 !
 ! Defauts/Limitations/Divers :
 !
@@ -74,9 +74,9 @@ subroutine printrpm_unread(iu, block)
   use RPM
   implicit none 
 
-! -- Declaration des entrées --
-  integer iu                ! numero d'unite pour l'écriture
-  type(rpmblock) :: block   ! bloc à tester
+! -- Declaration des entrees --
+  integer iu                ! numero d'unite pour l'ecriture
+  type(rpmblock) :: block   ! bloc a tester
 
 ! -- Declaration des variables internes --
   integer i
@@ -84,13 +84,13 @@ subroutine printrpm_unread(iu, block)
 ! -- Debut de la procedure --
 
   if (.not.block%flagblock) then
-    write(iu,*) " Attention : bloc RPM ",trim(block%name)," non traité"
+    write(iu,*) " Attention : bloc RPM ",trim(block%name)," non traite"
     call printrpmblock(iu, block)
   else
     do i = 1, block%nblig                   ! Ecriture des lignes
       if (.not.block%flagtxt(i)) &
         write(iu,*) "Attention : ligne du bloc RPM ",trim(block%name),&
-                    "non traité : ",trim(block%txt(i))
+                    "non traite : ",trim(block%txt(i))
     enddo
   endif
   

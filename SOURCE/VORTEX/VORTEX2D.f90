@@ -1,9 +1,9 @@
 !------------------------------------------------------------------------------!
 ! MODULE : VORTEX2D                       Auteur : J. Gressier
-!                                         Date   : Février 2004
+!                                         Date   : Fevrier 2004
 ! Fonction                                Modif  : (cf historique)
 !   Bibliotheque de procedures et fonctions pour le calcul
-!   de singularités VORTEX 2D
+!   de singularites VORTEX 2D
 !
 ! Defauts/Limitations/Divers :
 !
@@ -11,8 +11,8 @@
 
 module VORTEX2D
 
-use TYPHMAKE     ! déclaration des précisions
-use MATH         ! constantes et fonctions mathématiques
+use TYPHMAKE     ! declaration des precisions
+use MATH         ! constantes et fonctions mathematiques
 use GEO2D        ! module de gestion de vecteurs 2D
 
 ! -- DECLARATIONS -----------------------------------------------------------
@@ -59,5 +59,5 @@ endmodule VORTEX2D
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! fev  2004 : création du module
+! fev  2004 : creation du module
 !------------------------------------------------------------------------------!

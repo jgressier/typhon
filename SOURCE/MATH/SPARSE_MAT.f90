@@ -2,7 +2,7 @@
 ! MODULE : SPARSE_MAT                     Auteur : J. Gressier
 !                                         Date   : Avril 2004
 ! Fonction                                Modif  : (cf historique)
-!   Définition des structures de stockage de matrices creuses
+!   Definition des structures de stockage de matrices creuses
 !
 ! Defauts/Limitations/Divers :
 !
@@ -22,7 +22,7 @@ implicit none
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! structure DLU : matrice à REMPLISSAGE symétrique
+! structure DLU : matrice a REMPLISSAGE symetrique
 !------------------------------------------------------------------------------!
 type st_dlu
   logical                          :: sort
@@ -55,7 +55,7 @@ contains
 !------------------------------------------------------------------------------!
 subroutine new_dlu(mat, dim, ncouple)
 implicit none
-! - paramètres
+! - parametres
 type(st_dlu) :: mat
 integer(kip) :: dim, ncouple
 
@@ -74,7 +74,7 @@ endsubroutine new_dlu
 !------------------------------------------------------------------------------!
 subroutine delete_dlu(mat)
 implicit none
-! - paramètres
+! - parametres
 type(st_dlu) :: mat
 
   deallocate(mat%diag)
@@ -90,7 +90,7 @@ endsubroutine delete_dlu
 !------------------------------------------------------------------------------!
 subroutine sort_dlu(mat)
 implicit none
-! - paramètres
+! - parametres
 type(st_dlu) :: mat
 ! - internal
 real(krp)    :: x
@@ -120,5 +120,5 @@ endmodule SPARSE_MAT
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! avr  2004 : création du module
+! avr  2004 : creation du module
 !------------------------------------------------------------------------------!

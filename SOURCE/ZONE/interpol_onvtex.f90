@@ -17,16 +17,16 @@ use DEFFIELD
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 integer               :: type_interpol    ! choix du type de calcul
-type(st_cellvtex)     :: cellvtex         ! connectivité cell->vertex
+type(st_cellvtex)     :: cellvtex         ! connectivite cell->vertex
 type(st_genericfield) :: cellfield        ! champ des cellules
 
 ! -- Declaration des sorties --
-type(st_genericfield) :: vtexfield        ! champ des sommets à calculer
+type(st_genericfield) :: vtexfield        ! champ des sommets a calculer
 
 ! -- Declaration des variables internes --
-integer, allocatable :: ncell(:)          ! nombre de cellules sommées par sommet
+integer, allocatable :: ncell(:)          ! nombre de cellules sommees par sommet
 integer              :: i, ic, iv, ivtex, isca, ivec
 
 ! -- Debut de la procedure --
@@ -168,7 +168,7 @@ if (cellvtex%nhexa /= 0) then
 endif
 
 
-! --- Calcul des moyennes par la division du nombre de termes sommés ---
+! --- Calcul des moyennes par la division du nombre de termes sommes ---
 
 do ivtex = 1, vtexfield%dim
   do isca = 1, vtexfield%nscal
@@ -189,5 +189,5 @@ endsubroutine interpol_onvtex
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! aout 2003 : création de la procédure
+! aout 2003 : creation de la procedure
 !------------------------------------------------------------------------------!

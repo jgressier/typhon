@@ -2,8 +2,8 @@
 ! Procedure : calcdifflux                 Auteur : E. Radenac
 !                                         Date   : Juillet 2003
 ! Fonction                                Modif  : 
-!  Calcul de la différence de flux à appliquer lorsque l'échange entre deux
-!  zones n'est pas à chaque pas de temps (correction de flux). Orientation 
+!  Calcul de la difference de flux a appliquer lorsque l'echange entre deux
+!  zones n'est pas a chaque pas de temps (correction de flux). Orientation 
 !  selon solver.
 ! Defauts/Limitations/Divers :
 !------------------------------------------------------------------------------!
@@ -20,18 +20,18 @@ use TYPHMAKE
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 integer                    :: nfacelim            ! nombre de faces limites
-integer                    :: solvercoupling      ! solvers utilisés
+integer                    :: solvercoupling      ! solvers utilises
 real(krp), dimension(nfacelim) &
                            :: corcoef             ! coeff correction de flux
 integer, dimension(nfacelim) &
                            :: connface2
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(st_scafield), dimension(2) &
-                           :: etatcons1, etatcons2 ! stockage des flux cumulés
-                                                   ! et des différences de flux
+                           :: etatcons1, etatcons2 ! stockage des flux cumules
+                                                   ! et des differences de flux
                                                    ! pour les deux zones
 
 ! -- Declaration des variables internes --
@@ -42,7 +42,7 @@ select case(solvercoupling)
 case(kdif_kdif)
   call calcdifflux_kdif(etatcons1, etatcons2, nfacelim, corcoef, connface2)
 case default
-  call erreur("Incohérence interne (calcdifflux)","type de solveur inconnu")
+  call erreur("Incoherence interne (calcdifflux)","type de solveur inconnu")
 endselect 
 
 endsubroutine calcdifflux
@@ -50,6 +50,6 @@ endsubroutine calcdifflux
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juillet 2003 (v0.0.1b): création de la procédure
+! juillet 2003 (v0.0.1b): creation de la procedure
 ! oct 2003              : ajout coefficient de correction de flux
 !------------------------------------------------------------------------------!

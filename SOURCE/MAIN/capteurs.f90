@@ -2,7 +2,7 @@
 ! Procedure : capteurs                    Auteur : J. Gressier
 !                                         Date   : Mai 2003
 ! Fonction                                Modif  : (cf historique)
-!   Calcul des quantités définis par les capteurs
+!   Calcul des quantites definis par les capteurs
 !
 ! Defauts/Limitations/Divers :
 !
@@ -16,7 +16,7 @@ use DEFZONE
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(st_zone) :: zone            ! zone 
 
 ! -- Declaration des sorties --
@@ -30,11 +30,11 @@ do ic = 1, zone%defsolver%nprobe
 
   select case(zone%defsolver%probe(ic)%type)
   case(probe)
-    call erreur("Développement","type PROBE non implémenté")
+    call erreur("Developpement","type PROBE non implemente")
   case(boco_field)
     call prb_boco_field()
   case(boco_integral)
-    call erreur("Développement","type BOCO_INTEGRAL non implémenté")
+    call erreur("Developpement","type BOCO_INTEGRAL non implemente")
   case(residuals)
 
   endselect
@@ -49,6 +49,6 @@ endsubroutine capteurs
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mai 2003 : création de la procédure (test pour debuggage)
+! mai 2003 : creation de la procedure (test pour debuggage)
 ! nov 2003 : redirection selon type de capteur
 !------------------------------------------------------------------------------!

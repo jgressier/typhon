@@ -2,8 +2,8 @@
 ! MODULE : EQKDIF                         Auteur : J. Gressier
 !                                         Date   : Novembre 2002
 ! Fonction                                Modif  : cf historique
-!   Bibliotheque de procedures et fonctions pour la définition des états
-!   dans une équation de diffusion
+!   Bibliotheque de procedures et fonctions pour la definition des etats
+!   dans une equation de diffusion
 !
 ! Defauts/Limitations/Divers :
 !
@@ -19,11 +19,11 @@ use MATERIAU
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_KDIFETAT : état physique
+! Definition de la structure ST_KDIFETAT : etat physique
 !------------------------------------------------------------------------------!
 type st_kdifetat
   !real(krp), dimension(:), pointer &
-  real(krp)       :: temperature    ! températures (nbtemp)
+  real(krp)       :: temperature    ! temperatures (nbtemp)
 endtype st_kdifetat
 
 ! -- INTERFACES -------------------------------------------------------------
@@ -50,7 +50,7 @@ endtype st_kdifetat
 !------------------------------------------------------------------------------!
 !type(st_kdifetat) function cons2kdif(defkdif, etat)
 !implicit none
-! déclaration des entrées
+! declaration des entrees
 !type(mnu_kdif)          :: defkdif
 !real(krp), dimension(*) :: etat
 !
@@ -58,7 +58,7 @@ endtype st_kdifetat
 !  case(mat_LIN, mat_KNL)
 !    cons2kdif%temperature = etat(1)/defkdif%materiau%Cp
 !  case(mat_XMAT)
-!    call erreur("Calcul de matériau","Materiau non linéaire interdit")
+!    call erreur("Calcul de materiau","Materiau non lineaire interdit")
 !  endselect
 !
 !endfunction cons2kdif
@@ -69,6 +69,6 @@ endmodule EQKDIF
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov   2002 : création du module
+! nov   2002 : creation du module
 ! sept  2003 : suppression de la fonction cons2kdif (cf calc_varprim_kdif.f90)
 !------------------------------------------------------------------------------!

@@ -25,7 +25,7 @@ double precision, parameter :: pi = 3.1415926535897931
 !  module procedure rpmgetvalreal, rpmgetvalstr, rpmgetvalint
 !endinterface
 
-! -- Procédures, Fonctions et Operateurs ------------------------------------
+! -- Procedures, Fonctions et Operateurs ------------------------------------
 !
 ! subroutine rpmerr(message)
 
@@ -35,7 +35,7 @@ double precision, parameter :: pi = 3.1415926535897931
 !contains
 
 !------------------------------------------------------------------------------!
-! Procédure :                             Auteur : J. Gressier
+! Procedure :                             Auteur : J. Gressier
 !                                         Date   : Fevrier 2002
 ! Fonction                                Modif  :
 !
@@ -51,7 +51,7 @@ double precision, parameter :: pi = 3.1415926535897931
 !  use 
 !  implicit none 
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 
 ! -- Declaration des sorties --
 

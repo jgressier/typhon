@@ -20,18 +20,18 @@ use MENU_ZONECOUPLING
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 real(krp)        :: dt               ! pas de temps CFL
 character        :: typtemps         ! type d'integration (stat, instat, period)
-type(mnu_solver) :: defsolver        ! type d'équation à résoudre
-type(mnu_spat)   :: defspat          ! paramètres d'intégration spatiale
-type(mnu_time)   :: deftime          ! paramètres d'intégration spatiale
+type(mnu_solver) :: defsolver        ! type d'equation a resoudre
+type(mnu_spat)   :: defspat          ! parametres d'integration spatiale
+type(mnu_time)   :: deftime          ! parametres d'integration spatiale
 integer          :: ncoupling        ! nombre de couplages de la zone
 
-! -- Declaration des entrées/sorties --
-type(st_grid)    :: grid             ! domaine non structuré à intégrer
+! -- Declaration des entrees/sorties --
+type(st_grid)    :: grid             ! domaine non structure a integrer
 type(mnu_zonecoupling), dimension(1:ncoupling) &
-                 :: coupling ! données de couplage
+                 :: coupling ! donnees de couplage
 
 ! -- Declaration des variables internes --
 
@@ -46,17 +46,17 @@ case(tps_expl)
                      coupling, ncoupling)
 
 case(tps_rk)
-  call erreur("developpement","méthode RUNGE KUTTA non implémentée")
+  call erreur("developpement","methode RUNGE KUTTA non implementee")
 
 case(tps_impl)
   call implicit_step(dt, typtemps, defsolver, defspat, deftime, grid%umesh, grid%field_loc, &
                      coupling, ncoupling)
 
 case(tps_dualt)
-  call erreur("developpement","méthode DUAL TIME non implémentée")
+  call erreur("developpement","methode DUAL TIME non implementee")
 
 case default
-  call erreur("incohérence","paramètre inattendu (integration_grid)")
+  call erreur("incoherence","parametre inattendu (integration_grid)")
 endselect
 
 
@@ -66,7 +66,7 @@ endsubroutine integration_grid
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! avr  2003 : création de la procédure
+! avr  2003 : creation de la procedure
 ! juil 2003 : ajout corrections de  flux
 ! oct  2003 : corrections de flux seulement en instationnaire
 ! avr  2004 : changement de nom  integration_ustdomaine -> integration_grid

@@ -2,8 +2,8 @@
 ! Procedure : calc_induced_velocity       Auteur : J. Gressier
 !                                         Date   : Mars 2004
 ! Fonction                                Modif  : (cf historique)
-!   Calcul des vitesses induites par les différents éléments singularités
-!   aux centres spécifiés
+!   Calcul des vitesses induites par les differents elements singularites
+!   aux centres specifies
 !
 ! Defauts/Limitations/Divers :
 !
@@ -16,7 +16,7 @@ use MENU_VORTEX
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(st_zone)         :: zone
 type(st_genericfield) :: center
 
@@ -36,7 +36,7 @@ endsubroutine calc_induced_velocity
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mars 2004 : création de la routine
+! mars 2004 : creation de la routine
 !------------------------------------------------------------------------------!
 
 

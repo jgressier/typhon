@@ -19,13 +19,13 @@ use MENU_SOLVER
 
 implicit none
 
-! -- Declaration des entrées --
-type(mnu_solver) :: defsolver            ! paramètres du solveur
-type(st_ustmesh) :: ust_mesh             ! maillage et connectivités
+! -- Declaration des entrees --
+type(mnu_solver) :: defsolver            ! parametres du solveur
+type(st_ustmesh) :: ust_mesh             ! maillage et connectivites
 type(st_grid)    :: grid                 ! grille
 
 ! -- Declaration des sorties --
-!type(st_field), pointer :: champ                ! champ d'état et de gradients
+!type(st_field), pointer :: champ                ! champ d'etat et de gradients
 
 ! -- Declaration des variables internes --
 integer :: i
@@ -45,12 +45,12 @@ case(solKDIF)
 case(solVORTEX)
   champ=>newfield(grid, 1, 0, ust_mesh%ncell, ust_mesh%nface)
 case default
-  call erreur("Incohérence interne (init_champ_ust)","type de solveur inconnu")
+  call erreur("Incoherence interne (init_champ_ust)","type de solveur inconnu")
 endselect 
 
 call alloc_prim(champ)
 
-! Boucle sur les définitions de champ
+! Boucle sur les definitions de champ
 
 do i = 1, defsolver%ninit
 
@@ -67,7 +67,7 @@ do i = 1, defsolver%ninit
   case(solVORTEX)
     call init_vort_ust(defsolver%init(i)%vortex, champ)
   case default
-    call erreur("Incohérence interne (init_champ_ust)","type de solveur inconnu")
+    call erreur("Incoherence interne (init_champ_ust)","type de solveur inconnu")
   endselect 
 
 enddo
@@ -76,7 +76,7 @@ select case(defsolver%typ_solver)
 case(solNS, solKDIF)
   call calc_varcons(defsolver, champ)
 case default
-  call erreur("Incohérence interne (init_champ_ust)","type de solveur inconnu")
+  call erreur("Incoherence interne (init_champ_ust)","type de solveur inconnu")
 endselect
 
 grid%field => champ
@@ -86,9 +86,9 @@ endsubroutine init_champ_ust
 !------------------------------------------------------------------------------!
 ! Modification history
 !
-! mars 2003 : création de la procédure
-! juin 2003 : mise à jour 
-! mars 2004 : ajouts spécifiques au solveur VORTEX
+! mars 2003 : creation de la procedure
+! juin 2003 : mise a jour 
+! mars 2004 : ajouts specifiques au solveur VORTEX
 ! july 2004 : initialization of NS fields
 ! oct  2004 : field chained list
 !------------------------------------------------------------------------------!

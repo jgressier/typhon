@@ -2,8 +2,8 @@
 ! Procedure : integration_zone            Auteur : J. Gressier
 !                                         Date   : Aout 2002
 ! Fonction                                Modif  : (cf historique)
-!   Intégration de tous les domaines d'une zone sur un pas de temps correspondant 
-!   à une itération
+!   Integration de tous les domaines d'une zone sur un pas de temps correspondant 
+!   a une iteration
 !
 ! Defauts/Limitations/Divers :
 !
@@ -17,12 +17,12 @@ use DEFZONE
 
 implicit none
 
-! -- Declaration des entrées --
-real(krp)     :: dt              ! pas de temps propre à la zone
-type(st_zone) :: zone            ! zone à intégrer
+! -- Declaration des entrees --
+real(krp)     :: dt              ! pas de temps propre a la zone
+type(st_zone) :: zone            ! zone a integrer
 
 ! -- Declaration des sorties --
-! retour des résidus à travers le champ field de la structure zone
+! retour des residus a travers le champ field de la structure zone
 
 ! -- Declaration des variables internes --
 type(st_grid), pointer :: pgrid
@@ -30,7 +30,7 @@ integer                :: if
 
 ! -- Debut de la procedure --
 
-! -- Préparation du calcul --
+! -- Preparation du calcul --
 
 pgrid => zone%grid
 do while (associated(pgrid))
@@ -42,7 +42,7 @@ enddo
 
 call conditions_limites(zone)
     
-! on ne calcule les gradients que dans les cas nécessaires
+! on ne calcule les gradients que dans les cas necessaires
 
 if (zone%defspat%calc_grad) then
   pgrid => zone%grid
@@ -54,7 +54,7 @@ if (zone%defspat%calc_grad) then
   enddo
 endif
 
-! -- intégration des domaines --
+! -- integration des domaines --
 
 pgrid => zone%grid
 do while (associated(pgrid))
@@ -63,7 +63,7 @@ do while (associated(pgrid))
                         zone%defsolver, zone%defspat, zone%deftime, &
                         pgrid, zone%coupling, zone%ncoupling)
 
-  ! Désallocation des éventuelles listes chainées de champ générique utilisées
+  ! Desallocation des eventuelles listes chainees de champ generique utilisees
   if (pgrid%nbocofield .ne. 0) then
     call delete_chainedgfield(pgrid%bocofield)
     pgrid%nbocofield=0
@@ -80,14 +80,14 @@ endsubroutine integration_zone
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! août 2002 : création de la procédure
+! août 2002 : creation de la procedure
 ! juil 2003 : modification arguments integration_ustdomaine
 ! oct  2003  : modification arguments integration_ustdomaine : ajout typ_temps
-! oct  2003 : insertion des procédures de calcul var. primitives et gradients
+! oct  2003 : insertion des procedures de calcul var. primitives et gradients
 !             (calcul des conditions aux limites avant calcul de gradients)
 !             ajout du calcul des gradients aux limites (set_gradient_limite)
-! avr  2004 : traitement des listes chaînées de structures MGRID
+! avr  2004 : traitement des listes chainees de structures MGRID
 !             changement d'appel integration_ustdomaine -> integration_grid
-! juin 2004 : désallocation des listes chainées de champ générique en fin de procédure
+! juin 2004 : desallocation des listes chainees de champ generique en fin de procedure
 ! oct  2004 : field chained list
 !------------------------------------------------------------------------------!

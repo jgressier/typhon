@@ -2,7 +2,7 @@
 ! Procedure : init_boco_kdif              Auteur : J. Gressier/E. Radenac
 !                                         Date   : Nov 2003
 ! Fonction                                Modif  : 
-!   Traitement des paramètres du fichier menu principal
+!   Traitement des parametres du fichier menu principal
 !   Initialisation des conditions limites
 !
 ! Defauts/Limitations/Divers :
@@ -19,10 +19,10 @@ use VARCOM
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(st_ustmesh)  :: ustdom
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(mnu_solver)  :: defsolver
 
 ! -- Declaration des variables internes --
@@ -34,11 +34,11 @@ integer :: iboco,i
 do iboco = 1, ustdom%nboco 
 
   ! Condition de Dirichlet !
-  ! Cas d'existence d'un tableau de températures
+  ! Cas d'existence d'un tableau de temperatures
   if(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%alloctemp) then
     allocate(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%temp(ustdom%boco(iboco)%nface))
 
-    ! Cas d'existence d'un fichier de températures limites :
+    ! Cas d'existence d'un fichier de temperatures limites :
     if(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%tempfile .ne. cnull) then
       open(unit=1002, file = trim(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%tempfile), form="formatted")
       read(1002,*)  (defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%temp(i),i = 1, ustdom%boco(iboco)%nface) 
@@ -64,12 +64,12 @@ do iboco = 1, ustdom%nboco
   endif
 
   ! Condition de convection
-  ! Cas d'existence de tableaux de coefficients et températures de convection
+  ! Cas d'existence de tableaux de coefficients et temperatures de convection
   if(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%allochconv) then
     allocate(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%h_nunif(ustdom%boco(iboco)%nface))
     allocate(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%tconv_nunif(ustdom%boco(iboco)%nface))
 
-    ! Cas d'existence de fichiers de coefficients et températures :
+    ! Cas d'existence de fichiers de coefficients et temperatures :
     if(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%hfile .ne. cnull) then
       open(unit=1002, file = trim(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%hfile), form="formatted")
       read(1002,*)  (defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%h_nunif(i),i = 1, ustdom%boco(iboco)%nface) 
@@ -98,7 +98,7 @@ endsubroutine init_boco_kdif
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov 2003 (v0.1.2) : création de la routine
+! nov 2003 (v0.1.2) : creation de la routine
 ! juin 2004 : conditions limites non uniformes de Neumann et convection
 !------------------------------------------------------------------------------!
 

@@ -2,7 +2,7 @@
 ! MODULE : MATER_LOI                          Auteur : J. Gressier
 !                                             Date   : Aout 2002
 ! Fonction                                    Modif  : Jullet 2003
-!   Structures pour la définition de loi
+!   Structures pour la definition de loi
 !     - constante
 !     - polynomiale
 !     - fichier de points
@@ -12,7 +12,7 @@
 !------------------------------------------------------------------------------!
 module MATER_LOI
 
-use TYPHMAKE ! Définition de la précision courante
+use TYPHMAKE ! Definition de la precision courante
 use STRING
 
 !------------------------------------------------------------------------------!
@@ -25,7 +25,7 @@ character, parameter :: LOI_PTS  = 'F'
 
 
 !------------------------------------------------------------------------------!
-! ST_LOI_POLY : structure de définition  d'une loi polynomiale
+! ST_LOI_POLY : structure de definition  d'une loi polynomiale
 !------------------------------------------------------------------------------!
 type st_loi_poly
   integer                          :: ordre  ! ordre du polynome
@@ -34,7 +34,7 @@ endtype st_loi_poly
 
 
 !------------------------------------------------------------------------------!
-! ST__LOI_PTS : structure de définition  d'une loi ptsnomiale
+! ST__LOI_PTS : structure de definition  d'une loi ptsnomiale
 !------------------------------------------------------------------------------!
 type st_loi_pts
   integer                            :: nb   ! nb de points de def.
@@ -42,7 +42,7 @@ type st_loi_pts
 endtype st_loi_pts
 
 !------------------------------------------------------------------------------!
-! ST__LOI : structure de définition générale d'une loi
+! ST__LOI : structure de definition generale d'une loi
 !------------------------------------------------------------------------------!
 type st_loi
   character         :: type
@@ -59,26 +59,26 @@ interface delete
   module procedure delete_loi
 endinterface
 
-! -- Procédures, Fonctions et Operateurs ------------------------------------
+! -- Procedures, Fonctions et Operateurs ------------------------------------
 
 ! -- IMPLEMENTATION ---------------------------------------------------------
 contains
 
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure LOI
+! Procedure : desallocation d'une structure LOI
 !------------------------------------------------------------------------------!
 subroutine delete_loi(loi)
 implicit none
 type(st_loi)  :: loi     
 
 if (samestring(loi%type, LOI_POLY)) then
-  print*, 'désallocation de loi polynomiale'  !!DEBUG
+  print*, 'desallocation de loi polynomiale'  !!DEBUG
   deallocate(loi%poly%coef)
 endif
 
 if (samestring(loi%type, LOI_PTS)) then
-  print*, 'désallocation de loi ptsnomiale'  !!DEBUG
+  print*, 'desallocation de loi ptsnomiale'  !!DEBUG
   deallocate(loi%pts%val)
 endif
  
@@ -91,14 +91,14 @@ real(krp) function valeur_loi(loi, t)
 
 implicit none
 
-! -- Entrées --
+! -- Entrees --
 type(st_loi) :: loi
 real(krp)           :: t
 
 ! -- variables internes --
 integer      :: i
 
-! Début de procédure
+! Debut de procedure
 
 select case(loi%type)
   case(LOI_CST)
@@ -112,7 +112,7 @@ select case(loi%type)
     enddo
 
   case(LOI_PTS)
-    print*, "module MATER_LOI : type de loi non implémenté"
+    print*, "module MATER_LOI : type de loi non implemente"
     stop
   case default
     print*, "module MATER_LOI : type de loi inconnu"
@@ -129,6 +129,6 @@ endmodule MATER_LOI
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! aout 2002 (v0.0.1b): création de la procédure
-! juillet 2003       : conductivité polynomiale
+! aout 2002 (v0.0.1b): creation de la procedure
+! juillet 2003       : conductivite polynomiale
 !------------------------------------------------------------------------------!

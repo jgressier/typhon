@@ -2,8 +2,8 @@
 ! Procedure : update_champ                Auteur : J. Gressier
 !                                         Date   : Mai 2003
 ! Fonction                                Modif  : cf historique
-!   Mise à jour des champs conservatifs dans les équations de bilan
-!   Calcul éventuel d'informations
+!   Mise a jour des champs conservatifs dans les equations de bilan
+!   Calcul eventuel d'informations
 !
 ! Defauts/Limitations/Divers :
 !
@@ -18,12 +18,12 @@ use DEFFIELD
 
 implicit none
 
-! -- Declaration des entrées --
-integer :: ncell           ! nombre de cellules à mettre à jour
+! -- Declaration des entrees --
+integer :: ncell           ! nombre de cellules a mettre a jour
 
-! -- Declaration des entrées/sorties --
-type(st_infozone) :: info                 ! champ d'état et de gradients
-type(st_field)    :: field                ! champ d'état et de gradients
+! -- Declaration des entrees/sorties --
+type(st_infozone) :: info                 ! champ d'etat et de gradients
+type(st_field)    :: field                ! champ d'etat et de gradients
 
 ! -- Declaration des variables internes --
 integer :: nc, ip, ic
@@ -44,7 +44,7 @@ do ip = 1, field%nvect
   enddo
 enddo
 
-! -- Calcul de résidus dans le cas pseudo-stationnaire
+! -- Calcul de residus dans le cas pseudo-stationnaire
 
 if (info%typ_temps == stationnaire) then
 
@@ -56,7 +56,7 @@ if (info%typ_temps == stationnaire) then
 
   do ip = 1, field%nvect
     do ic = 1, nc
-      ! ATTENTION : le résidu est calculé sur la norme du vecteur, non ses composantes
+      ! ATTENTION : le residu est calcule sur la norme du vecteur, non ses composantes
       info%cur_res = info%cur_res + abs(field%residu%tabvect(ip)%vect(ic))
     enddo
   enddo
@@ -68,6 +68,6 @@ endsubroutine update_champ
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mai  2003 : création de la procédure
-! sept 2003 : calcul des résidus
+! mai  2003 : creation de la procedure
+! sept 2003 : calcul des residus
 !------------------------------------------------------------------------------!

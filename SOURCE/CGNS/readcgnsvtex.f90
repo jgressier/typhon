@@ -10,15 +10,15 @@
 
 subroutine readcgnsvtex(unit, ib, iz, mesh)                 
 
-use CGNSLIB       ! définition des mots-clefs
-use CGNS_STRUCT   ! Définition des structures CGNS
+use CGNSLIB       ! definition des mots-clefs
+use CGNS_STRUCT   ! Definition des structures CGNS
 use OUTPUT        ! Sorties standard TYPHON
 
 implicit none
 
-! -- Entrées --
-integer             :: unit       ! numéro d'unité pour la lecture
-integer             :: ib, iz     ! numéro de base et de zone
+! -- Entrees --
+integer             :: unit       ! numero d'unite pour la lecture
+integer             :: ib, iz     ! numero de base et de zone
 
 ! -- Sorties --
 type(st_cgns_vtex)  :: mesh       ! sommets de la zone
@@ -26,18 +26,18 @@ type(st_cgns_vtex)  :: mesh       ! sommets de la zone
 ! -- Variables internes --                                        
 integer             :: ier        ! code erreur
 real(4), dimension(:,:,:), allocatable &
-                    :: vs         ! tableau de valeurs intermédiaires SINGLE 
+                    :: vs         ! tableau de valeurs intermediaires SINGLE 
 real(8), dimension(:,:,:), allocatable &
-                    :: vd         ! tableau de valeurs intermédiaires DOUBLE
+                    :: vd         ! tableau de valeurs intermediaires DOUBLE
 integer             :: i, j, k
 
-! -- Début de procédure
+! -- Debut de procedure
 
 write(str_w,*) "lecture de maillage :",mesh%ni,"x",mesh%nj,"x",mesh%nk,"noeuds"
 call print_info(5, adjustl(str_w))
 
-! allocation des tableaux intermédiaires 
-! (en reél simple uniquement dans cette version)
+! allocation des tableaux intermediaires 
+! (en reel simple uniquement dans cette version)
 
 allocate(vs(mesh%ni,mesh%nj,mesh%nk))
 
@@ -46,7 +46,7 @@ allocate(vs(mesh%ni,mesh%nj,mesh%nk))
 ! Lecture de X
 call cg_coord_read_f(unit, ib, iz, 'CoordinateX', RealSingle, (/ 1, 1, 1/), &
                      (/ mesh%ni,mesh%nj,mesh%nk /), vs, ier)
-if (ier /= 0) call erreur("Lecture CGNS","Problème à la lecture de la coordonnée X")
+if (ier /= 0) call erreur("Lecture CGNS","Probleme a la lecture de la coordonnee X")
 
 ! retranscription
 do k = 1, mesh%nk
@@ -60,7 +60,7 @@ enddo
 ! Lecture de Y
 call cg_coord_read_f(unit, ib, iz, 'CoordinateY', RealSingle, (/ 1, 1, 1/), &
                      (/ mesh%ni,mesh%nj,mesh%nk /), vs, ier)
-if (ier /= 0) call erreur("Lecture CGNS","Problème à la lecture de la coordonnée Y")
+if (ier /= 0) call erreur("Lecture CGNS","Probleme a la lecture de la coordonnee Y")
 
 ! retranscription
 do k = 1, mesh%nk
@@ -74,7 +74,7 @@ enddo
 ! Lecture de Z
 call cg_coord_read_f(unit, ib, iz, 'CoordinateZ', RealSingle, (/ 1, 1, 1/), &
                      (/ mesh%ni, mesh%nj,mesh%nk /), vs, ier)
-if (ier /= 0)   call erreur("Lecture CGNS","Problème à la lecture de la coordonnée Z")
+if (ier /= 0)   call erreur("Lecture CGNS","Probleme a la lecture de la coordonnee Z")
 
 ! retranscription
 do k = 1, mesh%nk

@@ -17,7 +17,7 @@ use MODWORLD
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(st_zone) :: lzone
 
 ! -- Declaration des sorties --
@@ -37,21 +37,21 @@ ncell = lzone%grid%umesh%ncell_int
 allocate(fourierloc(ncell))
 
 select case(lzone%deftime%stab_meth)
-case(stab_cond)   ! -- Pas de temps imposé --
+case(stab_cond)   ! -- Pas de temps impose --
   fourierloc(1:ncell) = lzone%deftime%stabnb
 
-case(given_dt)  ! -- Calcul par condition de stabilité (deftim%stabnb) --
+case(given_dt)  ! -- Calcul par condition de stabilite (deftim%stabnb) --
   select case(lzone%defsolver%typ_solver)
   case(solKDIF)
     call calc_kdif_fourier(lzone%deftime%dt, lzone%defsolver%defkdif%materiau,&
                             lzone%grid%umesh, lzone%grid%field, fourierloc, ncell)
   case default
-    call erreur("incohérence interne (calc_fourier)", "solveur inconnu")
+    call erreur("incoherence interne (calc_fourier)", "solveur inconnu")
   endselect
 
 endselect
 
-! -- DEV -- choix du nombre de Fourier global encore à faire
+! -- DEV -- choix du nombre de Fourier global encore a faire
 
 ! valeur maximale des cellules de la zone
 fourier = maxval(fourierloc)
@@ -71,5 +71,5 @@ endsubroutine calc_fourier
 
 !------------------------------------------------------------------------------!
 ! Historique des modifications
-!   jan 2004 : création, appel des procédures spécifiques aux solveurs
+!   jan 2004 : creation, appel des procedures specifiques aux solveurs
 !------------------------------------------------------------------------------!

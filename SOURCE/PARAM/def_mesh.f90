@@ -2,8 +2,8 @@
 ! Procedure : def_mesh                    Auteur : J. Gressier
 !                                         Date   : Novembre 2002
 ! Fonction                                Modif  : (cf historique)
-!   Traitement des paramètres du fichier menu principal
-!   Définition du maillage
+!   Traitement des parametres du fichier menu principal
+!   Definition du maillage
 !
 ! Defauts/Limitations/Divers :
 !
@@ -18,7 +18,7 @@ use MENU_MESH
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(rpmblock), target :: block
 
 ! -- Declaration des sorties --
@@ -28,11 +28,11 @@ type(mnu_mesh) :: defmesh
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nkey           ! nombre de clefs
 integer                  :: i
-character(len=dimrpmlig) :: str            ! chaîne RPM intermédiaire
+character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- Debut de la procedure --
 
-call print_info(5,"- Définition du maillage")
+call print_info(5,"- Definition du maillage")
 
 ! -- Recherche du BLOCK:MESH
 
@@ -40,7 +40,7 @@ pblock => block
 call seekrpmblock(pblock, "MESH", 0, pcour, nkey)
 
 if (nkey /= 1) call erreur("lecture de menu", &
-                           "bloc MESH inexistant ou surnuméraire")
+                           "bloc MESH inexistant ou surnumeraire")
 
 ! -- lecture du format
 
@@ -62,6 +62,6 @@ endsubroutine def_mesh
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov  2002 : création de la procédure
+! nov  2002 : creation de la procedure
 ! fev  2004 : lecture de format TYPHMSH (format interne)
 !------------------------------------------------------------------------------!

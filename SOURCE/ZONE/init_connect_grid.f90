@@ -2,7 +2,7 @@
 ! Procedure : init_connect_grid           Auteur : J. Gressier
 !                                         Date   : Mars 2004
 ! Fonction                                Modif  : (cf historique)
-!   Calcul des connectivités supplémentaires (conditions limites)
+!   Calcul des connectivites supplementaires (conditions limites)
 !
 ! Defauts/Limitations/Divers :
 !
@@ -18,34 +18,34 @@ use MENU_SOLVER
 
 implicit none
 
-! -- Declaration des entrées --
-type(mnu_solver) :: defsolver            ! paramètres du solveur
+! -- Declaration des entrees --
+type(mnu_solver) :: defsolver            ! parametres du solveur
 
-! -- Declaration des entrées/sorties --
-type(st_grid)    :: grid                 ! maillage et connectivités
+! -- Declaration des entrees/sorties --
+type(st_grid)    :: grid                 ! maillage et connectivites
 
 ! -- Declaration des sorties --
 
 ! -- Declaration des variables internes --
-integer :: ib, idef                      ! index de conditions aux limites et index de définition
+integer :: ib, idef                      ! index de conditions aux limites et index de definition
 logical :: same_name
 
 ! -- Debut de la procedure --
 
 call print_info(10,"  Grille "//name(grid))
 
-write(str_w,'(a,i8,a,i8,a,i7,a)') "  connectivité :",grid%umesh%ncell," cellules dont",&
+write(str_w,'(a,i8,a,i8,a,i7,a)') "  connectivite :",grid%umesh%ncell," cellules dont",&
                                   grid%umesh%ncell_int," internes et",&
                                   grid%umesh%ncell_lim," limites"
 call print_info(10, str_w)
-write(str_w,'(a,i8,a,i8,a,i7,a)') "  connectivité :",grid%umesh%nface," faces    dont",&
+write(str_w,'(a,i8,a,i8,a,i7,a)') "  connectivite :",grid%umesh%nface," faces    dont",&
                                   grid%umesh%nface_int," internes et",&
                                   grid%umesh%nface_lim," limites"
 call print_info(10, str_w)
 
-call print_info(8, ". initialisation des connectivités faces limites -> cellules limites")
+call print_info(8, ". initialisation des connectivites faces limites -> cellules limites")
 
-! -- Définition des connectivités faces limites -> cellules limites
+! -- Definition des connectivites faces limites -> cellules limites
 
 grid%umesh%ncell_lim = 0     ! initialisation du compteur de cellules limites
 
@@ -53,7 +53,7 @@ grid%umesh%ncell_lim = 0     ! initialisation du compteur de cellules limites
 
 do ib = 1, grid%umesh%nboco
 
-  ! recherche d'une définition (boco) par nom de famille
+  ! recherche d'une definition (boco) par nom de famille
 
   same_name = .false.
   idef      = 0
@@ -65,8 +65,8 @@ do ib = 1, grid%umesh%nboco
   if (same_name) then
     grid%umesh%boco(ib)%idefboco = idef
   else
-    call erreur("Définition des conditions aux limites", &
-                "la définition de la famille "//trim(grid%umesh%boco(ib)%family)// &
+    call erreur("Definition des conditions aux limites", &
+                "la definition de la famille "//trim(grid%umesh%boco(ib)%family)// &
                 " est introuvable")
   endif
 
@@ -80,16 +80,16 @@ do ib = 1, grid%umesh%nboco
   case(bc_calc_kutta)
     call init_ustboco_kutta(ib, defsolver%boco(idef), grid)
   case default
-    call erreur("Incohérence interne (init_connect_grid)","type d'implémentation boco inconnu")
+    call erreur("Incoherence interne (init_connect_grid)","type d'implementation boco inconnu")
   endselect 
 
 enddo
 
-write(str_w,'(a,i8,a,i8,a,i7,a)') "  connectivité :",grid%umesh%ncell," cellules dont",&
+write(str_w,'(a,i8,a,i8,a,i7,a)') "  connectivite :",grid%umesh%ncell," cellules dont",&
                                   grid%umesh%ncell_int," internes et",&
                                   grid%umesh%ncell_lim," limites"
 call print_info(10, str_w)
-write(str_w,'(a,i8,a,i8,a,i7,a)') "  connectivité :",grid%umesh%nface," faces    dont",&
+write(str_w,'(a,i8,a,i8,a,i7,a)') "  connectivite :",grid%umesh%nface," faces    dont",&
                                   grid%umesh%nface_int," internes et",&
                                   grid%umesh%nface_lim," limites"
 call print_info(10, str_w)
@@ -99,5 +99,5 @@ endsubroutine init_connect_grid
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mars 2004 : création de la procédure (copie de init_connect_grid)
+! mars 2004 : creation de la procedure (copie de init_connect_grid)
 !------------------------------------------------------------------------------!

@@ -15,9 +15,9 @@ use USTMESH
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(st_ustmesh) :: ust_mesh
 
 ! -- Declaration des sorties --
@@ -38,6 +38,6 @@ endsubroutine test_ustmesh
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mars 2003 : création de la procédure (vide)
+! mars 2003 : creation de la procedure (vide)
 ! mars 2004 : test minimaux d'existence de maillage
 !------------------------------------------------------------------------------!

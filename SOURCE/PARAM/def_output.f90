@@ -2,8 +2,8 @@
 ! Procedure : def_output                  Auteur : J. Gressier
 !                                         Date   : Novembre 2002
 ! Fonction                                Modif  : (cf historique)
-!   Traitement des paramètres du fichier menu principal
-!   Paramètres principaux du projet
+!   Traitement des parametres du fichier menu principal
+!   Parametres principaux du projet
 !
 ! Defauts/Limitations/Divers :
 !
@@ -19,7 +19,7 @@ use MENU_GEN
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(rpmblock), target :: block
 
 ! -- Declaration des sorties --
@@ -29,11 +29,11 @@ type(st_world) :: world
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nkey, nkey2    ! nombre de clefs
 integer                  :: i, io
-character(len=dimrpmlig) :: str            ! chaîne RPM intermédiaire
+character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- Debut de la procedure --
 
-call print_info(2,"* Définition des sorties résultats")
+call print_info(2,"* Definition des sorties resultats")
 
 ! -- Recherche du BLOCK:OUTPUT
 
@@ -41,7 +41,7 @@ pblock => block
 call seekrpmblock(pblock, "OUTPUT", 0, pcour, nkey)
 !
 !if (nkey /= 1) call erreur("lecture de menu", &
-!                           "bloc OUTPUT inexistant ou surnuméraire")
+!                           "bloc OUTPUT inexistant ou surnumeraire")
 
 world%noutput = nkey !DEV2602    world%noutput = 1
 allocate(world%output(world%noutput)) !DEV2602 allocate(world%output(1))
@@ -62,8 +62,8 @@ do io = 1, world%noutput !DEV2602
   call rpmgetkeyvalstr(pcour, "FILE", str)
   world%output(io)%fichier = str
 
-  ! -- Détermination du type de sortie : aux noeuds du maillage 
-  !    ou au centre des cellules (par défaut au centre)
+  ! -- Determination du type de sortie : aux noeuds du maillage 
+  !    ou au centre des cellules (par defaut au centre)
 
   call rpmgetkeyvalstr(pcour, "TYPE", str, "CENTER")
 
@@ -80,6 +80,6 @@ endsubroutine def_output
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov  2002 : création de la procédure
+! nov  2002 : creation de la procedure
 ! oct  2003 : choix des sorties NODE ou CENTER pour Tecplot
 !------------------------------------------------------------------------------!

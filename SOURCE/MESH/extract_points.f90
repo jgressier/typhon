@@ -2,7 +2,7 @@
 ! Procedure : extract_points              Auteur : J. Gressier
 !                                         Date   : Juin 2003
 ! Fonction                                Modif  :
-!   Extraction d'une liste de points à partir d'une liste d'index
+!   Extraction d'une liste de points a partir d'une liste d'index
 !
 ! Defauts/Limitations/Divers :
 !
@@ -16,14 +16,14 @@ use USTMESH
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(st_ustmesh) :: umesh
-integer, dimension(1:umesh%nvtex) :: indx     ! liste des index des points renumérotés
+integer, dimension(1:umesh%nvtex) :: indx     ! liste des index des points renumerotes
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 
 ! -- Declaration des sorties --
-type(v3d), dimension(*) :: liste  ! liste des sommets à extraire
+type(v3d), dimension(*) :: liste  ! liste des sommets a extraire
 
 ! -- Declaration des variables internes --
 integer :: if, iface, iv, nvtex
@@ -44,6 +44,6 @@ endsubroutine extract_points
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! Juin 2003 (v0.0.1b): création de la procédure
+! Juin 2003 (v0.0.1b): creation de la procedure
 ! 
 !------------------------------------------------------------------------------!

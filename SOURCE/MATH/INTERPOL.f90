@@ -2,7 +2,7 @@
 ! MODULE : INTERPOL                       Auteur : J. Gressier
 !                                         Date   : Fevrier 2002
 ! Fonction                                Modif  : (cf historique)
-!   Bibliotheque de procedures pour l'interpolation de données
+!   Bibliotheque de procedures pour l'interpolation de donnees
 !
 ! Defauts/Limitations/Divers :
 !
@@ -33,7 +33,7 @@ interface getfromtab
   module procedure getfromtabsp, getfromtabdp, getfromtabtsp, getfromtabtdp
 endinterface
 
-! -- Procédures, Fonctions et Operateurs ------------------------------------
+! -- Procedures, Fonctions et Operateurs ------------------------------------
 !
 ! subroutine rpmerr(message)
 
@@ -64,20 +64,20 @@ endsubroutine interpolerr
 ! Fonction : interlinsp/dp                Auteur : J. Gressier
 !                                         Date   : Fevrier 2002
 ! Fonction                                Modif  :
-!   Interpolation (ou extrapolation) d'une valeur ymid à partir de
-!   deux couples de valeurs (x,y) et d'une donnée xmid
+!   Interpolation (ou extrapolation) d'une valeur ymid a partir de
+!   deux couples de valeurs (x,y) et d'une donnee xmid
 !
 ! Defauts/Limitations/Divers :
-!   L'interpolation est linéaire, en simple précision
+!   L'interpolation est lineaire, en simple precision
 !
 !------------------------------------------------------------------------------!
 function interlinsp(x, cp1, cp2)
 
 implicit none 
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 real               :: x           ! point pour l'interpolation
-real, dimension(2) :: cp1, cp2    ! données pour la définition de la droite
+real, dimension(2) :: cp1, cp2    ! donnees pour la definition de la droite
 
 ! -- Declaration des sorties --
 real               :: interlinsp
@@ -86,7 +86,7 @@ real               :: interlinsp
 
 ! -- Debut de la procedure --
   if (cp1(1) == cp2(1)) then
-    call interpolerr("Données dégénérées pour l'interpolation")
+    call interpolerr("Donnees degenerees pour l'interpolation")
   else
     interlinsp = cp1(2) + (x-cp1(1)) * (cp2(2)-cp1(2)) / (cp2(1)-cp1(1))
   endif
@@ -98,9 +98,9 @@ function interlindp(x, cp1, cp2)
 
 implicit none 
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 double precision               :: x         ! point pour l'interpolation
-double precision, dimension(2) :: cp1, cp2  ! données pour la déf. de la droite
+double precision, dimension(2) :: cp1, cp2  ! donnees pour la def. de la droite
 
 ! -- Declaration des sorties --
 double precision               :: interlindp
@@ -109,7 +109,7 @@ double precision               :: interlindp
 
 ! -- Debut de la procedure --
   if (cp1(1) == cp2(1)) then
-    call interpolerr("Données dégénérées pour l'interpolation linéaire")
+    call interpolerr("Donnees degenerees pour l'interpolation lineaire")
   else
     interlindp = cp1(2) + (x-cp1(1)) * (cp2(2)-cp1(2)) / (cp2(1)-cp1(1))
   endif
@@ -122,8 +122,8 @@ endfunction interlindp
 ! Fonction : interparab                   Auteur : J. Gressier
 !                                         Date   : Fevrier 2002
 ! Fonction                                Modif  :
-!   Interpolation (ou extrapolation) d'une valeur ymid à partir de
-!   trois couples de valeurs (x,y) et d'une donnée xmid
+!   Interpolation (ou extrapolation) d'une valeur ymid a partir de
+!   trois couples de valeurs (x,y) et d'une donnee xmid
 !
 ! Defauts/Limitations/Divers :
 !   L'interpolation est parabolique
@@ -133,9 +133,9 @@ function interparab(x, cp1, cp2, cp3)
 
 implicit none 
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 real               :: x             ! point pour l'interpolation
-real, dimension(2) :: cp1, cp2, cp3 ! données pour la définition de la parabole
+real, dimension(2) :: cp1, cp2, cp3 ! donnees pour la definition de la parabole
 
 ! -- Declaration des sorties --
 real               :: interparab
@@ -149,7 +149,7 @@ real d12, d13, d23, det, a, b, c, dy1, dy2, dy3
   d23 = cp3(1) - cp2(1)
   det = -d12*d13*d23
   if (det == 0) then
-    call interpolerr("Données dégénérées pour l'interpolation parabolique")
+    call interpolerr("Donnees degenerees pour l'interpolation parabolique")
   else
     dy1 = d23*cp1(2)
     dy2 = d13*cp2(2)
@@ -165,36 +165,36 @@ endfunction interparab
 
 
 !------------------------------------------------------------------------------!
-! Procédure : interpoltabsp/dp            Auteur : J. Gressier
+! Procedure : interpoltabsp/dp            Auteur : J. Gressier
 !                                         Date   : Fevrier 2002
 ! Fonction                                Modif  : Mars 2002
 !   Interpolation selon un tableau d'entree (tabin) dans un tableau
-!   contenant la liste des données dans la première dimension
+!   contenant la liste des donnees dans la premiere dimension
 !
 ! Defauts/Limitations/Divers :
-!   L'ordre d'interpolation est paramétrable, linéaire par defaut
+!   L'ordre d'interpolation est parametrable, lineaire par defaut
 !
 !------------------------------------------------------------------------------!
-subroutine interpoltabsp(tabin, tabout, ordre) ! donner une valeur par défaut à ordre
+subroutine interpoltabsp(tabin, tabout, ordre) ! donner une valeur par defaut a ordre
 
 implicit none 
 
-! -- Declaration des entrées --
-real, dimension(:,:), intent(in) :: tabin      ! valeurs de référence
+! -- Declaration des entrees --
+real, dimension(:,:), intent(in) :: tabin      ! valeurs de reference
 integer,              intent(in) :: ordre
 
 ! -- Declaration des sorties --
-real, dimension(:,:), intent(inout) :: tabout  ! tableau interpolé, contient des entrées
+real, dimension(:,:), intent(inout) :: tabout  ! tableau interpole, contient des entrees
 
 ! -- Declaration des variables internes --
 integer nin, nout, iin, iout
 
 ! -- Debut de la procedure --
 
-  nin  = size( tabin, dim=1)       ! Vérification de la taille du premier indice ?
+  nin  = size( tabin, dim=1)       ! Verification de la taille du premier indice ?
   nout = size(tabout, dim=1)
-  if (nin < 2) call interpolerr("Impossible d'interpoler dans un tableau à une valeur")
-  iin = 2   ! pointe sur la valeur supérieure de l'entrée pour l'interpolation de chaque point
+  if (nin < 2) call interpolerr("Impossible d'interpoler dans un tableau a une valeur")
+  iin = 2   ! pointe sur la valeur superieure de l'entree pour l'interpolation de chaque point
   do iout = 1, nout
     if (tabout(iout,1) > tabin(iin,1)) iin = min(nin, iin + 1)
     tabout(iout,2) = interlinsp(tabout(iout,1), tabin(iin-1,:), tabin(iin,:))
@@ -205,16 +205,16 @@ endsubroutine interpoltabsp
 
 
 !------------------------------------------------------------------------------!
-subroutine interpoltabdp(tabin, tabout, ordre) ! donner une valeur par défaut à ordre
+subroutine interpoltabdp(tabin, tabout, ordre) ! donner une valeur par defaut a ordre
 
 implicit none 
 
-! -- Declaration des entrées --
-double precision, dimension(:,:), intent(in) :: tabin      ! valeurs de référence
+! -- Declaration des entrees --
+double precision, dimension(:,:), intent(in) :: tabin      ! valeurs de reference
 integer,                          intent(in) :: ordre
 
 ! -- Declaration des sorties --
-double precision, dimension(:,:), intent(inout) :: tabout  ! resultat (:,2), entrées (:,1)
+double precision, dimension(:,:), intent(inout) :: tabout  ! resultat (:,2), entrees (:,1)
 
 ! -- Declaration des variables internes --
 integer nin, nout, iin, iout
@@ -223,8 +223,8 @@ integer nin, nout, iin, iout
 
   nin  = size( tabin, dim=1) 
   nout = size(tabout, dim=1)
-  if (nin < 2) call interpolerr("Impossible d'interpoler dans un tableau à une valeur")
-  iin = 2   ! pointe sur la valeur supérieure de l'entrée pour l'interpolation de chaque point
+  if (nin < 2) call interpolerr("Impossible d'interpoler dans un tableau a une valeur")
+  iin = 2   ! pointe sur la valeur superieure de l'entree pour l'interpolation de chaque point
   do iout = 1, nout
     if (tabout(iout,1) > tabin(iin,1)) iin = min(nin, iin + 1)
     tabout(iout,2) = interlindp(tabout(iout,1), tabin(iin-1,:), tabin(iin,:))
@@ -241,16 +241,16 @@ endsubroutine interpoltabdp
 !   Interpolation selon un tableau d'entree (tabin) une coordonnee unique
 !
 ! Defauts/Limitations/Divers :
-!   L'ordre d'interpolation est paramétrable, linéaire par defaut
+!   L'ordre d'interpolation est parametrable, lineaire par defaut
 !
 !------------------------------------------------------------------------------!
-function getfromtabsp(xin, vin, coord, ordre)     ! donner une valeur par défaut à ordre
+function getfromtabsp(xin, vin, coord, ordre)     ! donner une valeur par defaut a ordre
 
 implicit none 
 
-! -- Declaration des entrées --
-real, dimension(:), intent(in) :: xin, vin   ! valeurs de référence
-real,               intent(in) :: coord      ! entrées des coordonnées
+! -- Declaration des entrees --
+real, dimension(:), intent(in) :: xin, vin   ! valeurs de reference
+real,               intent(in) :: coord      ! entrees des coordonnees
 integer, optional,  intent(in) :: ordre
 
 ! -- Declaration des sorties --
@@ -269,10 +269,10 @@ integer nin, iin, iordre
 
   nin  = size(xin, dim=1)
 
-  if (size(vin,dim=1) /= nin) call interpolerr("Données d'entrées invalides")
-  if (nin < 2) call interpolerr("Impossible d'interpoler dans un tableau à une valeur")
+  if (size(vin,dim=1) /= nin) call interpolerr("Donnees d'entrees invalides")
+  if (nin < 2) call interpolerr("Impossible d'interpoler dans un tableau a une valeur")
 
-  iin = 2   ! pointe sur la valeur supérieure de l'entrée pour l'interpolation de chaque point
+  iin = 2   ! pointe sur la valeur superieure de l'entree pour l'interpolation de chaque point
   do while ((coord > xin(iin)).and.(iin < nin)) 
     iin = iin + 1
   enddo
@@ -283,13 +283,13 @@ endfunction getfromtabsp
 !------------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------------!
-function getfromtabdp(xin, vin, coord, ordre)     ! donner une valeur par défaut à ordre
+function getfromtabdp(xin, vin, coord, ordre)     ! donner une valeur par defaut a ordre
 
 implicit none 
 
-! -- Declaration des entrées --
-double precision, dimension(:), intent(in) :: xin, vin   ! valeurs de référence
-double precision,               intent(in) :: coord      ! entrées des coordonnées
+! -- Declaration des entrees --
+double precision, dimension(:), intent(in) :: xin, vin   ! valeurs de reference
+double precision,               intent(in) :: coord      ! entrees des coordonnees
 integer, optional,              intent(in) :: ordre
 
 ! -- Declaration des sorties --
@@ -308,10 +308,10 @@ integer nin, iin, iordre
 
   nin  = size(xin, dim=1)
 
-  if (size(vin,dim=1) /= nin) call interpolerr("Données d'entrées invalides")
-  if (nin < 2) call interpolerr("Impossible d'interpoler dans un tableau à une valeur")
+  if (size(vin,dim=1) /= nin) call interpolerr("Donnees d'entrees invalides")
+  if (nin < 2) call interpolerr("Impossible d'interpoler dans un tableau a une valeur")
 
-  iin = 2   ! pointe sur la valeur supérieure de l'entrée pour l'interpolation de chaque point
+  iin = 2   ! pointe sur la valeur superieure de l'entree pour l'interpolation de chaque point
   do while ((coord > xin(iin)).and.(iin < nin)) 
     iin = iin + 1
   enddo
@@ -329,16 +329,16 @@ endfunction getfromtabdp
 !   Interpolation selon un tableau d'entree (tabin) et un tableau de coordonnees
 !
 ! Defauts/Limitations/Divers :
-!   L'ordre d'interpolation est paramétrable, linéaire par defaut
+!   L'ordre d'interpolation est parametrable, lineaire par defaut
 !
 !------------------------------------------------------------------------------!
-function getfromtabtsp(xin, vin, coord, ordre)     ! donner une valeur par défaut à ordre
+function getfromtabtsp(xin, vin, coord, ordre)     ! donner une valeur par defaut a ordre
 
 implicit none 
 
-! -- Declaration des entrées --
-real, dimension(:), intent(in) :: xin, vin   ! valeurs de référence
-real, dimension(:), intent(in) :: coord      ! entrées des coordonnées
+! -- Declaration des entrees --
+real, dimension(:), intent(in) :: xin, vin   ! valeurs de reference
+real, dimension(:), intent(in) :: coord      ! entrees des coordonnees
 integer, optional,  intent(in) :: ordre
 
 ! -- Declaration des sorties --
@@ -358,10 +358,10 @@ integer nin, nout, iin, iout, iordre
   nin  = size(xin, dim=1)
   nout = size(coord, dim=1)
   !print*,"interpol:",nin,nout
-  if (size(vin,dim=1) /= nin) call interpolerr("Données d'entrées invalides")
-  if (nin < 2) call interpolerr("Impossible d'interpoler dans un tableau à une valeur")
+  if (size(vin,dim=1) /= nin) call interpolerr("Donnees d'entrees invalides")
+  if (nin < 2) call interpolerr("Impossible d'interpoler dans un tableau a une valeur")
 
-  iin = 2   ! pointe sur la valeur supérieure de l'entrée pour l'interpolation de chaque point
+  iin = 2   ! pointe sur la valeur superieure de l'entree pour l'interpolation de chaque point
   do iout = 1, nout
     do while ((coord(iout) > xin(iin)).and.(iin < nin)) 
       iin = iin + 1
@@ -374,13 +374,13 @@ endfunction getfromtabtsp
 !------------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------------!
-function getfromtabtdp(xin, vin, coord, ordre)     ! donner une valeur par défaut à ordre
+function getfromtabtdp(xin, vin, coord, ordre)     ! donner une valeur par defaut a ordre
 
 implicit none 
 
-! -- Declaration des entrées --
-double precision, dimension(:), intent(in) :: xin, vin   ! valeurs de référence
-double precision, dimension(:), intent(in) :: coord      ! entrées des coordonnées
+! -- Declaration des entrees --
+double precision, dimension(:), intent(in) :: xin, vin   ! valeurs de reference
+double precision, dimension(:), intent(in) :: coord      ! entrees des coordonnees
 integer, optional,              intent(in) :: ordre
 
 ! -- Declaration des sorties --
@@ -400,10 +400,10 @@ integer nin, nout, iin, iout, iordre
   nin  = size(xin,   dim=1)
   nout = size(coord, dim=1)
 
-  if (size(vin,dim=1) /= nin) call interpolerr("Données d'entrées invalides")
-  if (nin < 2) call interpolerr("Impossible d'interpoler dans un tableau à une valeur")
+  if (size(vin,dim=1) /= nin) call interpolerr("Donnees d'entrees invalides")
+  if (nin < 2) call interpolerr("Impossible d'interpoler dans un tableau a une valeur")
 
-  iin = 2   ! pointe sur la valeur supérieure de l'entrée pour l'interpolation de chaque point
+  iin = 2   ! pointe sur la valeur superieure de l'entree pour l'interpolation de chaque point
   do iout = 1, nout
     do while ((coord(iout) > xin(iin)).and.(iin < nin)) 
       iin = iin + 1
@@ -428,7 +428,7 @@ endfunction getfromtabtdp
 
 !implicit none 
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 
 ! -- Declaration des sorties --
 
@@ -445,6 +445,6 @@ endmodule INTERPOL
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! fev  2002 : création de la procédure
+! fev  2002 : creation de la procedure
 !
 !------------------------------------------------------------------------------!

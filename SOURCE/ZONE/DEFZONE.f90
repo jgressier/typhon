@@ -2,7 +2,7 @@
 ! MODULE : DEFZONE                        Auteur : J. Gressier
 !                                         Date   : Juillet 2002
 ! Fonction                                Modif  : (cf historique)
-!   Définition des structures de données des zones (contient
+!   Definition des structures de donnees des zones (contient
 !   maillage, type de solveur et info)
 !
 ! Defauts/Limitations/Divers :
@@ -11,18 +11,18 @@
 
 module DEFZONE
 
-use TYPHMAKE      ! Definition de la precision/données informatiques
-use MODINFO       ! Information pour la gestion de l'intégration
-use MENU_SOLVER   ! Définition des solveurs
-use MENU_NUM      ! Définition des paramètres numériques d'intégration
-use MENU_MESH     ! Définition du maillage
-use MGRID         ! Définition des grilles
-use STRMESH       ! Définition des maillages structurés
-use USTMESH       ! Définition des maillages non structurés
-!use BOUND        ! Librairie de définition des conditions aux limites
-use MENU_ZONECOUPLING ! Définition des structures d'échange entre zones
-use DEFFIELD      ! Données des champs physiques
-use DEFCAPTEURS   ! Données des capteurs 
+use TYPHMAKE      ! Definition de la precision/donnees informatiques
+use MODINFO       ! Information pour la gestion de l'integration
+use MENU_SOLVER   ! Definition des solveurs
+use MENU_NUM      ! Definition des parametres numeriques d'integration
+use MENU_MESH     ! Definition du maillage
+use MGRID         ! Definition des grilles
+use STRMESH       ! Definition des maillages structures
+use USTMESH       ! Definition des maillages non structures
+!use BOUND        ! Librairie de definition des conditions aux limites
+use MENU_ZONECOUPLING ! Definition des structures d'echange entre zones
+use DEFFIELD      ! Donnees des champs physiques
+use DEFCAPTEURS   ! Donnees des capteurs 
 
 implicit none
 
@@ -33,37 +33,37 @@ implicit none
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_ZONE : zone maillage général et champ
+! Definition de la structure ST_ZONE : zone maillage general et champ
 !------------------------------------------------------------------------------!
 type st_zone
-  integer               :: id         ! numéro de zone
+  integer               :: id         ! numero de zone
   character(len=strlen) :: nom        ! nom de la zone
   !integer               :: ndom       ! nombre de domaine total (cas hybride)
-  !integer               :: nmesh_str  ! nombre de domaines     structurés
-  !integer               :: nmesh_ust  ! nombre de domaines non structurés
+  !integer               :: nmesh_str  ! nombre de domaines     structures
+  !integer               :: nmesh_ust  ! nombre de domaines non structures
   integer               :: nprobe     ! nombre de capteurs
-  integer               :: ncoupling  ! nombre d'échanges avec d'autres zones
-  type(st_infozone)     :: info       ! information sur l'intégration
-  type(mnu_solver)      :: defsolver  ! type de solveur à utiliser 
-  type(mnu_time)        :: deftime    ! paramètres d'intégration temporelle
-  type(mnu_spat)        :: defspat    ! paramètres d'intégration spatiale
-                                      !   cf définitions variables globales
+  integer               :: ncoupling  ! nombre d'echanges avec d'autres zones
+  type(st_infozone)     :: info       ! information sur l'integration
+  type(mnu_solver)      :: defsolver  ! type de solveur a utiliser 
+  type(mnu_time)        :: deftime    ! parametres d'integration temporelle
+  type(mnu_spat)        :: defspat    ! parametres d'integration spatiale
+                                      !   cf definitions variables globales
   type(mnu_mesh)        :: defmesh    ! type de maillage
   character             :: typ_mesh   ! type de maillage (cf VARCOM)
-                                      !   S : multibloc structuré
-                                      !   U : non structuré
+                                      !   S : multibloc structure
+                                      !   U : non structure
                                       !   H : hybride
-  integer               :: mpi_cpu    ! numéro de CPU chargé du calcul
+  integer               :: mpi_cpu    ! numero de CPU charge du calcul
 
   !type(st_strmesh), dimension(:), pointer &
-  !                      :: str_mesh   ! maillage multibloc structuré
+  !                      :: str_mesh   ! maillage multibloc structure
   integer                :: ngrid      ! nombre de grilles (mesh + field)
-  type(st_grid), pointer :: grid       ! liste chaînée de grilles
-  !integer               :: nmesh      ! nombre champs (liste chaînée)  
-  !integer               :: nfield     ! nombre champs (liste chaînée)  
+  type(st_grid), pointer :: grid       ! liste chainee de grilles
+  !integer               :: nmesh      ! nombre champs (liste chainee)  
+  !integer               :: nfield     ! nombre champs (liste chainee)  
   !type(st_ustmesh), pointer &
   !type(st_ustmesh) & !, dimension(:), pointer &
-  !                      :: ust_mesh   ! liste chaînée de maillage non structuré
+  !                      :: ust_mesh   ! liste chainee de maillage non structure
   !type(st_field), pointer &
   !type(st_field), dimension(:), pointer &
   !                      :: field      ! tableau des champs
@@ -92,7 +92,7 @@ contains
 
 
 !------------------------------------------------------------------------------!
-! Procédure : initialisation d'une structure ZONE
+! Procedure : initialisation d'une structure ZONE
 !------------------------------------------------------------------------------!
 subroutine new_zone(zone, id)
 implicit none
@@ -101,7 +101,7 @@ integer        :: id
 
   zone%id = id
 
-  !zone%ndom  = 0   ! DEV: à supprimer après homogénéisation dans MGRID
+  !zone%ndom  = 0   ! DEV: a supprimer apres homogeneisation dans MGRID
 
   zone%ngrid = 0
   nullify(zone%grid)
@@ -110,7 +110,7 @@ endsubroutine new_zone
 
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure ZONE
+! Procedure : desallocation d'une structure ZONE
 !------------------------------------------------------------------------------!
 subroutine delete_zone(zone)
 implicit none
@@ -152,7 +152,7 @@ integer        :: i
 
   ! Destruction des structures MGRID
 
-  print*,'DEV!!! destruction des MGRID à effectuer'  
+  print*,'DEV!!! destruction des MGRID a effectuer'  
 
   !print*,'fin de destruction de zone interne' !! DEBUG
 
@@ -160,7 +160,7 @@ endsubroutine delete_zone
 
 
 !------------------------------------------------------------------------------!
-! Procédure : ajout avec allocation d'une structure grille (par insertion)
+! Procedure : ajout avec allocation d'une structure grille (par insertion)
 !------------------------------------------------------------------------------!
 function newgrid(zone) result(pgrid)
 implicit none
@@ -191,8 +191,8 @@ endmodule DEFZONE
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juil 2002 : création du module
+! juil 2002 : creation du module
 ! juin 2003 : structuration des champs par type (scalaire, vecteur...)
 ! juil 2003 : delete zone%defsolver
-! mars 2003 : structure "grid" (mesh + field) en liste chaînée
+! mars 2003 : structure "grid" (mesh + field) en liste chainee
 !------------------------------------------------------------------------------!

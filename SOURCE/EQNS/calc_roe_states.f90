@@ -16,9 +16,9 @@ use GEO3D
 
 implicit none
 
-! -- Declaration des entrées --
-type(st_espece)       :: fluid            ! paramètres de définition du fluide
-integer               :: nflux            ! nombre de flux (face) à calculer
+! -- Declaration des entrees --
+type(st_espece)       :: fluid            ! parametres de definition du fluide
+integer               :: nflux            ! nombre de flux (face) a calculer
 type(st_nsetat), dimension(1:nflux) &
                       :: cell_l, cell_r   ! champs des valeurs primitives
 

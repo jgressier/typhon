@@ -2,7 +2,7 @@
 ! MODULE : MENU_COUPLING                  Auteur : J. Gressier / E. Radenac
 !                                         Date   : Juin 2003
 ! Fonction                                Modif  :
-!   Définition des méthodes de couplage entre zones
+!   Definition des methodes de couplage entre zones
 !
 ! Defauts/Limitations/Divers :
 !
@@ -15,25 +15,25 @@ use TYPHMAKE   ! Definition de la precision et des types basiques
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! Définition de la structure COUPLING : definitions des raccords pour une zone
+! Definition de la structure COUPLING : definitions des raccords pour une zone
 !------------------------------------------------------------------------------!
 type mnu_coupling
-  integer               :: zone1, zone2  ! numéro des zones concernées par le couplage
+  integer               :: zone1, zone2  ! numero des zones concernees par le couplage
   integer               :: typ_calc      ! type de calcul/connection des maillages
-  integer               :: period_mode   ! mode de calcul de la périodicité
+  integer               :: period_mode   ! mode de calcul de la periodicite
   integer               :: typ_interpol  ! type de calcul/interpolation
-  integer               :: n_tpsbase     ! périodicité du couplage
+  integer               :: n_tpsbase     ! periodicite du couplage
   real(krp)             :: corcoef      ! coefficient pour correction de flux
   integer               :: boco         ! type de condition limite au raccord
 endtype mnu_coupling
 
 
 !------------------------------------------------------------------------------!
-! Définition de la structure SENSEUR : senseur pour le déclenchement du couplage
+! Definition de la structure SENSEUR : senseur pour le declenchement du couplage
 !------------------------------------------------------------------------------!
 type mnu_senseur
   integer                      :: mode ! utilisation du senseur
-  logical                      :: sens ! "détection" de conditions de déclenchement
+  logical                      :: sens ! "detection" de conditions de declenchement
   				       ! de couplage
   integer                      :: nmin
   integer                      :: nmax
@@ -47,7 +47,7 @@ endmodule MENU_COUPLING
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juin 2003 (v0.0.1b): création du module
+! juin 2003 (v0.0.1b): creation du module
 ! oct 2003           : ajout coeff correction de flux
 !------------------------------------------------------------------------------!
 

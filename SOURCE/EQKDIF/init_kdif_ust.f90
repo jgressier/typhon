@@ -2,8 +2,8 @@
 ! Procedure : init_kdif_ust               Auteur : J. Gressier
 !                                         Date   : Mars 2003
 ! Fonction                                Modif  : juin 2003 (cf historique)
-!   Traitement des paramètres du fichier menu principal
-!   Paramètres principaux du projet
+!   Traitement des parametres du fichier menu principal
+!   Parametres principaux du projet
 !
 ! Defauts/Limitations/Divers :
 !   ATTENTION : initialisation des variables primitives
@@ -18,9 +18,9 @@ use MENU_INIT
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(st_init_kdif) :: kdif
-integer            :: unif ! uniformité de la condition initiale
+integer            :: unif ! uniformite de la condition initiale
 type(st_mesh)      :: mesh
 
 ! -- Declaration des sorties --
@@ -56,8 +56,8 @@ endsubroutine init_kdif_ust
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mars 2003 (v0.0.1b) : création de la routine
-! juin 2003           : màj pour variables conservatives et primitives
+! mars 2003 (v0.0.1b) : creation de la routine
+! juin 2003           : maj pour variables conservatives et primitives
 !------------------------------------------------------------------------------!
 
 

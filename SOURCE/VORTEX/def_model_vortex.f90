@@ -1,9 +1,9 @@
 !------------------------------------------------------------------------------!
 ! Procedure : def_model_vortex            Auteur : J. Gressier
-!                                         Date   : Février 2004
+!                                         Date   : Fevrier 2004
 ! Fonction                                Modif  : (cd historique)
-!   Traitement des paramètres du fichier menu principal
-!   Paramètres de définition du modèle d'intégration des VORTEX
+!   Traitement des parametres du fichier menu principal
+!   Parametres de definition du modele d'integration des VORTEX
 !
 ! Defauts/Limitations/Divers :
 !
@@ -19,7 +19,7 @@ use MENU_VORTEX
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(rpmblock), target :: block
 
 ! -- Declaration des sorties --
@@ -29,11 +29,11 @@ type(mnu_solver)       :: defsolver
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nkey           ! nombre de clefs
 integer                  :: i
-character(len=dimrpmlig) :: str            ! chaîne RPM intermédiaire
+character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- Debut de la procedure --
 
-call print_info(5,"- Définition du modèle de singularités tourbillonaires")
+call print_info(5,"- Definition du modele de singularites tourbillonaires")
 
 ! -- Recherche du BLOCK:MODEL
 
@@ -41,9 +41,9 @@ pblock => block
 call seekrpmblock(pblock, "MODEL", 0, pcour, nkey)
 
 if (nkey /= 1) call erreur("lecture de menu", &
-                           "bloc MODEL inexistant ou surnuméraire")
+                           "bloc MODEL inexistant ou surnumeraire")
 
-! -- lecture du type de singularité VORTEX
+! -- lecture du type de singularite VORTEX
 
 defsolver%defvort%typ_vortex = cnull
 
@@ -56,13 +56,13 @@ if (samestring(str,"FILAMENT"))    defsolver%defvort%typ_vortex = vort_fil
 
 select case(defsolver%defvort%typ_vortex)
 case(vort_sng)
-  call print_info(10,"    singularités VORTEX brutes")
+  call print_info(10,"    singularites VORTEX brutes")
 case(vort_blob)
-  call erreur("lecture de menu", "singularité BLOB non implémentée")
+  call erreur("lecture de menu", "singularite BLOB non implementee")
 case(vort_ring)
-  call erreur("lecture de menu", "singularité RING non implémentée")
+  call erreur("lecture de menu", "singularite RING non implementee")
 case(vort_fil)
-  call erreur("lecture de menu", "singularité FILAMENT non implémentée")
+  call erreur("lecture de menu", "singularite FILAMENT non implementee")
 endselect
 
 
@@ -71,5 +71,5 @@ endsubroutine def_model_vortex
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! fev  2004 : création de la procédure
+! fev  2004 : creation de la procedure
 !------------------------------------------------------------------------------!

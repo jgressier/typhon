@@ -2,8 +2,8 @@
 ! MODULE : EQNS                           Auteur : J. Gressier
 !                                         Date   : Mai 2002
 ! Fonction                                Modif  : cf historique
-!   Bibliotheque de procedures et fonctions pour la définition des états
-!   dans les équations de Navier-Stokes
+!   Bibliotheque de procedures et fonctions pour la definition des etats
+!   dans les equations de Navier-Stokes
 !
 ! Defauts/Limitations/Divers :
 !
@@ -17,7 +17,7 @@ use GEO3D      ! Compilation conditionnelle ? avec GEO3D_dp
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_NSETAT : état physique
+! Definition de la structure ST_NSETAT : etat physique
 !------------------------------------------------------------------------------!
 type st_nsetat
 !  real(krp), dimension(:), pointer &
@@ -28,13 +28,13 @@ type st_nsetat
 endtype st_nsetat
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_ESPECE : Définition d'une espèce de gaz
+! Definition de la structure ST_ESPECE : Definition d'une espece de gaz
 !------------------------------------------------------------------------------!
 type st_espece
-  real(krp)    :: gamma         ! rapport de chaleurs spécifiques
+  real(krp)    :: gamma         ! rapport de chaleurs specifiques
   real(krp)    :: r_const       ! constante du gaz
   real(krp)    :: prandtl       ! nombre de Prandtl
-  real(krp)    :: visc_dyn      ! viscosité dynamique (faire évoluer en loi)
+  real(krp)    :: visc_dyn      ! viscosite dynamique (faire evoluer en loi)
 endtype st_espece
 
 ! -- INTERFACES -------------------------------------------------------------
@@ -60,7 +60,7 @@ contains
 !type(st_nsetat) function cons2nspri(fluid, etat)
 !implicit none
 
-! -- déclaration des entrées
+! -- declaration des entrees
 !type(st_espece)          :: fluid
 !type(st_ :: etat
 
@@ -72,12 +72,12 @@ contains
 !endfunction cons2kdif
 
 !------------------------------------------------------------------------------!
-! Fonction : conversion de paramètres en variables primitives
+! Fonction : conversion de parametres en variables primitives
 !------------------------------------------------------------------------------!
 type(st_nsetat) function rho_ps_vel2nspri(rho, ps, vel) result(nspri)
 implicit none
 
-! -- déclaration des entrées
+! -- declaration des entrees
 type(v3d)       :: vel
 real(krp)       :: rho, ps
 
@@ -89,12 +89,12 @@ endfunction rho_ps_vel2nspri
 
 
 !------------------------------------------------------------------------------!
-! Fonction : conversion de paramètres en variables primitives
+! Fonction : conversion de parametres en variables primitives
 !------------------------------------------------------------------------------!
 type(st_nsetat) function pi_ti_mach_dir2nspri(fluid, pi, ti, mach, dir) result(nspri)
 implicit none
 
-! -- déclaration des entrées
+! -- declaration des entrees
 type(st_espece) :: fluid
 type(v3d)       :: dir
 real(krp)       :: pi, ti, mach
@@ -113,12 +113,12 @@ endfunction pi_ti_mach_dir2nspri
 
 
 !------------------------------------------------------------------------------!
-! Fonction : conversion de paramètres en variables primitives
+! Fonction : conversion de parametres en variables primitives
 !------------------------------------------------------------------------------!
 type(st_nsetat) function pi_ti_ps_dir2nspri(fluid, pi, ti, ps, dir) result(nspri)
 implicit none
 
-! -- déclaration des entrées
+! -- declaration des entrees
 type(st_espece) :: fluid
 type(v3d)       :: dir
 real(krp)       :: pi, ti, ps
@@ -138,15 +138,15 @@ endfunction pi_ti_ps_dir2nspri
 
 
 !------------------------------------------------------------------------------!
-! Fonction : conversion de paramètres en variables primitives
+! Fonction : conversion de parametres en variables primitives
 !------------------------------------------------------------------------------!
 subroutine nspri2pi_ti_mach_dir(fluid, nspri, pi, ti, mach, dir)
 implicit none
 
-! -- déclaration des entrées
+! -- declaration des entrees
 type(st_espece) :: fluid
 type(st_nsetat) :: nspri
-! -- déclaration des sorties
+! -- declaration des sorties
 real(krp)       :: pi, ti, mach
 type(v3d)       :: dir
 ! -- internal variables 
@@ -170,7 +170,7 @@ endmodule EQNS
 !------------------------------------------------------------------------------!
 ! Modification history
 !
-! mai  2002 : création du module
-! sept 2003 : adaptation du module pour premiers développements
+! mai  2002 : creation du module
+! sept 2003 : adaptation du module pour premiers developpements
 ! july 2004 : primitive variables calculation
 !------------------------------------------------------------------------------!

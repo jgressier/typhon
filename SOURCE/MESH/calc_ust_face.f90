@@ -3,7 +3,7 @@
 !                                         Date   : Novembre 2002
 ! Fonction                                Modif  : see history
 !   Calcul des faces
-!   . barycentre de la face (ou centre de gravité)  (cgface)
+!   . barycentre de la face (ou centre de gravite)  (cgface)
 !   . normale (sens arbitraire) de la face  
 !   . surface de la face
 !
@@ -20,11 +20,11 @@ use GEO3D
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(st_connect)      :: facevtex
 
-! -- Declaration des entrées/sorties --
-type(st_mesh)            :: mesh      ! entrées:vertex / sorties:iface
+! -- Declaration des entrees/sorties --
+type(st_mesh)            :: mesh      ! entrees:vertex / sorties:iface
 
 ! -- Declaration des sorties --
 !type(v3d), dimension(1:facevtex%nbnodes) :: cgface
@@ -32,24 +32,24 @@ type(v3d), dimension(*) :: cgface
 
 ! -- Declaration des variables internes --
 type(v3d), dimension(:), allocatable &
-               :: vtex           ! sommets intermédiaires
-integer        :: nface          ! nombre de faces (connectivité et tableau)
+               :: vtex           ! sommets intermediaires
+integer        :: nface          ! nombre de faces (connectivite et tableau)
 integer        :: ns             ! nombre de sommet de la face (iface)
 integer        :: if, is         ! index de face, index de sommet
-real(krp)      :: surf, s1, s2   ! surfaces intermédiaires
-type(v3d)      :: norm           ! normale intermédiaire
-type(v3d)      :: pt, cg1, cg2   ! point et CG intermédiaires
+real(krp)      :: surf, s1, s2   ! surfaces intermediaires
+type(v3d)      :: norm           ! normale intermediaire
+type(v3d)      :: pt, cg1, cg2   ! point et CG intermediaires
 
 ! -- Debut de la procedure --
 
 !print*,"debug",facevtex%nbnodes
-nface = facevtex%nbnodes          ! nombre de faces dans la connectivité
+nface = facevtex%nbnodes          ! nombre de faces dans la connectivite
 allocate(vtex(facevtex%nbfils))   ! nombre maximal de sommets par face
 
 ! A ce stage, on peut choisir de calculer les faces comme les volumes avec
-! des décomposition en faces élémentaires. Cela permet de calculer des
-! surfaces de faces à nombre de sommets quelconque.
-! Dans un premier temps, on se contente d'appliquer une méthode spécifique
+! des decomposition en faces elementaires. Cela permet de calculer des
+! surfaces de faces a nombre de sommets quelconque.
+! Dans un premier temps, on se contente d'appliquer une methode specifique
 ! pour chaque type de face.
 
 do if = 1, nface
@@ -85,11 +85,11 @@ do if = 1, nface
     cgface(if) = (vtex(1) + vtex(2) + vtex(3)) / 3._krp
 
   case(4)
-    ! calcul du premier triangle élémentaire
+    ! calcul du premier triangle elementaire
     norm = .5 * ( (vtex(2)-vtex(1)) .vect. (vtex(3)-vtex(1)) )
     s1   = abs(norm)
     cg1  = (vtex(1) + vtex(2) + vtex(3)) / 3._krp
-    ! calcul du second triangle élémentaire
+    ! calcul du second triangle elementaire
     pt   = .5 * ( (vtex(3)-vtex(1)) .vect. (vtex(4)-vtex(1)) )
     s2   = abs(pt) 
     cg2  = (vtex(1) + vtex(3) + vtex(4)) / 3._krp
@@ -101,7 +101,7 @@ do if = 1, nface
     cgface(if) = (s1*cg1 + s2*cg2)/(s1+s2)
 
   case default
-    call erreur("Développement","Trop de sommets pour le calcul de face")
+    call erreur("Developpement","Trop de sommets pour le calcul de face")
   endselect
 
   mesh%iface(if,1,1)%centre = cgface(if)

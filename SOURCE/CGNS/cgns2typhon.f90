@@ -2,7 +2,7 @@
 ! Procedure : cgns2typhon                 Auteur : J. Gressier
 !                                         Date   : Novembre 2002
 ! Fonction                                Modif  :
-!   Conversion d'une structure CGNS complète dans la structure de données
+!   Conversion d'une structure CGNS complete dans la structure de donnees
 !   de TYPHON.
 !
 ! Defauts/Limitations/Divers :
@@ -19,16 +19,16 @@ use OUTPUT        ! Sorties standard TYPHON
 
 implicit none 
 
-! -- Entrées --
-type(st_cgns_world) :: cgnsworld      ! structure des données CGNS
+! -- Entrees --
+type(st_cgns_world) :: cgnsworld      ! structure des donnees CGNS
 
 ! -- Sorties --
-type(st_world)      :: typhonworld    ! structure des données TYPHON
+type(st_world)      :: typhonworld    ! structure des donnees TYPHON
 
 ! -- Variables internes --
 integer       :: i                ! indice courant
 
-! -- Début de procédure
+! -- Debut de procedure
 
 call print_info(2, "* CONVERSION DES DONNEES CGNS -> TYPHON")
 

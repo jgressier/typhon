@@ -3,7 +3,7 @@
 !                                         Date   : Mai 2002
 ! Fonction                                Modif  : Octobre 2002
 !   Bibliotheque de procedures et fonctions pour la gestion de maillages
-!   structurés
+!   structures
 !
 ! Defauts/Limitations/Divers :
 ! Historique :
@@ -28,49 +28,49 @@ integer, parameter :: nghostcell = 2
 
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_PATCH : Définition de portions de bloc
+! Definition de la structure ST_PATCH : Definition de portions de bloc
 !------------------------------------------------------------------------------!
 type st_patch
-  character, dimension(3) :: dir   ! définition des directions 1 à 3 dans I,J,K
+  character, dimension(3) :: dir   ! definition des directions 1 a 3 dans I,J,K
   integer,   dimension(3) :: sens  ! +1 ou -1 pour la direction des indices
-                                   ! de min à max,
-                                   ! si invariant, précise le sens externe au bloc
-  integer,   dimension(3) :: min, max  ! indices de cellules début et fin
+                                   ! de min a max,
+                                   ! si invariant, precise le sens externe au bloc
+  integer,   dimension(3) :: min, max  ! indices de cellules debut et fin
 endtype st_patch
 
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_STRCONNECT : Définition des connections de blocs
+! Definition de la structure ST_STRCONNECT : Definition des connections de blocs
 !------------------------------------------------------------------------------!
 type st_strconnect
   character                    :: type       ! type de connection
                                           !   (B)lock, (F)ace, (E)dge, (V)ertex
   type(st_patch)               :: local      ! Patch local au bloc
-  type(st_block), pointer      :: linkedblk  ! Bloc associé
-  type(st_patch)               :: linkedpat  ! Patch associé
+  type(st_block), pointer      :: linkedblk  ! Bloc associe
+  type(st_patch)               :: linkedpat  ! Patch associe
   type(st_strconnect), pointer :: next       ! (liste) connection suivante
 endtype st_strconnect
 
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_STRBOUND : Définition des conditions aux limites
+! Definition de la structure ST_STRBOUND : Definition des conditions aux limites
 !------------------------------------------------------------------------------!
 !type st_strbound
 !  type(st_patch)              :: local      ! Patch local au bloc
-  !type(st_solvbound), pointer :: bound      ! condition aux limites associée
+  !type(st_solvbound), pointer :: bound      ! condition aux limites associee
 !  type(st_strbound),  pointer :: next       ! (liste) condition suivante
 !endtype st_strbound
 
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_BLOCK : Bloc structuré
+! Definition de la structure ST_BLOCK : Bloc structure
 !------------------------------------------------------------------------------!
 type st_block
   integer                    :: id                ! numero de domaine
   integer                    :: level             ! niveau multigrille
   integer                    :: nbdim             ! nombre de dimension du maillage
   integer                    :: idim, jdim, kdim  ! indices max des cellules 
-  type(st_mesh)              :: mesh              ! maillage associé
+  type(st_mesh)              :: mesh              ! maillage associe
   integer                    :: nconnect, nbound  ! nombre de connections et
                                                !   conditions aux limites
   type(st_strconnect), pointer &
@@ -81,14 +81,14 @@ endtype st_block
 
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_STRMESH : ensemble de blocs structurés
+! Definition de la structure ST_STRMESH : ensemble de blocs structures
 !------------------------------------------------------------------------------!
 
 type st_strmesh
   integer                 :: nblock   ! nombre de blocs dans la zone
-  integer                 :: nlevel   ! nombre de niveau multigrille (0 à nlevel)
+  integer                 :: nlevel   ! nombre de niveau multigrille (0 a nlevel)
   type(st_block), pointer :: block    ! liste des blocs
-  !type(st_nsgen)          :: nsgen    ! données générales pour les équations NS
+  !type(st_nsgen)          :: nsgen    ! donnees generales pour les equations NS
 endtype st_strmesh
 
 
@@ -106,20 +106,20 @@ endinterface
 
 ! -- Fonctions et Operateurs ------------------------------------------------
 
-integer nb_block       ! fonction définie dans count_struct.f90
-integer nb_connect     ! fonction définie dans count_struct.f90
-integer nb_bound       ! fonction définie dans count_struct.f90
+integer nb_block       ! fonction definie dans count_struct.f90
+integer nb_connect     ! fonction definie dans count_struct.f90
+integer nb_bound       ! fonction definie dans count_struct.f90
 
 ! -- IMPLEMENTATION ---------------------------------------------------------
 contains
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation d'une structure BLOCK
+! Procedure : allocation d'une structure BLOCK
 !------------------------------------------------------------------------------!
 subroutine new_block(block, idim, jdim, kdim, allocgrad)
 implicit none
-type(st_block) :: block             ! block à créer
+type(st_block) :: block             ! block a creer
 integer        :: idim, jdim, kdim  ! dimension du maillage interne
 logical        :: allocgrad         ! allocation des gradients
 
@@ -139,7 +139,7 @@ endsubroutine new_block
 
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure BLOCK
+! Procedure : desallocation d'une structure BLOCK
 !------------------------------------------------------------------------------!
 subroutine delete_block(block)
 implicit none
@@ -166,7 +166,7 @@ endsubroutine delete_block
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation d'une structure STRMESH
+! Procedure : allocation d'une structure STRMESH
 !------------------------------------------------------------------------------!
 subroutine new_strmesh(zone)
 implicit none
@@ -179,7 +179,7 @@ endsubroutine new_strmesh
 
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure STRMESH
+! Procedure : desallocation d'une structure STRMESH
 !------------------------------------------------------------------------------!
 subroutine delete_strmesh(zone)
 implicit none

@@ -2,15 +2,15 @@
 ! Procedure : calc_ust_elemvol            Auteur : J. Gressier
 !                                         Date   : Janvier 2003
 ! Fonction                                Modif  : (cf historique)
-!   Calcul des volumes élémentaires d'une cellule, définis comme des coniques
+!   Calcul des volumes elementaires d'une cellule, definis comme des coniques
 !   de base, chacune des faces et de sommet, le centre approximatif de cellule.
-!   En sortie, on obtient le volume et le centre de gravité des volumes 
-!   élémentaires
+!   En sortie, on obtient le volume et le centre de gravite des volumes 
+!   elementaires
 !
 ! Defauts/Limitations/Divers :
-!   En terme d'organisation mémoire, on a choisi d'organiser les volumes
-!   élémentaires par face (2 volumes par face) plutot que de les rattacher
-!   aux cellules (nombre de volumes indéterminé par cellule)
+!   En terme d'organisation memoire, on a choisi d'organiser les volumes
+!   elementaires par face (2 volumes par face) plutot que de les rattacher
+!   aux cellules (nombre de volumes indetermine par cellule)
 !
 !------------------------------------------------------------------------------!
 subroutine calc_ust_elemvol(geom, ncell, nface, midcell, facecell, cgface, face, &
@@ -23,19 +23,19 @@ use MESHBASE
 
 implicit none
 
-! -- Declaration des entrées --
-character                   :: geom       ! type de géométrie
+! -- Declaration des entrees --
+character                   :: geom       ! type de geometrie
 integer                     :: ncell      ! nombre de cellules
 integer                     :: nface      ! nombre de faces
-type(v3d), dimension(ncell) :: midcell    ! centres de cellule approchés ( /= barycentre )
-type(st_connect)         :: facecell   ! connectivité face->cellules
+type(v3d), dimension(ncell) :: midcell    ! centres de cellule approches ( /= barycentre )
+type(st_connect)         :: facecell   ! connectivite face->cellules
 type(v3d), dimension(nface) :: cgface     ! barycentre de face
 type(st_face), dimension(nface) &
                             :: face       ! faces (surfaces et normales)
 
 ! -- Declaration des sorties --
-type(v3d), dimension(nface,2) :: cg_elem    ! centres de volume élémentaire
-real(krp), dimension(nface,2) :: vol_elem   ! volumes de volume élémentaire
+type(v3d), dimension(nface,2) :: cg_elem    ! centres de volume elementaire
+real(krp), dimension(nface,2) :: vol_elem   ! volumes de volume elementaire
 
 ! -- Declaration des variables internes --
 integer         :: if           ! indice  de face
@@ -45,9 +45,9 @@ real(krp)       :: kcg, kvol    ! coefficients pour le calcul du centre et du vo
 
 ! -- Debut de la procedure --
 
-! le volume élémentaire est défini par une base (la face) de centre H
-! et un sommet K (centre approché (midcell) de la cellule adjacente). 
-! On en déduit le volume et le centre de gravité du volume élémentaire.
+! le volume elementaire est defini par une base (la face) de centre H
+! et un sommet K (centre approche (midcell) de la cellule adjacente). 
+! On en deduit le volume et le centre de gravite du volume elementaire.
 
 select case(geom)
 case(msh_2dplan)
@@ -57,7 +57,7 @@ case(msh_3d)
   kcg  = 1./4._krp
   kvol = 1./3._krp
 case default
-  call erreur("Traitement du maillage (Bug)","Type de géométrie inattendu")
+  call erreur("Traitement du maillage (Bug)","Type de geometrie inattendu")
 endselect
 
 do if = 1, facecell%nbnodes
@@ -85,15 +85,15 @@ contains
   subroutine subcalc_elemvol(vK, vH, face, cg, vol)
     implicit none
 
-    ! --- entrées ---
+    ! --- entrees ---
     type(v3d)       :: vK, vH      ! coord. K (sommet) et H (centre de face) 
     type(st_face)   :: face        ! face
     ! --- sorties ---
-    type(v3d)       :: cg          ! centre de volume élémentaire
-    real(krp)       :: vol         ! volume du volume élémentaire
+    type(v3d)       :: cg          ! centre de volume elementaire
+    real(krp)       :: vol         ! volume du volume elementaire
     ! --- interne ---
     type(v3d)       :: vKH         ! vecteur KH (sommet-centre de face)
-    real(krp)       :: hauteur     ! volume du volume élémentaire
+    real(krp)       :: hauteur     ! volume du volume elementaire
 
       vKH     = vH - vK
       hauteur = abs(vKH.scal.face%normale)
@@ -108,6 +108,6 @@ endsubroutine calc_ust_elemvol
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! jan  2002 : création de la procédure
+! jan  2002 : creation de la procedure
 !------------------------------------------------------------------------------!
 

@@ -2,8 +2,8 @@
 ! Procedure : def_init_kdif               Auteur : J. Gressier
 !                                         Date   : Mars 2003
 ! Fonction                                Modif  : 
-!   Traitement des paramètres du fichier menu principal
-!   Paramètres principaux du projet
+!   Traitement des parametres du fichier menu principal
+!   Parametres principaux du projet
 !
 ! Defauts/Limitations/Divers :
 !
@@ -19,10 +19,10 @@ use MENU_INIT
 
 implicit none
 
-! -- Declaration des entrées --
-type(rpmblock), target :: block    ! bloc RPM contenant les définitions
+! -- Declaration des entrees --
+type(rpmblock), target :: block    ! bloc RPM contenant les definitions
 integer                :: type     ! type de condition aux limites
-integer                :: unif     ! uniformité de la condition initiale
+integer                :: unif     ! uniformite de la condition initiale
 
 ! -- Declaration des sorties --
 type(st_init_kdif) :: initk
@@ -30,7 +30,7 @@ type(st_init_kdif) :: initk
 ! -- Declaration des variables internes --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: ib, nkey, i
-character(len=dimrpmlig) :: str            ! chaîne RPM intermédiaire
+character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- Debut de la procedure --
 
@@ -38,7 +38,7 @@ pblock => block
 if (unif == init_unif) then
   call rpmgetkeyvalreal(pblock, "TEMP", initk%temp)
 else ! provisoire
-  call print_info(10,"    répartition linéaire de température initiale")
+  call print_info(10,"    repartition lineaire de temperature initiale")
   allocate(initk%coef(4))
   call rpmgetkeyvalstr(pblock, "TEMPC_FILE", str)
   open(unit=1003, file = str, form="formatted")
@@ -52,7 +52,7 @@ endsubroutine def_init_kdif
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mars 2003 : création de la routine
+! mars 2003 : creation de la routine
 !------------------------------------------------------------------------------!
 
 

@@ -2,8 +2,8 @@
 ! MODULE : MENU_BOCO                      Auteur : J. Gressier
 !                                         Date   : Novembre 2002
 ! Fonction                                Modif  : (cf Historique)
-!   Définition des structures pour les entrées du programme TYPHON
-!   Structures pour la définition des conditions aux limites
+!   Definition des structures pour les entrees du programme TYPHON
+!   Structures pour la definition des conditions aux limites
 !
 ! Defauts/Limitations/Divers :
 !
@@ -12,28 +12,28 @@ module MENU_BOCO
 
 use STRING
 use TYPHMAKE    ! Definition de la precision
-use VARCOM      ! Définition des constantes
-use MENU_NS     ! Définition des solveurs type NS
-use MENU_KDIF   ! Définition des solveurs type Equation de diffusion
-use MENU_VORTEX ! Définition des solveurs type VORTEX/singularités
+use VARCOM      ! Definition des constantes
+use MENU_NS     ! Definition des solveurs type NS
+use MENU_KDIF   ! Definition des solveurs type Equation de diffusion
+use MENU_VORTEX ! Definition des solveurs type VORTEX/singularites
 
 implicit none
 
 
 ! -- Variables globales du module -------------------------------------------
 
-! -- Définition des entiers caractéristiques pour l'uniformité de la CL --
+! -- Definition des entiers caracteristiques pour l'uniformite de la CL --
 
 integer, parameter :: uniform    = 10   
 integer, parameter :: nonuniform = 20 
 
-! -- Définition des entiers caractéristiques pour le type de solveur --
+! -- Definition des entiers caracteristiques pour le type de solveur --
 
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! structure MNU_BOCO : options numériques les solveurs 
+! structure MNU_BOCO : options numeriques les solveurs 
 !------------------------------------------------------------------------------!
 type mnu_boco
   character(len=strlen) :: family        ! nom de famille de la condition aux limites
@@ -51,12 +51,12 @@ type mnu_boco
   type(st_boco_vort)    :: boco_vortex   ! condition aux limites propre au solveur VORTEX
   type(st_boco_ns)      :: boco_ns       ! condition aux limites propre au solveur NS
 
-  !integer               :: np_int    ! nombre de paramètres entiers
-  !integer               :: np_real   ! nombre de paramètres réels
+  !integer               :: np_int    ! nombre de parametres entiers
+  !integer               :: np_real   ! nombre de parametres reels
   !integer, dimension(:), pointer &
-  !                      :: iparam    ! paramètres entiers
+  !                      :: iparam    ! parametres entiers
   !real(krp), dimension(:), pointer &
-  !                      :: rparam    ! paramètres réels
+  !                      :: rparam    ! parametres reels
   !type(st_boco_ns)    :: boco_ns     ! condition aux limites propre au solveur NS
 endtype mnu_boco
 
@@ -113,10 +113,10 @@ integer isolver, itype
 
   select case(itype)
   case(bc_geo_sym)
-    !call erreur("Développement","'bc_geo_sym' : Cas non implémenté")
+    !call erreur("Developpement","'bc_geo_sym' : Cas non implemente")
     bctype_of_boco = bc_calc_ghostface
   case(bc_geo_period)
-    call erreur("Développement","'bc_geo_period' : Cas non implémenté")
+    call erreur("Developpement","'bc_geo_period' : Cas non implemente")
   case(bc_geo_extrapol)
     bctype_of_boco = bc_calc_ghostface
   case default    
@@ -128,7 +128,7 @@ integer isolver, itype
     case(solVORTEX)
       bctype_of_boco = bctype_of_vortboco(itype)
     case default
-      call erreur("incohérence interne (MENU_BOCO)","solveur inconnu")
+      call erreur("incoherence interne (MENU_BOCO)","solveur inconnu")
     endselect
   endselect
 
@@ -141,11 +141,11 @@ endmodule MENU_BOCO
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov  2002 : création du module
-! mars 2003 : définition des types de conditions aux limites
+! nov  2002 : creation du module
+! mars 2003 : definition des types de conditions aux limites
 ! juin 2003 : regroupement des types "connection", ajout de "coupling"
-! nov  2003 : ajout de l'uniformité ou non des CL
-! fev  2004 : ajout des CL spécifiques au solveur VORTEX
+! nov  2003 : ajout de l'uniformite ou non des CL
+! fev  2004 : ajout des CL specifiques au solveur VORTEX
 !------------------------------------------------------------------------------!
 
 

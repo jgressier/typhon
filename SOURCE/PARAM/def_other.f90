@@ -2,8 +2,8 @@
 ! Procedure : def_other                   Auteur : J. Gressier
 !                                         Date   : Novembre 2002
 ! Fonction                                Modif  : 
-!   Traitement des paramètres du fichier menu principal
-!   Paramètres principaux du projet
+!   Traitement des parametres du fichier menu principal
+!   Parametres principaux du projet
 !
 ! Defauts/Limitations/Divers :
 !
@@ -20,7 +20,7 @@ use MENU_SOLVER
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(rpmblock), target :: block
 !DVT
 integer                :: isolver
@@ -32,11 +32,11 @@ type(mnu_solver) :: defsolver
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nkey           ! nombre de clefs
 integer                  :: i
-character(len=dimrpmlig) :: str            ! chaîne RPM intermédiaire
+character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- Debut de la procedure --
 
-call print_info(5,"- Définition des paramètres optionnels")
+call print_info(5,"- Definition des parametres optionnels")
 
 ! -- Recherche du BLOCK:OTHER
 
@@ -44,7 +44,7 @@ call print_info(5,"- Définition des paramètres optionnels")
 !call seekrpmblock(pblock, "PROJECT", 0, pcour, nkey)
 
 !if (nkey /= 1) call erreur("lecture de menu", &
-!                           "bloc PROJECT inexistant ou surnuméraire")
+!                           "bloc PROJECT inexistant ou surnumeraire")
 
 
 

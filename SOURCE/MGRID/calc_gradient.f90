@@ -2,7 +2,7 @@
 ! Procedure : calc_gradient               Auteur : J. Gressier
 !                                         Date   : Septembre 2003
 ! Fonction                                Modif  : (cf historique)
-!   Calcul des gradients d'un champ générique (conservatif ou primitif)
+!   Calcul des gradients d'un champ generique (conservatif ou primitif)
 !
 ! Defauts/Limitations/Divers :
 !
@@ -19,9 +19,9 @@ use USTMESH
 
 implicit none
 
-! -- Declaration des entrées --
-type(mnu_solver)      :: def_solver  ! définition des paramètres du solveur
-type(st_ustmesh)      :: mesh        ! maillage et connectivités
+! -- Declaration des entrees --
+type(mnu_solver)      :: def_solver  ! definition des parametres du solveur
+type(st_ustmesh)      :: mesh        ! maillage et connectivites
 type(st_genericfield) :: gfield      ! champ des valeurs
 
 ! -- Declaration des sorties --
@@ -44,7 +44,7 @@ integer                :: info, xinfo ! retour d'info des routines LAPACK
 ! -- Debut de la procedure --
 
 nc  = mesh%ncell_int   ! nombre de cellules internes
-nfi = mesh%nface_int   ! nb de faces internes (connectées avec 2 cellules)
+nfi = mesh%nface_int   ! nb de faces internes (connectees avec 2 cellules)
 nf  = mesh%nface       ! nb de faces totales 
 allocate(dcg(nf))
 
@@ -54,8 +54,8 @@ allocate(dcg(nf))
 ! - memorize geometrical matrix
 
 
-! -- Calcul des différences de centres de cellules --
-!    (toutes les faces, même limites, doivent avoir un centre de cellule)
+! -- Calcul des differences de centres de cellules --
+!    (toutes les faces, meme limites, doivent avoir un centre de cellule)
 
 do if = 1, nf
   ic1 = mesh%facecell%fils(if,1)
@@ -70,7 +70,7 @@ do ic = 1, nc
   mat(ic)%mat = 0._krp
 enddo
 
-! -- boucle sur les faces internes uniquement (code source doublé)  --
+! -- boucle sur les faces internes uniquement (code source double)  --
 
 do if = 1, nfi
   imat(1,1) = dcg(if)%x **2
@@ -83,16 +83,16 @@ do if = 1, nfi
   imat(2,3) = dcg(if)%y * dcg(if)%z
   imat(3,2) = imat(2,3)
   
-  ! contribution de la face à la cellule à gauche
+  ! contribution de la face a la cellule a gauche
   ic1 = mesh%facecell%fils(if,1)
   mat(ic1)%mat(:,:) = mat(ic1)%mat(:,:) + imat(:,:)
   
-  ! contribution de la face à la cellule à droite
+  ! contribution de la face a la cellule a droite
   ic2 = mesh%facecell%fils(if,2)
   mat(ic2)%mat(:,:) = mat(ic2)%mat(:,:) + imat(:,:)
 enddo
 
-! -- boucle sur les faces limites uniquement (code source doublé) --
+! -- boucle sur les faces limites uniquement (code source double) --
 
 do if = nfi+1, nf
   imat(1,1) = dcg(if)%x **2
@@ -105,12 +105,12 @@ do if = nfi+1, nf
   imat(2,3) = dcg(if)%y * dcg(if)%z
   imat(3,2) = imat(2,3)
   
-  ! contribution de la face à la cellule à gauche (UNIQUEMENT)
+  ! contribution de la face a la cellule a gauche (UNIQUEMENT)
   ic1 = mesh%facecell%fils(if,1)
   mat(ic1)%mat(:,:) = mat(ic1)%mat(:,:) + imat(:,:)
 enddo
 
-! -- Correction de la matrice dans les cas 2D (vecteur supplémentaire selon z) --
+! -- Correction de la matrice dans les cas 2D (vecteur supplementaire selon z) --
 
 do ic = 1, nc
   mat(ic)%mat(3,3) = mat(ic)%mat(3,3) + 1._krp
@@ -118,14 +118,14 @@ enddo
 
 
 
-! l'inversion peut se faire des façon suivantes selon A symétrique (PO) ou non (GE)
+! l'inversion peut se faire des façon suivantes selon A symetrique (PO) ou non (GE)
 ! * calcul de l'inverse Ai (GETRI/POTRI) et multiplication Ai.B
-! * décomposition LU (GETRF) et résolution (GETRS)
-! * décomposition Choleski (POTRF) et résolution (POTRS)
+! * decomposition LU (GETRF) et resolution (GETRS)
+! * decomposition Choleski (POTRF) et resolution (POTRS)
 
 xinfo = 0
 do ic = 1, nc
-  ! décomposition de Choleski
+  ! decomposition de Choleski
   call lapack_potrf('U', 3, mat(ic)%mat, 3, info)
   if (info /= 0) xinfo = ic
   !if (info /= 0) then
@@ -135,10 +135,10 @@ do ic = 1, nc
 enddo
 
 !print*,"DEBUG!!: xinfo = ",xinfo
-if (xinfo /= 0) call erreur("Routine LAPACK","Problème POTRF")
+if (xinfo /= 0) call erreur("Routine LAPACK","Probleme POTRF")
 
-! -- Calcul du second membre -At.dT et résolution (multiplication par l'inverse) --
-! ?? OPTIMISATION par interface variable/tableaux et résolution en un seul coup
+! -- Calcul du second membre -At.dT et resolution (multiplication par l'inverse) --
+! ?? OPTIMISATION par interface variable/tableaux et resolution en un seul coup
 
 !nv = nbvar()
 allocate(rhs(3,nc))    ! allocation
@@ -171,7 +171,7 @@ do is = 1, gfield%nscal
     call lapack_potrs('U', 3, 1, mat(ic)%mat, 3, rhs(1:3,ic:ic), 3, info)
     if (info /= 0) xinfo = ic
   enddo
-  if (xinfo /= 0) call erreur("Routine LAPACK","Problème POTRS")
+  if (xinfo /= 0) call erreur("Routine LAPACK","Probleme POTRS")
   do ic = 1, nc
     grad%tabvect(is)%vect(ic) = v3d_of(rhs(1:3,ic))
   enddo
@@ -207,7 +207,7 @@ do iv = 1, gfield%nvect
     call lapack_potrs('U', 3, 1, mat(ic)%mat, 3, rhs(1:3,ic:ic), 3, info)
     if (info /= 0) xinfo = ic
   enddo
-  if (xinfo /= 0) call erreur("Routine LAPACK","Problème POTRS")
+  if (xinfo /= 0) call erreur("Routine LAPACK","Probleme POTRS")
   do ic = 1, nc
     grad%tabtens(iv)%tens(ic)%mat(1,1:3) = rhs(1:3,ic)
   enddo
@@ -237,7 +237,7 @@ do iv = 1, gfield%nvect
     call lapack_potrs('U', 3, 1, mat(ic)%mat, 3, rhs(1:3,ic:ic), 3, info)
     if (info /= 0) xinfo = ic
   enddo
-  if (xinfo /= 0) call erreur("Routine LAPACK","Problème POTRS")
+  if (xinfo /= 0) call erreur("Routine LAPACK","Probleme POTRS")
   do ic = 1, nc
     grad%tabtens(iv)%tens(ic)%mat(2,1:3) = rhs(1:3,ic)
   enddo
@@ -267,7 +267,7 @@ do iv = 1, gfield%nvect
     call lapack_potrs('U', 3, 1, mat(ic)%mat, 3, rhs(1:3,ic:ic), 3, info)
     if (info /= 0) xinfo = ic
   enddo
-  if (xinfo /= 0) call erreur("Routine LAPACK","Problème POTRS")
+  if (xinfo /= 0) call erreur("Routine LAPACK","Probleme POTRS")
   do ic = 1, nc
     grad%tabtens(iv)%tens(ic)%mat(3,1:3) = rhs(1:3,ic)
   enddo
@@ -277,7 +277,7 @@ enddo
 
 
 
-! --désallocation
+! --desallocation
 
 deallocate(dcg, rhs)
 
@@ -288,8 +288,8 @@ endsubroutine calc_gradient
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! sept 2003 : création de la procédure
+! sept 2003 : creation de la procedure
 ! nov  2004 : computation of vector gradients
 ! DEV: optimiser le calcul de gradient
-! DEV: création de procédures intrinsèques dans les modules 
+! DEV: creation de procedures intrinseques dans les modules 
 !------------------------------------------------------------------------------!

@@ -20,17 +20,17 @@ use DEFFIELD
 
 implicit none
 
-! -- Declaration des entrées --
-type(mnu_boco)   :: defboco          ! paramètres de conditions aux limites
+! -- Declaration des entrees --
+type(mnu_boco)   :: defboco          ! parametres de conditions aux limites
 type(st_ustboco) :: ustboco          ! lieu d'application des conditions aux limites
-type(st_ustmesh) :: ustdom           ! maillage non structuré
+type(st_ustmesh) :: ustdom           ! maillage non structure
 
 ! -- Declaration des sorties --
-type(st_field)   :: champ            ! champ des états
+type(st_field)   :: champ            ! champ des etats
 
 ! -- Declaration des variables internes --
-integer    :: ifb, if, ip      ! index de liste, index de face limite, et paramètre
-integer    :: icell, ighost    ! index de cellule intérieure, et de cellule fictive
+integer    :: ifb, if, ip      ! index de liste, index de face limite, et parametre
+integer    :: icell, ighost    ! index de cellule interieure, et de cellule fictive
 type(v3d)  :: fn, dfc, dgc, vc
 real(krp)  :: rap 
 

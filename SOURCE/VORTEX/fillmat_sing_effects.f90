@@ -2,7 +2,7 @@
 ! Procedure : fillmat_sing_effects        Auteur : J. Gressier
 !                                         Date   : Mars 2004
 ! Fonction                                Modif  : (cf historique)
-!   Remplissage de la matrice des coefficients d'effets des singularités
+!   Remplissage de la matrice des coefficients d'effets des singularites
 !
 ! Defauts/Limitations/Divers :
 !
@@ -18,7 +18,7 @@ use PAN2D_LIN
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 integer                         :: size, ideb
 type(st_grid)                   :: grid
 type(mnu_solver)                :: defsolver
@@ -35,29 +35,29 @@ type(v3d)              :: x1, x2
 
 ! -- Debut de la procedure --
 
-! si remplissage par ligne   : effet de toutes les singularités en un point fixe
-! si remplissage par colonne : effet d'une seule singularité en chaque pt (centre)
-! (test d'efficacité CPU max ?)
+! si remplissage par ligne   : effet de toutes les singularites en un point fixe
+! si remplissage par colonne : effet d'une seule singularite en chaque pt (centre)
+! (test d'efficacite CPU max ?)
 
 !print*,'mat fillmat', real(mat,4)
 ! -- remplissage par ligne --
 
 do ifg = 1, grid%umesh%nface    ! boucle sur les faces de la grille locale
 
-  ! écriture de la condition limite V.n = 0
+  ! ecriture de la condition limite V.n = 0
   face = grid%umesh%mesh%iface(ifg, 1, 1)
   irhs = 1
   !print*,'fillmat0:',face%centre, face%normale
 
-  do ib = 1, defsolver%nboco  ! boucle sur boco / rech. de cond. singularités
+  do ib = 1, defsolver%nboco  ! boucle sur boco / rech. de cond. singularites
     if (defsolver%boco(ib)%typ_calc == bc_calc_singpanel) then
     
       !print*,'boco',ib, ifg, ideb, irhs
       pgrid => defsolver%boco(ib)%boco_vortex%pgrid
-      !! DEV : mémorisation de l'indice dans la structure boco_vortex
+      !! DEV : memorisation de l'indice dans la structure boco_vortex
       nf = pgrid%umesh%nface
 
-      do if = 1, nf   ! boucle sur tous les panneaux singularités
+      do if = 1, nf   ! boucle sur tous les panneaux singularites
         !pane = pgrid%umesh%mesh%iface(if, 1, 1)
         iv1  = pgrid%umesh%facevtex%fils(if,1)
         iv2  = pgrid%umesh%facevtex%fils(if,2)
@@ -84,5 +84,5 @@ endsubroutine fillmat_sing_effects
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mars 2004 : création de la procédure
+! mars 2004 : creation de la procedure
 !------------------------------------------------------------------------------!

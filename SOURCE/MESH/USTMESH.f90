@@ -3,7 +3,7 @@
 !                                         Date   : Octobre 2002
 ! Fonction                                Modif  : (cf historique)
 !   Bibliotheque de procedures et fonctions pour la gestion de maillages
-!   non structurés
+!   non structures
 !
 ! Defauts/Limitations/Divers :
 !
@@ -26,15 +26,15 @@ implicit none
 
 
 !------------------------------------------------------------------------------!
-! structure ST_CELLVTEX : Définition de connectivité CELL -> VERTEX
-!   une connectivité spéciale est définie pour une meilleure gestions des
-!   actions selon le type des éléments.
+! structure ST_CELLVTEX : Definition de connectivite CELL -> VERTEX
+!   une connectivite speciale est definie pour une meilleure gestions des
+!   actions selon le type des elements.
 !------------------------------------------------------------------------------!
 type st_cellvtex
-  integer          :: dim                      ! dimension spatiale des éléments (2D/3D)
-  integer          :: nbar, ntri, nquad, &     ! nombre d'éléments par famille
+  integer          :: dim                      ! dimension spatiale des elements (2D/3D)
+  integer          :: nbar, ntri, nquad, &     ! nombre d'elements par famille
                       ntetra, npyra, npenta, nhexa  
-  type(st_connect) :: bar, tri, quad,    &     ! définition des éléments
+  type(st_connect) :: bar, tri, quad,    &     ! definition des elements
                       tetra, pyra, penta, hexa
   integer, dimension(:), pointer &
                    :: ibar, itri, iquad, &     ! redirection d'index vers "icell" de ustmesh
@@ -43,28 +43,28 @@ endtype st_cellvtex
 
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_USTBOCO : Définition des conditions aux limites
+! Definition de la structure ST_USTBOCO : Definition des conditions aux limites
 !------------------------------------------------------------------------------!
 type st_ustboco
   character(len=strlen)          :: family     ! nom de famille
-  integer                        :: idefboco   ! pointeur index vers la définition 
+  integer                        :: idefboco   ! pointeur index vers la definition 
                                                ! des conditions aux limites dans defsolver
-  integer                        :: nface      ! nombre de faces concernées
-  integer, dimension(:), pointer :: iface      ! liste des faces concernées par
+  integer                        :: nface      ! nombre de faces concernees
+  integer, dimension(:), pointer :: iface      ! liste des faces concernees par
                                                ! les conditions aux limites
   type(st_genericfield), pointer &
-                         :: bocofield          ! liste chaînée de champs génériques
+                         :: bocofield          ! liste chainee de champs generiques
 
-  !! type(st_solvboco), pointer    :: boco      ! condition aux limites associée
+  !! type(st_solvboco), pointer    :: boco      ! condition aux limites associee
   !! type(st_strboco),  pointer :: next       ! (liste) condition suivante
 endtype st_ustboco
 
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_USTMESH : Maillage non structuré
+! Definition de la structure ST_USTMESH : Maillage non structure
 !------------------------------------------------------------------------------!
-! les tableaux de faces et de cellules contiennent les éléments internes puis
-! les éléments limites.
+! les tableaux de faces et de cellules contiennent les elements internes puis
+! les elements limites.
 
 type st_ustmesh
   integer               :: id              ! numero de domaine
@@ -73,11 +73,11 @@ type st_ustmesh
   integer               :: nvtex, nface, ncell   ! nombre de sommets, faces et cellules
   integer               :: nface_int, ncell_int  ! nombre de faces et cellules internes
   integer               :: nface_lim, ncell_lim  ! nombre de faces et cellules limites
-  type(st_mesh)         :: mesh            ! maillage associé (géométrie)
-  type(st_connect)      :: facevtex, &     ! connectivité face   -> sommets   par type
-                           facecell        ! connectivité face   -> cellules  par type
+  type(st_mesh)         :: mesh            ! maillage associe (geometrie)
+  type(st_connect)      :: facevtex, &     ! connectivite face   -> sommets   par type
+                           facecell        ! connectivite face   -> cellules  par type
                                            ! SUPPOSED TO INDEX LOWER INDEX CELL BEFORE
-  type(st_cellvtex)     :: cellvtex        ! connectivité cellule-> vtex      par type
+  type(st_cellvtex)     :: cellvtex        ! connectivite cellule-> vtex      par type
   integer               :: nboco          ! nombre de conditions aux limites
   type(st_ustboco), dimension(:), pointer &
                         :: boco           ! liste des conditions aux limites
@@ -109,7 +109,7 @@ contains
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation d'une structure USTMESH
+! Procedure : allocation d'une structure USTMESH
 !------------------------------------------------------------------------------!
 subroutine new_ustmesh(mesh, ncell, nface, nvtex)
 implicit none
@@ -145,7 +145,7 @@ endsubroutine new_ustmesh
 
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure USTMESH
+! Procedure : desallocation d'une structure USTMESH
 !------------------------------------------------------------------------------!
 subroutine delete_ustmesh(mesh)
 implicit none
@@ -168,7 +168,7 @@ endsubroutine delete_ustmesh
 
 
 !------------------------------------------------------------------------------!
-! Procédure : création d'une structure BOCO dans USTMESH
+! Procedure : creation d'une structure BOCO dans USTMESH
 !------------------------------------------------------------------------------!
 subroutine createboco(mesh, nboco)
 implicit none
@@ -182,7 +182,7 @@ endsubroutine createboco
 
 
 !------------------------------------------------------------------------------!
-! Procédure : recherche d'une condition limite dans USTMESH
+! Procedure : recherche d'une condition limite dans USTMESH
 !------------------------------------------------------------------------------!
 function pboco_ustmesh(umesh, name) result(pboco)
 implicit none
@@ -205,7 +205,7 @@ endfunction pboco_ustmesh
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation d'une structure USTBOCO
+! Procedure : allocation d'une structure USTBOCO
 !------------------------------------------------------------------------------!
 subroutine new_ustboco(bc, nom, n)
 implicit none
@@ -221,7 +221,7 @@ endsubroutine new_ustboco
 
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure USTBOCO
+! Procedure : desallocation d'une structure USTBOCO
 !------------------------------------------------------------------------------!
 subroutine delete_ustboco(bc)
 implicit none
@@ -234,7 +234,7 @@ endsubroutine delete_ustboco
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation des tableaux d'une structure CELLVTEX
+! Procedure : allocation des tableaux d'une structure CELLVTEX
 !------------------------------------------------------------------------------!
 subroutine new_cellvtex(conn)
 implicit none
@@ -273,7 +273,7 @@ endsubroutine new_cellvtex
 
 
 !------------------------------------------------------------------------------!
-! Procédure : Intialisation des tableaux d'une structure CELLVTEX
+! Procedure : Intialisation des tableaux d'une structure CELLVTEX
 !------------------------------------------------------------------------------!
 subroutine init_cellvtex(conn)
 implicit none
@@ -291,7 +291,7 @@ endsubroutine init_cellvtex
 
 
 !------------------------------------------------------------------------------!
-! Procédure :desallocation d'une structure CELLVTEX
+! Procedure :desallocation d'une structure CELLVTEX
 !------------------------------------------------------------------------------!
 subroutine delete_cellvtex(conn)
 implicit none
@@ -335,25 +335,25 @@ endsubroutine delete_cellvtex
 !------------------------------------------------------------------------------!
 logical function face_invtexlist(nsf, face, nsl, vtexlist)
 implicit none
-! -- Entrées --
+! -- Entrees --
 integer                   :: nsf, nsl         ! nombre de sommets de la face et de la liste
-integer, dimension(1:nsf) :: face             ! face à rechercher
+integer, dimension(1:nsf) :: face             ! face a rechercher
 integer, dimension(1:nsl) :: vtexlist         ! liste des sommets
 ! -- Variables internes --
 integer :: isf, isl
 logical :: same_som
 
-  ! -- Début de procédure
+  ! -- Debut de procedure
    
   do isf = 1, nsf   ! boucle sur les sommets de la face
     ! recherche sommet par sommet de FACE dans VTEXLIST
 
     do isl = 1, nsl
-      same_som = (face(isf)==vtexlist(isl)).or.(face(isf)==0)   ! la face peut etre définie avec des 0
-      if (same_som) exit    ! le sommet a été trouvé : on passe au suivant (de la face)
+      same_som = (face(isf)==vtexlist(isl)).or.(face(isf)==0)   ! la face peut etre definie avec des 0
+      if (same_som) exit    ! le sommet a ete trouve : on passe au suivant (de la face)
     enddo
 
-    if (.not.same_som) exit   ! un sommet non trouvé de la face suffit à quitter
+    if (.not.same_som) exit   ! un sommet non trouve de la face suffit a quitter
   enddo
 
   face_invtexlist = same_som
@@ -362,7 +362,7 @@ endfunction face_invtexlist
 
 
 !------------------------------------------------------------------------------!
-! Fonction : typgeo : type de géométrie du maillage
+! Fonction : typgeo : type de geometrie du maillage
 !------------------------------------------------------------------------------!
 character function typgeo(umesh)
 implicit none
@@ -378,9 +378,9 @@ endmodule USTMESH
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! oct  2002 : création du module
-! juil 2003 : suppression des structures USTCONNECT, définition dans CONNECTIVITY
-!             création d'une structure de connectivité CELLVTEX
+! oct  2002 : creation du module
+! juil 2003 : suppression des structures USTCONNECT, definition dans CONNECTIVITY
+!             creation d'une structure de connectivite CELLVTEX
 !------------------------------------------------------------------------------!
 
 

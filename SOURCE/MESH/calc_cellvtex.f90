@@ -2,7 +2,7 @@
 ! Procedure : calc_cellvtex               Auteur : J. Gressier
 !                                         Date   : Juillet 2003
 ! Fonction                                Modif  : (cf Historique)
-!   Calcul de connectivités cell->vtex à partir de connectivités
+!   Calcul de connectivites cell->vtex a partir de connectivites
 !   face->cell et face->vtex
 !
 ! Defauts/Limitations/Divers :
@@ -17,9 +17,9 @@ use STRING
 
 implicit none
 
-! -- Declaration des entrées --
-character        :: geom                  ! mode géométrique
-type(st_connect) :: facecell, facevtex    ! connectivités en entrées
+! -- Declaration des entrees --
+character        :: geom                  ! mode geometrique
+type(st_connect) :: facecell, facevtex    ! connectivites en entrees
 integer          :: ncell                 ! nombre total de cellules 
 integer          :: ncell_int             ! nombre de cellules internes
                                           !   ncell-ncell_int est le nombre de
@@ -29,30 +29,30 @@ integer          :: ncell_int             ! nombre de cellules internes
 type(st_cellvtex) :: cellvtex
 
 ! -- Declaration des variables internes --
-type(st_connect)     :: xcellvtex    ! tableau intermédiaire des connectivités
-integer, allocatable :: nvtex(:)     ! nombre de sommet par élément
+type(st_connect)     :: xcellvtex    ! tableau intermediaire des connectivites
+integer, allocatable :: nvtex(:)     ! nombre de sommet par element
 integer              :: if, ic, iv   ! index de face, cellule, et sommet
-integer              :: vtex         ! numéro de sommet
+integer              :: vtex         ! numero de sommet
 integer              :: info         
 
 ! -- Debut de la procedure --
 
-! création d'une connectivité cell->vertex provisoire
+! creation d'une connectivite cell->vertex provisoire
 
-call new(xcellvtex, ncell, 8)        ! une cellule est censée avoir 8 sommets max
-allocate(nvtex(ncell))               ! nombre réel de sommets par élément
+call new(xcellvtex, ncell, 8)        ! une cellule est censee avoir 8 sommets max
+allocate(nvtex(ncell))               ! nombre reel de sommets par element
 nvtex(:) = 0
 
-! remplissage de la connectivité avec test de doublons de vertex
+! remplissage de la connectivite avec test de doublons de vertex
 
 do if = 1, facecell%nbnodes          ! boucle sur les faces
   do iv = 1, facevtex%nbfils         ! boucle sur les sommets de chaque face
     vtex = facevtex%fils(if,iv)
     if (vtex /= 0) then              ! si le sommet existe
-      ! première cellule voisine de la voisine
+      ! premiere cellule voisine de la voisine
       ic = facecell%fils(if,1)
-      if (nvtex(ic) /= 0) then       ! si il y a déjà des sommets affectés
-        ! on recherche si le sommet courant a déjà été affecté
+      if (nvtex(ic) /= 0) then       ! si il y a deja des sommets affectes
+        ! on recherche si le sommet courant a deja ete affecte
         if (index(vtex, xcellvtex%fils(ic,1:nvtex(ic))) == 0) then
           nvtex(ic)                    = nvtex(ic) + 1
           xcellvtex%fils(ic,nvtex(ic)) = vtex
@@ -76,20 +76,20 @@ do if = 1, facecell%nbnodes          ! boucle sur les faces
   enddo
 enddo
 
-!!! ATTENTION : l'ordre des vertex peut être important pour la définition de l'élement
+!!! ATTENTION : l'ordre des vertex peut etre important pour la definition de l'element
 !!! c'est surtout le cas en 3D pour les PYRA, PENTA et HEXA mais aussi les QUAD
-! à faire en externe à cette routine car on a besoin des coordonnées des points.
+! a faire en externe a cette routine car on a besoin des coordonnees des points.
 
 !!! DANS UNE VERSION FUTURE, il sera utile de regarder le type des faces pour construire
 !!! la cellule et reprendre les sommets dans l'ordre voulu.
 
-! --- correction des cellules limites qui sont souvent dégénérées en des faces ---
+! --- correction des cellules limites qui sont souvent degenerees en des faces ---
 !
 !do ic = ncell_int+1, ncell
 !  select case(nvtex(ic))
 !
 !    case(2)
-!      ! on est censé avoir un maillage 2D (QUAD ou TRI) et l'élément limite est un BAR
+!      ! on est cense avoir un maillage 2D (QUAD ou TRI) et l'element limite est un BAR
 !      if (cellvtex%nquad /= 0) then
 !        ! on transforme le BAR en QUAD (ordre CGNS des sommets)
 !        nvtex(ic) = 4
@@ -102,8 +102,8 @@ enddo
 !      endif
 !
 !    case(3)
-!      ! on est censé avoir un maillage 3D (TETRA, PYRA ou PENTA) 
-!      ! et l'élément limite est un TRI
+!      ! on est cense avoir un maillage 3D (TETRA, PYRA ou PENTA) 
+!      ! et l'element limite est un TRI
 !      if (cellvtex%ntetra /= 0) then
 !        ! on transforme le TRI en TETRA
 !        nvtex(ic) = 4
@@ -117,15 +117,15 @@ enddo
 !      else ! CAS EXCEPTIONNEL
 !        ! on transforme le TRI en PYRA (ordre CGNS des sommets)
 !        nvtex(ic) = 5
-!        xcellvtex%fils(ic,5) = xcellvtex%fils(ic,3)   ! échange sommets 3 et 5 
+!        xcellvtex%fils(ic,5) = xcellvtex%fils(ic,3)   ! echange sommets 3 et 5 
 !        xcellvtex%fils(ic,3) = xcellvtex%fils(ic,2) 
 !        xcellvtex%fils(ic,4) = xcellvtex%fils(ic,1) 
 !      endif
 
 !    case(4)
-!      ! on est censé avoir un maillage 3D (PYRA, PENTA, ou HEXA) 
-!      ! et l'élément limite est un QUAD
-!      ! Attention : si ce n'est pas une face, cela peut-être un TETRA
+!      ! on est cense avoir un maillage 3D (PYRA, PENTA, ou HEXA) 
+!      ! et l'element limite est un QUAD
+!      ! Attention : si ce n'est pas une face, cela peut-etre un TETRA
 !      if (cellvtex%nhexa /= 0) then
 !        ! on transforme le QUAD en HEXA (ordre CGNS des sommets)
 !        nvtex(ic) = 8
@@ -147,11 +147,11 @@ enddo
 !    endselect
 !enddo
 
-! --- transformation connectivité originale en connectivité adaptée CELLVTEX ---
+! --- transformation connectivite originale en connectivite adaptee CELLVTEX ---
 
 call init(cellvtex)
 
-! on compte le nombre d'éléments pour d'abord faire les allocations
+! on compte le nombre d'elements pour d'abord faire les allocations
 
 info = 0
 
@@ -190,16 +190,16 @@ case default
   info = -1
 endselect
 
-if (info/=0) call erreur("dans le calcul de connectivité cell/vtex",      &
+if (info/=0) call erreur("dans le calcul de connectivite cell/vtex",      &
                          "code erreur "//trim(adjustl(strof(info,10)))//  &
                          " ("//trim(adjustl(strof(nvtex(info),2)))//")")
 ! allocation
 
 call new(cellvtex)
 
-! Copie des connectivités
+! Copie des connectivites
 
-call init_cellvtex(cellvtex)   ! remize à zéro des compteurs
+call init_cellvtex(cellvtex)   ! remize a zero des compteurs
 
 select case(cellvtex%dim)
 case(2)
@@ -220,7 +220,7 @@ case(2)
     endselect
   enddo
 case(3)
-  do ic = 1, ncell    !!! ATTENTION, on peut avoir des CELLULES dégénérées en FACES en 3D
+  do ic = 1, ncell    !!! ATTENTION, on peut avoir des CELLULES degenerees en FACES en 3D
     select case(nvtex(ic))
     case(4)
       cellvtex%ntetra = cellvtex%ntetra + 1
@@ -251,6 +251,6 @@ endsubroutine calc_cellvtex
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! Juil 2003 : création de la procédure
+! Juil 2003 : creation de la procedure
 ! 
 !------------------------------------------------------------------------------!

@@ -16,11 +16,11 @@ use USTMESH
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(st_ustboco) :: boco
 type(st_ustmesh) :: umesh
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(v3d), dimension(1:boco%nface) :: centre
 
 ! -- Declaration des sorties --
@@ -40,6 +40,6 @@ endsubroutine extract_centre
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! Février 2004 : création de la procédure
+! Fevrier 2004 : creation de la procedure
 ! 
 !------------------------------------------------------------------------------!

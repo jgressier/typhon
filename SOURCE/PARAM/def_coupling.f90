@@ -2,8 +2,8 @@
 ! Procedure : def_coupling                Auteur : E. Radenac
 !                                         Date   : Mai 2003
 ! Fonction                                Modif  : Juin 2003
-!   Traitement des paramètres du fichier menu principal
-!   Paramètres principaux de couplage
+!   Traitement des parametres du fichier menu principal
+!   Parametres principaux de couplage
 !
 ! Defauts/Limitations/Divers :
 !
@@ -19,7 +19,7 @@ use DEFZONE
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 integer                :: nzone
 type(st_zone), dimension(nzone) &
                        :: zone
@@ -32,17 +32,17 @@ type(mnu_coupling)     :: coupling
 ! -- Declaration des variables internes --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nkey           ! nombre de clefs
-character(len=dimrpmlig) :: str            ! chaîne RPM intermédiaire
+character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 integer                  :: iz             ! indice de boucle
 
 ! -- Debut de la procedure --
-call print_info(2,"* Définition des conditions de calcul de couplage entre zones")
+call print_info(2,"* Definition des conditions de calcul de couplage entre zones")
 
 ! -- Recherche du BLOCK:COUPLING 
 pblock => block
 call seekrpmblock(pblock, "COUPLING", icoupl, pcour, nkey)
                            
-! -- Détermination des zones couplées
+! -- Determination des zones couplees
 
 call rpmgetkeyvalstr(pcour, "ZONE1", str)
 do iz = 1, nzone
@@ -58,12 +58,12 @@ do iz = 1, nzone
   endif
 enddo  
 
-write(str_w,*) ". zone couplée 1  : numéro ",coupling%zone1
+write(str_w,*) ". zone couplee 1  : numero ",coupling%zone1
 call print_info(8,adjustl(str_w))
-write(str_w,*) ". zone couplée 2  : numéro ",coupling%zone2
+write(str_w,*) ". zone couplee 2  : numero ",coupling%zone2
 call print_info(8,adjustl(str_w))
 
-! -- Détermination de la configuration des maillages
+! -- Determination de la configuration des maillages
 
 call rpmgetkeyvalstr(pcour, "MESH", str)
 
@@ -86,7 +86,7 @@ case default
   call erreur("lecture de menu","configuration de maillages inconnue")
 endselect
 
-! -- Détermination des conditions limites de raccord
+! -- Determination des conditions limites de raccord
 
 call rpmgetkeyvalstr(pcour, "BOCOTYPE", str, "DIRICHLET")
 
@@ -113,7 +113,7 @@ case default
   call erreur("lecture de menu","Conditions limites de raccord inconnues")
 endselect
 
-! -- Détermination du type de calcul d'interpolation
+! -- Determination du type de calcul d'interpolation
 
 call rpmgetkeyvalstr(pcour, "INTERPOLATION", str)
 
@@ -136,7 +136,7 @@ case default
   call erreur("lecture de menu","Type d'interpolation inconnu")
 endselect
 
-! -- Détermination du mode de declenchement du couplage
+! -- Determination du mode de declenchement du couplage
 
 call rpmgetkeyvalstr(pcour, "MODE", str)
 
@@ -145,18 +145,18 @@ if (samestring(str, "SENSOR" ))    coupling%period_mode = sensor
 
 select case(coupling%period_mode)
 
-case(fixed) ! Pas de temps fixé
-  call print_info(10,"    Déclenchement du couplage à pas de temps fixé")
+case(fixed) ! Pas de temps fixe
+  call print_info(10,"    Declenchement du couplage a pas de temps fixe")
   if (.not.(rpm_existkey(pcour,"PERIOD"))) then
-    call erreur("lecture de menu","paramètre PERIOD manquant")
+    call erreur("lecture de menu","parametre PERIOD manquant")
   endif
-  call rpmgetkeyvalint(pcour, "PERIOD", coupling%n_tpsbase, 1) ! période fixée à 1 de manière
+  call rpmgetkeyvalint(pcour, "PERIOD", coupling%n_tpsbase, 1) ! periode fixee a 1 de maniere
                                                                ! optionnelle
   
 case(sensor) ! Avec senseur
-  call print_info(10,"    Déclenchement du couplage par senseur")
+  call print_info(10,"    Declenchement du couplage par senseur")
   if (.not.(rpm_existkey(pcour,"SENSOR"))) then
-    call erreur("lecture de menu","paramètre SENSOR manquant")
+    call erreur("lecture de menu","parametre SENSOR manquant")
   endif
   
 !  call rpmgetkeyvalstr(pcour, "SENSOR", str)
@@ -170,17 +170,17 @@ case(sensor) ! Avec senseur
 !    call print_info(10,"    senseur par comparaison de flux")
 !    if (.not.(rpm_existkey(pcour,"NMIN").or.rpm_existkey(pcour,"NMAX").or.&
 !    		rpm_existkey(pcour,"ECARTFLUX"))) then
-!      call erreur("lecture de menu","paramètre NMIN ou NMAX ou ECARTFLUX manquant")
+!      call erreur("lecture de menu","parametre NMIN ou NMAX ou ECARTFLUX manquant")
 !    endif
 !    call rpmgetkeyvalint(pcour, "NMIN", coupling%senseur%nmin)
 !    call rpmgetkeyvalint(pcour, "NMAX", coupling%senseur%nmax)
 !    call rpmgetkeyvalreal(pcour, "ECARTFLUX", coupling%senseur%ecartflux)
 !   
-!  case(tempevol) ! Senseur : evolution de température
-!    call print_info(10,"    senseur sur l'évolution de la température")
+!  case(tempevol) ! Senseur : evolution de temperature
+!    call print_info(10,"    senseur sur l'evolution de la temperature")
 !    if (.not.(rpm_existkey(pcour,"NMIN").or.rpm_existkey(pcour,"NMAX").or.&
 !    		rpm_existkey(pcour,"EPSILON"))) then
-!      call erreur("lecture de menu","paramètre NMIN ou NMAX ou EPSILON manquant")
+!      call erreur("lecture de menu","parametre NMIN ou NMAX ou EPSILON manquant")
 !    endif
 !    call rpmgetkeyvalint(pcour, "NMIN", coupling%senseur%nmin)
 !    call rpmgetkeyvalint(pcour, "NMAX", coupling%senseur%nmax)
@@ -192,11 +192,11 @@ case(sensor) ! Avec senseur
 !  endselect
   
 case default
-  call erreur("lecture de menu","mode de déclenchement du couplage inconnu")
+  call erreur("lecture de menu","mode de declenchement du couplage inconnu")
 endselect
 
 
-! -- Détermination de la valeur du coefficient de correction de flux 
+! -- Determination de la valeur du coefficient de correction de flux 
 
 call rpmgetkeyvalreal(pcour, "FLUXCORR_COEF", coupling%corcoef, 0.5_krp)
 
@@ -206,6 +206,6 @@ endsubroutine def_coupling
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mai 2003 (v0.0.1b): création de la procédure
+! mai 2003 (v0.0.1b): creation de la procedure
 ! oct 2003          : ajout coef correction de flux
 !------------------------------------------------------------------------------!

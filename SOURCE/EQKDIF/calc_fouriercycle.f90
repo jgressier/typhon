@@ -17,10 +17,10 @@ use MODWORLD
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(st_zone) :: lzone
-real(krp)     :: fint ! nombre de Fourier d'intégration
-real(krp)     :: dtcycle ! durée de cycle
+real(krp)     :: fint ! nombre de Fourier d'integration
+real(krp)     :: dtcycle ! duree de cycle
 
 ! -- Declaration des sorties --
 real(krp)      :: fcycle
@@ -34,10 +34,10 @@ integer                              :: ncell    ! nombre de cellules pour le ca
 
 select case(lzone%deftime%stab_meth)
 
-case(given_dt)   ! -- Pas de temps imposé --
+case(given_dt)   ! -- Pas de temps impose --
   fcycle = fint * dtcycle / lzone%deftime%dt
 
-case(stab_cond)  ! -- Calcul par condition de stabilité (deftim%stabnb) --
+case(stab_cond)  ! -- Calcul par condition de stabilite (deftim%stabnb) --
 
   select case(lzone%defsolver%typ_solver)
   
@@ -48,7 +48,7 @@ case(stab_cond)  ! -- Calcul par condition de stabilité (deftim%stabnb) --
 
     call calc_kdif_fourier(dtcycle, lzone%defsolver%defkdif%materiau, &
                             lzone%grid%umesh, lzone%grid%field, fourierloc, ncell)
-    ! -- DEV -- choix du nombre de Fourier global encore à faire
+    ! -- DEV -- choix du nombre de Fourier global encore a faire
 
     ! valeur maximale des cellules de la zone
     fcycle = maxval(fourierloc)
@@ -63,7 +63,7 @@ case(stab_cond)  ! -- Calcul par condition de stabilité (deftim%stabnb) --
     deallocate(fourierloc)
 
   case default
-    call erreur("incohérence interne (calc_fourier)", "solveur inconnu")
+    call erreur("incoherence interne (calc_fourier)", "solveur inconnu")
   endselect
 
 endselect
@@ -73,5 +73,5 @@ endsubroutine calc_fouriercycle
 
 !------------------------------------------------------------------------------!
 ! Historique des modifications
-!   jan 2004 : création, appel des procédures spécifiques aux solveurs
+!   jan 2004 : creation, appel des procedures specifiques aux solveurs
 !------------------------------------------------------------------------------!

@@ -2,7 +2,7 @@
 ! Procedure :  calc_flux_fluxface         Auteur : E. Radenac
 !                                         Date   : Juin 2003
 ! Fonction                                Modif  :
-!   Calcul du flux à l'interface par la méthode du flux de face
+!   Calcul du flux a l'interface par la methode du flux de face
 !
 ! Defauts/Limitations/Divers :
 !
@@ -18,16 +18,16 @@ use VARCOM
 
 implicit none
 
-! -- Declaration des entrées --
-real(krp)             :: temp1, temp2   ! températures échangées
-type(v3d)	      :: gradtemp1, gradtemp2 ! gradients de température échangés
-real(krp)	      :: conduct1, conduct2  ! conductivités échangées
+! -- Declaration des entrees --
+real(krp)             :: temp1, temp2   ! temperatures echangees
+type(v3d)	      :: gradtemp1, gradtemp2 ! gradients de temperature echanges
+real(krp)	      :: conduct1, conduct2  ! conductivites echangees
 real(krp)	      :: d1, d2  ! distance entre les centres des cellules et l'interface
 type(v3d)             :: vecinter                ! vecteur unitaire "intercellules"                       
-type(v3d)             :: normale ! normales à l'interface
+type(v3d)             :: normale ! normales a l'interface
 integer               :: typecalc
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 real(krp) :: flux_inter  ! scalaire
 
 ! -- Declaration des variables internes --

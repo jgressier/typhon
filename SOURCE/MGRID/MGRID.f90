@@ -2,7 +2,7 @@
 ! MODULE : MGRID                          Auteur : J. Gressier
 !                                         Date   : Mars 2004
 ! Fonction                                Modif  : (cf historique)
-!   Définition des structures de données des grilles
+!   Definition des structures de donnees des grilles
 !   maillage et champ
 !
 ! Defauts/Limitations/Divers :
@@ -11,10 +11,10 @@
 
 module MGRID
 
-use TYPHMAKE      ! Definition de la precision/données informatiques
-use USTMESH       ! Définition des maillages non structurés
-use DEFFIELD      ! Définition des champs physiques
-use GEO3D        ! module de définition des vecteurs et opérateurs associés
+use TYPHMAKE      ! Definition de la precision/donnees informatiques
+use USTMESH       ! Definition des maillages non structures
+use DEFFIELD      ! Definition des champs physiques
+use GEO3D        ! module de definition des vecteurs et operateurs associes
 
 implicit none
 
@@ -25,21 +25,21 @@ implicit none
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_GRID : grid maillage général et champ
+! Definition de la structure ST_GRID : grid maillage general et champ
 !------------------------------------------------------------------------------!
 type st_grid
-  integer                :: id         ! numéro de grid
-  integer                :: mpi_cpu    ! numéro de CPU chargé du calcul
-  type(st_grid), pointer :: next       ! pointeur de liste chaînée
-  type(st_grid), pointer :: subgrid    ! pointeur de liste chaînée
-  type(st_ustmesh)       :: umesh      ! maillage non structuré
+  integer                :: id         ! numero de grid
+  integer                :: mpi_cpu    ! numero de CPU charge du calcul
+  type(st_grid), pointer :: next       ! pointeur de liste chainee
+  type(st_grid), pointer :: subgrid    ! pointeur de liste chainee
+  type(st_ustmesh)       :: umesh      ! maillage non structure
   integer                :: nfield     ! nombre de champs
   type(st_field), pointer:: field      ! tableau des champs
-  integer                :: nbocofield ! nombre de champs génériques
+  integer                :: nbocofield ! nombre de champs generiques
   type(st_genericfield), pointer &
-                         :: bocofield  ! liste chaînée de champs génériques
-  type(st_field), pointer:: field_loc  ! champ local pour l'intégration
-  type(st_field), pointer:: field_cyclestart  ! champ de début de cycle
+                         :: bocofield  ! liste chainee de champs generiques
+  type(st_field), pointer:: field_loc  ! champ local pour l'integration
+  type(st_field), pointer:: field_cyclestart  ! champ de debut de cycle
 endtype st_grid
 
 
@@ -65,7 +65,7 @@ contains
 
 
 !------------------------------------------------------------------------------!
-! Procédure : initialisation d'une structure GRID
+! Procedure : initialisation d'une structure GRID
 !------------------------------------------------------------------------------!
 subroutine new_grid(grid, id)
 implicit none
@@ -80,7 +80,7 @@ endsubroutine new_grid
 
 
 !------------------------------------------------------------------------------!
-! Procédure : création et lien chaîné d'une structure GRID
+! Procedure : creation et lien chaine d'une structure GRID
 !------------------------------------------------------------------------------!
 function insert_newgrid(grid, id) result(pgrid)
 implicit none
@@ -96,7 +96,7 @@ endfunction insert_newgrid
 
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure GRID
+! Procedure : desallocation d'une structure GRID
 !------------------------------------------------------------------------------!
 subroutine delete_grid(grid)
 implicit none
@@ -116,7 +116,7 @@ endsubroutine delete_grid
 
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une liste chaînée de structure GRID
+! Procedure : desallocation d'une liste chainee de structure GRID
 !------------------------------------------------------------------------------!
 subroutine delete_chainedgrid(grid)
 implicit none
@@ -146,7 +146,7 @@ character(len=strlen) :: str
 endfunction name_grid
 
 !------------------------------------------------------------------------------!
-! Procédure : ajout avec allocation d'une structure champ générique
+! Procedure : ajout avec allocation d'une structure champ generique
 ! (par insertion)
 !------------------------------------------------------------------------------!
 function newbocofield(grid,dim,nscal,nvect,ntens) result(pbocofield)
@@ -171,7 +171,7 @@ integer                        :: dim, nscal, nvect, ntens
 endfunction newbocofield
 
 !------------------------------------------------------------------------------!
-! Procédure : ajout avec allocation d'une structure champ (par insertion)
+! Procedure : ajout avec allocation d'une structure champ (par insertion)
 !------------------------------------------------------------------------------!
 function newfield(grid,nscal,nvect,ncell,nface) result(pfield)
 implicit none
@@ -198,7 +198,7 @@ endmodule MGRID
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mars 2004 : création du module
-! juin 2004 : procédure newbocofield
+! mars 2004 : creation du module
+! juin 2004 : procedure newbocofield
 ! oct  2004 : field chained list
 !------------------------------------------------------------------------------!

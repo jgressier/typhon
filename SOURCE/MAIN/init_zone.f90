@@ -3,8 +3,8 @@
 !                                         Date   : Janvier 2004
 ! Fonction                                Modif  : see history
 !   Initialisation des zone
-!     - zone par défaut
-!     - zone défnis par l'utilisateur
+!     - zone par defaut
+!     - zone defnis par l'utilisateur
 !
 ! Defauts/Limitations/Divers :
 !
@@ -18,12 +18,12 @@ use MENU_GEN
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(mnu_project) :: prj
 
 ! -- Declaration des sorties --
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(st_zone) :: zone
 
 ! -- Declaration des variables internes --

@@ -2,8 +2,8 @@
 ! Procedure : accumulfluxcorr            Auteur : E.Radenac
 !                                         Date   : Juillet 2003
 ! Fonction                                Modif  : 
-!   Accumulation des flux entre deux échanges de données entre zone couplées
-!   pour correction ultérieure des pertes de flux à l'interface. Orientation
+!   Accumulation des flux entre deux echanges de donnees entre zone couplees
+!   pour correction ulterieure des pertes de flux a l'interface. Orientation
 !   selon solver
 ! Defauts/Limitations/Divers :
 !
@@ -21,9 +21,9 @@ use MENU_ZONECOUPLING
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 real(krp)        :: dt               ! pas de temps CFL
-type(mnu_solver) :: def_solver       ! propriétés du solver
+type(mnu_solver) :: def_solver       ! proprietes du solver
 integer          :: domainenboco     ! nb de conditions aux limites du domaine
 type(st_ustboco), dimension(1:domainenboco) &
                  :: domaineboco      !conditions aux limites du domaine
@@ -32,9 +32,9 @@ real(krp), dimension(1:nface) &
                  :: flux
 integer          :: ncoupling        ! nombre de couplages de la zone
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(mnu_zonecoupling), dimension(1:ncoupling) &
-                 :: coupling ! données de couplage
+                 :: coupling ! donnees de couplage
 
 ! -- Debut de la procedure --
 
@@ -44,7 +44,7 @@ case(solKDIF)
                            domainenboco, domaineboco, nface, flux, &
                            ncoupling, coupling)
 case default
-  call erreur("Incohérence interne (accumulfluxcorr)","type de solveur inconnu")
+  call erreur("Incoherence interne (accumulfluxcorr)","type de solveur inconnu")
 endselect 
 
 endsubroutine accumulfluxcorr
@@ -52,5 +52,5 @@ endsubroutine accumulfluxcorr
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juillet 2003 (v0.0.1b): création de la procédure
+! juillet 2003 (v0.0.1b): creation de la procedure
 !------------------------------------------------------------------------------!

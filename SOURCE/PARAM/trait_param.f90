@@ -2,7 +2,7 @@
 ! Procedure : trait_param                 Auteur : J. Gressier
 !                                         Date   : Juillet 2002
 ! Fonction                                Modif  : (cf historique)
-!   Traitement des paramètres du fichier menu principal
+!   Traitement des parametres du fichier menu principal
 !
 ! Defauts/Limitations/Divers :
 !
@@ -18,7 +18,7 @@ use MENU_SOLVER
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(rpmblock), target :: block
 
 ! -- Declaration des sorties --
@@ -27,12 +27,12 @@ type(st_world) :: world
 ! -- Declaration des variables internes --
 type(rpmblock), pointer  :: pblock, pcour, pzone  ! pointeurs de bloc RPM
 integer                  :: nkey           ! nombre de clefs
-logical                  :: localzone      ! déclaration locale d'une zone
-integer                  :: izone          ! numéro local de zone
-integer                  :: icoupl         ! numéro local de raccord
+logical                  :: localzone      ! declaration locale d'une zone
+integer                  :: izone          ! numero local de zone
+integer                  :: icoupl         ! numero local de raccord
 integer                  :: solver         ! type de solveur
 integer                  :: info           ! etat de l'ouverture de fichier
-character(len=dimrpmlig) :: str, fic       ! chaînes RPM intermédiaire
+character(len=dimrpmlig) :: str, fic       ! chaines RPM intermediaire
 
 ! -- Debut de la procedure --
 
@@ -43,7 +43,7 @@ call def_project(block, world%prj)
 
 pblock => block
 call seekrpmblock(pblock, "ZONE", 0, pcour, nkey)
-if (nkey == 0) call erreur("Lecture de menu","définition de ZONE manquante")
+if (nkey == 0) call erreur("Lecture de menu","definition de ZONE manquante")
 
 ! initialisation de WORLD et allocation des zones
 
@@ -86,7 +86,7 @@ do izone = 1, world%prj%nzone
 
   else
 
-    call print_info(10,"Poursuite de la lecture des paramètres ZONE")
+    call print_info(10,"Poursuite de la lecture des parametres ZONE")
     pzone => pblock
     
   endif
@@ -100,7 +100,7 @@ if (world%prj%ncoupling > 0) then
 
 do icoupl = 1, world%prj%ncoupling
 
-!  print*,"!!! TRAITEMENT DES BLOCK:COUPLING à développer"
+!  print*,"!!! TRAITEMENT DES BLOCK:COUPLING a developper"
   call def_coupling(block, world%coupling(icoupl), world%zone,&
                    world%prj%nzone, icoupl)
 
@@ -113,7 +113,7 @@ endsubroutine trait_param
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! Juil 2002 : création de la procédure
-! Juin 2003 : définition des couplages
+! Juil 2002 : creation de la procedure
+! Juin 2003 : definition des couplages
 ! Fev  2004 : ajout de solveur VORTEX
 !------------------------------------------------------------------------------!

@@ -16,7 +16,7 @@ use MODWORLD
 
 implicit none
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(st_world) :: world
 
 ! -- Declaration des sorties --
@@ -38,7 +38,7 @@ enddo
 
 
 !--------------------------------------------------------------------
-! Lecture, transformation des maillages, calcul des paramètres géométriques et connectivités
+! Lecture, transformation des maillages, calcul des parametres geometriques et connectivites
 
 call print_info(5,"* Calcul et Initialisation des maillages")
 do izone = 1, world%prj%nzone
@@ -46,16 +46,16 @@ do izone = 1, world%prj%nzone
 enddo
 
 !--------------------------------------------------------------------
-! Initialisation des connectivités cellules/faces/sommets des conditions aux limites
+! Initialisation des connectivites cellules/faces/sommets des conditions aux limites
 
-call print_info(5,"* Calcul et Initialisation des connectivités&
+call print_info(5,"* Calcul et Initialisation des connectivites&
                   & et conditions aux limites")
 do izone = 1, world%prj%nzone
   call init_connect(world%zone(izone))
 enddo
 
 !--------------------------------------------------------------------
-! Initialisation des connectivités entres zones
+! Initialisation des connectivites entres zones
 
 !! DEV
 
@@ -80,7 +80,7 @@ enddo
 ! Initialisation des echanges entre zones
 
 do icoupling = 1,  world%prj%ncoupling
-  call print_info(5,"Calcul et Initialisation des échanges entre zones")
+  call print_info(5,"Calcul et Initialisation des echanges entre zones")
   call calcul_raccord(world, icoupling, iz1, iz2, ncoupl1, ncoupl2, nbc1, &
                       nbc2)
   call init_coupling(world%zone(iz1), world%zone(iz2), nbc1, nbc2, ncoupl1, &
@@ -104,6 +104,6 @@ endsubroutine init_world
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov   2002 : création de la procédure
+! nov   2002 : creation de la procedure
 ! jan   2004 : initialisation des capteurs
 !------------------------------------------------------------------------------!

@@ -2,7 +2,7 @@
 ! MODULE : MENU_KDIF                      Auteur : J. Gressier
 !                                         Date   : Novembre 2002
 ! Fonction                                Modif  : (cf Historique)
-!   Définition des structures pour les entrées du programme TYPHON
+!   Definition des structures pour les entrees du programme TYPHON
 !   Structures pour les options du solveur KDIF
 !
 ! Defauts/Limitations/Divers :
@@ -12,8 +12,8 @@ module MENU_KDIF
 
 use TYPHMAKE   ! Definition de la precision
 use VARCOM
-use MATERIAU  ! Définition du matériau
-!use EQKDIF    ! Définition des propriétés températures et matériau
+use MATERIAU  ! Definition du materiau
+!use EQKDIF    ! Definition des proprietes temperatures et materiau
 
 implicit none
 
@@ -24,53 +24,53 @@ implicit none
 
 
 !------------------------------------------------------------------------------!
-! structure MNU_KDIF : options numériques du solveur de diffusion (thermique)
+! structure MNU_KDIF : options numeriques du solveur de diffusion (thermique)
 !------------------------------------------------------------------------------!
 type mnu_kdif
-  type(st_materiau)   :: materiau      ! type de matériau
+  type(st_materiau)   :: materiau      ! type de materiau
 endtype mnu_kdif
 
 
 !------------------------------------------------------------------------------!
-! structure ST_BOCO_KDIF : Définition des conditions aux limites
+! structure ST_BOCO_KDIF : Definition des conditions aux limites
 !------------------------------------------------------------------------------!
 type st_boco_kdif
-  real(krp) :: temp_ext       ! température extérieure pour le rayonnement
-  real(krp) :: temp_wall      ! température de paroi (si isotherme)
+  real(krp) :: temp_ext       ! temperature exterieure pour le rayonnement
+  real(krp) :: temp_wall      ! temperature de paroi (si isotherme)
   real(krp), dimension(:), pointer  &
-            :: temp           ! température de paroi non uniforme
+            :: temp           ! temperature de paroi non uniforme
   logical   :: alloctemp      ! allocation du tableau temp
   character (len=strlen) &
-            :: tempfile       ! nom de fichier de définition de la temp non uniforme  
-  real(krp) :: flux           ! flux (si flux imposé)
+            :: tempfile       ! nom de fichier de definition de la temp non uniforme  
+  real(krp) :: flux           ! flux (si flux impose)
   real(krp), dimension(:), pointer  &
             :: flux_nunif     ! flux non uniforme
   logical   :: allocflux      ! allocation du tableau flux_nunif
   character (len=strlen) &
-            :: fluxfile       ! nom de fichier de définition du flux non uniforme  
+            :: fluxfile       ! nom de fichier de definition du flux non uniforme  
   real(krp) :: h_conv         ! coefficient de convection
-  real(krp) :: temp_conv      ! température de relaxation pour la convection
+  real(krp) :: temp_conv      ! temperature de relaxation pour la convection
   real(krp), dimension(:), pointer  &
             :: h_nunif        ! coefficient de convection non uniforme
   real(krp), dimension(:), pointer  &
-            :: tconv_nunif    ! température de convection non uniforme
+            :: tconv_nunif    ! temperature de convection non uniforme
   logical   :: allochconv     ! allocation des tableaux h_nunif et tconv_nunif
   character (len=strlen) &
-            :: hfile          ! nom de fichier de définition du coef de convection non uniforme
+            :: hfile          ! nom de fichier de definition du coef de convection non uniforme
   character (len=strlen) &
-            :: tconvfile       ! nom de fichier de définition de la température de 
+            :: tconvfile       ! nom de fichier de definition de la temperature de 
                                ! convection non uniforme  
 endtype st_boco_kdif
 
 
 !------------------------------------------------------------------------------!
-! structure ST_INIT_KDIF : Définition des conditions aux limites
+! structure ST_INIT_KDIF : Definition des conditions aux limites
 !------------------------------------------------------------------------------!
 type st_init_kdif
-  real(krp) :: temp           ! température du champ
+  real(krp) :: temp           ! temperature du champ
   real(krp), dimension(:), pointer &
             :: coef           ! coefficients pour la variation spatialement 
-                              ! linéaire de la condition initiale, provisoire
+                              ! lineaire de la condition initiale, provisoire
 endtype st_init_kdif
 
 
@@ -104,7 +104,7 @@ integer bocotype
   case(bc_wall_hconv)
     bctype_of_kdifboco = bc_calc_ghostface
   case default
-    call erreur("incohérence interne (MENU_KDIF)",&
+    call erreur("incoherence interne (MENU_KDIF)",&
                 "type de conditions aux limites inattendu")
   endselect
 
@@ -116,8 +116,8 @@ endmodule MENU_KDIF
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov  2002 (v0.0.1b): création du module
-! nov 2003           : ajout de la température non uniforme de paroi 
+! nov  2002 (v0.0.1b): creation du module
+! nov 2003           : ajout de la temperature non uniforme de paroi 
 !                      (CL Dirichlet)
 ! juin 2004          : conditions de Neumann et Fourier non uniformes
 !------------------------------------------------------------------------------!

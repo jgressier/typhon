@@ -2,8 +2,8 @@
 ! Procedure : def_capteurs                Auteur : J. Gressier
 !                                         Date   : Novembre 2003
 ! Fonction                                Modif  : (cf historique)
-!   Traitement des paramètres du fichier menu principal
-!   Paramètres de définition des capteurs
+!   Traitement des parametres du fichier menu principal
+!   Parametres de definition des capteurs
 !
 ! Defauts/Limitations/Divers :
 !
@@ -19,7 +19,7 @@ use MENU_BOCO
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(rpmblock), target :: block
 integer                :: isolver
 
@@ -30,11 +30,11 @@ type(mnu_solver)                             :: defsolver
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nprobe         ! nombre   de capteurs
 integer                  :: ip, nkey
-character(len=dimrpmlig) :: str            ! chaîne RPM intermédiaire
+character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- Debut de la procedure --
 
-call print_info(5,"- Définition des capteurs")
+call print_info(5,"- Definition des capteurs")
 
 ! -- Recherche du BLOCK:BOCO
 
@@ -44,7 +44,7 @@ defsolver%nprobe = nprobe
 
 if (nprobe < 1) then
 
-  call print_info(5,"  pas de capteur défini")
+  call print_info(5,"  pas de capteur defini")
 
 else
 
@@ -54,7 +54,7 @@ else
 
     call seekrpmblock(pblock, "PROBE", ip, pcour, nkey)
 
-    ! -- Détermination du type et du nom
+    ! -- Determination du type et du nom
 
     call rpmgetkeyvalstr(pcour, "TYPE", str)
 
@@ -65,45 +65,45 @@ else
     if (samestring(str, "BOCO_INTEGRAL" )) defsolver%probe(ip)%type = boco_integral
     if (samestring(str, "RESIDUALS" ))     defsolver%probe(ip)%type = residuals
     
-    ! message d'erreur à la lecture de paramètres suivants
+    ! message d'erreur a la lecture de parametres suivants
 
     call rpmgetkeyvalstr(pcour, "NAME", str)
     defsolver%probe(ip)%name = str
 
-    ! -- Lecture des paramètres selon le type --
+    ! -- Lecture des parametres selon le type --
 
     select case(defsolver%probe(ip)%type)
 
     case(probe)
-      call erreur("Développement","PROBE: type PROBE non implémenté")
+      call erreur("Developpement","PROBE: type PROBE non implemente")
 
     case(boco_field, boco_integral)
       call rpmgetkeyvalstr(pcour, "BOCO", str)
       defsolver%probe(ip)%boco_name  = str
       defsolver%probe(ip)%boco_index = indexboco(defsolver, str)
       if (defsolver%probe(ip)%boco_index == inull) then
-        call erreur("définition de capteurs",trim(str)//" nom de condition limite inexistant")
+        call erreur("definition de capteurs",trim(str)//" nom de condition limite inexistant")
       endif
 
     case(residuals)
-      call erreur("Développement","PROBE: type RESIDUALS non implémenté")
+      call erreur("Developpement","PROBE: type RESIDUALS non implemente")
 
     case default
       call erreur("lecture de menu (PROBE)","type de capteur inconnu")
     endselect
 
-    ! -- Détermination de la quantité à lire
+    ! -- Determination de la quantite a lire
 
     call rpmgetkeyvalstr(pcour, "QUANTITY", str)
     defsolver%probe(ip)%quantity = quantity(str)
 
     if (defsolver%probe(ip)%quantity == inull) then
-      call erreur("lecture de menu (PROBE)","quantité inconnue")
+      call erreur("lecture de menu (PROBE)","quantite inconnue")
     endif  
 
-    ! DEV : vérification du type en fonction du solveur  
+    ! DEV : verification du type en fonction du solveur  
 
-    ! DEV : procédure init_capteurs ?
+    ! DEV : procedure init_capteurs ?
 
     ! DEV : PARAMETRE DE STOCKAGE
   enddo
@@ -116,7 +116,7 @@ endsubroutine def_capteurs
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov  2003 : création de la routine
+! nov  2003 : creation de la routine
 !------------------------------------------------------------------------------!
 
 

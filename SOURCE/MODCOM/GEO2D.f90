@@ -1,8 +1,8 @@
 !------------------------------------------------------------------------------!
 ! MODULE : GEO2D                          Auteur : J. Gressier
-!                                         Date   : Février 2004
+!                                         Date   : Fevrier 2004
 ! Fonction                                Modif  : (cf historique)
-!   Bibliotheque de procedures et fonctions pour le calcul géométrique 2D
+!   Bibliotheque de procedures et fonctions pour le calcul geometrique 2D
 !
 ! Defauts/Limitations/Divers :
 !
@@ -132,7 +132,7 @@ type(v2d), intent(in) :: v1, v2
 endfunction v2d_addition
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul différence de vecteur
+! Fonction : calcul difference de vecteur
 !------------------------------------------------------------------------------!
 type(v2d) function v2d_substraction(v1, v2)
 implicit none
@@ -144,7 +144,7 @@ type(v2d), intent(in) :: v1, v2
 endfunction v2d_substraction
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul de l'opposé d'un vecteur
+! Fonction : calcul de l'oppose d'un vecteur
 !------------------------------------------------------------------------------!
 type(v2d) function v2d_opp(v)
 implicit none
@@ -156,7 +156,7 @@ type(v2d), intent(in) :: v
 endfunction v2d_opp
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul de multiplication de vecteur par réel
+! Fonction : calcul de multiplication de vecteur par reel
 !------------------------------------------------------------------------------!
 type(v2d) function v2d_multiplysp(x, v)
 implicit none
@@ -169,7 +169,7 @@ type(v2d), intent(in) :: v
 endfunction v2d_multiplysp
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul de multiplication de vecteur par réel
+! Fonction : calcul de multiplication de vecteur par reel
 !------------------------------------------------------------------------------!
 type(v2d) function v2d_multiplydp(x, v)
 implicit none
@@ -182,7 +182,7 @@ type(v2d), intent(in) :: v
 endfunction v2d_multiplydp
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul de division de vecteur par réel
+! Fonction : calcul de division de vecteur par reel
 !------------------------------------------------------------------------------!
 type(v2d) function v2d_divisionsp(v,x)
 implicit none
@@ -195,7 +195,7 @@ type(v2d), intent(in) :: v
 endfunction v2d_divisionsp
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul de division de vecteur par réel
+! Fonction : calcul de division de vecteur par reel
 !------------------------------------------------------------------------------!
 type(v2d) function v2d_divisiondp(v,x)
 implicit none
@@ -257,7 +257,7 @@ endfunction v2d_rot
 !------------------------------------------------------------------------------!
 type(v2d) function v2d_rot_a(v, a)
 implicit none
-type(v2d), intent(in) :: v  ! vecteur à tourner
+type(v2d), intent(in) :: v  ! vecteur a tourner
 real(krp), intent(in) :: a  ! angle de rotation en radians
 real(krp) :: ca, sa
 
@@ -274,7 +274,7 @@ endmodule GEO2D
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! fev  2004 : création du module (à partir de GEO3D)
+! fev  2004 : creation du module (a partir de GEO3D)
 ! mars 2004 : rotation angulaire 2D (v2d_rot_a)
 !------------------------------------------------------------------------------!
 

@@ -20,7 +20,7 @@ endinterface
 contains 
 
 !------------------------------------------------------------------------------!
-! Fonction : Mise en minuscule d'un caractère
+! Fonction : Mise en minuscule d'un caractere
 !------------------------------------------------------------------------------!
 function lowercasechar(c)
   implicit none
@@ -38,7 +38,7 @@ function lowercasechar(c)
 endfunction
 
 !------------------------------------------------------------------------------!
-! Fonction : Mise en majuscule d'un caractère
+! Fonction : Mise en majuscule d'un caractere
 !------------------------------------------------------------------------------!
 function uppercasechar(c)
   implicit none
@@ -56,7 +56,7 @@ function uppercasechar(c)
 endfunction
 
 !------------------------------------------------------------------------------!
-! Fonction : Mise en minuscule d'une chaîne de caractères
+! Fonction : Mise en minuscule d'une chaine de caracteres
 !------------------------------------------------------------------------------!
 function lowercase(str) result(strout)
   implicit none
@@ -70,7 +70,7 @@ function lowercase(str) result(strout)
 endfunction lowercase
 
 !------------------------------------------------------------------------------!
-! Fonction : Mise en majuscule d'une chaîne de caractères
+! Fonction : Mise en majuscule d'une chaine de caracteres
 !------------------------------------------------------------------------------!
 function uppercase(str) result(strout)
   implicit none
@@ -84,7 +84,7 @@ function uppercase(str) result(strout)
 endfunction uppercase
 
 !------------------------------------------------------------------------------!
-! Fonction : Remplacement de caractère
+! Fonction : Remplacement de caractere
 !------------------------------------------------------------------------------!
 function chg_char(str, c, r) result(strout)
   implicit none
@@ -100,12 +100,12 @@ function chg_char(str, c, r) result(strout)
 endfunction chg_char
 
 !------------------------------------------------------------------------------!
-! Fonction : tranformation entier -> chaîne de caractères (len=l)
+! Fonction : tranformation entier -> chaine de caracteres (len=l)
 !------------------------------------------------------------------------------!
 function strof_int(nb, l) result(strout)
   implicit none
-  integer, intent(in) :: nb, l   ! nombre à transformer, et longueur
-  character(len=l)    :: strout  ! longueur de la chaîne
+  integer, intent(in) :: nb, l   ! nombre a transformer, et longueur
+  character(len=l)    :: strout  ! longueur de la chaine
   character(len=3) :: sform
 
   write(sform,'(i3)') l   
@@ -113,12 +113,12 @@ function strof_int(nb, l) result(strout)
 endfunction strof_int
 
 !------------------------------------------------------------------------------!
-! Fonction : tranformation entier -> chaîne de caractères (ajusté à gauche)
+! Fonction : tranformation entier -> chaine de caracteres (ajuste a gauche)
 !------------------------------------------------------------------------------!
 function strof_int2(nb) result(strout)
   implicit none
-  integer, intent(in) :: nb      ! nombre à transformer, et longueur
-  character(len=20)   :: strout  ! longueur de la chaîne
+  integer, intent(in) :: nb      ! nombre a transformer, et longueur
+  character(len=20)   :: strout  ! longueur de la chaine
 
   write(strout,'(i20)') nb
   strout = adjustl(strout)
@@ -126,12 +126,12 @@ function strof_int2(nb) result(strout)
 endfunction strof_int2
 
 !------------------------------------------------------------------------------!
-! Fonction : tranformation entier -> chaîne de caractères (len=l)
+! Fonction : tranformation entier -> chaine de caracteres (len=l)
 !------------------------------------------------------------------------------!
 function strof_full_int(nb, l) result(strout)
   implicit none
-  integer, intent(in) :: nb, l   ! nombre à transformer, et longueur
-  character(len=l)    :: strout  ! longueur de la chaîne
+  integer, intent(in) :: nb, l   ! nombre a transformer, et longueur
+  character(len=l)    :: strout  ! longueur de la chaine
   character(len=20)   :: sform
   integer             :: tl      ! trimmed length
 
@@ -143,7 +143,7 @@ function strof_full_int(nb, l) result(strout)
 endfunction strof_full_int
 
 !------------------------------------------------------------------------------!
-! Fonction : Test logique d'égalité des chaînes de caractères
+! Fonction : Test logique d'egalite des chaines de caracteres
 !------------------------------------------------------------------------------!
 function samestring(str1, str2)
   implicit none
@@ -158,7 +158,7 @@ function samestring(str1, str2)
 endfunction samestring
 
 !------------------------------------------------------------------------------!
-! Fonction : Donne le nombre d'un caractère donné dans un chaîne
+! Fonction : Donne le nombre d'un caractere donne dans un chaine
 !------------------------------------------------------------------------------!
 function numbchar(str, c)
   implicit none
@@ -181,16 +181,16 @@ function numbchar(str, c)
 endfunction numbchar
 
 !------------------------------------------------------------------------------!
-! Procédure : Renvoie le n-ième mot d'une chaîne, séparateurs optionnels
+! Procedure : Renvoie le n-ieme mot d'une chaine, separateurs optionnels
 !------------------------------------------------------------------------------!
 subroutine nthword(nw, strin, strout, info, separator)
   implicit none
-! -- entrées --
-  character(len=*), intent(in)        :: strin      ! chaîne entrée
-  character(len=*), intent(in)        :: separator  ! séparateur de mot
-  integer                             :: nw         ! numéro du mot recherché
+! -- entrees --
+  character(len=*), intent(in)        :: strin      ! chaine entree
+  character(len=*), intent(in)        :: separator  ! separateur de mot
+  integer                             :: nw         ! numero du mot recherche
 ! -- sorties --
-  character(len=*), intent(out)       :: strout     ! chaîne résultat
+  character(len=*), intent(out)       :: strout     ! chaine resultat
   integer                             :: info       ! -1 si erreur
 ! -- variables internes --
   integer                             :: i, n       ! entiers provisoires
@@ -208,9 +208,9 @@ subroutine nthword(nw, strin, strout, info, separator)
   strout = adjustl(strin)
 
   do while ((info == 0).and.(n /= nw))   ! teste le numero du mot
-    i = scan(strout, separator)                  ! recherche des séparateurs
-    if (len_trim(strout) == 0) info = -1   ! si chaîne remplie de blancs : erreur
-    if (i < 0) then                        ! si pas de séparateurs : erreur
+    i = scan(strout, separator)                  ! recherche des separateurs
+    if (len_trim(strout) == 0) info = -1   ! si chaine remplie de blancs : erreur
+    if (i < 0) then                        ! si pas de separateurs : erreur
       info = -1
     else                                   ! sinon
       n      = n + 1                       ! on coupe le mot courant
@@ -218,8 +218,8 @@ subroutine nthword(nw, strin, strout, info, separator)
     endif
   enddo  
 
-  if (info == 0) then                    ! on doit couper le reste de la chaîne
-    i = scan(strout, separator)            ! recherche de séparateurs
+  if (info == 0) then                    ! on doit couper le reste de la chaine
+    i = scan(strout, separator)            ! recherche de separateurs
     if (i < 0) i = len_trim(strout)        ! si il n'y en a pas : dernier mot
     strout = strout(1:i-1)
   endif
@@ -228,19 +228,19 @@ subroutine nthword(nw, strin, strout, info, separator)
 endsubroutine nthword
 
 !------------------------------------------------------------------------------!
-! Procédure : Renvoie l'index de parenthèse fermante associée
+! Procedure : Renvoie l'index de parenthese fermante associee
 !------------------------------------------------------------------------------!
 integer function index_rightpar (str, ip, info)
   implicit none
-! -- entrées --
-  character(len=*), intent(in) :: str        ! chaîne entrée
-  integer                      :: ip         ! index de parenthèse ouvrante
+! -- entrees --
+  character(len=*), intent(in) :: str        ! chaine entree
+  integer                      :: ip         ! index de parenthese ouvrante
 ! -- sorties --
-  integer                      :: info       ! nombre de parenthèses non fermées
+  integer                      :: info       ! nombre de parentheses non fermees
 ! -- variables internes --
-  integer                      :: np           ! nombre de parenthèses ouvrantes
-  integer                      :: len          ! longueur totale de chaîne
-  integer                      :: i, ipl, ipr  ! index de chaîne
+  integer                      :: np           ! nombre de parentheses ouvrantes
+  integer                      :: len          ! longueur totale de chaine
+  integer                      :: i, ipl, ipr  ! index de chaine
 
   len    = len_trim(str)
   np     = 1         

@@ -18,8 +18,8 @@ use MESHBASE
 
 implicit none 
 
-! -- Entrées --
-integer             :: unit       ! numéro d'unité pour la lecture
+! -- Entrees --
+integer             :: unit       ! numero d'unite pour la lecture
 character(len=*)    :: nom
 
 ! -- Sorties --
@@ -29,12 +29,12 @@ type(st_zone) :: zone      ! structure de ZONE
 integer                :: ier              ! code d'erreur
 integer                :: i                ! indice courant
 integer                :: ndom             ! nombre de domaine
-character(len=60)      :: str              ! chaîne
+character(len=60)      :: str              ! chaine
 integer                :: mode             ! mode 1:ASCII 2:BINARY
-character              :: typ_geo          ! type de géométrie
+character              :: typ_geo          ! type de geometrie
 type(st_grid), pointer :: pgrid
 
-! -- Début de procédure
+! -- Debut de procedure
    
 ! --- Lecture du nom de fichier ---
    
@@ -47,13 +47,13 @@ zone%typ_mesh = mshUST
 call print_info(8, "Ouverture du fichier "//trim(nom))
 
 open(unit=unit, file=nom, form="formatted", action="read", iostat=ier)
-if (ier /= 0) call erreur("Lecture TYPHMSH","Problème à l'ouverture du fichier")
+if (ier /= 0) call erreur("Lecture TYPHMSH","Probleme a l'ouverture du fichier")
 
-! -- vérification du format TYPHMSH --
+! -- verification du format TYPHMSH --
 
 read(unit,*) str
 if (.not.samestring(str,"TYPHMSH")) then 
-  call erreur("Lecture TYPHMSH","Entête de fichier incorrecte")
+  call erreur("Lecture TYPHMSH","Entete de fichier incorrecte")
 endif
 
 ! -- mode de lecture --
@@ -62,9 +62,9 @@ read(unit,*) str
 mode = inull
 if (samestring(str,"ASCII"))  mode = 1
 if (samestring(str,"BINARY")) mode = 2
-if (mode == inull)  call erreur("Lecture TYPHMSH","Entête de fichier incorrecte")
+if (mode == inull)  call erreur("Lecture TYPHMSH","Entete de fichier incorrecte")
 
-! -- type de repère --
+! -- type de repere --
 
 read(unit,*) str
 typ_geo = cnull
@@ -72,13 +72,13 @@ if (samestring(str,"1DC")) typ_geo = msh_1dcurv
 if (samestring(str,"2D"))  typ_geo = msh_2dplan
 if (samestring(str,"2DC")) typ_geo = msh_2dcurv
 if (samestring(str,"3D"))  typ_geo = msh_3d
-if (typ_geo == cnull) call erreur("Lecture TYPHMSH","type de géométrie incorrect")
+if (typ_geo == cnull) call erreur("Lecture TYPHMSH","type de geometrie incorrect")
 
 ! -- nombre de courbes (domaines de maillage) --
 
 read(unit,*) ndom
 
-if (ndom /= 1) call erreur("Développement","nombre de domaines limité à 1")
+if (ndom /= 1) call erreur("Developpement","nombre de domaines limite a 1")
 
 pgrid => newgrid(zone)
 
@@ -86,7 +86,7 @@ do i = 1, ndom
 
   call readtyphmsh_dom(unit, pgrid%umesh, typ_geo)
 
-!  ! -- création des conditions limites --
+!  ! -- creation des conditions limites --
 !
 !  call typhmsh_createboco(pgrid)
 
@@ -105,6 +105,6 @@ endsubroutine readtyphmshfile
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! fev  2004 : création de la procédure
+! fev  2004 : creation de la procedure
 ! mars 2004 : affectation des maillages aux structures "grid"
 !------------------------------------------------------------------------------!

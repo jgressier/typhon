@@ -2,10 +2,10 @@
 ! Procedure : flux_to_res                 Auteur : J. Gressier
 !                                         Date   : Avril 2004
 ! Fonction                                Modif  : (cf historique)
-!   Calcul de residu à partir des flux
+!   Calcul de residu a partir des flux
 !
 ! Defauts/Limitations/Divers :
-!   ATTENTION : le résidu en sortie est différent selon le traitement implicite
+!   ATTENTION : le residu en sortie est different selon le traitement implicite
 !               ou non
 !
 !------------------------------------------------------------------------------!
@@ -19,18 +19,18 @@ use DEFFIELD
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 real(krp)             :: dt         ! pas de temps CFL
-type(st_ustmesh)      :: umesh      ! domaine non structuré à intégrer
+type(st_ustmesh)      :: umesh      ! domaine non structure a integrer
 type(st_genericfield) :: flux       ! tableaux des flux
 logical               :: trait_jac  ! choix de traitement des jacobiennes
 
 ! -- Declaration des sorties --
-type(st_genericfield)   :: residu            ! champ de résidus
+type(st_genericfield)   :: residu            ! champ de residus
 real(krp), dimension(*) :: jacL, jacR 
 
 ! -- Declaration des variables internes --
-real(krp)             :: surf             ! surface intermédiaire
+real(krp)             :: surf             ! surface intermediaire
 integer               :: if               ! index de face
 integer               :: ic1, ic2         ! index de cellules
 integer               :: ip               ! index de variables
@@ -63,11 +63,11 @@ if (trait_jac) then
   enddo
 endif
 
-! -- calcul des résidus --
+! -- calcul des residus --
 
 call init_genericfield(residu, 0._krp, v3d(0._krp, 0._krp, 0._krp))
 
-! ??? création de procédure intrinsèques ? // optimisation
+! ??? creation de procedure intrinseques ? // optimisation
 
 do if = 1, umesh%nface
   ic1 = umesh%facecell%fils(if,1)
@@ -83,7 +83,7 @@ do if = 1, umesh%nface
   enddo
 enddo
 
-! ??? création de procédure intrinsèques ? // optimisation
+! ??? creation de procedure intrinseques ? // optimisation
 
 if (.not.trait_jac) then
   do ic1 = 1, umesh%ncell_int
@@ -104,5 +104,5 @@ endsubroutine flux_to_res
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! avr  2004 : création de la procédure
+! avr  2004 : creation de la procedure
 !------------------------------------------------------------------------------!

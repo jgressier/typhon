@@ -20,9 +20,9 @@ use DEFFIELD
 
 implicit none
 
-! -- Declaration des entrées --
-integer          :: uf            ! unité d'écriture
-type(st_ustmesh) :: ust_mesh      ! maillage à écrire
+! -- Declaration des entrees --
+integer          :: uf            ! unite d'ecriture
+type(st_ustmesh) :: ust_mesh      ! maillage a ecrire
 type(st_field)   :: field         ! champ de valeurs
 
 ! -- Declaration des sorties --
@@ -39,7 +39,7 @@ real(krp) :: a, b, L, T0, T1, alpha, beta, temp
 
 ! -- Debut de la procedure --
 
-! -- Calcul de la connectivité CELL->VTEX --
+! -- Calcul de la connectivite CELL->VTEX --
 
 call calc_cellvtex(typgeo(ust_mesh), cellvtex, ust_mesh%ncell, ust_mesh%ncell_int, &
                    ust_mesh%facecell, ust_mesh%facevtex)
@@ -63,7 +63,7 @@ do i = 1, vtexfield%dim
   write(uf_chpresu,'(4e18.8)') vtex%x, vtex%y, vtex%z, vtexfield%tabscal(1)%scal(i)
 enddo
 
-! -- Ecriture de la connectivité --
+! -- Ecriture de la connectivite --
 
 !!! UNIQUEMENT LES QUAD DANS CETTE VERSION
 
@@ -84,5 +84,5 @@ endsubroutine output_tec_ust_node
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! oct  2003 : création de la procédure
+! oct  2003 : creation de la procedure
 !------------------------------------------------------------------------------!

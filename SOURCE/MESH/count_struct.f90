@@ -3,7 +3,7 @@
 !                                         Date   : Mai 2002
 ! Fonction                                Modif  :
 !   Bibliotheque de procedures et fonctions pour la gestion de maillages
-!   sructurés
+!   sructures
 !
 ! Defauts/Limitations/Divers :
 !

@@ -17,10 +17,10 @@ use USTMESH
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 real(krp)        :: dt               ! pas de temps CFL
-type(mnu_solver) :: defsolver        ! type d'équation à résoudre
-type(st_ustmesh) :: domaine          ! domaine non structuré à intégrer
+type(mnu_solver) :: defsolver        ! type d'equation a resoudre
+type(st_ustmesh) :: domaine          ! domaine non structure a integrer
 
 ! -- Declaration des sorties --
 ! domaine
@@ -39,5 +39,5 @@ endsubroutine int_eqkdif_rungekutta
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! avril 2003 (v0.0.1b): création de la procédure
+! avril 2003 (v0.0.1b): creation de la procedure
 !------------------------------------------------------------------------------!

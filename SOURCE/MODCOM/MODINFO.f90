@@ -2,7 +2,7 @@
 ! MODULE : MODINFO                        Auteur : J. Gressier
 !                                         Date   : Mars 2003
 ! Fonction                                Modif  : cf historique
-!   Définition des structures de données générales pour l'intégration (gestion)
+!   Definition des structures de donnees generales pour l'integration (gestion)
 !
 ! Defauts/Limitations/Divers :
 !
@@ -22,14 +22,14 @@ implicit none
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_INFO : informations générales sur la gestion du calcul
+! Definition de la structure ST_INFO : informations generales sur la gestion du calcul
 ! niveau WORLD
 !------------------------------------------------------------------------------!
 type st_info
-  logical   :: fin_integration      ! fin d'intégration
+  logical   :: fin_integration      ! fin d'integration
   integer   :: icycle               ! cycle courant
   real(krp) :: curtps               ! temps physique courant
-  real(krp) :: residu_ref, cur_res  ! residu de référence et courant
+  real(krp) :: residu_ref, cur_res  ! residu de reference et courant
   integer   :: nbproc               ! total number of communicating processors
   integer   :: my_id                ! id of the current process
   integer, dimension(:), pointer &
@@ -38,18 +38,18 @@ endtype st_info
 
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_INFOZONE : informations sur la zone
+! Definition de la structure ST_INFOZONE : informations sur la zone
 !------------------------------------------------------------------------------!
 type st_infozone
-  character :: typ_temps            ! (S)tationnaire, (I)nstationnaire, (P)ériodique
-  logical   :: fin_cycle            ! fin d'intégration du cycle
-  integer   :: iter_tot             ! nombre d'itération total
-  integer   :: iter_loc             ! nombre d'itération local dans le cycle
+  character :: typ_temps            ! (S)tationnaire, (I)nstationnaire, (P)eriodique
+  logical   :: fin_cycle            ! fin d'integration du cycle
+  integer   :: iter_tot             ! nombre d'iteration total
+  integer   :: iter_loc             ! nombre d'iteration local dans le cycle
   integer   :: nbstep               ! nombre de pas maximal du cycle
-  real(krp) :: cycle_dt             ! durée du cycle
+  real(krp) :: cycle_dt             ! duree du cycle
   real(krp) :: residumax            ! residu maximal admissible pour le cycle
-  real(krp) :: residu_ref, cur_res  ! residu de référence (world) et courant (cycle)
-  real(krp) :: residu_reforigine    ! residu de référence du premier cycle
+  real(krp) :: residu_ref, cur_res  ! residu de reference (world) et courant (cycle)
+  real(krp) :: residu_reforigine    ! residu de reference du premier cycle
   integer   :: nbproc               ! total number of communicating processors in the zone
   integer   :: my_id                ! id of the current process
 endtype st_infozone
@@ -66,7 +66,7 @@ endtype st_infozone
 !contains
 
 !------------------------------------------------------------------------------!
-! Procédure : 
+! Procedure : 
 !------------------------------------------------------------------------------!
 
 
@@ -77,7 +77,7 @@ endmodule MODINFO
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mars 2003 : création du module
-! sept 2003 : informations spécifiques pour l'intégration d'un cycle
+! mars 2003 : creation du module
+! sept 2003 : informations specifiques pour l'integration d'un cycle
 ! oct 2003  : ajout de residu_ref_origine
 !------------------------------------------------------------------------------!

@@ -2,8 +2,8 @@
 ! MODULE : MENU_AMR                       Auteur : J. Gressier
 !                                         Date   : July 2004
 ! Fonction                                Modif  : (cf Historique)
-!   Définition des structures pour les entrées du programme TYPHON
-!   Structures pour la définition des amr
+!   Definition des structures pour les entrees du programme TYPHON
+!   Structures pour la definition des amr
 !
 ! Defauts/Limitations/Divers :
 !
@@ -11,7 +11,7 @@
 module MENU_AMR
 
 use TYPHMAKE   ! Definition de la precision
-use GEO3D      ! Définition des vecteurs 3D
+use GEO3D      ! Definition des vecteurs 3D
 
 implicit none
 
@@ -51,8 +51,8 @@ endtype mnu_amr
 type mnu_amrcrit
   character             :: type        ! AMR criteria
   integer               :: level       ! level
-  integer               :: quantity    ! quantité
-  type(v3d)             :: center      ! center position (si nécessaire)
+  integer               :: quantity    ! quantite
+  type(v3d)             :: center      ! center position (si necessaire)
   real(krp)             :: criterion   ! radius / threshold / etc
 endtype mnu_amrcrit
 
@@ -70,7 +70,7 @@ endinterface
 contains
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure MNU_SOLVER
+! Procedure : desallocation d'une structure MNU_SOLVER
 !------------------------------------------------------------------------------!
 subroutine delete_mnu_amr(defamr)
 implicit none

@@ -10,15 +10,15 @@
 
 subroutine readcgnszone(unit, ib, iz, zone) 
 
-use CGNSLIB       ! définition des mots-clefs
-use CGNS_STRUCT   ! Définition des structures CGNS
+use CGNSLIB       ! definition des mots-clefs
+use CGNS_STRUCT   ! Definition des structures CGNS
 use OUTPUT        ! Sorties standard TYPHON
 
 implicit none 
 
-! -- Entrées --
-integer             :: unit       ! numéro d'unité pour la lecture
-integer             :: ib, iz     ! numéro de base et de zone
+! -- Entrees --
+integer             :: unit       ! numero d'unite pour la lecture
+integer             :: ib, iz     ! numero de base et de zone
 
 ! -- Sorties --
 type(st_cgns_zone)  :: zone       ! structure CGNS : zone
@@ -27,14 +27,14 @@ type(st_cgns_zone)  :: zone       ! structure CGNS : zone
 integer       :: size(3,3)        ! tableau d'informations de la zone
 integer       :: ier              ! code d'erreur
 integer       :: i, ibc           ! indice courant
-integer       :: nmax_elem        ! nombre total d'éléments
+integer       :: nmax_elem        ! nombre total d'elements
 
-! -- Début de procédure
+! -- Debut de procedure
    
 ! --- Lecture du type de zone ---
           
 call cg_zone_type_f(unit, ib, iz, zone%type, ier)
-if (ier /= 0) call erreur("Lecture CGNS","Problème à la lecture du type de zone")
+if (ier /= 0) call erreur("Lecture CGNS","Probleme a la lecture du type de zone")
 
 select case(zone%type)
   case(Structured,Unstructured)
@@ -47,7 +47,7 @@ endselect
 ! --- Lecture des informations de la zone ---
 
 call cg_zone_read_f(unit, ib, iz, zone%nom, size, ier)
-if (ier /= 0)   call erreur("Lecture CGNS","Problème à la lecture de la zone")
+if (ier /= 0)   call erreur("Lecture CGNS","Probleme a la lecture de la zone")
 
 select case(zone%type)
 
@@ -65,7 +65,7 @@ select case(zone%type)
     !     (1, 1) le nombre de sommets
     !     (2, 1) le nombre de cellules
     !     (3, 1) le nombre de sommets aux limites
-    ! ce sont en fait les trois premiers entiers du tableau sous forme linéaire
+    ! ce sont en fait les trois premiers entiers du tableau sous forme lineaire
     zone%mesh%ni = size(1,1)
     zone%mesh%nj = 1
     zone%mesh%nk = 1
@@ -80,26 +80,26 @@ endselect
 allocate(zone%mesh%vertex(zone%mesh%ni, zone%mesh%nj, zone%mesh%nk)) 
 call readcgnsvtex(unit, ib, iz, zone%mesh)
    
-! --- Lecture des connectivités  ---
+! --- Lecture des connectivites  ---
 
 select case(zone%type)
 
 case(Structured)
-  call erreur("Développement",&
-              "la lecture de connectivité multibloc n'est pas implémentée")
+  call erreur("Developpement",&
+              "la lecture de connectivite multibloc n'est pas implementee")
   !call readcgns_strconnect(unit, ib, iz, zone, nmax_elem)
 
 case(Unstructured)
   call readcgns_ustconnect(unit, ib, iz, zone, nmax_elem)
 
 case default
-  call erreur("Développement", "incohérence de programmation (zone%imesh)")
+  call erreur("Developpement", "incoherence de programmation (zone%imesh)")
 endselect
 
 ! --- Lecture des conditions aux limites ---
 
 call cg_nbocos_f(unit, ib, iz, zone%nboco, ier)
-if (ier /= 0) call erreur("Lecture CGNS","Problème à la lecture du nombre BoCo")
+if (ier /= 0) call erreur("Lecture CGNS","Probleme a la lecture du nombre BoCo")
 
 write(str_w,'(a,i3,a)') ". lecture de ",zone%nboco," conditions aux limites"
 call print_info(5, adjustl(str_w))
@@ -111,15 +111,15 @@ do ibc = 1, zone%nboco
   select case(zone%type)
 
   case(Structured)
-    call erreur("Développement",&
-                "la lecture de connectivité multibloc n'est pas implémentée")
+    call erreur("Developpement",&
+                "la lecture de connectivite multibloc n'est pas implementee")
     !call readcgns_strboco(unit, ib, iz, ibc, zone%boco(ibc))
 
   case(Unstructured)
     call readcgns_ustboco(unit, ib, iz, ibc, zone%boco(ibc))
 
   case default
-    call erreur("Développement", "incohérence de programmation (zone%imesh)")
+    call erreur("Developpement", "incoherence de programmation (zone%imesh)")
   endselect
 
 

@@ -2,7 +2,7 @@
 ! Procedure : corr_varprim_kdif           Auteur : E. Radenac
 !                                         Date   : Juillet 2003
 ! Fonction                                Modif  :
-!   Calcul des variables primitives aux frontières de couplage,
+!   Calcul des variables primitives aux frontieres de couplage,
 !   tenant compte des corrections de flux, code thermique.
 ! Defauts/Limitations/Divers :
 !
@@ -20,17 +20,17 @@ use MENU_ZONECOUPLING
 
 implicit none
 
-! -- Declaration des entrées --
-type(st_ustmesh)      :: domaine          ! domaine non structuré à intégrer
-type(mnu_solver)      :: def_solver       ! propriétés du solver
-type(st_genericfield) :: dif_enflux       ! énergie à ajouter, pour correction de flux
+! -- Declaration des entrees --
+type(st_ustmesh)      :: domaine          ! domaine non structure a integrer
+type(mnu_solver)      :: def_solver       ! proprietes du solver
+type(st_genericfield) :: dif_enflux       ! energie a ajouter, pour correction de flux
 integer               :: nb               ! index de la condition aux limites
-real(krp)             :: part_cor         ! part de la correction à apporter
+real(krp)             :: part_cor         ! part de la correction a apporter
 integer               :: typ_cor          ! type de correction
 logical               :: fincycle
 
-! -- Declaration des entrées/sorties --
-type(st_field)   :: field            ! champ des valeurs et résidus
+! -- Declaration des entrees/sorties --
+type(st_field)   :: field            ! champ des valeurs et residus
 
 ! -- Declaration des variables internes --
 integer               :: i, if               ! index de face
@@ -46,18 +46,18 @@ do i=1, domaine%boco(nb)%nface
   ic1 = domaine%facecell%fils(if,1)
   ic2 = domaine%facecell%fils(if,2)
 
-  ! -- calcul des résidus --
+  ! -- calcul des residus --
   ! Choix selon les types de correction
   select case(typ_cor)
 
   case(repart_reg)
-! DEV : on cumule les restes éventuels en fin de cycle, sinon modifier pour les
-! échanges n'ayant pas lieu à chaque fin de cycle
+! DEV : on cumule les restes eventuels en fin de cycle, sinon modifier pour les
+! echanges n'ayant pas lieu a chaque fin de cycle
 
 !    if (.not. fincycle) then
       if (abs(dif_enflux%tabscal(3)%scal(i)) .ge. &
           abs(part_cor*dif_enflux%tabscal(2)%scal(i)) ) then
-          !print*, "debug correction répartie C", dif_enflux%tabscal(3)%scal(i), &
+          !print*, "debug correction repartie C", dif_enflux%tabscal(3)%scal(i), &
           !          part_cor*dif_enflux%tabscal(2)%scal(i)
         do ip = 1, field%nscal
           field%residu%tabscal(ip)%scal(ic1) = &
@@ -76,7 +76,7 @@ do i=1, domaine%boco(nb)%nface
         !                                part_cor*dif_enflux%tabvect(2)%vect(i)
         !enddo
       else
-        !print*, "debug correction répartie NC", dif_enflux%tabscal(3)%scal(i), &
+        !print*, "debug correction repartie NC", dif_enflux%tabscal(3)%scal(i), &
         !          part_cor*dif_enflux%tabscal(2)%scal(i)
         do ip = 1, field%nscal
           field%residu%tabscal(ip)%scal(ic1) = - dif_enflux%tabscal(3)%scal(i)
@@ -104,11 +104,11 @@ do i=1, domaine%boco(nb)%nface
 !    endif
 
   case(repart_geo)
-! DEV : on cumule les restes éventuels en fin de cycle, sinon modifier pour les
-! échanges n'ayant pas lieu à chaque fin de cycle
+! DEV : on cumule les restes eventuels en fin de cycle, sinon modifier pour les
+! echanges n'ayant pas lieu a chaque fin de cycle
 
 !    if (.not. fincycle) then
-!print*, "debug correction répartie géo", dif_enflux%tabscal(3)%scal(i)
+!print*, "debug correction repartie geo", dif_enflux%tabscal(3)%scal(i)
       do ip = 1, field%nscal
         field%residu%tabscal(ip)%scal(ic1) = &
                                        - part_cor*dif_enflux%tabscal(3)%scal(i)
@@ -176,7 +176,7 @@ do i=1, domaine%boco(nb)%nface
     enddo
   endselect
 
-  ! -- résidus
+  ! -- residus
   do ip = 1, field%nscal
     field%residu%tabscal(ip)%scal(ic1) =  field%residu%tabscal(ip)%scal(ic1) &
                                             / domaine%mesh%volume(ic1,1,1)
@@ -221,5 +221,5 @@ endsubroutine corr_varprim_kdif
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juillet 2003 : création de la procédure
+! juillet 2003 : creation de la procedure
 !------------------------------------------------------------------------------!

@@ -21,10 +21,10 @@ use VARCOM
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 integer                 :: solvercoupling
 type(st_zone)           :: zone1, zone2
-integer                 :: nbc1, nbc2 ! numéro (identité) de la CL
+integer                 :: nbc1, nbc2 ! numero (identite) de la CL
 integer                 :: ncoupl1, ncoupl2
 integer                 :: typcor
 
@@ -48,10 +48,10 @@ select case(solvercoupling)
                      ncoupl2, typcor)
 
   case(ns_ns)
-  call erreur("incohérence interne (donnees_echange)", "cas non implémenté")
+  call erreur("incoherence interne (donnees_echange)", "cas non implemente")
 
   case default
-  call erreur("incohérence interne (donnees_echange)", &
+  call erreur("incoherence interne (donnees_echange)", &
               "couplage de solvers inconnu")
 
 endselect

@@ -18,15 +18,15 @@ use DEFFIELD
 
 implicit none
 
-! -- Declaration des entrées --
-type(mnu_boco)   :: defboco           ! paramètres de conditions aux limites
+! -- Declaration des entrees --
+type(mnu_boco)   :: defboco           ! parametres de conditions aux limites
 type(st_ustboco) :: ustboco           ! lieu d'application des conditions aux limites
-type(st_ustmesh) :: ustdom            ! maillage non structuré
+type(st_ustmesh) :: ustdom            ! maillage non structure
 type(st_genericfield) :: condrac      ! stockage des conditions limites de couplage
 integer          :: solvercoupling
 
 ! -- Declaration des sorties --
-type(st_field)   :: champ            ! champ des états
+type(st_field)   :: champ            ! champ des etats
 
 ! -- Declaration des variables internes --
 
@@ -45,7 +45,7 @@ case(bc_calc_ghostcell)
   !call calcboco_ust_coupling_cell(ustboco, ustdom, champ, condrac, &
   !                                solvercoupling)
 case default
-  call erreur("Lecture de menu raccord","méthode de calcul de raccord non reconnue")  
+  call erreur("Lecture de menu raccord","methode de calcul de raccord non reconnue")  
 
 endselect
 
@@ -54,5 +54,5 @@ endsubroutine calcboco_ust_coupling
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juin 2003 (v0.0.1b): création de la procédure
+! juin 2003 (v0.0.1b): creation de la procedure
 !------------------------------------------------------------------------------!

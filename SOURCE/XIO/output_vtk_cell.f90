@@ -21,10 +21,10 @@ use DEFFIELD
 
 implicit none
 
-! -- Declaration des entrées --
-integer          :: uf            ! unité d'écriture
-type(mnu_solver) :: defsolver     ! paramètres du solveur
-type(st_ustmesh) :: ust_mesh      ! maillage à écrire
+! -- Declaration des entrees --
+integer          :: uf            ! unite d'ecriture
+type(mnu_solver) :: defsolver     ! parametres du solveur
+type(st_ustmesh) :: ust_mesh      ! maillage a ecrire
 type(st_field)   :: field         ! champ de valeurs
 
 ! -- Declaration des sorties --
@@ -37,19 +37,19 @@ type(v3d) :: vtex
 ! -- Debut de la procedure --
 
 
-! écriture du maillage
+! ecriture du maillage
 
 write(uf,'(a)')      'DATASET UNSTRUCTURED_GRID'
 write(uf,'(a,i9,a)') 'POINTS ',ust_mesh%nvtex, ' float'
 
-! coordonnées
+! coordonnees
 
 do i = 1, ust_mesh%nvtex
   vtex = ust_mesh%mesh%vertex(i,1,1)
   write(uf,'(4e18.8)') vtex%x, vtex%y, vtex%z
 enddo
 
-! connectivité 
+! connectivite 
 
 ust_mesh%ncell = ust_mesh%cellvtex%nbar   + &
                  ust_mesh%cellvtex%ntri   + ust_mesh%cellvtex%nquad + &
@@ -113,7 +113,7 @@ do i = 1, ust_mesh%cellvtex%nhexa
   write(uf,'(i2)') 12    ! VTK_HEXAHEDRON
 enddo
 
-! -- données --
+! -- donnees --
 
 call calc_varprim(defsolver, field)
 
@@ -130,7 +130,7 @@ case(solKDIF)
 
 case(solVORTEX)
 case default
-  call erreur("Développement","solveur inconnu (output_vtk_cell)")
+  call erreur("Developpement","solveur inconnu (output_vtk_cell)")
 endselect
 
 
@@ -139,7 +139,7 @@ endsubroutine output_vtk_cell
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! avr  2004 : création de la procédure
-! juin 2004 : écriture de format CELL_DATA
+! avr  2004 : creation de la procedure
+! juin 2004 : ecriture de format CELL_DATA
 ! july 2004 : extension to NS solver outputs (write scalar and vector fields)
 !------------------------------------------------------------------------------!

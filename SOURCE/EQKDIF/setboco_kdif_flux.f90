@@ -19,24 +19,24 @@ use DEFFIELD
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 integer            :: unif             ! uniform or not
 type(st_ustboco)   :: ustboco          ! lieu d'application des conditions aux limites
-type(st_ustmesh)   :: ustdom           ! maillage non structuré
-type(mnu_solver)   :: defsolver        ! type d'équation à résoudre
+type(st_ustmesh)   :: ustdom           ! maillage non structure
+type(mnu_solver)   :: defsolver        ! type d'equation a resoudre
 type(st_boco_kdif) :: bckdif           ! parameters and fluxes (field or constant)
 
 ! -- Declaration des sorties --
-type(st_field)   :: champ            ! champ des états
+type(st_field)   :: champ            ! champ des etats
 real(krp), dimension(ustboco%nface) &
                  :: flux             ! flux
 
 ! -- Declaration des variables internes --
-integer          :: ifb, if, ip      ! index de liste, index de face limite et paramètres
-integer          :: ic, ighost    ! index de cellule intérieure, et de cellule fictive
+integer          :: ifb, if, ip      ! index de liste, index de face limite et parametres
+integer          :: ic, ighost    ! index de cellule interieure, et de cellule fictive
 type(v3d)        :: cgface, cg, normale ! centre de face, de cellule, normale face
 real(krp)        :: d             ! distance cellule - face limite
-real(krp)        :: conduct       ! conductivité
+real(krp)        :: conduct       ! conductivite
 
 ! -- Debut de la procedure --
 
@@ -49,19 +49,19 @@ do ifb = 1, ustboco%nface
   ic     = ustdom%facecell%fils(if,1)
   ighost = ustdom%facecell%fils(if,2)
 
-  ! Calcul "distance pondérée" centre de cellule - centre face
+  ! Calcul "distance ponderee" centre de cellule - centre face
   cgface = ustdom%mesh%iface(if,1,1)%centre
   cg     = ustdom%mesh%centre(ic,1,1)
   normale= ustdom%mesh%iface(if,1,1)%normale
   d    = (cgface - cg) .scal. (cgface - cg) / (abs((cgface - cg).scal.normale))
 
-  ! Calcul conductivité
+  ! Calcul conductivite
   conduct = valeur_loi(defsolver%defkdif%materiau%Kd, champ%etatprim%tabscal(1)%scal(ic))
 
   ! Flux limite
   flux(ifb) = bckdif%flux
 
-  ! Calcul approché de la température du point fictif pour calcul des gradients
+  ! Calcul approche de la temperature du point fictif pour calcul des gradients
   do ip = 1, champ%nscal
     champ%etatprim%tabscal(ip)%scal(ighost) = champ%etatprim%tabscal(ip)%scal(ic) &
                                               - bckdif%flux*d/conduct
@@ -79,19 +79,19 @@ do ifb = 1, ustboco%nface
   ic     = ustdom%facecell%fils(if,1)
   ighost = ustdom%facecell%fils(if,2)
 
-  ! Calcul "distance pondérée" centre de cellule - centre face
+  ! Calcul "distance ponderee" centre de cellule - centre face
   cgface = ustdom%mesh%iface(if,1,1)%centre
   cg     = ustdom%mesh%centre(ic,1,1)
   normale= ustdom%mesh%iface(if,1,1)%normale
   d    = (cgface - cg) .scal. (cgface - cg) / (abs((cgface - cg).scal.normale))
 
-  ! Calcul conductivité
+  ! Calcul conductivite
   conduct = valeur_loi(defsolver%defkdif%materiau%Kd, champ%etatprim%tabscal(1)%scal(ic))
 
   ! Flux limite
   flux(ifb) = bckdif%flux_nunif(ifb)
 
-  ! Calcul approché de la température du point fictif pour calcul des gradients
+  ! Calcul approche de la temperature du point fictif pour calcul des gradients
   do ip = 1, champ%nscal
     champ%etatprim%tabscal(ip)%scal(ighost) = champ%etatprim%tabscal(ip)%scal(ic) &
                                               - bckdif%flux_nunif(ifb)*d/conduct
@@ -106,6 +106,6 @@ endsubroutine setboco_kdif_flux
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juin 2004 : création de la procédure
+! juin 2004 : creation de la procedure
 ! july 2004 : merge of uniform and non-uniform boco settings
 !------------------------------------------------------------------------------!

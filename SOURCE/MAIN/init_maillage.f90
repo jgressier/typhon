@@ -16,9 +16,9 @@ use DEFZONE
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(st_zone) :: zone
 
 ! -- Declaration des sorties --
@@ -42,7 +42,7 @@ case(solVORTEX, solNS)
     
 case default
 
-  call erreur('Développement','cas de solveur non prévu (init_maillage)')
+  call erreur('Developpement','cas de solveur non prevu (init_maillage)')
 
 endselect
 
@@ -51,7 +51,7 @@ endsubroutine init_maillage
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov  2002 : création de la procédure
+! nov  2002 : creation de la procedure
 ! mars 2004 : traitement des grilles (VORTEX)
 !------------------------------------------------------------------------------!
 

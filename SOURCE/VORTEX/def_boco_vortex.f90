@@ -1,9 +1,9 @@
 !------------------------------------------------------------------------------!
 ! Procedure : def_boco_vortex             Auteur : J. Gressier
-!                                         Date   : Février 2004
+!                                         Date   : Fevrier 2004
 ! Fonction                                Modif  : (cf historique)
-!   Traitement des paramètres du fichier menu principal
-!   Paramètres de définitions des conditions limites
+!   Traitement des parametres du fichier menu principal
+!   Parametres de definitions des conditions limites
 !
 ! Defauts/Limitations/Divers :
 !
@@ -20,10 +20,10 @@ use PAN2D_LIN
 
 implicit none
 
-! -- Declaration des entrées --
-type(rpmblock), target :: block    ! bloc RPM contenant les définitions
+! -- Declaration des entrees --
+type(rpmblock), target :: block    ! bloc RPM contenant les definitions
 integer                :: type     ! type de condition aux limites
-integer                :: unif     ! uniformité de la condition limite
+integer                :: unif     ! uniformite de la condition limite
 
 ! -- Declaration des sorties --
 type(st_boco_vort) :: boco
@@ -31,7 +31,7 @@ type(st_boco_vort) :: boco
 ! -- Declaration des variables internes --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: ib, nkey, i, info
-character(len=dimrpmlig) :: str            ! chaîne RPM intermédiaire
+character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- Debut de la procedure --
 
@@ -46,7 +46,7 @@ case(bc_farfield)
   boco%vect = v3d_of(str, info)
  
   if (info /= 0) then
-    call erreur("lecture de menu","problème à la lecture du vecteur VELOCITY") 
+    call erreur("lecture de menu","probleme a la lecture du vecteur VELOCITY") 
   endif
 
 case(bc_wall)
@@ -58,9 +58,9 @@ case(bc_wall)
 
   select case(boco%element)
   case(sng_vortexlin)
-    call print_info(10,"      panneau de vorticité, distribution linéaire")
+    call print_info(10,"      panneau de vorticite, distribution lineaire")
   case default
-    call erreur("lecture de menu","type de singularité inconnu") 
+    call erreur("lecture de menu","type de singularite inconnu") 
   endselect
 
 case(bc_kutta)
@@ -74,7 +74,7 @@ case(bc_kutta)
   select case(boco%mode)
   case(kt_equilibrium)
   case(kt_shedding)
-    call erreur("développement","mode de calcul de condition KUTTA en développement") 
+    call erreur("developpement","mode de calcul de condition KUTTA en developpement") 
   case default
     call erreur("lecture de menu","mode de calcul de condition KUTTA inconnu") 
   endselect
@@ -91,7 +91,7 @@ endsubroutine def_boco_vortex
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! fev  2004 : création de la routine
+! fev  2004 : creation de la routine
 ! mars 2004 : lecture de champ infini uniforme
 !------------------------------------------------------------------------------!
 

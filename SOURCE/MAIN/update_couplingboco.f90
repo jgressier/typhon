@@ -18,10 +18,10 @@ use MODWORLD
 
 implicit none
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(st_zone) :: zone1, zone2
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 integer       :: nbc1, nbc2, ncoupl1, raccord
 
 ! -- Declaration des sorties --
@@ -37,7 +37,7 @@ case(kdif_kdif)
                   zone2%defsolver%boco(zone2%grid%umesh%boco(nbc2)%idefboco)%typ_boco)
 
   case default
-  call erreur("update_couplingboco","cas non implémenté")
+  call erreur("update_couplingboco","cas non implemente")
 
 endselect
 
@@ -47,5 +47,5 @@ endsubroutine update_couplingboco
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juin  2004 : création de la procédure
+! juin  2004 : creation de la procedure
 !------------------------------------------------------------------------------!

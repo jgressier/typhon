@@ -2,7 +2,7 @@
 ! Procedure : echange_kdif           	  Auteur : E. Radenac
 !                                         Date   : Mai 2003
 ! Fonction                                Modif  : Juin 2003
-!   Echange de données entre zones de calcul, pour deux matériaux couplés
+!   Echange de donnees entre zones de calcul, pour deux materiaux couples
 !
 ! Defauts/Limitations/Divers :
 !
@@ -18,13 +18,13 @@ use MENU_KDIF
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(st_genericfield)      :: echdata1, echdata2
 integer                    :: nfacelim   ! nombre de faces limites sur l'interface
 type(v3d), dimension(nfacelim) &
                            :: vecinter                ! vecteur unitaire "intercellules"                       
 type(v3d), dimension(nfacelim) &
-                           :: normale ! normales à l'interface
+                           :: normale ! normales a l'interface
 real(krp), dimension(nfacelim) &
 		           :: d1, d2  ! distance entre les centres des cellules gauche,
 		      		      ! droite et l'interface
@@ -32,15 +32,15 @@ integer                    :: typecalcul, typemethode
 integer, dimension(nfacelim) &
                            :: connface2
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(st_boco_kdif)         :: bocokdif1, bocokdif2
 
 ! -- Declaration des variables internes --
 integer                  :: if
-real(krp)                :: temp1, temp2   ! températures à échanger
-type(v3d)                :: gradtemp1, gradtemp2    ! gradients de température à échanger
-real(krp)                :: conduct1, conduct2 ! conductivités à échanger
-type(v3d)                :: flux1, flux2 ! densité de flux à échanger                         
+real(krp)                :: temp1, temp2   ! temperatures a echanger
+type(v3d)                :: gradtemp1, gradtemp2    ! gradients de temperature a echanger
+real(krp)                :: conduct1, conduct2 ! conductivites a echanger
+type(v3d)                :: flux1, flux2 ! densite de flux a echanger                         
 
 real(krp)                :: temp_inter
 real(krp)                :: flux_inter
@@ -51,7 +51,7 @@ real(krp)                :: flux_inter
 
 do if = 1, nfacelim
 
-  ! Données instationnaires
+  ! Donnees instationnaires
    temp1 = echdata1%tabscal(1)%scal(if)
    temp2 = echdata2%tabscal(1)%scal(if)
    gradtemp1 = echdata1%tabvect(1)%vect(if)

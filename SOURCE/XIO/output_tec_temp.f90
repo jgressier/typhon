@@ -2,7 +2,7 @@
 ! Procedure : output_tec_temp             Auteur : E. Radenac / J. Gressier
 !                                         Date   : Avril 2004
 ! Fonction                                Modif  : (cf Historique)
-!   Affichage au format tecplot des températures à l'interface
+!   Affichage au format tecplot des temperatures a l'interface
 !
 ! Defauts/Limitations/Divers :
 !
@@ -16,7 +16,7 @@ use MODWORLD
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 character(len=strlen) :: nom       ! nom du fichier
 type(st_world)        :: lworld
 integer               :: io        ! indice de la sortie
@@ -33,7 +33,7 @@ if (lworld%info%curtps == 0) then
   write(uf_tempinter, '(a)') 'VARIABLES="t","Tw"'
 endif
 
-! Calcul des conditions aux limites pour le calcul des flux à l'interface
+! Calcul des conditions aux limites pour le calcul des flux a l'interface
 
 do izone = 1, lworld%prj%nzone
  call conditions_limites(lworld%zone(izone))
@@ -43,8 +43,8 @@ if (lworld%prj%ncoupling > 0) then
 
 ir =1 ! DVT : provisoire
     
-! calcul des données de raccord : indices de raccord, de CL pour les 
-! deux zones couplées
+! calcul des donnees de raccord : indices de raccord, de CL pour les 
+! deux zones couplees
 call calcul_raccord(lworld, ir, iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2)
 
 do i = 1, lworld%zone(iz1)%grid%umesh%boco(nbc1)%nface
@@ -61,5 +61,5 @@ endsubroutine output_tec_temp
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! avr 2004   : création de la procédure
+! avr 2004   : creation de la procedure
 !------------------------------------------------------------------------------!

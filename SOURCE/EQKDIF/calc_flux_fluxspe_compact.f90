@@ -2,7 +2,7 @@
 ! Procedure :calc_flux_fluxspe_compact    Auteur : E. Radenac
 !                                         Date   : Avril 2003
 ! Fonction                                Modif  : Juin 2003
-!   Calcul du flux à l'interface par la méthode du flux spécifique, par le 
+!   Calcul du flux a l'interface par la methode du flux specifique, par le 
 !   biais d'une interpolation compacte
 !
 ! Defauts/Limitations/Divers :
@@ -18,13 +18,13 @@ use GEO3D
 
 implicit none
 
-! -- Declaration des entrées --
-real(krp)             :: temp1, temp2   ! températures échangées
-real(krp)	      :: conduct1, conduct2  ! conductivités échangées
+! -- Declaration des entrees --
+real(krp)             :: temp1, temp2   ! temperatures echangees
+real(krp)	      :: conduct1, conduct2  ! conductivites echangees
 real(krp)	      :: d1, d2  ! distance entre les centres des cellules et l'interface
 type(v3d)             :: vecinter                ! vecteur unitaire "intercellules"		      		   
 		      		   
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(v3d) :: flux_inter
 
 ! -- Declaration des variables internes --
@@ -35,7 +35,7 @@ real(krp) :: conduct
 ! -- Debut de la procedure --
 
 
-!Pondération de la conductivité : paramètres a et b
+!Ponderation de la conductivite : parametres a et b
 
 a = conduct1/d1
 b = conduct2/d2

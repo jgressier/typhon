@@ -18,23 +18,23 @@ use DEFFIELD
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(mnu_ns)     :: defns            ! solver parameters
 integer          :: unif             ! uniform or not
 type(st_boco_ns) :: bc_ns            ! parameters (field or constant)
 type(st_ustboco) :: ustboco          ! lieu d'application des conditions aux limites
-type(st_ustmesh) :: umesh            ! maillage non structuré
+type(st_ustmesh) :: umesh            ! maillage non structure
 
 ! -- Declaration des sorties --
-type(st_field)   :: fld              ! fld des états
+type(st_field)   :: fld              ! fld des etats
 
 ! -- Declaration des variables internes --
-integer         :: ifb, if, ip      ! index de liste, index de face limite et paramètres
-integer         :: icell, ighost    ! index de cellule intérieure, et de cellule fictive
+integer         :: ifb, if, ip      ! index de liste, index de face limite et parametres
+integer         :: icell, ighost    ! index de cellule interieure, et de cellule fictive
 
 ! -- Debut de la procedure --
 
-if (unif /= uniform) call erreur("Développement","Condition non uniforme non implémentée")
+if (unif /= uniform) call erreur("Developpement","Condition non uniforme non implementee")
 
 do ifb = 1, ustboco%nface
   if     = ustboco%iface(ifb)

@@ -21,11 +21,11 @@ use MATER_LOI
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 real(krp)         :: dt            ! temps pour le calcul du nombre de Fourier
-type(st_materiau) :: mat           ! données du matériau
-type(st_ustmesh)  :: umesh         ! données géométriques
-type(st_field)    :: field         ! données champs
+type(st_materiau) :: mat           ! donnees du materiau
+type(st_ustmesh)  :: umesh         ! donnees geometriques
+type(st_field)    :: field         ! donnees champs
 integer           :: ncell         ! nombre de cellules internes (taille de dtloc)
 
 ! -- Declaration des sorties --
@@ -69,7 +69,7 @@ do ic = 1, ncell
   fourierloc(ic) =  fourierloc(ic)/ (2._krp*umesh%mesh%volume(ic,1,1)**2 )*dt 
 enddo
 
-! -- Calcul des coefficients spécifiques du matériau --
+! -- Calcul des coefficients specifiques du materiau --
 
 select case(mat%type)
 case(mat_LIN)
@@ -80,15 +80,15 @@ case(mat_KNL)
     fourierloc(ic) = fourierloc(ic) * valeur_loi(mat%Kd, tc) / mat%Cp
   enddo
 case(mat_XMAT)
-  call erreur("Calcul de matériau","Materiau non linéaire interdit")
+  call erreur("Calcul de materiau","Materiau non lineaire interdit")
 endselect
 
-! le nombre de Fourier global d'un domaine est calculé et imposé
+! le nombre de Fourier global d'un domaine est calcule et impose
 ! dans la routine appelante
 
 endsubroutine calc_kdif_fourier
 
 !------------------------------------------------------------------------------!
 ! Historique des modifications
-!   jan 2003 : création, formule générale 3D
+!   jan 2003 : creation, formule generale 3D
 !------------------------------------------------------------------------------!

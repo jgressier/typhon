@@ -16,11 +16,11 @@ use DEFZONE
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 
 ! -- Declaration des sorties --
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(st_zone) :: zone
 
 ! -- Declaration des variables internes --
@@ -50,7 +50,7 @@ endsubroutine init_champ
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mars 2003 : création de la procédure
-! avr  2004 : application à liste chaînée de MGRID
+! mars 2003 : creation de la procedure
+! avr  2004 : application a liste chainee de MGRID
 ! oct  2004 : field chained list
 !------------------------------------------------------------------------------!

@@ -10,15 +10,15 @@
 
 subroutine readcgnsbase(unit, ib,  base) 
 
-use CGNSLIB       ! définition des mots-clefs
-use CGNS_STRUCT   ! Définition des structures CGNS
+use CGNSLIB       ! definition des mots-clefs
+use CGNS_STRUCT   ! Definition des structures CGNS
 use OUTPUT        ! Sorties standard TYPHON
 
 implicit none 
 
-! -- Entrées --
-integer             :: unit       ! numéro d'unité pour la lecture
-integer             :: ib         ! numéro de base
+! -- Entrees --
+integer             :: unit       ! numero d'unite pour la lecture
+integer             :: ib         ! numero de base
 
 ! -- Sorties --
 type(st_cgns_base)  :: base       ! structure CGNS : base
@@ -29,7 +29,7 @@ integer       :: iz               ! indice courant de zone
 character(len=10), dimension(2:3), parameter &
               :: type_maillage = (/ "surfacique", "volumique " /)
 
-! -- Début de procédure
+! -- Debut de procedure
    
 ! --- Lecture des infos de la base ---
 
@@ -37,8 +37,8 @@ call cg_base_read_f(unit, ib, base%nom, base%imesh, base%igeo, ier)
 
 !!print*,unit, ib, base%nom, base%imesh, base%igeo, ier !! DEBUG
 !!call cg_error_exit_f                                  !! DEBUG
-!! BUG : test désactivé car ier /= 0 meme si tout est correct
-!if (ier /= 0) call erreur("Lecture CGNS","Problème à la lecture de la base")
+!! BUG : test desactive car ier /= 0 meme si tout est correct
+!if (ier /= 0) call erreur("Lecture CGNS","Probleme a la lecture de la base")
 
 call print_info(5,"- BASE "//trim(base%nom)//" : maillage "//type_maillage(base%imesh))
    
@@ -49,7 +49,7 @@ call cg_nzones_f(unit, ib, base%nzone, ier)
 write(str_w,'(2x,i2,a,i2)') base%nzone," zone(s) dans la base ",ib
 call print_info(8, "   "//adjustl(str_w))
 
-if (ier /= 0) call erreur("Lecture CGNS","Problème à la lecture du nombre de zones")
+if (ier /= 0) call erreur("Lecture CGNS","Probleme a la lecture du nombre de zones")
  
 ! --- Allocation et Lecture des zones ---
 
@@ -64,7 +64,7 @@ do iz = 1, base%nzone
   base%zone(iz)%imesh = base%imesh   
   call readcgnszone(unit, ib, iz, base%zone(iz))
 
-  ! Dénombrement des zones structurées et non structurées
+  ! Denombrement des zones structurees et non structurees
 
   select case(base%zone(iz)%type)
   case(Structured)
@@ -72,7 +72,7 @@ do iz = 1, base%nzone
   case(Unstructured)
     base%nzone_ust = base%nzone_ust + 1
   case default
-    call erreur("Développement","Type de maillage non prévu")
+    call erreur("Developpement","Type de maillage non prevu")
   endselect
 
 enddo

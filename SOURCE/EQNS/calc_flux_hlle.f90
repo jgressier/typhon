@@ -22,13 +22,13 @@ use GEO3D
 
 implicit none
 
-! -- Declaration des entrées --
-type(mnu_solver)      :: defsolver        ! paramètres de définition du solveur
-type(mnu_spat)        :: defspat          ! paramètres d'intégration spatiale
-integer               :: nflux            ! nombre de flux (face) à calculer
-integer               :: ideb             ! indice du premier flux à remplir
+! -- Declaration des entrees --
+type(mnu_solver)      :: defsolver        ! parametres de definition du solveur
+type(mnu_spat)        :: defspat          ! parametres d'integration spatiale
+integer               :: nflux            ! nombre de flux (face) a calculer
+integer               :: ideb             ! indice du premier flux a remplir
 type(st_face), dimension(1:nflux) & 
-                      :: face             ! données géométriques des faces
+                      :: face             ! donnees geometriques des faces
 type(v3d), dimension(1:nflux) &
                       :: cg_l, cg_r       ! centres des cellules
 type(st_nsetat), dimension(1:nflux) &
@@ -38,7 +38,7 @@ logical               :: calc_jac         ! choix de calcul de la jacobienne
 
 ! -- Declaration des sorties --
 type(st_genericfield)        :: flux
-real(krp), dimension(nflux)  :: jacL, jacR  ! jac associées
+real(krp), dimension(nflux)  :: jacL, jacR  ! jac associees
 
 ! -- Declaration des variables internes --
 integer                   :: if
@@ -54,7 +54,7 @@ real(krp)                 :: am, al, ar, vm, vnl, vnr, rel, rer
 g   = defsolver%defns%properties(1)%gamma
 ig1 = 1._krp/(g - 1._krp)
 
-! -- Calculs préliminaires --
+! -- Calculs preliminaires --
 
 allocate(roe(1:nflux))
 
@@ -102,7 +102,7 @@ deallocate(roe)
 ! Calcul des jacobiennes
 !--------------------------------------------------------------
 if (calc_jac) then
-  call erreur("Développement","Calcul de jacobiennes du flux HLLE non implémenté")
+  call erreur("Developpement","Calcul de jacobiennes du flux HLLE non implemente")
 endif
 !  do if = 1, nflux
 !    jacR(if) =  - kH(if) * (vLR(if).scal.face(if)%normale) &

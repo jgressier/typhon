@@ -2,7 +2,7 @@
 ! Procedure : calc_gradient_limite        Auteur : J. Gressier
 !                                         Date   : Octobre 2003
 ! Fonction                                Modif  : (cf historique)
-!   Calcul des gradients aux limites à partir des gradients uniquement
+!   Calcul des gradients aux limites a partir des gradients uniquement
 !
 ! Defauts/Limitations/Divers :
 !   - le calcul des gradient_limites ne doit se faire que sur les cellules limites
@@ -20,9 +20,9 @@ use USTMESH
 
 implicit none
 
-! -- Declaration des entrées --
-type(mnu_solver)      :: def_solver  ! définition des paramètres du solveur
-type(st_ustmesh)      :: mesh        ! maillage et connectivités
+! -- Declaration des entrees --
+type(mnu_solver)      :: def_solver  ! definition des parametres du solveur
+type(st_ustmesh)      :: mesh        ! maillage et connectivites
 
 ! -- Declaration des sorties --
 type(st_genericfield) :: grad        ! champ des gradients
@@ -33,7 +33,7 @@ integer :: nc, nf, nfi, is, if, ic1, ic2
 ! -- Debut de la procedure --
 
 nc  = mesh%ncell_int   ! nombre de cellules internes
-nfi = mesh%nface_int   ! nb de faces internes (connectées avec 2 cellules)
+nfi = mesh%nface_int   ! nb de faces internes (connectees avec 2 cellules)
 nf  = mesh%nface       ! nb de faces totales 
 
 ! calcul des gradient_limites de scalaires (vecteurs gradient)
@@ -49,7 +49,7 @@ enddo
 ! calcul des gradient_limites de vecteurs (tenseur gradient)
 
 do is = 1, grad%ntens
-  call erreur("Développement","calcul de gradient_limites de vecteurs non implémenté")
+  call erreur("Developpement","calcul de gradient_limites de vecteurs non implemente")
 enddo
 
 !-----------------------------
@@ -58,5 +58,5 @@ endsubroutine calc_gradient_limite
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! oct 2003 : création de la procédure
+! oct 2003 : creation de la procedure
 !------------------------------------------------------------------------------!

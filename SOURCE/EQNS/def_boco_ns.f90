@@ -2,8 +2,8 @@
 ! Procedure : def_boco_ns                 Auteur : J. Gressier
 !                                         Date   : Novembre 2003
 ! Fonction                                Modif  : (cf historique)
-!   Traitement des paramètres du fichier menu principal
-!   Paramètres principaux du projet
+!   Traitement des parametres du fichier menu principal
+!   Parametres principaux du projet
 !
 ! Defauts/Limitations/Divers :
 !
@@ -18,8 +18,8 @@ use MENU_NS
 
 implicit none
 
-! -- Declaration des entrées --
-type(rpmblock), target :: block    ! bloc RPM contenant les définitions
+! -- Declaration des entrees --
+type(rpmblock), target :: block    ! bloc RPM contenant les definitions
 integer                :: type     ! type de condition aux limites
 
 ! -- Declaration des sorties --
@@ -28,7 +28,7 @@ type(st_boco_ns) :: boco
 ! -- Declaration des variables internes --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: ib, nkey
-character(len=dimrpmlig) :: str            ! chaîne RPM intermédiaire
+character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 integer                  :: info
 
 ! -- Debut de la procedure --
@@ -38,14 +38,14 @@ pblock => block
 select case(type)
 
 case(bc_wall_adiab)
-  !call erreur("Développement","'bc_wall_adiab' : Cas non implémenté")
+  !call erreur("Developpement","'bc_wall_adiab' : Cas non implemente")
 
 case(bc_wall_isoth)
   call rpmgetkeyvalreal(pblock, "WALL_TEMP", boco%temp_wall)
-  !call erreur("Développement","'bc_wall_isoth' : Cas non implémenté")
+  !call erreur("Developpement","'bc_wall_isoth' : Cas non implemente")
 
 case(bc_wall_flux)
-  call erreur("Développement","'bc_wall_isoth' : Cas non implémenté")
+  call erreur("Developpement","'bc_wall_isoth' : Cas non implemente")
 
 case(bc_inlet_sub)
    call rpmgetkeyvalreal(pblock, "PI",        boco%ptot)
@@ -53,9 +53,9 @@ case(bc_inlet_sub)
    call rpmgetkeyvalstr (pblock, "DIRECTION", str)
    boco%direction = v3d_of(str, info)
    if (info /= 0) &
-     call erreur("lecture de menu","problème à la lecture du vecteur DIRECTION") 
+     call erreur("lecture de menu","probleme a la lecture du vecteur DIRECTION") 
    boco%direction = boco%direction / abs(boco%direction)
-   !call erreur("Développement","'bc_inlet_sub' : Cas non implémenté")
+   !call erreur("Developpement","'bc_inlet_sub' : Cas non implemente")
 
 case(bc_inlet_sup)
    call rpmgetkeyvalreal(pblock, "PI",        boco%ptot)
@@ -64,17 +64,17 @@ case(bc_inlet_sup)
    call rpmgetkeyvalstr (pblock, "DIRECTION", str)
    boco%direction = v3d_of(str, info)
    if (info /= 0) &
-     call erreur("lecture de menu","problème à la lecture du vecteur DIRECTION") 
+     call erreur("lecture de menu","probleme a la lecture du vecteur DIRECTION") 
    boco%direction = boco%direction / abs(boco%direction)
-   !call erreur("Développement","'bc_inlet_sup' : Cas non implémenté")
+   !call erreur("Developpement","'bc_inlet_sup' : Cas non implemente")
 
 case(bc_outlet_sub)
   call rpmgetkeyvalreal(pblock, "P",         boco%pstat)
-  !call erreur("Développement","'bc_outlet_sub' : Cas non implémenté")
+  !call erreur("Developpement","'bc_outlet_sub' : Cas non implemente")
 
 case(bc_outlet_sup)
-  !call erreur("Développement","'bc_outlet_sup' : Cas non implémenté")
-  ! pas de lecture de paramètre
+  !call erreur("Developpement","'bc_outlet_sup' : Cas non implemente")
+  ! pas de lecture de parametre
 
 case default
   call erreur("Lecture de menu","type de conditions aux limites non reconnu&
@@ -87,8 +87,8 @@ endsubroutine def_boco_ns
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov  2003 : création de la routine
-! juin 2004 : définition et lecture de conditions limites (inlet/outlet)
+! nov  2003 : creation de la routine
+! juin 2004 : definition et lecture de conditions limites (inlet/outlet)
 !------------------------------------------------------------------------------!
 
 

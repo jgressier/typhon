@@ -18,7 +18,7 @@ use PAN2D_LIN
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 integer                     :: dim
 type(mnu_solver)            :: defsolver
 type(v3d), dimension(1:dim) :: pos
@@ -41,7 +41,7 @@ do if = 1, dim
   vel(if) = v3d(0._krp, 0._krp, 0._krp)
 enddo
 
-do ib = 1, defsolver%nboco  ! boucle sur boco / rech. de cond. singularités
+do ib = 1, defsolver%nboco  ! boucle sur boco / rech. de cond. singularites
 
   select case(defsolver%boco(ib)%typ_calc)
 
@@ -49,7 +49,7 @@ do ib = 1, defsolver%nboco  ! boucle sur boco / rech. de cond. singularités
 
   case(bc_calc_farfield)
 
-    ! DEV : créer les opérations sur les tableaux de vecteurs
+    ! DEV : creer les operations sur les tableaux de vecteurs
     do if = 1, dim
       vel(if) = vel(if) + defsolver%boco(ib)%boco_vortex%vect
       !vel(1:dim) = vel(1:dim) + defsolver%boco(ib)%boco_vortex%vect
@@ -60,7 +60,7 @@ do ib = 1, defsolver%nboco  ! boucle sur boco / rech. de cond. singularités
     pgrid => defsolver%boco(ib)%boco_vortex%pgrid
     nf    =  pgrid%umesh%nface
 
-    do if = 1, nf   ! boucle sur tous les panneaux singularités
+    do if = 1, nf   ! boucle sur tous les panneaux singularites
       pane = pgrid%umesh%mesh%iface(if, 1, 1)
       iv1  = pgrid%umesh%facevtex%fils(if,1)
       iv2  = pgrid%umesh%facevtex%fils(if,2)
@@ -70,7 +70,7 @@ do ib = 1, defsolver%nboco  ! boucle sur boco / rech. de cond. singularités
       c2   = pgrid%bocofield%tabscal(1)%scal(iv2)
 
       do ipos = 1, dim
-        ! DEV : généralisation au calcul d'un tableau
+        ! DEV : generalisation au calcul d'un tableau
         vel(ipos) = vel(ipos) + vel_induc_pvortlin2d(pos(ipos), x1, x2, c1, c2)
       enddo
 
@@ -90,5 +90,5 @@ endsubroutine calc_induced_velocities
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mars 2004 : création de la procédure
+! mars 2004 : creation de la procedure
 !------------------------------------------------------------------------------!

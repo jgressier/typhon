@@ -5,7 +5,7 @@
 !   Calcul du pas de temps local et global par zone selon solveur
 !
 ! Defauts/Limitations/Divers :
-!   ATTENTION : à ce moment, les variables primitives ne sont pas calculées
+!   ATTENTION : a ce moment, les variables primitives ne sont pas calculees
 !
 !------------------------------------------------------------------------------!
 
@@ -19,7 +19,7 @@ use MGRID
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(st_zone) :: lzone
 
 ! -- Declaration des sorties --
@@ -39,24 +39,24 @@ integer                              :: ncell    ! nombre de cellules pour le ca
 select case(lzone%defsolver%typ_solver)
 
 !--------------------------------------------------------
-! méthode VOLUMES FINIS
+! methode VOLUMES FINIS
 !--------------------------------------------------------
 case(solKDIF, solNS)
 
   pgrid => lzone%grid
   dt    =  1.e20        ! DEV (max de real)
 
-  do while (associated(pgrid))   ! BOUCLE sur les grilles (liste chaînée)
+  do while (associated(pgrid))   ! BOUCLE sur les grilles (liste chainee)
 
     ncell = pgrid%umesh%ncell_int
     allocate(dtloc(ncell))
 
     select case(lzone%deftime%stab_meth)
 
-    case(given_dt)   ! -- Pas de temps imposé --
+    case(given_dt)   ! -- Pas de temps impose --
       dtloc(1:ncell) = lzone%deftime%dt
 
-    case(stab_cond)  ! -- Calcul par condition de stabilité (deftim%stabnb) --
+    case(stab_cond)  ! -- Calcul par condition de stabilite (deftim%stabnb) --
       select case(lzone%defsolver%typ_solver)
       case(solNS)
         call calc_ns_timestep(lzone%deftime, lzone%defsolver%defns%properties(1), &
@@ -65,14 +65,14 @@ case(solKDIF, solNS)
         call calc_kdif_timestep(lzone%deftime, lzone%defsolver%defkdif%materiau, &
                                 pgrid%umesh, pgrid%field_loc, dtloc, ncell)
       case default
-        call erreur("incohérence interne (calc_zonetimestep)", "solveur inconnu")
+        call erreur("incoherence interne (calc_zonetimestep)", "solveur inconnu")
       endselect
 
     case default
-      call erreur("incohérence interne (calc_zonetimestep)", "condition incompatible")
+      call erreur("incoherence interne (calc_zonetimestep)", "condition incompatible")
     endselect  
 
-    ! -- DEV -- pas de temps global imposé dans cette version
+    ! -- DEV -- pas de temps global impose dans cette version
     dt = min(dt, minval(dtloc))
     deallocate(dtloc)
 
@@ -82,20 +82,20 @@ case(solKDIF, solNS)
   enddo
 
 !--------------------------------------------------------
-! méthode LAGRANGIENNE
+! methode LAGRANGIENNE
 !--------------------------------------------------------
 case(solVORTEX)
 
   select case(lzone%deftime%stab_meth)
-  case(given_dt)   ! -- Pas de temps imposé --
+  case(given_dt)   ! -- Pas de temps impose --
     dt = lzone%deftime%dt
   case default
-    call erreur("incohérence interne (calc_zonetimestep)", "condition incompatible")
+    call erreur("incoherence interne (calc_zonetimestep)", "condition incompatible")
   endselect  
 
 !--------------------------------------------------------
 case default
-  call erreur("Développement","solveur inattendu (calc_zonetimestep)")
+  call erreur("Developpement","solveur inattendu (calc_zonetimestep)")
 
 endselect
 
@@ -105,9 +105,9 @@ endsubroutine calc_zonetimestep
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! sept 2003 : création, appel des procédures spécifiques aux solveurs
-! mars 2003 : calcul de pas de temps pour méthodes lagrangiennes
-! avr  2004 : calcul KDIF sur liste chaînée de grilles
+! sept 2003 : creation, appel des procedures specifiques aux solveurs
+! mars 2003 : calcul de pas de temps pour methodes lagrangiennes
+! avr  2004 : calcul KDIF sur liste chainee de grilles
 ! july 2004 : NS solver call
 ! oct  2004 : field chained list
 !------------------------------------------------------------------------------!

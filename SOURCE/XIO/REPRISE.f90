@@ -1,9 +1,9 @@
 !------------------------------------------------------------------------------!
 ! MODULE : REPRISE                        Auteur : J. Gressier
-!                                         Date   : Décembre 2002
+!                                         Date   : Decembre 2002
 ! Fonction                                Modif  :
-!   Définition des unités d'entrées/sorties du programme TYPHON
-!   Définition des procédures d'écritures
+!   Definition des unites d'entrees/sorties du programme TYPHON
+!   Definition des procedures d'ecritures
 !
 ! Defauts/Limitations/Divers :
 !

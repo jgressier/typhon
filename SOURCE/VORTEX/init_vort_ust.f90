@@ -16,7 +16,7 @@ use MENU_VORTEX
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(st_init_vort) :: vort
 
 ! -- Declaration des sorties --
@@ -40,7 +40,7 @@ endsubroutine init_vort_ust
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mars 2004 : création de la routine
+! mars 2004 : creation de la routine
 !------------------------------------------------------------------------------!
 
 

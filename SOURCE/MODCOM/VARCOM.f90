@@ -17,15 +17,15 @@ use TYPHMAKE   ! machine accuracy definition
 
 character(len=6), parameter :: version = "0.1.5"
 
-logical        :: mpi_run              ! calcul parallèle MPI ou non
-character      :: memory_mode          ! mode d'économie mémoire
-character      :: model_mode           ! mode de modélisation physique
+logical        :: mpi_run              ! calcul parallele MPI ou non
+character      :: memory_mode          ! mode d'economie memoire
+character      :: model_mode           ! mode de modelisation physique
 integer        :: taille_buffer        ! taille de buffer pour la distribution des calculs
 
 
 ! -- CONSTANTES globales du module -------------------------------------------
 
-! -- Définition des fonctionnalités
+! -- Definition des fonctionnalites
 
 logical, parameter :: pass_kdif  = .true.
 logical, parameter :: pass_ns    = .true.
@@ -40,45 +40,45 @@ logical, parameter :: pass_coupl_ext = .false.
 character, parameter :: cnull = ' '
 integer,   parameter :: inull = 0
 
-! -- Constantes de définition du mode de calcul cpu/mémoire --
+! -- Constantes de definition du mode de calcul cpu/memoire --
 
-character, parameter :: mode_normal = 'N' ! mode économie : normal
-character, parameter :: save_mem    = 'M' ! mode économie : mémoire  minimale (recalcul)
-character, parameter :: save_cpu    = 'C' ! mode économie : cpu time minimal  (mise en mémoire)
+character, parameter :: mode_normal = 'N' ! mode economie : normal
+character, parameter :: save_mem    = 'M' ! mode economie : memoire  minimale (recalcul)
+character, parameter :: save_cpu    = 'C' ! mode economie : cpu time minimal  (mise en memoire)
 
-! -- Constantes de définition du type de modélisation (qualité/hypothèse) --
+! -- Constantes de definition du type de modelisation (qualite/hypothese) --
 
-character, parameter :: model_max = 'X'   ! mode modélisation : strict (hypothèses minimales)
-character, parameter :: model_hyp = 'H'   ! mode modélisation : avec hypothèses classiques
-character, parameter :: model_sim = 'S'   ! mode modélisation : simpliste
+character, parameter :: model_max = 'X'   ! mode modelisation : strict (hypotheses minimales)
+character, parameter :: model_hyp = 'H'   ! mode modelisation : avec hypotheses classiques
+character, parameter :: model_sim = 'S'   ! mode modelisation : simpliste
 
-! -- Constantes de définition du type de maillage --
+! -- Constantes de definition du type de maillage --
 
-character, parameter :: mshSTR = 'S'      ! maillage structuré
-character, parameter :: mshUST = 'U'      ! maillage non structuré
+character, parameter :: mshSTR = 'S'      ! maillage structure
+character, parameter :: mshUST = 'U'      ! maillage non structure
 character, parameter :: mshHYB = 'H'      ! maillage hybride
 
-! -- Constantes de définition du type de solveur --
+! -- Constantes de definition du type de solveur --
 
 integer, parameter   :: solNS     = 10    ! Equations de Navier-Stokes (EQNS)
 integer, parameter   :: solKDIF   = 20    ! Equation  de la chaleur    (EQKDIF)
-integer, parameter   :: solVORTEX = 30    ! Méthode intégrale et lagrangienne VORTEX
+integer, parameter   :: solVORTEX = 30    ! Methode integrale et lagrangienne VORTEX
 
-!définitino de solVORTEX dans MENU_SOLVER
+!definitino de solVORTEX dans MENU_SOLVER
 
-! -- Constantes pour le choix du paramètre "temps" (mnu_project)
+! -- Constantes pour le choix du parametre "temps" (mnu_project)
 
 character, parameter :: stationnaire   = 'S'
 character, parameter :: instationnaire = 'I'
 character, parameter :: periodique     = 'P'
 
-! -- Constantes pour le choix du paramètre "typ_coord" (mnu_projMODCOM/VARCOM.f90ect)
+! -- Constantes pour le choix du parametre "typ_coord" (mnu_projMODCOM/VARCOM.f90ect)
 
 character, parameter :: c2dplan  = 'P'
 character, parameter :: c2daxi   = 'X'
 character, parameter :: c3dgen   = 'G'
 
-! -- Constantes de définition du format de maillage --
+! -- Constantes de definition du format de maillage --
 
 character, parameter   :: fmt_CGNS    = 'C'   ! format CGNS
 character, parameter   :: fmt_TYPHMSH = 'M'   ! format CGNS
@@ -86,7 +86,7 @@ character, parameter   :: fmt_TECPLOT = 'T'   ! format TECPLOT (ascii)
 character, parameter   :: fmt_VIGIE   = 'V'   ! format VIGIE
 character, parameter   :: fmt_VTK     = 'K'   ! format VTK
 
-! -- Constantes pour le choix du type de sortie des données (centres ou noeuds)
+! -- Constantes pour le choix du type de sortie des donnees (centres ou noeuds)
 
 integer, parameter :: outp_NODE         = 01
 integer, parameter :: outp_CENTER       = 02
@@ -94,11 +94,11 @@ integer, parameter :: outp_COR          = 03 !DEV2602
 integer, parameter :: outp_FLUX         = 04 !DEV2602
 integer, parameter :: outp_TEMPINTER    = 05 !DEV1404
 
-! -- Constantes pour l'état d'avancement du calcul
+! -- Constantes pour l'etat d'avancement du calcul
 integer, parameter :: end_calc          = 01 !DEV2602
 integer, parameter :: in_cycle          = 02 !DEV2602
 
-! -- Constantes de définition des conditions aux limites (physique) --
+! -- Constantes de definition des conditions aux limites (physique) --
 
 integer, parameter :: bc_connection     = 01
 integer, parameter :: bc_coupling       = 02
@@ -122,16 +122,16 @@ integer, parameter :: bc_farfield       = 90
 integer, parameter :: bc_wall           = 92
 integer, parameter :: bc_kutta          = 95
 
-! -- Constantes de définition des conditions aux limites (calcul) --
+! -- Constantes de definition des conditions aux limites (calcul) --
 
 integer, parameter :: bc_calc_ghostcell = 01   ! calcul par cellule fictive
 integer, parameter :: bc_calc_ghostface = 02   ! calcul par cellule fictive sur la face
 integer, parameter :: bc_calc_flux      = 03   ! calcul par flux, pas de point fictif
-integer, parameter :: bc_calc_singpanel = 10   ! calcul implicite de singularités
+integer, parameter :: bc_calc_singpanel = 10   ! calcul implicite de singularites
 integer, parameter :: bc_calc_kutta     = 15   ! calcul de condition kutta-joukowski
 integer, parameter :: bc_calc_farfield  = 16   ! calcul de condition champ lointain
 
-! -- Constantes de définition des paramètres de conditions aux limites --
+! -- Constantes de definition des parametres de conditions aux limites --
 
 integer, parameter :: extrap_quantity   = 1
 integer, parameter :: extrap_gradient   = 2
@@ -143,30 +143,30 @@ integer, parameter  :: mesh_match    = 01
 integer, parameter  :: mesh_nonmatch = 03
 integer, parameter  :: mesh_slide    = 04
 
-! -- Constantes pour le choix du paramètre "typecalcul" (coupling)
+! -- Constantes pour le choix du parametre "typecalcul" (coupling)
 
 integer, parameter  :: compact    = 01
 integer, parameter  :: consistant = 02
 integer, parameter  :: threed     = 03
 
-! -- Constantes pour le choix du paramètre "mode" (coupling)
+! -- Constantes pour le choix du parametre "mode" (coupling)
 
 integer, parameter  :: fixed  = 01
 integer, parameter  :: sensor = 02
 
-! -- Constantes pour le choix du paramètre "boco" (coupling)
+! -- Constantes pour le choix du parametre "boco" (coupling)
 
 integer, parameter  :: couplingboco_TT  = 01
 integer, parameter  :: couplingboco_CC  = 02
 integer, parameter  :: couplingboco_CT  = 03
 integer, parameter  :: couplingboco_TC  = 04
 
-! -- Constantes pour le choix du paramètre "solvercoupling" (zonecoupling)
+! -- Constantes pour le choix du parametre "solvercoupling" (zonecoupling)
 integer, parameter  :: kdif_kdif = 01
 integer, parameter  :: kdif_ns   = 02
 integer, parameter  :: ns_ns     = 03
 
-! -- Constantes pour le choix du paramètre typ_cor (MENU_ZONECOUPLING) : type de correction
+! -- Constantes pour le choix du parametre typ_cor (MENU_ZONECOUPLING) : type de correction
 integer, parameter  :: sans       = 01
 integer, parameter  :: avant      = 02
 integer, parameter  :: apres      = 03
@@ -177,7 +177,7 @@ integer, parameter  :: partiel    = 07
 integer, parameter  :: bocoT      = 08
 integer, parameter  :: bocoT2     = 09 !DEV1603
 
-! -- Constantes pour le choix du paramètre "activite" (senseur)
+! -- Constantes pour le choix du parametre "activite" (senseur)
 !
 !integer, parameter  :: fluxcomp = 1
 !integer, parameter  :: tempevol = 2
@@ -190,7 +190,7 @@ contains
 !----------------------------------------------------------------------------------------
 subroutine init_varcom()
 
-  ! paramètres par défaut
+  ! parametres par defaut
 
   mpi_run       = .false.
   memory_mode   = mode_normal
@@ -209,5 +209,5 @@ endmodule VARCOM
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! Oct  2002 : création du module
+! Oct  2002 : creation du module
 !------------------------------------------------------------------------------!

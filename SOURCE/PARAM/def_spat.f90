@@ -2,8 +2,8 @@
 ! Procedure : def_spat                    Auteur : J. Gressier
 !                                         Date   : Novembre 2002
 ! Fonction                                Modif  : (cf historique)
-!   Traitement des paramètres du fichier menu principal
-!   Paramètres principaux du projet
+!   Traitement des parametres du fichier menu principal
+!   Parametres principaux du projet
 !
 ! Defauts/Limitations/Divers :
 !
@@ -18,7 +18,7 @@ use MENU_NUM
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(rpmblock), target :: block
 integer                :: isolver
 
@@ -29,11 +29,11 @@ type(mnu_spat) :: defspat
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nkey           ! nombre de clefs
 integer                  :: i
-character(len=dimrpmlig) :: str            ! chaîne RPM intermédiaire
+character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- Debut de la procedure --
 
-call print_info(5,"- Définition des paramètres de discrétisation spatiale")
+call print_info(5,"- Definition des parametres de discretisation spatiale")
 
 ! -- Initialisation --
 
@@ -44,9 +44,9 @@ defspat%calc_grad = .false.
 pblock => block
 call seekrpmblock(pblock, "SPAT_PARAM", 0, pcour, nkey)
 
-! DEV : est-ce que la présence du bloc est obligatoire ?
+! DEV : est-ce que la presence du bloc est obligatoire ?
 if (nkey /= 1) call erreur("lecture de menu", &
-                           "bloc SPAT_PARAM inexistant ou surnuméraire")
+                           "bloc SPAT_PARAM inexistant ou surnumeraire")
 
 
 select case(isolver)
@@ -74,14 +74,14 @@ case(solNS)
   if (samestring(str,"AUSMM"))           defspat%sch_hyp = sch_ausmm
 
   if (defspat%sch_hyp == inull) &
-    call erreur("lecture de menu","schéma numérique inconnu")
+    call erreur("lecture de menu","schema numerique inconnu")
 
   defspat%sch_dis   = inull
   defspat%calc_grad = .false.
 
 case(solKDIF)
 
-  ! -- Méthode de calcul des flux dissipatifs --
+  ! -- Methode de calcul des flux dissipatifs --
 
   call rpmgetkeyvalstr(pcour, "DISSIPATIVE_FLUX", str, "FULL")
   defspat%sch_dis = inull
@@ -113,8 +113,8 @@ endsubroutine def_spat
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov  2002 : création, lecture de bloc vide
-! oct  2003 : choix de la méthode de calcul des flux dissipatifs
+! nov  2002 : creation, lecture de bloc vide
+! oct  2003 : choix de la methode de calcul des flux dissipatifs
 ! mars 2004 : traitement dans le cas solVORTEX
 ! july 2004 : NS solver parameters
 !------------------------------------------------------------------------------!

@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------!
 ! Procedure : output_tec_flux             Auteur : E. Radenac / J. Gressier
-!                                         Date   : Février 2004
+!                                         Date   : Fevrier 2004
 ! Fonction                                Modif  : (cf Historique)
 !   Affichage au format tecplot des corrections
 !
@@ -16,7 +16,7 @@ use MODWORLD
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 character(len=strlen) :: nom       ! nom du fichier
 type(st_world)        :: lworld
 integer               :: io        ! indice de la sortie
@@ -33,8 +33,8 @@ curtps = lworld%info%curtps
 ufc = uf_correction
 
 do ir = 1, lworld%prj%ncoupling
-  ! calcul des données de raccord : indices de raccord, de CL pour 
-  ! les deux zones couplées
+  ! calcul des donnees de raccord : indices de raccord, de CL pour 
+  ! les deux zones couplees
   call calcul_raccord(lworld, ir, iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2)
 
   if (curtps == 0) then
@@ -72,5 +72,5 @@ endsubroutine output_tec_cor
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! fév 2004   : création de la procédure
+! fev 2004   : creation de la procedure
 !------------------------------------------------------------------------------!

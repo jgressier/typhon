@@ -17,7 +17,7 @@ use MODWORLD
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 character(len=strlen) :: nom       ! nom du fichier
 type(st_world)        :: world
 integer               :: outp_typ
@@ -61,10 +61,10 @@ if (position == end_calc) then
 
       case(solVORTEX)
 
-        call erreur("Développement","les sorties VORTEX ne sont pas prévues dans ce format")
+        call erreur("Developpement","les sorties VORTEX ne sont pas prevues dans ce format")
 
       case default
-        call erreur("Développement","solveur inconnu (output_vtk)")
+        call erreur("Developpement","solveur inconnu (output_vtk)")
 
       endselect
 
@@ -81,6 +81,6 @@ endsubroutine output_vtk
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! avr  2004 : création de la procédure
+! avr  2004 : creation de la procedure
 ! oct  2004 : field chained list
 !------------------------------------------------------------------------------!

@@ -2,7 +2,7 @@
 ! MODULE : ZONE_COUPLING                  Auteur : E. Radenac / J. Gressier
 !                                         Date   : Juin 2003
 ! Fonction                                Modif  : Juillet 2003
-!   Définition des méthodes de couplage entre zones
+!   Definition des methodes de couplage entre zones
 !
 ! Defauts/Limitations/Divers :
 !
@@ -11,22 +11,22 @@
 module ZONE_COUPLING
 
 use TYPHMAKE   ! Definition de la precision et des types basiques
-use DEFFIELD   ! Définition des champs de valeurs physiques pour les transferts
+use DEFFIELD   ! Definition des champs de valeurs physiques pour les transferts
 use VARCOM
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_ZONECOUPLING : structures d'échanges entres zones
+! Definition de la structure ST_ZONECOUPLING : structures d'echanges entres zones
 !------------------------------------------------------------------------------!
 type st_zonecoupling
-  integer                    :: solvercoupling ! types de solvers couplés
-  integer                    :: nface_int      ! nb de faces côté interne
-  integer                    :: nface_ext      ! nb de faces côté externe
-  type(st_genericfield)      :: echdata        ! données d'échange (champ de zone externe)
-  type(st_genericfield)      :: etatcons       ! énergie à l'interface
+  integer                    :: solvercoupling ! types de solvers couples
+  integer                    :: nface_int      ! nb de faces côte interne
+  integer                    :: nface_ext      ! nb de faces côte externe
+  type(st_genericfield)      :: echdata        ! donnees d'echange (champ de zone externe)
+  type(st_genericfield)      :: etatcons       ! energie a l'interface
   integer, dimension(:), pointer & 
-                             :: connface       ! connectivité de face (dim = nface_int)
+                             :: connface       ! connectivite de face (dim = nface_int)
                                                !   connface(i) = j
                                                !   : face i interne = face j externe
 endtype st_zonecoupling
@@ -47,7 +47,7 @@ endinterface
 contains
 
 !------------------------------------------------------------------------------!
-! Procédure : création d'une structure ZONE_COUPLING
+! Procedure : creation d'une structure ZONE_COUPLING
 !------------------------------------------------------------------------------!
 subroutine new_zcoupling(zc, nfaceint)
 implicit none
@@ -72,10 +72,10 @@ select case(zc%solvercoupling)
     call init_genericfield(zc%etatcons, 0._krp, v3d(0._krp, 0._krp, 0._krp))
 
   case(ns_ns)
-    call erreur("incohérence interne (ZONE_COUPLING)", "cas non implémenté")
+    call erreur("incoherence interne (ZONE_COUPLING)", "cas non implemente")
 
   case default
-    call erreur("incohérence interne (ZONE_COUPLING)", &
+    call erreur("incoherence interne (ZONE_COUPLING)", &
                 "couplage solveurs inconnu")
 
 endselect
@@ -83,7 +83,7 @@ endselect
 endsubroutine new_zcoupling
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure ZONE_COUPLING
+! Procedure : desallocation d'une structure ZONE_COUPLING
 !------------------------------------------------------------------------------!
 subroutine delete_zcoupling(zc)
 implicit none
@@ -103,8 +103,8 @@ endmodule ZONE_COUPLING
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juin 2003 (v0.0.1b): création du module
-!                      création de new et delete
+! juin 2003 (v0.0.1b): creation du module
+!                      creation de new et delete
 ! juillet 2003       : ajout de etatcons
 !------------------------------------------------------------------------------!
 

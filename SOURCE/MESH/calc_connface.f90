@@ -2,7 +2,7 @@
 ! Procedure : calc_connface               Auteur : J. Gressier
 !                                         Date   : Juin 2003
 ! Fonction                                Modif  :
-!   Calcul de connectivités face/face entre deux zones selon la liste de
+!   Calcul de connectivites face/face entre deux zones selon la liste de
 !   faces de famille pour chacune des zones
 !
 ! Defauts/Limitations/Divers : maillages coincidents
@@ -17,11 +17,11 @@ use USTMESH
 
 implicit none
 
-! -- Declaration des entrées --
-type(st_ustmesh) :: m1, m2      ! maillage 1 et 2 connectées (non structurés)
-type(st_ustboco) :: b1, b2      ! conditions aux limites concernées par la connection
+! -- Declaration des entrees --
+type(st_ustmesh) :: m1, m2      ! maillage 1 et 2 connectees (non structures)
+type(st_ustboco) :: b1, b2      ! conditions aux limites concernees par la connection
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 integer, dimension(1:b1%nface) :: connface1
 integer, dimension(1:b2%nface) :: connface2
 
@@ -38,12 +38,12 @@ integer                              :: if1, if2, ind_assoc
 allocate(centre1(b1%nface))
 allocate(centre2(b2%nface))
 
-! création de la liste des centres des faces concernées des deux zones
+! creation de la liste des centres des faces concernees des deux zones
 call extract_centre(b1, m1, centre1)
 call extract_centre(b2, m2, centre2)
 
 ! calcul pour chaque centre de la zone 1 du centre le plus proche de la zone 2
-! et affectation des indices aux connectivités de faces
+! et affectation des indices aux connectivites de faces
 do if1 = 1, b1%nface
   mincentre = abs( centre1(if1) - centre2(1) )
   ind_assoc = 1
@@ -67,8 +67,8 @@ endsubroutine calc_connface
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! Juin 2003 (v0.0.1b): création de la procédure
-! Février 2004       : connectivités déterminées par la coincidence des centres
+! Juin 2003 (v0.0.1b): creation de la procedure
+! Fevrier 2004       : connectivites determinees par la coincidence des centres
 !                      de faces
 ! 
 !------------------------------------------------------------------------------!

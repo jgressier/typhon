@@ -2,8 +2,8 @@
 ! Procedure : def_boco                    Auteur : J. Gressier
 !                                         Date   : Mars 2003
 ! Fonction                                Modif  : (cf historique)
-!   Traitement des paramètres du fichier menu principal
-!   Paramètres principaux du projet
+!   Traitement des parametres du fichier menu principal
+!   Parametres principaux du projet
 !
 ! Defauts/Limitations/Divers :
 !
@@ -21,7 +21,7 @@ use USTMESH
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(rpmblock), target :: block
 integer                :: isolver
 integer                :: ncoupling
@@ -36,11 +36,11 @@ type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nboco          ! nombre de conditions aux limites
 integer                  :: ib, nkey, iboco
 integer                  :: izr            ! indice de parcours du tableau de raccords
-character(len=dimrpmlig) :: str            ! chaîne RPM intermédiaire
+character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- Debut de la procedure --
 
-call print_info(5,"- Définition des conditions aux limites")
+call print_info(5,"- Definition des conditions aux limites")
 
 ! -- Recherche du BLOCK:BOCO
 
@@ -48,7 +48,7 @@ pblock => block
 call seekrpmblock(pblock, "BOCO", 0, pcour, nboco)
 
 if (nboco < 1) call erreur("lecture de menu", &
-                           "Pas de définition de conditions aux limites (BOCO)")
+                           "Pas de definition de conditions aux limites (BOCO)")
 
 defsolver%nboco = nboco
 allocate(defsolver%boco(nboco))
@@ -56,12 +56,12 @@ izr = 0 !initialisation
 
 do ib = 1, nboco
 
-  ! -- Initialisation des allocations de tableaux de CL à FALSE
+  ! -- Initialisation des allocations de tableaux de CL a FALSE
   defsolver%boco(ib)%boco_kdif%alloctemp = .false.
   defsolver%boco(ib)%boco_kdif%allocflux = .false.
   defsolver%boco(ib)%boco_kdif%allochconv = .false.
 
-  ! -- Initialisation des noms de fichier de température, flux
+  ! -- Initialisation des noms de fichier de temperature, flux
   defsolver%boco(ib)%boco_kdif%tempfile = cnull
   defsolver%boco(ib)%boco_kdif%fluxfile = cnull
   defsolver%boco(ib)%boco_kdif%hfile = cnull
@@ -69,12 +69,12 @@ do ib = 1, nboco
 
   call seekrpmblock(pblock, "BOCO", ib, pcour, nkey)
 
-  ! -- Détermination du nom de famille
+  ! -- Determination du nom de famille
 
   call rpmgetkeyvalstr(pcour, "FAMILY", str)
   defsolver%boco(ib)%family = str
 
-  ! -- Détermination du type de condition aux limites 
+  ! -- Determination du type de condition aux limites 
 
   call rpmgetkeyvalstr(pcour, "TYPE", str)
 
@@ -90,29 +90,29 @@ do ib = 1, nboco
 
   if (samestring(str, "COUPLING")) then
 
-    ! -- Condition aux limites nécessairement non uniforme 
+    ! -- Condition aux limites necessairement non uniforme 
     defsolver%boco(ib)%boco_unif = nonuniform
 
-    ! -- Allocation mémoire pour les tableaux de conditions limites
+    ! -- Allocation memoire pour les tableaux de conditions limites
     defsolver%boco(ib)%boco_kdif%alloctemp = .true.
     defsolver%boco(ib)%boco_kdif%allocflux = .true.
     defsolver%boco(ib)%boco_kdif%allochconv = .true.
 
-    ! -- Incrémentation : numéro du raccord
+    ! -- Incrementation : numero du raccord
     izr = izr + 1
 
-    ! -- Détermination de la zone connectée par le raccord
+    ! -- Determination de la zone connectee par le raccord
     call rpmgetkeyvalstr(pcour, "CONNZONE", str)
     zcoupling(izr)%connzone = str
     
-    ! -- Détermination du nom de la famille connectée par le raccord
+    ! -- Determination du nom de la famille connectee par le raccord
     call rpmgetkeyvalstr(pcour, "CONNFAM", str)
     zcoupling(izr)%connfam = str
     
     ! -- Nom de la famille du raccord
     zcoupling(izr)%family = defsolver%boco(ib)%family
     
-    ! -- Détermination de la méthode de calcul du raccord
+    ! -- Determination de la methode de calcul du raccord
     call rpmgetkeyvalstr(pcour, "METHOD", str)
   
     if (samestring(str, "FLUX" ))      defsolver%boco(ib)%typ_calc = bc_calc_flux
@@ -121,17 +121,17 @@ do ib = 1, nboco
     
     select case(defsolver%boco(ib)%typ_calc)
   
-    case(bc_calc_flux) ! Méthode du flux spécifique
-      call print_info(10,"    méthode du flux spécifique")
-    case(bc_calc_ghostface) ! Méthode du flux de face
-      call print_info(10,"    méthode du flux de face")
-    case(bc_calc_ghostcell) ! Méthode de la cellule fictive
-      call print_info(10,"    méthode de la cellule fictive")
+    case(bc_calc_flux) ! Methode du flux specifique
+      call print_info(10,"    methode du flux specifique")
+    case(bc_calc_ghostface) ! Methode du flux de face
+      call print_info(10,"    methode du flux de face")
+    case(bc_calc_ghostcell) ! Methode de la cellule fictive
+      call print_info(10,"    methode de la cellule fictive")
     case default
-      call erreur("lecture de menu","méthode de calcul du raccord inconnue") 
+      call erreur("lecture de menu","methode de calcul du raccord inconnue") 
     endselect
 
-    ! -- Correction : répartition
+    ! -- Correction : repartition
     call rpmgetkeyvalstr(pcour, "CORRECTION", str, "AUTO")
 
     if (samestring(str, "AUTO"))          zcoupling(izr)%typ_cor = auto
@@ -149,56 +149,56 @@ do ib = 1, nboco
     case(auto) ! Application de la correction automatique
       call print_info(10,"    Correction automatique")
       zcoupling(izr)%partcor = 1
-    case(avant) ! Application de la correction AVANT l'échange, en 1 fois
+    case(avant) ! Application de la correction AVANT l'echange, en 1 fois
       call print_info(10,"    Correction AVANT")
       zcoupling(izr)%partcor = 1
-    case(apres) ! Application de la correction APRES l'échange, en 1 fois
+    case(apres) ! Application de la correction APRES l'echange, en 1 fois
       call print_info(10,"    Correction APRES")
       zcoupling(izr)%partcor = 1
     case(sans)   ! Pas de correction
       call print_info(10,"    Pas de correction")
       zcoupling(izr)%partcor = 0
-    case(repart_reg) ! répartition régulière de la correction sur le nombre
-                     ! d'itérations nécessaires
-      call print_info(10,"    Correction régulièrement répartie sur plusieurs itérations")
+    case(repart_reg) ! repartition reguliere de la correction sur le nombre
+                     ! d'iterations necessaires
+      call print_info(10,"    Correction regulierement repartie sur plusieurs iterations")
       call rpmgetkeyvalreal(pcour, "ITER_PART", zcoupling(izr)%partcor)
-    case(repart_geo) ! répartition géométrique de la correction 
-      call print_info(10,"    Correction répartie selon une variation géométrique")
+    case(repart_geo) ! repartition geometrique de la correction 
+      call print_info(10,"    Correction repartie selon une variation geometrique")
       call rpmgetkeyvalreal(pcour, "ITER_PART", zcoupling(izr)%partcor)
     case(partiel) ! correction partielle sur un cycle
       call print_info(10,"    Correction partielle")
       call rpmgetkeyvalreal(pcour, "ITER_PART", zcoupling(izr)%partcor)
     case(bocoT)   ! Correction sur la condition aux limites
-      call print_info(10,"    Correction appliquée sur la condition limite d'interface")
+      call print_info(10,"    Correction appliquee sur la condition limite d'interface")
       zcoupling(izr)%partcor = 1
     case(bocoT2)   ! Correction sur la condition aux limites
-      call print_info(10,"    Correction appliquée sur la condition limite d'interface")
+      call print_info(10,"    Correction appliquee sur la condition limite d'interface")
       zcoupling(izr)%partcor = 1
 
     case default
       call erreur("lecture de menu","type de correction inconnu") 
     endselect
 
-  ! -- Traitement des conditions aux limites non attachées à un couplage
+  ! -- Traitement des conditions aux limites non attachees a un couplage
   else 
     
-    ! -- Détermination de l'uniformité de la CL (par défaut : uniforme)
+    ! -- Determination de l'uniformite de la CL (par defaut : uniforme)
     call rpmgetkeyvalstr(pcour, "UNIFORMITY", str, "UNIFORM")
     defsolver%boco(ib)%boco_unif = inull
     if (samestring(str, "UNIFORM" )) defsolver%boco(ib)%boco_unif = uniform
     if (samestring(str, "NON_UNIFORM" )) defsolver%boco(ib)%boco_unif = nonuniform
     if (defsolver%boco(ib)%boco_unif == inull) &
-    call erreur("lecture de menu (def_boco)","Uniformité de la CL mal définie")
+    call erreur("lecture de menu (def_boco)","Uniformite de la CL mal definie")
 
     ! Traitement des conditions aux limites communes aux solveurs
 
     select case(defsolver%boco(ib)%typ_boco)
 
     case(bc_geo_sym) 
-      !call erreur("Développement","'bc_geo_sym' : Cas non implémenté")
+      !call erreur("Developpement","'bc_geo_sym' : Cas non implemente")
     
     case(bc_geo_period)
-      call erreur("Développement","'bc_geo_period' : Cas non implémenté")
+      call erreur("Developpement","'bc_geo_period' : Cas non implemente")
     
     case(bc_geo_extrapol)
       call rpmgetkeyvalstr(pcour, "ORDER", str, "QUANTITY")
@@ -222,12 +222,12 @@ do ib = 1, nboco
                            defsolver%boco(ib)%boco_vortex, &
                            defsolver%boco(ib)%boco_unif)
        case default
-         call erreur("incohérence interne (def_boco)","solveur inconnu")
+         call erreur("incoherence interne (def_boco)","solveur inconnu")
       endselect
 
     endselect
 
-    ! Initialisation de l'implémentation de la condition aux limites
+    ! Initialisation de l'implementation de la condition aux limites
     defsolver%boco(ib)%typ_calc = bctype_of_boco(isolver, defsolver%boco(ib)%typ_boco)
   endif
 
@@ -239,7 +239,7 @@ endsubroutine def_boco
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mars 2003 : création de la routine
+! mars 2003 : creation de la routine
 ! fev  2004 : ajout des CL propres au solveur VORTEX (cf MENU_VORTEX)
 !------------------------------------------------------------------------------!
 

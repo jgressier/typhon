@@ -1,47 +1,47 @@
 !------------------------------------------------------------------------------!
 ! Procedure : reorder_ustconnect.f90      Auteur : J. Gressier
-!                                         Date   : Février 2003
+!                                         Date   : Fevrier 2003
 ! Fonction                                Modif  :
-!   Renumérotation des faces (faces internes puis faces limites)
-!     et des connectivités associées
+!   Renumerotation des faces (faces internes puis faces limites)
+!     et des connectivites associees
 !
 ! Defauts/Limitations/Divers :
-!   choix des actions à effectuer par (iaction)
-!     O: action sur les connectivités, pas le maillage
-!     1: action sur connectivités et maillage
+!   choix des actions a effectuer par (iaction)
+!     O: action sur les connectivites, pas le maillage
+!     1: action sur connectivites et maillage
 !
 !------------------------------------------------------------------------------!
 subroutine reorder_ustconnect(iaction, mesh) 
 
-use USTMESH       ! Définition des structures maillage non structuré
+use USTMESH       ! Definition des structures maillage non structure
 
 implicit none 
 
-! -- Entrées --
+! -- Entrees --
 integer             :: iaction
 
-! -- Entrées/Sorties --
-type(st_ustmesh)    :: mesh            ! maillage non structuré et connectivité
+! -- Entrees/Sorties --
+type(st_ustmesh)    :: mesh            ! maillage non structure et connectivite
 
 ! -- Variables internes --
-type(st_connect) :: f_vtex, f_cell  ! conn. Typhon intermédiaire : face -> sommets
+type(st_connect) :: f_vtex, f_cell  ! conn. Typhon intermediaire : face -> sommets
 integer, dimension(:), allocatable &
-                    :: trans_index     ! nouvelle renumérotation
+                    :: trans_index     ! nouvelle renumerotation
 integer             :: nface_int       ! nombre de faces internes
 integer             :: nface_lim       ! nombre de faces limites
 integer             :: ntotface        ! nombre total de faces
 integer             :: if, oldf, newf
 
-! -- Début de procédure
+! -- Debut de procedure
 
 if (iaction /= 0) then
-  call erreur("Développement","cas inattendu dans 'reorder_ustconnect'")
+  call erreur("Developpement","cas inattendu dans 'reorder_ustconnect'")
 endif
 
 ntotface = mesh%facecell%nbnodes
 allocate(trans_index(ntotface))
 
-! -- renumérotation des faces (faces limites en dernier) --
+! -- renumerotation des faces (faces limites en dernier) --
 
 nface_int = 0
 nface_lim = 0
@@ -57,7 +57,7 @@ do if = 1, ntotface
   endif
 enddo
 
-! copie des connectivités
+! copie des connectivites
 f_vtex = copy(mesh%facevtex)
 f_cell = copy(mesh%facecell)
 !print*,"!! DEBUG    f_vtex :",transpose(f_vtex%fils(:,:))
@@ -90,7 +90,7 @@ endsubroutine reorder_ustconnect
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! fev 2003 (v0.0.1b): création de la procédure
+! fev 2003 (v0.0.1b): creation de la procedure
 !------------------------------------------------------------------------------!
 
 

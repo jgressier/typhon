@@ -2,7 +2,7 @@
 ! MODULE : CONNECTIVITY                   Auteur : J. Gressier
 !                                         Date   : Juillet 2003
 ! Fonction                                Modif  : (cf historique)
-!   Bibliotheque de procedures et fonctions pour la gestion de connectivités
+!   Bibliotheque de procedures et fonctions pour la gestion de connectivites
 !
 ! Defauts/Limitations/Divers :
 !
@@ -21,31 +21,31 @@ implicit none
 
 
 !------------------------------------------------------------------------------!
-! structure ST_ELEMC : Définition d'un élément de connectivité 
+! structure ST_ELEMC : Definition d'un element de connectivite 
 !------------------------------------------------------------------------------!
 type st_elemc
-  integer                 :: nbfils      ! nombre de connectivités
+  integer                 :: nbfils      ! nombre de connectivites
   integer, dimension(:), pointer &
-                          :: fils        ! définition de la connectivité
+                          :: fils        ! definition de la connectivite
 endtype st_elemc
 
 
 !------------------------------------------------------------------------------!
-! structure ST_CONNECT : Définition de connectivité à nombre de fils constants
+! structure ST_CONNECT : Definition de connectivite a nombre de fils constants
 !------------------------------------------------------------------------------!
 type st_connect
-  integer                 :: nbnodes     ! nombre de d'ensemble connectivités
-  integer                 :: nbfils      ! nombre de connectivités par ensemble
+  integer                 :: nbnodes     ! nombre de d'ensemble connectivites
+  integer                 :: nbfils      ! nombre de connectivites par ensemble
   integer, dimension(:,:), pointer &
-                          :: fils        ! définition de la connectivité
+                          :: fils        ! definition de la connectivite
 endtype st_connect
 
 
 !------------------------------------------------------------------------------!
-! structure ST_GENCONNECT : Définition de connectivité à nombre de fils variables
+! structure ST_GENCONNECT : Definition de connectivite a nombre de fils variables
 !------------------------------------------------------------------------------!
 type st_genconnect
-  integer                 :: nbnodes     ! nombre de d'ensemble connectivités
+  integer                 :: nbnodes     ! nombre de d'ensemble connectivites
   type(st_elemc), dimension(:), pointer &
                           :: noeud       ! nombre de fils pour chaque noeud
 endtype st_genconnect
@@ -85,7 +85,7 @@ contains
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation d'une structure ELEMC
+! Procedure : allocation d'une structure ELEMC
 !------------------------------------------------------------------------------!
 subroutine new_elemc(conn, dim)
 implicit none
@@ -99,7 +99,7 @@ endsubroutine new_elemc
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation d'une structure CONNECT
+! Procedure : allocation d'une structure CONNECT
 !------------------------------------------------------------------------------!
 subroutine new_connect(conn, nbnodes, nbfils)
 implicit none
@@ -114,7 +114,7 @@ endsubroutine new_connect
 
 
 !------------------------------------------------------------------------------!
-! Procédure : reallocation d'une structure CONNECT
+! Procedure : reallocation d'une structure CONNECT
 !------------------------------------------------------------------------------!
 subroutine realloc_connect(conn, nbnodes, nbfils)
 implicit none
@@ -126,18 +126,18 @@ integer             :: min_nbnodes, min_nbfils   ! ancienne taille
   prov = copy(conn)
   conn%nbnodes = nbnodes                   ! affectation des nouvelles tailles
   conn%nbfils  = nbfils 
-  deallocate(conn%fils)                    ! désallocation de l'ancien tableau     
+  deallocate(conn%fils)                    ! desallocation de l'ancien tableau     
   allocate(conn%fils(nbnodes, nbfils))     ! allocation du nouveau tableau
   conn%fils(1:nbnodes, 1:nbfils) = 0       ! initialisation
   min_nbnodes = min(nbnodes, prov%nbnodes)
-  min_nbfils  = min(nbfils,  prov%nbfils)  ! copie des connectivités
+  min_nbfils  = min(nbfils,  prov%nbfils)  ! copie des connectivites
   conn%fils(1:min_nbnodes, 1:min_nbfils) = prov%fils(1:min_nbnodes, 1:min_nbfils) 
 
 endsubroutine realloc_connect
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation d'une structure CONNECT par copie
+! Procedure : allocation d'une structure CONNECT par copie
 !------------------------------------------------------------------------------!
 function copy_connect(source)
 implicit none
@@ -152,7 +152,7 @@ endfunction copy_connect
 
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure ELEMC
+! Procedure : desallocation d'une structure ELEMC
 !------------------------------------------------------------------------------!
 subroutine delete_elemc(conn)
 implicit none
@@ -165,7 +165,7 @@ endsubroutine delete_elemc
 
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure CONNECT
+! Procedure : desallocation d'une structure CONNECT
 !------------------------------------------------------------------------------!
 subroutine delete_connect(conn)
 implicit none
@@ -178,7 +178,7 @@ endsubroutine delete_connect
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation d'une structure GENCONNECT sans nombre de fils
+! Procedure : allocation d'une structure GENCONNECT sans nombre de fils
 !------------------------------------------------------------------------------!
 subroutine new_genconnect(conn, nbnodes)
   implicit none
@@ -196,7 +196,7 @@ endsubroutine new_genconnect
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation d'une structure GENCONNECT avec nombre de fils
+! Procedure : allocation d'une structure GENCONNECT avec nombre de fils
 !------------------------------------------------------------------------------!
 subroutine new_genconnect2(conn, nbnodes, nbfils)
   implicit none
@@ -215,7 +215,7 @@ endsubroutine new_genconnect2
 
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure GENCONNECT
+! Procedure : desallocation d'une structure GENCONNECT
 !------------------------------------------------------------------------------!
 subroutine delete_genconnect(conn)
   implicit none
@@ -237,13 +237,13 @@ endsubroutine delete_genconnect
 !------------------------------------------------------------------------------!
 integer function index_int(int, tab)
   implicit none
-  integer :: int      ! entier à rechercher
+  integer :: int      ! entier a rechercher
   integer :: tab(:)   ! liste d'entier pour la recherche
 
   integer :: i, dim
 
   dim       = size(tab) 
-  index_int = 0          ! valeur par défaut si index introuvable
+  index_int = 0          ! valeur par defaut si index introuvable
 
   do i = 1, dim
     if (tab(i)==int) then
@@ -261,7 +261,7 @@ endmodule CONNECTIVITY
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juil 2003 : création du module, connectivité simple et généralisée
+! juil 2003 : creation du module, connectivite simple et generalisee
 ! juin 2004 : new et delete pour st_elemc
 !------------------------------------------------------------------------------!
 

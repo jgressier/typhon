@@ -17,9 +17,9 @@ use STRMESH
 
 implicit none
 
-! -- Declaration des entrées --
-type(mnu_solver) :: typ_solver       ! type d'équation à résoudre
-type(st_block)   :: domaine          ! domaine structuré à intégrer
+! -- Declaration des entrees --
+type(mnu_solver) :: typ_solver       ! type d'equation a resoudre
+type(st_block)   :: domaine          ! domaine structure a integrer
 
 ! -- Declaration des sorties --
 ! domaine

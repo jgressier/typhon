@@ -21,11 +21,11 @@ use MATER_LOI
 
 implicit none
 
-! -- Declaration des entrées --
-type(mnu_time)    :: deftime       ! paramètres pour le calcul du pas de temps
-type(st_materiau) :: mat           ! données du matériau
-type(st_ustmesh)  :: umesh         ! données géométriques
-type(st_field)    :: field         ! données champs
+! -- Declaration des entrees --
+type(mnu_time)    :: deftime       ! parametres pour le calcul du pas de temps
+type(st_materiau) :: mat           ! donnees du materiau
+type(st_ustmesh)  :: umesh         ! donnees geometriques
+type(st_field)    :: field         ! donnees champs
 integer           :: ncell         ! nombre de cellules internes (taille de dtloc)
 
 ! -- Declaration des sorties --
@@ -69,7 +69,7 @@ do ic = 1, ncell
   dtloc(ic) =  2._krp * deftime%stabnb * umesh%mesh%volume(ic,1,1)**2 / dtloc(ic)
 enddo
 
-! -- Calcul des coefficients spécifiques du matériau --
+! -- Calcul des coefficients specifiques du materiau --
 
 select case(mat%type)
 case(mat_LIN)
@@ -80,16 +80,16 @@ case(mat_KNL)
     dtloc(ic) = dtloc(ic) * mat%Cp / valeur_loi(mat%Kd, tc)
   enddo
 case(mat_XMAT)
-  call erreur("Calcul de matériau","Materiau non linéaire interdit")
+  call erreur("Calcul de materiau","Materiau non lineaire interdit")
 endselect
 
-! dans le cas de pas de temps global, le pas de temps minimum est calculé et imposé
+! dans le cas de pas de temps global, le pas de temps minimum est calcule et impose
 ! dans la routine appelante
 
 endsubroutine calc_kdif_timestep
 
 !------------------------------------------------------------------------------!
 ! Historique des modifications
-!   sept 2003 : création, calcul par nombre de Fourier, formule générale 3D
+!   sept 2003 : creation, calcul par nombre de Fourier, formule generale 3D
 !------------------------------------------------------------------------------!
 

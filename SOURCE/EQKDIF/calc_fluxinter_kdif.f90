@@ -2,8 +2,8 @@
 ! Procedure : calc_fluxinter_kdif         Auteur : E. Radenac
 !                                         Date   : Avril 2003
 ! Fonction                                Modif  : Juin 2003
-!   Calcul du flux de conduction de la chaleur à l'interface entre deux cellules
-!   appartenant à deux zones différentes
+!   Calcul du flux de conduction de la chaleur a l'interface entre deux cellules
+!   appartenant a deux zones differentes
 !
 ! Defauts/Limitations/Divers :
 !
@@ -20,18 +20,18 @@ use VARCOM
 
 implicit none
 
-! -- Declaration des entrées --
-real(krp)             :: temp1, temp2   ! températures échangées
-type(v3d)             :: gradtemp1, gradtemp2 ! gradients de température échangés
-real(krp)	      :: conduct1, conduct2  ! conductivités échangées
+! -- Declaration des entrees --
+real(krp)             :: temp1, temp2   ! temperatures echangees
+type(v3d)             :: gradtemp1, gradtemp2 ! gradients de temperature echanges
+real(krp)	      :: conduct1, conduct2  ! conductivites echangees
 real(krp)	      :: d1, d2  ! distance entre les centres des cellules et l'interface
 type(v3d)             :: vecinter ! vecteur unitaire "intercellules"	
-type(v3d)             :: flux1, flux2 ! densités de flux échangées                         
-type(v3d)             :: normale ! normales à l'interface
+type(v3d)             :: flux1, flux2 ! densites de flux echangees                         
+type(v3d)             :: normale ! normales a l'interface
 integer               :: typecalcul
 integer               :: typemethode
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 real(krp) :: flux_inter
 
 ! -- Declaration des variables internes --
@@ -51,7 +51,7 @@ case(bc_calc_ghostcell)
 !  			  conduct2, d1, d2, vecinter, normale, &
 !  			  flux_interface, typecalcul)
 case default
-  call erreur("Lecture de menu raccord","méthode de calcul de raccord non reconnue")
+  call erreur("Lecture de menu raccord","methode de calcul de raccord non reconnue")
 
 endselect
 

@@ -2,7 +2,7 @@
 ! Procedure : init_connect                Auteur : J. Gressier
 !                                         Date   : Mars 2003
 ! Fonction                                Modif  : (cf historique)
-!   Initialisation des connectivités des conditions limites
+!   Initialisation des connectivites des conditions limites
 !
 ! Defauts/Limitations/Divers :
 !
@@ -17,9 +17,9 @@ use DEFZONE
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 type(st_zone) :: zone
 
 ! -- Declaration des sorties --
@@ -52,6 +52,6 @@ endsubroutine init_connect
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mars 2003 : création de la procédure
+! mars 2003 : creation de la procedure
 ! mars 2004 : ajout du traitement GRID (solveur VORTEX)
 !------------------------------------------------------------------------------!

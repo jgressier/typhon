@@ -2,8 +2,8 @@
 ! Procedure : calcboco_ust                Auteur : J. Gressier
 !                                         Date   : Avril 2003
 ! Fonction                                Modif  : (cf Historique)
-!   Calcul des conditions aux limites pour maillage non structuré
-!   Aiguillage des appels selon le type (général ou par solveur)
+!   Calcul des conditions aux limites pour maillage non structure
+!   Aiguillage des appels selon le type (general ou par solveur)
 !
 ! Defauts/Limitations/Divers :
 !
@@ -21,16 +21,16 @@ use DEFZONE
 
 implicit none
 
-! -- Declaration des entrées --
-type(mnu_solver)       :: defsolver        ! type d'équation à résoudre
+! -- Declaration des entrees --
+type(mnu_solver)       :: defsolver        ! type d'equation a resoudre
 
-! -- Declaration des entrée/sorties --
-type(st_grid)          :: grid             ! maillage en entrée, champ en sortie
+! -- Declaration des entree/sorties --
+type(st_grid)          :: grid             ! maillage en entree, champ en sortie
 
 ! -- Declaration des variables internes --
 integer :: ib, ir                    ! index de conditions aux limites et de couplage
 integer :: idef                      ! index de definitions des conditions aux limites
-integer :: nrac                      ! numéro de raccord
+integer :: nrac                      ! numero de raccord
 
 ! -- Debut de la procedure --
 
@@ -44,17 +44,17 @@ do ib = 1, grid%umesh%nboco
 
   case(bc_geo_sym)
     call calcboco_ust_sym(defsolver%boco(idef), grid%umesh%boco(ib), grid%umesh, grid%field_loc)
-    !call erreur("Développement","'bc_geo_sym' : Cas non implémenté")
+    !call erreur("Developpement","'bc_geo_sym' : Cas non implemente")
     
   case(bc_geo_period)
-    call erreur("Développement","'bc_geo_period' : Cas non implémenté")
+    call erreur("Developpement","'bc_geo_period' : Cas non implemente")
     
   case(bc_geo_extrapol)
     call calcboco_ust_extrapol(defsolver%boco(idef), grid%umesh%boco(ib), grid%umesh, grid%field_loc)
 
-! PROVISOIRE : à retirer
+! PROVISOIRE : a retirer
   case(bc_connection)
-    call erreur("Développement","'bc_connection' : Cas non implémenté")
+    call erreur("Developpement","'bc_connection' : Cas non implemente")
 
   case default 
 
@@ -64,9 +64,9 @@ do ib = 1, grid%umesh%nboco
       case(solKDIF)
         call calcboco_kdif(defsolver, defsolver%boco(idef), grid%umesh%boco(ib), grid)
       case(solVORTEX)
-        ! rien à faire
+        ! rien a faire
       case default
-         call erreur("incohérence interne (def_boco)","solveur inconnu")
+         call erreur("incoherence interne (def_boco)","solveur inconnu")
     endselect
 
   endselect
@@ -79,7 +79,7 @@ endsubroutine calcboco_ust
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! avril 2003 : création de la procédure
+! avril 2003 : creation de la procedure
 ! july  2004 : simplification of call tree (uniform or not boundary conditions)
 ! oct   2004 : field chained list
 !------------------------------------------------------------------------------!

@@ -2,7 +2,7 @@
 ! Procedure : extract_pts_index           Auteur : J. Gressier
 !                                         Date   : Juin 2003
 ! Fonction                                Modif  :
-!   Création d'une liste d'index des points présents dans une famille BOCO
+!   Creation d'une liste d'index des points presents dans une famille BOCO
 !
 ! Defauts/Limitations/Divers :
 !
@@ -16,15 +16,15 @@ use USTMESH
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(st_ustmesh) :: umesh
-type(st_ustboco) :: boco      ! condition aux limite et liste des faces concernées
+type(st_ustboco) :: boco      ! condition aux limite et liste des faces concernees
 
-! -- Declaration des entrées/sorties --
+! -- Declaration des entrees/sorties --
 
 ! -- Declaration des sorties --
 integer                           :: npts      ! nombre de points inclus dans la famille
-integer, dimension(1:umesh%nvtex) :: liste     ! liste des index des points renumérotés
+integer, dimension(1:umesh%nvtex) :: liste     ! liste des index des points renumerotes
 
 ! -- Declaration des variables internes --
 integer :: if, iface, iv, ivtex
@@ -39,10 +39,10 @@ do if = 1, boco%nface
   iface = boco%iface(if)
   do iv = 1, umesh%facevtex%nbfils
     ivtex = umesh%facevtex%fils(iface,iv)
-    if (ivtex /= 0) then            ! si le sommet de la face est défini
-      if (liste(ivtex) == 0) then   ! si le sommet n'a pas été ajouté dans la liste
-        npts = npts + 1               ! on ajoute le sommet à la liste
-        liste(ivtex) = npts           ! et on le renumérote (dans l'ordre d'apparition)
+    if (ivtex /= 0) then            ! si le sommet de la face est defini
+      if (liste(ivtex) == 0) then   ! si le sommet n'a pas ete ajoute dans la liste
+        npts = npts + 1               ! on ajoute le sommet a la liste
+        liste(ivtex) = npts           ! et on le renumerote (dans l'ordre d'apparition)
       endif
     endif
   enddo
@@ -54,6 +54,6 @@ endsubroutine extract_pts_index
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! Juin 2003 (v0.0.1b): création de la procédure
+! Juin 2003 (v0.0.1b): creation de la procedure
 ! 
 !------------------------------------------------------------------------------!

@@ -19,7 +19,7 @@ use MATER_LOI
 
 implicit none
 
-! -- Declaration des entrées --
+! -- Declaration des entrees --
 type(st_zone)    :: zone1, zone2
 integer          :: nbc1, nbc2
 integer          :: nfacelim
@@ -43,7 +43,7 @@ type(v3d)                       :: vecinter
 
 do i=1, nfacelim    
   
-  ! indices des faces concernées
+  ! indices des faces concernees
   if1 = zone1%grid%umesh%boco(nbc1)%iface(i)
   if2 = zone2%grid%umesh%boco(nbc2)%iface(i)
    
@@ -61,7 +61,7 @@ do i=1, nfacelim
   d1(i) = (cgface-cg1).scal.vecinter
   d2(i) = (cg2-cgface).scal.vecinter
 
-  ! Températures
+  ! Temperatures
 
   temp1(i) = zone1%grid%field_loc%etatprim%tabscal(1)%scal(ic1)
   temp2(i) = zone2%grid%field_loc%etatprim%tabscal(1)%scal(ic2)
@@ -69,7 +69,7 @@ do i=1, nfacelim
   
 enddo 
 
-! Conductivités :
+! Conductivites :
 
 !--DVT--------------------------------------------------------------
 do i=1, nfacelim
@@ -77,14 +77,14 @@ do i=1, nfacelim
   case(mat_LIN, mat_KNL)
     conduct1(i) = valeur_loi(zone1%defsolver%defkdif%materiau%Kd, temp1(i))
   case(mat_XMAT)
-    call erreur("Calcul de matériau","Materiau non linéaire interdit")
+    call erreur("Calcul de materiau","Materiau non lineaire interdit")
   endselect
 
   select case(zone2%defsolver%defkdif%materiau%type)
   case(mat_LIN, mat_KNL)
     conduct2(i) = valeur_loi(zone2%defsolver%defkdif%materiau%Kd, temp2(i))
   case(mat_XMAT)
-    call erreur("Calcul de matériau","Materiau non linéaire interdit")
+    call erreur("Calcul de materiau","Materiau non lineaire interdit")
   endselect 
 enddo
 !-------------------------------------------------------------------
@@ -93,14 +93,14 @@ enddo
 !case(mat_LIN)
 !  conduct1(:) = zone1%defsolver%defkdif%materiau%Kd%valeur
 !case(mat_KNL, mat_XMAT)
-!  call erreur("Calcul de matériau","Materiau non linéaire interdit")
+!  call erreur("Calcul de materiau","Materiau non lineaire interdit")
 !endselect
 !
 !select case(zone2%defsolver%defkdif%materiau%type)
 !case(mat_LIN)
 !  conduct2(:) = zone2%defsolver%defkdif%materiau%Kd%valeur
 !case(mat_KNL, mat_XMAT)
-!  call erreur("Calcul de matériau","Materiau non linéaire interdit")
+!  call erreur("Calcul de materiau","Materiau non lineaire interdit")
 !endselect
 
 ! Flux :
@@ -143,7 +143,7 @@ endsubroutine comp_flux
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juin 2003 (v0.0.1b): création de la procédure
-! juillet 2003       : conductivité non constante
+! juin 2003 (v0.0.1b): creation de la procedure
+! juillet 2003       : conductivite non constante
 ! oct  2004          : field chained list
 !------------------------------------------------------------------------------!

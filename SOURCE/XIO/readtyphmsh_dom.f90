@@ -15,20 +15,20 @@ use OUTPUT        ! Sorties standard TYPHON
 
 implicit none 
 
-! -- Entrées --
-integer      :: unit       ! numéro d'unité pour la lecture
-character    :: typ_geo    ! type de géométrie
+! -- Entrees --
+integer      :: unit       ! numero d'unite pour la lecture
+character    :: typ_geo    ! type de geometrie
 
 ! -- Sorties --
-type(st_ustmesh) :: umesh      ! structure maillage non structuré
+type(st_ustmesh) :: umesh      ! structure maillage non structure
 
 ! -- Variables internes --
 integer               :: ier             ! code d'erreur
 integer               :: i               ! indice courant
-character(len=60)     :: typ_dom, str    ! chaînes
-character(len=strlen) :: nom             ! chaînes
+character(len=60)     :: typ_dom, str    ! chaines
+character(len=strlen) :: nom             ! chaines
 
-! -- Début de procédure
+! -- Debut de procedure
    
 
 ! -- type de domaine --
@@ -44,8 +44,8 @@ if (samestring(typ_dom,"CLOSEDCRV")) then
   read(unit,*) nom            ! nom du domaine
   read(unit,*) umesh%nface    ! nombre de faces 
 
-  ! dans ce type de maillage, les éléments sont directements les faces
-  ! et on établit une connectivité entres faces (cellface)
+  ! dans ce type de maillage, les elements sont directements les faces
+  ! et on etablit une connectivite entres faces (cellface)
 
   umesh%ncell = 0              ! pas de cellule dans le maillage
   umesh%nvtex = umesh%nface+1  ! pas de cellule dans le maillage
@@ -61,21 +61,21 @@ if (samestring(typ_dom,"CLOSEDCRV")) then
     umesh%mesh%vertex%z = 0._krp
   enddo
 
-  ! connectivité face->vtex
+  ! connectivite face->vtex
   call new(umesh%facevtex, umesh%nface, 2)
   do i = 1, umesh%nface
     umesh%facevtex%fils(i,1) = i
     umesh%facevtex%fils(i,2) = i+1
   enddo
   
-  ! connectivité face->cell (connectivité des faces, deux à deux)
+  ! connectivite face->cell (connectivite des faces, deux a deux)
   call new(umesh%facecell, umesh%nface, 2)
   do i = 2, umesh%nvtex-1   ! boucle sur les sommets "internes"
     umesh%facecell%fils(i-1,2) = i
     umesh%facecell%fils(i,  1) = i
   enddo
-  ! connectivité particulière de la première et la dernière face
-  umesh%facecell%fils(1,1) = umesh%facecell%fils(1,2)  ! échange
+  ! connectivite particuliere de la premiere et la derniere face
+  umesh%facecell%fils(1,1) = umesh%facecell%fils(1,2)  ! echange
   umesh%facecell%fils(1,2)           = 0               ! cellule limite
   umesh%facecell%fils(umesh%nface,2) = 0               ! cellule limite
 
@@ -84,9 +84,9 @@ if (samestring(typ_dom,"CLOSEDCRV")) then
   umesh%ncell_int = 0
   umesh%ncell_lim = 0
 
-  ! -- Définition des listes de conditions limites --
+  ! -- Definition des listes de conditions limites --
 
-  call print_info(10,"| Création des familles de conditions limites")
+  call print_info(10,"| Creation des familles de conditions limites")
 
   call createboco(umesh, 2)
 
@@ -115,5 +115,5 @@ endsubroutine readtyphmsh_dom
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! fev  2004 : création de la procédure
+! fev  2004 : creation de la procedure
 !------------------------------------------------------------------------------!

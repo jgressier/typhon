@@ -20,11 +20,11 @@ use EQNS
 
 implicit none
 
-! -- Declaration des entrées --
-type(mnu_time)    :: deftime       ! paramètres pour le calcul du pas de temps
-type(st_espece)   :: fluid         ! données du fluide
-type(st_ustmesh)  :: umesh         ! données géométriques
-type(st_field)    :: field         ! données champs
+! -- Declaration des entrees --
+type(mnu_time)    :: deftime       ! parametres pour le calcul du pas de temps
+type(st_espece)   :: fluid         ! donnees du fluide
+type(st_ustmesh)  :: umesh         ! donnees geometriques
+type(st_field)    :: field         ! donnees champs
 integer           :: ncell         ! nombre de cellules internes (taille de dtloc)
 
 ! -- Declaration des sorties --
@@ -76,7 +76,7 @@ do ic = 1, ncell
   dtloc(ic) = dtloc(ic) / (sqrt(rv2)*irho+sqrt(a2))
 enddo
 
-! dans le cas de pas de temps global, le pas de temps minimum est calculé et imposé
+! dans le cas de pas de temps global, le pas de temps minimum est calcule et impose
 ! dans la routine appelante
 
 endsubroutine calc_ns_timestep
@@ -84,6 +84,6 @@ endsubroutine calc_ns_timestep
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 
-! July 2004 : création, calcul par CFL
+! July 2004 : creation, calcul par CFL
 !------------------------------------------------------------------------------!
 

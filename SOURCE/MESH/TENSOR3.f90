@@ -2,7 +2,7 @@
 ! MODULE : TENSOR3                          Auteur : J. Gressier
 !                                         Date   : Mai 2002
 ! Fonction                                Modif  :
-!   Bibliotheque de procedures et fonctions pour le calcul géométrique 3D
+!   Bibliotheque de procedures et fonctions pour le calcul geometrique 3D
 !
 ! Defauts/Limitations/Divers :
 !
@@ -68,7 +68,7 @@ endtype
 !endfunction v3d_addition
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul différence de vecteur
+! Fonction : calcul difference de vecteur
 !------------------------------------------------------------------------------!
 !type(v3d) function v3d_substraction(v1, v2)
 !implicit none
@@ -81,7 +81,7 @@ endtype
 !endfunction v3d_substraction
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul de l'opposé d'un vecteur
+! Fonction : calcul de l'oppose d'un vecteur
 !------------------------------------------------------------------------------!
 !type(v3d) function v3d_opp(v)
 !implicit none
@@ -94,7 +94,7 @@ endtype
 !endfunction v3d_opp
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul de multiplication de vecteur par réel
+! Fonction : calcul de multiplication de vecteur par reel
 !------------------------------------------------------------------------------!
 !type(v3d) function v3d_multiply(x, v)
 !implicit none
@@ -108,7 +108,7 @@ endtype
 !endfunction v3d_multiply
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul de division de vecteur par réel
+! Fonction : calcul de division de vecteur par reel
 !------------------------------------------------------------------------------!
 !type(v3d) function v3d_division(v,x)
 !implicit none

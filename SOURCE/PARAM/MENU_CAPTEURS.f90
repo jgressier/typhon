@@ -2,8 +2,8 @@
 ! MODULE : MENU_CAPTEURS                  Auteur : J. Gressier
 !                                         Date   : Juillet 2003
 ! Fonction                                Modif  : (cf Historique)
-!   Définition des structures pour les entrées du programme TYPHON
-!   Structures pour la définition des capteurs
+!   Definition des structures pour les entrees du programme TYPHON
+!   Structures pour la definition des capteurs
 !
 ! Defauts/Limitations/Divers :
 !
@@ -11,40 +11,40 @@
 module MENU_CAPTEURS
 
 use TYPHMAKE   ! Definition de la precision
-use GEO3D      ! Définition des vecteurs 3D
+use GEO3D      ! Definition des vecteurs 3D
 
 implicit none
 
 ! -- Variables globales du module -------------------------------------------
 
 ! -- type de capteur --
-character, parameter :: probe         = 'P'    ! calcul ponctuel d'une quantité
+character, parameter :: probe         = 'P'    ! calcul ponctuel d'une quantite
 character, parameter :: boco_field    = 'F'    ! restitution d'un champ sur boco
-character, parameter :: boco_integral = 'I'    ! intégrale   d'un champ sur boco
-character, parameter :: residuals     = 'R'    ! calcul de résidu moyen
+character, parameter :: boco_integral = 'I'    ! integrale   d'un champ sur boco
+character, parameter :: residuals     = 'R'    ! calcul de residu moyen
 
 ! -- type de stockage --
-character, parameter :: no_store   = 'X'       ! stockage momentanné de l'itération uniquement
-character, parameter :: prb_cycle  = 'C'       ! à chaque cycle
-character, parameter :: prb_iter   = 'I'       ! pour chaque itération interne de zone
+character, parameter :: no_store   = 'X'       ! stockage momentanne de l'iteration uniquement
+character, parameter :: prb_cycle  = 'C'       ! a chaque cycle
+character, parameter :: prb_iter   = 'I'       ! pour chaque iteration interne de zone
 
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! structure MNU_CAPTEUR : options numériques les capteurs
+! structure MNU_CAPTEUR : options numeriques les capteurs
 !------------------------------------------------------------------------------!
 type mnu_capteur
   character             :: type        ! type de capteur
   character             :: store       ! type de stockage
-  logical               :: write       ! ecriture des données
+  logical               :: write       ! ecriture des donnees
   character(len=strlen) :: name        ! 
-  character(len=strlen) :: boco_name   ! famille associée (si nécessaire)
-                                       !   DEV: on peut extrapoler à plusieurs familles
+  character(len=strlen) :: boco_name   ! famille associee (si necessaire)
+                                       !   DEV: on peut extrapoler a plusieurs familles
                                        !        ou proposer la fusion de condition limite dans MESH
   integer               :: boco_index  ! index de condition limite
-  integer               :: quantity    ! quantité à calculer (selon solveur)
-  type(v3d)             :: center, dir ! vecteurs centre et direction (si nécessaire)
+  integer               :: quantity    ! quantite a calculer (selon solveur)
+  type(v3d)             :: center, dir ! vecteurs centre et direction (si necessaire)
 endtype mnu_capteur
 
 
@@ -61,13 +61,13 @@ endinterface
 contains
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure MNU_CAPTEUR
+! Procedure : desallocation d'une structure MNU_CAPTEUR
 !------------------------------------------------------------------------------!
 subroutine delete_mnu_capteur(defcapteur)
 implicit none
 type(mnu_capteur)  :: defcapteur
 
-  !print*,'!! DEBUG destruction de structure "paramètres" à compléter'
+  !print*,'!! DEBUG destruction de structure "parametres" a completer'
 
 endsubroutine delete_mnu_capteur
 
@@ -79,9 +79,9 @@ endmodule MENU_CAPTEURS
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juil 2003 : création du module
+! juil 2003 : creation du module
 !
-! améliorations futures : capteurs sur plusieurs familles simultanément
+! ameliorations futures : capteurs sur plusieurs familles simultanement
 !------------------------------------------------------------------------------!
 
 

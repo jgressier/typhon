@@ -3,7 +3,7 @@
 !                                         Date   : Octobre 2002
 ! Fonction                                Modif  :
 !   Bibliotheque de procedures et fonctions pour la gestion des champs
-!   des différents solveurs
+!   des differents solveurs
 !
 ! Defauts/Limitations/Divers :
 ! Historique :
@@ -13,8 +13,8 @@
 module BOUND
 
 use TYPHMAKE   ! Definition de la precision
-!use EQNS      ! Definition des champs pour équations de Navier-Stokes
-use EQKDIF      ! Définition des champs pour équations de diffusion
+!use EQNS      ! Definition des champs pour equations de Navier-Stokes
+use EQKDIF      ! Definition des champs pour equations de diffusion
 
 implicit none
 
@@ -27,7 +27,7 @@ implicit none
 
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_BOUND : Champ physique 
+! Definition de la structure ST_BOUND : Champ physique 
 !------------------------------------------------------------------------------!
 
 type st_bound
@@ -57,11 +57,11 @@ contains
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation d'une structure BOUND
+! Procedure : allocation d'une structure BOUND
 !------------------------------------------------------------------------------!
 subroutine new_bound(bound, idim, jdim, kdim)
 implicit none
-type(st_bound) :: bound             ! champ à créer
+type(st_bound) :: bound             ! champ a creer
 integer        :: idim, jdim, kdim  ! dimension du champ interne
 logical        :: allocgrad         ! allocation des gradients
 integer        :: imin, jmin, kmin
@@ -75,7 +75,7 @@ endsubroutine new_bound
 
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure BOUND
+! Procedure : desallocation d'une structure BOUND
 !------------------------------------------------------------------------------!
 subroutine delete_bound(bound)
 implicit none
