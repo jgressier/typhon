@@ -1,5 +1,0 @@
-#!MC 800
-$!ALTERDATA  [3,5]
-  EQUATION = '{Z}=ABS( ( {T}-{T}[1] ) / {T}[1] ) ' 
-$!ALTERDATA  [4,6]
-  EQUATION = '{Z}=ABS( ( {T}-{T}[2] ) / {T}[2] ) ' 
