@@ -111,7 +111,7 @@ Condition uniforme ou non.
 
 fichiers : MENU_SOLVER, def_boco, MENU_KDIF, calcboco_kdif_ust_unif, calcboco_kdif_ust_nunif,
            def_boco_kdif, init_boco_kdif, integration_kdif_ust, conditions_limites,
-           integration_zone, integration_grid, explicit_step, implicit_step, calcboco_ust,
+           DEFZONE, integration_zone, calcboco_ust,
            calcboco_ust_unif, calcboco_ust_nunif, USTMESH
 fichiers nouveaux : setboco_kdif_flux_unif, setboco_kdif_flux_nunif, setboco_kdif_hconv_unif,
                     setboco_kdif_hconv_nunif, fluxlimite

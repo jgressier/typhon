@@ -176,6 +176,9 @@ integer                :: id
   else
     pgrid => insert_newgrid(zone%grid, zone%ngrid)
   endif
+
+  pgrid%nbocofield = 0
+
   zone%grid => pgrid
 
 endfunction newgrid
