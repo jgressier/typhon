@@ -53,6 +53,3 @@ $(PRJOBJ)/%.o: %.f90
 #	$(CF) $(FF) -c $< -o $(PRJOBJ)/$*.o
 #	@touch $*.dep
 
-
-
-
