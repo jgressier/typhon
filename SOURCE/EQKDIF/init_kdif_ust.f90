@@ -9,7 +9,7 @@
 !   ATTENTION : initialisation des variables primitives
 !
 !------------------------------------------------------------------------------!
-subroutine init_kdif_ust(kdif, champ, unif, mesh)
+subroutine init_kdif_ust(kdif, champ, unif, mesh, profil)
 
 use TYPHMAKE
 use DEFFIELD
@@ -22,6 +22,7 @@ implicit none
 type(st_init_kdif) :: kdif
 integer            :: unif ! uniformite de la condition initiale
 type(st_mesh)      :: mesh
+integer            :: profil ! profil de temperature initial
 
 ! -- Declaration des sorties --
 type(st_field) :: champ
@@ -36,14 +37,34 @@ if (unif == init_unif) then
     champ%etatprim%tabscal(ip)%scal(:) = kdif%temp
   enddo
 else !provisoire
-  do ip = 1, champ%nscal
-    do ic=1, champ%ncell
-      champ%etatprim%tabscal(ip)%scal(ic)=kdif%coef(1)*mesh%centre(ic,1,1)%x+&
+  select case(profil)
+  case(lin)
+    do ip = 1, champ%nscal
+      do ic=1, champ%ncell
+       champ%etatprim%tabscal(ip)%scal(ic)=kdif%coef(1)*mesh%centre(ic,1,1)%x+&
                                           kdif%coef(2)*mesh%centre(ic,1,1)%y+&
                                           kdif%coef(3)*mesh%centre(ic,1,1)%z+&
                                           kdif%coef(4)
+      enddo
     enddo
-  enddo
+
+  case(step)
+    do ip = 1, champ%nscal
+      do ic=1, champ%ncell
+        if ( (mesh%centre(ic,1,1)%x .lt. kdif%coef(3)).and. &
+             (mesh%centre(ic,1,1)%y .lt. kdif%coef(4)).and. &
+             (mesh%centre(ic,1,1)%z .lt. kdif%coef(5)) ) then
+          champ%etatprim%tabscal(ip)%scal(ic)=kdif%coef(1)
+        else
+          champ%etatprim%tabscal(ip)%scal(ic)=kdif%coef(2)
+        endif
+      enddo
+    enddo
+
+  case default
+    call erreur("incoherence interne (init_kdif_ust)","profil initial inconnu")
+  endselect
+
 endif
 
 ! pas de de variables vectorielles attendues (pas de test)

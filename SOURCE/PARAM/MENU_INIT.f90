@@ -23,7 +23,11 @@ implicit none
 
 ! -- Definition des entiers caracteristiques pour l'uniformite de la CI --
 integer, parameter :: init_unif    = 10   
-integer, parameter :: init_nonunif = 20 
+integer, parameter :: init_nonunif = 20
+
+! -- Definition des entiers caracteristiques pour le profil de la CI --
+integer, parameter :: lin  = 01
+integer, parameter :: step = 02 
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
@@ -35,6 +39,7 @@ type mnu_init
   type(st_init_kdif)  :: kdif     ! condition aux limites propre au solveur KDIF
   type(st_init_vort)  :: vortex   ! condition aux limites propre au solveur VORTEX
   integer             :: unif     ! uniformite de la condition initiale
+  integer             :: profil   ! profil de condition initiale
 endtype mnu_init
 
 

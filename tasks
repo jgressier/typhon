@@ -459,3 +459,13 @@ Task 0100 (Jérémie) : IHM : Symbolic functions module
 ---------------------------------------------------------------------------------
 - FCT_* modules in MATH
 
+---------------------------------------------------------------------------------
+Task 0110 (Emmanuel) : KDIF : non-uniform initial condition step
+---------------------------------------------------------------------------------
+- temperature step in a zone : T= T0 for x<x0, y<y0 and z<z0 ; T = T1 else
+- -> BLOCK:INIT : UNIFORMITY = NO, PROFILE = STEP (default LIN -> linear 
+  temperature distribution), TEMPC_FILE = file containing T0 T1 x0 y0 z0
+- modified files : MENU_INIT, def_init, def_init_kdif, init_kdif_ust, init_champ_ust
+- useful for validation cases
+
+
