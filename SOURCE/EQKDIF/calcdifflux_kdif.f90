@@ -37,26 +37,22 @@ real(krp)                      :: dif_enflux     ! différence des énergies d'int
 ! Supplément de flux pour les échanges espacés : calcul de la différence à appliquer
 
 do i=1, nfacelim
-  dif_enflux = abs(etatcons2(1)%scal(i)) - abs(etatcons1(1)%scal(i))
+
+! La différence est la "somme" des flux cumulés car ce sont les valeurs algébriques dont on dispose
+! (les flux sortant de part et d'autre)
+dif_enflux = etatcons2(1)%scal(i) + etatcons1(1)%scal(i)
 
   !1ere possibilité
-!  a = 0.5_krp
+   a = -0.5_krp
 
   !2eme possibilité : on garde le flux maximum
-!  a = 1._krp
+!  a = -1._krp
 
   !3eme possibilité : on garde le flux minimum
-  a = 0._krp
+!  a = 0._krp
 
-  ! si l'énergie accumulée en 1 est positive, il faut ajouter la différence des valeurs absolues
-  ! (au coefficient a près) ; sinon, on doit la retirer.
-  if (etatcons1(1)%scal(i) > 0) then
-    etatcons1(2)%scal(i) = a*dif_enflux
-    etatcons2(2)%scal(i) = (1._krp-a)*dif_enflux
-  else
-    etatcons1(2)%scal(i) = -a*dif_enflux
-    etatcons2(2)%scal(i) = -(1._krp-a)*dif_enflux
-  endif
+  etatcons1(2)%scal(i) = a*dif_enflux
+  etatcons2(2)%scal(i) = (-1._krp-a)*dif_enflux
 
   !4eme possibilite : maximum et minimum en alternance : à faire
 

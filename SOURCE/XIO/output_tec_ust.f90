@@ -31,6 +31,8 @@ integer   :: i
 integer   :: info
 type(v3d) :: vtex
 
+real(krp) :: a, b, L, T0, T1, alpha, beta, temp
+
 ! -- Debut de la procedure --
 
 write(uf_chpresu,*) 'ZONE T="USTMESH"' !, F=FEPOINT, N=',ust_mesh%nvtex,',E=',ncell
@@ -39,8 +41,11 @@ write(uf_chpresu,*) 'ZONE T="USTMESH"' !, F=FEPOINT, N=',ust_mesh%nvtex,',E=',nc
 ! écrire le maillage des centres de cellule
 
 do i = 1, ust_mesh%ncell
+!do i = 1, ust_mesh%ncell_int
   vtex = ust_mesh%mesh%centre(i,1,1)
+
   write(uf_chpresu,'(4e18.8)') vtex%x, vtex%y, vtex%z, field%etatprim%tabscal(1)%scal(i)
+
 enddo
 
 ! calcul de la connectivité sommets -> sommets

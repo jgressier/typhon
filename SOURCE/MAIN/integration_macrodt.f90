@@ -59,7 +59,7 @@ do ir = 1, ncoupling
 
 ! DVT : implémenter un choix de correction après (ou avt) l'echange 
 !       ou supprimer ce cas.
-    ! Calcul des variables primitives avec correction de flux
+!    ! Calcul des variables primitives avec correction de flux
 !    do ifield = 1, lworld%zone(iz1)%ndom
 !      call corr_varprim(lworld%zone(iz1)%field(ifield), &
 !                        lworld%zone(iz1)%ust_mesh, &
