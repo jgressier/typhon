@@ -346,3 +346,9 @@ Task 0050 (Jérémie) : NS : HLLE numerical flux
 - roe average
 - HLLE flux
 
+---------------------------------------------------------------------------------
+Task 0052 (Emmanuel) : KDIF : Bug : non uniform convection boundary condition
+---------------------------------------------------------------------------------
+modified file : setboco_kdif_hconv 
+corrected error : inversion of h and T
+

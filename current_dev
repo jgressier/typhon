@@ -23,6 +23,7 @@ Task Dévlp.  R. cible début fin   Type  Développement
 0048 Jérémie   0.1.5  06/07 06/07 Make  Restructuring calcboco subroutines (uniform or not)
 0049 Jérémie   0.1.5  06/07 06/07 NS    Calculation of boundary conditions
 0050 Jérémie   0.1.5  06/07 06/07 NS    HLLE numerical flux
+0052 Emmanuel  0.1.5  06/07 07/07 KDIF  Bug: non uniform convection boundary condition
 0051 Jérémie   0.1.5              KDIF  Bug: timestep computation for non linear material
      Jérémie   0.1.5              Solv  Surrelaxation Jacobi, SOR, SSOR
      Jérémie   0.1.5              Solv  Gel des matrices d'implicitation en fonction du résidu

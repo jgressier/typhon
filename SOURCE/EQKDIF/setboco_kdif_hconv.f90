@@ -93,12 +93,12 @@ do ifb = 1, ustboco%nface
   do ip = 1, champ%nscal
     champ%etatprim%tabscal(ip)%scal(ighost) = ( (conduct/d) * &
       champ%etatprim%tabscal(ip)%scal(ic) + bckdif%tconv_nunif(ifb)*bckdif%h_nunif(ifb) ) &
-      / (conduct/d+bckdif%tconv_nunif(ifb))
+      / (conduct/d+bckdif%h_nunif(ifb))
   enddo
 
   ! Calcul du flux
-  flux(ifb) = bckdif%tconv_nunif(ifb)*(champ%etatprim%tabscal(1)%scal(ighost) &
-                                       - bckdif%h_nunif(ifb))
+  flux(ifb) = bckdif%h_nunif(ifb)*(champ%etatprim%tabscal(1)%scal(ighost) &
+                                       - bckdif%tconv_nunif(ifb))
 enddo
 
 endif
