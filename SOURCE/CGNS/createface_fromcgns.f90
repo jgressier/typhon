@@ -4,8 +4,8 @@
 ! Fonction                                Modif  :
 !   Création des faces à partir de la connectivité CELLULES->SOMMETS (CGNS)
 !   et du type de cellules (cf documentation CGNS)
-!   Création de la connectivité CELLULES -> FACES
-!   Création de la connectivité FACES    -> SOMMETS (avec test de redondance)
+!   Création de la connectivité FACES -> CELLULES
+!   Création de la connectivité FACES -> SOMMETS (avec test de redondance)
 !
 ! Defauts/Limitations/Divers :
 !   On calcule une connectivité intermédiaire (sommet->faces) pour gagner en
@@ -26,7 +26,7 @@ type(st_cgns_ustconnect) :: cell_vtex       ! conn. CGNS         : cellule -> so
 
 ! -- Sorties --
 type(st_connect)      :: face_cell, &    ! conn. Typhon       : face -> cellules
-                            face_vtex       ! conn. Typhon       : face -> sommets
+                         face_vtex       ! conn. Typhon       : face -> sommets
 
 ! -- type connectivité locale sommets -> faces --
 type stloc_vtex_face
@@ -89,7 +89,6 @@ case(QUAD_4) ! quatre faces (cotés) pour chacune deux sommets
   call print_info(8,"    création des faces de QUAD_4")
  
   do icell = cell_vtex%ideb, cell_vtex%ifin
-    !print*,"!! DEBUG vtex de cellule ",icell,":",cell_vtex%fils(icell,:) !! DEBUG
     element = cell_vtex%fils(icell,:) 
     ns = 2            ! nombre de sommets par face (BAR_2)
     ! FACE 1 : BAR_2
@@ -107,7 +106,6 @@ case(QUAD_4) ! quatre faces (cotés) pour chacune deux sommets
   enddo
 
 case(TETRA_4) ! quatre faces (triangles) pour chacune trois sommets
-
 
   call print_info(8,"    création des faces de TETRA_4")
 
@@ -243,7 +241,8 @@ contains      ! SOUS-PROCEDURES
 
   !------------------------------------------------------------------------------!
   ! Fonction : same_face  
-  ! Teste si deux faces ont les memes sommets (Hyp. : elles ont le meme nombre de sommets)
+  ! Teste si deux faces ont les memes sommets 
+  !  (Hyp. : elles ont le meme nombre de sommets)
   !------------------------------------------------------------------------------!
   logical function same_face(nsom, face1, face2) 
   implicit none

@@ -201,6 +201,13 @@ Task 0029 (Jérémie) : IHM : choix du critère de convergence de zone
 - critère de convergence global par défaut
 - possibilité de choix d'un autre critère dans le bloc TIME_PARAM / clef RESIDUALS
 
+---------------------------------------------------------------------------------
+Task 0030 (Jérémie) : Out : sortie au format VTK
+---------------------------------------------------------------------------------
+- sortie pour KDIF uniquement
+- format CELL_DATA, connectivité CELL->VTEX
+
+---------------------------------------------------------------------------------
 Task 0032 (Emmanuel) : COUPL : Différents types de correction 
 ---------------------------------------------------------------------------------
 - corrections BEF_EXCH (dans cellules limitrophes avant échange), 
@@ -209,17 +216,26 @@ Task 0032 (Emmanuel) : COUPL : Différents types de correction
   non équilibrée), SPLIT_REG (répartie régulièrement), SPLIT_GEO (répartie en
   appliquant un certain pourcentage du reste à chaque itération)
 
+---------------------------------------------------------------------------------
 Task 0033 (Emmanuel) : COUPL : Modification de l'orientation de correction
 ---------------------------------------------------------------------------------
 - Le coefficient de correction est donné en fonction du rapport des 
   (diffusivité/volume de cellule) des deux domaine couplés.
 
+---------------------------------------------------------------------------------
 Task 0034 (Emmanuel) : Out
 ---------------------------------------------------------------------------------
 - sortie des températures d'interface en fct du temps, flux d'interface en fct
   du temps et valeur de correction en fct du temps (TYPE = resp. WALLTEMP, FLUX
   et CORRECTION)
 
+---------------------------------------------------------------------------------
 Task 0035 (Emmanuel) : KDIF
 ---------------------------------------------------------------------------------
 - condition initiale de température non uniforme : loi linéaire.
+
+---------------------------------------------------------------------------------
+Task 0036 (Jérémie) : Make
+---------------------------------------------------------------------------------
+- mémorisation à la lecture de la connectivité cell->vtex 
+  (USTMESH, cgns2typhon_ustmesh)

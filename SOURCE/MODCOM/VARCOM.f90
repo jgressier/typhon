@@ -72,7 +72,7 @@ character, parameter :: stationnaire   = 'S'
 character, parameter :: instationnaire = 'I'
 character, parameter :: periodique     = 'P'
 
-! -- Constantes pour le choix du paramètre "typ_coord" (mnu_project)
+! -- Constantes pour le choix du paramètre "typ_coord" (mnu_projMODCOM/VARCOM.f90ect)
 
 character, parameter :: c2dplan  = 'P'
 character, parameter :: c2daxi   = 'X'
@@ -84,6 +84,7 @@ character, parameter   :: fmt_CGNS    = 'C'   ! format CGNS
 character, parameter   :: fmt_TYPHMSH = 'M'   ! format CGNS
 character, parameter   :: fmt_TECPLOT = 'T'   ! format TECPLOT (ascii)
 character, parameter   :: fmt_VIGIE   = 'V'   ! format VIGIE
+character, parameter   :: fmt_VTK     = 'K'   ! format VTK
 
 ! -- Constantes pour le choix du type de sortie des données (centres ou noeuds)
 

@@ -25,7 +25,24 @@ implicit none
 
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_USTBOUND : Définition des conditions aux limites
+! structure ST_CELLVTEX : Définition de connectivité CELL -> VERTEX
+!   une connectivité spéciale est définie pour une meilleure gestions des
+!   actions selon le type des éléments.
+!------------------------------------------------------------------------------!
+type st_cellvtex
+  integer          :: dim                      ! dimension spatiale des éléments (2D/3D)
+  integer          :: nbar, ntri, nquad, &     ! nombre d'éléments par famille
+                      ntetra, npyra, npenta, nhexa  
+  type(st_connect) :: bar, tri, quad,    &     ! définition des éléments
+                      tetra, pyra, penta, hexa
+  integer, dimension(:), pointer &
+                   :: ibar, itri, iquad, &     ! redirection d'index vers "icell" de ustmesh
+                      itetra, ipyra, ipenta, ihexa 
+endtype st_cellvtex
+
+
+!------------------------------------------------------------------------------!
+! Définition de la structure ST_USTBOCO : Définition des conditions aux limites
 !------------------------------------------------------------------------------!
 type st_ustboco
   character(len=strlen)          :: family     ! nom de famille
@@ -54,32 +71,13 @@ type st_ustmesh
   integer               :: nface_int, ncell_int  ! nombre de faces et cellules internes
   integer               :: nface_lim, ncell_lim  ! nombre de faces et cellules limites
   type(st_mesh)         :: mesh            ! maillage associé (géométrie)
-!! type(st_connect), pointer &           ! tableau par type d'élements (nbfils)
   type(st_connect)      :: facevtex, &     ! connectivité face   -> sommets   par type
-      !! non utilisé       cellface, &     ! connectivité cellule-> faces     par type
-      !! non utilisé       cellvtex, &     ! connectivité cellule-> vtex      par type
                            facecell        ! connectivité face   -> cellules  par type
+  type(st_cellvtex)     :: cellvtex        ! connectivité cellule-> vtex      par type
   integer               :: nboco          ! nombre de conditions aux limites
   type(st_ustboco), dimension(:), pointer &
                         :: boco           ! liste des conditions aux limites
 endtype st_ustmesh
-
-
-!------------------------------------------------------------------------------!
-! structure ST_CELLVTEX : Définition de connectivité CELL -> VERTEX
-!   une connectivité spéciale est définie pour une meilleure gestions des
-!   actions selon le type des éléments.
-!------------------------------------------------------------------------------!
-type st_cellvtex
-  integer          :: dim                      ! dimension spatiale des éléments (2D/3D)
-  integer          :: nbar, ntri, nquad, &     ! nombre d'éléments par famille
-                      ntetra, npyra, npenta, nhexa  
-  type(st_connect) :: bar, tri, quad,    &     ! définition des éléments
-                      tetra, pyra, penta, hexa
-  integer, dimension(:), pointer &
-                   :: ibar, itri, iquad, &     ! redirection d'index vers "icell" de ustmesh
-                      itetra, ipyra, ipenta, ihexa 
-endtype st_cellvtex
 
 
 
@@ -114,6 +112,8 @@ implicit none
 type(st_ustmesh) :: mesh
 integer       :: ncell, nface, nvtex
 
+  print*,"!!! pas d'allocation dans new_ustmesh !!!"
+  stop
   !mesh%idim = idim
   !mesh%jdim = jdim
   !mesh%kdim = kdim
@@ -151,6 +151,7 @@ integer          :: i
   call delete(mesh%mesh)
   call delete(mesh%facevtex)
   call delete(mesh%facecell)
+  call delete(mesh%cellvtex)
   do i = 1, mesh%nboco 
     call delete(mesh%boco(i))
   enddo

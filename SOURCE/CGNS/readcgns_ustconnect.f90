@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : readcgns_ustconnect         Auteur : J. Gressier
 !                                         Date   : Novembre 2002
-! Fonction                                Modif  :
+! Fonction                                Modif  : (cf historique)
 !   Lecture des de la connectivité de tous les élements
 !
 ! Defauts/Limitations/Divers :
@@ -99,7 +99,7 @@ do ifam = 1, nfam               ! Boucle sur l'ensemble des sections
         zone%ncellfam = zone%ncellfam + 1
         pfam => zone%cellfam(zone%ncellfam)
       case(MIXED, NGON_n)
-        call erreur("Gestion CGNS", "Eléments MIXED et NFON_n non traités")
+        call erreur("Gestion CGNS", "Eléments MIXED et NGON_n non traités")
       case default
         call erreur("Gestion CGNS", "Type d'élément non reconnu dans CGNSLIB")
     endselect

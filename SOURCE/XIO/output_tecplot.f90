@@ -8,7 +8,7 @@
 !
 !------------------------------------------------------------------------------!
  
-subroutine output_tecplot(nom, world, outp_typ, position, io) !DEV2602 subroutine output_tecplot(nom, world, outp_typ)
+subroutine output_tecplot(nom, world, outp_typ, position, io) 
 
 use TYPHMAKE
 use OUTPUT

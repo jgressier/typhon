@@ -16,9 +16,11 @@ XIO_OBJ = $(XIO_MOD:.$(MOD)=.o)  \
           output_tec_temp.o      \
           output_tec_str.o       \
           output_tec_ust.o       \
-          output_tecplot.o       \
           output_tec_ust_ctr.o   \
           output_tec_ust_node.o  \
+          output_tecplot.o       \
+          output_vtk.o           \
+          output_vtk_cell.o      \
           readtyphmsh_dom.o      \
           readtyphmshfile.o      
  

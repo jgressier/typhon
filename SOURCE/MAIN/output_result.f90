@@ -30,11 +30,18 @@ integer :: i
 do i = 1, world%noutput
 
   select case(world%output(i)%format)
+  case(fmt_VTK)
+
+    call print_info(2,"* sauvegarde au format VTK : " &
+                      // trim(world%output(i)%fichier))
+    call output_vtk(world%output(i)%fichier, world, world%output(i)%type, position, i) 
+
   case(fmt_TECPLOT)
 
     call print_info(2,"* sauvegarde au format TECPLOT : " &
                       // trim(world%output(i)%fichier))
-    call output_tecplot(world%output(i)%fichier, world, world%output(i)%type, position, i) !DEV2602 call output_tecplot(world%output(i)%fichier, world, world%output(i)%type)
+    call output_tecplot(world%output(i)%fichier, world, world%output(i)%type, position, i) 
+    !DEV2602 call output_tecplot(world%output(i)%fichier, world, world%output(i)%type)
 
   case(fmt_VIGIE)
     call erreur("Développement","format VIGIE non implémenté")

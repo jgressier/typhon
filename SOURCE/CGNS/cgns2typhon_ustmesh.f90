@@ -26,12 +26,8 @@ type(st_ustmesh)   :: mesh           ! structure USTMESH des données TYPHON
 
 ! -- Variables internes --
 integer, parameter  :: nmax_cell = 20   ! nb max de cellules dans la connectivité vtex->cell
-!integer, dimension(:,:), allocatable &
-!                    :: vtex_cell,     & ! connectivité intermédiaire sommets -> faces
-type(st_connect) :: face_vtex, &     ! connectivité intermédiaire faces   -> sommets
+type(st_connect)    :: face_vtex, &     ! connectivité intermédiaire faces   -> sommets
                        face_cell        ! connectivité intermédiaire faces   -> cellules
-!integer, dimension(:), allocatable &
-!                    :: ncell            ! nombre de cellules par sommet
 integer             :: ntotcell         ! calcul du nombre total de cellules
 integer             :: maxvtex, maxface ! nombre de sommets/face, face/cellule
 integer             :: nface            ! estimation du nombre de faces
@@ -65,28 +61,6 @@ mesh%nvtex       = mesh%mesh%nvtex          ! nb de sommets (redondant)
 nullify(mesh%mesh%iface)
 mesh%mesh%nface = 0
 
-! --- création des connectivités intermédiaires sommets -> cellules ---
-!
-!call print_info(8,"  connectivité intermédiaire sommets -> cellules")
-!
-!allocate(vtex_cell(mesh%nvtex, nmax_cell))
-!allocate(    ncell(mesh%nvtex))
-!vtex_cell(:,:) = 0
-!ncell(:)       = 0
-!
-!do iconn = 1, cgnszone%ncellfam          ! boucle sur les sections, puis les cellules
-!  do icell = cgnszone%cellfam(iconn)%ideb, cgnszone%cellfam(iconn)%ifin 
-!    do ivtex = 1, cgnszone%cellfam(iconn)%nbfils                  ! sur les sommets
-!      ! la cellule (icell) est connectée au sommets fils(icell,ivtex)
-!      ncell(icell) = ncell(icell) + 1
-!      vtex_cell(cgnszone%cellfam(iconn)%fils(icell, ivtex), ncell(icell)) = icell
-!    enddo
-!  enddo
-!enddo
-!
-!write(str_w,*) "    (",maxval(ncell)," cellules max par sommet, limité à ",nmax_cell,")"
-!call print_info(8,str_w)
-
 ! --- création des connectivités (cellule -> faces) et (face -> sommets) ---
 
 call print_info(8,"  création des faces et connectivités associées")
@@ -97,6 +71,8 @@ ntotcell = 0    ! nombre total de cellules
 maxvtex  = 0    ! nombre de sommets max par face
 maxface  = 0    ! nombre de faces   max par cellule
 nface    = 0    ! estimation du nombre de faces max
+
+call init(mesh%cellvtex)
 
 do iconn = 1, cgnszone%ncellfam          ! boucle sur les sections de cellules
  
@@ -112,22 +88,87 @@ do iconn = 1, cgnszone%ncellfam          ! boucle sur les sections de cellules
     maxvtex = max(maxvtex, 2)
     maxface = max(maxface, 3)
     nface   = nface + 3*cgnszone%cellfam(iconn)%nbnodes
+    mesh%cellvtex%ntri = mesh%cellvtex%ntri + cgnszone%cellfam(iconn)%nbnodes
   case(QUAD_4,QUAD_8,QUAD_9)
     maxvtex = max(maxvtex, 2)
     maxface = max(maxface, 4)
     nface   = nface + 4*cgnszone%cellfam(iconn)%nbnodes
+    mesh%cellvtex%nquad = mesh%cellvtex%nquad + cgnszone%cellfam(iconn)%nbnodes
   case(TETRA_4,TETRA_10)
     maxvtex = max(maxvtex, 3)
     maxface = max(maxface, 4)
     nface   = nface + 4*cgnszone%cellfam(iconn)%nbnodes
-  case(PYRA_5,PYRA_14,PENTA_6,PENTA_15,PENTA_18)
+    mesh%cellvtex%ntetra = mesh%cellvtex%ntetra + cgnszone%cellfam(iconn)%nbnodes
+  case(PYRA_5,PYRA_14)
     maxvtex = max(maxvtex, 4)
     maxface = max(maxface, 5)
     nface   = nface + 5*cgnszone%cellfam(iconn)%nbnodes
+    mesh%cellvtex%npyra = mesh%cellvtex%npyra + cgnszone%cellfam(iconn)%nbnodes
+  case(PENTA_6,PENTA_15,PENTA_18)
+    maxvtex = max(maxvtex, 4)
+    maxface = max(maxface, 5)
+    nface   = nface + 5*cgnszone%cellfam(iconn)%nbnodes
+    mesh%cellvtex%npenta = mesh%cellvtex%npenta + cgnszone%cellfam(iconn)%nbnodes
   case(HEXA_8,HEXA_20,HEXA_27)
     maxvtex = max(maxvtex, 4)
     maxface = max(maxface, 6)
     nface   = nface + 6*cgnszone%cellfam(iconn)%nbnodes
+    mesh%cellvtex%nhexa = mesh%cellvtex%nhexa + cgnszone%cellfam(iconn)%nbnodes
+  case(MIXED, NGON_n)
+    call erreur("Gestion CGNS", "Eléments MIXED et NFON_n non traités")
+  case default
+    call erreur("Gestion CGNS", "Type d'élément non reconnu dans CGNSLIB")
+  endselect
+enddo
+
+! -- copie des connectivités cell->vtex --
+
+call new(mesh%cellvtex)
+
+do iconn = 1, cgnszone%ncellfam          ! boucle sur les sections de cellules
+ 
+  select case(cgnszone%cellfam(iconn)%type)
+  case(NODE)
+    call erreur("Développement", "Type de cellule inattendu (NODE)")
+  case(BAR_2,BAR_3)
+    call erreur("Développement", "Type de cellule inattendu (BAR)")
+  case(TRI_3)
+    mesh%cellvtex%tri%fils(:,1:3) = cgnszone%cellfam(iconn)%fils(:,1:3)
+    mesh%cellvtex%itri(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
+                                               cgnszone%cellfam(iconn)%ifin  ) /)
+  case(TRI_6)
+    call erreur("Développement", "Type de cellule inattendu (TRI_6)")
+    !mesh%cellvtex%tri%fils(:,1:3) = cgnszone%cellfam(iconn)%fils(:,1:3)
+  case(QUAD_4)
+    mesh%cellvtex%quad%fils(:,1:4) = cgnszone%cellfam(iconn)%fils(:,1:4)
+    mesh%cellvtex%iquad(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
+                                                cgnszone%cellfam(iconn)%ifin  ) /)
+  case(QUAD_8,QUAD_9)
+    call erreur("Développement", "Type de cellule inattendu (QUAD_8/9)")
+  case(TETRA_4)
+    mesh%cellvtex%tetra%fils(:,1:4) = cgnszone%cellfam(iconn)%fils(:,1:4)
+    mesh%cellvtex%itetra(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
+                                                 cgnszone%cellfam(iconn)%ifin  ) /)
+  case(TETRA_10)
+    call erreur("Développement", "Type de cellule inattendu (TETRA_10)")
+  case(PYRA_5)
+    mesh%cellvtex%pyra%fils(:,1:5) = cgnszone%cellfam(iconn)%fils(:,1:5)
+    mesh%cellvtex%ipyra(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
+                                                cgnszone%cellfam(iconn)%ifin  ) /)
+  case(PYRA_14)
+    call erreur("Développement", "Type de cellule inattendu (PYRA_14)")
+  case(PENTA_6)
+    mesh%cellvtex%penta%fils(:,1:6) = cgnszone%cellfam(iconn)%fils(:,1:6)
+    mesh%cellvtex%ipenta(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
+                                                 cgnszone%cellfam(iconn)%ifin  ) /)
+  case(PENTA_15,PENTA_18)
+    call erreur("Développement", "Type de cellule inattendu (PENTA_15/18)")
+  case(HEXA_8)
+    mesh%cellvtex%hexa%fils(:,1:8) = cgnszone%cellfam(iconn)%fils(:,1:8)
+    mesh%cellvtex%ihexa(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
+                                                cgnszone%cellfam(iconn)%ifin  ) /)
+  case(HEXA_20,HEXA_27)
+    call erreur("Développement", "Type de cellule inattendu (HEXA_20/27)")
   case(MIXED, NGON_n)
     call erreur("Gestion CGNS", "Eléments MIXED et NFON_n non traités")
   case default
@@ -193,8 +234,9 @@ endsubroutine cgns2typhon_ustmesh
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov 2002 : création de la procédure
-! fev 2004 : renseignements dans structure INFO_MESH
+! nov  2002 : création de la procédure
+! fev  2004 : renseignements dans structure INFO_MESH
+! juin 2004 : mémorisation de la connectivité cell->vtex
 !------------------------------------------------------------------------------!
 
 
