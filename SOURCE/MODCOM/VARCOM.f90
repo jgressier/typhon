@@ -134,6 +134,11 @@ integer, parameter  :: kdif_kdif = 01
 integer, parameter  :: kdif_ns   = 02
 integer, parameter  :: ns_ns     = 03
 
+! -- Constantes pour le choix du paramètre "placement" (de la correction dans echange_zonematch)
+integer, parameter  :: avant = 01
+integer, parameter  :: apres = 02
+integer, parameter  :: sans  = 03
+
 ! -- Constantes pour le choix du paramètre "activite" (senseur)
 !
 !integer, parameter  :: fluxcomp = 1

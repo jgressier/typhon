@@ -106,6 +106,8 @@ call calc_connface(zone1%ust_mesh, zone1%ust_mesh%boco(nbc1), &
                    zone2%ust_mesh, zone2%ust_mesh%boco(nbc2), &
                    zone2%coupling(ncoupl2)%zcoupling%connface)
 
+  write(uf_log,"(a,5i)")"conn de zones : ", &
+                     zone1%coupling(ncoupl1)%zcoupling%connface(1:5:1)!! DEBUG
 endsubroutine init_coupling
 
 !------------------------------------------------------------------------------!

@@ -57,6 +57,7 @@ do if1 = 1, b1%nface
   endif
   connface1(if1) = ind_assoc
   connface2(ind_assoc) = if1
+
 enddo
 
 deallocate(centre1, centre2)

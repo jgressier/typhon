@@ -56,8 +56,8 @@ real(krp)                      :: corcoef   ! coefficient de correction de flux
 real(krp)                      :: rap_f ! rapport des nb de Fourier des 2 zones
 real(krp)                      :: fcycle1, fcycle2 ! nb de Fourier de cycle
                                                    ! des deux zones
-integer                        :: avant, apres, placement ! variables pour le
-                                                   ! placement des corrections
+integer                        :: placement ! variable pour le
+                                            ! placement des corrections
 
 ! -----------------PROVISOIRE-----------------------------------------------
 !integer     :: uf
@@ -76,8 +76,6 @@ integer                        :: avant, apres, placement ! variables pour le
 !endif
 !-----------------------------------------------------------------------------
 
-avant = 0
-apres = 1
 placement = apres ! placement apres (le plus stable) sauf les cas où il est
                   ! possible de faire la correction avant (plus précise)
 
@@ -86,70 +84,13 @@ corcoef = 0.5     ! valeur du coefficient de correction pour la meilleure
 
 select case(typtemps)
 
- case(instationnaire) ! On applique des corrections de flux entre les échanges
+  case(instationnaire) ! On applique des corrections de flux entre les échanges
+    call choixcorrection(zone1, zone2, dtexch, placement, corcoef)
 
- ! Calcul du nombre de Fourier des deux zones
- call calc_fourier(zone1, zone1%deftime%stabnb)
- call calc_fourier(zone2, zone2%deftime%stabnb)
-
- ! Rapport de ces nombres de Fourier
- ! En fonction de la valeur, orientation vers une correction AVANT ou APRES
- ! et choix de la valeur du coefficient de correction
- rap_f = zone2%deftime%stabnb / zone1%deftime%stabnb
-
-  if (rap_f == 1) then
-
-    ! Calcul du nombre de Fourier de cycle (basé sur la durée entre deux 
-    ! échanges 
-    ! et sur le pas de maillage)
-    call calc_fouriercycle(zone1, zone1%deftime%stabnb, dtexch, fcycle1)
-    call calc_fouriercycle(zone2, zone2%deftime%stabnb, dtexch, fcycle2)
-
-    ! si les nb de Fourier de cycle des deux zones sont inférieurs à 3 
-    ! (en théorie 4), on effectue la correction avant, plus précise
-    ! avec un coefficient de correction de 0.5
-    ! sinon : correction après avec le meme coef de correction
-    if ((fcycle1 .lt. 3).and.(fcycle2 .lt. 3)) then
-      placement = avant
-      corcoef = 0.5
-    endif 
-
-  else if (rap_f .lt. 0.1) then
-    ! cas où on peut placer la correction avant avec un coef de correction de 0
-    placement = avant
-    corcoef = 0
-
-  else if (rap_f .gt. 10) then
-    ! cas où on peut placer la correction avant avec un coef de correction de 1
-    placement = avant
-    corcoef = 1
-
-  endif
-
-
- ! Supplément de flux pour éch. espacés : calcul de la différence à appliquer
-
- call calcdifflux(zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal, &
-                  zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal, &
-                  nfacelim, zone1%coupling(ncoupl1)%zcoupling%solvercoupling, &
-                  corcoef, zone2%coupling(ncoupl2)%zcoupling%connface )
-
-if (placement == avant) then
- ! Calcul des variables primitives avec correction de flux
- do ifield = 1, zone1%ndom
-   call corr_varprim(zone1%field(ifield), &
-                     zone1%ust_mesh, &
-                     zone1%defsolver, &
-                     zone1%coupling(ncoupl1)%zcoupling%etatcons, nbc1)
- enddo
-
- do ifield = 1, zone2%ndom
-   call corr_varprim(zone2%field(ifield), &
-                     zone2%ust_mesh, &
-                     zone2%defsolver, &
-                     zone2%coupling(ncoupl2)%zcoupling%etatcons, nbc2)
- enddo
-endif
+    if (placement == avant) then
+      call correction(zone1, zone2, nfacelim, corcoef, nbc1, nbc2, ncoupl1, &
+                      ncoupl2)
+    endif
 
 endselect
 
@@ -171,7 +112,6 @@ do i=1, nfacelim
   ! indices des faces concernées
   if = zone1%ust_mesh%boco(nbc1)%iface(i)
   if2 = zone2%ust_mesh%boco(nbc2)%iface(zone2%coupling(ncoupl2)%zcoupling%connface(i))
-!  if2 = zone2%ust_mesh%boco(nbc2)%iface(i)
   
   normale(i) = zone1%ust_mesh%mesh%iface(if,1,1)%normale
  
@@ -202,7 +142,6 @@ call donnees_echange(zone1%coupling(ncoupl1)%zcoupling%solvercoupling, &
 
 
 ! Calcul des conditions de raccord
-!if (senseur(i)%sens) then
 call echange(zone1%coupling(ncoupl1)%zcoupling%echdata, &
              zone2%coupling(ncoupl2)%zcoupling%echdata, &
              normale, vecinter, d1, d2, nfacelim, typcalc, typmethod,&
@@ -211,31 +150,15 @@ call echange(zone1%coupling(ncoupl1)%zcoupling%echdata, &
              zone2%defsolver%boco(zone2%ust_mesh%boco(nbc2)%idefboco), &
              zone2%coupling(ncoupl2)%zcoupling%connface)
 
-!endif
-
 select case(typtemps)
 
- case(instationnaire) ! On applique des corrections de flux entre les échanges
+  case(instationnaire) ! On applique des corrections de flux entre les échanges
 
- if (placement == apres) then
-   ! Calcul des variables primitives avec correction de flux
-   do ifield = 1, zone1%ndom
-     call corr_varprim(zone1%field(ifield), &
-                       zone1%ust_mesh, &
-                       zone1%defsolver, &
-                       zone1%coupling(ncoupl1)%zcoupling%etatcons, nbc1)
-   enddo
-
-   do ifield = 1, zone2%ndom
-     call corr_varprim(zone2%field(ifield), &
-                       zone2%ust_mesh, &
-                       zone2%defsolver, &
-                       zone2%coupling(ncoupl2)%zcoupling%etatcons, nbc2)
-   enddo
-
-   call print_info(10," !! CORRECTION APRÈS ÉCHANGE !! ")
-
- endif
+    if (placement == apres) then
+      call correction(zone1, zone2, nfacelim, corcoef, nbc1, nbc2, ncoupl1, &
+                      ncoupl2)
+      call print_info(10," !! CORRECTION APRÈS ÉCHANGE !! ")
+    endif
 
 endselect
 
@@ -250,4 +173,5 @@ endsubroutine echange_zonematch
 ! oct 2003          : correction de flux seulement pour le cas instationnaire
 ! jan 2004          : orientation vers des corrections de flux avant ou apres
 !                     le calcul des quantités d'interface selon les cas
+! fev 2004          : procédures choixcorrection, correction
 !------------------------------------------------------------------------------!

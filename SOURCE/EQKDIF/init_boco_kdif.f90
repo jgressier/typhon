@@ -39,8 +39,8 @@ do iboco = 1, ustdom%nboco
 
     ! Cas d'existence d'un fichier de températures limites :
     if(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%tempfile .ne. cnull) then
-      open(unit=1002, file = defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%tempfile, form="formatted")
-      read(1002,*),  (defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%temp(i),i = 1, ustdom%boco(iboco)%nface) 
+      open(unit=1002, file = trim(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%tempfile), form="formatted")
+      read(1002,*)  (defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%temp(i),i = 1, ustdom%boco(iboco)%nface) 
       close(1002)
     endif
 

@@ -17,8 +17,10 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            calc_zonetimestep.o      \
            calcul_raccord.o         \
            capteurs.o               \
+           choixcorrection.o        \
            comp_flux.o              \
            conditions_limites.o     \
+           correction.o             \
            corr_varprim.o           \
            echange.o                \
            echange_zonedata.o       \
