@@ -6,6 +6,10 @@ Liste des développement courants
 * en liaison avec les développements à faire dans SOURCE/_DEV/TODO
 * remplir le fichier de description des tâches "tasks"
 
+--------------------------------------------------------------------
+Roadmap
+--------------------------------------------------------------------
+--------------------------------------------------------------------
 
 Task Dévlp.  R. cible début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
@@ -15,23 +19,15 @@ Task Dévlp.  R. cible début fin   Type  Développement
 0038           0.1.5              Val   maillage 3D HEXA 
 0041 Jérémie   0.1.5  01/07       Solv  Inversion Gauss-Seidel
 0051 Jérémie   0.1.5              KDIF  Bug: timestep computation for non linear material
-0057 Jérémie   0.1.6  10/07 18/08 GUI   TYMON user interface (Typhon monitor)
-0061           0.1.6              AMR   One-level refinement of a spherical area
-0062 Jérémie   0.1.5  19/07 17/08 Out   Residuals monitors (with file outputs)
 0063 Jérémie   0.1.5              Out   Tecplot outputs : FEBLOCK format and output of scalars & vectors
 0064 Jérémie   0.1.5              Out   CGNS outputs
      Jérémie   0.1.5              Solv  Surrelaxation Jacobi, SOR, SSOR
      Jérémie   0.1.5              Solv  Gel des matrices d'implicitation en fonction du résidu
                0.1.5              KDIF  condition limite de rayonnement
-0069 Jérémie   0.1.6  22/11 23/11 NS    Gradients computation
 0071 Jérémie   0.1.6              Mesh  Split of an internal mesh into two or many grids
 0072 Jérémie   0.1.6              Exch  Sequential message passing between zones (coupling)
      Jérémie   0.1.6              KDIF  Implicitation des conditions limites
-0073 Emmanuel  0.1.6        13/10 KDIF  Bug : convection boundary condition + validation case
-0074 Emmanuel  0.1.6        20/10 Make  Restructuration of field : chained list
 0075 Emmanuel  0.1.6  20/10       Make  Local convergence on cycle
-0076 Jérémie   0.1.6  24/11 10/12 NS    MUSCL interpolation
-0077 Jérémie   0.1.6  24/11 26/11 Make  DEFFIELD restructuration 
 0080 Jérémie   0.1.6              NS    Convective fluxes implicitation
 0081 Jérémie   0.1.6              NS    Viscous fluxes
 0090 Jérémie   0.2.0  03/12       Opt   GEO3D optimization (array calls)
@@ -51,6 +47,21 @@ Task Dévlp.  R. cible début fin   Type  Développement
                1.0.0              Make  Restructuration des bibliothèques RPM
                1.0.0              IHM   Imbrication des blocs RPM
                1.0.0              Opt   Optimisation des structures de données pour l'accès mémoire
+--------------------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+release 0.1.6 - 10 dec 2004
+------------------------------------------------------------------------
+
+Task Dévlp.  R. cible début fin   Type  Développement
+--------------------------------------------------------------------------------------------------------
+0057 Jérémie   0.1.6  10/07 18/08 GUI   TYMON user interface (Typhon monitor)
+0062 Jérémie   0.1.5  19/07 17/08 Out   Residuals monitors (with file outputs)
+0069 Jérémie   0.1.6  22/11 23/11 NS    Gradients computation
+0073 Emmanuel  0.1.6        13/10 KDIF  Bug : convection boundary condition + validation case
+0074 Emmanuel  0.1.6        20/10 Make  Restructuration of field : chained list
+0076 Jérémie   0.1.6  24/11 10/12 NS    MUSCL interpolation
+0077 Jérémie   0.1.6  24/11 26/11 Make  DEFFIELD restructuration 
 --------------------------------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------
