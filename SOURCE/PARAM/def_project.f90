@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : def_project                 Auteur : J. Gressier
 !                                         Date   : Novembre 2002
-! Fonction                                Modif  : Juin 2003
+! Fonction                                Modif  : cf historique
 !   Traitement des paramètres du fichier menu principal
 !   Paramètres principaux du projet
 !
@@ -92,14 +92,20 @@ case(stationnaire) ! Evolution pseudo-instationnaire
   if (.not.(rpm_existkey(pcour,"RESIDUALS").or.rpm_existkey(pcour,"NCYCLE"))) then
     call erreur("lecture de menu","paramètre RESIDUALS ou NCYCLE manquant")
   endif
-  call rpmgetkeyvalreal(pcour, "RESIDUALS", prj%duree,  tiny(prj%duree))
-  call rpmgetkeyvalint (pcour, "NCYCLE",    prj%ncycle, huge(prj%ncycle))
+  call rpmgetkeyvalreal(pcour, "RESIDUALS", prj%residumax)
+  call rpmgetkeyvalint (pcour, "NCYCLE",    prj%ncycle, 1)
   ! DEV : TRAITER LES MOTS CLEFS INTERDITS
+  if (prj%nzone /= 1) then
+    call erreur("Développement","calcul stationnaire prévu pour une seule zone")
+    ! réfléchir aux tests de fin de cycle de chaque zone pour un calcul
+    ! stationnaire convergé (critères de convergence)
+  endif
   
 case(instationnaire) ! Evolution instationnaire
   call print_info(10,"calcul instationnaire")
   call rpmgetkeyvalreal(pcour, "DURATION", prj%duree)
   call rpmgetkeyvalreal(pcour, "BASETIME", prj%dtbase)
+  prj%tpsbase = prj%dtbase
   ! DEV : TRAITER LES MOTS CLEFS INTERDITS
 
 case(periodique) ! Evolution périodique
@@ -108,6 +114,7 @@ case(periodique) ! Evolution périodique
   call rpmgetkeyvalint (pcour, "NCYCLE", prj%ncycle)
   prj%dtbase = prj%duree / prj%ncycle
   ! DEV : TRAITER LES MOTS CLEFS INTERDITS
+  call erreur("Développement","calcul périodique non implémenté")
 
 case default
   call erreur("lecture de menu","type d'intégration temporelle inconnu")
@@ -120,8 +127,9 @@ endsubroutine def_project
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov  2002 (v0.0.1b): création de la procédure
-! juin 2003          : ajout de la définition des couplages
+! nov  2002 : création de la procédure
+! juin 2003 : ajout de la définition des couplages
+! sept 2003 : paramètres pour le calcul stationnaire
 !------------------------------------------------------------------------------!
 
 

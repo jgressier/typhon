@@ -2,9 +2,8 @@
 ! Procedure : integration_cycle           Auteur : J. Gressier
 !                                         Date   : Juillet 2002
 ! Fonction                                Modif  : (cf Historique)
-!   Intégration de toutes les données sur un écart de temps donné,
-!   identique pour toutes les zones, et avec une représentation
-!   physique uniquement
+!   Intégration de cycle pour toutes les zones
+!   Gestion des communications et couplages entre zones
 !
 ! Defauts/Limitations/Divers :
 !
@@ -28,12 +27,13 @@ type(st_world) :: lworld
 ! -- Declaration des sorties --
 
 ! -- Declaration des variables internes --
-real(krp)               :: mdt              ! pas de temps macro (sens physique)
+real(krp) :: mdt              ! pas de temps macro (sens physique)
 integer   :: izone, ir, ifield, if
 integer   :: iz1, iz2, ic, ncoupl1, ncoupl2, ib, nbc1, nbc2
 
 ! -- Debut de la procedure --
 
+! PROVISOIRE pour compatibilité - à effacer
 mdt = lworld%prj%dtbase
 
 ! allocation des champs de résidus
@@ -134,16 +134,52 @@ call comp_flux(lworld%zone(iz1), lworld%zone(iz2), nbc1, nbc2, lworld%zone(iz1)%
                     lworld%info%curtps, ncoupl1)
 endif
 
-!------------------------------------------------------------------------------------------------------------------
+!-----------------------------------------------------------------------------------------------------
 
-! --------------------------------------
-! Intégration de chacune des zones 
-! --------------------------------------
+! --------------------------------------------
+! Intégration d'un cycle de chacune des zones 
+! --------------------------------------------
 
 do izone = 1, lworld%prj%nzone
  
-  call integrationmacro_zone(mdt, lworld%zone(izone))
+  ! -- Initialisation des infos pour le cycle
 
+  lworld%zone(izone)%info%typ_temps = lworld%prj%typ_temps
+
+  select case(lworld%prj%typ_temps)
+
+  case(stationnaire)
+    lworld%zone(izone)%info%residumax  = lworld%prj%residumax 
+    lworld%zone(izone)%info%residu_ref = lworld%info%residu_ref
+
+  case(instationnaire)
+    lworld%zone(izone)%info%cycle_dt = lworld%prj%dtbase
+
+  case(periodique)
+
+  endselect
+
+  !-------------------------------------
+  ! changement de nom en integration_cycle_zone ?
+  call integrationmacro_zone(lworld%zone(izone))
+  !-------------------------------------
+
+  ! -- Retour d'informations d'intégration du cycle
+
+  lworld%zone(izone)%info%typ_temps = lworld%prj%typ_temps
+
+  select case(lworld%prj%typ_temps)
+
+  case(stationnaire)
+    lworld%info%cur_res    = lworld%zone(izone)%info%cur_res
+    lworld%info%residu_ref = max(lworld%info%residu_ref, lworld%zone(izone)%info%residu_ref)
+
+  case(instationnaire)
+    lworld%zone(izone)%info%cycle_dt = lworld%prj%dtbase
+
+  case(periodique)
+
+  endselect
   ! do if = 1, lworld%zone(izone)%ndom
   !   call dealloc_res(lworld%zone(izone)%field(if))
   ! enddo

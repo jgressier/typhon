@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! MODULE : DEFZONE                        Auteur : J. Gressier
 !                                         Date   : Juillet 2002
-! Fonction                                Modif  : Juillet 2003 (cf historique)
+! Fonction                                Modif  : (cf historique)
 !   Définition des structures de données des zones (contient
 !   maillage, type de solveur et info)
 !
@@ -12,6 +12,7 @@
 module DEFZONE
 
 use TYPHMAKE      ! Definition de la precision/données informatiques
+use MODINFO       ! Information pour la gestion de l'intégration
 use MENU_SOLVER   ! Définition des solveurs
 use MENU_NUM      ! Définition des paramètres numériques d'intégration
 use MENU_MESH     ! Définition du maillage
@@ -36,8 +37,9 @@ type st_zone
   integer               :: id         ! numéro de zone
   character(len=strlen) :: nom        ! nom de la zone
   integer               :: ndom       ! nombre de domaine total (cas hybride)
-  integer               :: nmesh_str  ! nombre de domaines structurés
+  integer               :: nmesh_str  ! nombre de domaines     structurés
   integer               :: nmesh_ust  ! nombre de domaines non structurés
+  type(st_infozone)     :: info       ! information sur l'intégration
   type(mnu_solver)      :: defsolver  ! type de solveur à utiliser 
   type(mnu_time)        :: deftime    ! paramètres d'intégration temporelle
   type(mnu_spat)        :: defspat    ! paramètres d'intégration spatiale

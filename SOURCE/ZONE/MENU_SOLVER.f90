@@ -11,8 +11,8 @@
 module MENU_SOLVER
 
 use TYPHMAKE   ! Definition de la precision
-!use MENU_NS   ! Définition des solveurs type NS
-use MENU_KDIF ! Définition des solveurs type Equation de diffusion
+use MENU_NS    ! Définition des solveurs type NS
+use MENU_KDIF  ! Définition des solveurs type Equation de diffusion
 use MENU_BOCO
 use MENU_INIT
 
@@ -32,8 +32,8 @@ implicit none
 type mnu_solver
   integer         :: typ_solver      ! type de solveur (cf definitions VARCOM) 
   integer         :: nequat          ! nombre d'équations
-  !type(mnu_ns)    :: defns          ! options si solveur NS
-  type(mnu_kdif)  :: defkdif        ! options si solveur KDIF
+  type(mnu_ns)    :: defns           ! options si solveur NS
+  type(mnu_kdif)  :: defkdif         ! options si solveur KDIF
   integer         :: nboco           ! nombre de conditions aux limites
   type(mnu_boco), dimension(:), pointer &
                   :: boco            ! définitions des conditions aux limites

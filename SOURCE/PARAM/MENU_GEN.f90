@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! MODULE : MENU_GEN                       Auteur : J. Gressier
 !                                         Date   : Novembre 2002
-! Fonction                                Modif  : Juin 2003
+! Fonction                                Modif  : cf historique
 !   Définition des structures pour les entrées du programme TYPHON
 !   Structures pour les options générales
 !
@@ -30,10 +30,10 @@ type mnu_project
   character       :: typ_coord  ! type de repère
   character       :: typ_temps  ! (S)tationnaire, (I)nstationnaire, (P)ériodique
   real(krp)       :: duree      ! durée de l'intégration ou de la période
-  real(krp)       :: tpsbase    ! pas de temps de base pour le couplage
+  real(krp)       :: tpsbase    ! pas de temps de base du couplage
   integer         :: ncycle     ! nombre de cycle (en stationnaire ou périodique)
   real(krp)       :: residumax  ! valeur maximale du résidu admise (stationnaire)
-  real(krp)       :: dtbase     ! pas de temps de base d'un cycle
+  real(krp)       :: dtbase     ! pas de temps de base d'un cycle 
 endtype mnu_project
 
 
@@ -58,4 +58,11 @@ endtype mnu_OUTPUT
 
 
 endmodule MENU_GEN
+
+!------------------------------------------------------------------------------!
+! Historique des modifications
+!
+! nov  2002 : création du module
+!------------------------------------------------------------------------------!
+
 

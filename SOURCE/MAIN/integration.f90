@@ -1,8 +1,8 @@
 !------------------------------------------------------------------------------!
 ! Procedure : integration                 Auteur : J. Gressier
 !                                         Date   : Juillet 2002
-! Fonction                                Modif  : Mars 2003 (cf historique)
-!   Integration des champs de chaque zone
+! Fonction                                Modif  : (cf historique)
+!   Integration totale jusqu'au critère d'arrêt du calcul
 !
 ! Defauts/Limitations/Divers :
 !
@@ -25,7 +25,7 @@ type(st_world) :: lworld
 ! -- Declaration des sorties --
 
 ! -- Declaration des variables internes --
-real(krp)      :: macro_dt
+!real(krp)      :: macro_dt
 real(krp), dimension(:), allocatable &
                :: excht ! instants d'échange pour les différents couplages de zones
 integer        :: ir, izone, if
@@ -33,12 +33,13 @@ integer        :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
 
 ! -- Debut de la procedure --
 
-macro_dt        = lworld%prj%dtbase
+!macro_dt        = lworld%prj%dtbase
 
 ! initialisation
 
 lworld%info%icycle          = 0
 lworld%info%curtps          = 0._krp
+lworld%info%residu_ref      = 0._krp
 lworld%info%fin_integration = .false.
 
 
@@ -54,28 +55,62 @@ do izone = 1, lworld%prj%nzone
   enddo
 enddo
 
-!-----------------------------------------------------------------------------------------------------------------------
+! Faire appel à une subroutine contenant l'écriture
+!------------------------------------------------------------------------------------------------
 ! DVT : Ouverture du fichier de comparaison des flux à l'interface
-!-----------------------------------------------------------------------------------------------------------------------
+!------------------------------------------------------------------------------------------------
 if (lworld%prj%ncoupling > 0) then
   open(unit = uf_compflux, file = "compflux.dat", form = 'formatted')
   write(uf_compflux, '(a)') 'VARIABLES="t","F1","F2", "ERREUR", "Fcalcule", "ERRCALC"'
 endif
-!-----------------------------------------------------------------------------------------------------------------------
+
+
+!--------------------------------------------------------
+! INTEGRATION
+!--------------------------------------------------------
 do while (.not. lworld%info%fin_integration)
 
   lworld%info%icycle = lworld%info%icycle + 1
-  write(str_w,'(a,i5,a,g10.4)') "* Cycle", lworld%info%icycle, &
-                                " : t = ",  lworld%info%curtps
+
+  ! -- écriture d'informations en début de cycle --
+
+  select case(lworld%prj%typ_temps)
+  case(stationnaire)
+    write(str_w,'(a,i5)') "* Cycle", lworld%info%icycle
+  case(instationnaire)
+    write(str_w,'(a,i5,a,g10.4)') "* Cycle", lworld%info%icycle, &
+                                  " : t = ",  lworld%info%curtps
+  case(periodique)
+    write(str_w,'(a,i5)') "* Cycle", lworld%info%icycle
+  endselect
+
   call print_info(6,str_w)
 
-  call integration_macrodt(macro_dt, lworld, excht, lworld%prj%ncoupling)  
-    
-  lworld%info%curtps = lworld%info%curtps + macro_dt
+  ! -- intégration d'un cycle --
 
-  if (lworld%info%curtps >= lworld%prj%duree) then
+  call integration_cycle(lworld, excht, lworld%prj%ncoupling)  
+    
+  ! -- écriture d'informations en fin de cycle --
+
+  select case(lworld%prj%typ_temps)
+
+  case(stationnaire)
+    write(str_w,'(a,g10.4)') "  Résidu de cycle = ", log10(lworld%info%cur_res/lworld%info%residu_ref)
+    if (lworld%info%cur_res/lworld%info%residu_ref <= lworld%prj%residumax) then
+      lworld%info%fin_integration = .true.
+    endif
+
+  case(instationnaire)
+    lworld%info%curtps = lworld%info%curtps + lworld%prj%dtbase
+    if (lworld%info%curtps >= lworld%prj%duree) lworld%info%fin_integration = .true.
+    write(str_w,'(a)') " "
+
+  case(periodique)
     lworld%info%fin_integration = .true.
-  endif
+
+  endselect
+
+  call print_info(6,str_w)
 
 enddo
 
@@ -111,7 +146,8 @@ endsubroutine integration
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juil 2002 (v0.0.1b): création de la procédure
-! juin 2003          : instant d'échange excht
-!                      mise à jour des CL pour le fichier de sortie
+! juil 2002 : création de la procédure
+! juin 2003 : instant d'échange excht
+!             mise à jour des CL pour le fichier de sortie
+! sept 2003 : gestion du calcul par résidus (optionnel) + réorganisation
 !------------------------------------------------------------------------------!
