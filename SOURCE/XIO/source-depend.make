@@ -10,6 +10,10 @@ XIO_LIB = $(PRJLIB)/libt_xio.a
 XIO_MOD = REPRISE.$(MOD)
 
 XIO_OBJ = $(XIO_MOD:.$(MOD)=.o)  \
+          comp_flux.o            \
+          output_tec_cor.o       \
+          output_tec_flux.o      \
+          output_tec_temp.o      \
           output_tec_str.o       \
           output_tec_ust.o       \
           output_tecplot.o       \

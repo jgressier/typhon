@@ -20,12 +20,13 @@ implicit none
 
 ! -- Declaration des entrées --
 integer                    :: nfacelim            ! nombre de faces limites
-real(krp)                  :: corcoef             ! coeff correction de flux
+real(krp), dimension(nfacelim) &
+                           :: corcoef             ! coeff correction de flux
 integer, dimension(nfacelim) &
                            :: connface2
 
 ! -- Declaration des entrées/sorties --
-type(st_scafield), dimension(2) &
+type(st_scafield), dimension(3) &
                            :: etatcons1, etatcons2 ! stockage des flux cumulés
                                                    ! et des différences de flux
                                                    ! pour les deux zones
@@ -42,10 +43,18 @@ do i=1, nfacelim
 
 ! La différence est la "somme" des flux cumulés car ce sont les valeurs algébriques dont on dispose
 ! (les flux sortant de part et d'autre)
+
 dif_enflux = etatcons2(1)%scal(connface2(i)) + etatcons1(1)%scal(i)
 
-  etatcons1(2)%scal(i) = -corcoef*dif_enflux
-  etatcons2(2)%scal(connface2(i)) = (-1._krp + corcoef)*dif_enflux
+  ! différence de flux pour la zone1 : tient compte du reste du cycle précédent
+  ! (etatcons(3))
+  etatcons1(2)%scal(i) = -corcoef(i)*dif_enflux + etatcons1(3)%scal(i)
+  ! initialisation du reste à la différence initiale
+  etatcons1(3)%scal(i) = etatcons1(2)%scal(i) 
+  etatcons2(2)%scal(connface2(i)) = (-1._krp + corcoef(i))*dif_enflux + &
+                                    etatcons2(3)%scal(connface2(i))
+  ! initialisation du reste à la différence initiale
+  etatcons2(3)%scal(connface2(i)) = etatcons2(2)%scal(connface2(i))
 
 enddo
 

@@ -23,7 +23,8 @@ implicit none
 ! -- Declaration des entrées --
 integer                    :: nfacelim            ! nombre de faces limites
 integer                    :: solvercoupling      ! solvers utilisés
-real(krp)                  :: corcoef             ! coeff correction de flux
+real(krp), dimension(nfacelim) &
+                           :: corcoef             ! coeff correction de flux
 integer, dimension(nfacelim) &
                            :: connface2
 

@@ -56,7 +56,7 @@ call integration(loc_world)
 
 !###### FIN D'EXECUTION
 
-call output_result(loc_world)
+call output_result(loc_world,end_calc) !DEV2602 call output_result(loc_world)
 
 call delete(loc_world)
 

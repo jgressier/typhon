@@ -18,7 +18,6 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            calcul_raccord.o         \
            capteurs.o               \
            choixcorrection.o        \
-           comp_flux.o              \
            conditions_limites.o     \
            correction.o             \
            corr_varprim.o           \

@@ -9,7 +9,8 @@
 !------------------------------------------------------------------------------!
 
 subroutine ech_data_kdif(donnees_echange_inst1, zone1, nbc1, &
-                         donnees_echange_inst2, zone2, nbc2, ncoupl2 )
+                         donnees_echange_inst2, zone2, nbc2, ncoupl1, &
+                         ncoupl2, typcor )
 
 use TYPHMAKE
 use OUTPUT
@@ -17,13 +18,15 @@ use GEO3D
 use DEFZONE
 use DEFFIELD
 use MATER_LOI
+use VARCOM
 
 implicit none
 
 ! -- Declaration des entrées --
 type(st_zone)           :: zone1, zone2
 integer                 :: nbc1, nbc2 ! indice de la condition aux limites
-integer                 :: ncoupl2
+integer                 :: ncoupl1, ncoupl2
+integer                 :: typcor
 
 ! -- Declaration donnees_echange    
 
@@ -53,7 +56,25 @@ do i=1, zone1%grid%umesh%boco(nbc1)%nface
   endselect
 
   ! Affectation des données d'échange de la zone 1
-  donnees_echange_inst1%tabscal(1)%scal(i) = zone1%grid%field%etatprim%tabscal(1)%scal(icl1)
+
+  if (typcor == bocoT) then
+!DEBUG
+print*, "correction BOCO"
+    donnees_echange_inst1%tabscal(1)%scal(i) = &
+             (zone1%grid%field%etatcons%tabscal(1)%scal(icl1) - &
+             (zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal(2)%scal(i) / &
+             zone1%grid%umesh%mesh%volume(icl1,1,1)) ) / &
+             zone1%defsolver%defkdif%materiau%Cp
+    ! reste de correction nul
+    ! zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal(3)%scal(i) = 0
+  else
+    !donnees_echange_inst1%tabscal(1)%scal(i) = &
+    !                              zone1%grid%field%etatprim%tabscal(1)%scal(icl1)
+    donnees_echange_inst1%tabscal(1)%scal(i) = &
+             zone1%grid%field%etatcons%tabscal(1)%scal(icl1)/ &
+             zone1%defsolver%defkdif%materiau%Cp
+  endif
+
   donnees_echange_inst1%tabscal(2)%scal(i) = conduct
   !donnees_echange_inst1%tabvect(1)%vect(if) = zone1%grid%field%gradient%tabvect(1)%vect(icl)
 
@@ -67,7 +88,23 @@ do i=1, zone1%grid%umesh%boco(nbc1)%nface
   endselect
 
   ! Affectation des données d'échange de la zone 2
-  donnees_echange_inst2%tabscal(1)%scal(i) = zone2%grid%field%etatprim%tabscal(1)%scal(icl2)
+
+  if (typcor == bocoT) then
+    donnees_echange_inst2%tabscal(1)%scal(i) = &
+             (zone2%grid%field%etatcons%tabscal(1)%scal(icl2) - &
+             (zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal(2)%scal(i) / &
+             zone2%grid%umesh%mesh%volume(icl2,1,1)) ) / &
+             zone2%defsolver%defkdif%materiau%Cp
+    ! reste de correction nul
+    ! zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal(3)%scal(i) = 0
+  else
+    !donnees_echange_inst2%tabscal(1)%scal(i) = &
+    !                              zone2%grid%field%etatprim%tabscal(1)%scal(icl2)
+    donnees_echange_inst2%tabscal(1)%scal(i) = &
+             zone2%grid%field%etatcons%tabscal(1)%scal(icl2)/ &
+             zone2%defsolver%defkdif%materiau%Cp
+  endif
+
   donnees_echange_inst2%tabscal(2)%scal(i) = conduct
   !donnees_echange_inst2%tabvect(1)%vect(if) = zone2%grid%field%gradient%tabvect(1)%vect(icl)  
 

@@ -7,7 +7,8 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine corr_varprim(field, domaine, def_solver, dif_enflux, nb)
+subroutine corr_varprim(field, domaine, def_solver, dif_enflux, nb, part_cor, &
+                        typ_cor, fincycle)
 
 use TYPHMAKE
 use OUTPUT
@@ -24,6 +25,10 @@ type(st_ustmesh)      :: domaine          ! domaine non structuré à intégrer
 type(mnu_solver)      :: def_solver     ! propriétés du solver
 type(st_genericfield) :: dif_enflux       ! énergie à ajouter, pour correction de flux
 integer               :: nb               ! index de la condition aux limites
+real(krp)             :: part_cor         ! coefficient donnant la part de la 
+                                          ! correction à apporter
+integer               :: typ_cor          ! type de correction
+logical               :: fincycle
 
 ! -- Declaration des entrées/sorties --
 type(st_field)   :: field            ! champ des valeurs et résidus
@@ -34,7 +39,8 @@ type(st_field)   :: field            ! champ des valeurs et résidus
 
 select case(def_solver%typ_solver)
 case(solKDIF)
-  call corr_varprim_kdif(field, domaine, def_solver%defkdif, dif_enflux, nb)
+  call corr_varprim_kdif(field, domaine, def_solver, dif_enflux, nb, &
+                         part_cor, typ_cor, fincycle)
 case default
   call erreur("Incohérence interne (corr_varprim)","type de solveur inconnu")
 endselect 

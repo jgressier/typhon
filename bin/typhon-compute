@@ -14,4 +14,5 @@ read CAS
 cp $CAS/coef*   $COMPDIR
 cp $CAS/*.rpm   $COMPDIR
 cp $CAS/*.cgns  $COMPDIR
+cp $CAS/*.mty   $COMPDIR
 $EXEDIR/Typhon

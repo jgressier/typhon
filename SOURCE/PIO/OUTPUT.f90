@@ -37,6 +37,9 @@ integer  uf_residu    ! residus
 integer  uf_mesure    ! mesures diverses
 integer  uf_chpresu   ! champs de résultats
 integer  uf_compflux  ! comparaison des flux à l'interface
+integer  uf_correction  ! correction  DEV2602
+integer  uf_tempinter ! température interface DEV1404
+
 ! unités de entrées/sorties 
 
 integer  uf_reprise   ! fichier reprise
@@ -87,6 +90,8 @@ implicit none
   uf_mesure  = 50   ! mesures diverses
   uf_chpresu = 55   ! champs résultats
   uf_compflux= 56   ! comparaison de flux à l'interface
+  uf_tempinter=57   ! DEV1404
+  uf_correction = 1000 !DEV2602
 
   open(unit=uf_log, file = "typhon.log", form="formatted")  
 

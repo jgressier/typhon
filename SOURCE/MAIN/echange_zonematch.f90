@@ -43,7 +43,7 @@ real(krp)                  :: dtexch             ! pas de temps entre
 ! -- Declaration des sorties --
 
 ! -- Declaration des variables internes --
-integer                        :: i, if, ic, if2, ifield
+integer                        :: i, if, ic, if2, ifield, ic1, ic2, ip
 type(v3d), dimension(nfacelim) :: normale ! normales à l'interface
 type(v3d), dimension(nfacelim) :: vecinter ! vecteurs inter-cellule
     real(krp), dimension(nfacelim) :: d1, d2  ! distance centre de cellule - centre de face
@@ -52,12 +52,15 @@ integer                        :: typmethod
 type(v3d)                      :: cg1, cg2, cgface ! centres des cellules des zones 1 et 2, et des faces
 integer                        :: typsolver1, typsolver2
 real(krp)                      :: dif_enflux     ! différence des énergies d'interface dans les deuxzones
-real(krp)                      :: corcoef   ! coefficient de correction de flux
+real(krp), dimension(nfacelim) :: corcoef   ! coefficient de correction de flux
 real(krp)                      :: rap_f ! rapport des nb de Fourier des 2 zones
 real(krp)                      :: fcycle1, fcycle2 ! nb de Fourier de cycle
                                                    ! des deux zones
 integer                        :: placement ! variable pour le
                                             ! placement des corrections
+real(krp)                      :: part_cor1, part_cor2 ! part de correction à
+                                                  ! apporter, dans les 2 zones
+integer                        :: typ_cor1, typ_cor2 ! type de correction
 
 ! -----------------PROVISOIRE-----------------------------------------------
 !integer     :: uf
@@ -76,20 +79,29 @@ integer                        :: placement ! variable pour le
 !endif
 !-----------------------------------------------------------------------------
 
-placement = apres ! placement apres (le plus stable) sauf les cas où il est
-                  ! possible de faire la correction avant (plus précise)
+typ_cor1 = zone1%coupling(ncoupl1)%typ_cor
+typ_cor2 = zone2%coupling(ncoupl2)%typ_cor
 
-corcoef = 0.5     ! valeur du coefficient de correction pour la meilleure 
-                  !  précision
+part_cor1 = zone1%coupling(ncoupl1)%partcor
+part_cor2 = zone2%coupling(ncoupl2)%partcor
+
+if (typ_cor1 .ne. typ_cor2) then 
+  call erreur("DEVELOPPEMENT", &
+              "Types de correction differents non implémentés")
+endif
 
 select case(typtemps)
 
   case(instationnaire) ! On applique des corrections de flux entre les échanges
-    call choixcorrection(zone1, zone2, dtexch, placement, corcoef)
+    call choixcorrection(zone1, zone2, placement, corcoef, typ_cor1, nfacelim,&
+                         nbc1, nbc2, ncoupl2)
 
+    ! Correction
     if (placement == avant) then
+! DEBUG
+print*, "CORRECTION AVANT"
       call correction(zone1, zone2, nfacelim, corcoef, nbc1, nbc2, ncoupl1, &
-                      ncoupl2)
+                    ncoupl2, part_cor1, part_cor2, typ_cor1, typ_cor2, .false.)
     endif
 
 endselect
@@ -125,8 +137,10 @@ do i=1, nfacelim
   vecinter(i) = (cg2 - cg1) / abs((cg2 - cg1))
   
   ! calcul des distances d1 et d2 entre les cellules (des zones 1 et 2) et l'interface.
-  d1(i) = (cgface-cg1).scal.vecinter(i)
-  d2(i) = (cg2-cgface).scal.vecinter(i)
+  !d1(i) = (cgface-cg1).scal.vecinter(i)
+  !d2(i) = (cg2-cgface).scal.vecinter(i)
+  d1(i) = (cgface-cg1).scal.(cgface-cg1)/abs((cgface-cg1).scal.normale(i))
+  d2(i) = (cgface-cg2).scal.(cgface-cg2)/abs((cgface-cg2).scal.normale(i))
 
 enddo 
 
@@ -138,7 +152,7 @@ typmethod = zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%typ_calc
 call donnees_echange(zone1%coupling(ncoupl1)%zcoupling%solvercoupling, &
                      zone1%coupling(ncoupl1)%zcoupling%echdata, &
                      zone1, nbc1, zone2%coupling(ncoupl2)%zcoupling%echdata, &
-                     zone2, nbc2, ncoupl2)
+                     zone2, nbc2, ncoupl1, ncoupl2, typ_cor1)
 
 
 ! Calcul des conditions de raccord
@@ -155,12 +169,19 @@ select case(typtemps)
   case(instationnaire) ! On applique des corrections de flux entre les échanges
 
     if (placement == apres) then
-      call correction(zone1, zone2, nfacelim, corcoef, nbc1, nbc2, ncoupl1, &
-                      ncoupl2)
-      call print_info(10," !! CORRECTION APRÈS ÉCHANGE !! ")
+! DEBUG
+print*, "CORRECTION APRES"
+
+      if (typ_cor1 .ne. bocoT) then
+        call correction(zone1, zone2, nfacelim, corcoef, nbc1, nbc2, ncoupl1, &
+                        ncoupl2, part_cor1, part_cor2, typ_cor1, typ_cor2, &
+                        .false.)
+      endif
     endif
 
 endselect
+
+
 
 endsubroutine echange_zonematch
 

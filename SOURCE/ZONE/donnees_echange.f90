@@ -9,7 +9,8 @@
 !------------------------------------------------------------------------------!
 
 subroutine donnees_echange(solvercoupling, donnees_echange_inst1, zone1, &
-                           nbc1, donnees_echange_inst2, zone2, nbc2, ncoupl2)
+                           nbc1, donnees_echange_inst2, zone2, nbc2, ncoupl1, &
+                           ncoupl2, typcor)
 
 use TYPHMAKE
 use OUTPUT
@@ -24,7 +25,8 @@ implicit none
 integer                 :: solvercoupling
 type(st_zone)           :: zone1, zone2
 integer                 :: nbc1, nbc2 ! numéro (identité) de la CL
-integer                 :: ncoupl2
+integer                 :: ncoupl1, ncoupl2
+integer                 :: typcor
 
 ! -- Declaration donnees_echange    
 type(st_genericfield) :: donnees_echange_inst1, donnees_echange_inst2
@@ -37,11 +39,13 @@ select case(solvercoupling)
   
   case(kdif_kdif)
   call ech_data_kdif(donnees_echange_inst1, zone1, nbc1, &
-                     donnees_echange_inst2, zone2, nbc2, ncoupl2)
+                     donnees_echange_inst2, zone2, nbc2, ncoupl1, &
+                     ncoupl2, typcor)
   
   case(kdif_ns)
   call ech_data_kdif(donnees_echange_inst1, zone1, nbc1, &
-                     donnees_echange_inst2, zone2, nbc2, ncoupl2)
+                     donnees_echange_inst2, zone2, nbc2, ncoupl1, &
+                     ncoupl2, typcor)
 
   case(ns_ns)
   call erreur("incohérence interne (donnees_echange)", "cas non implémenté")

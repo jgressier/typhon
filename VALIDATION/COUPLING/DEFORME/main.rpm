@@ -21,6 +21,12 @@ BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
   FILE   = "typhon.dat" ! nom du fichier de sortie
 ENDBLOCK
 
+BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+  FORMAT = TECPLOT      ! format du fichier de sortie : RAW / TECPLOT / VIGIE
+  TYPE = FLUX
+  FILE   = "compflux.dat" ! nom du fichier de sortie
+ENDBLOCK
+
 BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
   NAME   = "zone1contact"       ! nom de la zone (facultatif)
   SOLVER = HEAT         ! type de solveur : HEAT / EULER / NS

@@ -25,6 +25,9 @@ type mnu_zonecoupling
   character(len=strlen)      :: connfam    ! nom de famille de la CL connectée
                                            ! par ce raccord
   type(st_zonecoupling)      :: zcoupling  ! paramètres de couplage
+  real(krp)                  :: partcor    ! part de correction à faire par 
+                                           ! itération <=1
+  integer                    :: typ_cor    ! type de répartition de correction
 endtype mnu_zonecoupling
 
 ! -- INTERFACES -------------------------------------------------------------

@@ -7,7 +7,9 @@
 ! Defauts/Limitations/Divers : 
 !------------------------------------------------------------------------------
 
-subroutine correction(zone1, zone2, nfacelim, corcoef, nbc1, nbc2, ncoupl1, ncoupl2)
+subroutine correction(zone1, zone2, nfacelim, corcoef, nbc1, nbc2, ncoupl1, &
+                      ncoupl2, part_cor1, part_cor2, typ_cor1, typ_cor2, &
+                      fincycle)
 
 use OUTPUT
 use VARCOM
@@ -20,9 +22,14 @@ implicit none
 
 ! -- Declaration des entrées --
 integer                    :: nfacelim            ! nombre de faces limites
-real(krp)                  :: corcoef   ! coefficient de correction de flux
+real(krp), dimension(nfacelim) &
+                           :: corcoef   ! coefficient de correction de flux
 integer                    :: nbc1, nbc2 ! indice des conditions aux limites 
 integer                    :: ncoupl1, ncoupl2 ! numéro (identité) du raccord
+real(krp)                  :: part_cor1, part_cor2 ! part de la correction à 
+                                                ! apporter, dans les deux zones
+integer                    :: typ_cor1, typ_cor2 ! type de correction
+logical                    :: fincycle
 
 ! -- Declaration des sorties --
 type(st_zone)              :: zone1, zone2
@@ -41,16 +48,21 @@ call calcdifflux(zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal, &
 
 ! Calcul des variables primitives avec correction de flux
 
-call corr_varprim(zone1%grid%field, &
-                  zone1%grid%umesh, &
-                  zone1%defsolver,  &
-                  zone1%coupling(ncoupl1)%zcoupling%etatcons, nbc1)
+if ( (typ_cor1.ne.bocoT) .and. (typ_cor1.ne.repart_reg) .and. &
+     (typ_cor1.ne.repart_geo) )then
 
-call corr_varprim(zone2%grid%field, &
-                  zone2%grid%umesh, &
-                  zone2%defsolver,  &
-                  zone2%coupling(ncoupl2)%zcoupling%etatcons, nbc2)
+  call corr_varprim(zone1%grid%field, &
+                    zone1%grid%umesh, &
+                    zone1%defsolver, &
+                    zone1%coupling(ncoupl1)%zcoupling%etatcons, nbc1, &
+                    part_cor1, typ_cor1, fincycle)
 
+  call corr_varprim(zone2%grid%field, &
+                    zone2%grid%umesh, &
+                    zone2%defsolver, &
+                    zone2%coupling(ncoupl2)%zcoupling%etatcons, nbc2, &
+                    part_cor2, typ_cor2, fincycle)
+endif
 
 endsubroutine correction
 

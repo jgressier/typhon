@@ -89,6 +89,13 @@ character, parameter   :: fmt_VIGIE   = 'V'   ! format VIGIE
 
 integer, parameter :: outp_NODE         = 01
 integer, parameter :: outp_CENTER       = 02
+integer, parameter :: outp_COR          = 03 !DEV2602
+integer, parameter :: outp_FLUX         = 04 !DEV2602
+integer, parameter :: outp_TEMPINTER    = 05 !DEV1404
+
+! -- Constantes pour l'état d'avancement du calcul
+integer, parameter :: end_calc          = 01 !DEV2602
+integer, parameter :: in_cycle          = 02 !DEV2602
 
 ! -- Constantes de définition des conditions aux limites (physique) --
 
@@ -146,10 +153,16 @@ integer, parameter  :: kdif_kdif = 01
 integer, parameter  :: kdif_ns   = 02
 integer, parameter  :: ns_ns     = 03
 
-! -- Constantes pour le choix du paramètre "placement" (de la correction dans echange_zonematch)
-integer, parameter  :: avant = 01
-integer, parameter  :: apres = 02
-integer, parameter  :: sans  = 03
+! -- Constantes pour le choix du paramètre typ_cor (MENU_ZONECOUPLING) : type de correction
+integer, parameter  :: sans       = 01
+integer, parameter  :: avant      = 02
+integer, parameter  :: apres      = 03
+integer, parameter  :: auto       = 04
+integer, parameter  :: repart_reg = 05
+integer, parameter  :: repart_geo = 06
+integer, parameter  :: partiel    = 07
+integer, parameter  :: bocoT      = 08
+integer, parameter  :: bocoT2     = 09 !DEV1603
 
 ! -- Constantes pour le choix du paramètre "activite" (senseur)
 !

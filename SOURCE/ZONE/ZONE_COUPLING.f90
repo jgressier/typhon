@@ -61,13 +61,13 @@ select case(zc%solvercoupling)
 
   case(kdif_kdif)
     call new(zc%echdata, nfaceint, 2,1,0)
-    call new(zc%etatcons, nfaceint, 2, 0, 0)
+    call new(zc%etatcons, nfaceint, 3, 0, 0)
     call init_genericfield(zc%echdata, 0._krp, v3d(0._krp, 0._krp, 0._krp))
     call init_genericfield(zc%etatcons, 0._krp, v3d(0._krp, 0._krp, 0._krp))
 
   case(kdif_ns)
     call new(zc%echdata, nfaceint, 2,1,0)
-    call new(zc%etatcons, nfaceint, 2, 0, 0)
+    call new(zc%etatcons, nfaceint, 3, 0, 0)
     call init_genericfield(zc%echdata, 0._krp, v3d(0._krp, 0._krp, 0._krp))
     call init_genericfield(zc%etatcons, 0._krp, v3d(0._krp, 0._krp, 0._krp))
 

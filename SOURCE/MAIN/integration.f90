@@ -65,10 +65,10 @@ enddo
 !------------------------------------------------------------------------------------------------
 ! DVT : Ouverture du fichier de comparaison des flux à l'interface
 !------------------------------------------------------------------------------------------------
-if (lworld%prj%ncoupling > 0) then
-  open(unit = uf_compflux, file = "compflux.dat", form = 'formatted')
-  write(uf_compflux, '(a)') 'VARIABLES="t","F1","F2", "ERREUR", "Fcalcule", "ERRCALC"'
-endif
+!if (lworld%prj%ncoupling > 0) then
+!  open(unit = uf_compflux, file = "compflux.dat", form = 'formatted')
+!  write(uf_compflux, '(a)') 'VARIABLES="t","F1","F2", "ERREUR", "Fcalcule", "ERRCALC"'
+!endif
 
 
 !--------------------------------------------------------
@@ -136,6 +136,11 @@ do while (.not. lworld%info%fin_integration)
 
 enddo
 
+! Mise à jour des variables primitives
+do izone = 1, lworld%prj%nzone
+  call calc_varprim(lworld%zone(izone)%defsolver, lworld%zone(izone)%grid%field)
+enddo
+
 ! Mise à jour des conditions aux limites, notamment de couplage pour l'affichage des données :
 if (lworld%prj%ncoupling > 0) then
   do ir = 1, lworld%prj%ncoupling
@@ -147,6 +152,7 @@ endif
 do izone = 1, lworld%prj%nzone
  call conditions_limites(lworld%zone(izone))
 enddo
+
 
 !-----------------------------------------------------------------------------------------------------------------------
 ! DVT : Fermeture du fichier de comparaison des flux à l'interface

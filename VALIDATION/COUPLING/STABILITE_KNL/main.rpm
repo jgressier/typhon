@@ -9,7 +9,7 @@ BLOCK:PROJECT           ! DEFINITION DU PROJET
   NCOUPLING = 2         ! nombre de raccords
   COORD   = 2D          ! type de repère  : 2D=2DPLAN / 2DAXI / 3D
   TIME    = UNSTEADY    ! type d'intégration temporelle : STEADY / UNSTEADY / PERIODIC
-  DURATION  = 2000.      ! UNSTEADY : durée totale du calcul (temps physique)
+  DURATION  = 1000.      ! UNSTEADY : durée totale du calcul (temps physique)
  !PERIOD    = 100.      ! PERIODIC : durée de la période
  !NCYCLE    = 50        ! STEADY / PERIODIC : nombre de cycle total ou par période
  !RESIDUALS = 1.E-6     ! STEADY : résidu maximal dans le champ

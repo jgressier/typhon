@@ -127,6 +127,54 @@ do ib = 1, nboco
       call erreur("lecture de menu","méthode de calcul du raccord inconnue") 
     endselect
 
+    ! -- Correction : répartition
+    call rpmgetkeyvalstr(pcour, "CORRECTION", str, "AUTO")
+
+    if (samestring(str, "AUTO"))          zcoupling(izr)%typ_cor = auto
+    if (samestring(str, "BEF_EXCH"))         zcoupling(izr)%typ_cor = avant
+    if (samestring(str, "AFT_EXCH"))         zcoupling(izr)%typ_cor = apres  
+    if (samestring(str, "NO"))            zcoupling(izr)%typ_cor = sans 
+    if (samestring(str, "SPLIT_REG"))     zcoupling(izr)%typ_cor = repart_reg
+    if (samestring(str, "SPLIT_GEO"))     zcoupling(izr)%typ_cor = repart_geo
+    if (samestring(str, "SPLIT_PARTIAL")) zcoupling(izr)%typ_cor = partiel
+    if (samestring(str, "EQ_BOCOT"))         zcoupling(izr)%typ_cor = bocoT
+    if (samestring(str, "NEQ_BOCOT"))        zcoupling(izr)%typ_cor = bocoT2 !DEV1603
+
+    select case(zcoupling(izr)%typ_cor)
+
+    case(auto) ! Application de la correction automatique
+      call print_info(10,"    Correction automatique")
+      zcoupling(izr)%partcor = 1
+    case(avant) ! Application de la correction AVANT l'échange, en 1 fois
+      call print_info(10,"    Correction AVANT")
+      zcoupling(izr)%partcor = 1
+    case(apres) ! Application de la correction APRES l'échange, en 1 fois
+      call print_info(10,"    Correction APRES")
+      zcoupling(izr)%partcor = 1
+    case(sans)   ! Pas de correction
+      call print_info(10,"    Pas de correction")
+      zcoupling(izr)%partcor = 0
+    case(repart_reg) ! répartition régulière de la correction sur le nombre
+                     ! d'itérations nécessaires
+      call print_info(10,"    Correction régulièrement répartie sur plusieurs itérations")
+      call rpmgetkeyvalreal(pcour, "ITER_PART", zcoupling(izr)%partcor)
+    case(repart_geo) ! répartition géométrique de la correction 
+      call print_info(10,"    Correction répartie selon une variation géométrique")
+      call rpmgetkeyvalreal(pcour, "ITER_PART", zcoupling(izr)%partcor)
+    case(partiel) ! correction partielle sur un cycle
+      call print_info(10,"    Correction partielle")
+      call rpmgetkeyvalreal(pcour, "ITER_PART", zcoupling(izr)%partcor)
+    case(bocoT)   ! Correction sur la condition aux limites
+      call print_info(10,"    Correction appliquée sur la condition limite d'interface")
+      zcoupling(izr)%partcor = 1
+    case(bocoT2)   ! Correction sur la condition aux limites
+      call print_info(10,"    Correction appliquée sur la condition limite d'interface")
+      zcoupling(izr)%partcor = 1
+
+    case default
+      call erreur("lecture de menu","type de correction inconnu") 
+    endselect
+
   ! -- Traitement des conditions aux limites non attachées à un couplage
   else 
     

@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine output_result(world)
+subroutine output_result(world, position) !DEV2602 subroutine output_result(world)
 
 use TYPHMAKE
 use OUTPUT
@@ -18,11 +18,12 @@ implicit none
 
 ! -- Declaration des entrées --
 type(st_world) :: world
+integer        :: position !DEV2602
 
 ! -- Declaration des sorties --
 
 ! -- Declaration des variables internes --
-integer i
+integer :: i
 
 ! -- Debut de la procedure --
 
@@ -33,7 +34,7 @@ do i = 1, world%noutput
 
     call print_info(2,"* sauvegarde au format TECPLOT : " &
                       // trim(world%output(i)%fichier))
-    call output_tecplot(world%output(i)%fichier, world, world%output(i)%type)
+    call output_tecplot(world%output(i)%fichier, world, world%output(i)%type, position, i) !DEV2602 call output_tecplot(world%output(i)%fichier, world, world%output(i)%type)
 
   case(fmt_VIGIE)
     call erreur("Développement","format VIGIE non implémenté")

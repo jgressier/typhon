@@ -28,11 +28,19 @@ type(st_zone) :: lzone            ! zone à intégrer
 real(krp)   :: local_t            ! temps local (0 à mdt)
 real(krp)   :: dt                 ! pas de temps de la zone
 integer     :: iter               ! numéro d'itération local au cycle
-integer     :: if                 ! index de champ
-real(krp)   :: fourier
+integer     :: if, ic, ib, nbc    ! index de champ, couplage et boco
+real(krp)   :: part_cor           ! part de correction à appliquer
+integer     :: typ_cor            ! type de correction
 logical     :: fin
 
+!DEV
+integer :: cumulreste, oui, non
 ! -- Debut de la procedure --
+
+!DEV
+oui = 1
+non = 2
+cumulreste = oui
 
 iter    = 0
 local_t = 0._krp
@@ -82,6 +90,33 @@ do while (.not.fin)
     call erreur("Développement","cas non implémenté")
 
   endselect
+
+  ! Correction de flux quand nécessaire
+  do ic = 1, lzone%ncoupling
+    part_cor = lzone%coupling(ic)%partcor
+    typ_cor = lzone%coupling(ic)%typ_cor
+    if ( (typ_cor.ne.sans).and.(typ_cor.ne.auto).and.(typ_cor.ne.partiel).and.&
+         (typ_cor.ne.bocoT).and.(typ_cor.ne.avant).and.(typ_cor.ne.apres).and.&
+         (typ_cor.ne.bocoT2) ) then !DEV1603
+      ! Calcul de l'indice de condition aux limites
+      do ib = 1, lzone%grid%umesh%nboco
+        if (samestring(lzone%coupling(ic)%family, &
+                       lzone%grid%umesh%boco(ib)%family)) nbc = ib
+      enddo
+      ! Correction de flux
+      if (cumulreste == oui) then
+        call corr_varprim(lzone%grid%field, lzone%grid%umesh, &
+                          lzone%defsolver, &
+                          lzone%coupling(ic)%zcoupling%etatcons, nbc, &
+                          part_cor, typ_cor, .false.)
+      else
+        call corr_varprim(lzone%grid%field, lzone%grid%umesh, &
+                          lzone%defsolver, &
+                          lzone%coupling(ic)%zcoupling%etatcons, nbc, &
+                          part_cor, typ_cor, fin)
+      endif 
+    endif
+  enddo
 
   ! On peut ici coder différentes méthodes d'intégration (RK, temps dual...)
 

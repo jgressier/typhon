@@ -8,7 +8,8 @@
 !				aux deux zones
 !------------------------------------------------------------------------------
 
-subroutine choixcorrection(zone1, zone2, dtexch, placement, corcoef)
+subroutine choixcorrection(zone1, zone2, placement, corcoef, typ_cor, &
+                           nfacelim, nbc1, nbc2, ncoupl2)
 
 use OUTPUT
 use VARCOM
@@ -16,64 +17,101 @@ use DEFZONE
 use DEFFIELD
 use GEO3D
 use TYPHMAKE
+use MATER_LOI
 
 implicit none
 
 ! -- Declaration des entrées --
 type(st_zone)              :: zone1, zone2
-real(krp)                  :: dtexch             ! pas de temps entre 
-                                                 ! deux échanges
+integer                    :: ncoupl2
+integer                    :: nfacelim
+integer                    :: typ_cor
+integer                    :: nbc1, nbc2
 
 ! -- Declaration des sorties --
-integer                    :: placement     ! variable pour le
-                                            ! placement des corrections
-real(krp)                  :: corcoef       ! coefficient de correction
+integer                        :: placement     ! variable pour le
+                                                ! placement des corrections
+real(krp), dimension(nfacelim) :: corcoef       ! coefficient de correction
 
 ! -- Declaration des variables internes --
-real(krp)                      :: rap_f ! rapport des nb de Fourier des 2 zones
-real(krp)                      :: fcycle1, fcycle2 ! nb de Fourier de cycle
-                                                   ! des deux zones
+integer                    :: i, if1, if2, icl1, icl2
+real(krp)                  :: vol1, vol2, c1, c2, conduct1, conduct2, rapdifth
 
 ! -- Debut de la procedure --
-
-! Calcul du nombre de Fourier des deux zones
-call calc_fourier(zone1, zone1%deftime%stabnb)
-call calc_fourier(zone2, zone2%deftime%stabnb)
-
-! Rapport de ces nombres de Fourier
-! En fonction de la valeur, orientation vers une correction AVANT ou APRES
-! et choix de la valeur du coefficient de correction
-rap_f = zone2%deftime%stabnb / zone1%deftime%stabnb
-
-if (rap_f == 1) then
 
   ! Calcul du nombre de Fourier de cycle (basé sur la durée entre deux 
   ! échanges 
   ! et sur le pas de maillage)
-  call calc_fouriercycle(zone1, zone1%deftime%stabnb, dtexch, fcycle1)
-  call calc_fouriercycle(zone2, zone2%deftime%stabnb, dtexch, fcycle2)
+  !call calc_fouriercycle(zone1, zone1%deftime%stabnb, dtexch, fcycle1)
+  !call calc_fouriercycle(zone2, zone2%deftime%stabnb, dtexch, fcycle2)
+  !DEBUG
+  !print*, "Fourier de cycle : ", fcycle1, ", ", fcycle2
 
-  ! si les nb de Fourier de cycle des deux zones sont inférieurs à 3 
-  ! (en théorie 1D : 4), on effectue la correction avant, plus précise
-  ! avec un coefficient de correction de 0.5
-  ! sinon : correction après avec le meme coef de correction
-  if ((fcycle1 .lt. 3).and.(fcycle2 .lt. 3)) then
-    placement = avant
-    corcoef = 0.5
-  endif
-
-else if (rap_f .lt. 0.1) then
-  ! cas où on peut placer la correction avant avec un coef de correction de 0
+! Type de correction
+select case(typ_cor)
+case (sans)
+  placement = sans
+case (bocoT)
   placement = avant
-  corcoef = 0
-
-else if (rap_f .gt. 10) then
-  ! cas où on peut placer la correction avant avec un coef de correction de 1
+case (bocoT2) ! DEV1603
+  placement = apres
+case (avant)
   placement = avant
-  corcoef = 1
+case (apres)
+  placement = apres
+case (auto) ! Choix automatique selon paramètres
+  placement = apres
+case (repart_reg)
+  placement = apres
+case (repart_geo)
+  placement = apres
+case (partiel)
+  placement = avant
+endselect
 
-endif
+! Coefficient de correction
+do i=1, nfacelim
+  if1 = zone1%grid%umesh%boco(nbc1)%iface(i)
+  if2 = zone2%grid%umesh%boco(nbc2)%iface(zone2%coupling(ncoupl2)%zcoupling%connface(i))
 
+  icl1 = zone1%grid%umesh%facecell%fils(if1,1)
+  icl2 = zone2%grid%umesh%facecell%fils(if2,1)
+
+  ! Calcul de conductivité de la zone 1
+  select case(zone1%defsolver%defkdif%materiau%type)
+  case(mat_LIN, mat_KNL)
+    conduct1 = valeur_loi(zone1%defsolver%defkdif%materiau%Kd, &
+                          zone1%grid%field%etatprim%tabscal(1)%scal(icl1))
+  case(mat_XMAT)
+    call erreur("Calcul de matériau","Materiau non linéaire interdit")
+  endselect
+
+  ! Calcul de conductivité de la zone 2
+  select case(zone2%defsolver%defkdif%materiau%type)
+  case(mat_LIN, mat_KNL)
+    conduct2 = valeur_loi(zone2%defsolver%defkdif%materiau%Kd, &
+                          zone2%grid%field%etatprim%tabscal(1)%scal(icl2))
+  case(mat_XMAT)
+    call erreur("Calcul de matériau","Materiau non linéaire interdit")
+  endselect
+
+  ! Volumes des cellules limitrophes
+  vol1 = zone1%grid%umesh%mesh%volume(icl1,1,1)
+  vol2 = zone2%grid%umesh%mesh%volume(icl2,1,1)
+
+  ! Capacités thermiques
+  c1 = zone1%defsolver%defkdif%materiau%Cp
+  c2 = zone2%defsolver%defkdif%materiau%Cp
+
+  ! Rapport des diffusivités thermiques (avec prise en compte volumes cellules)
+  rapdifth = (conduct2*c1*vol1) / (conduct1*c2*vol2)
+
+  ! Orientation des valeurs de coefficient de correction
+  if (rapdifth == 1)   corcoef(i) = 0.5
+  if (rapdifth .gt. 1) corcoef(i) = 1
+  if (rapdifth .lt. 1) corcoef(i) = 0
+print*, "DEBUG", rapdifth, corcoef(i)
+enddo
 endsubroutine choixcorrection
 
 !------------------------------------------------------------------------------
