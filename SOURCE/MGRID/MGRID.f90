@@ -92,10 +92,45 @@ type(st_grid)  :: grid
 integer        :: id
 
   grid%info%id = id
+
+  grid%optmem%gradcond_computed = .false.
+  nullify(grid%optmem%gradcond)
+
   nullify(grid%next)
   nullify(grid%subgrid)
 
 endsubroutine new_grid
+
+
+!------------------------------------------------------------------------------!
+! Procedure : allocation of matrix for gradient computation
+!------------------------------------------------------------------------------!
+subroutine grid_alloc_gradcond(grid)
+implicit none
+type(st_grid)  :: grid
+integer        :: id
+
+  if (.not.associated(grid%optmem%gradcond)) then
+    allocate(grid%optmem%gradcond(grid%umesh%ncell_int))
+  endif
+
+endsubroutine grid_alloc_gradcond
+
+
+!------------------------------------------------------------------------------!
+! Procedure : deallocation of matrix for gradient computation
+!------------------------------------------------------------------------------!
+subroutine grid_dealloc_gradcond(grid)
+implicit none
+type(st_grid)  :: grid
+integer        :: id
+
+  if (associated(grid%optmem%gradcond)) then
+    deallocate(grid%optmem%gradcond)
+    grid%optmem%gradcond_computed = .false.
+  endif
+
+endsubroutine grid_dealloc_gradcond
 
 
 !------------------------------------------------------------------------------!
@@ -122,6 +157,7 @@ implicit none
 type(st_grid)  :: grid
 
   ! destruction des champs et maillage de la grille
+  call grid_dealloc_gradcond(grid) 
   call delete(grid%umesh)
   call delete_chainedfield(grid%field)
   
@@ -189,6 +225,7 @@ integer                        :: dim, nscal, nvect, ntens
   grid%bocofield => pbocofield
 
 endfunction newbocofield
+
 
 !------------------------------------------------------------------------------!
 ! Procedure : ajout avec allocation d'une structure champ (par insertion)

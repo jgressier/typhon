@@ -44,6 +44,7 @@ Task Dévlp.  R. cible début fin   Type  Développement
 0081 Jérémie   0.1.6              NS    Viscous fluxes
 0090 Jérémie   0.2.0  03/12       Opt   GEO3D optimization (array calls)
 0091           0.2.0              Opt   Memory (pre-allocate scalar, v3d, tensor arrays, dim block)
+0092 Jérémie   0.1.7  04/02 07/02 Opt   gradients optimization (memorize inversion)
 0100           0.2.0  01/02       IHM   Symbolic functions module
 0101           0.2.0              IHM   Symbolic functions for initialisation
 0102           0.2.0              IHM   Symbolic functions for boundary condtitions
@@ -57,7 +58,6 @@ Task Dévlp.  R. cible début fin   Type  Développement
                0.2.0              Mesh  Vérification de maillage
                0.3.0              Mesh  Raffinement de maillage complet
                1.0.0              Opt   Optimisation du calcul KDIF/flux COMPACT
-               1.0.0              Opt   Optimisation du calcul gradients (pré-inversion et rhs)
                1.0.0              Opt   Optimisation du calcul de loi polynomiale
                1.0.0              Make  Restructuration des bibliothèques RPM
                1.0.0              IHM   Imbrication des blocs RPM

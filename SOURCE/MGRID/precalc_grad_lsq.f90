@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine precalc_grad_lsq(def_solver, mgrid)
+subroutine precalc_grad_lsq(def_solver, grid)
 
 use TYPHMAKE
 use LAPACK
@@ -22,17 +22,14 @@ implicit none
 
 ! -- Declaration des entrees --
 type(mnu_solver)      :: def_solver  ! definition des parametres du solveur
-type(st_grid)         :: mgrid       ! maillage et connectivites
-
-! -- Declaration des sorties --
-type(st_genericfield) :: grad        ! champ des gradients
+type(st_grid)         :: grid        ! maillage et connectivites
 
 ! -- Declaration des variables internes --
 type(v3d), allocatable :: dcg(:)      ! delta cg
-real(krp), allocatable :: rhs(:,:)    ! second membre
+!real(krp), allocatable :: rhs(:,:)    ! second membre
 real(krp)              :: imat(3,3)   ! matrice locale
-real(krp)              :: dsca        ! variation de variable scalaire
-type(v3d)              :: dvec        ! variation de variable vectorielle
+!real(krp)              :: dsca        ! variation de variable scalaire
+!type(v3d)              :: dvec        ! variation de variable vectorielle
 integer                :: ic, nc      ! indice et nombre de cellules internes
 integer                :: if, nf, nfi ! indice et nombre de faces totales et internes
 integer                :: nv          ! nombre de variables
@@ -42,9 +39,9 @@ integer                :: info, xinfo ! retour d'info des routines LAPACK
 
 ! -- Debut de la procedure --
 
-nc  = mgrid%umesh%ncell_int   ! nombre de cellules internes
-nfi = mgrid%umesh%nface_int   ! nb de faces internes (connectees avec 2 cellules)
-nf  = mgrid%umesh%nface       ! nb de faces totales 
+nc  = grid%umesh%ncell_int   ! nombre de cellules internes
+nfi = grid%umesh%nface_int   ! nb de faces internes (connectees avec 2 cellules)
+nf  = grid%umesh%nface       ! nb de faces totales 
 allocate(dcg(nf))
 
 ! need OPTIMIZATION
@@ -52,21 +49,23 @@ allocate(dcg(nf))
 ! - define some calls (check efficiency)
 ! - memorize geometrical matrix
 
+call grid_alloc_gradcond(grid)  ! automatic testing of allocation
+
+grid%optmem%gradcond_computed = .true.
 
 ! -- Calcul des differences de centres de cellules --
 !    (toutes les faces, meme limites, doivent avoir un centre de cellule)
 
 do if = 1, nf
-  ic1 = mgrid%umesh%facecell%fils(if,1)
-  ic2 = mgrid%umesh%facecell%fils(if,2)
-  dcg(if) = mgrid%umesh%mesh%centre(ic2,1,1) - mgrid%umesh%mesh%centre(ic1,1,1) 
+  ic1 = grid%umesh%facecell%fils(if,1)
+  ic2 = grid%umesh%facecell%fils(if,2)
+  dcg(if) = grid%umesh%mesh%centre(ic2,1,1) - grid%umesh%mesh%centre(ic1,1,1) 
 enddo
 
 ! -- Calcul des matrices At.A et inversion --
 
-allocate(mat(nc))
 do ic = 1, nc
-  mat(ic)%mat = 0._krp
+  grid%optmem%gradcond(ic)%mat = 0._krp
 enddo
 
 ! -- boucle sur les faces internes uniquement (code source double)  --
@@ -83,12 +82,12 @@ do if = 1, nfi
   imat(3,2) = imat(2,3)
   
   ! contribution de la face a la cellule a gauche
-  ic1 = mgrid%umesh%facecell%fils(if,1)
-  mat(ic1)%mat(:,:) = mat(ic1)%mat(:,:) + imat(:,:)
+  ic1 = grid%umesh%facecell%fils(if,1)
+  grid%optmem%gradcond(ic1)%mat(:,:) = grid%optmem%gradcond(ic1)%mat(:,:) + imat(:,:)
   
   ! contribution de la face a la cellule a droite
-  ic2 = mgrid%umesh%facecell%fils(if,2)
-  mat(ic2)%mat(:,:) = mat(ic2)%mat(:,:) + imat(:,:)
+  ic2 = grid%umesh%facecell%fils(if,2)
+  grid%optmem%gradcond(ic2)%mat(:,:) = grid%optmem%gradcond(ic2)%mat(:,:) + imat(:,:)
 enddo
 
 ! -- boucle sur les faces limites uniquement (code source double) --
@@ -105,16 +104,17 @@ do if = nfi+1, nf
   imat(3,2) = imat(2,3)
   
   ! contribution de la face a la cellule a gauche (UNIQUEMENT)
-  ic1 = mgrid%umesh%facecell%fils(if,1)
-  mat(ic1)%mat(:,:) = mat(ic1)%mat(:,:) + imat(:,:)
+  ic1 = grid%umesh%facecell%fils(if,1)
+  grid%optmem%gradcond(ic1)%mat(:,:) = grid%optmem%gradcond(ic1)%mat(:,:) + imat(:,:)
 enddo
 
 ! -- Correction de la matrice dans les cas 2D (vecteur supplementaire selon z) --
 
-select case(mgrid%umesh%mesh%info%geom)
+select case(grid%umesh%mesh%info%geom)
 case(msh_2Dplan)
   do ic = 1, nc
-    mat(ic)%mat(3,3) = mat(ic)%mat(3,3) + 1._krp  ! invariance direction ? magnitude ?
+    ! invariance direction ? magnitude ?
+    grid%optmem%gradcond(ic)%mat(3,3) = grid%optmem%gradcond(ic)%mat(3,3) + 1._krp  
   enddo
 case(msh_3D)
   ! nothing to do 
@@ -130,7 +130,7 @@ endselect
 xinfo = 0
 do ic = 1, nc
   ! decomposition de Choleski
-  call lapack_potrf('U', 3, mat(ic)%mat, 3, info)
+  call lapack_potrf('U', 3, grid%optmem%gradcond(ic)%mat, 3, info)
   if (info /= 0) xinfo = ic
   !if (info /= 0) then
   !  xinfo = ic
@@ -152,4 +152,5 @@ endsubroutine precalc_grad_lsq
 ! Changes history
 !
 ! dec  2004 : created (from split of calc_gradient)
+! feb  2005 : use grid%optmem array (memorize computation)
 !------------------------------------------------------------------------------!

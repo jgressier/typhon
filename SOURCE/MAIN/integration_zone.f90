@@ -47,7 +47,7 @@ call conditions_limites(zone)
 if (zone%defspat%calc_grad) then
   pgrid => zone%grid
   do while (associated(pgrid))
-    call calc_gradient(zone%defsolver, pgrid%umesh,                 &
+    call calc_gradient(zone%defsolver, pgrid,                 &
                        pgrid%info%field_loc%etatprim, pgrid%info%field_loc%gradient)
     call calc_gradient_limite(zone%defsolver, pgrid%umesh, pgrid%info%field_loc%gradient)
     pgrid => pgrid%next

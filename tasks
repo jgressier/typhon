@@ -450,6 +450,11 @@ Task 0090 (Jérémie) : Opt : GEO3D optimization (array calls)
 - flux_to_res : array computation of surf(:) * flux(:)
 
 ---------------------------------------------------------------------------------
+Task 0092 (Jérémie) : Opt : gradients optimization (memorize inversion)
+---------------------------------------------------------------------------------
+- memorize gradient matrix computation : precalc_grad_lsq, MGRID
+
+---------------------------------------------------------------------------------
 Task 0100 (Jérémie) : IHM : Symbolic functions module
 ---------------------------------------------------------------------------------
 - FCT_* modules in MATH
