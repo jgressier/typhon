@@ -13,6 +13,7 @@ MATH_MOD = INTEGRATION.$(MOD) \
            SPARSE_MAT.$(MOD)
 
 MATH_OBJ = $(MATH_MOD:.$(MOD)=.o)  \
+           dlu_jacobi.o     \
            dlu_lu.o
 
 D_MATH_OBJ = $(MATH_OBJ:%=$(PRJOBJ)/%)

@@ -53,6 +53,7 @@ integer(kpp), parameter :: alg_lu    = 10  ! résolution directe LU
 integer(kpp), parameter :: alg_cho   = 15  ! resolution directe (décomposition Choleski) (SYM)
 integer(kpp), parameter :: alg_jac   = 20  ! resolution itérative Jacobi
 integer(kpp), parameter :: alg_gs    = 25  ! resolution itérative Gauss-Seidel
+integer(kpp), parameter :: alg_sor   = 26  ! resolution itérative Gauss-Seidel avec OverRelaxation
 integer(kpp), parameter :: alg_gmres = 40  ! resol. par proj. : GMRES
 
 

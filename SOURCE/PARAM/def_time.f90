@@ -93,12 +93,25 @@ case(tps_rk)
   call rpmgetkeyvalint(pcour, "ORDER", deftime%rk%ordre, 2_kpp)
 
 case(tps_impl)
-  call rpmgetkeyvalstr(pcour, "INVERSION", str)
-  if (.not.samestring(str,"LU")) call erreur("algèbre","méthode d'inversion inconnue")
-  deftime%implicite%methode     = alg_lu    ! DEV : provisoire
-  deftime%implicite%max_it      = 10
-  deftime%implicite%maxres      = .001_krp
-  deftime%implicite%ponderation = 1._krp
+  call rpmgetkeyvalstr(pcour, "INVERSION", str, "SOR")
+
+  if (samestring(str,"LU"))           deftime%implicite%methode = alg_lu
+  if (samestring(str,"JACOBI"))       deftime%implicite%methode = alg_jac
+  if (samestring(str,"GAUSS-SEIDEL")) deftime%implicite%methode = alg_gs
+  if (samestring(str,"GS"))           deftime%implicite%methode = alg_gs
+  if (samestring(str,"SOR"))          deftime%implicite%methode = alg_sor
+
+  select case(deftime%implicite%methode)
+  case(alg_lu)
+    ! pas de paramètre supplémentaire
+
+  case(alg_jac)
+    call rpmgetkeyvalint (pcour, "MAX_IT",    deftime%implicite%max_it, 10_kpp)
+    call rpmgetkeyvalreal(pcour, "RESIDUALS", deftime%implicite%maxres, 1.e-4_krp)
+
+  case default
+    call erreur("algèbre","méthode d'inversion inconnue")
+  endselect
 
 case(tps_dualt)
 

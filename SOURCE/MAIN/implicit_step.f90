@@ -41,7 +41,7 @@ type(st_dlu)          :: mat
 type(st_genericfield) :: flux             ! tableaux des flux
 real(krp), dimension(:), allocatable &
                       :: jacL, jacR       ! tableaux de jacobiennes des flux
-integer(kip)          :: if, ic1, ic2, ic
+integer(kip)          :: if, ic1, ic2, ic, info
 
 ! -- Debut de la procedure --
 
@@ -88,20 +88,29 @@ enddo
 ! construction de la matrice
 
 do if = 1, mat%ncouple
-  ic1 = mat%couple%fils(if,1)    ! PAR CONVENTION, ic1 < ic2
-  ic2 = mat%couple%fils(if,2)    ! imposé lors du calcul des connectivités
+  ic1 = mat%couple%fils(if,1)    
+  ic2 = mat%couple%fils(if,2)    
   ! bilan cellule à gauche de la face
   mat%diag(ic1) = mat%diag(ic1) + jacL(if)
-  mat%upper(if) = jacR(if)
+  if (ic1 < ic2) then
+    mat%upper(if) = + jacR(if)
+  else
+    mat%lower(if) = + jacR(if)
+  endif
   ! bilan cellule à droite de la face
   if (ic2 <= mat%dim) then
-    mat%diag(ic2) = mat%diag(ic2) + jacR(if)
-    mat%lower(if) = jacL(if)
+    mat%diag(ic2) = mat%diag(ic2) - jacR(if)
+    if (ic1 < ic2) then
+      mat%lower(if) = - jacL(if)
+    else
+      mat%upper(if) = - jacL(if)
+    endif
   endif
 enddo
 
 do ic = 1, mat%dim
   mat%diag(ic) = mat%diag(ic) + umesh%mesh%volume(ic,1,1) / dt
+  !mat%diag(ic) = umesh%mesh%volume(ic,1,1) / dt
 enddo
 
 deallocate(jacL, jacR)
@@ -111,6 +120,18 @@ deallocate(jacL, jacR)
 select case(deftime%implicite%methode)
 case(alg_lu)
   call dlu_lu(mat, field%residu%tabscal(1)%scal, field%residu%tabscal(1)%scal)
+
+case(alg_jac)
+  call dlu_jacobi(deftime%implicite, mat, field%residu%tabscal(1)%scal, &
+                  field%residu%tabscal(1)%scal, info)
+  if (info < 0) call print_warning("méthode d'inversion JACOBI non convergée")
+
+case(alg_gs)
+  call erreur("développement","Méthode Gauss-Seidel non implémentée")
+
+case(alg_sor)
+  call erreur("développement","Méthode SOR non implémentée")
+  
 case default
   call erreur("incohérence","méthode d'inversion inconnue")
 endselect

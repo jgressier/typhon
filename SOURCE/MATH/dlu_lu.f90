@@ -51,6 +51,8 @@ do i = 1, mat%ncouple
   endif
 enddo
 
+!print*,real(pmat(:,:),4)
+
 ! -- reconstruction du vecteur rhs --
 
 allocate(pvec(1:mat%dim, 1))
