@@ -15,6 +15,7 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            calc_bilan.o             \
            calcdifflux.o            \
            calc_volum.o             \
+           calc_zonetimestep.o      \
            calcul_raccord.o         \
            capteurs.o               \
            comp_flux.o              \
