@@ -1,9 +1,10 @@
 !------------------------------------------------------------------------------!
-! Procedure : calcboco_ns                 Auteur : J. Gressier/E. Radenac
+! Procedure : calcboco_ns                 Auteur : J. Gressier
 !                                         Date   : July 2004
 ! Fonction                                Modif  : (see historique)
-!   Calcul des conditions aux limites non uniformes pour la conduction de la 
-!   chaleur
+!   Computation of Navier-Stokes boundary conditions
+!   Call of suited subroutines
+!
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
@@ -36,20 +37,29 @@ type(st_genericfield), pointer :: pbcf
 
 select case(defboco%typ_boco) 
 
+case(bc_inlet_sup)
+  call setboco_ns_inlet_sup(defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
+                            ustboco, grid%umesh, grid%field)
+
+case(bc_inlet_sub)
+  call setboco_ns_inlet_sub(defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
+                            ustboco, grid%umesh, grid%field)
+
+case(bc_outlet_sup)
+  call setboco_ns_outlet_sup(defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
+                             ustboco, grid%umesh, grid%field)
+
+case(bc_outlet_sub)
+  call setboco_ns_outlet_sub(defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
+                             ustboco, grid%umesh, grid%field)
+
 case(bc_wall_isoth)
+  call erreur("Développement","Condition limite inconnue non implémentée (calcboco_ns)")
   !call setboco_ns_isoth(defboco%boco_unif, ustboco, grid%umesh, grid%field, defboco%boco_ns)
 
 case(bc_wall_flux)
-  pbcf => newbocofield(grid,ustboco%nface,1,0,0)  
-  !call setboco_ns_flux(defboco%boco_unif, ustboco, grid%umesh, grid%field, pbcf%tabscal(1)%scal, &
-  !                       defsolver, defboco%boco_ns)
-  !ustboco%bocofield => pbcf
+  call erreur("Développement","Condition limite inconnue non implémentée (calcboco_ns)")
 
-case(bc_wall_hconv)
-  pbcf => newbocofield(grid,ustboco%nface,1,0,0) 
-  !call setboco_ns_hconv(defboco%boco_unif, ustboco, grid%umesh, grid%field, pbcf%tabscal(1)%scal, &
-  !                        defsolver, defboco%boco_ns)
-  !ustboco%bocofield => pbcf
 
 case default
   call erreur("Développement","Condition limite inconnu à ce niveau (calcboco_ns)")

@@ -74,6 +74,23 @@ contains
 !------------------------------------------------------------------------------!
 ! Fonction : conversion de paramètres en variables primitives
 !------------------------------------------------------------------------------!
+type(st_nsetat) function rho_ps_vel2nspri(rho, ps, vel) result(nspri)
+implicit none
+
+! -- déclaration des entrées
+type(v3d)       :: vel
+real(krp)       :: rho, ps
+
+  nspri%pressure = ps
+  nspri%density  = rho
+  nspri%velocity = vel
+
+endfunction rho_ps_vel2nspri
+
+
+!------------------------------------------------------------------------------!
+! Fonction : conversion de paramètres en variables primitives
+!------------------------------------------------------------------------------!
 type(st_nsetat) function pi_ti_mach_dir2nspri(fluid, pi, ti, mach, dir) result(nspri)
 implicit none
 
@@ -93,6 +110,59 @@ real(krp)       :: g1, fm, ts, a
   nspri%velocity = (mach*a)*dir       ! product of scalars before
 
 endfunction pi_ti_mach_dir2nspri
+
+
+!------------------------------------------------------------------------------!
+! Fonction : conversion de paramètres en variables primitives
+!------------------------------------------------------------------------------!
+type(st_nsetat) function pi_ti_ps_dir2nspri(fluid, pi, ti, ps, dir) result(nspri)
+implicit none
+
+! -- déclaration des entrées
+type(st_espece) :: fluid
+type(v3d)       :: dir
+real(krp)       :: pi, ti, ps
+! -- internal variables 
+real(krp)       :: g1, fm, ts, a, mach, m2
+
+  g1   = fluid%gamma -1._krp
+  fm   = (pi/ps)**(g1/fluid%gamma)
+  mach = sqrt((fm-1._krp)*2._krp/g1)
+  ts   = ti/fm
+  a    = sqrt(fluid%gamma*fluid%r_const*ts)
+  nspri%pressure = ps
+  nspri%density  = ps / (fluid%r_const * ts)
+  nspri%velocity = (mach*a)*dir       ! product of scalars before
+
+endfunction pi_ti_ps_dir2nspri
+
+
+!------------------------------------------------------------------------------!
+! Fonction : conversion de paramètres en variables primitives
+!------------------------------------------------------------------------------!
+subroutine nspri2pi_ti_mach_dir(fluid, nspri, pi, ti, mach, dir)
+implicit none
+
+! -- déclaration des entrées
+type(st_espece) :: fluid
+type(st_nsetat) :: nspri
+! -- déclaration des sorties
+real(krp)       :: pi, ti, mach
+type(v3d)       :: dir
+! -- internal variables 
+real(krp)       :: g1, fm, ts, a2, v2, m2
+
+  g1   = fluid%gamma -1._krp
+  v2   = sqrabs(nspri%velocity)
+  a2   = fluid%gamma*nspri%pressure/nspri%density
+  m2   = v2/a2
+  fm   = 1._krp + 0.5_krp*g1*m2
+  pi   = nspri%pressure*fm**(fluid%gamma/g1)
+  ti   = nspri%pressure/fluid%r_const/nspri%density*fm
+  mach = sqrt(m2)
+  dir  = nspri%velocity / sqrt(v2)
+
+endsubroutine nspri2pi_ti_mach_dir
 
 
 endmodule EQNS

@@ -23,7 +23,11 @@ EQNS_OBJ := $(EQNS_MOD:.$(MOD)=.o)    \
             def_model_ns.o            \
             init_boco_ns.o            \
             init_ns_ust.o             \
-            integration_ns_ust.o
+            integration_ns_ust.o      \
+            setboco_ns_inlet_sub.o    \
+            setboco_ns_inlet_sup.o    \
+            setboco_ns_outlet_sub.o   \
+            setboco_ns_outlet_sup.o
 
 D_EQNS_OBJ := $(EQNS_OBJ:%=$(PRJOBJ)/%)
 
