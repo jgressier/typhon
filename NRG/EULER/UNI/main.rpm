@@ -1,0 +1,69 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON 
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+  NZONE     = 1           ! nombre de zones (facultatif, défaut = 1) 
+  COORD     = 2D          ! type de repère  : 2D=2DPLAN / 2DAXI / 3D
+  TIME      = STEADY      ! type d'intégration temporelle : STEADY / UNSTEADY / PERIODIC
+  RESIDUALS = 1.e-4
+ENDBLOCK               
+
+BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+  FORMAT = TECPLOT      ! format du fichier de sortie : RAW / TECPLOT / VIGIE
+  FILE   = "typhon.dat" ! nom du fichier de sortie
+ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "tube"       ! nom de la zone (facultatif)
+  SOLVER = EULER        ! type de solveur : HEAT / EULER / NS
+ENDBLOCK
+
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = CGNS
+  FILE   = "tube.cgns"
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS = EULER
+  GAS      = AIR
+ENDBLOCK
+
+BLOCK:TIME_PARAM 
+  CFL = 0.95
+ENDBLOCK
+
+BLOCK:SPAT_PARAM  
+  SCHEME = HLL
+ENDBLOCK
+
+BLOCK:INIT
+  PI      = 1.E5
+  TI      = 300
+  MACH    = 1.5
+  ANGLE   = 0.
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = SYM
+  TYPE   = SYMMETRY
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = INFINI
+  TYPE   = SUPERSONIC_OUTLET  ! équivalent à EXTRAPOLATE / QUANTITY
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY  = WALL
+  TYPE    = SUPERSONIC_INLET
+  PI      = 1.E5
+  TI      = 300
+  MACH    = 1.5
+  ANGLE   = 0.
+ENDBLOCK
+
