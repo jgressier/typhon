@@ -18,9 +18,8 @@ cyl.cgns      : maillage au format CGNS
  - adiabatique sur les sections (SYM)
 
 * PARAMETRES DE SIMULATION
- - temps total 1000. pour s'assurer de la convergence (non mesurée)
- - pas de temps 0.7 pour l'intégration explicite
-   (le Fourier équivalent vaut ?)
+ - convergence à 1.6e-4 (pour garder le même nombre d'itérations qu'auparavant)
+ - Fourier à 0.48
 
 
 -------------------------------------------------
