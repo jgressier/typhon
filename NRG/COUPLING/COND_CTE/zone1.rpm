@@ -1,0 +1,53 @@
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE 1
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = CGNS
+  FILE   = "geom1.cgns"
+ENDBLOCK
+
+BLOCK:MODEL
+  MATERIAL = DEFINITION
+  CONDUCT  = 0.2
+  HEATCAPA = 1.
+ENDBLOCK
+
+BLOCK:TIME_PARAM
+  FOURIER = 0.4
+ENDBLOCK
+
+BLOCK:SPAT_PARAM
+  PIPO = FLUTE
+ENDBLOCK
+
+BLOCK:INIT
+  TEMP = 1000.
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = ENTREE
+  TYPE   = ISOTHERMAL_WALL
+  WALL_TEMP   = 1000.
+  !TYPE   = EXTRAPOLATE
+  !ORDER  = QUANTITY         ! QUANTITY (ordre 1) ou GRADIENT (ordre 2)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = MUR
+  TYPE   = EXTRAPOLATE
+  ORDER  = QUANTITY
+  !TYPE   = ISOTHERMAL_WALL
+  !WALL_TEMP   = 1000.     
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY      = INTERFACE
+  TYPE        = COUPLING
+  METHOD      = GHOSTFACE  ! méthode de calcul du raccord : FLUX / GHOSTFACE / GHOSTCELL
+  CONNZONE    = "zone2"
+  CONNFAM     = INTERFACE
+  !TYPE       = ISOTHERMAL_WALL
+  !WALL_TEMP  = 750.
+ENDBLOCK
+
