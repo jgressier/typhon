@@ -24,16 +24,18 @@ Task Dévlp.  R. cible début fin   Type  Développement
      Jérémie   0.1.5              Solv  Gel des matrices d'implicitation en fonction du résidu
                0.1.5              KDIF  condition limite de rayonnement
 0069 Jérémie   0.1.6  22/11 23/11 NS    Gradients computation
-0070 Jérémie   0.1.6              NS    Viscous fluxes
 0071 Jérémie   0.1.6              Mesh  Split of an internal mesh into two or many grids
 0072 Jérémie   0.1.6              Exch  Sequential message passing between zones (coupling)
      Jérémie   0.1.6              KDIF  Implicitation des conditions limites
 0073 Emmanuel  0.1.6        13/10 KDIF  Bug : convection boundary condition + validation case
 0074 Emmanuel  0.1.6        20/10 Make  Restructuration of field : chained list
 0075 Emmanuel  0.1.6  20/10       Make  Local convergence on cycle
-0076 Jérémie   0.1.6  24/11 29/11 NS    MUSCL interpolation
-0077 Jérémie   0.1.6  24/11       Make  DEFFIELD restructuration 
-               0.2.0              Opt   Optimisation des calculs GEO3D et proc. appelantes
+0076 Jérémie   0.1.6  24/11 10/12 NS    MUSCL interpolation
+0077 Jérémie   0.1.6  24/11 26/11 Make  DEFFIELD restructuration 
+0080 Jérémie   0.1.6              NS    Convective fluxes implicitation
+0081 Jérémie   0.1.6              NS    Viscous fluxes
+0090 Jérémie   0.2.0  03/12       Opt   GEO3D optimization (array calls)
+0091           0.2.0              Opt   Memory (pre-allocate scalar, v3d, tensor arrays, dim block)
                0.2.0              Make  Restructuration des sorties (get_data/calc_data/output)
                0.2.0              Out   Sorties multiples (block:output)
      Jérémie   0.2.0              Opt   Remplacement par boucles FORALL

@@ -429,6 +429,7 @@ Task 0076 (Jérémie) : NS : MUSCL interpolation
 - array computation of vectors & tensors (GEO3D, TENSOR)
 - limiter definition (LIMITER)
 - MUSCL interpolation (hres_ns_muscl)
+- debug calc_gradient (3D) (vector computation) (multiple scalar computation)
 
 ---------------------------------------------------------------------------------
 Task 0077 (Jérémie) : Make : DEFFIELD restructuration
@@ -436,4 +437,9 @@ Task 0077 (Jérémie) : Make : DEFFIELD restructuration
 - split into DEFFIELD  (FIELD         structure)
              GENFIELD  (GENERICFIELD  structure)
              BASEFIELD (SCA/VEC/TEN FIELD structures)
+
+---------------------------------------------------------------------------------
+Task 0090 (Jérémie) : Opt : GEO3D optimization (array calls)
+---------------------------------------------------------------------------------
+- flux_to_res : array computation of surf(:) * flux(:)
 
