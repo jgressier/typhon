@@ -8,10 +8,9 @@ STABILITE AVEC ECHANGES ESPACES
 EVOLUTION 1D, conduction constante
 -------------------------------------------------
 main.rpm      : fichier de paramètres du calcul couplé
-zone1.rpm     : fichier de paramètres de la zone couplée 1
-zone2.rpm     : fichier de paramètres de la zone couplée 2
-geom1.cgns    : maillage au format CGNS de la zone couplée 1
-geom2.cgns    : maillage au format CGNS de la zone couplée 2
+zone*.rpm     : fichier de paramètres de la zone couplée *
+geom1.cgns    : maillage au format CGNS des zones couplées impaires
+geom2.cgns    : maillage au format CGNS des zones couplées paires
 
 -------------------------------------------------
 
@@ -33,11 +32,19 @@ geom2.cgns    : maillage au format CGNS de la zone couplée 2
 
 * PARAMETRES DE SIMULATION
  - pas de temps 1 pour l'intégration explicite
+ - Nombre de Fourier des zones de droite : 0.4974
 
 * COUPLAGE
  - cellule fictive
  - interpolation compacte
  - maillages coincidents
+ - Pas de temps d'échange quadruple
+
+ zone 1/zone 2 : Fourier 0.5 à gauche, coef de correction 0.5
+ zone 3/zone 4 : Fourier 0.502 à gauche, coef de correction 0.5
+ zone 5/zone 6 : Fourier 0.502 à gauche, coef de correction 1
+ zone 7/zone 8 : Fourier 0.499 à gauche, coef de correction 0
+ zone 9/zone 10 : Fourier 0.5 à gauche, coef de correction 0
 
 -------------------------------------------------
 COMMENTAIRES SUR LA SOLUTION

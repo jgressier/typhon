@@ -1,37 +1,5 @@
 #!MC 800
-$!ALTERDATA  [3,5]
-  EQUATION = '{Z}=ABS( ( {T}-{T}[1] ) / {T}[1] )' 
-$!ALTERDATA  [4,6]
-  EQUATION = '{Z}=ABS( ( {T}-{T}[2] ) / {T}[2] )' 
-$!ALTERDATA  [9,11]
-  EQUATION = '{Z}=ABS( ( {T}-{T}[7] ) / {T}[7] )' 
-$!ALTERDATA  [10,12]
-  EQUATION = '{Z}=ABS( ( {T}-{T}[8] ) / {T}[8] )' 
-$!ALTERDATA  [15,17]
-  EQUATION = '{Z}=ABS( ( {T}-{T}[13] ) / {T}[13] )' 
-$!ALTERDATA  [16,18]
-  EQUATION = '{Z}=ABS( ( {T}-{T}[14] ) / {T}[14] )' 
-$!ALTERDATA  [21,23]
-  EQUATION = '{Z}=ABS( ( {T}-{T}[19] ) / {T}[19] )' 
-$!ALTERDATA  [22,24]
-  EQUATION = '{Z}=ABS( ( {T}-{T}[20] ) / {T}[20] )' 
-$!ALTERDATA  [27,29]
-  EQUATION = '{Z}=ABS( ( {T}-{T}[25] ) / {T}[25] )' 
-$!ALTERDATA  [28,30]
-  EQUATION = '{Z}=ABS( ( {T}-{T}[26] ) / {T}[26] )' 
-$!ALTERDATA  [33,35]
-  EQUATION = '{Z}=ABS( ( {T}-{T}[31] ) / {T}[31] )' 
-$!ALTERDATA  [34,36]
-  EQUATION = '{Z}=ABS( ( {T}-{T}[32] ) / {T}[32] )' 
-$!ALTERDATA  [39,41]
-  EQUATION = '{Z}=ABS( ( {T}-{T}[37] ) / {T}[37] )' 
-$!ALTERDATA  [40,42]
-  EQUATION = '{Z}=ABS( ( {T}-{T}[38] ) / {T}[38] )' 
-$!ALTERDATA  [45,47]
-  EQUATION = '{Z}=ABS( ( {T}-{T}[43] ) / {T}[43] )' 
-$!ALTERDATA  [46,48]
-  EQUATION = '{Z}=ABS( ( {T}-{T}[44] ) / {T}[44] )' 
-$!ALTERDATA  [51,53]
-  EQUATION = '{Z}=ABS( ( {T}-{T}[49] ) / {T}[49] )' 
-$!ALTERDATA  [52,54]
-  EQUATION = '{Z}=ABS( ( {T}-{T}[50] ) / {T}[50] )' 
+$!ALTERDATA  [1,3,5,7,9,11,13]
+  EQUATION = '{Z}=ABS( ( {T}-{T}[1] ) / {T}[1] ) ' 
+$!ALTERDATA  [2,4,6,8,10,12,14]
+  EQUATION = '{Z}=ABS( ( {T}-{T}[2] ) / {T}[2] ) ' 
