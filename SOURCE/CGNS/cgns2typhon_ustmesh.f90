@@ -190,10 +190,7 @@ face_cell%fils(:,:) = 0                     ! initialisation de la connectivité
 
 ! -- création des faces et des connectivités --
 
-do iconn = 1, cgnszone%ncellfam          ! boucle sur les sections de cellules
-  call createface_fromcgns(mesh%nvtex, cgnszone%cellfam(iconn), &
-                           face_cell, face_vtex)
-enddo
+call createface_fromcgns(mesh%nvtex, cgnszone, face_cell, face_vtex)
 
 ! Recopie des connectivités dans la structure TYPHON
 ! avec le nombre exact de faces reconstruites
@@ -237,6 +234,7 @@ endsubroutine cgns2typhon_ustmesh
 ! nov  2002 : création de la procédure
 ! fev  2004 : renseignements dans structure INFO_MESH
 ! juin 2004 : mémorisation de la connectivité cell->vtex
+!             construction de faces avec toutes les familles
 !------------------------------------------------------------------------------!
 
 

@@ -12,7 +12,7 @@
 ! temps de calcul lors du test des redondances de faces.
 !
 !------------------------------------------------------------------------------!
-subroutine createface_fromcgns(nvtex, cell_vtex, face_cell, face_vtex) 
+subroutine createface_fromcgns(nvtex, cgzone, face_cell, face_vtex) 
 
 use CGNS_STRUCT   ! Définition des structures CGNS
 use USTMESH       ! Définition des structures maillage non structuré
@@ -21,8 +21,8 @@ use OUTPUT        ! Sorties standard TYPHON
 implicit none 
 
 ! -- Entrées --
-integer                  :: nvtex           ! nombre total de sommets
-type(st_cgns_ustconnect) :: cell_vtex       ! conn. CGNS         : cellule -> sommets
+integer               :: nvtex           ! nombre total de sommets
+type(st_cgns_zone)    :: cgzone          ! conn. CGNS         : cellule -> sommets
 
 ! -- Sorties --
 type(st_connect)      :: face_cell, &    ! conn. Typhon       : face -> cellules
@@ -44,11 +44,12 @@ type(stloc_vtex_face) :: vtex_face       ! connectivité intermédiaire sommets ->
 integer               :: i, j, icell     ! indices de boucles
 integer, dimension(:), allocatable &
                       :: face, element   ! face, élément intermédiaires
-integer               :: ns              ! nombre de sommets de la face courante
+integer               :: ns, isect       ! nombre de sommets de la face courante, index de section
 
 ! -- Début de procédure
 
-! allocation de la connectivité intermédiaire VTEX -> FACE
+! allocation de la connectivité intermédiaire VTEX -> FACE 
+! utile pour la recherche optimale de face existante
 
 vtex_face%nvtex = nvtex                         ! nombre total de sommets
 allocate(vtex_face%vtex_face(nvtex, nmax_face)) ! allocation de la connectivité intermédiaire
@@ -59,27 +60,33 @@ vtex_face%nface(:) = 0
 ! allocation de structures de travail
 
 allocate(face(face_vtex%nbfils))      ! allocation d'une face au nb max de sommets
-allocate(element(cell_vtex%nbfils))   ! allocation d'un élément
    
+!-------------------------------------------
+! BOUCLE sur les SECTIONS
+
+do isect = 1, cgzone%ncellfam          ! boucle sur les sections de cellules
+
+allocate(element(cgzone%cellfam(isect)%nbfils))   ! allocation d'un élément
+
 ! --- création des faces selon le type
 
-select case(cell_vtex%type)
+select case(cgzone%cellfam(isect)%type)
 
 case(TRI_3)  ! trois faces (cotés) pour chacune deux sommets
 
   call print_info(8,"    création des faces de TRI_3")
 
-  do icell = cell_vtex%ideb, cell_vtex%ifin
-    element = cell_vtex%fils(icell,:) 
+  do icell = cgzone%cellfam(isect)%ideb, cgzone%cellfam(isect)%ifin
+    element = cgzone%cellfam(isect)%fils(icell,:) 
     ns = 2              ! nombre de sommets par face (BAR_2)
     ! FACE 1 : BAR_2
-    face = (/ element(1), element(2) /)
+    face(1:ns) = (/ element(1), element(2) /)
     call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
     ! FACE 2 : BAR_2
-    face = (/ element(2), element(3) /)
+    face(1:ns) = (/ element(2), element(3) /)
     call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
     ! FACE 3 : BAR_2
-    face = (/ element(3), element(1) /)
+    face(1:ns) = (/ element(3), element(1) /)
     call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
   enddo
 
@@ -87,20 +94,20 @@ case(QUAD_4) ! quatre faces (cotés) pour chacune deux sommets
 
   call print_info(8,"    création des faces de QUAD_4")
  
-  do icell = cell_vtex%ideb, cell_vtex%ifin
-    element = cell_vtex%fils(icell,:) 
+  do icell = cgzone%cellfam(isect)%ideb, cgzone%cellfam(isect)%ifin
+    element = cgzone%cellfam(isect)%fils(icell,:) 
     ns = 2            ! nombre de sommets par face (BAR_2)
     ! FACE 1 : BAR_2
-    face = (/ element(1), element(2) /)
+    face(1:ns) = (/ element(1), element(2) /)
     call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
     ! FACE 2 : BAR_2
-    face = (/ element(2), element(3) /)
+    face(1:ns) = (/ element(2), element(3) /)
     call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
     ! FACE 3 : BAR_2
-    face = (/ element(3), element(4) /)
+    face(1:ns) = (/ element(3), element(4) /)
     call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
     ! FACE 4 : BAR_2
-    face = (/ element(4), element(1) /)
+    face(1:ns) = (/ element(4), element(1) /)
     call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
   enddo
 
@@ -108,20 +115,20 @@ case(TETRA_4) ! quatre faces (triangles) pour chacune trois sommets
 
   call print_info(8,"    création des faces de TETRA_4")
 
-  do icell = cell_vtex%ideb, cell_vtex%ifin
-    element = cell_vtex%fils(icell,:) 
+  do icell = cgzone%cellfam(isect)%ideb, cgzone%cellfam(isect)%ifin
+    element = cgzone%cellfam(isect)%fils(icell,:) 
     ns = 3            ! nombre de sommets par face (TRI_3)
     ! FACE 1 : TRI_3
-    face = (/ element(1), element(3), element(2) /)
+    face(1:ns) = (/ element(1), element(3), element(2) /)
     call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
     ! FACE 2 : TRI_3
-    face = (/ element(1), element(2), element(4) /)
+    face(1:ns) = (/ element(1), element(2), element(4) /)
     call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
     ! FACE 3 : TRI_3
-    face = (/ element(2), element(3), element(4) /)
+    face(1:ns) = (/ element(2), element(3), element(4) /)
     call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
     ! FACE 4 : TRI_3
-    face = (/ element(3), element(1), element(4) /)
+    face(1:ns) = (/ element(3), element(1), element(4) /)
     call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
   enddo
 
@@ -130,11 +137,60 @@ case(PYRA_5) ! 1 quadrangle (4 sommets) et 4 triangles par élément PYRA
   ! CF PDF : CGNS SIDS pages 21-23
 
 case(PENTA_6) ! 3 quadrangles (4 sommets) et 2 triangles par élément PENTA
-  call erreur("Développement", "Traitement des éléments PENTA_6 non implémenté")
+
+  call print_info(8,"    création des faces de PENTA_6")
+
+  do icell = cgzone%cellfam(isect)%ideb, cgzone%cellfam(isect)%ifin
+    element = cgzone%cellfam(isect)%fils(icell,:) 
+    ns = 3            ! nombre de sommets par face (TRI_3)
+    ! FACE 1 : TRI_3
+    face(1:ns) = (/ element(1), element(2), element(3) /)
+    call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
+    ! FACE 2 : TRI_3
+    face(1:ns) = (/ element(4), element(5), element(6) /)
+    call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
+    
+    ns = 4            ! nombre de sommets par face (QUAD_3)
+    ! FACE 3 : QUAD_4
+    face(1:ns) = (/ element(1), element(3), element(6), element(4) /)
+    call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
+    ! FACE 4 : QUAD_4
+    face(1:ns) = (/ element(1), element(2), element(5), element(4) /)
+    call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
+    ! FACE 5 : QUAD_4
+    face(1:ns) = (/ element(2), element(3), element(6), element(5) /)
+    call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
+  enddo
+  !call erreur("Développement", "Traitement des éléments PENTA_6 non implémenté")
   ! CF PDF : CGNS SIDS pages 21-23
 
 case(HEXA_8) ! 6 quadrangles (4 sommets)
-  call erreur("Développement", "Traitement des éléments HEXA_8 non implémenté")
+
+  call print_info(8,"    création des faces de HEXA_8")
+
+  do icell = cgzone%cellfam(isect)%ideb, cgzone%cellfam(isect)%ifin
+    element = cgzone%cellfam(isect)%fils(icell,:) 
+    ns = 4            ! nombre de sommets par face (QUAD_4)
+    ! FACE 1 : QUAD_4
+    face(1:ns) = (/ element(1), element(2), element(3), element(4) /)
+    call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
+    ! FACE 2 : QUAD_4
+    face(1:ns) = (/ element(1), element(2), element(6), element(5) /)
+    call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
+    ! FACE 3 : QUAD_4
+    face(1:ns) = (/ element(5), element(6), element(7), element(8) /)
+    call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
+    ! FACE 4 : QUAD_4
+    face(1:ns) = (/ element(4), element(3), element(7), element(8) /)
+    call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
+    ! FACE 5 : QUAD_4
+    face(1:ns) = (/ element(1), element(4), element(8), element(5) /)
+    call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
+    ! FACE 6 : QUAD_4
+    face(1:ns) = (/ element(2), element(3), element(7), element(6) /)
+    call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
+  enddo
+  !call erreur("Développement", "Traitement des éléments HEXA_8 non implémenté")
   ! CF PDF : CGNS SIDS pages 21-23
 
 case default
@@ -143,10 +199,15 @@ case default
 endselect
 
 !print*,'moyenne des connections:',sum(vtex_face%nface(1:nvtex))/real(nvtex,krp)
+
+deallocate(element)
+
+! -- FIN de boucle sur les sections
+enddo
    
 ! --- désallocation ---
 
-deallocate(face, element, vtex_face%vtex_face, vtex_face%nface)
+deallocate(face, vtex_face%vtex_face, vtex_face%nface)
 
 !-------------------------
 contains      ! SOUS-PROCEDURES
@@ -276,3 +337,11 @@ contains      ! SOUS-PROCEDURES
 
 !-------------------------
 endsubroutine createface_fromcgns
+
+!------------------------------------------------------------------------------!
+! Historique des modifications
+!
+! nov  2002 : création de la procédure
+! juin 2004 : ajout de construction de PRISM (PENTA_6) et HEXA
+!             connectivité vtex->face commune à toutes les familles volumiques
+!------------------------------------------------------------------------------!

@@ -34,11 +34,11 @@ logical :: same_name
 
 call print_info(10,"  Grille "//name(grid))
 
-write(str_w,'(a,i6,a,i6,a,i6,a)') "  connectivité :",grid%umesh%ncell," cellules dont",&
+write(str_w,'(a,i8,a,i8,a,i7,a)') "  connectivité :",grid%umesh%ncell," cellules dont",&
                                   grid%umesh%ncell_int," internes et",&
                                   grid%umesh%ncell_lim," limites"
 call print_info(10, str_w)
-write(str_w,'(a,i6,a,i6,a,i6,a)') "  connectivité :",grid%umesh%nface," faces    dont",&
+write(str_w,'(a,i8,a,i8,a,i7,a)') "  connectivité :",grid%umesh%nface," faces    dont",&
                                   grid%umesh%nface_int," internes et",&
                                   grid%umesh%nface_lim," limites"
 call print_info(10, str_w)
@@ -86,11 +86,11 @@ do ib = 1, grid%umesh%nboco
 
 enddo
 
-write(str_w,'(a,i6,a,i6,a,i6,a)') "  connectivité :",grid%umesh%ncell," cellules dont",&
+write(str_w,'(a,i8,a,i8,a,i7,a)') "  connectivité :",grid%umesh%ncell," cellules dont",&
                                   grid%umesh%ncell_int," internes et",&
                                   grid%umesh%ncell_lim," limites"
 call print_info(10, str_w)
-write(str_w,'(a,i6,a,i6,a,i6,a)') "  connectivité :",grid%umesh%nface," faces    dont",&
+write(str_w,'(a,i8,a,i8,a,i7,a)') "  connectivité :",grid%umesh%nface," faces    dont",&
                                   grid%umesh%nface_int," internes et",&
                                   grid%umesh%nface_lim," limites"
 call print_info(10, str_w)

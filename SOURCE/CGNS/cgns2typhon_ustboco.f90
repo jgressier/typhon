@@ -63,6 +63,8 @@ do ib = 1, cgnszone%nboco
   nf = nf + mesh%boco(ib)%nface
 enddo
 
+print*,'nfaceboco/nfacelim:',nf, mesh%nface_lim
+print*,'mesh faces:',mesh%nface_int, mesh%nface_lim, mesh%nface
 if (nf /= mesh%nface_lim) call erreur("Conditions aux limites",&
   "le nombre de faces affectées et existantes ne correspondent pas")
 
