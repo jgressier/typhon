@@ -57,11 +57,11 @@ do while (local_t < mdt)
   local_t = local_t + dt
 
   do if = 1, lzone%ndom
-    print*,'!! DEBUG update dom =',if
+    !! print*,'!! DEBUG update dom =',if
     call update_champ(lzone%field(if))                   ! màj    des var. conservatives
 !    call calc_varprim(lzone%defsolver, lzone%field(if), &
 !                      lzone%ust_mesh%ncell_int)  ! calcul des var. primitives
-!DVT
+!DEBUG
     call calc_varprim(lzone%defsolver, lzone%field(if))   ! calcul des var. primitives
   enddo
 
@@ -76,6 +76,6 @@ endsubroutine integrationmacro_zone
 !
 ! juil  2002 (v0.0.1b) : création de la procédure
 ! juin  2003           : champs multiples
-! juillet 2003         : calcul du nombre de Fourier de la zone et deplacement
-!                         de l'allocation des residus vers integration_macrodt
+! juil  2003           : calcul du nombre de Fourier de la zone et deplacement
+!                        de l'allocation des residus vers integration_macrodt
 !------------------------------------------------------------------------------!

@@ -285,12 +285,12 @@ integer               :: i
 !print*, "DEBUG DELETE GFIELD", gfield%nscal, gfield%nvect, gfield%ntens 
   if (gfield%nscal > 0) then
     do i = 1, gfield%nscal
-     print*, "delete scalaire ",i
+      !!print*, "delete scalaire ",i
       call delete(gfield%tabscal(i))
     enddo
     deallocate(gfield%tabscal)
   endif
-     print*, "fin delete scalaire "
+  !! print*, "fin delete scalaire "
 
   if (gfield%nvect > 0) then
     do i = 1, gfield%nvect

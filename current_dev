@@ -1,21 +1,38 @@
 --------------------------------------------------------------------
 Liste des développement courants
 --------------------------------------------------------------------
+* à ajouter dans SOURCE/_DOC/VERSION lors de la définition de release
+* en liaison avec les développements à faire dans SOURCE/_DEV/TODO
 
-Développeur   début     fin       Terminé  Développement
---------------------------------------------------------------------
+
+
+Dévelop.  R. cible  début     fin       Terminé  Développement
+--------------------------------------------------------------------------------------------------------
+Emmanuel   0.2.0   18/07/03                      Corrections de flux pour échanges espacés
+--------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------------------------------
+release 0.1.1
+--------------------------------------------------------------------------------------------------------
+
+Développeur  début     fin       Terminé  Développement
+--------------------------------------------------------------------------------------------------------
 Jérémie     11/07/03   29/07/03     Ok    Ajout des bases pour capteurs (menu et structures)
 Emmanuel    11/07/03   28/07/03     Ok    Conductivité polynomiale (0)
 Emmanuel    18/07/03  fin juillet         Corrections de flux pour échanges espacés
 Emmanuel    28/07/03   ?            Ok    Corrections pour options de compilation sévères (1)
 Emmanuel    29/07/03   ?            Ok    Calcul du nombre de Fourier
 Emmanuel    29/07/03   ?            Ok    Procédure calcul des données (2) d'un raccord
-Jérémie     29/07/03   10/08/03           Format de sortie TECPLOT avec connectivité des sommets
+Jérémie     29/07/03   06/08/03     Ok    Format de sortie TECPLOT avec connectivité des sommets (3)
+--------------------------------------------------------------------------------------------------------
+(0): CONDUCT = POLY, lecture de POLY_ORDER et COEFFILE (coefficients du polynôme)
+(1): def_time, def_spat, def_other, trait_zoneparam, integrationmacro_zone
+(2): les différents indices : couplage et conditions limites pour chaque zone
+(3): Calcul des connectivités
 
-(0) : CONDUCT = POLY, lecture de POLY_ORDER et COEFFILE (coefficients du polynôme)
-(1) : def_time, def_spat, def_other, trait_zoneparam, integrationmacro_zone
-(2) : les différents indices : couplage et conditions limites pour chaque zone
+--------------------------------------------------------------------------------------------------------
+release 0.1.0
+--------------------------------------------------------------------------------------------------------
 
-PS : Les lignes de développements ne doivent être effacées que lors de la création
-  d'une release (développeur principal). Les développements sont alors cités
-  dans "info_version"    
