@@ -48,6 +48,12 @@ integer(kpp), parameter :: sch_efm      = 40
 integer(kpp), parameter :: sch_efmo     = 50
 integer(kpp), parameter :: sch_ausmm    = 50
 
+! -- Constantes pour schema de calcul HIGH RESOLUTION
+character, parameter :: hres_muscl      = 'M'
+character, parameter :: hres_eno        = 'E'
+character, parameter :: hres_weno       = 'W'
+character, parameter :: hres_spect      = 'S'
+
 ! -- Constantes pour schema de calcul des flux dissipatifs (sch_dis)
 integer(kpp), parameter :: dis_dif2 = 1     ! difference des 2 etats/face (NON CONSISTANT)
 integer(kpp), parameter :: dis_avg2 = 5     ! moyenne des 2 gradients/face
@@ -72,7 +78,7 @@ integer(kpp), parameter :: alg_gmres = 40  ! resol. par proj. : GMRES
 ! structure MNU_RK : options numeriques pour la methode Runge Kutta
 !------------------------------------------------------------------------------!
 type mnu_rk
-  integer(kpp)    :: ordre        ! ordre d'integration temporelle Runge-Kutta
+  integer(kpp)    :: order        ! ordre d'integration temporelle Runge-Kutta
 endtype mnu_rk
 
 !------------------------------------------------------------------------------!
@@ -115,10 +121,10 @@ endtype mnu_muscl
 ! structure MNU_SPAT : options numeriques pour l'integration spatiale
 !------------------------------------------------------------------------------!
 type mnu_spat
-  integer(kpp)    :: ordre        ! ordre d'integration spatiale
+  integer(kpp)    :: order        ! ordre d'integration spatiale
   integer(kpp)    :: sch_hyp      ! type de schema pour les flux hyperboliques
   integer(kpp)    :: sch_dis      ! type de schema pour les flux dissipatifs
-  character       :: methode      ! methode d'ordre eleve (M)USCL, (E)NO
+  character       :: method       ! methode d'ordre eleve (M)USCL, (E)NO
   integer(kpp)    :: gradmeth     ! methode de calcul des gradients
   logical         :: calc_grad    ! necessite le calcul des gradients
   type(mnu_muscl) :: muscl        ! parametres de la methode MUSCL

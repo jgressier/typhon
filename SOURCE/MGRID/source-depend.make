@@ -7,7 +7,9 @@ LDIR := MGRID
 
 MGRID_LIB = $(PRJLIB)/libt_mgrid.a
 
-MGRID_MOD = DEFFIELD.$(MOD)    \
+MGRID_MOD = BASEFIELD.$(MOD)    \
+            DEFFIELD.$(MOD)     \
+            GENFIELD.$(MOD)     \
             MGRID.$(MOD)
 
 

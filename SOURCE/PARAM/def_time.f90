@@ -96,7 +96,7 @@ select case(deftime%tps_meth)
 case(tps_expl)
   
 case(tps_rk)
-  call rpmgetkeyvalint(pcour, "ORDER", deftime%rk%ordre, 2_kpp)
+  call rpmgetkeyvalint(pcour, "ORDER", deftime%rk%order, 2_kpp)
 
 case(tps_impl)
   call rpmgetkeyvalstr(pcour, "INVERSION", str, "SOR")

@@ -33,7 +33,7 @@ character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- Debut de la procedure --
 
-call print_info(5,"- Definition des parametres de discretisation spatiale")
+call print_info(5,"- Definition of spatial numerical parameters")
 
 ! -- Initialisation --
 
@@ -45,9 +45,10 @@ pblock => block
 call seekrpmblock(pblock, "SPAT_PARAM", 0, pcour, nkey)
 
 ! DEV : est-ce que la presence du bloc est obligatoire ?
-if (nkey /= 1) call erreur("lecture de menu", &
-                           "bloc SPAT_PARAM inexistant ou surnumeraire")
+if (nkey /= 1) call erreur("parameters parsing", &
+                           "SPAT_PARAM block not found")
 
+defspat%calc_grad = .false.
 
 select case(isolver)
 
@@ -74,39 +75,70 @@ case(solNS)
   if (samestring(str,"AUSMM"))           defspat%sch_hyp = sch_ausmm
 
   if (defspat%sch_hyp == inull) &
-    call erreur("lecture de menu","schema numerique inconnu")
+    call erreur("parameters parsing","unknown numerical scheme")
 
-  defspat%sch_dis   = inull
-  defspat%calc_grad = .false.
+  ! -- Methode de calcul des flux dissipatifs --
+  call get_dissipativeflux()
+
+  ! -- High resolution order
+  call rpmgetkeyvalint(pcour, "ORDER", defspat%order, 1_kpp)
+
+  ! -- High resolution method
+  defspat%method = cnull
+  select case(defspat%order)
+  case(1)
+    ! nothing to do
+  case(2)
+    call rpmgetkeyvalstr(pcour, "HIGHRES", str, "MUSCL")
+    if (samestring(str,"MUSCL"))     defspat%method = hres_muscl
+    if (samestring(str,"ENO"))       defspat%method = hres_eno
+    if (samestring(str,"WENO"))      defspat%method = hres_weno
+    if (samestring(str,"SPECTRAL"))  defspat%method = hres_spect
+
+    if (defspat%method == cnull) &
+      call erreur("parameters parsing","unexpected high resolution method")
+    
+  case default
+    call erreur("parameters parsing","unexpected order of high resolution scheme")
+  endselect
+  
 
 case(solKDIF)
 
   ! -- Methode de calcul des flux dissipatifs --
-
-  call rpmgetkeyvalstr(pcour, "DISSIPATIVE_FLUX", str, "FULL")
-  defspat%sch_dis = inull
-
-  if (samestring(str,"COMPACT")) defspat%sch_dis = dis_dif2
-  if (samestring(str,"AVERAGE")) defspat%sch_dis = dis_avg2
-  if (samestring(str,"FULL"))    defspat%sch_dis = dis_full
-
-  if (defspat%sch_dis == inull) &
-    call erreur("lecture de menu",&
-                "methode de calcul DISSIPATIVE_FLUX inconnue")
-
-  select case(defspat%sch_dis)
-  case(dis_dif2)
-  
-  case(dis_avg2)
-    defspat%calc_grad = .true.
-  case(dis_full)
-    defspat%calc_grad = .true.
-  endselect
+  call get_dissipativeflux()
 
 case(solVORTEX)
 
 endselect
 
+contains
+
+  !-------------------------------------------------------------------------
+  ! get method for dissipativ flux computation
+  !-------------------------------------------------------------------------
+  subroutine get_dissipativeflux
+
+    call rpmgetkeyvalstr(pcour, "DISSIPATIVE_FLUX", str, "FULL")
+    defspat%sch_dis = inull
+
+    if (samestring(str,"COMPACT")) defspat%sch_dis = dis_dif2
+    if (samestring(str,"AVERAGE")) defspat%sch_dis = dis_avg2
+    if (samestring(str,"FULL"))    defspat%sch_dis = dis_full
+
+    if (defspat%sch_dis == inull) &
+         call erreur("parameters parsing","unknown DISSIPATIVE_FLUX method")
+
+    select case(defspat%sch_dis)
+    case(dis_dif2)
+  
+    case(dis_avg2)
+      defspat%calc_grad = .true.
+    case(dis_full)
+      defspat%calc_grad = .true.
+    endselect
+
+  endsubroutine get_dissipativeflux
 
 endsubroutine def_spat
 
@@ -117,4 +149,5 @@ endsubroutine def_spat
 ! oct  2003 : choix de la methode de calcul des flux dissipatifs
 ! mars 2004 : traitement dans le cas solVORTEX
 ! july 2004 : NS solver parameters
+! nov  2004 : NS high resolution parameters
 !------------------------------------------------------------------------------!
