@@ -15,9 +15,9 @@ Task Dévlp.  R. cible début fin   Type  Développement
 0038           0.1.5              Val   maillage 3D HEXA 
 0041 Jérémie   0.1.5  01/07       Solv  Inversion Gauss-Seidel
 0051 Jérémie   0.1.5              KDIF  Bug: timestep computation for non linear material
-0057 Jérémie   0.1.6  10/07       GUI   TYMON user interface (Typhon monitor)
+0057 Jérémie   0.1.6  10/07 18/08 GUI   TYMON user interface (Typhon monitor)
 0061           0.1.6              AMR   One-level refinement of a spherical area
-0062 Jérémie   0.1.5  19/07       Out   Residuals monitors (with file outputs)
+0062 Jérémie   0.1.5  19/07 17/08 Out   Residuals monitors (with file outputs)
 0063 Jérémie   0.1.5              Out   Tecplot outputs : FEBLOCK format and output of scalars & vectors
 0064 Jérémie   0.1.5              Out   CGNS outputs
      Jérémie   0.1.5              Solv  Surrelaxation Jacobi, SOR, SSOR

@@ -373,7 +373,8 @@ Task 0054 (Jérémie) : NS : Validation on 2D shock reflection (debug HLLE)
 ---------------------------------------------------------------------------------
 Task 0057 (Jérémie) : GUI : TYMON user interface (Typhon monitor)
 ---------------------------------------------------------------------------------
-- basic display / no file reading
+- basic display 
+- reads monres.001
 
 ---------------------------------------------------------------------------------
 Task 0058 (Jérémie) : Mesh : Bug correction for mesh with QUAD faces
