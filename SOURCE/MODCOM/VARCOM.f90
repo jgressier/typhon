@@ -15,7 +15,7 @@ use TYPHMAKE   ! Définition de la précision machine
 
 ! -- Variables globales du module -------------------------------------------
 
-character(len=6), parameter :: version = "0.0.1b"
+character(len=6), parameter :: version = "0.1.2"
 
 logical        :: mpi_run              ! calcul parallèle MPI ou non
 character      :: memory_mode          ! mode d'économie mémoire
