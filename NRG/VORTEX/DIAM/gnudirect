@@ -1,0 +1,4 @@
+plot "typhon.dat" using ($1):($2)
+pause -1 "Entrée pour continuer..."
+plot "typhon.dat" using ($1):($5)
+pause -1 "Entrée pour terminer..."
