@@ -78,9 +78,9 @@ do ib = 1, nboco
   defsolver%boco(ib)%typ_boco = bocotype(str)
 
   if (defsolver%boco(ib)%typ_boco /= inull) then
-    call print_info(8,"    famille "//defsolver%boco(ib)%family//": condition "//trim(str))
+    call print_info(8,"    famille "//defsolver%boco(ib)%family(1:12)//": condition "//trim(str))
   else
-    call erreur("lecture de menu (def_boco)","condition aux limites inconnue")
+    call erreur("lecture de menu (def_boco)",trim(str)//" condition aux limites inconnue")
   endif
 
   ! -- Traitement du couplage
@@ -191,7 +191,7 @@ do ib = 1, nboco
     select case(defsolver%boco(ib)%typ_boco)
 
     case(bc_geo_sym) 
-      call erreur("Développement","'bc_geo_sym' : Cas non implémenté")
+      !call erreur("Développement","'bc_geo_sym' : Cas non implémenté")
     
     case(bc_geo_period)
       call erreur("Développement","'bc_geo_period' : Cas non implémenté")
@@ -210,6 +210,9 @@ do ib = 1, nboco
         call def_boco_kdif(pcour, defsolver%boco(ib)%typ_boco, &
                            defsolver%boco(ib)%boco_kdif, &
                            defsolver%boco(ib)%boco_unif)
+      case(solNS)
+        call def_boco_ns(pcour, defsolver%boco(ib)%typ_boco, &
+                           defsolver%boco(ib)%boco_ns)
       case(solVORTEX)
         call def_boco_vortex(pcour, defsolver%boco(ib)%typ_boco, &
                            defsolver%boco(ib)%boco_vortex, &

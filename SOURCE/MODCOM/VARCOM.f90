@@ -28,7 +28,7 @@ integer        :: taille_buffer        ! taille de buffer pour la distribution d
 ! -- Définition des fonctionnalités
 
 logical, parameter :: pass_kdif  = .true.
-logical, parameter :: pass_ns    = .false.
+logical, parameter :: pass_ns    = .true.
 logical, parameter :: pass_vort  = .true.
 logical, parameter :: pass_mpi   = .false.
 logical, parameter :: pass_amr   = .false.
@@ -113,9 +113,14 @@ integer, parameter :: bc_wall_isoth     = 21
 integer, parameter :: bc_wall_flux      = 22
 integer, parameter :: bc_wall_hconv     = 23
 
-integer, parameter :: bc_farfield       = 30
-integer, parameter :: bc_wall           = 32
-integer, parameter :: bc_kutta          = 35
+integer, parameter :: bc_inlet_sub      = 30
+integer, parameter :: bc_inlet_sup      = 31
+integer, parameter :: bc_outlet_sub     = 35
+integer, parameter :: bc_outlet_sup     = 36
+
+integer, parameter :: bc_farfield       = 90
+integer, parameter :: bc_wall           = 92
+integer, parameter :: bc_kutta          = 95
 
 ! -- Constantes de définition des conditions aux limites (calcul) --
 

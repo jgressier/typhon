@@ -39,7 +39,7 @@ Task Dévlp.  R. cible début fin   Type  Développement
                0.1.5              KDIF  condition limite de rayonnement
                0.1.5              Opt   Optimisation des calculs GEO3D et proc. appelantes
      Jérémie   0.1.6              KDIF  Implicitation des conditions limites
-     Jérémie   0.2.0              Make  Solveur Fluide Parfait - procédures de base II
+0040 Jérémie   0.2.0              Make  Solveur Fluide Parfait - procédures de base II
                0.2.0              Make  Restructuration des sorties (get_data/calc_data/output)
                0.2.0              Out   Sorties multiples (block:output)
                0.2.0              Make  Restructuration de MAIN/integration_cycle (split)

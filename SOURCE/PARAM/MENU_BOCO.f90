@@ -11,9 +11,9 @@
 module MENU_BOCO
 
 use STRING
-use TYPHMAKE   ! Definition de la precision
-use VARCOM     ! Définition des constantes
-!use MENU_NS   ! Définition des solveurs type NS
+use TYPHMAKE    ! Definition de la precision
+use VARCOM      ! Définition des constantes
+use MENU_NS     ! Définition des solveurs type NS
 use MENU_KDIF   ! Définition des solveurs type Equation de diffusion
 use MENU_VORTEX ! Définition des solveurs type VORTEX/singularités
 
@@ -23,6 +23,7 @@ implicit none
 ! -- Variables globales du module -------------------------------------------
 
 ! -- Définition des entiers caractéristiques pour l'uniformité de la CL --
+
 integer, parameter :: uniform    = 10   
 integer, parameter :: nonuniform = 20 
 
@@ -43,11 +44,12 @@ type mnu_boco
                                          !   CONNECTION    : type de connection (GHOSTFACE,...)?!  
                                          !   COUPLING      : type de connection (GHOSTFACE,...)?!  
                                          !   EXTRAPOLATION : ordre d'extrapolation?!
-  integer               :: boco_unif     ! condition aux limites uniforme ou non                                   
+  integer               :: boco_unif     ! condition aux limites uniforme ou non  
   integer               :: order_extrap  ! ordre d'extrapolation : A INCLURE dans typ_calc
 
   type(st_boco_kdif)    :: boco_kdif     ! condition aux limites propre au solveur KDIF
   type(st_boco_vort)    :: boco_vortex   ! condition aux limites propre au solveur VORTEX
+  type(st_boco_ns)      :: boco_ns       ! condition aux limites propre au solveur NS
 
   !integer               :: np_int    ! nombre de paramètres entiers
   !integer               :: np_real   ! nombre de paramètres réels
@@ -90,6 +92,11 @@ character(len=*) str
   if (samestring(str, "FLUXSET_WALL" ))        bocotype = bc_wall_flux  
   if (samestring(str, "CONVECTION_WALL" ))     bocotype = bc_wall_hconv 
 
+  if (samestring(str, "SUBSONIC_INLET" ))      bocotype = bc_inlet_sub
+  if (samestring(str, "SUPERSONIC_INLET" ))    bocotype = bc_inlet_sup
+  if (samestring(str, "SUBSONIC_OUTLET" ))     bocotype = bc_outlet_sub
+  if (samestring(str, "SUPERSONIC_OUTLET" ))   bocotype = bc_outlet_sup
+
   if (samestring(str, "WALL" ))                bocotype = bc_wall
   if (samestring(str, "KUTTA" ))               bocotype = bc_kutta
   if (samestring(str, "FAR-FIELD" ))           bocotype = bc_farfield
@@ -106,13 +113,16 @@ integer isolver, itype
 
   select case(itype)
   case(bc_geo_sym)
-    call erreur("Développement","'bc_geo_sym' : Cas non implémenté")
+    !call erreur("Développement","'bc_geo_sym' : Cas non implémenté")
+    bctype_of_boco = bc_calc_ghostface
   case(bc_geo_period)
     call erreur("Développement","'bc_geo_period' : Cas non implémenté")
   case(bc_geo_extrapol)
-      bctype_of_boco = bc_calc_ghostface
+    bctype_of_boco = bc_calc_ghostface
   case default    
     select case(isolver)
+    case(solNS)
+      bctype_of_boco = bctype_of_nsboco(itype)
     case(solKDIF)
       bctype_of_boco = bctype_of_kdifboco(itype)
     case(solVORTEX)

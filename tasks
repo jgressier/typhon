@@ -235,7 +235,14 @@ Task 0035 (Emmanuel) : KDIF
 - condition initiale de température non uniforme : loi linéaire.
 
 ---------------------------------------------------------------------------------
-Task 0036 (Jérémie) : Make
+Task 0036 (Jérémie) : Make : sortie au format VTK
 ---------------------------------------------------------------------------------
 - mémorisation à la lecture de la connectivité cell->vtex 
   (USTMESH, cgns2typhon_ustmesh)
+
+---------------------------------------------------------------------------------
+Task 0040 (Jérémie) : Make : procédures de base pour solveur EQNS
+---------------------------------------------------------------------------------
+- définition des structures de conditions limites (MENU_NS)
+- constantes de type de conditions limites (VARCOM)
+- lecture des conditions limites (def_boco, def_boco_ns)

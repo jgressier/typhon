@@ -8,7 +8,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine def_boco_ns(block, type)!, boco)
+subroutine def_boco_ns(block, type, boco)
 
 use RPM
 use TYPHMAKE
@@ -23,7 +23,7 @@ type(rpmblock), target :: block    ! bloc RPM contenant les définitions
 integer                :: type     ! type de condition aux limites
 
 ! -- Declaration des sorties --
-!type(st_boco_ns) :: boco
+type(st_boco_ns) :: boco
 
 ! -- Declaration des variables internes --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
@@ -40,27 +40,37 @@ case(bc_wall_adiab)
   call erreur("Développement","'bc_wall_adiab' : Cas non implémenté")
 
 case(bc_wall_isoth)
-  !call rpmgetkeyvalreal(pblock, "WALL_TEMP", boco%temp_wall)
+  call rpmgetkeyvalreal(pblock, "WALL_TEMP", boco%temp_wall)
 
 case(bc_wall_flux)
   call erreur("Développement","'bc_wall_isoth' : Cas non implémenté")
 
-case(bc_wall_hconv)
-  call erreur("Développement","'bc_wall_hconv' : Cas non implémenté")
+case(bc_inlet_sub)
+  call erreur("Développement","'bc_inlet_sub' : Cas non implémenté")
+
+case(bc_inlet_sup)
+  call erreur("Développement","'bc_inlet_sup' : Cas non implémenté")
+
+case(bc_outlet_sub)
+  call erreur("Développement","'bc_outlet_sub' : Cas non implémenté")
+
+case(bc_outlet_sup)
+  !call erreur("Développement","'bc_outlet_sup' : Cas non implémenté")
+  ! pas de lecture de paramètre
 
 case default
   call erreur("Lecture de menu","type de conditions aux limites non reconnu&
-              & pour le solveur de conduction")
+              & pour le solveur Navier-Stokes")
 endselect
 
 
 endsubroutine def_boco_ns
 
-
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov 2003 : création de la routine
+! nov  2003 : création de la routine
+! juin 2004 : définition et lecture de conditions limites (inlet/outlet)
 !------------------------------------------------------------------------------!
 
 
