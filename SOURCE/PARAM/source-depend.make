@@ -5,7 +5,7 @@ LDIR := PARAM
 
 ####### Files
 
-PARAM_LIB = libt_param.a
+PARAM_LIB = $(PRJLIB)/libt_param.a
 
 PARAM_MOD = MENU_BOCO.$(MOD)     \
             MENU_CAPTEURS.$(MOD) \
@@ -39,11 +39,7 @@ D_PARAM_SRC := $(PARAM_OBJ:%.o=$(LDIR)/%.f90)
 
 ####### Build rules
 
-all: $(PRJLIB)/$(PARAM_LIB)
-
-$(PRJLIB)/$(PARAM_LIB): $(PARAM_LIB)
-	@echo \* Copie de la librairie $(PARAM_LIB)
-	@cp $(PARAM_LIB) $(PRJLIB)
+all: $(PARAM_LIB)
 
 $(PARAM_LIB): $(D_PARAM_OBJ)
 	@echo ---------------------------------------------------------------

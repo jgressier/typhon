@@ -5,7 +5,7 @@ LDIR := CGNS
 
 ####### Files
 
-CGNS_LIB = libt_cgns.a
+CGNS_LIB = $(PRJLIB)/libt_cgns.a
 
 CGNS_MOD = CGNS_STRUCT.$(MOD)       \
            CGNSLIB.$(MOD) 
@@ -33,11 +33,7 @@ D_CGNS_SRC := $(CGNS_OBJ:%.o=$(LDIR)/%.f90)
 
 ####### Build rules
 
-all: $(PRJLIB)/$(CGNS_LIB)
-
-$(PRJLIB)/$(CGNS_LIB): $(CGNS_LIB)
-	@echo \* Copie de la librairie $(CGNS_LIB)
-	@cp $(CGNS_LIB) $(PRJLIB)
+all: $(CGNS_LIB)
 
 $(CGNS_LIB): $(D_CGNS_OBJ)
 	@echo ---------------------------------------------------------------

@@ -5,7 +5,7 @@ LDIR = XIO
 
 ####### Files
 
-XIO_LIB = libt_xio.a
+XIO_LIB = $(PRJLIB)/libt_xio.a
 
 XIO_MOD = REPRISE.$(MOD)
 
@@ -19,11 +19,7 @@ D_XIO_OBJ = $(XIO_OBJ:%=$(PRJOBJ)/%)
 
 ####### Build rules
 
-#all: $(PRJLIB)/$(XIO_LIB)
-
-$(PRJLIB)/$(XIO_LIB): $(XIO_LIB)
-	@echo \* Copie de la librairie $(XIO_LIB)
-	@cp $(XIO_LIB) $(PRJLIB)
+all: $(XIO_LIB)
 
 $(XIO_LIB): $(D_XIO_OBJ)
 	@echo ---------------------------------------------------------------

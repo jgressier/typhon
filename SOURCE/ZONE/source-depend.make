@@ -5,7 +5,7 @@ LDIR := ZONE
 
 ####### Files
 
-ZONE_LIB = libt_zone.a
+ZONE_LIB = $(PRJLIB)/libt_zone.a
 
 ZONE_MOD = BOUND.$(MOD)                  \
            DEFCAPTEURS.$(MOD)            \
@@ -37,11 +37,7 @@ D_ZONE_SRC := $(ZONE_OBJ:%.o=$(LDIR)/%.f90)
 
 ####### Build rules
 
-all: $(PRJLIB)/$(ZONE_LIB)
-
-$(PRJLIB)/$(ZONE_LIB): $(ZONE_LIB)
-	@echo \* Copie de la librairie $(ZONE_LIB)
-	@cp $(ZONE_LIB) $(PRJLIB)
+all: $(ZONE_LIB)
 
 $(ZONE_LIB): $(D_ZONE_OBJ)
 	@echo ---------------------------------------------------------------

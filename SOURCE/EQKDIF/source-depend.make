@@ -5,7 +5,7 @@ LDIR := EQKDIF
 
 ####### Files
 
-EQKDIF_LIB = libt_eqkdif.a
+EQKDIF_LIB = $(PRJLIB)/libt_eqkdif.a
 
 EQKDIF_MOD = EQKDIF.$(MOD)      \
              MATER_LOI.$(MOD)   \
@@ -51,11 +51,7 @@ D_EQKDIF_SRC := $(EQKDIF_OBJ:%.o=$(LDIR)/%.f90)
 
 ####### Build rules
 
-all: $(PRJLIB)/$(EQKDIF_LIB)
-
-$(PRJLIB)/$(EQKDIF_LIB): $(EQKDIF_LIB)
-	@echo \* Copie de la librairie $(EQKDIF_LIB)
-	@cp $(EQKDIF_LIB) $(PRJLIB)
+all: $(EQKDIF_LIB)
 
 $(EQKDIF_LIB): $(D_EQKDIF_OBJ)
 	@echo ---------------------------------------------------------------

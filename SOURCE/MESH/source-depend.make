@@ -5,7 +5,7 @@ LDIR := MESH
 
 ####### Files
 
-MESH_LIB = libt_mesh.a
+MESH_LIB = $(PRJLIB)/libt_mesh.a
 
 MESH_MOD = GEO3D.$(MOD)     \
            MESHBASE.$(MOD)  \
@@ -35,11 +35,7 @@ D_MESH_SRC := $(MESH_OBJ:%.o=$(LDIR)/%.f90)
 
 ####### Build rules
 
-#all: $(PRJLIB)/$(MESH_LIB)
-
-$(PRJLIB)/$(MESH_LIB): $(MESH_LIB)
-	@echo \* Copie de la librairie $(MESH_LIB)
-	@cp $(MESH_LIB) $(PRJLIB)
+all: $(MESH_LIB)
 
 $(MESH_LIB): $(D_MESH_OBJ)
 	@echo ---------------------------------------------------------------

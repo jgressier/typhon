@@ -5,7 +5,7 @@ LDIR := MAIN
 
 ####### Files
 
-MAIN_LIB = libt_main.a
+MAIN_LIB = $(PRJLIB)/libt_main.a
 
 MAIN_MOD = MODINFO.$(MOD)      \
            MODWORLD.$(MOD)
@@ -47,11 +47,7 @@ D_MAIN_SRC := $(MAIN_OBJ:%.o=$(LDIR)/%.f90)
 
 ####### Build rules
 
-all: $(PRJLIB)/$(MAIN_LIB)
-
-$(PRJLIB)/$(MAIN_LIB): $(MAIN_LIB)
-	@echo \* Copie de la librairie $(MAIN_LIB)
-	@cp $(MAIN_LIB) $(PRJLIB)
+all: $(MAIN_LIB)
 
 $(MAIN_LIB): $(D_MAIN_OBJ)
 	@echo ---------------------------------------------------------------

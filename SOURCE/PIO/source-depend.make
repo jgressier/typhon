@@ -5,7 +5,7 @@ LDIR = PIO
 
 ####### Files
 
-PIO_LIB = libt_pio.a
+PIO_LIB = $(PRJLIB)/libt_pio.a
 
 PIO_MOD = OUTPUT.$(MOD)   \
           RPM.$(MOD)      \
@@ -21,11 +21,7 @@ D_PIO_SRC = $(PIO_OBJ:%.o=$(LDIR)/%.f90)
 
 ####### Build rules
 
-#all: $(PRJLIB)/$(PIO_LIB)
-
-$(PRJLIB)/$(PIO_LIB): $(PIO_LIB)
-	@echo \* Copie de la librairie $(PIO_LIB)
-	@cp $(PIO_LIB) $(PRJLIB)
+all: $(PIO_LIB)
 
 $(PIO_LIB): $(D_PIO_OBJ)
 	@echo ---------------------------------------------------------------

@@ -5,7 +5,7 @@ LDIR := MODCOM
 
 ####### Files
 
-MODCOM_LIB = libt_modcom.a
+MODCOM_LIB = $(PRJLIB)/libt_modcom.a
 
 MODCOM_MOD = CONNECTIVITY.$(MOD) \
              TYPHMAKE.$(MOD)     \
@@ -20,11 +20,7 @@ D_MODCOM_SRC := $(MODCOM_OBJ:%.o=$(LDIR)/%.f90)
 
 ####### Build rules
 
-all: $(PRJLIB)/$(MODCOM_LIB)
-
-$(PRJLIB)/$(MODCOM_LIB): $(MODCOM_LIB)
-	@echo \* Copie de la librairie $(MODCOM_LIB)
-	@cp $(MODCOM_LIB) $(PRJLIB)
+all: $(MODCOM_LIB)
 
 $(MODCOM_LIB): $(D_MODCOM_OBJ)
 	@echo ---------------------------------------------------------------
