@@ -150,10 +150,10 @@ proc guib:statut { f } {
 proc guib:main { f } {
   global guicolor guivar
 
-  set fm [frame $f.main -bg $guicolor(projetbg) ]
+  #set fm [frame $f.main -bg $guicolor(projetbg) ]
 
   #set notebook [NoteBook $fm.nb]
-    set fm [guib:plot $f]
+  set fm [guib:plot $f]
 
   return $fm
  
