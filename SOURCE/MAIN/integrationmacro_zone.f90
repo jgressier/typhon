@@ -30,58 +30,10 @@ type(st_zone) :: lzone            ! zone à intégrer
 real(krp)   :: local_t            ! temps local (0 à mdt)
 real(krp)   :: dt                 ! pas de temps de la zone
 integer     :: if                 ! index de champ
+real(krp)   :: fourier
 
-!DVT : Nb de Fourier
-integer     :: i, ic1, ic2
-real(krp)   :: fourier, f, dist, conduct
-type(v3d)   :: dcg
 ! -- Debut de la procedure --
 local_t = 0._krp
-
-!---------------------------------------------------------------------------------------------------------------------
-! DVT : Nb de Fourier de la zone pour un maillage régulier
-!---------------------------------------------------------------------------------------------------------------------
-fourier = 0
-
-do i = 1, lzone%ust_mesh%nface
-
-ic1 = lzone%ust_mesh%facecell%fils(i,1)
-ic2 = lzone%ust_mesh%facecell%fils(i,2)
-!dcg = lzone%ust_mesh%mesh%centre(ic2,1,1) - lzone%ust_mesh%mesh%centre(ic1,1,1)
-!dist = abs(dcg)
-
-if(lzone%ust_mesh%mesh%volume(ic1,1,1) > 0) then
-  conduct = valeur_loi(lzone%defsolver%defkdif%materiau%Kd,lzone%field(1)%etatprim%tabscal(1)%scal(ic1))
-  dcg = lzone%ust_mesh%mesh%centre(ic1,1,1) - lzone%ust_mesh%mesh%iface(i,1,1)%centre
-  dist = 2*abs(dcg)
-  !f = conduct * lzone%ust_mesh%mesh%iface(i,1,1)%surface &
-  !         * mdt/ (lzone%defsolver%defkdif%materiau%Cp * lzone%ust_mesh%mesh%volume(ic1,1,1) &
-  !         *dist)
-  f = conduct * mdt/(lzone%defsolver%defkdif%materiau%Cp*dist**2)
-  if (f>fourier) then
-    fourier = f
-  endif
-endif
-
-if(lzone%ust_mesh%mesh%volume(ic2,1,1) > 0) then
-  conduct = valeur_loi(lzone%defsolver%defkdif%materiau%Kd,lzone%field(1)%etatprim%tabscal(1)%scal(ic2))
-  dcg = lzone%ust_mesh%mesh%centre(ic1,1,1) - lzone%ust_mesh%mesh%iface(i,1,1)%centre
-  dist = 2*abs(dcg)
-  !f = conduct * lzone%ust_mesh%mesh%iface(i,1,1)%surface &
-  !         * mdt/ (lzone%defsolver%defkdif%materiau%Cp * lzone%ust_mesh%mesh%volume(ic1,1,1) &
-  !         *dist)
-  f = conduct * mdt/(lzone%defsolver%defkdif%materiau%Cp*dist**2)
-  if (f>fourier) then
-    fourier = f
-  endif
-endif
-
-enddo
-
-write(str_w,'(a,i,a,g10.4)') "* FOURIER zone ", lzone%id, " : ", fourier
-call print_info(6, str_w)   
-                           
-!-----------------------------------------------------------------------------------------------------------------------
 
 ! allocation des champs de résidus
 !print*, "DEBUG INTEGRATIONMACRO_ZONE"
@@ -98,7 +50,12 @@ do while (local_t < mdt)
 
   !call calc_zonetimestep(local_t, lzone, dt)
   dt = mdt
-
+  call calc_fourier(fourier, dt, lzone%ust_mesh, &
+                  lzone%defsolver%defkdif%materiau, &
+                  lzone%field(1)%etatprim%tabscal(1) )
+  write(str_w,'(a,i,a,g10.4)') "* FOURIER zone ", lzone%id, " : ", fourier
+  call print_info(6, str_w)
+   
   call integration_zone(dt, lzone)
 
   local_t = local_t + dt

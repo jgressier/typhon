@@ -27,6 +27,7 @@ EQKDIF_OBJ := $(EQKDIF_MOD:.$(MOD)=.o)        \
               calc_flux_fluxspe_3D.o          \
               calc_flux_fluxspe_consistant.o  \
               calc_flux_fluxspe_compact.o     \
+              calc_fourier.o                  \
               calc_tempinter_kdif.o           \
               calc_varcons_kdif.o             \
               calc_varprim_kdif.o             \

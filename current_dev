@@ -8,6 +8,7 @@ Jérémie     11/07/03   fin juillet    Non    Ajout des capteurs (menu et structu
 Emmanuel    11/07/03   fin juillet    Oui    Conductivité polynomiale
 Emmanuel    18/07/03   fin juillet    Non    Corrections de flux pour échanges espacés
 Emmanuel    28/07/03                  Oui    Débuggage (1)
+Emmanuel    29/07/03                  Oui    Calcul du nb de Fourier
 
 (1) : def_time, def_spat, def_other, trait_zoneparam, integrationmacro_zone
 
