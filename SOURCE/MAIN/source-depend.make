@@ -14,6 +14,7 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            calc_bilan.o             \
            calc_flux_euler.o        \
            calc_volum.o             \
+           calcul_raccord.o         \
            capteurs.o               \
            comp_flux.o              \
            conditions_limites.o     \

@@ -9,9 +9,10 @@ Emmanuel    11/07/03   fin juillet    Oui    Conductivité polynomiale
 Emmanuel    18/07/03   fin juillet    Non    Corrections de flux pour échanges espacés
 Emmanuel    28/07/03                  Oui    Débuggage (1)
 Emmanuel    29/07/03                  Oui    Calcul du nb de Fourier
+Emmanuel    29/07/03                  Oui    Procédure calcul des données (2) d'un raccord
 
 (1) : def_time, def_spat, def_other, trait_zoneparam, integrationmacro_zone
-
+(2) : les différents indices : couplage et conditions limites pour chaque zone
 
 PS : Les lignes de développements ne doivent être effacées que lors de la création
   d'une release (développeur principal). Les développements sont alors cités

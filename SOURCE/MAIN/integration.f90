@@ -29,6 +29,7 @@ real(krp)      :: macro_dt
 real(krp), dimension(:), allocatable &
                :: excht ! instants d'échange pour les différents couplages de zones
 integer        :: ir, izone
+integer        :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
 
 ! -- Debut de la procedure --
 
@@ -75,7 +76,8 @@ enddo
 ! Mise à jour des conditions aux limites, notamment de couplage pour l'affichage des données :
 if (lworld%prj%ncoupling > 0) then
   do ir = 1, lworld%prj%ncoupling
-      call echange_zonedata(lworld,ir)  
+      call calcul_raccord(lworld, ir, iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2)
+      call echange_zonedata(lworld,ir, iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2) 
   enddo
 endif
 
