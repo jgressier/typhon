@@ -47,8 +47,8 @@ ENDBLOCK
 BLOCK:BOCO
   FAMILY      = FAR-FIELD
   TYPE        = FAR-FIELD
-  !VELOCITY    = ( 99.62 , 8.715, 0.)  ! incidence 5°, 100m/s
-  VELOCITY    = ( 100. , 0., 0.)  ! incidence 5°, 100m/s
+  VELOCITY    = ( 99.62 , 8.715, 0.)  ! incidence 5°, 100m/s
+  !VELOCITY    = ( 100. , 0., 0.)  ! incidence 5°, 100m/s
 ENDBLOCK
 
 BLOCK:BOCO
