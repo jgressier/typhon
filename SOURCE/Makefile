@@ -97,7 +97,7 @@ $(PRGNAME)-mpi : $(MAIN) $(D_LIBMPI) $(MAKEFILE)
 
 clean:
 	-rm $(PRGNAME)-seq $(PRGNAME)-mpi 
-	-rm $(OBJECTS) 
+	-rm $(PRJOBJ)/*.o
 	-rm $(D_LIBMPI) $(D_LIBSEQ) 
 	-rm $(PRJINC)/*.$(MOD)
 	-rm *.$(MOD)

@@ -1,9 +1,12 @@
+SHELL       = /bin/bash
+MAKEDEPENDS = Util/make_depends_low
+
 MOD     = mod
 
 ####### Definition du compilateur et des options
 
 # Compilateur FORTRAN 90
-CF = ifc
+CF = ifort
 
 # Options de base (include d'entetes de module)
 FB = -implicitnone -I$(PRJINC)
@@ -25,7 +28,7 @@ LINKFB  = $(FO) -L$(PRJEXT)
 
 ####### Librairies systèmes
 
-MPILIB     = -lmpich -lPEPCF90
+MPILIB     = -lmpich
 CGNSLIB    = -LLIBEXT -lcgns #-lcgns
-LAPACKLIBS = -L/opt/aero/lib -lflapack -lfblas # installation locale
+LAPACKLIBS = -L/opt/aero/lib -lflapack8 -lfblas8 # installation locale
 
