@@ -7,13 +7,14 @@ LDIR := PARAM
 
 PARAM_LIB = libt_param.a
 
-PARAM_MOD = MENU_BOCO.$(MOD)   \
-            MENU_GEN.$(MOD)    \
-            MENU_INIT.$(MOD)   \
-            MENU_INTEG.$(MOD)  \
-            MENU_MESH.$(MOD)   \
-            MENU_MPI.$(MOD)    \
-            MENU_NUM.$(MOD)    \
+PARAM_MOD = MENU_BOCO.$(MOD)     \
+            MENU_CAPTEURS.$(MOD) \
+            MENU_GEN.$(MOD)      \
+            MENU_INIT.$(MOD)     \
+            MENU_INTEG.$(MOD)    \
+            MENU_MESH.$(MOD)     \
+            MENU_MPI.$(MOD)      \
+            MENU_NUM.$(MOD)      \
             MENU_COUPLING.$(MOD)
 
 
