@@ -14,7 +14,7 @@ FF   = $(FB) $(FO)
 
 # Précision
 
-PREC = SP
+PREC = SP    # Choix de la double précision (SP ou DP)
 
 ####### Files and Lists
 
