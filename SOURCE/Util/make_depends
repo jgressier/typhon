@@ -1,0 +1,35 @@
+##!/bin/bash
+
+TARGET=${1:-depends.make}
+
+echo Création des dépendances dans $TARGET
+
+rm $TARGET
+
+echo \# Ce fichier est généré automatiquement > $TARGET
+echo \# et est susceptible d\'être écrasé    >> $TARGET
+echo                                         >> $TARGET
+
+for fic in *.f90 ; do
+
+  # MODULE
+
+  if [ -n "$(grep -i '^ *module ' $fic)" ] ; then
+    echo '$(PRJINC)/'${fic%.f90}.'$(MOD)': \\ >> $TARGET
+    grep -i '^ *use ' $fic       | 
+      sed 's/!.*$//'             | 
+      sed 's/ *$/.$(MOD)    \\/' | 
+      sed 's/^ *use /                         $(PRJINC)\//' >> $TARGET
+    echo >> $TARGET
+  fi
+
+  # OBJET
+
+  echo '$(PRJOBJ)/'${fic%.f90}.o: \\   >> $TARGET
+  grep -i '^ *use ' $fic       | 
+    sed 's/!.*$//'             | 
+    sed 's/ *$/.$(MOD)    \\/' | 
+    sed 's/^ *use /                         $(PRJINC)\//' >> $TARGET
+  echo >> $TARGET
+
+done

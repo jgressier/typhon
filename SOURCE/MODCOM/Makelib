@@ -1,0 +1,46 @@
+############################################################
+##   Compilation de la librairie MODULE
+
+####### Compiler, tools and options
+
+include ../../LIB/defsys.make
+include ../defprj.make
+include ../defvar.make.$(SYS)
+
+FF  = $(FB) $(FO)
+
+####### Files
+
+LIBNAME = libmodule.a
+
+OBJECTS = PRECDEF.o     \
+          MENU_GEN.o    \
+          VARCOM.o 
+
+
+####### Build rules
+
+all: librairie 
+
+librairie: $(OBJECTS)
+	@echo ---------------------------------------------------------------
+	@echo \* Création de la librairie $(LIBNAME)
+	@rm $(LIBNAME)
+	@$(AR) ruv $(LIBNAME) $(OBJECTS)
+	@echo \* Création de l\'index de la librairie
+	@$(RAN)    $(LIBNAME)
+	@echo \* Installation des entêtes de module et de la librairie
+	@cp *.$(MODEXT)  $(INCDIR)     # .M (SUN), .mod (HP/SGI)
+	@cp $(LIBNAME)   $(LIBDIR)
+	@echo ---------------------------------------------------------------
+	@echo \* LIBRAIRIE $(LIBNAME) créée
+	@echo ---------------------------------------------------------------
+
+clean:
+	rm  $(LIBNAME) $(OBJECTS) *.$(MODEXT)
+
+####### Dependencies
+
+PRECDEF.o:
+MENU_GEN.o:  PRECDEF.$(MODEXT)
+VARCOM.o:    PRECDEF.$(MODEXT)  MENU_GEN.$(MODEXT)

@@ -1,0 +1,16 @@
+HOMETYPHON=$HOME/CODES/TYPHON
+EXEDIR=$HOMETYPHON/bin
+COMPDIR=$(pwd)
+#
+echo --- Cas de non régression ---
+find $HOMETYPHON/NRG -type d
+echo
+echo --- Cas de validation ---
+find $HOMETYPHON/VALIDATION -type d
+echo
+echo Quel cas voulez-vous lancer \?
+read CAS
+#
+cp $CAS/*.rpm   $COMPDIR
+cp $CAS/*.cgns  $COMPDIR
+$EXEDIR/Typhon

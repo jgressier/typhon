@@ -1,0 +1,51 @@
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = CGNS
+  FILE   = "mat1.cgns"
+ENDBLOCK
+
+BLOCK:MODEL
+  MATERIAL = DEFINITION
+  CONDUCT  = 20.
+  HEATCAPA = 1.
+ENDBLOCK
+
+BLOCK:TIME_PARAM
+  FOURIER = 0.4
+ENDBLOCK
+
+BLOCK:SPAT_PARAM
+  PIPO = FLUTE
+ENDBLOCK
+
+BLOCK:INIT
+  TEMP = 800.
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = GAUCHE
+  TYPE   = EXTRAPOLATE
+  ORDER  = QUANTITY         ! QUANTITY (ordre 1) ou GRADIENT (ordre 2)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = DROIT
+  TYPE   = EXTRAPOLATE
+  ORDER  = QUANTITY      
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY      = HAUT
+  TYPE        = ISOTHERMAL_WALL
+  WALL_TEMP   = 1000.
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY      = CONTACT
+  TYPE        = ISOTHERMAL_WALL
+  WALL_TEMP   = 500.
+ENDBLOCK
+

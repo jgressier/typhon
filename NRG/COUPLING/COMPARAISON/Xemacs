@@ -1,0 +1,9 @@
+#!/bin/ksh
+#
+#XEMACS=/t/hylkema/local/bin/xemacs-21.4.6
+#GNUCLIENT=/t/hylkema/local/bin/gnuclient
+XEMACS=xemacs
+GNUCLIENT=gnuclient
+for fic in $* ; do
+  $GNUCLIENT -q $fic || ( $XEMACS -f gnuserv-start $fic & sleep 5 )
+done

@@ -1,0 +1,25 @@
+MOD     = mod
+
+####### Definition du compilateur et des options
+
+# Compilateur FORTRAN 90
+CF = ifc
+
+# Options de base (include d'entetes de module)
+FB = -I$(PRJINC)
+
+# Optimisation classique
+# -tpp7 (optimisation P4)    -xW (instructions P4)
+# -ipo  (optimisation interprocédure entre fichiers)
+FO = -O3 -tpp7 -xW 
+# Débuggage
+#FO = -C
+
+####### Definition de l'éditeur de lien et des options
+
+# Editeur de lien
+LINKER = ifc
+
+# Options de base
+LINKFB  = $(FO) -L$(LIBDIR)
+
