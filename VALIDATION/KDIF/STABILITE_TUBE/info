@@ -5,7 +5,7 @@ EVOLUTION 1D, STABILITE
 -------------------------------------------------
 main.rpm      : fichier de paramètres du calcul
 zone1.rpm     : paramètres avec conductivité 199
-zone1.rpm     : paramètres avec conductivité 200
+zone2.rpm     : paramètres avec conductivité 200
 tube.cgns    : maillage au format CGNS
 -------------------------------------------------
 
