@@ -32,6 +32,8 @@ type st_info
   real(krp) :: residu_ref, cur_res  ! residu de référence et courant
   integer   :: nbproc               ! total number of communicating processors
   integer   :: my_id                ! id of the current process
+  integer, dimension(:), pointer &
+            :: head_proc            ! id of heading proc for each zone
 endtype st_info
 
 
@@ -46,6 +48,8 @@ type st_infozone
   real(krp) :: residumax            ! residu maximal admissible pour le cycle
   real(krp) :: residu_ref, cur_res  ! residu de référence (world) et courant (cycle)
   real(krp) :: residu_reforigine    ! residu de référence du premier cycle
+  integer   :: nbproc               ! total number of communicating processors in the zone
+  integer   :: my_id                ! id of the current process
 endtype st_infozone
 
 
