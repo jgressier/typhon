@@ -67,7 +67,7 @@ call def_mesh(block, zone%defmesh)
 
 call def_time(prj, block, solver, zone%deftime)
 
-call def_spat(block, solver, zone%defspat)
+call def_spat(block, zone%defsolver, zone%defspat)
 
 call def_amr(block, solver, zone%defsolver%defamr)
 

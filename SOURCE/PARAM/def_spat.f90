@@ -8,19 +8,20 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine def_spat(block, isolver, defspat)
+subroutine def_spat(block, defsolver, defspat)
 
 use RPM
 use TYPHMAKE
 use OUTPUT
 use VARCOM
+use MENU_SOLVER
 use MENU_NUM
 
 implicit none
 
 ! -- Declaration des entrees --
 type(rpmblock), target :: block
-integer                :: isolver
+type(mnu_solver)       :: defsolver
 
 ! -- Declaration des sorties --
 type(mnu_spat) :: defspat
@@ -50,7 +51,7 @@ if (nkey /= 1) call erreur("parameters parsing", &
 
 defspat%calc_grad = .false.
 
-select case(isolver)
+select case(defsolver%typ_solver)
 
 case(solNS)
 
@@ -78,7 +79,13 @@ case(solNS)
     call erreur("parameters parsing","unknown numerical scheme")
 
   ! -- Methode de calcul des flux dissipatifs --
-  call get_gradientmethod("DISSIPATIVE_FLUX", defspat%sch_dis)
+  select case(defsolver%defns%typ_fluid)
+  case(eqEULER)
+  case(eqNSLAM, eqRANS)
+    call get_gradientmethod("DISSIPATIVE_FLUX", defspat%sch_dis)
+  case default
+    call erreur("parameters parsing","unexpected fluid dynamical model")
+  endselect
 
   ! -- High resolution method
   defspat%method = cnull
