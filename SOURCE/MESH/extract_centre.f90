@@ -1,13 +1,13 @@
 !------------------------------------------------------------------------------!
-! Procedure : extract_points              Auteur : J. Gressier
+! Procedure : extract_points              Auteur : J. Gressier / E. Radenac
 !                                         Date   : Juin 2003
 ! Fonction                                Modif  :
-!   Extraction d'une liste de points à partir d'une liste d'index
+!   Extraction de la liste des centres de face d'une condition aux limites 
 !
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine extract_points(umesh, indx, liste)
+subroutine extract_centre(boco, umesh, centre)
 
 use TYPHMAKE
 use GEO3D
@@ -17,33 +17,29 @@ use USTMESH
 implicit none
 
 ! -- Declaration des entrées --
+type(st_ustboco) :: boco
 type(st_ustmesh) :: umesh
-integer, dimension(1:umesh%nvtex) :: indx     ! liste des index des points renumérotés
 
 ! -- Declaration des entrées/sorties --
+type(v3d), dimension(1:boco%nface) :: centre
 
 ! -- Declaration des sorties --
-type(v3d), dimension(*) :: liste  ! liste des sommets à extraire
 
 ! -- Declaration des variables internes --
-integer :: if, iface, iv, nvtex
+integer :: if, iface
 
 ! -- Debut de la procedure --
 
-!! instruction where ?
-
-do iv = 1, umesh%nvtex
-  if (indx(iv) /= 0) then
-    liste(indx(iv)) = umesh%mesh%vertex(iv,1,1)
-  endif
+do if = 1, boco%nface
+  iface = boco%iface(if)
+  centre(if) = umesh%mesh%iface(iface,1,1)%centre
 enddo
 
-
-endsubroutine extract_points
+endsubroutine extract_centre
 
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! Juin 2003 (v0.0.1b): création de la procédure
+! Février 2004 : création de la procédure
 ! 
 !------------------------------------------------------------------------------!

@@ -8,7 +8,8 @@
 !   Limitation au cas un domaine unique par zone
 !------------------------------------------------------------------------------!
 
-subroutine ech_data_kdif(donnees_echange_inst, zone, nbc)
+subroutine ech_data_kdif(donnees_echange_inst1, zone1, nbc1, &
+                         donnees_echange_inst2, zone2, nbc2, ncoupl2 )
 
 use TYPHMAKE
 use OUTPUT
@@ -20,44 +21,56 @@ use MATER_LOI
 implicit none
 
 ! -- Declaration des entrées --
-type(st_zone)           :: zone
-integer                 :: nbc ! indice de la condition aux limites
+type(st_zone)           :: zone1, zone2
+integer                 :: nbc1, nbc2 ! indice de la condition aux limites
+integer                 :: ncoupl2
 
 ! -- Declaration donnees_echange    
 
-type(st_genericfield) :: donnees_echange_inst
+type(st_genericfield) :: donnees_echange_inst1,  donnees_echange_inst2
 
 ! -- Declaration des variables internes --
-integer   :: i, icl, if
+integer   :: i, icl1, icl2, if1, if2
 real(krp) :: conduct
 
 ! -- Debut de la procedure --
 
-!select case(zone%defsolver%defkdif%materiau%type)
-!case(mat_LIN, mat_KNL)
-!  conduct = valeur_loi(zone%defsolver%defkdif%materiau%Kd, &
-!                       zone%field(1)%etatprim%tabscal(1)%scal(icl))
-!case(mat_XMAT)
-!  call erreur("Calcul de matériau","Materiau non linéaire interdit")
-!endselect
+do i=1, zone1%ust_mesh%boco(nbc1)%nface
+  
+  if1 = zone1%ust_mesh%boco(nbc1)%iface(i)
+  if2 = zone2%ust_mesh%boco(nbc2)%iface(zone2%coupling(ncoupl2)%zcoupling%connface(i))
 
-do i=1, zone%ust_mesh%boco(nbc)%nface
-  
-  if = zone%ust_mesh%boco(nbc)%iface(i)
-  icl = zone%ust_mesh%facecell%fils(if,1)
-!--DVT-----------------------------------------------------------------
-select case(zone%defsolver%defkdif%materiau%type)
-case(mat_LIN, mat_KNL)
-  conduct = valeur_loi(zone%defsolver%defkdif%materiau%Kd, &
-                       zone%field(1)%etatprim%tabscal(1)%scal(icl))
-case(mat_XMAT)
-  call erreur("Calcul de matériau","Materiau non linéaire interdit")
-endselect
-!----------------------------------------------------------------------
-  donnees_echange_inst%tabscal(1)%scal(i) = zone%field(1)%etatprim%tabscal(1)%scal(icl)
-  donnees_echange_inst%tabscal(2)%scal(i) = conduct
-  !donnees_echange_inst%tabvect(1)%vect(if) = zone%field(1)%gradient%tabvect(1)%vect(icl)
-  
+  icl1 = zone1%ust_mesh%facecell%fils(if1,1)
+  icl2 = zone2%ust_mesh%facecell%fils(if2,1)
+
+  ! Calcul de conductivité de la zone 1
+  select case(zone1%defsolver%defkdif%materiau%type)
+  case(mat_LIN, mat_KNL)
+    conduct = valeur_loi(zone1%defsolver%defkdif%materiau%Kd, &
+                         zone1%field(1)%etatprim%tabscal(1)%scal(icl1))
+  case(mat_XMAT)
+    call erreur("Calcul de matériau","Materiau non linéaire interdit")
+  endselect
+
+  ! Affectation des données d'échange de la zone 1
+  donnees_echange_inst1%tabscal(1)%scal(i) = zone1%field(1)%etatprim%tabscal(1)%scal(icl1)
+  donnees_echange_inst1%tabscal(2)%scal(i) = conduct
+  !donnees_echange_inst1%tabvect(1)%vect(if) = zone1%field(1)%gradient%tabvect(1)%vect(icl)
+
+  ! Calcul de conductivité de la zone 2
+  select case(zone2%defsolver%defkdif%materiau%type)
+  case(mat_LIN, mat_KNL)
+    conduct = valeur_loi(zone2%defsolver%defkdif%materiau%Kd, &
+                         zone2%field(1)%etatprim%tabscal(1)%scal(icl2))
+  case(mat_XMAT)
+    call erreur("Calcul de matériau","Materiau non linéaire interdit")
+  endselect
+
+  ! Affectation des données d'échange de la zone 2
+  donnees_echange_inst2%tabscal(1)%scal(i) = zone2%field(1)%etatprim%tabscal(1)%scal(icl2)
+  donnees_echange_inst2%tabscal(2)%scal(i) = conduct
+  !donnees_echange_inst2%tabvect(1)%vect(if) = zone2%field(1)%gradient%tabvect(1)%vect(icl)  
+
 enddo
 
 endsubroutine ech_data_kdif

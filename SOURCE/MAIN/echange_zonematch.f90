@@ -132,7 +132,7 @@ select case(typtemps)
  call calcdifflux(zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal, &
                   zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal, &
                   nfacelim, zone1%coupling(ncoupl1)%zcoupling%solvercoupling, &
-                  corcoef )
+                  corcoef, zone2%coupling(ncoupl2)%zcoupling%connface )
 
 if (placement == avant) then
  ! Calcul des variables primitives avec correction de flux
@@ -170,7 +170,8 @@ do i=1, nfacelim
   
   ! indices des faces concernées
   if = zone1%ust_mesh%boco(nbc1)%iface(i)
-  if2 = zone2%ust_mesh%boco(nbc2)%iface(i)
+  if2 = zone2%ust_mesh%boco(nbc2)%iface(zone2%coupling(ncoupl2)%zcoupling%connface(i))
+!  if2 = zone2%ust_mesh%boco(nbc2)%iface(i)
   
   normale(i) = zone1%ust_mesh%mesh%iface(if,1,1)%normale
  
@@ -196,10 +197,8 @@ typmethod = zone1%defsolver%boco(zone1%ust_mesh%boco(nbc1)%idefboco)%typ_calc
 ! Valeurs des données instationnaires à échanger
 call donnees_echange(zone1%coupling(ncoupl1)%zcoupling%solvercoupling, &
                      zone1%coupling(ncoupl1)%zcoupling%echdata, &
-                     zone1, nbc1)
-call donnees_echange(zone2%coupling(ncoupl2)%zcoupling%solvercoupling, &
-                     zone2%coupling(ncoupl2)%zcoupling%echdata, &
-                     zone2, nbc2)
+                     zone1, nbc1, zone2%coupling(ncoupl2)%zcoupling%echdata, &
+                     zone2, nbc2, ncoupl2)
 
 
 ! Calcul des conditions de raccord
@@ -209,7 +208,8 @@ call echange(zone1%coupling(ncoupl1)%zcoupling%echdata, &
              normale, vecinter, d1, d2, nfacelim, typcalc, typmethod,&
              zone1%coupling(ncoupl1)%zcoupling%solvercoupling, &
              zone1%defsolver%boco(zone1%ust_mesh%boco(nbc1)%idefboco), &
-             zone2%defsolver%boco(zone2%ust_mesh%boco(nbc2)%idefboco))
+             zone2%defsolver%boco(zone2%ust_mesh%boco(nbc2)%idefboco), &
+             zone2%coupling(ncoupl2)%zcoupling%connface)
 
 !endif
 

@@ -42,7 +42,6 @@ EQKDIF_OBJ := $(EQKDIF_MOD:.$(MOD)=.o)        \
               echange_kdif.o                  \
               ech_data_kdif.o                 \
               init_boco_kdif.o                \
-              init_coupling_kdif.o            \
               init_kdif_ust.o                 \
               integration_kdif_ust.o          \
               setboco_kdif_isoth_nunif.o      \

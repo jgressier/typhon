@@ -8,7 +8,7 @@
 ! Defauts/Limitations/Divers :
 !------------------------------------------------------------------------------!
 
-subroutine calcdifflux_kdif(etatcons1, etatcons2, nfacelim, corcoef)
+subroutine calcdifflux_kdif(etatcons1, etatcons2, nfacelim, corcoef, connface2)
 
 use OUTPUT
 use DEFZONE
@@ -21,6 +21,8 @@ implicit none
 ! -- Declaration des entrées --
 integer                    :: nfacelim            ! nombre de faces limites
 real(krp)                  :: corcoef             ! coeff correction de flux
+integer, dimension(nfacelim) &
+                           :: connface2
 
 ! -- Declaration des entrées/sorties --
 type(st_scafield), dimension(2) &
@@ -40,10 +42,10 @@ do i=1, nfacelim
 
 ! La différence est la "somme" des flux cumulés car ce sont les valeurs algébriques dont on dispose
 ! (les flux sortant de part et d'autre)
-dif_enflux = etatcons2(1)%scal(i) + etatcons1(1)%scal(i)
+dif_enflux = etatcons2(1)%scal(connface2(i)) + etatcons1(1)%scal(i)
 
   etatcons1(2)%scal(i) = -corcoef*dif_enflux
-  etatcons2(2)%scal(i) = (-1._krp + corcoef)*dif_enflux
+  etatcons2(2)%scal(connface2(i)) = (-1._krp + corcoef)*dif_enflux
 
 enddo
 

@@ -5,10 +5,10 @@
 !   Calcul de connectivités face/face entre deux zones selon la liste de
 !   faces de famille pour chacune des zones
 !
-! Defauts/Limitations/Divers :
+! Defauts/Limitations/Divers : maillages coincidents
 !
 !------------------------------------------------------------------------------!
-subroutine calc_connface(m1, b1, m2, b2)
+subroutine calc_connface(m1, b1, connface1, m2, b2, connface2)
 
 use TYPHMAKE
 use GEO3D
@@ -22,48 +22,44 @@ type(st_ustmesh) :: m1, m2      ! maillage 1 et 2 connectées (non structurés)
 type(st_ustboco) :: b1, b2      ! conditions aux limites concernées par la connection
 
 ! -- Declaration des entrées/sorties --
-!type(st_ustmesh) :: ust_mesh
+integer, dimension(1:b1%nface) :: connface1
+integer, dimension(1:b2%nface) :: connface2
 
 ! -- Declaration des sorties --
 
 
 ! -- Declaration des variables internes --
-integer                              :: npts1, npts2        ! nb de points par zone/famille
-type(v3d), dimension(:), allocatable :: lst_pts1, lst_pts2  ! liste des sommets extraits
-integer,   dimension(:), allocatable :: ind_pts1, ind_pts2  ! index des sommets por extraction
-!integer                 :: ic, ic1, ic2 ! indices de cellules
+type(v3d), dimension(:), allocatable :: centre1, centre2
+real(krp)                            :: mincentre
+integer                              :: if1, if2, ind_assoc
 
 ! -- Debut de la procedure --
 
+allocate(centre1(b1%nface))
+allocate(centre2(b2%nface))
 
-! création des listes de points associés aux familles de conditions aux limites
+! création de la liste des centres des faces concernées des deux zones
+call extract_centre(b1, m1, centre1)
+call extract_centre(b2, m2, centre2)
 
-allocate(ind_pts1(m1%nvtex))
-allocate(ind_pts2(m2%nvtex))
+! calcul pour chaque centre de la zone 1 du centre le plus proche de la zone 2
+! et affectation des indices aux connectivités de faces
+do if1 = 1, b1%nface
+  mincentre = abs( centre1(if1) - centre2(1) )
+  ind_assoc = 1
+  if ( b2%nface .gt. 1 ) then
+    do if2 = 2, b2%nface
+      if ( abs( centre1(if1) - centre2(if2) ) .lt. mincentre) then
+        mincentre = abs( centre1(if1) - centre2(if2) )
+        ind_assoc = if2
+      endif
+    enddo
+  endif
+  connface1(if1) = ind_assoc
+  connface2(ind_assoc) = if1
+enddo
 
-call extract_pts_index(m1, b1, npts1, ind_pts1)
-call extract_pts_index(m2, b2, npts2, ind_pts2)
-
-! création des listes de points pour chaque zone
-
-allocate(lst_pts1(npts1))
-allocate(lst_pts2(npts2))
-
-call extract_points(m1, ind_pts1, lst_pts1)
-call extract_points(m2, ind_pts2, lst_pts2)
-
-!
-! création des listes de faces avec la nouvelle renumérotation des points
-
-
-! création de la connectivité des points entre zones
-
-
-! destruction des tableaux provisoires
-
-deallocate(ind_pts1, ind_pts2)
-deallocate(lst_pts1, lst_pts2)
-
+deallocate(centre1, centre2)
 
 endsubroutine calc_connface
 
@@ -71,5 +67,7 @@ endsubroutine calc_connface
 ! Historique des modifications
 !
 ! Juin 2003 (v0.0.1b): création de la procédure
+! Février 2004       : connectivités déterminées par la coincidence des centres
+!                      de faces
 ! 
 !------------------------------------------------------------------------------!

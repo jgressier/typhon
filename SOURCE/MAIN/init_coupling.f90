@@ -61,11 +61,6 @@ do ib = 1, zone2%ust_mesh%nboco
   endif
 enddo
 
-! calcul des connections et connectivités entre zones
-
-call calc_connface(zone1%ust_mesh, zone1%ust_mesh%boco(nbc1), &
-                   zone2%ust_mesh, zone2%ust_mesh%boco(nbc2))
-
 ! Détermination des solveurs des deux zones couplées
 
 typsolver1 = zone1%defsolver%typ_solver
@@ -99,33 +94,18 @@ select case(typsolver1)
 
 endselect
 
-! Initialisation selon les solveurs
-! DEV : les initialisations au sens de l'allocation doivent pouvoir être définies
-! au niveau du module avec des constructeurs de type new
+! Initialisation des structures du couplage
 
-select case(zone1%coupling(ncoupl1)%zcoupling%solvercoupling)
-  
-  case(kdif_kdif)
-  call init_coupling_kdif(zone1%coupling(ncoupl1), &
-                          zone1%ust_mesh%boco(nbc1)%nface)
-  call init_coupling_kdif(zone2%coupling(ncoupl2), &
-                          zone2%ust_mesh%boco(nbc2)%nface)  
-  
-  case(kdif_ns)
-  call init_coupling_kdif(zone1%coupling(ncoupl1), &
-                          zone1%ust_mesh%boco(nbc1)%nface )
-  call init_coupling_kdif(zone2%coupling(ncoupl2), &
-                          zone2%ust_mesh%boco(nbc2)%nface)
-    
-  case(ns_ns)
-  call erreur("incohérence interne (init_coupling)", "cas non implémenté")
-    
-  case default
-  call erreur("incohérence interne (init_coupling)",&
-              "couplage solveurs inconnu")
-  
-endselect
-  
+call new(zone1%coupling(ncoupl1)%zcoupling, zone1%ust_mesh%boco(nbc1)%nface)
+call new(zone2%coupling(ncoupl2)%zcoupling, zone2%ust_mesh%boco(nbc2)%nface)
+
+! calcul des connections et connectivités entre zones
+! maillages coincidants
+call calc_connface(zone1%ust_mesh, zone1%ust_mesh%boco(nbc1), &
+                   zone1%coupling(ncoupl1)%zcoupling%connface, &
+                   zone2%ust_mesh, zone2%ust_mesh%boco(nbc2), &
+                   zone2%coupling(ncoupl2)%zcoupling%connface)
+
 endsubroutine init_coupling
 
 !------------------------------------------------------------------------------!

@@ -78,6 +78,21 @@ fichiers supprimés : calcboco_ust_coupling, calcboco_ust_coupling_face,
            calcboco_kdif_coupling_face, calcboco_kdif_ust
 
 ---------------------------------------------------------------------------------
+Task 0009 (Emmanuel) : COUPL : connectivités de zones en maillage coincident:
+---------------------------------------------------------------------------------
+Les indices de faces concernées par les conditions aux limites aux interfaces
+de couplage sont liés par une variable connface de la structure zone_coupling.
+On identifie les faces coincidentes pendant l'initialisation en comparant
+les centres des faces (minimum des distances entre les centres, pour des
+questions de précision numérique)
+
+fichiers : ZONE_COUPLING, init_coupling, calc_connface, echange_zonematch, ech_data_kdif,
+           donnees_echange, echange, calcdifflux, calcdifflux_kdif
+fichiers nouveaux : extract_centre
+fichiers supprimés : init_coupling_kdif, extract_points, extract_pts_index
+
+
+---------------------------------------------------------------------------------
 Task 0011 (Emmanuel) : COUPL : orientation des types de correction selon
                                les cas (avant ou après échange, valeur du
                                coefficient de correction)

@@ -12,6 +12,7 @@ module ZONE_COUPLING
 
 use TYPHMAKE   ! Definition de la precision et des types basiques
 use DEFFIELD   ! Définition des champs de valeurs physiques pour les transferts
+use VARCOM
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
@@ -56,6 +57,29 @@ integer                :: nfaceint
 zc%nface_int = nfaceint
 allocate(zc%connface(nfaceint))
 
+select case(zc%solvercoupling)
+
+  case(kdif_kdif)
+    call new(zc%echdata, nfaceint, 2,1,0)
+    call new(zc%etatcons, nfaceint, 2, 0, 0)
+    call init_genericfield(zc%echdata, 0._krp, v3d(0._krp, 0._krp, 0._krp))
+    call init_genericfield(zc%etatcons, 0._krp, v3d(0._krp, 0._krp, 0._krp))
+
+  case(kdif_ns)
+    call new(zc%echdata, nfaceint, 2,1,0)
+    call new(zc%etatcons, nfaceint, 2, 0, 0)
+    call init_genericfield(zc%echdata, 0._krp, v3d(0._krp, 0._krp, 0._krp))
+    call init_genericfield(zc%etatcons, 0._krp, v3d(0._krp, 0._krp, 0._krp))
+
+  case(ns_ns)
+    call erreur("incohérence interne (ZONE_COUPLING)", "cas non implémenté")
+
+  case default
+    call erreur("incohérence interne (ZONE_COUPLING)", &
+                "couplage solveurs inconnu")
+
+endselect
+
 endsubroutine new_zcoupling
 
 !------------------------------------------------------------------------------!
@@ -69,7 +93,7 @@ call delete(zc%echdata)
 
 call delete(zc%etatcons)
 
-!deallocate(zc%connface)
+deallocate(zc%connface)
 
 endsubroutine delete_zcoupling
 

@@ -8,7 +8,8 @@
 ! Defauts/Limitations/Divers :
 !------------------------------------------------------------------------------!
 
-subroutine calcdifflux(etatcons1, etatcons2, nfacelim, solvercoupling, corcoef)
+subroutine calcdifflux(etatcons1, etatcons2, nfacelim, solvercoupling, &
+                       corcoef, connface2)
 
 use OUTPUT
 use VARCOM
@@ -23,6 +24,8 @@ implicit none
 integer                    :: nfacelim            ! nombre de faces limites
 integer                    :: solvercoupling      ! solvers utilisés
 real(krp)                  :: corcoef             ! coeff correction de flux
+integer, dimension(nfacelim) &
+                           :: connface2
 
 ! -- Declaration des entrées/sorties --
 type(st_scafield), dimension(2) &
@@ -36,7 +39,7 @@ type(st_scafield), dimension(2) &
 
 select case(solvercoupling)
 case(kdif_kdif)
-  call calcdifflux_kdif(etatcons1, etatcons2, nfacelim, corcoef)
+  call calcdifflux_kdif(etatcons1, etatcons2, nfacelim, corcoef, connface2)
 case default
   call erreur("Incohérence interne (calcdifflux)","type de solveur inconnu")
 endselect 

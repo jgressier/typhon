@@ -8,7 +8,7 @@
 !
 !------------------------------------------------------------------------------!
 subroutine echange_kdif(echdata1, echdata2, normale, vecinter, d1, d2, nfacelim, &
-			typecalcul, typemethode, bocokdif1, bocokdif2)
+			typecalcul, typemethode, bocokdif1, bocokdif2, connface2)
 
 use TYPHMAKE
 use OUTPUT
@@ -29,6 +29,8 @@ real(krp), dimension(nfacelim) &
 		           :: d1, d2  ! distance entre les centres des cellules gauche,
 		      		      ! droite et l'interface
 integer                    :: typecalcul, typemethode
+integer, dimension(nfacelim) &
+                           :: connface2
 
 ! -- Declaration des entrées/sorties --
 type(st_boco_kdif)         :: bocokdif1, bocokdif2
@@ -69,7 +71,8 @@ do if = 1, nfacelim
 
   !Conditions aux limites des deux zones
   call stock_kdif_cond_coupling(bocokdif1, temp_inter, flux_inter, if)
-  call stock_kdif_cond_coupling(bocokdif2, temp_inter, flux_inter, if) 
+
+  call stock_kdif_cond_coupling(bocokdif2, temp_inter, flux_inter, connface2(if)) 
 
 enddo
 

@@ -8,7 +8,8 @@
 !
 !------------------------------------------------------------------------------!
 subroutine echange(echdata1, echdata2, normale, vecinter, d1, d2, nfacelim, &
-			typecalcul, typemethode, solvercoupling, boco1, boco2)
+			typecalcul, typemethode, solvercoupling, boco1, &
+                        boco2, connface2)
 
 use TYPHMAKE
 use OUTPUT
@@ -32,6 +33,8 @@ real(krp), dimension(nfacelim) &
 		      		      ! droite et l'interface
 integer                    :: typecalcul, typemethode
 integer                    :: solvercoupling
+integer, dimension(nfacelim) &
+                           :: connface2
 
 ! -- Declaration des entrées/sorties --2
 type(mnu_boco)             :: boco1, boco2
@@ -45,7 +48,7 @@ select case(solvercoupling)
 case(kdif_kdif)
 call echange_kdif(echdata1, echdata2, normale, vecinter, d1, d2, nfacelim, &
  			typecalcul, typemethode, boco1%boco_kdif, &
-                        boco2%boco_kdif)
+                        boco2%boco_kdif, connface2)
 case(kdif_ns)
 call erreur("incohérence interne (echange)", "non implémenté")
 
