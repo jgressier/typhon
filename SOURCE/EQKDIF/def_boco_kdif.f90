@@ -39,7 +39,7 @@ pblock => block
 select case(type)
 
 case(bc_wall_adiab)
-  call erreur("Développement","'bc_wall_adiab' : Cas non implémenté")
+  boco%flux=0._krp
 
 case(bc_wall_isoth)
   
@@ -56,10 +56,39 @@ case(bc_wall_isoth)
   endselect
 
 case(bc_wall_flux)
-  call erreur("Développement","'bc_wall_isoth' : Cas non implémenté")
+  
+  select case(unif)
+  
+  case(uniform)
+    call rpmgetkeyvalreal(pblock, "WALL_FLUX", boco%flux)
+    boco%flux = - boco%flux ! convention flux sortant dans le code
+                            ! CL : convention flux entrant pour utilisateur
+
+  case(nonuniform)
+    boco%allocflux = .true.
+    call rpmgetkeyvalstr(pblock, "FLUX_FILE", str)
+    boco%fluxfile = str
+
+  endselect
 
 case(bc_wall_hconv)
-  call erreur("Développement","'bc_wall_hconv' : Cas non implémenté")
+  
+  select case(unif)
+  
+  case(uniform)
+    call rpmgetkeyvalreal(pblock, "H", boco%h_conv)
+    boco%h_conv = - boco%h_conv ! convention flux sortant dans le code
+                                ! CL : convention flux entrant pour utilisateur
+    call rpmgetkeyvalreal(pblock, "T_CONV", boco%temp_conv)
+
+  case(nonuniform)
+    boco%allochconv = .true.
+    call rpmgetkeyvalstr(pblock, "H_FILE", str)
+    boco%hfile = str
+    call rpmgetkeyvalstr(pblock, "TCONV_FILE", str)
+    boco%tconvfile = str
+
+  endselect
 
 case default
   call erreur("Lecture de menu","type de conditions aux limites non reconnu&
@@ -74,6 +103,7 @@ endsubroutine def_boco_kdif
 ! Historique des modifications
 !
 ! mars 2003 (v0.0.1b): création de la routine
+! juin 2004 : conditions de Neumann et de convection
 !------------------------------------------------------------------------------!
 
 

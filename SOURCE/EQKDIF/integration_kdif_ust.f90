@@ -108,6 +108,8 @@ enddo
 
 deallocate(grad_l, grad_r, cell_l, cell_r, cg_l, cg_r)
 
+call fluxlimite(defsolver, domaine, flux)
+
 endsubroutine integration_kdif_ust
 
 !------------------------------------------------------------------------------!

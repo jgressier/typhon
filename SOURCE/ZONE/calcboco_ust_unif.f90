@@ -8,7 +8,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine calcboco_ust_unif(defboco, ustboco, ustdom, champ, typsolver)
+subroutine calcboco_ust_unif(defboco, ustboco, ustdom, champ, typsolver, defsolver, grid)
 
 use TYPHMAKE
 use OUTPUT
@@ -26,6 +26,8 @@ type(mnu_boco)   :: defboco          ! paramètres de conditions aux limites
 type(st_ustboco) :: ustboco          ! lieu d'application des conditions aux limites
 type(st_ustmesh) :: ustdom           ! maillage non structuré
 integer          :: typsolver        ! type du solver
+type(mnu_solver) :: defsolver        ! type d'équation à résoudre
+type(st_grid)    :: grid
 
 ! -- Declaration des sorties --
 type(st_field)   :: champ            ! champ des états
@@ -37,7 +39,7 @@ type(st_field)   :: champ            ! champ des états
 
 select case(typsolver)
   case(solKDIF)
-    call calcboco_kdif_ust_unif(defboco, ustboco, ustdom, champ)
+    call calcboco_kdif_ust_unif(defboco, ustboco, ustdom, champ, defsolver, grid)
   case(solVORTEX)
     ! rien à faire
   case default

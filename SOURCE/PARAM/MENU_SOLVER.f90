@@ -120,13 +120,21 @@ integer           :: ib
     do ib = 1, defsolver%nboco
       select case(defsolver%boco(ib)%boco_unif)
       case(nonuniform)
+        ! condition de Dirichlet non uniforme
         if (defsolver%boco(ib)%boco_kdif%alloctemp) then
           deallocate(defsolver%boco(ib)%boco_kdif%temp)
           defsolver%boco(ib)%boco_kdif%alloctemp = .false.
         endif
+        ! condition de Von Neumann non uniforme
         if (defsolver%boco(ib)%boco_kdif%allocflux) then
           deallocate(defsolver%boco(ib)%boco_kdif%flux_nunif)
           defsolver%boco(ib)%boco_kdif%allocflux = .false.
+        endif
+        ! condition de Fourier non uniforme
+        if (defsolver%boco(ib)%boco_kdif%allochconv) then
+          deallocate(defsolver%boco(ib)%boco_kdif%h_nunif)
+          deallocate(defsolver%boco(ib)%boco_kdif%tconv_nunif)
+          defsolver%boco(ib)%boco_kdif%allochconv = .false.
         endif
       endselect
     enddo
@@ -207,6 +215,7 @@ endmodule MENU_SOLVER
 !             définition des quantités
 !             index de conditions limites ou de capteurs en fonction du nom
 ! fev  2004 : définition du solveur VORTEX
+! juin 2004 : procédure delete : condition limite Fourier non uniforme
 !------------------------------------------------------------------------------!
 
 

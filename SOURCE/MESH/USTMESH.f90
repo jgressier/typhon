@@ -15,6 +15,7 @@ use TYPHMAKE      ! Definition de la precision
 use GEO3D 
 use MESHBASE      ! Librairie pour les éléments géométriques de base
 use CONNECTIVITY  ! Librairie de gestion de listes et connectivités
+use DEFFIELD
 
 implicit none
 
@@ -51,6 +52,8 @@ type st_ustboco
   integer                        :: nface      ! nombre de faces concernées
   integer, dimension(:), pointer :: iface      ! liste des faces concernées par
                                                ! les conditions aux limites
+  type(st_genericfield), pointer &
+                         :: bocofield          ! liste chaînée de champs génériques
 
   !! type(st_solvboco), pointer    :: boco      ! condition aux limites associée
   !! type(st_strboco),  pointer :: next       ! (liste) condition suivante

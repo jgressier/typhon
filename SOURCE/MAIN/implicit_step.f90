@@ -41,7 +41,7 @@ type(st_dlu)          :: mat
 type(st_genericfield) :: flux             ! tableaux des flux
 real(krp), dimension(:), allocatable &
                       :: jacL, jacR       ! tableaux de jacobiennes des flux
-integer(kip)          :: if, ic1, ic2, ic, info
+integer(kip)          :: if, ic1, ic2, ic, info, ip, ib, i, icell
 
 ! -- Debut de la procedure --
 
@@ -113,8 +113,6 @@ do ic = 1, mat%dim
   !mat%diag(ic) = umesh%mesh%volume(ic,1,1) / dt
 enddo
 
-deallocate(jacL, jacR)
-
 ! résolution
 
 select case(deftime%implicite%methode)
@@ -139,22 +137,50 @@ endselect
 call delete(mat)
 
 !--------------------------------------------------
+select case(defsolver%typ_solver)
+case(solKDIF)
 
-!select case(typtemps)
-! case(instationnaire) ! corrections de flux seulement en instationnaire
+! Mise à jour des variables primitives des cellules limitrophes des 
+! interfaces de couplage
+do ip = 1, field%nscal
+  do ic = 1, ncp
+    do ib = 1, umesh%nboco
+      if(samestring(coupling(ic)%family, umesh%boco(ib)%family)) then
+        do i = 1, umesh%boco(ib)%nface
+          if = umesh%boco(ib)%iface(i)
+          icell = umesh%facecell%fils(if,1)
+          field%etatprim%tabscal(ip)%scal(icell) = &
+              (field%etatcons%tabscal(ip)%scal(icell) + &
+              field%residu%tabscal(ip)%scal(icell)) / &
+              defsolver%defkdif%materiau%Cp 
+        enddo
+      endif
+    enddo
+  enddo
+enddo
 
-! ! Calcul de l'"énergie" à l'interface, en vue de la correction de flux, pour 
-! ! le couplage avec échanges espacés
-! !DVT : flux%tabscal(1) !
-! if (ncp>0) then
-!   call accumulfluxcorr(dt, defsolver, umesh%nboco, umesh%boco, &
-!                        umesh%nface, flux%tabscal(1)%scal, ncp, &
-!                        coupling)
-! endif
+! Mise à jour des flux pour connaitre ceux aux interfaces de couplage
+call integration_kdif_ust(dt, defsolver, defspat, umesh, field, flux, .false., jacL, jacR)
 
-!endselect
+deallocate(jacL, jacR)
 
-if (ncp > 0) call erreur("Développement","couplage interdit en implicite")
+case default
+  call erreur("incohérence interne (implicit_step)", "solveur inconnu")
+endselect
+
+select case(typtemps)
+ case(instationnaire) ! corrections de flux seulement en instationnaire
+
+ ! Calcul de l'"énergie" à l'interface, en vue de la correction de flux, pour 
+ ! le couplage avec échanges espacés
+ !DVT : flux%tabscal(1) !
+ if (ncp>0) then
+   call accumulfluxcorr(dt, defsolver, umesh%nboco, umesh%boco, &
+                        umesh%nface, flux%tabscal(1)%scal, ncp, &
+                        coupling)
+ endif
+
+endselect
 
 call delete(flux)
 

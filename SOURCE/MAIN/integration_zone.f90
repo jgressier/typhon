@@ -62,6 +62,13 @@ do while (associated(pgrid))
   call integration_grid(dt, zone%info%typ_temps,                    &
                         zone%defsolver, zone%defspat, zone%deftime, &
                         pgrid, zone%coupling, zone%ncoupling)
+
+  ! Désallocation des éventuelles listes chainées de champ générique utilisées
+  if (pgrid%nbocofield .ne. 0) then
+    call delete_chainedgfield(pgrid%bocofield)
+    pgrid%nbocofield=0
+  endif
+
   pgrid => pgrid%next
 enddo
 
@@ -81,4 +88,5 @@ endsubroutine integration_zone
 !             ajout du calcul des gradients aux limites (set_gradient_limite)
 ! avr  2004 : traitement des listes chaînées de structures MGRID
 !             changement d'appel integration_ustdomaine -> integration_grid
+! juin 2004 : désallocation des listes chainées de champ générique en fin de procédure
 !------------------------------------------------------------------------------!

@@ -33,7 +33,7 @@ pgrid => lzone%grid
 do while(associated(pgrid))
 
   call calcboco_ust(lzone%defsolver, pgrid%umesh, pgrid%field, &
-                    lzone%ncoupling, lzone)
+                    lzone%ncoupling, lzone, lzone%grid)
   pgrid => pgrid%next
 
 enddo

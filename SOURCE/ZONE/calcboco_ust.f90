@@ -8,7 +8,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine calcboco_ust(defsolver, ustdom, champ, ncoupling, zone)
+subroutine calcboco_ust(defsolver, ustdom, champ, ncoupling, zone, grid)
 
 use TYPHMAKE
 use OUTPUT
@@ -27,6 +27,7 @@ type(st_ustmesh)       :: ustdom           ! maillage non structuré
 type(st_zone)          :: zone
 !type(mnu_zonecoupling), dimension(ncoupling) :: zcoupling   ! couplages de la zone avec ses voisines
 integer                :: ncoupling        ! nombre de couplages de la zone
+type(st_grid)          :: grid
 
 ! -- Declaration des sorties --
 type(st_field)         :: champ            ! champ des états
@@ -77,10 +78,10 @@ do ib = 1, ustdom%nboco
     select case(defsolver%boco(idef)%boco_unif)
     case(uniform)
       call calcboco_ust_unif(defsolver%boco(idef), ustdom%boco(ib), ustdom, champ, &
-                            defsolver%typ_solver)
+                            defsolver%typ_solver, defsolver, grid)
     case(nonuniform)
       call calcboco_ust_nunif(defsolver%boco(idef), ustdom%boco(ib), ustdom, champ, &
-                            defsolver%typ_solver)
+                            defsolver%typ_solver, defsolver, grid)
  
     endselect
 

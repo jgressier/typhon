@@ -173,4 +173,5 @@ endmodule MGRID
 ! Historique des modifications
 !
 ! mars 2004 : création du module
+! juin 2004 : procédure newbocofield
 !------------------------------------------------------------------------------!

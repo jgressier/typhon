@@ -511,5 +511,6 @@ endmodule DEFFIELD
 ! juin 2003 : structuration des champs par type (scalaire, vecteur...)
 ! DEV: interface champ/tableau
 ! DEV: découpage en MGFIELD et MZFIELD pour fonctions haut et bas niveau
+! juin 2004 : procédures insert_newgfield et delete_chainedgfield
 !------------------------------------------------------------------------------!
 

@@ -42,6 +42,7 @@ type st_boco_kdif
   logical   :: alloctemp      ! allocation du tableau temp
   character (len=strlen) &
             :: tempfile       ! nom de fichier de définition de la temp non uniforme  
+  real(krp) :: flux           ! flux (si flux imposé)
   real(krp), dimension(:), pointer  &
             :: flux_nunif     ! flux non uniforme
   logical   :: allocflux      ! allocation du tableau flux_nunif
@@ -49,7 +50,16 @@ type st_boco_kdif
             :: fluxfile       ! nom de fichier de définition du flux non uniforme  
   real(krp) :: h_conv         ! coefficient de convection
   real(krp) :: temp_conv      ! température de relaxation pour la convection
-  real(krp) :: flux           ! flux (si flux imposé)
+  real(krp), dimension(:), pointer  &
+            :: h_nunif        ! coefficient de convection non uniforme
+  real(krp), dimension(:), pointer  &
+            :: tconv_nunif    ! température de convection non uniforme
+  logical   :: allochconv     ! allocation des tableaux h_nunif et tconv_nunif
+  character (len=strlen) &
+            :: hfile          ! nom de fichier de définition du coef de convection non uniforme
+  character (len=strlen) &
+            :: tconvfile       ! nom de fichier de définition de la température de 
+                               ! convection non uniforme  
 endtype st_boco_kdif
 
 
@@ -84,11 +94,13 @@ integer bocotype
 
   select case(bocotype)
   case(bc_wall_adiab)
-    bctype_of_kdifboco = bc_calc_flux
+    bctype_of_kdifboco = bc_calc_ghostface
+    !bctype_of_kdifboco = bc_calc_flux
   case(bc_wall_isoth)
     bctype_of_kdifboco = bc_calc_ghostface
   case(bc_wall_flux)
-    bctype_of_kdifboco = bc_calc_flux
+    bctype_of_kdifboco = bc_calc_ghostface
+    !bctype_of_kdifboco = bc_calc_flux
   case(bc_wall_hconv)
     bctype_of_kdifboco = bc_calc_ghostface
   case default
@@ -107,4 +119,5 @@ endmodule MENU_KDIF
 ! nov  2002 (v0.0.1b): création du module
 ! nov 2003           : ajout de la température non uniforme de paroi 
 !                      (CL Dirichlet)
+! juin 2004          : conditions de Neumann et Fourier non uniformes
 !------------------------------------------------------------------------------!

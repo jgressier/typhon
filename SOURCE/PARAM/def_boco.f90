@@ -59,10 +59,13 @@ do ib = 1, nboco
   ! -- Initialisation des allocations de tableaux de CL à FALSE
   defsolver%boco(ib)%boco_kdif%alloctemp = .false.
   defsolver%boco(ib)%boco_kdif%allocflux = .false.
+  defsolver%boco(ib)%boco_kdif%allochconv = .false.
 
   ! -- Initialisation des noms de fichier de température, flux
   defsolver%boco(ib)%boco_kdif%tempfile = cnull
   defsolver%boco(ib)%boco_kdif%fluxfile = cnull
+  defsolver%boco(ib)%boco_kdif%hfile = cnull
+  defsolver%boco(ib)%boco_kdif%tconvfile = cnull
 
   call seekrpmblock(pblock, "BOCO", ib, pcour, nkey)
 
@@ -93,6 +96,7 @@ do ib = 1, nboco
     ! -- Allocation mémoire pour les tableaux de conditions limites
     defsolver%boco(ib)%boco_kdif%alloctemp = .true.
     defsolver%boco(ib)%boco_kdif%allocflux = .true.
+    defsolver%boco(ib)%boco_kdif%allochconv = .true.
 
     ! -- Incrémentation : numéro du raccord
     izr = izr + 1

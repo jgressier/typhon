@@ -10,7 +10,7 @@ Liste des développement courants
 Task Dévlp.  R. cible début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
      Jérémie   0.1.4              Make  problème de désallocation en fin de calcul (SGI)
-0010           0.1.4              KDIF  condition limite de convection h(T-Tref)
+0010 Emmanuel  0.1.4  23/06 25/06 KDIF  condition limite de convection h(T-Tref) et de Neumann
 0020 Jérémie   0.1.4  12/02 06/04 Make  Solveur Vortex - procédures de base
 0021 Jérémie   0.1.4  07/04 07/04 Make  Solveur Vortex - Solveur KDIF : vérification  
 0022 Jérémie   0.1.4  07/04 09/04 Make  Solveur Vortex - débuggage et validation

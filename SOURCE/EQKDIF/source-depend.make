@@ -41,9 +41,14 @@ EQKDIF_OBJ := $(EQKDIF_MOD:.$(MOD)=.o)        \
               calcboco_kdif_ust_unif.o        \
               echange_kdif.o                  \
               ech_data_kdif.o                 \
+              fluxlimite.o                    \
               init_boco_kdif.o                \
               init_kdif_ust.o                 \
               integration_kdif_ust.o          \
+              setboco_kdif_flux_nunif.o       \
+              setboco_kdif_flux_unif.o        \
+              setboco_kdif_hconv_nunif.o      \
+              setboco_kdif_hconv_unif.o       \
               setboco_kdif_isoth_nunif.o      \
               setboco_kdif_isoth_unif.o       \
               stock_kdif_cond_coupling.o

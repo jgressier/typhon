@@ -7,11 +7,12 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine calcboco_kdif_ust_nunif(defboco, ustboco, ustdom, champ)
+subroutine calcboco_kdif_ust_nunif(defboco, ustboco, ustdom, champ, defsolver, grid)
 
 use TYPHMAKE
 use OUTPUT
 use VARCOM
+use MENU_SOLVER
 use MENU_BOCO
 use USTMESH
 use DEFFIELD 
@@ -22,6 +23,8 @@ implicit none
 type(mnu_boco)   :: defboco          ! paramètres de conditions aux limites
 type(st_ustboco) :: ustboco          ! lieu d'application des conditions aux limites
 type(st_ustmesh) :: ustdom           ! maillage non structuré
+type(mnu_solver) :: defsolver        ! type d'équation à résoudre
+type(st_grid)    :: grid
 
 ! -- Declaration des sorties --
 type(st_field)   :: champ            ! champ des états
@@ -29,22 +32,30 @@ type(st_field)   :: champ            ! champ des états
 ! -- Declaration des variables internes --
 integer          :: ifb, if, ip      ! index de liste, index de face limite et paramètres
 integer          :: icell, ighost    ! index de cellule intérieure, et de cellule fictive
+type(st_genericfield), pointer :: pbocofield
 
 ! -- Debut de la procedure --
 
-select case(defboco%typ_boco)
-
-case(bc_wall_adiab)   
-  call erreur("Développement","Extrapolation d'ordre 2 non implémentée")
+select case(defboco%typ_boco) 
 
 case(bc_wall_isoth)
   call setboco_kdif_isoth_nunif(ustboco, ustdom, champ, &
                                defboco%boco_kdif%temp)
 case(bc_wall_flux)
-  call erreur("Développement","Condition de flux imposé non implémentée")
+  pbocofield => newbocofield(grid,ustboco%nface,1,0,0)  
+  call setboco_kdif_flux_nunif(ustboco, ustdom, champ, &
+                              pbocofield%tabscal(1)%scal, defsolver, &
+                              defboco%boco_kdif%flux_nunif)
+  ustboco%bocofield => pbocofield
 
 case(bc_wall_hconv)
-  call erreur("Développement","Condition de flux de convection non implémentée")
+  pbocofield => newbocofield(grid,ustboco%nface,1,0,0) 
+  call setboco_kdif_hconv_nunif(ustboco, ustdom, champ, &
+                               pbocofield%tabscal(1)%scal, defsolver, &
+                               defboco%boco_kdif%h_nunif, &
+                              defboco%boco_kdif%tconv_nunif) 
+  ustboco%bocofield => pbocofield
+
 
 endselect
 
