@@ -13,8 +13,9 @@ module MENU_BOCO
 use STRING
 use TYPHMAKE   ! Definition de la precision
 use VARCOM     ! Définition des constantes
-use MENU_NS   ! Définition des solveurs type NS
-use MENU_KDIF ! Définition des solveurs type Equation de diffusion
+!use MENU_NS   ! Définition des solveurs type NS
+use MENU_KDIF   ! Définition des solveurs type Equation de diffusion
+use MENU_VORTEX ! Définition des solveurs type VORTEX/singularités
 
 implicit none
 
@@ -22,7 +23,7 @@ implicit none
 ! -- Variables globales du module -------------------------------------------
 
 ! -- Définition des entiers caractéristiques pour l'uniformité de la CL --
-integer, parameter :: uniform   = 10   
+integer, parameter :: uniform    = 10   
 integer, parameter :: nonuniform = 20 
 
 ! -- Définition des entiers caractéristiques pour le type de solveur --
@@ -36,7 +37,7 @@ integer, parameter :: nonuniform = 20
 type mnu_boco
   character(len=strlen) :: family        ! nom de famille de la condition aux limites
   integer               :: typ_boco      ! type physique de condition aux limites 
-                                         !  (cf definitions VARCOM) 
+                                         !  (cf definitions VARCOM : bc_*) 
   integer               :: typ_calc      ! type de calcul de conditions aux limites
                                          !  (cf definitions VARCOM) 
                                          !   CONNECTION    : type de connection (GHOSTFACE,...)?!  
@@ -46,6 +47,7 @@ type mnu_boco
   integer               :: order_extrap  ! ordre d'extrapolation : A INCLURE dans typ_calc
 
   type(st_boco_kdif)    :: boco_kdif     ! condition aux limites propre au solveur KDIF
+  type(st_boco_vort)    :: boco_vortex   ! condition aux limites propre au solveur VORTEX
 
   !integer               :: np_int    ! nombre de paramètres entiers
   !integer               :: np_real   ! nombre de paramètres réels
@@ -79,14 +81,18 @@ character(len=*) str
   if (samestring(str, "CONNECTION" ))          bocotype = bc_connection
   if (samestring(str, "COUPLING" ))            bocotype = bc_wall_isoth
 
-  if (samestring(str, "SYMMETRY" ))            bocotype =  bc_geo_sym   
-  if (samestring(str, "PERIODIC" ))            bocotype =  bc_geo_period
-  if (samestring(str, "EXTRAPOLATE" ))         bocotype =  bc_geo_extrapol
+  if (samestring(str, "SYMMETRY" ))            bocotype = bc_geo_sym   
+  if (samestring(str, "PERIODIC" ))            bocotype = bc_geo_period
+  if (samestring(str, "EXTRAPOLATE" ))         bocotype = bc_geo_extrapol
 
-  if (samestring(str, "ADIABATIC_WALL" ))      bocotype =  bc_wall_adiab 
-  if (samestring(str, "ISOTHERMAL_WALL" ))     bocotype =  bc_wall_isoth 
-  if (samestring(str, "FLUXSET_WALL" ))        bocotype =  bc_wall_flux  
-  if (samestring(str, "CONVECTION_WALL" ))     bocotype =  bc_wall_hconv 
+  if (samestring(str, "ADIABATIC_WALL" ))      bocotype = bc_wall_adiab 
+  if (samestring(str, "ISOTHERMAL_WALL" ))     bocotype = bc_wall_isoth 
+  if (samestring(str, "FLUXSET_WALL" ))        bocotype = bc_wall_flux  
+  if (samestring(str, "CONVECTION_WALL" ))     bocotype = bc_wall_hconv 
+
+  if (samestring(str, "WALL" ))                bocotype = bc_wall
+  if (samestring(str, "KUTTA" ))               bocotype = bc_kutta
+  if (samestring(str, "FAR-FIELD" ))           bocotype = bc_farfield
 
 endfunction bocotype
 
@@ -109,6 +115,8 @@ integer isolver, itype
     select case(isolver)
     case(solKDIF)
       bctype_of_boco = bctype_of_kdifboco(itype)
+    case(solVORTEX)
+      bctype_of_boco = bctype_of_vortboco(itype)
     case default
       call erreur("incohérence interne (MENU_BOCO)","solveur inconnu")
     endselect
@@ -123,10 +131,11 @@ endmodule MENU_BOCO
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov  2002 (v0.0.1b): création du module
-! mars 2003          : définition des types de conditions aux limites
-! juin 2003          : regroupement des types "connection", ajout de "coupling"
-! nov 2003           : ajout de l'uniformité ou non des CL
+! nov  2002 : création du module
+! mars 2003 : définition des types de conditions aux limites
+! juin 2003 : regroupement des types "connection", ajout de "coupling"
+! nov  2003 : ajout de l'uniformité ou non des CL
+! fev  2004 : ajout des CL spécifiques au solveur VORTEX
 !------------------------------------------------------------------------------!
 
 

@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : init_champ                  Auteur : J. Gressier
 !                                         Date   : Mars 2003
-! Fonction                                Modif  :
+! Fonction                                Modif  : (cf historique)
 !   Lecture des menus
 !
 ! Defauts/Limitations/Divers :
@@ -30,23 +30,12 @@ integer :: id             ! index de domaine/champ
 
 !zone%champ%idim = 1
 
-select case(zone%typ_mesh)
 
-case(mshSTR)
-  call erreur("Développement (init_champ)", &
-              "maillage structuré non implémenté")
+allocate(zone%field(zone%ndom))
+do id = 1, zone%ndom
+  call init_champ_ust(zone%defsolver, zone%ust_mesh, zone%field(id))
+enddo
 
-case(mshUST)
-  allocate(zone%field(zone%ndom))
-  do id = 1, zone%ndom
-    call init_champ_ust(zone%defsolver, zone%ust_mesh, zone%field(id))
-  enddo
-
-case default
-  call erreur("incohérence interne (init_champ)", &
-              "type de maillage inconnu")
-
-endselect
 
 
 endsubroutine init_champ
@@ -55,5 +44,5 @@ endsubroutine init_champ
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mars 2003 (v0.0.1b): création de la procédure
+! mars 2003 : création de la procédure
 !------------------------------------------------------------------------------!

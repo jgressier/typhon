@@ -40,7 +40,7 @@ call alloc_prim(champ)
 
 do i = 1, defsolver%ninit
 
-  write(str_w,*) "    initialisation n°",i
+  write(str_w,'(a,i3)') "    initialisation n°",i
   call print_info(10, str_w)
 
   ! initialisation selon solveur
@@ -48,19 +48,25 @@ do i = 1, defsolver%ninit
   select case(defsolver%typ_solver)
   case(solKDIF)
     call init_kdif_ust(defsolver%init(i)%kdif, champ)
+  case(solVORTEX)
+    call init_vort_ust(defsolver%init(i)%vortex, champ)
   case default
     call erreur("Incohérence interne (init_champ_ust)","type de solveur inconnu")
   endselect 
 
 enddo
 
-call calc_varcons(defsolver, champ)
+select case(defsolver%typ_solver)
+case(solKDIF)
+  call calc_varcons(defsolver, champ)
+endselect
 
 endsubroutine init_champ_ust
 
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mars 2003 (v0.0.1b): création de la procédure
-! juin 2003          : mise à jour 
+! mars 2003 : création de la procédure
+! juin 2003 : mise à jour 
+! mars 2004 : ajouts spécifiques au solveur VORTEX
 !------------------------------------------------------------------------------!

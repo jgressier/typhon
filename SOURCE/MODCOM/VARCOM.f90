@@ -1,7 +1,7 @@
 !----------------------------------------------------------------------------------------
 ! MODULE : VARCOM                         Auteur : J. Gressier
 !                                         Date   : Octobre 2002
-! Fonction                                Modif  : cf historique
+! Fonction                                Modif  : (cf historique)
 !   Variables globales du code TYPHON
 !
 ! Defauts/Limitations/Divers :
@@ -15,7 +15,7 @@ use TYPHMAKE   ! Définition de la précision machine
 
 ! -- Variables globales du module -------------------------------------------
 
-character(len=6), parameter :: version = "0.1.3"
+character(len=6), parameter :: version = "0.1.3b"
 
 logical        :: mpi_run              ! calcul parallèle MPI ou non
 character      :: memory_mode          ! mode d'économie mémoire
@@ -28,7 +28,8 @@ integer        :: taille_buffer        ! taille de buffer pour la distribution d
 ! -- Définition des fonctionnalités
 
 logical, parameter :: pass_kdif  = .true.
-logical, parameter :: pass_ns    = .true.
+logical, parameter :: pass_ns    = .false.
+logical, parameter :: pass_vort  = .true.
 logical, parameter :: pass_mpi   = .false.
 logical, parameter :: pass_amr   = .false.
 logical, parameter :: pass_coupl_int = .true.
@@ -59,8 +60,11 @@ character, parameter :: mshHYB = 'H'      ! maillage hybride
 
 ! -- Constantes de définition du type de solveur --
 
-integer, parameter   :: solNS   = 10      ! Equations de Navier-Stokes (EQNS)
-integer, parameter   :: solKDIF = 20      ! Equation  de la chaleur    (EQKDIF)
+integer, parameter   :: solNS     = 10    ! Equations de Navier-Stokes (EQNS)
+integer, parameter   :: solKDIF   = 20    ! Equation  de la chaleur    (EQKDIF)
+integer, parameter   :: solVORTEX = 30    ! Méthode intégrale et lagrangienne VORTEX
+
+!définitino de solVORTEX dans MENU_SOLVER
 
 ! -- Constantes pour le choix du paramètre "temps" (mnu_project)
 
@@ -77,6 +81,7 @@ character, parameter :: c3dgen   = 'G'
 ! -- Constantes de définition du format de maillage --
 
 character, parameter   :: fmt_CGNS    = 'C'   ! format CGNS
+character, parameter   :: fmt_TYPHMSH = 'M'   ! format CGNS
 character, parameter   :: fmt_TECPLOT = 'T'   ! format TECPLOT (ascii)
 character, parameter   :: fmt_VIGIE   = 'V'   ! format VIGIE
 
@@ -100,11 +105,18 @@ integer, parameter :: bc_wall_isoth     = 21
 integer, parameter :: bc_wall_flux      = 22
 integer, parameter :: bc_wall_hconv     = 23
 
+integer, parameter :: bc_farfield       = 30
+integer, parameter :: bc_wall           = 32
+integer, parameter :: bc_kutta          = 35
+
 ! -- Constantes de définition des conditions aux limites (calcul) --
 
-integer, parameter :: bc_calc_ghostcell = 01     ! calcul par cellule fictive
-integer, parameter :: bc_calc_ghostface = 02     ! calcul par cellule fictive sur la face
-integer, parameter :: bc_calc_flux      = 03     ! calcul par flux, pas de point fictif
+integer, parameter :: bc_calc_ghostcell = 01   ! calcul par cellule fictive
+integer, parameter :: bc_calc_ghostface = 02   ! calcul par cellule fictive sur la face
+integer, parameter :: bc_calc_flux      = 03   ! calcul par flux, pas de point fictif
+integer, parameter :: bc_calc_singpanel = 10   ! calcul implicite de singularités
+integer, parameter :: bc_calc_kutta     = 15   ! calcul de condition kutta-joukowski
+integer, parameter :: bc_calc_farfield  = 16   ! calcul de condition champ lointain
 
 ! -- Constantes de définition des paramètres de conditions aux limites --
 
@@ -152,10 +164,14 @@ contains
 !----------------------------------------------------------------------------------------
 subroutine init_varcom()
 
+  ! paramètres par défaut
+
   mpi_run       = .false.
   memory_mode   = mode_normal
   model_mode    = model_max
   taille_buffer = 64   ! 1024 ? 
+
+  ! constantes
 
 endsubroutine init_varcom
 

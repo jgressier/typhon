@@ -36,6 +36,7 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            integration_cycle.o      \
            integration_ustdomaine.o \
            integration_zone.o       \
+           integration_zone_lag.o   \
            integrationmacro_zone.o  \
            lecture_maillage.o       \
            lectzone_mesh.o          \

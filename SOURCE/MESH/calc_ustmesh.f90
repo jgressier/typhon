@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_ustmesh                Auteur : J. Gressier
 !                                         Date   : Novembre 2002
-! Fonction                                Modif  : Mars     2003 (cf historique)
+! Fonction                                Modif  : (cf historique)
 !   Calcul et initialisation d'un maillage non structuré, nécessite
 !     en entrée : liste des sommets et coordonnées
 !                 connectivités faces->sommets et faces->cellules
@@ -48,74 +48,80 @@ call test_ustmesh(ust_mesh)
 ! (nombre d'éléments limites ou fictifs inclus)
 ! le calcul se fait sur toutes les faces mais uniquement sur les cellules internes.
 
-ust_mesh%mesh%nface = ust_mesh%nface                  ! copie du nombre de faces
-allocate(ust_mesh%mesh%iface(ust_mesh%nface,1,1))     ! allocation des faces
+! allocation des faces géométriques si nécessaire
+if (ust_mesh%mesh%nface == 0) then
+  ust_mesh%mesh%nface = ust_mesh%nface                  ! copie du nombre de faces
+  allocate(ust_mesh%mesh%iface(ust_mesh%nface,1,1))     ! allocation des faces
+endif
+
 allocate(cgface(ust_mesh%nface))                      ! tab. interm. centre G des faces
   ! les centres G des faces sont maintenant mémorisées dans la liste de faces
   ! il n'est pas utile d'allouer un tableau séparément
 
-! -- Calcul des faces (centres, normales et surfaces)
+!-------------------------------------------------------------------
+! Calcul des faces (centres, normales et surfaces)
 
-!print*,"!! DEBUG : calcul des faces : ",ust_mesh%nface," faces" !! DEBUG
 call calc_ust_face(ust_mesh%facevtex, ust_mesh%mesh, cgface)
 
-! -- Calcul de centres de cellules (centres approximatifs)
 
-!print*,"!! DEBUG : calcul des centres de cellules" !! DEBUG
-allocate(midcell(ust_mesh%ncell))
-call calc_ust_midcell(ust_mesh%ncell_int, ust_mesh%facecell, cgface, midcell)
+select case(typgeo(ust_mesh))
 
-! -- Calcul des volumes élémentaires (volume et centre de gravité)
+!-------------------------------------------------------------------
+! maillage de cellules + faces
 
-!print*,"!! DEBUG : calcul des volumes élémentaires" !! DEBUG
-allocate(cg_elem (ust_mesh%nface,2))
-allocate(vol_elem(ust_mesh%nface,2))
-call calc_ust_elemvol(ust_mesh%nbdim, ust_mesh%ncell_int, ust_mesh%nface, &
-                      midcell, ust_mesh%facecell,                     &
-                      cgface, ust_mesh%mesh%iface, cg_elem, vol_elem)
+case(msh_2dplan, msh_3d)
 
-! -- Calcul des cellules (volumes et centre de gravité)
+  ! -- Calcul de centres de cellules (centres approximatifs)
 
-!print*,"!! DEBUG : calcul des cellules" !! DEBUG
-! attention : les allocations se font sur (ncell) et les calculs sur (ncell_int)
-! on choisit d'allouer par défaut toutes les cellules y compris les cellules fictives,
-! même si elles ne sont pas utilisées par le code (économie en mémoire à rechercher)
+  allocate(midcell(ust_mesh%ncell))
+  call calc_ust_midcell(ust_mesh%ncell_int, ust_mesh%facecell, cgface, midcell)
 
-allocate(ust_mesh%mesh%centre(ust_mesh%ncell,1,1))
-allocate(ust_mesh%mesh%volume(ust_mesh%ncell,1,1))
+  ! -- Calcul des volumes élémentaires (volume et centre de gravité)
 
-print*,"!! DEBUG : initialisation"
-ust_mesh%mesh%centre(1:ust_mesh%ncell,1,1) = v3d(0.,0.,0.)
-ust_mesh%mesh%volume(1:ust_mesh%ncell,1,1) = 0._krp
+  allocate(cg_elem (ust_mesh%nface,2))
+  allocate(vol_elem(ust_mesh%nface,2))
+  call calc_ust_elemvol(typgeo(ust_mesh), ust_mesh%ncell_int, ust_mesh%nface, &
+                        midcell, ust_mesh%facecell,                     &
+                        cgface, ust_mesh%mesh%iface, cg_elem, vol_elem)
 
-call calc_ust_cell(ust_mesh%ncell_int, ust_mesh%nface, &
-                   ust_mesh%facecell, cg_elem, vol_elem, ust_mesh%mesh)
+  ! -- Calcul des cellules (volumes et centre de gravité)
 
-! -- Vérification de l'orientation des normales et connectivités face->cellules
+  ! attention : les allocations se font sur (ncell) et les calculs sur (ncell_int)
+  ! on choisit d'allouer par défaut toutes les cellules y compris les cellules fictives,
+  ! même si elles ne sont pas utilisées par le code (économie en mémoire à rechercher)
 
-!print*,"!! DEBUG : vérification" !! DEBUG
-call calc_ust_checkface(ust_mesh%facecell, ust_mesh%mesh)
+  allocate(ust_mesh%mesh%centre(ust_mesh%ncell,1,1))
+  allocate(ust_mesh%mesh%volume(ust_mesh%ncell,1,1))
 
-! désallocation tableaux intermédiaires
+  ust_mesh%mesh%centre(1:ust_mesh%ncell,1,1) = v3d(0.,0.,0.)
+  ust_mesh%mesh%volume(1:ust_mesh%ncell,1,1) = 0._krp
 
-deallocate(cgface, midcell, cg_elem, vol_elem)
+  call calc_ust_cell(ust_mesh%ncell_int, ust_mesh%nface, &
+                     ust_mesh%facecell, cg_elem, vol_elem, ust_mesh%mesh)
 
-!!do i = 1, ust_mesh%nface
-!!  write(*,"(a,i3,a,4i3,7f7.2)") &
-!!    "face",i,":",ust_mesh%facevtex%fils(i,:),ust_mesh%facecell%fils(i,:), &
-!!    ust_mesh%mesh%iface(i,1,1)%normale, &
-!!    ust_mesh%mesh%iface(i,1,1)%surface,ust_mesh%mesh%iface(i,1,1)%centre !! DEBUG
-!!enddo
+  ! -- Vérification de l'orientation des normales et connectivités face->cellules
 
-!!do i = 1, ust_mesh%ncell
-!!  write(*,"(a,i3,a,3f10.2)") "cell",i,":",ust_mesh%mesh%centre(i,1,1) !! DEBUG
-!!enddo
+  call calc_ust_checkface(ust_mesh%facecell, ust_mesh%mesh)
+
+  ! désallocation tableaux intermédiaires
+
+  deallocate(cgface, midcell, cg_elem, vol_elem)
+
+!-------------------------------------------------------------------
+! maillage de facettes uniquement (solveur VORTEX)
+
+case(msh_1dcurv, msh_2dcurv)
+
+! DEV ! VERIFIER L'ORIENTATION DES NORMALES A L'EXTERIEUR DES CORPS (INTERIEUR FLUIDE)
+
+endselect
+
 
 endsubroutine calc_ustmesh
 
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov  2002 (v0.0.1b): création de la procédure
-! fév  2003          : intégration du calcul des métriques
+! nov  2002 : création de la procédure
+! fév  2003 : intégration du calcul des métriques
 !------------------------------------------------------------------------------!

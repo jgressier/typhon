@@ -49,7 +49,7 @@ endtype st_ustboco
 type st_ustmesh
   integer               :: id              ! numero de domaine
   !integer              :: level           ! niveau multigrille
-  integer               :: nbdim           ! nombre de dimension du maillage
+  !integer               :: nbdim           ! nombre de dimension du maillage
   integer               :: nvtex, nface, ncell   ! nombre de sommets, faces et cellules
   integer               :: nface_int, ncell_int  ! nombre de faces et cellules internes
   integer               :: nface_lim, ncell_lim  ! nombre de faces et cellules limites
@@ -86,7 +86,7 @@ endtype st_cellvtex
 ! -- INTERFACES -------------------------------------------------------------
 
 interface new
-  module procedure new_ustmesh, new_cellvtex
+  module procedure new_ustmesh, new_cellvtex, new_ustboco
 endinterface
 
 interface init
@@ -94,7 +94,7 @@ interface init
 endinterface
 
 interface delete
-  module procedure delete_ustmesh, delete_cellvtex
+  module procedure delete_ustmesh, delete_cellvtex, delete_ustboco
 endinterface
 
 
@@ -146,13 +146,86 @@ endsubroutine new_ustmesh
 subroutine delete_ustmesh(mesh)
 implicit none
 type(st_ustmesh) :: mesh
+integer          :: i
 
   call delete(mesh%mesh)
+  call delete(mesh%facevtex)
+  call delete(mesh%facecell)
+  do i = 1, mesh%nboco 
+    call delete(mesh%boco(i))
+  enddo
+  deallocate(mesh%boco)
   !deallocate(mesh%center, mesh%vertex, mesh%volume)
   !deallocate(mesh%iface, mesh%jface)
   !if (mesh%kdim /= 1) deallocate(mesh%kface)
 
 endsubroutine delete_ustmesh
+
+
+!------------------------------------------------------------------------------!
+! Procédure : création d'une structure BOCO dans USTMESH
+!------------------------------------------------------------------------------!
+subroutine createboco(mesh, nboco)
+implicit none
+type(st_ustmesh) :: mesh
+integer          :: nboco
+
+  mesh%nboco = nboco
+  allocate(mesh%boco(nboco))
+
+endsubroutine createboco
+
+
+!------------------------------------------------------------------------------!
+! Procédure : recherche d'une condition limite dans USTMESH
+!------------------------------------------------------------------------------!
+function pboco_ustmesh(umesh, name) result(pboco)
+implicit none
+type(st_ustboco), pointer :: pboco
+type(st_ustmesh)          :: umesh
+character(len=strlen)     :: name
+! -- variables internes --
+integer :: i, info
+
+  info = 0
+  do i = 1, umesh%nboco
+    if (samestring(umesh%boco(i)%family, name)) then
+      info  =  info + 1
+      pboco => umesh%boco(i)
+    endif
+  enddo
+  if (info /= 1) call erreur("structure","plusieurs noms de conditions limites identiques")
+  
+endfunction pboco_ustmesh
+
+
+!------------------------------------------------------------------------------!
+! Procédure : allocation d'une structure USTBOCO
+!------------------------------------------------------------------------------!
+subroutine new_ustboco(bc, nom, n)
+implicit none
+type(st_ustboco)      :: bc
+character(len=strlen) :: nom
+integer               :: n
+
+  bc%family = nom
+  bc%nface  = n
+  allocate(bc%iface(n))
+
+endsubroutine new_ustboco
+
+
+!------------------------------------------------------------------------------!
+! Procédure : desallocation d'une structure USTBOCO
+!------------------------------------------------------------------------------!
+subroutine delete_ustboco(bc)
+implicit none
+type(st_ustboco) :: bc
+integer          :: i
+
+  deallocate(bc%iface)
+
+endsubroutine delete_ustboco
 
 
 !------------------------------------------------------------------------------!
@@ -251,6 +324,16 @@ type(st_cellvtex) :: conn
 endsubroutine delete_cellvtex
 
 
+!------------------------------------------------------------------------------!
+! Fonction : typgeo : type de géométrie du maillage
+!------------------------------------------------------------------------------!
+character function typgeo(umesh)
+implicit none
+type(st_ustmesh) :: umesh
+
+  typgeo = umesh%mesh%info%geom
+
+endfunction typgeo
 
 
 endmodule USTMESH

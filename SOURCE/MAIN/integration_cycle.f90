@@ -116,7 +116,7 @@ do izone = 1, lworld%prj%nzone
 
   case(stationnaire)
     lworld%zone(izone)%info%residumax  = 0.1_krp! lworld%prj%residumax * 10 !PROVISOIRE 
-    lworld%zone(izone)%info%residu_ref = 0
+    lworld%zone(izone)%info%residu_ref = 0._krp
 
   case(instationnaire)
     lworld%zone(izone)%info%cycle_dt = lworld%prj%dtbase
@@ -174,15 +174,15 @@ endsubroutine integration_cycle
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juil  2002 : création de la procédure
-! mai   2003 : procédures d'échange
-! juil  2003 : ajout de corrections de flux lors de couplage
-!              allocation des residus globale pour tous les cycles
-! sept  2003 : changement de nom de la procédure (ancien: integration_macrodt)
-!              gestion du calcul selon résidus 
-! oct 2003   : suppression correction de flux APRES
-! oct 2003   : remplacement instant d'échange excht par cycle d'échange exchcycle
-! oct 2003   : modification de la gestion selon résidus pour le calcul stationnaire 
-!               multizone.
-! oct 2003   : corrections de flux seulement en instationnaire
+! juil 2002 : création de la procédure
+! mai  2003 : procédures d'échange
+! juil 2003 : ajout de corrections de flux lors de couplage
+!             allocation des residus globale pour tous les cycles
+! sept 2003 : changement de nom de la procédure (ancien: integration_macrodt)
+!             gestion du calcul selon résidus 
+! oct  2003 : suppression correction de flux APRES
+! oct  2003 : remplacement instant d'échange excht par cycle d'échange exchcycle
+! oct  2003 : modification de la gestion selon résidus pour le calcul stationnaire 
+!             multizone.
+! oct  2003 : corrections de flux seulement en instationnaire
 !------------------------------------------------------------------------------!

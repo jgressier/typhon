@@ -48,25 +48,35 @@ call seekrpmblock(pblock, "SPAT_PARAM", 0, pcour, nkey)
 if (nkey /= 1) call erreur("lecture de menu", &
                            "bloc SPAT_PARAM inexistant ou surnuméraire")
 
-! -- Méthode de calcul des flux dissipatifs --
 
-call rpmgetkeyvalstr(pcour, "DISSIPATIVE_FLUX", str, "FULL")
-defspat%sch_dis = inull
+select case(isolver)
 
-if (samestring(str,"COMPACT")) defspat%sch_dis = dis_dif2
-if (samestring(str,"AVERAGE")) defspat%sch_dis = dis_avg2
-if (samestring(str,"FULL"))    defspat%sch_dis = dis_full
+case(solKDIF)
 
-if (defspat%sch_dis == inull) &
-  call erreur("lecture de menu","methode de calcul DISSIPATIVE_FLUX inconnue")
+  ! -- Méthode de calcul des flux dissipatifs --
 
-select case(defspat%sch_dis)
-case(dis_dif2)
+  call rpmgetkeyvalstr(pcour, "DISSIPATIVE_FLUX", str, "FULL")
+  defspat%sch_dis = inull
+
+  if (samestring(str,"COMPACT")) defspat%sch_dis = dis_dif2
+  if (samestring(str,"AVERAGE")) defspat%sch_dis = dis_avg2
+  if (samestring(str,"FULL"))    defspat%sch_dis = dis_full
+
+  if (defspat%sch_dis == inull) &
+    call erreur("lecture de menu",&
+                "methode de calcul DISSIPATIVE_FLUX inconnue")
+
+  select case(defspat%sch_dis)
+  case(dis_dif2)
   
-case(dis_avg2)
-  defspat%calc_grad = .true.
-case(dis_full)
-  defspat%calc_grad = .true.
+  case(dis_avg2)
+    defspat%calc_grad = .true.
+  case(dis_full)
+    defspat%calc_grad = .true.
+  endselect
+
+case(solVORTEX)
+
 endselect
 
 
@@ -77,4 +87,5 @@ endsubroutine def_spat
 !
 ! nov  2002 : création, lecture de bloc vide
 ! oct  2003 : choix de la méthode de calcul des flux dissipatifs
+! mars 2004 : traitement dans le cas solVORTEX
 !------------------------------------------------------------------------------!

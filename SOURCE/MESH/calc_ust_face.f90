@@ -42,7 +42,7 @@ type(v3d)      :: pt, cg1, cg2   ! point et CG intermédiaires
 
 ! -- Debut de la procedure --
 
-print*,"!! DEBUG : ",facevtex%nbnodes,facevtex%nbfils
+print*,"debug",facevtex%nbnodes
 nface = facevtex%nbnodes          ! nombre de faces dans la connectivité
 allocate(vtex(facevtex%nbfils))   ! nombre maximal de sommets par face
 

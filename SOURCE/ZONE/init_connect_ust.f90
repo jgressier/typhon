@@ -1,7 +1,8 @@
 !------------------------------------------------------------------------------!
 ! Procedure : init_connect_ust            Auteur : J. Gressier
 !                                         Date   : Mars 2003
-! Fonction                                Modif  :
+! Fonction                                Modif  : (cf historique)
+!   Calcul des connectivités supplémentaires (conditions limites)
 !
 ! Defauts/Limitations/Divers :
 !
@@ -35,7 +36,7 @@ write(str_w,'(a,i6,a,i6,a,i6,a)') "  connectivité :",ust_mesh%ncell," cellules d
                                   ust_mesh%ncell_int," internes et",&
                                   ust_mesh%ncell_lim," limites"
 call print_info(10, str_w)
-write(str_w,'(a,i6,a,i6,a,i6,a)') "  connectivité :",ust_mesh%nface," faces dont",&
+write(str_w,'(a,i6,a,i6,a,i6,a)') "  connectivité :",ust_mesh%nface,"    faces dont",&
                                   ust_mesh%nface_int," internes et",&
                                   ust_mesh%nface_lim," limites"
 call print_info(10, str_w)
@@ -71,6 +72,10 @@ do ib = 1, ust_mesh%nboco
   select case(defsolver%boco(idef)%typ_calc)
   case(bc_calc_ghostface)
     call init_ustboco_ghostface(ib, defsolver%boco(idef), ust_mesh)
+  case(bc_calc_singpanel)
+    !call init_ustboco_singpanel(ib, defsolver%boco(idef), ust_mesh)
+  case(bc_calc_kutta)
+    !call init_ustboco_kutta(ib, defsolver%boco(idef), ust_mesh)
   case default
     call erreur("Incohérence interne (init_connect_ust)","type d'implémentation boco inconnu")
   endselect 
@@ -81,7 +86,7 @@ write(str_w,'(a,i6,a,i6,a,i6,a)') "  connectivité :",ust_mesh%ncell," cellules d
                                   ust_mesh%ncell_int," internes et",&
                                   ust_mesh%ncell_lim," limites"
 call print_info(10, str_w)
-write(str_w,'(a,i6,a,i6,a,i6,a)') "  connectivité :",ust_mesh%nface," faces dont",&
+write(str_w,'(a,i6,a,i6,a,i6,a)') "  connectivité :",ust_mesh%nface,"    faces dont",&
                                   ust_mesh%nface_int," internes et",&
                                   ust_mesh%nface_lim," limites"
 call print_info(10, str_w)
@@ -91,5 +96,6 @@ endsubroutine init_connect_ust
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mars 2003 (v0.0.1b): création de la procédure
+! mars 2003 : création de la procédure
+! mars 2004 : ajout de nouveaux types de calcul (solveur VORTEX)
 !------------------------------------------------------------------------------!

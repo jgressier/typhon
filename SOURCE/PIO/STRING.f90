@@ -14,7 +14,7 @@ integer, parameter :: iposzmaj = iachar('Z')
 !endinterface
 
 interface strof
-  module procedure strof_int
+  module procedure strof_int, strof_int2
 endinterface
 
 contains 
@@ -52,7 +52,23 @@ function uppercase(str) result(strout)
 endfunction uppercase
 
 !------------------------------------------------------------------------------!
-! Fonction : tranformation entier -> chaîne de caractères
+! Fonction : Remplacement de caractère
+!------------------------------------------------------------------------------!
+function chg_char(str, c, r) result(strout)
+  implicit none
+  character(len=*), intent(in) :: str
+  character                    :: c, r
+  character(len=len(str))      :: strout
+  integer                      :: i
+
+  strout = str
+  do i = 1, len(str)
+    if (strout(i:i) == c) strout(i:i) = r
+  enddo
+endfunction chg_char
+
+!------------------------------------------------------------------------------!
+! Fonction : tranformation entier -> chaîne de caractères (len=l)
 !------------------------------------------------------------------------------!
 function strof_int(nb, l) result(strout)
   implicit none
@@ -63,6 +79,19 @@ function strof_int(nb, l) result(strout)
   write(sform,'(i3)') l   
   write(strout,'(i'//trim(adjustl(sform))//')') nb
 endfunction strof_int
+
+!------------------------------------------------------------------------------!
+! Fonction : tranformation entier -> chaîne de caractères (ajusté à gauche)
+!------------------------------------------------------------------------------!
+function strof_int2(nb) result(strout)
+  implicit none
+  integer, intent(in) :: nb      ! nombre à transformer, et longueur
+  character(len=20)   :: strout  ! longueur de la chaîne
+
+  write(strout,'(i20)') nb
+  strout = adjustl(strout)
+
+endfunction strof_int2
 
 !------------------------------------------------------------------------------!
 ! Fonction : Test logique d'égalité des chaînes de caractères
@@ -148,6 +177,38 @@ subroutine nthword(nw, strin, strout, info, separator)
   !deallocate(sep)
 
 endsubroutine nthword
+
+!------------------------------------------------------------------------------!
+! Procédure : Renvoie l'index de parenthèse fermante associée
+!------------------------------------------------------------------------------!
+integer function index_rightpar (str, ip, info)
+  implicit none
+! -- entrées --
+  character(len=*), intent(in) :: str        ! chaîne entrée
+  integer                      :: ip         ! index de parenthèse ouvrante
+! -- sorties --
+  integer                      :: info       ! nombre de parenthèses non fermées
+! -- variables internes --
+  integer                      :: np           ! nombre de parenthèses ouvrantes
+  integer                      :: len          ! longueur totale de chaîne
+  integer                      :: i, ipl, ipr  ! index de chaîne
+
+  len    = len_trim(str)
+  np     = 1         
+  i      = ip+1
+  do while ((i <= len).and.(np > 0))
+    select case(str(i))
+    case('(')
+      np = np + 1
+    case(')')
+      np = np - 1
+    endselect
+    i = i + 1
+  enddo
+  info           = np
+  index_rightpar = i-1
+
+endfunction index_rightpar
 
 
 

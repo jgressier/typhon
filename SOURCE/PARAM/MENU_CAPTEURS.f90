@@ -25,9 +25,8 @@ character, parameter :: residuals     = 'R'    ! calcul de résidu moyen
 
 ! -- type de stockage --
 character, parameter :: no_store   = 'X'       ! stockage momentanné de l'itération uniquement
-                                               !   (utile pour le calcul uniquement)
-character, parameter :: phys_tstep = 'T'       ! à chaque cycle
-character, parameter :: ziter      = 'Z'       ! pour chaque itération interne de zone
+character, parameter :: prb_cycle  = 'C'       ! à chaque cycle
+character, parameter :: prb_iter   = 'I'       ! pour chaque itération interne de zone
 
 
 ! -- DECLARATIONS -----------------------------------------------------------

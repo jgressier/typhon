@@ -8,7 +8,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine calc_cellvtex(ndim, cellvtex, ncell, ncell_int, facecell, facevtex)
+subroutine calc_cellvtex(geom, cellvtex, ncell, ncell_int, facecell, facevtex)
 
 use TYPHMAKE
 use CONNECTIVITY
@@ -18,7 +18,7 @@ use STRING
 implicit none
 
 ! -- Declaration des entrées --
-integer          :: ndim                  ! mode 2D ou mode 3D
+character        :: geom                  ! mode géométrique
 type(st_connect) :: facecell, facevtex    ! connectivités en entrées
 integer          :: ncell                 ! nombre total de cellules 
 integer          :: ncell_int             ! nombre de cellules internes
@@ -150,14 +150,14 @@ enddo
 ! --- transformation connectivité originale en connectivité adaptée CELLVTEX ---
 
 call init(cellvtex)
-cellvtex%dim = ndim
 
 ! on compte le nombre d'éléments pour d'abord faire les allocations
 
 info = 0
 
-select case(ndim)
-case(2)
+select case(geom)
+case(msh_2dplan)
+  cellvtex%dim = 2
   do ic = 1, ncell
     select case(nvtex(ic))
     case(2)
@@ -170,7 +170,8 @@ case(2)
       info = ic
     endselect
   enddo
-case(3)
+case(msh_3d)
+  cellvtex%dim = 3
   do ic = 1, ncell
     select case(nvtex(ic))
     case(4)
@@ -192,8 +193,6 @@ endselect
 if (info/=0) call erreur("dans le calcul de connectivité cell/vtex",      &
                          "code erreur "//trim(adjustl(strof(info,10)))//  &
                          " ("//trim(adjustl(strof(nvtex(info),2)))//")")
-
-print*,"! DEBUG (BAR/TRI/QUAD/TETRA)!",cellvtex%nbar, cellvtex%ntri, cellvtex%nquad, cellvtex%ntetra
 ! allocation
 
 call new(cellvtex)
@@ -202,7 +201,7 @@ call new(cellvtex)
 
 call init_cellvtex(cellvtex)   ! remize à zéro des compteurs
 
-select case(ndim)
+select case(cellvtex%dim)
 case(2)
   do ic = 1, ncell
     select case(nvtex(ic))

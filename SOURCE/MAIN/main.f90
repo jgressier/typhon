@@ -3,9 +3,9 @@
 !                                         Date   : Juillet 2002
 ! 
 ! Plateforme de résolution de systèmes d'équations 
-! par discrétisation Volumes Finis
+! par discrétisation Volumes Finis / Singularités
 !   
-! Historique des versions (cf fichier VERSIONS-changes)
+! Historique des versions (cf fichier VERSIONS)
 !
 !------------------------------------------------------------------------------!
 

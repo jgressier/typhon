@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : def_boco                    Auteur : J. Gressier
 !                                         Date   : Mars 2003
-! Fonction                                Modif  : Juin 2003 (cf historique)
+! Fonction                                Modif  : (cf historique)
 !   Traitement des paramètres du fichier menu principal
 !   Paramètres principaux du projet
 !
@@ -162,6 +162,10 @@ do ib = 1, nboco
         call def_boco_kdif(pcour, defsolver%boco(ib)%typ_boco, &
                            defsolver%boco(ib)%boco_kdif, &
                            defsolver%boco(ib)%boco_unif)
+      case(solVORTEX)
+        call def_boco_vortex(pcour, defsolver%boco(ib)%typ_boco, &
+                           defsolver%boco(ib)%boco_vortex, &
+                           defsolver%boco(ib)%boco_unif)
        case default
          call erreur("incohérence interne (def_boco)","solveur inconnu")
       endselect
@@ -181,6 +185,7 @@ endsubroutine def_boco
 ! Historique des modifications
 !
 ! mars 2003 (v0.0.1b): création de la routine
+! fev  2004          : ajout des CL propres au solveur VORTEX (cf MENU_VORTEX)
 !------------------------------------------------------------------------------!
 
 

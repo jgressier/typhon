@@ -13,12 +13,12 @@ module LAPACK
 !------------------------------------------------------------------------------!
 ! Liste des routines interfacées
 !------------------------------------------------------------------------------!
-! GEGV
-! GESV
-! GESVX
-! GETRF
-! POTRF
-! POTRS
+! GEGV  :
+! GESV  :
+! GESVX :
+! GETRF : décomposition LU              (matrice générale)
+! POTRF : décomposition de Choleski     (mat. sym. def. pos.)
+! POTRS : resolution AX=B (après POTRF)
 !------------------------------------------------------------------------------!
 
 
@@ -169,6 +169,38 @@ module LAPACK
       integer    :: lda, m, n, info, piv(*)
       complex(8) :: a(lda,*)
     endsubroutine zgetrf
+
+  endinterface
+
+
+!------------------------------------------------------------------------------!
+! GETRS : Résolution A.X=B à partir d'une décomposition LU préliminaire
+!------------------------------------------------------------------------------!
+  interface lapack_getrs   
+
+    subroutine sgetrs(trans, n, nrhs, a, lda, piv, b, ldb, info)
+      character :: trans
+      integer   :: info, lda, ldb, n, nrhs, piv(*)
+      real      :: a(lda,*), b(ldb,*)
+    endsubroutine sgetrs
+
+    subroutine dgetrs(trans, n, nrhs, a, lda, piv, b, ldb, info)
+      character :: trans
+      integer   :: info, lda, ldb, n, nrhs, piv(*)
+      real(8)   :: a(lda,*), b(ldb,*)
+    endsubroutine dgetrs
+
+    subroutine cgetrs(trans, n, nrhs, a, lda, piv, b, ldb, info)
+      character :: trans
+      integer   :: info, lda, ldb, n, nrhs, piv(*)
+      complex   :: a(lda,*), b(ldb,*)
+    endsubroutine cgetrs
+
+    subroutine zgetrs(trans, n, nrhs, a, lda, piv, b, ldb, info)
+      character  :: trans
+      integer    :: info, lda, ldb, n, nrhs, piv(*)
+      complex(8) :: a(lda,*), b(ldb,*)
+    endsubroutine zgetrs
 
   endinterface
 

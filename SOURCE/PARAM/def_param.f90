@@ -29,27 +29,37 @@ character(len=strlen)   :: fic
 
 ! -- Debut de la procedure --
 
+!---------------------------------------------------------
+! Lecture des paramètres
+!---------------------------------------------------------
+
 call print_etape("> LECTURE : fichier menu principal")
 
 fic = "main.rpm"
 
-open(unit=uf_menu, file=trim(fic), iostat=info)
+open(unit=uf_menu, file=trim(fic), form="formatted", action="read", iostat=info)
 if (info /= 0) call erreur("Lecture du menu","fichier "//trim(fic)// &
                            " introuvable ou interdit en lecture")
 
-allocate(firstblock)
-nullify(firstblock)   ! nécessaire pour le bon fonctionnement de readrpmblock
+!allocate(firstblock)
+!nullify(firstblock)
 
 call readrpmblock(uf_menu, uf_log, 1, firstblock) ! Lecture du fichier de paramètres
 close(uf_menu)
 
-!call printrpmblock(6,firstblock,.false.)
+!call printrpmblock(6, firstblock, .false.)
+
+!---------------------------------------------------------
+! Traitement des paramètres lus et configuration WORLD
+!---------------------------------------------------------
 
 call print_etape("> PARAMETRES : traitement et initialisation")
 
 call trait_param(firstblock, lworld)
 
-call dealloc_rpmblock(firstblock)            ! Désallocation de la liste RPM
+!---------------------------------------------------------
+
+call dealloc_rpmblock(firstblock)        ! Désallocation de la liste RPM
 
 
 endsubroutine def_param

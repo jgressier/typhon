@@ -15,6 +15,7 @@ module MENU_SOLVER
 use TYPHMAKE      ! Definition de la precision
 use MENU_NS       ! Définition des solveurs type NS
 use MENU_KDIF     ! Définition des solveurs type Equation de diffusion
+use MENU_VORTEX   ! Définition des solveurs type VORTEX (lagrangien)
 use MENU_BOCO     ! Définition des conditions limites
 use MENU_INIT     ! Définition de l'initialisation
 use MENU_CAPTEURS ! Définition des capteurs
@@ -26,6 +27,7 @@ implicit none
 ! -- Définition des entiers caractéristiques pour le type de solveur -- CF VARCOM
 !integer, parameter :: solNS   = 10    ! Equations de Navier-Stokes (EQNS)
 !integer, parameter :: solKDIF = 20    ! Equation  de la chaleur    (EQKDIF)
+!integer, parameter :: solVORTEX = 30   ! Méthode intégrale et lagrangienne VORTEX
 
 ! -- Définition du type de quantite 
 integer, parameter :: qs_temperature = 010 
@@ -47,12 +49,13 @@ type mnu_solver
   integer         :: nequat          ! nombre d'équations
   type(mnu_ns)    :: defns           ! options si solveur NS
   type(mnu_kdif)  :: defkdif         ! options si solveur KDIF
+  type(mnu_vort)  :: defvort         ! options si solveur VORTEX
   integer         :: nboco           ! nombre de conditions aux limites
   type(mnu_boco), dimension(:), pointer &
                   :: boco            ! définitions des conditions aux limites
-  integer         :: ninit           ! nombre de conditions aux limites
+  integer         :: ninit           ! nombre de conditions initiales
   type(mnu_init), dimension(:), pointer &
-                  :: init            ! définitions des conditions aux limites
+                  :: init            ! définitions des conditions initiales
   integer         :: nprobe          ! nombre de capteurs
   type(mnu_capteur), dimension(:), pointer &
                   :: probe           ! définitions des capteurs
@@ -79,7 +82,12 @@ implicit none
 type(mnu_solver)  :: defsolver
 integer           :: ib
 
-  call delete(defsolver%defkdif%materiau%Kd)
+  select case(defsolver%typ_solver)
+  case(solKDIF)
+    call delete(defsolver%defkdif%materiau%Kd)
+  case(solNS)
+  case(solVORTEX)
+  endselect
 
   ! -- destruction des paramètres d'initialisation --
 
@@ -189,6 +197,7 @@ endmodule MENU_SOLVER
 ! nov  2003 : tableau de paramètres pour les capteurs
 !             définition des quantités
 !             index de conditions limites ou de capteurs en fonction du nom
+! fev  2004 : définition du solveur VORTEX
 !------------------------------------------------------------------------------!
 
 

@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : lectzone_mesh               Auteur : J. Gressier
 !                                         Date   : Novembre 2002
-! Fonction                                Modif  :
+! Fonction                                Modif  : (cf historique)
 !   Lecture des maillages
 !
 ! Defauts/Limitations/Divers :
@@ -39,11 +39,21 @@ case(fmt_CGNS) ! Format de fichier CGNS
   if (cgnsworld%nbase /= 1) call erreur("CGNS -> TYPHON",&
                                         "trop de bases dans la structure CGNS")
 
-  !print*,"test"
+  ! -- Définition minimale du maillage --
+  !  coordonnées de sommets
+  !  connectivités face->cellules
+  !  connectivités face->sommets
   call cgns2typhon_zone(cgnsworld%base(1), zone)
-  print*,"TEST FIN ********"
-
   ! DEV : call delete(cgnsworld)
+
+case(fmt_TYPHMSH) ! Format de fichier CGNS
+
+  call readtyphmshfile(15, zone%defmesh%fichier, zone)
+  !call print_info(2, "* C TYPHON")
+  !if (cgnsworld%nbase /= 1) call erreur("CGNS -> TYPHON",&
+  !                                      "trop de bases dans la structure CGNS")
+
+  !call cgns2typhon_zone(cgnsworld%base(1), zone)
 
 case default
   call erreur("Lecture de maillage","format de maillage inconnu")
@@ -51,3 +61,10 @@ endselect
 
 
 endsubroutine lectzone_mesh
+
+!------------------------------------------------------------------------------!
+! Historique des modifications
+!
+! nov  2002 : création de la procédure (lecture de maillage CGNS)
+! fev  2004 : lecture de maillage TYPHMSH 
+!------------------------------------------------------------------------------!

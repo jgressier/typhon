@@ -79,25 +79,36 @@ do while (.not.fin)
     endif  
   
   case(periodique)
+    call erreur("Développement","cas non implémenté")
 
   endselect
 
   ! On peut ici coder différentes méthodes d'intégration (RK, temps dual...)
 
   ! ---
-  call integration_zone(dt, lzone)
+  select case(lzone%defsolver%typ_solver)
+  case(solKDIF)
+    call integration_zone(dt, lzone)
+  case(solVORTEX)
+    call integration_zone_lag(dt, lzone)
+  endselect
   ! ---
 
-  do if = 1, lzone%ndom
-    call update_champ(lzone%info, lzone%field(if), lzone%ust_mesh%ncell_int)  ! màj  des var. conservatives
-   ! !call calc_varprim(lzone%defsolver, lzone%field(if))     ! calcul des var. primitives
-   ! 
-   ! ! on ne calcule les gradients que dans les cas nécessaires
-   ! if (lzone%defspat%calc_grad) then
-   !   call calc_gradient(lzone%defsolver, lzone%ust_mesh,                 &
-   !                      lzone%field(if)%etatprim, lzone%field(if)%gradient)
-   ! endif
-  enddo
+  !do if = 1, lzone%ndom  ! DEV: à remplacer par une boucle sur les grilles
+                          ! après homogénéisation des solveurs dans MGRID
+    select case(lzone%defsolver%typ_solver)
+    case(solKDIF)
+      call update_champ(lzone%info, lzone%field(1), &
+                        lzone%ust_mesh%ncell_int)  ! màj  des var. conservatives
+    case(solVORTEX)
+      ! pas de mise à jour pour le moment 
+      ! DEV : mise à jour de la position des vortex libres
+      ! call update_lag
+      lzone%info%residumax  = 2._krp      ! astuce pour n'imposer qu'une itération 
+      lzone%info%cur_res    = 1.e-8_krp   ! dans le cycle
+      lzone%info%residu_ref = 1.e+8_krp   ! astuce pour n'avoir qu'un cycle
+    endselect
+  !enddo
 
   ! écriture d'informations et test de fin de cycle
 
@@ -135,4 +146,5 @@ endsubroutine integrationmacro_zone
 !             allocation des residus remontée à integration_macrodt
 ! sept 2003 : calcul des gradients
 ! oct  2003 : déplacement des proc. calc_gradient et calc_varprim dans integration_zone
+! mars 2004 : integration de zone par technique lagrangienne
 !------------------------------------------------------------------------------!

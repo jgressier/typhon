@@ -136,3 +136,31 @@ Task 0013 (Jérémie) : Make : Mise en forme de la DOC
 ---------------------------------------------------------------------------------
 * catalogue DOC
 * fichiers principaux pour compilation avec structure de document
+
+---------------------------------------------------------------------------------
+Task 0020 (Jérémie) : Make : Procédures de base pour les méthodes VORTEX
+---------------------------------------------------------------------------------
+- fichier *make (catalogue VORTEX)
+- traitement des paramètres (solveur, maillage, conditions limites et initiales)
+- lecture de maillage TYPHMSH
+- appel d'intégration (integration_zone_lag)
+- remplissage (matrice pour un corps) et résolution
+- sauvegarde de résultats (avec recalcul des vitesses induites et pressions)
+
+---------------------------------------------------------------------------------
+Task 0021 (Jérémie) : Make : solveurs VORTEX / KDIF
+---------------------------------------------------------------------------------
+- correction d'erreur induite sur KDIF
+
+---------------------------------------------------------------------------------
+Task 0022 (Jérémie) : Make : solveur VORTEX : débuggage et validation
+---------------------------------------------------------------------------------
+- correction des calculs de vitesses induites et coefficients associés
+  (Erreur dans Katz et Plotkin)
+- validation dans VORTEX/CERCLE et VORTEX/VANVOOREN
+
+---------------------------------------------------------------------------------
+Task 0023 (Jérémie) : Make : fusion avec la branche de développement VORTEX
+---------------------------------------------------------------------------------
+- fusion et gestion des conflits
+

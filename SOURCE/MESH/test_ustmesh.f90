@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
-! Procedure : test_ustmesh               Auteur : J. Gressier
+! Procedure : test_ustmesh                Auteur : J. Gressier
 !                                         Date   : Mars 2003
-! Fonction                                Modif  :
+! Fonction                                Modif  : (cf historique)
 !   Test de la structure pour permettre l'initialisation et le calcul du maillage
 !
 ! Defauts/Limitations/Divers :
@@ -26,7 +26,6 @@ type(st_ustmesh) :: ust_mesh
 
 ! -- Debut de la procedure --
 
-! allocation 
 
 !ust_mesh%mesh%nface = ust_mesh%nface                  ! copie du nombre de faces
 !allocate(ust_mesh%mesh%iface(ust_mesh%nface,1,1))     ! allocation des faces
@@ -35,3 +34,10 @@ type(st_ustmesh) :: ust_mesh
 
 
 endsubroutine test_ustmesh
+
+!------------------------------------------------------------------------------!
+! Historique des modifications
+!
+! mars 2003 : création de la procédure (vide)
+! mars 2004 : test minimaux d'existence de maillage
+!------------------------------------------------------------------------------!

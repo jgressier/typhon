@@ -32,26 +32,31 @@ include librairies.make
 
 LIBRARIES = libt_main.a libt_xio.a    \
             libt_cgns.a               \
-            libt_zone.a libt_mesh.a   \
+            libt_zone.a               \
             libt_param.a              \
+            libt_vortex.a             \
             libt_eqns.a               \
             libt_eqkdif.a             \
+            libt_mgrid.a              \
+            libt_mesh.a               \
             libt_pio.a libt_modcom.a  \
             libcgns.a 
 
 D_LIBRARIES = $(LIBRARIES:%=$(PRJLIB)/%)
 
-VPATH = CGNS:EQNS:EQKDIF:MAIN:MESH:MODCOM:MODCOM/MATH:PARAM:PIO:XIO:ZONE
+VPATH = CGNS:EQNS:EQKDIF:MAIN:MGRID:MESH:MODCOM:MODCOM/MATH:PARAM:PIO:VORTEX:XIO:ZONE
 
 
 ####### Build libraries
 
 include MODCOM/source-depend.make 
 include    PIO/source-depend.make
+include   MESH/source-depend.make
+include  MGRID/source-depend.make
 include   EQNS/source-depend.make
 include EQKDIF/source-depend.make
+include VORTEX/source-depend.make
 include  PARAM/source-depend.make
-include   MESH/source-depend.make
 include   ZONE/source-depend.make
 include   CGNS/source-depend.make
 include    XIO/source-depend.make

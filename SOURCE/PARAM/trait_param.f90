@@ -14,6 +14,7 @@ use TYPHMAKE
 use VARCOM
 use OUTPUT
 use MODWORLD
+use MENU_SOLVER
 
 implicit none
 
@@ -44,7 +45,9 @@ pblock => block
 call seekrpmblock(pblock, "ZONE", 0, pcour, nkey)
 if (nkey == 0) call erreur("Lecture de menu","définition de ZONE manquante")
 
-call new(world, nkey, 0,  world%prj%ncoupling)   ! allocation des zones
+! initialisation de WORLD et allocation des zones
+
+call new(world, nkey, 0,  world%prj%ncoupling)  
 
 ! -- Recherche du BLOCK:OUTPUT et traitement
 
@@ -56,7 +59,7 @@ do izone = 1, world%prj%nzone
 
   call seekrpmblock(pblock, "ZONE", izone, pcour, nkey)
   
-  world%zone(izone)%id = izone
+  call new(world%zone(izone), izone)   ! intialisation de la zone
 
   call rpmgetkeyvalstr(pcour, "NAME", str, "NONAME")
   world%zone(izone)%nom = str
@@ -64,10 +67,11 @@ do izone = 1, world%prj%nzone
   call rpmgetkeyvalstr(pcour, "SOLVER", str)
 
   solver = 0
-  if (samestring(str, "HEAT" )) solver = solKDIF 
-  if (samestring(str, "EULER")) solver = solNS
-  if (samestring(str, "FLUID")) solver = solNS
-  if (samestring(str, "NS"))    solver = solNS
+  if (samestring(str, "HEAT" ))  solver = solKDIF 
+  if (samestring(str, "EULER"))  solver = solNS
+  if (samestring(str, "FLUID"))  solver = solNS
+  if (samestring(str, "NS"))     solver = solNS
+  if (samestring(str, "VORTEX")) solver = solVORTEX
   if (solver == 0) call erreur("Lecture du menu", &
                                "Type de solveur incorrect : "//trim(str))
   
@@ -111,4 +115,5 @@ endsubroutine trait_param
 !
 ! Juil 2002 : création de la procédure
 ! Juin 2003 : définition des couplages
+! Fev  2004 : ajout de solveur VORTEX
 !------------------------------------------------------------------------------!

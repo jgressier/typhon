@@ -11,6 +11,8 @@
 module GEO3D
 
 use TYPHMAKE
+use GEO2D
+use STRING
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
@@ -21,7 +23,11 @@ endtype
 ! -- INTERFACES -------------------------------------------------------------
 
 interface v3d_of
-  module procedure v3d_fromtab
+  module procedure v3d_fromtab, v3d_fromv2d, v3d_fromstr
+endinterface
+
+interface tab
+  module procedure tab_v3d
 endinterface
 
 interface abs
@@ -74,19 +80,49 @@ real(krp), dimension(3) :: tab
 endfunction v3d_fromtab
 
 !------------------------------------------------------------------------------!
+! Fonction : transtypage v2d -> v3d
+!------------------------------------------------------------------------------!
+type(v3d) function v3d_fromv2d(v)
+implicit none
+type(v2d) :: v
+
+  v3d_fromv2d = v3d(v%x, v%y, 0._krp)
+
+endfunction v3d_fromv2d
+
+!------------------------------------------------------------------------------!
 ! Fonction : transtypage v3d -> real(1:3)
 !------------------------------------------------------------------------------!
-function tab(v)
+function tab_v3d(v)
 implicit none
 type(v3d), intent(in)   :: v
-real(krp), dimension(3) :: tab
+real(krp), dimension(3) :: tab_v3d
 
-  tab(1:3) = (/ v%x, v%y, v%z /)
+  tab_v3d(1:3) = (/ v%x, v%y, v%z /)
 
-endfunction tab
+endfunction tab_v3d
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul de somme de vecteur
+! Fonction : transtypage (avec traitement) string -> v3d
+!------------------------------------------------------------------------------!
+type(v3d) function v3d_fromstr(str, info)
+implicit none
+character(len=*), intent(in)  :: str
+integer,          intent(out) :: info
+character(len=len(str))       :: pstr
+integer :: id, if
+
+  info = 0
+  id   = scan(str, '(')
+  if   = scan(str, ')')
+  pstr = chg_char(str(id+1:if-1),',',' ') 
+  read(pstr,*,iostat=info) v3d_fromstr !%x, v3d_fromstr%z, v3d_fromstr%y
+  print*,"TEST V3D",info,":", v3d_fromstr
+
+endfunction v3d_fromstr
+
+!------------------------------------------------------------------------------!
+! Fonction : calcul addition de vecteur
 !------------------------------------------------------------------------------!
 type(v3d) function v3d_addition(v1, v2)
 implicit none

@@ -29,7 +29,7 @@ integer :: izone, icoupling
 !--------------------------------------------------------------------
 ! Lecture, transformation des maillages, calcul des paramètres géométriques et connectivités
 
-call print_info(5,"Calcul et Initialisation des maillages")
+call print_info(5,"* Calcul et Initialisation des maillages")
 do izone = 1, world%prj%nzone
   call init_maillage(world%zone(izone))
 enddo
@@ -37,7 +37,7 @@ enddo
 !--------------------------------------------------------------------
 ! Initialisation des connectivités cellules/faces/sommets des conditions aux limites
 
-call print_info(5,"Calcul et Initialisation des connectivités&
+call print_info(5,"* Calcul et Initialisation des connectivités&
                   & et conditions aux limites")
 do izone = 1, world%prj%nzone
   call init_connect(world%zone(izone))
@@ -60,7 +60,7 @@ enddo
 !--------------------------------------------------------------------
 ! Initialisation des conditions limites
 
-call print_info(5,"Initialisation des conditions aux limites")
+call print_info(5,"* Initialisation des conditions aux limites")
 do izone = 1, world%prj%nzone
   call init_boco(world%zone(izone))
 enddo

@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_ust_elemvol            Auteur : J. Gressier
 !                                         Date   : Janvier 2003
-! Fonction                                Modif  :
+! Fonction                                Modif  : (cf historique)
 !   Calcul des volumes élémentaires d'une cellule, définis comme des coniques
 !   de base, chacune des faces et de sommet, le centre approximatif de cellule.
 !   En sortie, on obtient le volume et le centre de gravité des volumes 
@@ -13,17 +13,18 @@
 !   aux cellules (nombre de volumes indéterminé par cellule)
 !
 !------------------------------------------------------------------------------!
-subroutine calc_ust_elemvol(ndim, ncell, nface, midcell, facecell, cgface, face, &
+subroutine calc_ust_elemvol(geom, ncell, nface, midcell, facecell, cgface, face, &
                             cg_elem, vol_elem)
 
 use TYPHMAKE
 use OUTPUT
 use USTMESH
+use MESHBASE
 
 implicit none
 
 ! -- Declaration des entrées --
-integer                     :: ndim       ! nombre de dimension des coordonnées (2 ou 3)
+character                   :: geom       ! type de géométrie
 integer                     :: ncell      ! nombre de cellules
 integer                     :: nface      ! nombre de faces
 type(v3d), dimension(ncell) :: midcell    ! centres de cellule approchés ( /= barycentre )
@@ -48,18 +49,16 @@ real(krp)       :: kcg, kvol    ! coefficients pour le calcul du centre et du vo
 ! et un sommet K (centre approché (midcell) de la cellule adjacente). 
 ! On en déduit le volume et le centre de gravité du volume élémentaire.
 
-select case(ndim)
-case(2)
+select case(geom)
+case(msh_2dplan)
   kcg  = 1./3._krp
   kvol = 1./2._krp
-case(3)
+case(msh_3d)
   kcg  = 1./4._krp
   kvol = 1./3._krp
 case default
-  call erreur("Traitement du maillage","Nombre de coordonnées incorrect")
+  call erreur("Traitement du maillage (Bug)","Type de géométrie inattendu")
 endselect
-
-!print*,"TEST : ",nface, facecell%nbnodes !! DEBUG
 
 do if = 1, facecell%nbnodes
 
@@ -105,3 +104,10 @@ contains
   endsubroutine subcalc_elemvol
 
 endsubroutine calc_ust_elemvol
+
+!------------------------------------------------------------------------------!
+! Historique des modifications
+!
+! jan  2002 : création de la procédure
+!------------------------------------------------------------------------------!
+

@@ -73,6 +73,8 @@ do i = 1, n_init
   select case(isolver)
   case(solKDIF)
     call def_init_kdif(pcour, defsolver%init(i)%kdif)
+  case(solVORTEX)
+    call def_init_vortex(pcour, defsolver%init(i)%vortex)
   case default
     call erreur("incohérence interne (def_init)","solveur inconnu")
   endselect

@@ -16,8 +16,9 @@ use MODINFO       ! Information pour la gestion de l'intégration
 use MENU_SOLVER   ! Définition des solveurs
 use MENU_NUM      ! Définition des paramètres numériques d'intégration
 use MENU_MESH     ! Définition du maillage
-use STRMESH       ! Données des maillages structurés
-use USTMESH       ! Données des maillages non structurés
+use MGRID         ! Définition des grilles
+use STRMESH       ! Définition des maillages structurés
+use USTMESH       ! Définition des maillages non structurés
 !use BOUND        ! Librairie de définition des conditions aux limites
 use MENU_ZONECOUPLING ! Définition des structures d'échange entre zones
 use DEFFIELD      ! Données des champs physiques
@@ -56,7 +57,14 @@ type st_zone
 
   type(st_strmesh), dimension(:), pointer &
                         :: str_mesh   ! maillage multibloc structuré
-  type(st_ustmesh)      :: ust_mesh   ! maillage non structuré
+  integer                :: ngrid      ! nombre de grilles (mesh + field)
+  type(st_grid), pointer :: grid       ! liste chaînée de grilles
+  !integer               :: nmesh      ! nombre champs (liste chaînée)  
+  !integer               :: nfield     ! nombre champs (liste chaînée)  
+  !type(st_ustmesh), pointer &
+  type(st_ustmesh) & !, dimension(:), pointer &
+                        :: ust_mesh   ! liste chaînée de maillage non structuré
+  !type(st_field), pointer &
   type(st_field), dimension(:), pointer &
                         :: field      ! tableau des champs
   type(st_capteur), dimension(:), pointer &
@@ -67,6 +75,10 @@ endtype st_zone
 
 
 ! -- INTERFACES -------------------------------------------------------------
+
+interface new
+  module procedure new_zone
+endinterface
 
 interface delete
   module procedure delete_zone
@@ -80,6 +92,24 @@ contains
 
 
 !------------------------------------------------------------------------------!
+! Procédure : initialisation d'une structure ZONE
+!------------------------------------------------------------------------------!
+subroutine new_zone(zone, id)
+implicit none
+type(st_zone)  :: zone
+integer        :: id
+
+  zone%id = id
+
+  zone%ndom  = 0   ! DEV: à supprimer après homogénéisation dans MGRID
+
+  zone%ngrid = 0
+  nullify(zone%grid)
+
+endsubroutine new_zone
+
+
+!------------------------------------------------------------------------------!
 ! Procédure : desallocation d'une structure ZONE
 !------------------------------------------------------------------------------!
 subroutine delete_zone(zone)
@@ -87,16 +117,17 @@ implicit none
 type(st_zone)  :: zone
 integer        :: i     
 
-  print*,'destruction de zone interne / mesh :',zone%nmesh_str, zone%nmesh_ust !! DEBUG
-  if (zone%nmesh_str >= 1) then
-    do i = 1, zone%nmesh_str
-      call delete(zone%str_mesh(i))   
-    enddo 
-    deallocate(zone%str_mesh)
-  endif
+  print*,'DEBUG: destruction de zone '
+  !if (zone%nmesh_str >= 1) then
+  !  do i = 1, zone%nmesh_str
+  !    call delete(zone%str_mesh(i))   
+  !  enddo 
+  !  deallocate(zone%str_mesh)
+  !endif
   
   call delete(zone%defsolver)
   
+  ! Destruction des structures USTMESH (DEV: dans MGRID)
   if (zone%nmesh_ust >= 1) then
     print*,"desallocation ust_mesh" !! DEBUG
     call delete(zone%ust_mesh)
@@ -111,16 +142,42 @@ integer        :: i
     deallocate(zone%coupling)
 !  endif
 
+  ! Destruction des champs (structures FIELD) (DEV: dans MGRID)
+  print*,'debug delete_zone : ',zone%ndom,' ndom'
   do i = 1, zone%ndom
     print*,"desallocation champ ",i !! DEBUG
     call delete(zone%field(i))
   enddo
-  deallocate(zone%field)
+  if (zone%ndom >= 1) deallocate(zone%field)
+
+  ! Destruction des structures MGRID
+  
 
   print*,'fin de destruction de zone interne' !! DEBUG
 
 endsubroutine delete_zone
 
+
+!------------------------------------------------------------------------------!
+! Procédure : ajout avec allocation d'une structure grille
+!------------------------------------------------------------------------------!
+function newgrid(zone) result(pgrid)
+implicit none
+type(st_grid), pointer :: pgrid
+type(st_zone)          :: zone
+integer                :: id
+
+  zone%ngrid = zone%ngrid + 1
+
+  if (zone%ngrid == 1) then
+   allocate(pgrid)
+   call new(pgrid, zone%ngrid)
+  else
+    pgrid => insert_newgrid(zone%grid, zone%ngrid)
+  endif
+  zone%grid => pgrid
+
+endfunction newgrid
 
 
 
@@ -132,4 +189,5 @@ endmodule DEFZONE
 ! juil 2002 : création du module
 ! juin 2003 : structuration des champs par type (scalaire, vecteur...)
 ! juil 2003 : delete zone%defsolver
+! mars 2003 : structure "grid" (mesh + field) en liste chaînée
 !------------------------------------------------------------------------------!

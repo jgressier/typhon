@@ -1,9 +1,9 @@
 !------------------------------------------------------------------------------!
 ! Procedure : def_mesh                    Auteur : J. Gressier
 !                                         Date   : Novembre 2002
-! Fonction                                Modif  : 
+! Fonction                                Modif  : (cf historique)
 !   Traitement des paramètres du fichier menu principal
-!   Paramètres principaux du projet
+!   Définition du maillage
 !
 ! Defauts/Limitations/Divers :
 !
@@ -39,8 +39,6 @@ call print_info(5,"- Définition du maillage")
 pblock => block
 call seekrpmblock(pblock, "MESH", 0, pcour, nkey)
 
-! call printrpmblock(6, pblock, .true.)  !! DEBUG
-! call printrpmblock(6, pcour, .true.)   !! DEBUG
 if (nkey /= 1) call erreur("lecture de menu", &
                            "bloc MESH inexistant ou surnuméraire")
 
@@ -49,7 +47,8 @@ if (nkey /= 1) call erreur("lecture de menu", &
 call rpmgetkeyvalstr(pcour, "FORMAT", str)
 defmesh%format = cnull
 
-if (samestring(str,"CGNS"))  defmesh%format = fmt_CGNS
+if (samestring(str,"CGNS"))    defmesh%format = fmt_CGNS
+if (samestring(str,"TYPHMSH")) defmesh%format = fmt_TYPHMSH
 if (defmesh%format == cnull) call erreur("lecture de menu","format de maillage inconnu")
 
 ! -- lecture du nom de fichier
@@ -59,3 +58,10 @@ defmesh%fichier = str
 
 
 endsubroutine def_mesh
+
+!------------------------------------------------------------------------------!
+! Historique des modifications
+!
+! nov  2002 : création de la procédure
+! fev  2004 : lecture de format TYPHMSH (format interne)
+!------------------------------------------------------------------------------!

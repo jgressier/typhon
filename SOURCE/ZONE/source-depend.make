@@ -9,14 +9,11 @@ ZONE_LIB = $(PRJLIB)/libt_zone.a
 
 ZONE_MOD = BOUND.$(MOD)                  \
            DEFCAPTEURS.$(MOD)            \
-           DEFFIELD.$(MOD)               \
            DEFZONE.$(MOD)                \
            ZONE_COUPLING.$(MOD)          \
            MENU_ZONECOUPLING.$(MOD) 
 
 ZONE_OBJ := $(ZONE_MOD:.$(MOD)=.o)       \
-            calc_gradient.o              \
-            calc_gradient_limite.o       \
             calc_varcons.o               \
             calc_varprim.o               \
             calcboco_ust.o               \
@@ -24,10 +21,12 @@ ZONE_OBJ := $(ZONE_MOD:.$(MOD)=.o)       \
             calcboco_ust_nunif.o         \
             calcboco_ust_unif.o          \
             donnees_echange.o            \
-            init_boco_ust.o              \
             init_champ_ust.o             \
+            init_connect_grid.o          \
             init_connect_ust.o           \
             init_ustboco_ghostface.o     \
+            init_ustboco_kutta.o         \
+            init_ustboco_singpanel.o     \
             interpol_onvtex.o            \
             prb_boco_field.o             \
             update_champ.o

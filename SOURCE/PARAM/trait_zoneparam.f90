@@ -47,6 +47,9 @@ case(solKDIF)
 case(solNS)
   if (.not.pass_ns) call erreur("restriction","solveur Navier-Stokes indisponible")
   call def_model_ns(block, zone%defsolver)
+case(solVORTEX)
+  if (.not.pass_vort) call erreur("restriction","solveur Vortex indisponible")
+  call def_model_vortex(block, zone%defsolver)
 case default
   call erreur("lecture de menu","solveur inconnu")
 endselect
@@ -95,7 +98,6 @@ zone%ncoupling = nzr
   allocate(zone%coupling(zone%ncoupling))
 !endif
 
-print*, "!DEBUG", zone%nom , zone%ncoupling
 ! Conditions aux limites
 
 call def_boco(block, solver, zone%defsolver, zone%coupling, zone%ncoupling, &
@@ -126,4 +128,5 @@ endsubroutine trait_zoneparam
 ! Juil 2002 : création de la procédure
 ! Sept 2003 : appel à la définition de solveur NS
 ! Nov  2003 : appel à la définition de capteurs
+! Fev  2004 : appel à la définition de solveur VORTEX
 !------------------------------------------------------------------------------!

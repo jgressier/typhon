@@ -127,7 +127,8 @@ logical        :: allocgrad         ! allocation des gradients
   block%jdim = idim
   block%kdim = idim
 
-  call new(block%mesh,  idim, jdim, kdim)
+  stop
+  !call new(block%mesh,  idim, jdim, kdim)
 
   block%nconnect = 0        ! Initialisation des listes de connections
   !block%nbound   = 0        ! et de conditions aux limites

@@ -33,6 +33,8 @@ type(st_field)   :: field            ! champ primitives->conservatives
 select case(def_solver%typ_solver)
 case(solKDIF)
   call calc_varprim_kdif(def_solver%defkdif, field)
+case(solVORTEX)
+  ! rien à faire
 case default
   call erreur("Incohérence interne (calc_varprim)","type de solveur inconnu")
 endselect 

@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! MODULE : INTERPOL                       Auteur : J. Gressier
 !                                         Date   : Fevrier 2002
-! Fonction                                Modif  : Mars 2002
+! Fonction                                Modif  : (cf historique)
 !   Bibliotheque de procedures pour l'interpolation de données
 !
 ! Defauts/Limitations/Divers :
@@ -442,3 +442,9 @@ endfunction getfromtabtdp
 
 endmodule INTERPOL
 
+!------------------------------------------------------------------------------!
+! Historique des modifications
+!
+! fev  2002 : création de la procédure
+!
+!------------------------------------------------------------------------------!

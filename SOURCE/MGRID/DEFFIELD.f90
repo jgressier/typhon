@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! MODULE : DEFFIELD                       Auteur : J. Gressier
 !                                         Date   : Octobre 2002
-! Fonction                                Modif  : Juin 2003 (cf historique)
+! Fonction                                Modif  : (cf historique)
 !   Bibliotheque de procedures et fonctions pour la gestion des champs
 !   des différents solveurs
 !
@@ -59,6 +59,7 @@ endtype
 type st_genericfield
   integer      :: nscal, nvect, ntens        ! dimension de champs
   integer      :: dim                        ! nombre de valeurs par champ
+  type(st_genericfield),           pointer :: next      ! pointeur de liste chaînée
   type(st_scafield), dimension(:), pointer :: tabscal   ! champs des scalaires
   type(st_vecfield), dimension(:), pointer :: tabvect   ! champs des vecteurs
   type(st_tenfield), dimension(:), pointer :: tabtens   ! champs des tenseurs
@@ -69,16 +70,17 @@ endtype st_genericfield
 !------------------------------------------------------------------------------!
 
 type st_field
-  integer                :: nscal, nvect  ! dimension de base des champs
-  integer                :: ncell, nface  ! nombre de cellules et faces
-  logical                :: allocgrad     ! allocation  des gradients ou non
-  logical                :: allocres      ! allocation  des résidus
-  logical                :: allocprim     ! allocation  des valeurs primitives
-  logical                :: calcgrad      ! utilisation des gradients ou non
-  type(st_genericfield)  :: etatcons      ! champ des valeurs physiques, conservatives
-  type(st_genericfield)  :: etatprim      ! champ des valeurs physiques, primitives
-  type(st_genericfield)  :: gradient      ! champ des gradients
-  type(st_genericfield)  :: residu        ! champ des residus (valeurs conservatives)
+  type(st_field), pointer :: next          ! pointeur pour liste chaînée
+  integer                 :: nscal, nvect  ! dimension de base des champs
+  integer                 :: ncell, nface  ! nombre de cellules et faces
+  logical                 :: allocgrad     ! allocation  des gradients ou non
+  logical                 :: allocres      ! allocation  des résidus
+  logical                 :: allocprim     ! allocation  des valeurs primitives
+  logical                 :: calcgrad      ! utilisation des gradients ou non
+  type(st_genericfield)   :: etatcons      ! champ des valeurs physiques, conservatives
+  type(st_genericfield)   :: etatprim      ! champ des valeurs physiques, primitives
+  type(st_genericfield)   :: gradient      ! champ des gradients
+  type(st_genericfield)   :: residu        ! champ des residus (valeurs conservatives)
 endtype st_field
 
 

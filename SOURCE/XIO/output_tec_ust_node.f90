@@ -41,7 +41,7 @@ real(krp) :: a, b, L, T0, T1, alpha, beta, temp
 
 ! -- Calcul de la connectivité CELL->VTEX --
 
-call calc_cellvtex(ust_mesh%nbdim, cellvtex, ust_mesh%ncell, ust_mesh%ncell_int, &
+call calc_cellvtex(typgeo(ust_mesh), cellvtex, ust_mesh%ncell, ust_mesh%ncell_int, &
                    ust_mesh%facecell, ust_mesh%facevtex)
 
 call verify_cellvtex(ust_mesh%mesh, cellvtex)
@@ -80,3 +80,9 @@ call delete(cellvtex)
 
 
 endsubroutine output_tec_ust_node
+
+!------------------------------------------------------------------------------!
+! Historique des modifications
+!
+! oct  2003 : création de la procédure
+!------------------------------------------------------------------------------!

@@ -24,7 +24,7 @@ FO = -C
 LINKER = ifc
 
 # Options de base
-LINKFB  = $(FO) #-L/usr/lib
+LINKFB  = $(FO) -L$(PRJEXT)
 
 ####### Librairies systèmes
 

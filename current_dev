@@ -11,29 +11,37 @@ Task Dévlp.  R. cible début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
      Jérémie   0.1.4              Make  problème de désallocation en fin de calcul (SGI)
 0010           0.1.4              KDIF  condition limite de convection h(T-Tref)
+     Jérémie   0.1.4  15/09       Make  Solveur Fluide Parfait - procédures de base
+0020 Jérémie   0.1.4  12/02 06/04 Make  Solveur Vortex - procédures de base
+0021 Jérémie   0.1.4  07/04       Make  Solveur Vortex - Solveur KDIF : vérification  
+0022 Jérémie   0.1.4  07/04 09/04 Make  Solveur Vortex - débuggage et validation
+0023 Jérémie   0.1.4  09/04 09/04 Make  Première fusion avec branche VORTEX
      Jérémie   0.1.4              Make  Sauvegarde de capteurs BOCO_FIELD
                0.1.4              Make  calcul des index de conditions limites connectées à la lecture
      Jérémie   0.1.4              Opt   explosion temps de calcul VALIDATION/KDIF/KNL2
-               0.1.4              KDIF  implicitation méthode JACOBI
+     Jérémie   0.1.4              KDIF  implicitation méthode JACOBI
                0.1.4              Val   maillage 3D TETRA et/ou HEXA
                0.1.4              IHM   choix du résidu maximal de cycle (residu max global sinon)
                0.1.4              IHM   affichage intermittent des itérations (mod(it,10))
                0.1.4              Out   Sorties au format VTK
                0.1.5              KDIF  condition limite de rayonnement
                0.1.5              Opt   Optimisation des calculs GEO3D et proc. appelantes
-     Jérémie   0.1.6              IHM   Lecture de vecteurs par menu RPM
-     Jérémie   0.1.6              Make  Première fusion avec branche VORTEX
+     Jérémie   0.1.5              IHM   Lecture de vecteurs par menu RPM
      Jérémie   0.2.0              Make  Solveur Fluide Parfait - procédures de base II
+               0.2.0              Make  Restructuration des sorties (get_data/calc_data/output)
                0.2.0              Out   Sorties multiples (block:output)
-               0.2.0                    Restructuration de MAIN/integration_cycle (split)
+               0.2.0              Make  Restructuration de MAIN/integration_cycle (split)
+               0.2.0              Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
                0.2.0              Make  Suppression des structures de données STRMESH (1)
+               0.2.0              Make  Split de DEFFIELD (BASEFIELD / GENERICFIELD / DEFFIELD)
+               0.2.0              Make  Liste chaînée de GENERICFIELD et FIELD
                0.2.0              Make  Structuration des champs et maillages par niveau 
                0.2.0              Make  Définition des historiques
                0.2.0              Make  Restructuration des données SOLVEUR (structure commune)
                0.2.0              Make  Initialisation conditionnelle MPI
-               0.2.0              KDIF  Implicitation du solveur KDIF
                0.2.0              IHM   Test des mots-clefs RPM non lus
-     Jérémie   0.2.0              Make  Solveur Incompressible par singularités - procédures de base
+               0.2.0              Mesh  Vérification de maillage
+               0.3.0              Mesh  Raffinement de maillage complet
                1.0.0              AMR   Structuration des grilles/champs en arbre parent/frère
                1.0.0              Opt   Optimisation du calcul KDIF/flux COMPACT
                1.0.0              Opt   Optimisation du calcul gradients (pré-inversion et rhs)

@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! MODULE : MESHBASE                       Auteur : J. Gressier
 !                                         Date   : Octobre 2002
-! Fonction                                Modif  : 
+! Fonction                                Modif  : (cf historique)
 !   Bibliotheque de procedures et fonctions pour la gestion des éléments
 !   géométriques de base (face...)
 !
@@ -19,11 +19,26 @@ implicit none
 
 ! -- Variables globales du module -------------------------------------------
 
+! type de maillage
+character, parameter :: msh_1Dcurv = '1'
+character, parameter :: msh_2Dplan = '2'
+character, parameter :: msh_2Dcurv = 'C'
+character, parameter :: msh_3D     = '3'
+
 ! -- Définition des caractères caractéristiques pour le type de maillage --
 !character, parameter :: mshSTR = 'S'   (défini dans VARCOM)
 !character, parameter :: mshUST = 'U'
 
 ! -- DECLARATIONS -----------------------------------------------------------
+
+!------------------------------------------------------------------------------!
+! Définition de la structure INFO_MESH
+!------------------------------------------------------------------------------!
+type info_mesh
+  character :: geom                ! type de maillage (cf constantes)
+  type(v3d) :: min, max            ! coordonnées min et max des vertex
+  real(krp) :: minscale, maxscale  ! échelle de longueur (min et max)
+endtype
 
 
 !------------------------------------------------------------------------------!
@@ -37,51 +52,20 @@ endtype st_face
 
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_MESH : bloc de cellules structurées ou non
+! Définition de la structure ST_MESH : liste de vertex, faces, centres, volumes
 !------------------------------------------------------------------------------!
-! POUR UN MAILLAGE STRUCTURE :
-!y
-!                         ^ jface(i,j+1)
-!                         |                  
-!     vertex(i,j+1)       |         vertex(i+1,j+1)  
-!                 o----------------o    
-!                 |                |    
-!                 |                |    
-!                 |       O        |---> iface(i+1,j)
-!                 |   centre(i,j)  |     
-!                 |                |             
-!                 o----------------o             
-!       vertex(i,j)                 vertex(i+1,j) 
-!
-! Soit un maillage de ti*tj sommets. On a (ti-1)*(tj-1) cellules
-! idim = ti - 1   et respectivement pour j et k
-! dimensions de    centre(0:idim+1, 1:jdim+1, 1:kdim+1)
-!                  vertex(1:idim+1, 1:jdim+1, 1:kdim+1)
-!                   iface(1:idim+1, 1:jdim,   1:kdim)
-!                   jface(1:idim,   1:jdim+1, 1:kdim)
-!                   kface(1:idim,   1:jdim,   1:kdim+1)
-! Les lignes et colonnes de (centre) indicées 0 et dim+1 sont les centres
-! des cellules fictives (de volume nul) donc les centres des faces 
-! correspondantes
-!
-! POUR UN MAILLAGE NON STRUCTURE :
-!
-! seul le premier indice des tableaux :vertex:centre:volume:iface: varient
-! les tableaux jface et kface ne sont pas alloués. On donc les dimensions
-!   vertex:centre:volume (1:nvtex, 1, 1)
-!   iface                (1:nvtex, 1, 1)
-!
 type st_mesh
-  character      :: meshtyp               ! type de maillage (mshSTR ou mshUST)
-  integer        :: idim, jdim, kdim      ! indices max des cellules 
-  integer        :: nvtex                 ! nombre de sommets
-  integer        :: nface,     ncell      ! nombre de faces et cellules totales
+  type(info_mesh) :: info
+  integer         :: idim, jdim, kdim      ! indices max des cellules 
+  integer         :: nvtex                 ! nombre de sommets
+  integer         :: nface
+  integer         :: ncell                 ! nombre de faces et cellules totales
   type(v3d), dimension(:,:,:), pointer &  ! coordonnées des sommets et centres
-                 :: vertex, centre        ! de cellules (i,j,k)
+                  :: vertex, centre        ! de cellules (i,j,k)
   type(st_face), dimension(:,:,:), pointer &
-                 :: iface, jface, kface   ! tableaux de faces
+                  :: iface !, jface, kface   ! tableaux de faces
   real(krp), dimension(:,:,:), pointer &
-                 :: volume                ! volume des cellules
+                  :: volume                ! volume des cellules
 endtype st_mesh
 
 
@@ -106,30 +90,20 @@ contains
 !------------------------------------------------------------------------------!
 ! Procédure : allocation d'une structure MESH
 !------------------------------------------------------------------------------!
-subroutine new_mesh(mesh, idim, jdim, kdim)
+subroutine new_mesh(mesh, ncell, nface, nvtex)
 implicit none
 type(st_mesh) :: mesh
-integer       :: idim, jdim, kdim
+integer       :: ncell, nface, nvtex
 
-  print*,'!!!!!!!!! Attention : allocation spécifique en structuré !!!!!!!!!!!!'
-  mesh%idim = idim
-  mesh%jdim = jdim
-  mesh%kdim = kdim
-  if (kdim /= 1) then ! CAS 3D
-    allocate(mesh%centre(0:idim+1, 0:jdim+1, 0:kdim+1))
-    allocate(mesh%vertex(1:idim+1, 1:jdim+1, 1:kdim+1))
-    allocate(mesh% iface(1:idim+1, 1:jdim,   1:kdim))
-    allocate(mesh% jface(1:idim,   1:jdim+1, 1:kdim))
-    allocate(mesh% kface(1:idim,   1:jdim,   1:kdim+1))
-    allocate(mesh%volume(1:idim,   1:jdim,   1:kdim))
-  else                ! CAS 2D
-    allocate(mesh%centre(0:idim+1, 0:jdim+1, 1))
-    allocate(mesh%vertex(1:idim+1, 1:jdim+1, 1))
-    allocate(mesh% iface(1:idim+1, 1:jdim,   1))
-    allocate(mesh% jface(1:idim,   1:jdim+1, 1))
-    nullify(mesh%kface)
-    allocate(mesh%volume(1:idim,   1:jdim,   1))
+  mesh%ncell = ncell
+  mesh%nface = nface
+  mesh%nvtex = nvtex
+  if (ncell /= 0) then
+    allocate(mesh%centre(1:ncell, 1,1))
+    allocate(mesh%volume(1:ncell, 1,1))
   endif
+  if (nface /= 0) allocate(mesh% iface(1:nface, 1,1))
+  if (nvtex /= 0) allocate(mesh%vertex(1:nvtex, 1,1))
 
 endsubroutine new_mesh
 
@@ -141,17 +115,21 @@ subroutine delete_mesh(mesh)
 implicit none
 type(st_mesh) :: mesh
 
-  deallocate(mesh%centre, mesh%vertex, mesh%volume)
-
-  deallocate(mesh%iface)
-
-  if (mesh%jdim > 1) deallocate(mesh%jface)
-
-  if (mesh%kdim > 1) deallocate(mesh%kface)
-
+  if (mesh%ncell /= 0) deallocate(mesh%centre, mesh%volume)
+  if (mesh%nface /= 0) deallocate(mesh%iface)
+  if (mesh%nvtex /= 0) deallocate(mesh%vertex)
+  
 endsubroutine delete_mesh
 
 
 
-
 endmodule MESHBASE
+
+!------------------------------------------------------------------------------!
+! Historique des modifications
+!
+! oct  2002 : création du module
+! fev  2004 : suppression de certains éléments propres au structuré
+!             structure information de MESH
+!             redéfintion de new_mesh (allocation de non structuré)
+!------------------------------------------------------------------------------!

@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : cgns2typhon_ustmesh         Auteur : J. Gressier
 !                                         Date   : Novembre 2002
-! Fonction                                Modif  :
+! Fonction                                Modif  : (cf historique)
 !   Conversion d'une zone CGNS en structure Maillage NON structuré pour Typhon
 !   Création des connectivités FACE->SOMMETS et FACES->CELLULES
 !
@@ -45,7 +45,12 @@ if (cgnszone%type /= Unstructured) then
   call erreur("Développement","incohérence dans l'appel de subroutine")
 endif
 
-mesh%nbdim = cgnszone%imesh    ! transfert du nombre de dimensions (2D ou 3D)
+select case(cgnszone%imesh)    ! transfert du nombre de dimensions (2D ou 3D)
+case(2)
+  mesh%mesh%info%geom = msh_2dplan
+case(3)
+  mesh%mesh%info%geom = msh_3d
+endselect
 
 ! --- conversion du nuage du point ---
 
@@ -55,6 +60,10 @@ mesh%mesh%nvtex  = cgnszone%mesh%ni         ! nb de sommets
 allocate(mesh%mesh%vertex(mesh%mesh%nvtex, 1, 1))
 mesh%mesh%vertex = cgnszone%mesh%vertex     ! copie du nuage de points
 mesh%nvtex       = mesh%mesh%nvtex          ! nb de sommets (redondant)
+
+! on spécifie que le tableau de faces ne sera pas allouée
+nullify(mesh%mesh%iface)
+mesh%mesh%nface = 0
 
 ! --- création des connectivités intermédiaires sommets -> cellules ---
 !
@@ -128,8 +137,6 @@ enddo
 
 ! allocation des tableaux de connectivités
 
-! call new(mesh%cellface, nbtotcell, maxface)  ! Utilité de la connectivité cellule->faces ???
-
 ! -- connectivité intermédiaire face->sommets --
 call new(face_vtex, nface, maxvtex)
 face_vtex%nbnodes   = 0                     ! réinitialisation : nombre de faces crées
@@ -175,7 +182,7 @@ call reorder_ustconnect(0, mesh)    ! action sur les connectivités uniquement
 
 call cgns2typhon_ustboco(cgnszone, mesh)
 
-print*,"fin de création des structures TYPHON" !!! DEBUG
+!print*,"fin de création des structures TYPHON" !!! DEBUG
 
 mesh%ncell_lim = mesh%nface_lim
 mesh%ncell     = mesh%ncell_int + mesh%ncell_lim
@@ -186,7 +193,8 @@ endsubroutine cgns2typhon_ustmesh
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov 2002 (v0.0.1b): création de la procédure
+! nov 2002 : création de la procédure
+! fev 2004 : renseignements dans structure INFO_MESH
 !------------------------------------------------------------------------------!
 
 

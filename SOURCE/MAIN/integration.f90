@@ -11,6 +11,7 @@
 subroutine integration(lworld)
 
 use TYPHMAKE
+use STRING
 use OUTPUT
 use VARCOM
 use MODWORLD
@@ -77,12 +78,13 @@ do while (.not. lworld%info%fin_integration)
 
   select case(lworld%prj%typ_temps)
   case(stationnaire)
-    write(str_w,'(a,i5)') "* Cycle", lworld%info%icycle
+    str_w = "* CYCLE "//strof(lworld%info%icycle)
+    !write(str_w,'(a,a)') "* CYCLE ",strof(lworld%info%icycle,3)
   case(instationnaire)
-    write(str_w,'(a,i5,a,g10.4)') "* Cycle", lworld%info%icycle, &
+    write(str_w,'(a,i5,a,g10.4)') "* CYCLE", lworld%info%icycle, &
                                   " : t = ",  lworld%info%curtps
   case(periodique)
-    write(str_w,'(a,i5)') "* Cycle", lworld%info%icycle
+    write(str_w,'(a,i5)') "* CYCLE", lworld%info%icycle
   endselect
 
   call print_info(6,str_w)
@@ -155,8 +157,12 @@ deallocate(exchcycle)
 
 do izone = 1, lworld%prj%nzone
  do if = 1, lworld%zone(izone)%ndom
-   call dealloc_res(lworld%zone(izone)%field(if))
-   call dealloc_grad(lworld%zone(izone)%field(if))
+   select case(lworld%zone(izone)%defsolver%typ_solver)    ! DEV : en attendant homogénéisation
+   case(solKDIF)                                           ! de l'accès des champs dans 
+     call dealloc_res(lworld%zone(izone)%field(if))        ! les structures MGRID
+     call dealloc_grad(lworld%zone(izone)%field(if))
+   case(solVORTEX)
+   endselect
  enddo
 enddo
 
@@ -169,6 +175,6 @@ endsubroutine integration
 ! juin 2003 : instant d'échange excht
 !             mise à jour des CL pour le fichier de sortie
 ! sept 2003 : gestion du calcul par résidus (optionnel) + réorganisation
-! oct 2003  : remplacement d'instant d'échange excht par indice de cycle d'échange
+! oct  2003 : remplacement d'instant d'échange excht par indice de cycle d'échange
 !              exchcycle
 !------------------------------------------------------------------------------!
