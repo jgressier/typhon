@@ -45,8 +45,6 @@ endif
 
 ! -- boucle sur la liste des faces de la condition limite --
 
-!!print*,"GHOST" !! DEBUG
-  
 do if = 1, ust_mesh%boco(ib)%nface    
   
   ! affectation de connectivité face limites -> cellules fictives
@@ -57,7 +55,6 @@ do if = 1, ust_mesh%boco(ib)%nface
   ! définition géométrique de la cellule fictive
   ust_mesh%mesh%volume(icell,1,1) = 0._krp
   ust_mesh%mesh%centre(icell,1,1) = ust_mesh%mesh%iface(iface,1,1)%centre
-!!  print*,"ghost-cell",icell," / face", iface, ust_mesh%mesh%centre(icell,1,1) !! DEBUG
   
   if (ust_mesh%facecell%fils(iface,2) == 0) then
     ust_mesh%facecell%fils(iface,2) = icell        ! affectation de la cellule fictive

@@ -14,10 +14,12 @@ Task Dévlp.  R. cible début fin   Type  Développement
      Jérémie   0.1.4              Make  Sauvegarde de capteurs BOCO_FIELD
                0.1.4              Make  calcul des index de conditions limites connectées à la lecture
 0038           0.1.5              Val   maillage 3D HEXA 
-0043 Jérémie   0.1.5  30/06 01/07 NS    reading et set-up of boundary conditions
-0044 Jérémie   0.1.5  01/07       NS    initialization parameters et actual initialization
 0039 Jérémie   0.1.5  01/07 01/07 Solv  Optimisation de la structure DLU (SPARSE_MAT)
 0041 Jérémie   0.1.5  01/07       Solv  Inversion Gauss-Seidel
+0043 Jérémie   0.1.5  30/06 01/07 NS    reading et set-up of boundary conditions
+0044 Jérémie   0.1.5  01/07 05/07 NS    initialization parameters et actual initialization
+0046 Jérémie   0.1.5  04/07 06/07 NS    main computational subroutines 
+0047 Jérémie   0.1.5              Val   KDIF: pas de convergence SPHERE en PRISM/TETRA
      Jérémie   0.1.5              Solv  Surrelaxation Jacobi, SOR, SSOR
      Jérémie   0.1.5              Solv  Gel des matrices d'implicitation en fonction du résidu
                0.1.5              KDIF  condition limite de rayonnement

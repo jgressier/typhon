@@ -28,6 +28,6 @@ LINKFB  = $(FO) -L$(PRJEXT)
 
 ####### Librairies systèmes
 
-MPILIB     = -lmpich
+MPILIB     = -lmpich -lPEPCF90
 CGNSLIB    = -lcgns
 LAPACKLIBS = -llapack3 -lblas3 # installation locale

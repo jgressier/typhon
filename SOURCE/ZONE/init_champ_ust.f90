@@ -70,8 +70,10 @@ do i = 1, defsolver%ninit
 enddo
 
 select case(defsolver%typ_solver)
-case(solKDIF)
+case(solNS, solKDIF)
   call calc_varcons(defsolver, champ)
+case default
+  call erreur("Incohérence interne (init_champ_ust)","type de solveur inconnu")
 endselect
 
 endsubroutine init_champ_ust

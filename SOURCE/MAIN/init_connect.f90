@@ -37,7 +37,7 @@ do while (associated(pgrid))
   case(solKDIF)
     call  init_connect_ust(zone%defsolver, pgrid%umesh)
 
-  case(solVORTEX)
+  case(solVORTEX, solNS)
     call init_connect_grid(zone%defsolver, pgrid)
     
   case default

@@ -51,6 +51,34 @@ if (nkey /= 1) call erreur("lecture de menu", &
 
 select case(isolver)
 
+case(solNS)
+
+  call rpmgetkeyvalstr(pcour, "SCHEME", str, "HLLC")
+  defspat%sch_hyp = inull
+
+  if (samestring(str,"ROE"))             defspat%sch_hyp = roe
+  if (samestring(str,"OSHER-NO"))        defspat%sch_hyp = osher_no
+  if (samestring(str,"OSHER-IO"))        defspat%sch_hyp = osher_io
+  if (samestring(str,"OSHER"))           defspat%sch_hyp = osher_no
+  if (samestring(str,"HUS"))             defspat%sch_hyp = efmo
+  if (samestring(str,"EFMO"))            defspat%sch_hyp = efmo
+  if (samestring(str,"HLL"))             defspat%sch_hyp = hlle
+  if (samestring(str,"HLLE"))            defspat%sch_hyp = hlle
+  if (samestring(str,"HLLK"))            defspat%sch_hyp = hllk
+  if (samestring(str,"HLLC"))            defspat%sch_hyp = hllc
+  if (samestring(str,"HLLCK"))           defspat%sch_hyp = hllck
+  if (samestring(str,"STEGER-WARMING"))  defspat%sch_hyp = stegwarm
+  if (samestring(str,"VANLEER"))         defspat%sch_hyp = vanleer
+  if (samestring(str,"EFM"))             defspat%sch_hyp = efm
+  if (samestring(str,"KFVS"))            defspat%sch_hyp = efm
+  if (samestring(str,"AUSMM"))           defspat%sch_hyp = ausmm
+
+  if (defspat%sch_hyp == inull) &
+    call erreur("lecture de menu","schéma numérique inconnu")
+
+  defspat%sch_dis   = inull
+  defspat%calc_grad = .false.
+
 case(solKDIF)
 
   ! -- Méthode de calcul des flux dissipatifs --
@@ -88,4 +116,5 @@ endsubroutine def_spat
 ! nov  2002 : création, lecture de bloc vide
 ! oct  2003 : choix de la méthode de calcul des flux dissipatifs
 ! mars 2004 : traitement dans le cas solVORTEX
+! july 2004 : NS solver parameters
 !------------------------------------------------------------------------------!

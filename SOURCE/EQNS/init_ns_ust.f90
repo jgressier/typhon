@@ -37,6 +37,7 @@ nspri = pi_ti_mach_dir2nspri(defns%properties(1), initns%ptot,  initns%ttot, &
 champ%etatprim%tabscal(1)%scal(:) = nspri%density
 champ%etatprim%tabscal(2)%scal(:) = nspri%pressure
 champ%etatprim%tabvect(1)%vect(:) = nspri%velocity
+print*,'init_ns',nspri
 
 !!if (champ%allocgrad) champ%gradient(:,:,:,:,:) = 0._krp
 

@@ -34,6 +34,13 @@ integer                :: ig
 
 select case(zone%defsolver%typ_solver)
 
+case(solNS)
+  pgrid => zone%grid
+  do ig = 1, zone%ngrid
+    call init_boco_ns(zone%defsolver, pgrid)
+    pgrid => pgrid%next
+  enddo
+
 case(solKDIF)
   if (zone%ngrid /= 1) call erreur("Init BOCO","une seule grille acceptée")
   call init_boco_kdif(zone%defsolver, zone%grid%umesh)
@@ -57,5 +64,6 @@ endsubroutine init_boco
 ! nov  2003 : création de la procédure
 ! mars 2004 : fusion "init_boco_ust" dans "init_boco"
 !             ajout du solveur VORTEX
+! july 2004 : NS solver (call init_boco_ns)
 !------------------------------------------------------------------------------!
 

@@ -72,7 +72,6 @@ do ib = 1, grid%umesh%nboco
 
   ! affectation 
 
-  !print*,'debug : init_connect_grid:',ib,idef, defsolver%boco(idef)%typ_calc
   select case(defsolver%boco(idef)%typ_calc)
   case(bc_calc_ghostface)
     call init_ustboco_ghostface(ib, defsolver%boco(idef), grid%umesh)

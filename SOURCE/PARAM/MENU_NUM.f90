@@ -34,11 +34,19 @@ integer(kpp), parameter :: tps_rk    = 30   ! intégration en Runge Kutta explici
 
 ! -- Constantes pour schéma de calcul des flux hyperboliques (sch_hyp)
 integer(kpp), parameter :: roe      = 10
-integer(kpp), parameter :: hlle     = 20
+integer(kpp), parameter :: osher_no = 15
+integer(kpp), parameter :: osher_io = 16
+integer(kpp), parameter :: hllr     = 20
+integer(kpp), parameter :: hlle     = 21
+integer(kpp), parameter :: hllk     = 22
 integer(kpp), parameter :: hllc     = 25
-integer(kpp), parameter :: stegwar  = 30
+integer(kpp), parameter :: hllck    = 26
+integer(kpp), parameter :: stegwarm = 30
 integer(kpp), parameter :: vanleer  = 31
+integer(kpp), parameter :: vanleerh = 32
 integer(kpp), parameter :: efm      = 40
+integer(kpp), parameter :: efmo     = 50
+integer(kpp), parameter :: ausmm    = 50
 
 ! -- Constantes pour schéma de calcul des flux dissipatifs (sch_dis)
 integer(kpp), parameter :: dis_dif2 = 1     ! différence des 2 états/face (NON CONSISTANT)

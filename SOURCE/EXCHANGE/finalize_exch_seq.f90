@@ -1,5 +1,5 @@
 !------------------------------------------------------------------------------!
-! Procedure : finalize_exch                  Auteur : J. Gressier
+! Procedure : finalize_exch                       Auteur : J. Gressier
 !                                                 Date   : July 2004
 ! Fonction                                        Modif  : see history
 !   Initialization of exchange protocol
@@ -15,8 +15,6 @@ use OUTPUT
 use MODINFO
 
 implicit none
-
-include 'mpif.h'
 
 ! -- Declaration des entrées/sorties --
 type(st_info) :: winfo

@@ -33,7 +33,7 @@ select case(zone%defsolver%typ_solver)
 case(solKDIF)
   call calc_ustmesh(zone%grid%umesh)
 
-case(solVORTEX)
+case(solVORTEX, solNS)
   pgrid => zone%grid
   do while (associated(pgrid))
     call calc_ustmesh(pgrid%umesh)
@@ -41,6 +41,9 @@ case(solVORTEX)
   enddo
     
 case default
+
+  call erreur('Développement','cas de solveur non prévu (init_maillage)')
+
 endselect
 
 endsubroutine init_maillage
