@@ -34,7 +34,7 @@ integer :: iboco,i
 do iboco = 1, ustdom%nboco 
 
   ! Cas d'existence d'un tableau de températures
-  if(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%alloctemp == .true.) then
+  if(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%alloctemp) then
     allocate(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%temp(ustdom%boco(iboco)%nface))
 
     ! Cas d'existence d'un fichier de températures limites :
@@ -46,7 +46,7 @@ do iboco = 1, ustdom%nboco
 
   endif
 
-  if(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%allocflux == .true.) then
+  if(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%allocflux) then
     ! Cas d'existence d'un tableau de flux
     allocate(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%flux_nunif(ustdom%boco(iboco)%nface))
   endif

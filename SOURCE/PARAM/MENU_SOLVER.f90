@@ -103,11 +103,11 @@ integer           :: ib
     do ib = 1, defsolver%nboco
       select case(defsolver%boco(ib)%boco_unif)
       case(nonuniform)
-        if (defsolver%boco(ib)%boco_kdif%alloctemp == .true.) then
+        if (defsolver%boco(ib)%boco_kdif%alloctemp) then
           deallocate(defsolver%boco(ib)%boco_kdif%temp)
           defsolver%boco(ib)%boco_kdif%alloctemp = .false.
         endif
-        if (defsolver%boco(ib)%boco_kdif%allocflux == .true.) then
+        if (defsolver%boco(ib)%boco_kdif%allocflux) then
           deallocate(defsolver%boco(ib)%boco_kdif%flux_nunif)
           defsolver%boco(ib)%boco_kdif%allocflux = .false.
         endif
