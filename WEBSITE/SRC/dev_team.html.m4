@@ -1,16 +1,28 @@
 include(`general.m4')
 dnl -------------------------------------------------------------
-set_page_title([Solver features])
-define([id1], [feat])
-define([id2], [])
+set_page_title([Development Team])
+define([id1], [dev])
+define([id2], [team])
 
 include_header
 
 dnl -------------------------------------------------------------
 
+section([Project Administrators])
 
-[Choose an item in the heading menu to obtain the associated description.]
+item([J. Gressier])
+<br>
 
+section([Main Developers])
+
+item([E. Radenac])
+<br>
+
+section([Contributors])
+
+
+
+skip_line
 
 dnl -------------------------------------------------------------
 include_footer

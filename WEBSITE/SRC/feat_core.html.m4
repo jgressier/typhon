@@ -1,16 +1,15 @@
 include(`general.m4')
 dnl -------------------------------------------------------------
-set_page_title([Solver features])
+set_page_title([Solver features - Core organization])
 define([id1], [feat])
-define([id2], [])
+define([id2], [core])
 
 include_header
 
 dnl -------------------------------------------------------------
 
 
-[Choose an item in the heading menu to obtain the associated description.]
-
+skip_line
 
 dnl -------------------------------------------------------------
 include_footer

@@ -3,8 +3,10 @@
 .menu1 { font-family: Arial, Helvetica, sans-serif; font-size: 12px; text-align: center}
 .banner { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: bold; padding: 3em; vertical-align: middle}
 .titre { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: bold; color: #000080; text-align: center}
-.defaut { font-family: Arial, Helvetica, sans-serif; font-size: 12px}
+.defaut { font-family: Arial, Helvetica, sans-serif; font-size: 11px}
+.blue   { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #000080}
+.orange { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #C87F1F}
+.red    { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #AA0000}
 .activebar { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #FFFF66}
 .soustitre { font-family: Arial, Helvetica, sans-serif; font-size: 16px; font-weight: bold; color: #FFFFCC ; font-style: italic}
 .quickmenu { font-family: Arial, Helvetica, sans-serif; font-size: 10px ; font-weight: bold}
-gmake

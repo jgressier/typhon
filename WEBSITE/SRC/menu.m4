@@ -5,8 +5,8 @@ dnl : id2 defines rank 2 page (undefined if page rank 0 or 1)
 dnl : id3 defines rank 3 page (undefined if page rank 0, 1 or 2)
 
 define([m_index],      [Home])
+define([m_index_pres],   [Presentation])
 define([m_index_news],   [News])
-define([m_index_log],    [Changes Log])
 define([m_feat],       [Features])
 define([m_feat_core],    [Core])
 define([m_feat_ns],      [Navier-Stokes])
@@ -15,7 +15,14 @@ define([m_feat_input],   [Input])
 define([m_feat_output],  [Output])
 define([m_case],       [Examples])
 define([m_dev],        [Development])
+define([m_dev_team],     [Team])
+define([m_dev_chlog],    [Change Log])
+define([m_dev_rmap],     [Roadmap])
+define([m_dev_sf],       [Sourceforge])
 define([m_get],        [Download])
+define([m_get_download], [Download])
+define([m_get_install],  [Installation])
+define([m_get_faq],      [FAQ])
 
 define([item_m2], [<img src=img_dir(tri-3d-blue.gif)>])
 
@@ -52,14 +59,23 @@ define([write_menu_head], [
   <tr valign="middle">
   <td class=menu1></td>
   ifelse(id1, [index], [
-    print_t2([news])
-    print_t2([log]) ])
+    print_t2([pres])
+    print_t2([news]) ])
   ifelse(id1, [feat], [
     print_t2([core])
     print_t2([ns])
     print_t2([kdif])
     print_t2([input])
     print_t2([output]) ])
+  ifelse(id1, [dev], [
+    print_t2([team])
+    print_t2([chlog])
+    print_t2([rmap])
+    print_t2([sf]) ])
+  ifelse(id1, [get], [
+    print_t2([download])
+    print_t2([install])
+    print_t2([faq]) ])
   <td class=menu1></td>
   </tr>
   </table>

@@ -8,10 +8,25 @@ GREP = egrep -v "^$$"
 
 # Les noms des fichiers a generer sans extension
 SRC  = ./SRC
-FIC  = index.html \
-       index_news.html \
-       index_log.html \
-       feat.html  \
+FIC  = index.html         \
+       index_news.html    \
+       index_pres.html    \
+       feat.html          \
+       feat_core.html     \
+       feat_ns.html       \
+       feat_kdif.html     \
+       feat_input.html    \
+       feat_output.html   \
+       case.html          \
+       dev.html           \
+       dev_team.html      \
+       dev_chlog.html     \
+       dev_rmap.html      \
+       dev_sf.html        \
+       get.html           \
+       get_download.html  \
+       get_install.html   \
+       get_faq.html       \
 
 INC  = general.m4 header.m4 footer.m4 menu.m4
 DIR  = ./HTML
@@ -19,7 +34,7 @@ DEST = $(FIC:%=$(DIR)/%)
 DINC = $(INC:%=$(SRC)/%)
 
 # Options obligatoires
-OPT = -Dtimestamp="date +%d/%b/%Y" -I$(SRC)
+OPT = -Dtimestamp="date +%d/%m/%Y" -I$(SRC)
 
 # default target: both fr and eng sites
 all: site
@@ -48,6 +63,7 @@ install: site
 	@echo "---------------------------"
 	@echo "Install Web Site"
 	@echo "---------------------------"
-	@scp ./HTML/* shell.sourceforge.net:/home/groups/t/ty/typhon/htdocs
+	chmod -R ugo+rX HTML/*
+	scp  -r ./HTML/* shell.sourceforge.net:/home/groups/t/ty/typhon/htdocs
 
 

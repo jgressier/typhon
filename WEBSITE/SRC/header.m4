@@ -24,7 +24,7 @@ dnl ========== contents frame ================================================
     <td bgcolor=FFFFFF width=100% class="defaut">
     write_menu_head
    <br>
-   <table width="80%" border=0 cellspacing=2 cellpadding=0>
+   <table width="100%" border=0 cellspacing=2 cellpadding=0>
    <tr><td class=titre>page_title</td></tr></table><br>
 
 
