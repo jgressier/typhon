@@ -1,0 +1,8 @@
+##!/bin/bash
+case `uname -s` in
+  Linux) echo Linux ;;
+  SunOS) echo SUN i ;;
+  HP-UX) echo HP    ;;
+  IRIX*) echo SGI   ;;
+  *)     echo unknown 
+esac
