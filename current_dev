@@ -4,7 +4,7 @@ Liste des développement courants
 * à ajouter dans  SOURCE/_DOC/VERSION et  SOURCE/_DOC/VERSION-changes
   lors de la définition de release
 * en liaison avec les développements à faire dans SOURCE/_DEV/TODO
-* remplir le fichier de description des tâches "task"
+* remplir le fichier de description des tâches "tasks"
 
 
 Task Dévlp.  R. cible début fin   Type  Développement
@@ -19,18 +19,24 @@ Task Dévlp.  R. cible début fin   Type  Développement
                0.1.4              KDIF  condition limite de rayonnement
                0.1.4              Val   maillage 3D TETRA et/ou HEXA
                0.1.4              IHM   affichage intermittent des itérations (mod(it,10))
+0005 Jérémie   0.1.4              Out   Définition de capteurs et historiques
      Emmanuel  0.2.0  18/07             Corrections de flux pour échanges espacés
-     Emmanuel  0.2.0        07/11 Coupl Première version de couplage stationnaire
-     Jérémie   0.2.0  15/09             Solveur Fluide Parfait - fonctionnalités de base
+     Jérémie   0.2.0  15/09       Make  Solveur Fluide Parfait - procédures de base
+0004 Emmanuel  0.2.0        07/11 Coupl Première version de couplage stationnaire
                0.2.0              Out   Sorties multiples (block:output)
                0.2.0                    Restructuration de MAIN/integration_cycle (split)
                0.2.0              Make  Suppression des structures de données STRMESH (1)
-               0.2.0                    Implicitation du solveur KDIF
-               0.2.0                    Définition de capteurs et historiques
+               0.2.0              Make  Restructuration des données SOLVEUR (structure commune)
+               0.2.0              Make  Initialisation conditionnelle MPI
+               0.2.0              KDIF  Implicitation du solveur KDIF
+               0.2.0              IHM   Lecture de vecteurs par menu RPM
+               0.2.0              IHM   Test des mots-clefs RPM non lus
+               1.0.0              AMR   Structuration des grilles/champs en arbre parent/frère
                1.0.0              Opt   Optimisation du calcul KDIF/flux COMPACT
+               1.0.0              Opt   Optimisation du calcul gradients (pré-inversion et rhs)
                1.0.0              Opt   Optimisation du calcul de loi polynomiale
-               1.0.0                    Restructuration des bibliothèques RPM
-               1.0.0                    Imbrication des blocs RPM
+               1.0.0              Make  Restructuration des bibliothèques RPM
+               1.0.0              IHM   Imbrication des blocs RPM
                1.0.0              Opt   Optimisation des structures de données pour l'accès mémoire
 --------------------------------------------------------------------------------------------------------
 (1) dans les modules (ZONE etc) et les procédures d'intégration spécifiques
