@@ -13,5 +13,5 @@ Pour créer une release, il est nécessaire de :
 - passer les tests de non-regression (NRG)
 - passer les tests de validation (et commenter éventuellement les résultats)
 - mettre à jour le numéro de version dans SOURCE/MODCOM/VARCOM.f90
-- mettre à jour le fichier SOURCE/_DOC/VERSIONS
+- mettre à jour le fichier SOURCE/_DOC/VERSION
 - "cvs tag rel-i-j-k" au niveau de TYPHON (ou "rtag" si working copy à jour)

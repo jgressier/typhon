@@ -2,14 +2,15 @@
 Liste des développement courants
 --------------------------------------------------------------------
 
-Développeur   début    fin prévue   Terminé  Développement
+Développeur   début     fin       Terminé  Développement
 --------------------------------------------------------------------
-Jérémie     11/07/03   fin juillet    Non    Ajout des capteurs (menu et structures)
-Emmanuel    11/07/03   fin juillet    Oui    Conductivité polynomiale
-Emmanuel    18/07/03   fin juillet    Non    Corrections de flux pour échanges espacés
-Emmanuel    28/07/03                  Oui    Débuggage (1)
-Emmanuel    29/07/03                  Oui    Calcul du nb de Fourier
-Emmanuel    29/07/03                  Oui    Procédure calcul des données (2) d'un raccord
+Jérémie     11/07/03   29/07/03     Oui    Ajout des bases pour capteurs (menu et structures)
+Emmanuel    11/07/03   28/07/03     Oui    Conductivité polynomiale
+Emmanuel    18/07/03  fin juillet   Non    Corrections de flux pour échanges espacés
+Emmanuel    28/07/03   ?            Oui    Corrections pour options de compilation sévères (1)
+Emmanuel    29/07/03   ?            Oui    Calcul du nombre de Fourier
+Emmanuel    29/07/03   ?            Oui    Procédure calcul des données (2) d'un raccord
+Jérémie     29/07/03   10/08/03     Non    Format de sortie TECPLOT avec connectivité des sommets
 
 (1) : def_time, def_spat, def_other, trait_zoneparam, integrationmacro_zone
 (2) : les différents indices : couplage et conditions limites pour chaque zone

@@ -8,6 +8,7 @@ LDIR := ZONE
 ZONE_LIB = libt_zone.a
 
 ZONE_MOD = BOUND.$(MOD)                  \
+           DEFCAPTEURS.$(MOD)            \
            DEFFIELD.$(MOD)               \
            DEFZONE.$(MOD)                \
            MENU_SOLVER.$(MOD)            \
