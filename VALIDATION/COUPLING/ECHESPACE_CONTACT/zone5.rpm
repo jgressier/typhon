@@ -1,5 +1,5 @@
 !------------------------------------------------------------------------------!
-! DEFINITION DE LA ZONE 1
+! DEFINITION DE LA ZONE 5
 !------------------------------------------------------------------------------!
 
 BLOCK:MESH
@@ -16,7 +16,7 @@ ENDBLOCK
 
 BLOCK:TIME_PARAM
   DTCALC = STABILITY_CONDITION
-  FOURIER = 0.4
+  FOURIER = 0.01
 ENDBLOCK
 
 BLOCK:SPAT_PARAM
@@ -47,7 +47,7 @@ BLOCK:BOCO
   FAMILY      = INTERFACE
   TYPE        = COUPLING
   METHOD      = GHOSTFACE  ! méthode de calcul du raccord : FLUX / GHOSTFACE / GHOSTCELL
-  CONNZONE    = "zone2"
+  CONNZONE    = "zone6"
   CONNFAM     = INTERFACE
   !TYPE       = ISOTHERMAL_WALL
   !WALL_TEMP  = 750.

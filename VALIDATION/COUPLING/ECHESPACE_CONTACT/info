@@ -1,16 +1,16 @@
 -------------------------------------------------
 CAS DE CONDUCTION DE LA CHALEUR 
-ECHANGES ESPACES, DIFFERENTES CORRECTIONS
+ECHANGES ESPACES
 MISE EN CONTACT DE MATERIAUX DE TEMPERATURES INITIALEMENT DIFFERENTES
 
 -------------------------------------------------
 EVOLUTION 1D, conduction constante
 -------------------------------------------------
-main.rpm      : fichier de paramètres du calcul couplé
-zone1.rpm     : fichier de paramètres des zones couplées impaires
-zone2.rpm     : fichier de paramètres des zones couplées paires
-geom1.cgns    : maillage au format CGNS des zones couplées impaires
-geom2.cgns    : maillage au format CGNS des zones couplées paires
+main.rpm                  : fichier de paramètres du calcul couplé
+zone1.rpm...zone7.rpm     : fichier de paramètres des zones couplées impaires
+zone2.rpm...zone8.rpm     : fichier de paramètres des zones couplées paires
+geom1.cgns                : maillage au format CGNS des zones couplées impaires
+geom2.cgns                : maillage au format CGNS des zones couplées paires
 
 -------------------------------------------------
 
@@ -20,8 +20,12 @@ geom2.cgns    : maillage au format CGNS des zones couplées paires
 * MODELE
  - conduction de la chaleur, modèle linéaire (lambda et capacité thermique 
    constants)
- - conductivité : zone1 : 0,2
-                  zone2 : 0,1
+ - conductivité : zone1, zone5, zone7 : 0,2
+                  zone2, zone4, zone6, zone8 : 0,1
+                  zone3 : 3.5
+ - nombre de Fourier d'intégration : zone1, zone2, zone6, zone8 : 0.4
+                                     zone3 : 0.01
+                                     zone7 : 0.3
 
 * CONDITIONS AUX LIMITES
  - isothermes aux extrémités gauche et droite (ENTREE : 1000 K et SORTIE :
@@ -30,10 +34,10 @@ geom2.cgns    : maillage au format CGNS des zones couplées paires
  - coupling à l'interface (INTERFACE), pour le cas de calcul couplé
 
 * CONDITIONS INITIALES
- - 1000 K dans zone1, 500 dans zone2
+ - 1000 K dans les zones impaires, 500 dans les zones paires
 
 * PARAMETRES DE SIMULATION
- - temps total 2000. pour s'assurer de la convergence (non mesurée)
+ - temps total 1000. pour s'assurer de la convergence (non mesurée)
  - pas de temps 1 pour l'intégration explicite
 
 * COUPLAGE
@@ -41,18 +45,11 @@ geom2.cgns    : maillage au format CGNS des zones couplées paires
  - interpolation compacte
  - maillages coincidents
 
- zone 1/zone 2 : référence : couplage à chaque pas
- zone 3/zone 4 : pas d'échange 2, coef de correction 0.5 (intermédiaire)
- zone 5/zone 6 : pas d'échange 4, coef de correction 0.5 (intermédiaire)
- zone 7/zone 8 : pas d'échange 2, coef de correction 0
- zone 9/zone 10 : pas d'échange 4, coef de correction 0
- zone 11/zone 12 : pas d'échange 2, coef de correction 1 
- zone 13/zone 14 : pas d'échange 4, coef de correction 1 
-
 -------------------------------------------------
 COMMENTAIRES SUR LA SOLUTION
 -------------------------------------------------
+- zone1 / zone2 : meme Fourier d'intégration de part et d'autre, Fourier de cycle < 3 dans les deux zones : correction avant et coef de correction 0.5
+- zone3 / zone4 : meme Fourier d'intégration de part et d'autre, Fourier de cycle > 3 dans la zone de gauche : correction apres et coef de correction 0.5
+- zone5 / zone6 : Fourier d'intégration de droite 40 fois supérieur à celui de gauche : correction avant, coef de correction 1
+- zone7 / zone8 : Fourier d'intégration de droite légèrement supérieur à celui de gauche : correction après et coef de correction 0.5
 
-- la précision est moins bonne quand le pas d'échange augmente
-- l'estimation du flux corrigé comme intermédiaire entre les flux accumulés à 
-  gauche et à droite de l'interface est à privilégier.

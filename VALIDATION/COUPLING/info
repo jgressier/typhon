@@ -50,8 +50,9 @@ ECHESPACE_CONTACT : validation des corrections de flux à l'interface pour
                     Cas : mise en contact de deux matériaux de températures
                      initiales différentes : flux à l'interface non nul dès
                      t=0s => corrections non nulles à réaliser dès le départ.
-                    Echanges tous les 1 (référence), 2 ou 4 pas de temps.
-                    !! A améliorer avec choix de corrections dans le menu ? !!
+                    Essai des différentes orientations possibles (placement
+                     de correction avant ou après, valeur du coefficient de 
+                     correction en fonction des nombres de Fourier)
 
 ECHESPACE_STABILITE : validation des corrections de flux en stabilité, maillage
                        1D.

@@ -1,5 +1,5 @@
 !------------------------------------------------------------------------------!
-! DEFINITION DE LA ZONE 1
+! DEFINITION DE LA ZONE 3
 !------------------------------------------------------------------------------!
 
 BLOCK:MESH
@@ -10,7 +10,7 @@ ENDBLOCK
 BLOCK:MODEL
   MATERIAL = DEFINITION
   MAT_TYPE = LIN
-  CONDUCT  = 0.2
+  CONDUCT  = 3.5
   HEATCAPA = 1.
 ENDBLOCK
 
@@ -47,7 +47,7 @@ BLOCK:BOCO
   FAMILY      = INTERFACE
   TYPE        = COUPLING
   METHOD      = GHOSTFACE  ! méthode de calcul du raccord : FLUX / GHOSTFACE / GHOSTCELL
-  CONNZONE    = "zone2"
+  CONNZONE    = "zone4"
   CONNFAM     = INTERFACE
   !TYPE       = ISOTHERMAL_WALL
   !WALL_TEMP  = 750.
