@@ -5,7 +5,6 @@
 !   Calcul des gradients d'un champ générique (conservatif ou primitif)
 !
 ! Defauts/Limitations/Divers :
-!   - le calcul des gradients ne doit se faire que sur les cellules internes
 !
 !------------------------------------------------------------------------------!
 subroutine calc_gradient(def_solver, mesh, gfield, grad)
@@ -149,14 +148,14 @@ do is = 1, gfield%nscal
     ic1  = mesh%facecell%fils(if,1)
     ic2  = mesh%facecell%fils(if,2)
     dsca = gfield%tabscal(is)%scal(ic2) - gfield%tabscal(is)%scal(ic1) 
-    rhs(1:3, ic1) = rhs(1:3, ic1) - dsca*tab(dcg(if))
+    rhs(1:3, ic1) = rhs(1:3, ic1) + dsca*tab(dcg(if))
     rhs(1:3, ic2) = rhs(1:3, ic2) + dsca*tab(dcg(if))
   enddo
   do if = nfi+1, nf
     ic1  = mesh%facecell%fils(if,1)
     ic2  = mesh%facecell%fils(if,2)
     dsca = gfield%tabscal(is)%scal(ic2) - gfield%tabscal(is)%scal(ic1) 
-    rhs(1:3, ic1) = rhs(1:3, ic1) - dsca*tab(dcg(if))
+    rhs(1:3, ic1) = rhs(1:3, ic1) + dsca*tab(dcg(if))
   enddo
 
   ! Resolution
