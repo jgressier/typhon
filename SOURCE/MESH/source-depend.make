@@ -25,7 +25,8 @@ MESH_OBJ = $(MESH_MOD:.$(MOD)=.o)  \
            extract_points.o        \
            extract_pts_index.o     \
            reorder_ustconnect.o    \
-           test_ustmesh.o   
+           test_ustmesh.o          \
+           verify_cellvtex.o
 
 
 D_MESH_OBJ = $(MESH_OBJ:%=$(PRJOBJ)/%)

@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : output_tec_ust              Auteur : J. Gressier
 !                                         Date   : Décembre 2002
-! Fonction                                Modif  : 
+! Fonction                                Modif  : cf Historique
 !   Ecriture fichier des champs NON STRUCTURES de chaque zone au format TECPLOT
 !
 ! Defauts/Limitations/Divers :
@@ -27,33 +27,55 @@ type(st_field)   :: field         ! champ de valeurs
 ! -- Declaration des sorties --
 
 ! -- Declaration des variables internes --
-integer   :: i
-integer   :: info
-type(v3d) :: vtex
+integer                :: i, if, ic
+integer                :: info
+type(v3d)              :: vtex
+type(st_genericfield)  :: vtexfield
+type(st_cellvtex)      :: cellvtex
+character(len=30)      :: sformat
 
 real(krp) :: a, b, L, T0, T1, alpha, beta, temp
 
 ! -- Debut de la procedure --
 
-write(uf_chpresu,*) 'ZONE T="USTMESH"' !, F=FEPOINT, N=',ust_mesh%nvtex,',E=',ncell
+! -- Calcul de la connectivité CELL->VTEX --
 
-! attention : il faut recalculer les points au sommets ou
-! écrire le maillage des centres de cellule
+call calc_cellvtex(ust_mesh%nbdim, cellvtex, ust_mesh%ncell, ust_mesh%ncell_int, &
+                   ust_mesh%facecell, ust_mesh%facevtex)
 
-do i = 1, ust_mesh%ncell
-!do i = 1, ust_mesh%ncell_int
-  vtex = ust_mesh%mesh%centre(i,1,1)
+call verify_cellvtex(ust_mesh%mesh, cellvtex)
 
-  write(uf_chpresu,'(4e18.8)') vtex%x, vtex%y, vtex%z, field%etatprim%tabscal(1)%scal(i)
+! -- Entete de fichier ---
 
+write(uf_chpresu,*) 'ZONE T="USTMESH", F=FEPOINT, N=',ust_mesh%nvtex, &
+                    ',E=',cellvtex%nquad,',ET=QUADRILATERAL'
+
+! -- Calcul des valeurs aux sommets --
+
+call new(vtexfield, ust_mesh%nvtex, field%etatprim%nscal, field%etatprim%nvect, 0)
+!!allocate(nsum(ust_mesh%nvtex))
+
+call interpol_onvtex(0, cellvtex, field%etatprim, vtexfield)
+
+do i = 1, vtexfield%dim
+  vtex = ust_mesh%mesh%vertex(i,1,1)
+  write(uf_chpresu,'(4e18.8)') vtex%x, vtex%y, vtex%z, vtexfield%tabscal(1)%scal(i)
 enddo
 
-! calcul de la connectivité sommets -> sommets
+! -- Ecriture de la connectivité --
 
-!do i = 1, ust_mesh%ncell
-!  vtex = ust_mesh%mesh%vertex(i)
-!  write(uf_chpresu,'(4e15.8)') vtex%x, vtex%y, vtex%z, 1._krp
-!enddo
+!!! UNIQUEMENT LES QUAD DANS CETTE VERSION
+
+!write(sformat,*) '(i8)'
+do i = 1, cellvtex%nquad
+  write(uf_chpresu, '(4i8)') cellvtex%quad%fils(i,1:4)
+enddo
+
+! desallocation
+
+call delete(vtexfield)
+call delete(cellvtex)
+!!deallocate(nsum)
 
 
 endsubroutine output_tec_ust
