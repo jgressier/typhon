@@ -75,6 +75,8 @@ enddo
 select case(defsolver%typ_solver)
 case(solNS, solKDIF)
   call calc_varcons(defsolver, champ)
+case(solVORTEX)
+  ! nothing to do
 case default
   call erreur("Incoherence interne (init_champ_ust)","type de solveur inconnu")
 endselect
