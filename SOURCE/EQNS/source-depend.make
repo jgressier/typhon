@@ -8,6 +8,7 @@ LDIR := EQNS
 EQNS_LIB = $(PRJLIB)/libt_eqns.a
 
 EQNS_MOD = EQNS.$(MOD)      \
+           LIMITER.$(MOD)   \
            MENU_NS.$(MOD)
 
 
@@ -21,6 +22,7 @@ EQNS_OBJ := $(EQNS_MOD:.$(MOD)=.o)    \
             def_boco_ns.o             \
             def_init_ns.o             \
             def_model_ns.o            \
+            hres_ns_muscl.o           \
             init_boco_ns.o            \
             init_ns_ust.o             \
             integration_ns_ust.o      \

@@ -63,7 +63,7 @@ do ifg = 1, grid%umesh%nface    ! boucle sur les faces de la grille locale
         iv2  = pgrid%umesh%facevtex%fils(if,2)
         x1   = pgrid%umesh%mesh%vertex(iv1, 1, 1)
         x2   = pgrid%umesh%mesh%vertex(iv2, 1, 1)
-        call coef_induc_pvortlin2d(face%centre-.00001*face%normale, face%normale, x1, x2, c1, c2)
+        call coef_induc_pvortlin2d(face%centre-.00001_krp*face%normale, face%normale, x1, x2, c1, c2)
         !print*,'fillmat1:',iv1, iv2, real( (/c1, c2/), 4)
         !print*,'fillmat2:',real( (/x1%x, x1%y, x2%x, x2%y /), 4)
         mat(ideb+ifg-1, irhs-1+iv1) = mat(ideb+ifg-1, irhs-1+iv1) + c1

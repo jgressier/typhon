@@ -49,10 +49,18 @@ integer(kpp), parameter :: sch_efmo     = 50
 integer(kpp), parameter :: sch_ausmm    = 50
 
 ! -- Constantes pour schema de calcul HIGH RESOLUTION
+character, parameter :: hres_none       = 'N'
 character, parameter :: hres_muscl      = 'M'
 character, parameter :: hres_eno        = 'E'
 character, parameter :: hres_weno       = 'W'
 character, parameter :: hres_spect      = 'S'
+
+! -- Constants for limiters
+character, parameter :: lim_none      = 'X'
+character, parameter :: lim_minmod    = 'M'
+character, parameter :: lim_albada    = 'A'
+character, parameter :: lim_vleer     = 'V'
+character, parameter :: lim_sbee      = 'S'
 
 ! -- Constantes pour schema de calcul des flux dissipatifs (sch_dis)
 integer(kpp), parameter :: dis_dif2 = 1     ! difference des 2 etats/face (NON CONSISTANT)
@@ -111,9 +119,10 @@ endtype mnu_time
 ! structure MNU_MUSCL : options numeriques pour la methode MUSCL
 !------------------------------------------------------------------------------!
 type mnu_muscl
+  integer(kpp)   :: sch_grad      ! type de schema pour les gradients
   real(krp)      :: precision     ! parametre de precision
   real(krp)      :: compression   ! parametre de compression
-  character      :: limiteur      ! limiteur (X) aucun, (M)inmod, (V)an Leer
+  character      :: limiter       ! limiteur (X) aucun, (M)inmod, (V)an Leer
                                   !          (A) Van Albada, (S)uperbee
 endtype mnu_muscl
 

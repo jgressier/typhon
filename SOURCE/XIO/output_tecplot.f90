@@ -14,6 +14,7 @@ use TYPHMAKE
 use OUTPUT
 use VARCOM
 use MODWORLD
+use MESHBASE
 
 implicit none
 
@@ -63,7 +64,7 @@ if (position == end_calc) then  !DEV2602
 
         do i = 1, vfield%dim
           vfield%tabvect(1)%vect(i) = world%zone(izone)%grid%umesh%mesh%iface(i,1,1)%centre &
-                                      - .0000001*world%zone(izone)%grid%umesh%mesh%iface(i,1,1)%normale
+                                      - .0000001_krp*world%zone(izone)%grid%umesh%mesh%iface(i,1,1)%normale
         enddo
 
         call calc_induced_velocities(world%zone(izone)%defsolver,   &

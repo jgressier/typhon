@@ -39,23 +39,23 @@ interface sqrabs
 endinterface
 
 interface operator(+)
-  module procedure v3d_addition
+  module procedure v3d_addition, v3d_addition_t
 endinterface
 
 interface operator(-)
-  module procedure v3d_substraction, v3d_opp
+  module procedure v3d_substraction, v3d_opp, v3d_substraction_t, v3d_opp_t
 endinterface
 
 interface operator(*)
-  module procedure v3d_multiplysp, v3d_multiplydp
+  module procedure v3d_multiply, v3d_multiply_t, v3d_multiply_tt
 endinterface
 
 interface operator(/)
-  module procedure v3d_divisionsp, v3d_divisiondp
+  module procedure v3d_division, v3d_division_t, v3d_division_tt
 endinterface
 
 interface operator(.scal.)
-  module procedure v3d_scalar_product
+  module procedure v3d_scalar_product, v3d_scalar_product_t
 endinterface
 
 interface operator(.vect.)
@@ -117,12 +117,12 @@ integer :: id, if
   if   = scan(str, ')')
   pstr = chg_char(str(id+1:if-1),',',' ') 
   read(pstr,*,iostat=info) v3d_fromstr !%x, v3d_fromstr%z, v3d_fromstr%y
-  print*,"TEST V3D",info,":", v3d_fromstr
+  print*,"TEST STR->V3D",info,":", v3d_fromstr
 
 endfunction v3d_fromstr
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul addition de vecteur
+! Fonction : vector addition
 !------------------------------------------------------------------------------!
 type(v3d) function v3d_addition(v1, v2)
 implicit none
@@ -135,7 +135,26 @@ type(v3d), intent(in) :: v1, v2
 endfunction v3d_addition
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul difference de vecteur
+! Fonction : vector addition (array)
+!------------------------------------------------------------------------------!
+function v3d_addition_t(v1, v2) result(tv)
+implicit none
+type(v3d), dimension(:), intent(in) :: v1, v2
+type(v3d), dimension(size(v1))      :: tv
+integer :: i, n
+
+  n = size(v1)
+  if (size(v2) /= n) stop
+  do i = 1, n
+    tv(i)%x = v1(i)%x + v2(i)%x 
+    tv(i)%y = v1(i)%y + v2(i)%y 
+    tv(i)%z = v1(i)%z + v2(i)%z 
+  enddo
+
+endfunction v3d_addition_t
+
+!------------------------------------------------------------------------------!
+! Fonction : vector substraction
 !------------------------------------------------------------------------------!
 type(v3d) function v3d_substraction(v1, v2)
 implicit none
@@ -148,7 +167,26 @@ type(v3d), intent(in) :: v1, v2
 endfunction v3d_substraction
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul de l'oppose d'un vecteur
+! Fonction : vector substraction (array)
+!------------------------------------------------------------------------------!
+function v3d_substraction_t(v1, v2) result(tv)
+implicit none
+type(v3d), dimension(:), intent(in) :: v1, v2
+type(v3d), dimension(size(v1))      :: tv
+integer :: i, n
+
+  n = size(v1)
+  if (size(v2) /= n) stop
+  do i = 1, n
+    tv(i)%x = v1(i)%x - v2(i)%x 
+    tv(i)%y = v1(i)%y - v2(i)%y 
+    tv(i)%z = v1(i)%z - v2(i)%z 
+  enddo
+
+endfunction v3d_substraction_t
+
+!------------------------------------------------------------------------------!
+! Fonction : vector opposite
 !------------------------------------------------------------------------------!
 type(v3d) function v3d_opp(v)
 implicit none
@@ -161,63 +199,124 @@ type(v3d), intent(in) :: v
 endfunction v3d_opp
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul de multiplication de vecteur par reel
+! Fonction : vector opposite (array)
 !------------------------------------------------------------------------------!
-type(v3d) function v3d_multiplysp(x, v)
+function v3d_opp_t(v) result(tv)
 implicit none
-real(4),   intent(in) :: x
+type(v3d), dimension(:), intent(in) :: v
+type(v3d), dimension(size(v))      :: tv
+integer :: i
+
+  do i = 1, size(v)
+    tv(i)%x = - v(i)%x 
+    tv(i)%y = - v(i)%y 
+    tv(i)%z = - v(i)%z 
+  enddo
+
+endfunction v3d_opp_t
+
+!------------------------------------------------------------------------------!
+! Fonction : vector multiplied par real
+!------------------------------------------------------------------------------!
+type(v3d) function v3d_multiply(x, v)
+implicit none
+real(krp),   intent(in) :: x
 type(v3d), intent(in) :: v
 
-  v3d_multiplysp%x = x * v%x 
-  v3d_multiplysp%y = x * v%y 
-  v3d_multiplysp%z = x * v%z 
+  v3d_multiply%x = x * v%x 
+  v3d_multiply%y = x * v%y 
+  v3d_multiply%z = x * v%z 
 
-endfunction v3d_multiplysp
+endfunction v3d_multiply
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul de multiplication de vecteur par reel
+! Fonction : vector multiplied par real (array)
 !------------------------------------------------------------------------------!
-type(v3d) function v3d_multiplydp(x, v)
+function v3d_multiply_t(x, v) result(tv)
 implicit none
-real(8),   intent(in) :: x
+real(krp), intent(in) :: x
+type(v3d), dimension(:), intent(in) :: v
+type(v3d), dimension(size(v))       :: tv
+integer :: i
+
+  do i = 1, size(v)
+    tv(i)%x = x * v(i)%x 
+    tv(i)%y = x * v(i)%y 
+    tv(i)%z = x * v(i)%z 
+  enddo
+
+endfunction v3d_multiply_t
+
+!------------------------------------------------------------------------------!
+! Fonction : vector multiplied par real (array*array)
+!------------------------------------------------------------------------------!
+function v3d_multiply_tt(x, v) result(tv)
+implicit none
+real(krp), dimension(:), intent(in) :: x
+type(v3d), dimension(:), intent(in) :: v
+type(v3d), dimension(size(v))       :: tv
+integer :: i
+
+  do i = 1, size(v)
+    tv(i)%x = x(i) * v(i)%x 
+    tv(i)%y = x(i) * v(i)%y 
+    tv(i)%z = x(i) * v(i)%z 
+  enddo
+
+endfunction v3d_multiply_tt
+
+!------------------------------------------------------------------------------!
+! Fonction :  vector divided par real
+!------------------------------------------------------------------------------!
+type(v3d) function v3d_division(v,x)
+implicit none
+real(krp), intent(in) :: x
 type(v3d), intent(in) :: v
 
-  v3d_multiplydp%x = x * v%x 
-  v3d_multiplydp%y = x * v%y 
-  v3d_multiplydp%z = x * v%z 
+  v3d_division%x = v%x / x   ! DEV / a optimiser
+  v3d_division%y = v%y / x
+  v3d_division%z = v%z / x 
 
-endfunction v3d_multiplydp
+endfunction v3d_division
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul de division de vecteur par reel
+! Fonction : vector divided par real (array)
 !------------------------------------------------------------------------------!
-type(v3d) function v3d_divisionsp(v,x)
+function v3d_division_t(x, v) result(tv)
 implicit none
-real(4),   intent(in) :: x
-type(v3d), intent(in) :: v
+real(krp), intent(in) :: x
+type(v3d), dimension(:), intent(in) :: v
+type(v3d), dimension(size(v))       :: tv
+integer :: i
 
-  v3d_divisionsp%x = v%x / x   ! DEV / a optimiser
-  v3d_divisionsp%y = v%y / x
-  v3d_divisionsp%z = v%z / x 
+  do i = 1, size(v)
+    tv(i)%x = v(i)%x /x
+    tv(i)%y = v(i)%y /x
+    tv(i)%z = v(i)%z /x
+  enddo
 
-endfunction v3d_divisionsp
+endfunction v3d_division_t
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul de division de vecteur par reel
+! Fonction : vector divided par real (array*array)
 !------------------------------------------------------------------------------!
-type(v3d) function v3d_divisiondp(v,x)
+function v3d_division_tt(x, v) result(tv)
 implicit none
-real(8),   intent(in) :: x
-type(v3d), intent(in) :: v
+real(krp), dimension(:), intent(in) :: x
+type(v3d), dimension(:), intent(in) :: v
+type(v3d), dimension(size(v))       :: tv
+integer :: i
 
-  v3d_divisiondp%x = v%x / x    ! DEV / a optimiser
-  v3d_divisiondp%y = v%y / x
-  v3d_divisiondp%z = v%z / x 
+  do i = 1, size(v)
+    tv(i)%x = v(i)%x /x(i)
+    tv(i)%y = v(i)%y /x(i)
+    tv(i)%z = v(i)%z /x(i)
+  enddo
 
-endfunction v3d_divisiondp
+endfunction v3d_division_tt
 
 !------------------------------------------------------------------------------!
-! Fonction : norme de vecteur
+! Fonction : vector magnitude
 !------------------------------------------------------------------------------!
 real(krp) function v3d_norme(v)
 implicit none
@@ -227,9 +326,8 @@ type(v3d), intent(in) :: v
 
 endfunction v3d_norme
 
-
 !------------------------------------------------------------------------------!
-! Fonction : carre de la norme de vecteur
+! Fonction : square of norme magnitude
 !------------------------------------------------------------------------------!
 real(krp) function v3d_sqrnorme(v)
 implicit none
@@ -240,7 +338,7 @@ type(v3d), intent(in) :: v
 endfunction v3d_sqrnorme
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul de produit scalaire
+! Fonction : dot product
 !------------------------------------------------------------------------------!
 real(krp) function v3d_scalar_product(v1, v2)
 implicit none
@@ -249,6 +347,23 @@ type(v3d), intent(in) :: v1, v2
   v3d_scalar_product = v1%x*v2%x + v1%y*v2%y + v1%z*v2%z
 
 endfunction v3d_scalar_product
+
+!------------------------------------------------------------------------------!
+! Fonction : dot product (array)
+!------------------------------------------------------------------------------!
+function v3d_scalar_product_t(v1, v2) result(tv)
+implicit none
+type(v3d), dimension(:), intent(in) :: v1, v2
+real(krp), dimension(size(v1))      :: tv
+integer :: i, n
+
+  n = size(v1)
+  if (size(v2) /= n) stop
+  do i = 1, n
+    tv(i) = v1(i)%x*v2(i)%x + v1(i)%y*v2(i)%y + v1(i)%z*v2(i)%z
+  enddo
+
+endfunction v3d_scalar_product_t
 
 !------------------------------------------------------------------------------!
 ! Fonction : produit vectoriel

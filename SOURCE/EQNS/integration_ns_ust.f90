@@ -38,6 +38,7 @@ type(st_genericfield)   :: flux        ! flux physiques
 real(krp), dimension(*) :: jacL, jacR  ! jacobiennes associees (gauche et droite)
 
 ! -- Declaration des variables internes --
+logical :: gradneeded           ! use gradients or not
 integer :: if, nfb              ! index de face et taille de bloc courant
 integer :: nbuf                 ! taille de buffer 
 integer :: ib, nbloc            ! index de bloc et nombre de blocs
@@ -72,24 +73,40 @@ ideb = 1
 
 do ib = 1, nbloc
 
-  do it = 1, nfb
-    if  = ideb+it-1
-    icl = domaine%facecell%fils(if,1)
-    icr = domaine%facecell%fils(if,2)
-    !grad_l(it) = field%gradient%tabvect(1)%vect(icl)
-    !grad_r(it) = field%gradient%tabvect(1)%vect(icr)
-    cell_l(it)%density  = field%etatprim%tabscal(1)%scal(icl)
-    cell_r(it)%density  = field%etatprim%tabscal(1)%scal(icr)
-    cell_l(it)%pressure = field%etatprim%tabscal(2)%scal(icl)
-    cell_r(it)%pressure = field%etatprim%tabscal(2)%scal(icr)
-    cell_l(it)%velocity = field%etatprim%tabvect(1)%vect(icl)
-    cell_r(it)%velocity = field%etatprim%tabvect(1)%vect(icr)
-    cg_l(it)   = domaine%mesh%centre(icl, 1, 1)
-    cg_r(it)   = domaine%mesh%centre(icr, 1, 1)
-  enddo
+  select case(defspat%method)
 
-  ! - dans une version ulterieure, il sera necessaire de faire intervenir les gradients
+  case(hres_none)
+
+    do it = 1, nfb
+      if  = ideb+it-1
+      icl = domaine%facecell%fils(if,1)
+      icr = domaine%facecell%fils(if,2)
+      cell_l(it)%density  = field%etatprim%tabscal(1)%scal(icl)
+      cell_r(it)%density  = field%etatprim%tabscal(1)%scal(icr)
+      cell_l(it)%pressure = field%etatprim%tabscal(2)%scal(icl)
+      cell_r(it)%pressure = field%etatprim%tabscal(2)%scal(icr)
+      cell_l(it)%velocity = field%etatprim%tabvect(1)%vect(icl)
+      cell_r(it)%velocity = field%etatprim%tabvect(1)%vect(icr)
+    enddo
+  
   ! - l'acces au tableau flux n'est pas programme de maniere generale !!! DEV
+
+  !----------------------------------------------------------------------
+  ! HIGH ORDER states interpolation
+  !----------------------------------------------------------------------
+  case(hres_muscl)
+
+    call hres_ns_muscl(defspat, nfb, ideb, domaine,      &
+                       field%etatprim, field%gradient,   &
+                       cell_l, cell_r)
+
+  case default
+    call erreur("flux computation","unknown high resolution method")
+  endselect
+
+  !----------------------------------------------------------------------
+  ! computation of INVISCID fluxes
+  !----------------------------------------------------------------------
 
   ifin = ideb+nfb-1
 
@@ -97,10 +114,10 @@ do ib = 1, nbloc
   case(sch_hlle)
     call calc_flux_hlle(defsolver, defspat,                             &
                         nfb, domaine%mesh%iface(ideb:ifin, 1, 1),       &
-                        cg_l, cell_l, cg_r, cell_r, flux, ideb,         &
+                        cell_l, cell_r, flux, ideb,                     &
                         calc_jac, jacL(ideb:ifin), jacR(ideb:ifin))
   case default
-    call erreur("erreur","schema numerique non implemente (calcul de flux)")
+    call erreur("error","numerical scheme not implemented (flux computation)")
   endselect
 
   ideb = ideb + nfb
@@ -110,7 +127,6 @@ enddo
 
 deallocate(grad_l, grad_r, cell_l, cell_r, cg_l, cg_r)
 
-call fluxlimite(defsolver, domaine, flux)
 
 endsubroutine integration_ns_ust
 
@@ -118,4 +134,5 @@ endsubroutine integration_ns_ust
 ! Changes history
 !
 ! july 2004 : creation de la procedure
+! nov  2004 : high order interpolation
 !------------------------------------------------------------------------------!

@@ -78,35 +78,53 @@ case(solNS)
     call erreur("parameters parsing","unknown numerical scheme")
 
   ! -- Methode de calcul des flux dissipatifs --
-  call get_dissipativeflux()
-
-  ! -- High resolution order
-  call rpmgetkeyvalint(pcour, "ORDER", defspat%order, 1_kpp)
+  call get_gradientmethod("DISSIPATIVE_FLUX", defspat%sch_dis)
 
   ! -- High resolution method
   defspat%method = cnull
-  select case(defspat%order)
-  case(1)
-    ! nothing to do
-  case(2)
-    call rpmgetkeyvalstr(pcour, "HIGHRES", str, "MUSCL")
-    if (samestring(str,"MUSCL"))     defspat%method = hres_muscl
-    if (samestring(str,"ENO"))       defspat%method = hres_eno
-    if (samestring(str,"WENO"))      defspat%method = hres_weno
-    if (samestring(str,"SPECTRAL"))  defspat%method = hres_spect
-
-    if (defspat%method == cnull) &
-      call erreur("parameters parsing","unexpected high resolution method")
+  call rpmgetkeyvalstr(pcour, "HIGHRES", str, "NONE")
+  if (samestring(str,"NONE"))      defspat%method = hres_none
+  if (samestring(str,"MUSCL"))     defspat%method = hres_muscl
+  if (samestring(str,"ENO"))       defspat%method = hres_eno
+  if (samestring(str,"WENO"))      defspat%method = hres_weno
+  if (samestring(str,"SPECTRAL"))  defspat%method = hres_spect
+  
+  if (defspat%method == cnull) &
+    call erreur("parameters parsing","unexpected high resolution method")
     
+  select case(defspat%method)
+  case(hres_none)
+
+  case(hres_muscl)
+
+    ! -- High resolution order
+    call rpmgetkeyvalint(pcour, "ORDER", defspat%order, 2_kpp)
+
+    ! -- High resolution gradient computation
+    call get_gradientmethod("GRADIENT", defspat%muscl%sch_grad)
+
+    defspat%muscl%limiter = cnull
+    call rpmgetkeyvalstr(pcour, "LIMITER", str, "VAN_ALBADA")
+    if (samestring(str,"NONE"))        defspat%muscl%limiter = lim_none
+    if (samestring(str,"MINMOD"))      defspat%muscl%limiter = lim_minmod
+    if (samestring(str,"VAN_ALBADA"))  defspat%muscl%limiter = lim_albada
+    if (samestring(str,"ALBADA"))      defspat%muscl%limiter = lim_albada
+    if (samestring(str,"VAN_LEER"))    defspat%muscl%limiter = lim_vleer
+    if (samestring(str,"VANLEER"))     defspat%muscl%limiter = lim_vleer
+    if (samestring(str,"SUPERBEE"))    defspat%muscl%limiter = lim_sbee
+
+    if (defspat%muscl%limiter == cnull) &
+      call erreur("parameters parsing","unexpected high resolution limiter")
+
   case default
-    call erreur("parameters parsing","unexpected order of high resolution scheme")
+    call erreur("parameters parsing","unexpected high resolution method")
   endselect
   
 
 case(solKDIF)
 
   ! -- Methode de calcul des flux dissipatifs --
-  call get_dissipativeflux()
+  call get_gradientmethod("DISSIPATIVE_FLUX", defspat%sch_dis)
 
 case(solVORTEX)
 
@@ -115,21 +133,24 @@ endselect
 contains
 
   !-------------------------------------------------------------------------
-  ! get method for dissipativ flux computation
+  ! get method for dissipative flux computation
   !-------------------------------------------------------------------------
-  subroutine get_dissipativeflux
+  subroutine get_gradientmethod(keyword, sch)
 
-    call rpmgetkeyvalstr(pcour, "DISSIPATIVE_FLUX", str, "FULL")
-    defspat%sch_dis = inull
+  character(len=*), intent(in)  :: keyword
+  integer(kpp),     intent(out) :: sch
 
-    if (samestring(str,"COMPACT")) defspat%sch_dis = dis_dif2
-    if (samestring(str,"AVERAGE")) defspat%sch_dis = dis_avg2
-    if (samestring(str,"FULL"))    defspat%sch_dis = dis_full
+    call rpmgetkeyvalstr(pcour, keyword, str, "FULL")
+    sch = inull
 
-    if (defspat%sch_dis == inull) &
+    if (samestring(str,"COMPACT")) sch = dis_dif2
+    if (samestring(str,"AVERAGE")) sch = dis_avg2
+    if (samestring(str,"FULL"))    sch = dis_full
+
+    if (sch == inull) &
          call erreur("parameters parsing","unknown DISSIPATIVE_FLUX method")
 
-    select case(defspat%sch_dis)
+    select case(sch)
     case(dis_dif2)
   
     case(dis_avg2)
@@ -138,7 +159,7 @@ contains
       defspat%calc_grad = .true.
     endselect
 
-  endsubroutine get_dissipativeflux
+  endsubroutine get_gradientmethod
 
 endsubroutine def_spat
 

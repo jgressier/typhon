@@ -71,14 +71,14 @@ do if = 1, nface
   select case(ns)
 
   case(2)
-    norm = v3d(0.,0.,1.) .vect. (vtex(2)-vtex(1))
+    norm = v3d(0._krp,0._krp,1._krp) .vect. (vtex(2)-vtex(1))
     surf = abs(norm)
     mesh%iface(if,1,1)%normale = norm / surf
     mesh%iface(if,1,1)%surface = surf
-    cgface(if) = .5*(vtex(1) + vtex(2))
+    cgface(if) = .5_krp*(vtex(1) + vtex(2))
 
   case(3)
-    norm = .5 * ( (vtex(2)-vtex(1)) .vect. (vtex(3)-vtex(1)) )
+    norm = .5_krp * ( (vtex(2)-vtex(1)) .vect. (vtex(3)-vtex(1)) )
     surf = abs(norm)
     mesh%iface(if,1,1)%normale = norm / surf
     mesh%iface(if,1,1)%surface = surf
@@ -86,11 +86,11 @@ do if = 1, nface
 
   case(4)
     ! calcul du premier triangle elementaire
-    norm = .5 * ( (vtex(2)-vtex(1)) .vect. (vtex(3)-vtex(1)) )
+    norm = .5_krp * ( (vtex(2)-vtex(1)) .vect. (vtex(3)-vtex(1)) )
     s1   = abs(norm)
     cg1  = (vtex(1) + vtex(2) + vtex(3)) / 3._krp
     ! calcul du second triangle elementaire
-    pt   = .5 * ( (vtex(3)-vtex(1)) .vect. (vtex(4)-vtex(1)) )
+    pt   = .5_krp * ( (vtex(3)-vtex(1)) .vect. (vtex(4)-vtex(1)) )
     s2   = abs(pt) 
     cg2  = (vtex(1) + vtex(3) + vtex(4)) / 3._krp
     ! calcul des normales et surfaces

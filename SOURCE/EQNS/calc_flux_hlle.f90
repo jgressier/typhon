@@ -8,7 +8,7 @@
 !
 !------------------------------------------------------------------------------!
 subroutine calc_flux_hlle(defsolver, defspat, nflux, face,        &
-                          cg_l, cell_l, cg_r, cell_r, flux, ideb, &
+                          cell_l, cell_r, flux, ideb,             &
                           calc_jac, jacL, jacR)
 use TYPHMAKE
 use OUTPUT
@@ -29,8 +29,6 @@ integer               :: nflux            ! nombre de flux (face) a calculer
 integer               :: ideb             ! indice du premier flux a remplir
 type(st_face), dimension(1:nflux) & 
                       :: face             ! donnees geometriques des faces
-type(v3d), dimension(1:nflux) &
-                      :: cg_l, cg_r       ! centres des cellules
 type(st_nsetat), dimension(1:nflux) &
                       :: cell_l, cell_r   ! champs des valeurs primitives
 logical               :: calc_jac         ! choix de calcul de la jacobienne

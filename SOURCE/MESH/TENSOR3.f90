@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------!
-! MODULE : TENSOR3                          Auteur : J. Gressier
-!                                         Date   : Mai 2002
+! MODULE : TENSOR3                        Auteur : J. Gressier
+!                                         Date   : July 2003
 ! Fonction                                Modif  :
 !   Bibliotheque de procedures et fonctions pour le calcul geometrique 3D
 !
@@ -11,6 +11,7 @@
 module TENSOR3
 
 use TYPHMAKE
+use GEO3D
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
@@ -24,25 +25,26 @@ endtype
 !  module procedure v3d_norme
 !endinterface
 
-!interface operator(+)
-!  module procedure v3d_addition
-!endinterface
+interface operator(+)
+  module procedure t3d_addition, t3d_addition_t
+endinterface
 
-!interface operator(-)
-!  module procedure v3d_substraction, v3d_opp
-!endinterface
+interface operator(-)
+  module procedure t3d_substraction, t3d_opp, t3d_substraction_t 
+endinterface
 
-!interface operator(*)
-!  module procedure v3d_multiply
-!endinterface
+interface operator(*)
+  module procedure t3d_multiply, t3d_multiply_t, t3d_multiply_tt, t3d_multvect, t3d_multvect_tt, &
+                   t3d_tensorial_product, t3d_tensorial_product_t
+endinterface
 
-!interface operator(/)
-!  module procedure v3d_division
-!endinterface
+interface operator(/)
+  module procedure t3d_division
+endinterface
 
-!interface operator(.scal.)
-!  module procedure v3d_scalar_product
-!endinterface
+interface operator(.scal.)
+  module procedure t3d_scalar_product, t3d_scalar_product_t
+endinterface
 
 !interface operator(.vect.)
 !  module procedure v3d_vectorial_product
@@ -52,74 +54,170 @@ endtype
 
 
 ! -- IMPLEMENTATION ---------------------------------------------------------
-!contains
+contains
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul de somme de vecteur
+! Fonction : tensor addition
 !------------------------------------------------------------------------------!
-!type(v3d) function v3d_addition(v1, v2)
-!implicit none
-!type(v3d), intent(in) :: v1, v2
+type(t3d) function t3d_addition(v1, v2)
+implicit none
+type(t3d), intent(in) :: v1, v2
 
-!  v3d_addition%x = v1%x + v2%x 
-!  v3d_addition%y = v1%y + v2%y 
-!  v3d_addition%z = v1%z + v2%z 
+  t3d_addition%mat = v1%mat + v2%mat
 
-!endfunction v3d_addition
+endfunction t3d_addition
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul difference de vecteur
+! Fonction : tensor + tensor (arrays)
 !------------------------------------------------------------------------------!
-!type(v3d) function v3d_substraction(v1, v2)
-!implicit none
-!type(v3d), intent(in) :: v1, v2
+function t3d_addition_t(t1, t2) result(tr)
+implicit none
+type(t3d), intent(in) :: t1(:), t2(:)
+type(t3d), dimension(size(t1)) :: tr
+integer :: i
 
-!  v3d_substraction%x = v1%x - v2%x 
-!  v3d_substraction%y = v1%y - v2%y 
-!  v3d_substraction%z = v1%z - v2%z 
+  do i = 1, size(t1)
+    tr(i)%mat = t1(i)%mat + t2(i)%mat
+  enddo
 
-!endfunction v3d_substraction
-
-!------------------------------------------------------------------------------!
-! Fonction : calcul de l'oppose d'un vecteur
-!------------------------------------------------------------------------------!
-!type(v3d) function v3d_opp(v)
-!implicit none
-!type(v3d), intent(in) :: v
-
-!  v3d_opp%x = - v%x 
-!  v3d_opp%y = - v%y 
-!  v3d_opp%z = - v%z 
-
-!endfunction v3d_opp
+endfunction t3d_addition_t
 
 !------------------------------------------------------------------------------!
-! Fonction : calcul de multiplication de vecteur par reel
+! Fonction : tensor substraction
 !------------------------------------------------------------------------------!
-!type(v3d) function v3d_multiply(x, v)
-!implicit none
-!real(krp), intent(in) :: x
-!type(v3d),   intent(in) :: v
+type(t3d) function t3d_substraction(v1, v2)
+implicit none
+type(t3d), intent(in) :: v1, v2
 
-!  v3d_multiply%x = x * v%x 
-!  v3d_multiply%y = x * v%y 
-!  v3d_multiply%z = x * v%z 
+  t3d_substraction%mat = v1%mat - v2%mat 
 
-!endfunction v3d_multiply
+endfunction t3d_substraction
+
+!------------------------------------------------------------------------------!
+! Fonction : tensor - tensor (arrays)
+!------------------------------------------------------------------------------!
+function t3d_substraction_t(t1, t2) result(tr)
+implicit none
+type(t3d), intent(in) :: t1(:), t2(:)
+type(t3d), dimension(size(t1)) :: tr
+integer :: i
+
+  do i = 1, size(t1)
+    tr(i)%mat = t1(i)%mat - t2(i)%mat
+  enddo
+
+endfunction t3d_substraction_t
+
+!------------------------------------------------------------------------------!
+! Fonction : opposite tensor
+!------------------------------------------------------------------------------!
+type(t3d) function t3d_opp(v)
+implicit none
+type(t3d), intent(in) :: v
+
+  t3d_opp%mat = - v%mat
+
+endfunction t3d_opp
+
+!------------------------------------------------------------------------------!
+! Fonction : transpose tensor
+!------------------------------------------------------------------------------!
+type(t3d) function t3d_transp(t)
+implicit none
+type(t3d), intent(in) :: t
+
+  t3d_transp%mat = transpose(t%mat)
+
+endfunction t3d_transp
+
+!------------------------------------------------------------------------------!
+! Fonction : scalar * tensor
+!------------------------------------------------------------------------------!
+type(t3d) function t3d_multiply(x, v)
+implicit none
+real(krp), intent(in) :: x
+type(t3d), intent(in) :: v
+
+  t3d_multiply%mat = x * v%mat
+
+endfunction t3d_multiply
+
+!------------------------------------------------------------------------------!
+! Fonction : scalar * tensor (array)
+!------------------------------------------------------------------------------!
+function t3d_multiply_t(x, t) result(tr)
+implicit none
+real(krp), intent(in) :: x
+type(t3d), intent(in) :: t(:)
+type(t3d), dimension(size(t)) :: tr
+integer :: i
+
+  do i = 1, size(t)
+    tr(i)%mat = x * t(i)%mat
+  enddo
+
+endfunction t3d_multiply_t
+
+!------------------------------------------------------------------------------!
+! Fonction : scalar (array) * tensor (array)
+!------------------------------------------------------------------------------!
+function t3d_multiply_tt(x, v) result(tr)
+implicit none
+real(krp), intent(in) :: x(:)
+type(t3d), intent(in) :: v(:)
+type(t3d), dimension(size(v)) :: tr
+integer :: i
+
+  do i = 1, size(v)
+    tr(i)%mat = x(i) * v(i)%mat
+  enddo
+
+endfunction t3d_multiply_tt
+
+!------------------------------------------------------------------------------!
+! Fonction : vector * tensor
+!------------------------------------------------------------------------------!
+function t3d_multvect(v, t) result(tr)
+implicit none
+type(v3d), intent(in) :: v
+type(t3d), intent(in) :: t
+type(t3d) :: tr
+
+  tr%mat(1,:) = v%x * t%mat(1,:)
+  tr%mat(2,:) = v%y * t%mat(2,:)
+  tr%mat(3,:) = v%z * t%mat(3,:)
+
+endfunction t3d_multvect
+
+!------------------------------------------------------------------------------!
+! Fonction : scalar (array) * tensor (array)
+!------------------------------------------------------------------------------!
+function t3d_multvect_tt(v, t) result(tr)
+implicit none
+type(v3d), intent(in) :: v(:)
+type(t3d), intent(in) :: t(:)
+type(t3d), dimension(size(v)) :: tr
+integer :: i
+
+  do i = 1, size(v)
+    tr(i)%mat(1,:) = v(i)%x * t(i)%mat(1,:)
+    tr(i)%mat(2,:) = v(i)%y * t(i)%mat(2,:)
+    tr(i)%mat(3,:) = v(i)%z * t(i)%mat(3,:)
+  enddo
+
+endfunction t3d_multvect_tt
 
 !------------------------------------------------------------------------------!
 ! Fonction : calcul de division de vecteur par reel
 !------------------------------------------------------------------------------!
-!type(v3d) function v3d_division(v,x)
-!implicit none
-!real(krp), intent(in) :: x
-!type(v3d),   intent(in) :: v
+type(t3d) function t3d_division(v,x)
+implicit none
+real(krp), intent(in) :: x
+type(t3d),   intent(in) :: v
 
-!  v3d_division%x = v%x / x 
-!  v3d_division%y = v%y / x
-!  v3d_division%z = v%z / x 
+  t3d_division%mat = v%mat / x
 
-!endfunction v3d_division
+endfunction t3d_division
 
 !------------------------------------------------------------------------------!
 ! Fonction : norme de vecteur
@@ -135,28 +233,68 @@ endtype
 !------------------------------------------------------------------------------!
 ! Fonction : calcul de produit scalaire
 !------------------------------------------------------------------------------!
-!real(krp) function v3d_scalar_product(v1, v2)
-!implicit none
-!type(v3d), intent(in) :: v1, v2
+type(v3d) function t3d_scalar_product(t, v)
+implicit none
+type(t3d), intent(in) :: t
+type(v3d), intent(in) :: v
 
-!  v3d_scalar_product = v1%x*v2%x + v1%y*v2%y + v1%z*v2%z
+  t3d_scalar_product = v3d_of(matmul(t%mat, tab(v)))
 
-!endfunction v3d_scalar_product
+endfunction t3d_scalar_product
 
 !------------------------------------------------------------------------------!
-! Fonction : produit vectoriel
+! Fonction : calcul de produit scalaire
 !------------------------------------------------------------------------------!
-!type(v3d) function v3d_vectorial_product(v1, v2)
-!implicit none
-!type(v3d), intent(in) :: v1, v2
+function t3d_scalar_product_t(t, v) result(vt)
+implicit none
+type(t3d), intent(in) :: t(:)
+type(v3d), intent(in) :: v(:)
+type(v3d), dimension(size(t)) :: vt
+integer :: i
 
-!  v3d_vectorial_product%x = v1%y*v2%z - v1%z*v2%y
-!  v3d_vectorial_product%y = v1%z*v2%x - v1%x*v2%z
-!  v3d_vectorial_product%z = v1%x*v2%y - v1%y*v2%x
+  do i = 1, size(t)
+    vt(i) = v3d_of(matmul(t(i)%mat, tab(v(i))))
+  enddo
 
-!endfunction v3d_vectorial_product
+endfunction t3d_scalar_product_t
 
+!------------------------------------------------------------------------------!
+! Fonction : tensorial product
+!------------------------------------------------------------------------------!
+function t3d_tensorial_product(v1, v2) result(tr)
+implicit none
+type(v3d), intent(in) :: v1, v2
+type(t3d)             :: tr
 
+  tr%mat(1,:) = v1%x * tab(v2)
+  tr%mat(2,:) = v1%y * tab(v2)
+  tr%mat(3,:) = v1%z * tab(v2)
+
+endfunction t3d_tensorial_product
+
+!------------------------------------------------------------------------------!
+! Fonction : tensorial product
+!------------------------------------------------------------------------------!
+function t3d_tensorial_product_t(v1, v2) result(tr)
+implicit none
+type(v3d), intent(in) :: v1(:), v2(:)
+type(t3d), dimension(size(v1)) :: tr
+integer :: i
+ 
+  do i = 1, size(v1)
+    tr(i)%mat(1,:) = v1(i)%x * tab(v2(i))
+    tr(i)%mat(2,:) = v1(i)%y * tab(v2(i))
+    tr(i)%mat(3,:) = v1(i)%z * tab(v2(i))
+  enddo
+
+endfunction t3d_tensorial_product_t
 
 
 endmodule TENSOR3
+!------------------------------------------------------------------------------!
+! Changes history
+!
+! july 2003 : created, structure definition
+! nov  2004 : basic operators
+!------------------------------------------------------------------------------!
+

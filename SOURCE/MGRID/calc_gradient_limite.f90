@@ -49,14 +49,19 @@ enddo
 ! calcul des gradient_limites de vecteurs (tenseur gradient)
 
 do is = 1, grad%ntens
-  call erreur("Developpement","calcul de gradient_limites de vecteurs non implemente")
+  do if = nfi+1, nf
+    ic1 = mesh%facecell%fils(if,1)
+    ic2 = mesh%facecell%fils(if,2)
+    grad%tabtens(is)%tens(ic2) = grad%tabtens(is)%tens(ic1)
+  enddo
 enddo
 
 !-----------------------------
 endsubroutine calc_gradient_limite
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
-! oct 2003 : creation de la procedure
+! oct 2003 : created, boundary gradients of scalars
+! nov 2004 : add boundary gradients of vectors
 !------------------------------------------------------------------------------!
