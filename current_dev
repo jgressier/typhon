@@ -9,28 +9,21 @@ Liste des développement courants
 
 Task Dévlp.  R. cible début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
-     Jérémie   0.1.3  17/10 17/10 Make  compilation sur SGI
-     Jérémie   0.1.3              Make  problème de désallocation en fin de calcul (SGI)
-0001 Jérémie   0.1.3  29/10 29/10 SCH   bug calcul de gradients
-0002 Jérémie   0.1.3  29/10 04/11 Val   maillage 2D TRI - méthode flux FULL
-0003 Jérémie   0.1.3  29/10 04/11 SCH   amélioration calcul gradients (avec ghost-cell)
-0004 Emmanuel  0.2.0        07/11 Coupl Première version de couplage stationnaire
-0006 Emmanuel  0.1.3  12/11 18/11 Coupl Orientation des conditions aux limites aux raccords par COUPLING
-0005 Jérémie   0.1.3  18/11 19/11 Out   Définition de capteurs
-0007 Jérémie   0.1.3  26/11       Make  Restructuration du calcul des champs prim, grad, et cond. lim.
-0008 Jérémie   0.1.3  26/11       Make  Développement des capteurs
-0009 Emmanuel  0.1.3        04/02 Coupl calcul de connectivités des faces couplées, maillages coincidents
-0010           0.1.3              KDIF  condition limite de convection h(T-Tref)
-     Jérémie   0.1.3              Make   Sauvegarde de capteurs BOCO_FIELD
+     Jérémie   0.1.4              Make  problème de désallocation en fin de calcul (SGI)
+0010           0.1.4              KDIF  condition limite de convection h(T-Tref)
+     Jérémie   0.1.4              Make  Sauvegarde de capteurs BOCO_FIELD
                0.1.4              Make  calcul des index de conditions limites connectées à la lecture
+     Jérémie   0.1.4              Opt   explosion temps de calcul VALIDATION/KDIF/KNL2
+               0.1.4              KDIF  implicitation méthode JACOBI
                0.1.4              Val   maillage 3D TETRA et/ou HEXA
-               0.1.4              KDIF  condition limite de rayonnement
+               0.1.4              IHM   choix du résidu maximal de cycle (residu max global sinon)
                0.1.4              IHM   affichage intermittent des itérations (mod(it,10))
                0.1.4              Out   Sorties au format VTK
+               0.1.5              KDIF  condition limite de rayonnement
                0.1.5              Opt   Optimisation des calculs GEO3D et proc. appelantes
-0011 Emmanuel  0.2.0  18/07       Coupl Corrections de flux pour échanges espacés
-0012 Jérémie   0.2.0              Make  compilation sur SUN
-     Jérémie   0.2.0  15/09       Make  Solveur Fluide Parfait - procédures de base
+     Jérémie   0.1.6              IHM   Lecture de vecteurs par menu RPM
+     Jérémie   0.1.6              Make  Première fusion avec branche VORTEX
+     Jérémie   0.2.0              Make  Solveur Fluide Parfait - procédures de base II
                0.2.0              Out   Sorties multiples (block:output)
                0.2.0                    Restructuration de MAIN/integration_cycle (split)
                0.2.0              Make  Suppression des structures de données STRMESH (1)
@@ -39,7 +32,6 @@ Task Dévlp.  R. cible début fin   Type  Développement
                0.2.0              Make  Restructuration des données SOLVEUR (structure commune)
                0.2.0              Make  Initialisation conditionnelle MPI
                0.2.0              KDIF  Implicitation du solveur KDIF
-               0.2.0              IHM   Lecture de vecteurs par menu RPM
                0.2.0              IHM   Test des mots-clefs RPM non lus
      Jérémie   0.2.0              Make  Solveur Incompressible par singularités - procédures de base
                1.0.0              AMR   Structuration des grilles/champs en arbre parent/frère
@@ -51,6 +43,30 @@ Task Dévlp.  R. cible début fin   Type  Développement
                1.0.0              Opt   Optimisation des structures de données pour l'accès mémoire
 --------------------------------------------------------------------------------------------------------
 (1) dans les modules (ZONE etc) et les procédures d'intégration spécifiques
+--------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------------
+release 0.1.3 - 8 avril 2004
+--------------------------------------------------------------------------------------------------------
+
+Task Dévlp.  R. cible début fin   Type  Développement
+--------------------------------------------------------------------------------------------------------
+     Jérémie   0.1.3  17/10 17/10 Make  compilation sur SGI
+0001 Jérémie   0.1.3  29/10 29/10 SCH   bug calcul de gradients
+0002 Jérémie   0.1.3  29/10 04/11 Val   maillage 2D TRI - méthode flux FULL
+0003 Jérémie   0.1.3  29/10 04/11 SCH   amélioration calcul gradients (avec ghost-cell)
+0004 Emmanuel  0.1.3        07/11 Coupl Première version de couplage stationnaire (1)
+0006 Emmanuel  0.1.3  12/11 18/11 Coupl Orientation des conditions aux limites aux raccords par COUPLING
+0005 Jérémie   0.1.3  18/11 19/11 Out   Définition de capteurs
+0007 Jérémie   0.1.3  26/11  ?    Make  Restructuration du calcul des champs prim, grad, et cond. lim.
+0008 Jérémie   0.1.3  26/11  ?    Make  Développement des capteurs
+0009 Emmanuel  0.1.3        04/02 Coupl calcul de connectivités des faces couplées, maillages coincidents
+0011 Emmanuel  0.2.0  18/07       Coupl Corrections de flux pour échanges espacés
+0012 Jérémie   0.2.0              Make  compilation sur SUN
+0013 Jérémie   0.1.3        06/04 Make  Mise en forme de la documentation (TYPHON/DOC)
+     Jérémie   0.2.0  15/09       Make  Solveur Fluide Parfait - procédures de base
+--------------------------------------------------------------------------------------------------------
+(1) résidu max de cycle imposé arbitrairement à 0.1 -> plusieurs cycles pour converger
 --------------------------------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------------------------------
