@@ -14,6 +14,9 @@ Test de maillage avec TRI, validation de la méthode de calcul de gradients FULL
 - Le calcul des gradients (FULL) plante car les cellules limites ne sont pas utilisées
   Certains TRI ont deux cellules voisines limites, donc un seul voisin interne, ce
   qui provoque la dégérescence de la matrice à inverser. cf task 0003
+- Validation de la méthode FULL sur maillage CYL1D/TRI avec TRI très aplatis
+  (cyl-qtri.cgns et cyl-qtri20.cgns). Le maillage cyl-tri.cgns est une version après
+  lissage
 
 ---------------------------------------------------------------------------------
 Task 0003 (Jérémie) : SCH : amélioration calcul gradients (avec ghost-cell)
@@ -23,4 +26,5 @@ Les cellules limites sont incluses dans le calcul des gradients. Il est nécessai
 de faire le calcul des conditions aux limites avant le calcul des gradients.
 Dans calc_gradient, les contributions sont codées deux fois pour éviter des "if"
 dans les boucles.
+fichiers: integration_zone, calc_gradient
  
