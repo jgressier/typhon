@@ -335,3 +335,14 @@ Task 0048 (Jérémie) : Make : Restructuring calcboco subroutines (uniform or not)
 - merge EQKDIF calcboco* and setboco*
 
 
+---------------------------------------------------------------------------------
+Task 0049 (Jérémie) : NS : Calculation of boundary conditions
+---------------------------------------------------------------------------------
+- implementation of symmetry, inlet (sub/sup), outlet(sub/sup)
+
+---------------------------------------------------------------------------------
+Task 0050 (Jérémie) : NS : HLLE numerical flux
+---------------------------------------------------------------------------------
+- roe average
+- HLLE flux
+

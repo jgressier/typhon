@@ -33,20 +33,20 @@ integer(kpp), parameter :: tps_dualt = 25   ! intégration implicite / convergenc
 integer(kpp), parameter :: tps_rk    = 30   ! intégration en Runge Kutta explicite
 
 ! -- Constantes pour schéma de calcul des flux hyperboliques (sch_hyp)
-integer(kpp), parameter :: roe      = 10
-integer(kpp), parameter :: osher_no = 15
-integer(kpp), parameter :: osher_io = 16
-integer(kpp), parameter :: hllr     = 20
-integer(kpp), parameter :: hlle     = 21
-integer(kpp), parameter :: hllk     = 22
-integer(kpp), parameter :: hllc     = 25
-integer(kpp), parameter :: hllck    = 26
-integer(kpp), parameter :: stegwarm = 30
-integer(kpp), parameter :: vanleer  = 31
-integer(kpp), parameter :: vanleerh = 32
-integer(kpp), parameter :: efm      = 40
-integer(kpp), parameter :: efmo     = 50
-integer(kpp), parameter :: ausmm    = 50
+integer(kpp), parameter :: sch_roe      = 10
+integer(kpp), parameter :: sch_osher_no = 15
+integer(kpp), parameter :: sch_osher_io = 16
+integer(kpp), parameter :: sch_hllr     = 20
+integer(kpp), parameter :: sch_hlle     = 21
+integer(kpp), parameter :: sch_hllk     = 22
+integer(kpp), parameter :: sch_hllc     = 25
+integer(kpp), parameter :: sch_hllck    = 26
+integer(kpp), parameter :: sch_stegwarm = 30
+integer(kpp), parameter :: sch_vanleer  = 31
+integer(kpp), parameter :: sch_vanleerh = 32
+integer(kpp), parameter :: sch_efm      = 40
+integer(kpp), parameter :: sch_efmo     = 50
+integer(kpp), parameter :: sch_ausmm    = 50
 
 ! -- Constantes pour schéma de calcul des flux dissipatifs (sch_dis)
 integer(kpp), parameter :: dis_dif2 = 1     ! différence des 2 états/face (NON CONSISTANT)

@@ -56,22 +56,22 @@ case(solNS)
   call rpmgetkeyvalstr(pcour, "SCHEME", str, "HLLC")
   defspat%sch_hyp = inull
 
-  if (samestring(str,"ROE"))             defspat%sch_hyp = roe
-  if (samestring(str,"OSHER-NO"))        defspat%sch_hyp = osher_no
-  if (samestring(str,"OSHER-IO"))        defspat%sch_hyp = osher_io
-  if (samestring(str,"OSHER"))           defspat%sch_hyp = osher_no
-  if (samestring(str,"HUS"))             defspat%sch_hyp = efmo
-  if (samestring(str,"EFMO"))            defspat%sch_hyp = efmo
-  if (samestring(str,"HLL"))             defspat%sch_hyp = hlle
-  if (samestring(str,"HLLE"))            defspat%sch_hyp = hlle
-  if (samestring(str,"HLLK"))            defspat%sch_hyp = hllk
-  if (samestring(str,"HLLC"))            defspat%sch_hyp = hllc
-  if (samestring(str,"HLLCK"))           defspat%sch_hyp = hllck
-  if (samestring(str,"STEGER-WARMING"))  defspat%sch_hyp = stegwarm
-  if (samestring(str,"VANLEER"))         defspat%sch_hyp = vanleer
-  if (samestring(str,"EFM"))             defspat%sch_hyp = efm
-  if (samestring(str,"KFVS"))            defspat%sch_hyp = efm
-  if (samestring(str,"AUSMM"))           defspat%sch_hyp = ausmm
+  if (samestring(str,"ROE"))             defspat%sch_hyp = sch_roe
+  if (samestring(str,"OSHER-NO"))        defspat%sch_hyp = sch_osher_no
+  if (samestring(str,"OSHER-IO"))        defspat%sch_hyp = sch_osher_io
+  if (samestring(str,"OSHER"))           defspat%sch_hyp = sch_osher_no
+  if (samestring(str,"HUS"))             defspat%sch_hyp = sch_efmo
+  if (samestring(str,"EFMO"))            defspat%sch_hyp = sch_efmo
+  if (samestring(str,"HLL"))             defspat%sch_hyp = sch_hlle
+  if (samestring(str,"HLLE"))            defspat%sch_hyp = sch_hlle
+  if (samestring(str,"HLLK"))            defspat%sch_hyp = sch_hllk
+  if (samestring(str,"HLLC"))            defspat%sch_hyp = sch_hllc
+  if (samestring(str,"HLLCK"))           defspat%sch_hyp = sch_hllck
+  if (samestring(str,"STEGER-WARMING"))  defspat%sch_hyp = sch_stegwarm
+  if (samestring(str,"VANLEER"))         defspat%sch_hyp = sch_vanleer
+  if (samestring(str,"EFM"))             defspat%sch_hyp = sch_efm
+  if (samestring(str,"KFVS"))            defspat%sch_hyp = sch_efm
+  if (samestring(str,"AUSMM"))           defspat%sch_hyp = sch_ausmm
 
   if (defspat%sch_hyp == inull) &
     call erreur("lecture de menu","schéma numérique inconnu")

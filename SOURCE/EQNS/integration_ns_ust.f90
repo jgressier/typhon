@@ -94,7 +94,7 @@ do ib = 1, nbloc
   ifin = ideb+nfb-1
 
   select case(defspat%sch_hyp)
-  case(hlle)
+  case(sch_hlle)
     call calc_flux_hlle(defsolver, defspat,                             &
                         nfb, domaine%mesh%iface(ideb:ifin, 1, 1),       &
                         cg_l, cell_l, cg_r, cell_r, flux, ideb,         &
