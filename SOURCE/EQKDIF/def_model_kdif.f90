@@ -50,10 +50,10 @@ call rpmgetkeyvalstr(pcour, "MATERIAL", str)
 
 if (samestring(str,"DEFINITION")) then
 
-  call rpmgetkeyvalstr(pcour, "MAT_TYPE", str)
-  if (samestring(str, "LIN")) defsolver%defkdif%materiau%type    = mat_LIN
-  if (samestring(str, "KNL")) defsolver%defkdif%materiau%type    = mat_KNL
-  if (samestring(str, "XMAT")) defsolver%defkdif%materiau%type    = mat_XMAT
+  call rpmgetkeyvalstr(pcour, "MAT_TYPE", str, "LIN")
+  if (samestring(str, "LIN"))  defsolver%defkdif%materiau%type   = mat_LIN
+  if (samestring(str, "KNL"))  defsolver%defkdif%materiau%type   = mat_KNL
+  if (samestring(str, "XMAT")) defsolver%defkdif%materiau%type   = mat_XMAT
 
   select case(defsolver%defkdif%materiau%type)
   case(mat_LIN)
@@ -65,9 +65,9 @@ if (samestring(str,"DEFINITION")) then
   case(mat_KNL)
     call print_info(10,"    materiau à conductivité non constante")
     call rpmgetkeyvalstr(pcour, "CONDUCT_TYPE", str)
-    if (samestring(str, "CST")) defsolver%defkdif%materiau%Kd%type    = LOI_CST
-    if (samestring(str, "POLY")) defsolver%defkdif%materiau%Kd%type    = LOI_POLY
-    if (samestring(str, "PTS")) defsolver%defkdif%materiau%Kd%type    = LOI_PTS
+    if (samestring(str, "CST"))  defsolver%defkdif%materiau%Kd%type = LOI_CST
+    if (samestring(str, "POLY")) defsolver%defkdif%materiau%Kd%type = LOI_POLY
+    if (samestring(str, "PTS"))  defsolver%defkdif%materiau%Kd%type = LOI_PTS
     
     select case(defsolver%defkdif%materiau%Kd%type)
     case(LOI_CST)
