@@ -466,6 +466,39 @@ type(st_field) :: field             ! champ à créer
 
 endsubroutine delete_field
 
+!------------------------------------------------------------------------------!
+! Procédure : création et lien chaîné d'une structure GENERICFIELD
+!------------------------------------------------------------------------------!
+function insert_newgfield(gfield,dim,nscal,nvect,ntens) result(pgfield)
+implicit none
+type(st_genericfield), pointer :: pgfield
+type(st_genericfield), target  :: gfield
+integer                        :: dim,nscal,nvect,ntens
+
+  allocate(pgfield)
+  call new(pgfield,dim,nscal,nvect,ntens)
+  pgfield%next => gfield  
+
+endfunction insert_newgfield
+
+!------------------------------------------------------------------------------!
+! Procédure : desallocation d'une liste chaînée de structure GENERICFIELD
+!------------------------------------------------------------------------------!
+subroutine delete_chainedgfield(gfield)
+implicit none
+type(st_genericfield), target  :: gfield
+type(st_genericfield), pointer :: pgfield, dgfield
+
+  pgfield => gfield
+  do while(associated(pgfield))
+    dgfield => pgfield
+    pgfield => pgfield%next
+    call delete(dgfield)
+  enddo
+
+endsubroutine delete_chainedgfield
+
+
 
 
 endmodule DEFFIELD

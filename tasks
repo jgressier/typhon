@@ -252,3 +252,11 @@ Task 0040 (Jérémie) : Make : procédures de base pour solveur EQNS
 - définition des structures de conditions limites (MENU_NS)
 - constantes de type de conditions limites (VARCOM)
 - lecture des conditions limites (def_boco, def_boco_ns)
+
+---------------------------------------------------------------------------------
+Task 0041 (Emmanuel) : Make : liste chainée de bocofield (grid)
+---------------------------------------------------------------------------------
+- ajout de champ générique de grille (MGRID)
+- lien chainé de structure de champ générique et désallocation de liste chainée
+  de champ générique (DEFFIELD)
+

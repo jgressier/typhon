@@ -14,6 +14,7 @@ module MGRID
 use TYPHMAKE      ! Definition de la precision/données informatiques
 use USTMESH       ! Définition des maillages non structurés
 use DEFFIELD      ! Définition des champs physiques
+use GEO3D        ! module de définition des vecteurs et opérateurs associés
 
 implicit none
 
@@ -33,7 +34,9 @@ type st_grid
   type(st_grid), pointer :: subgrid    ! pointeur de liste chaînée
   type(st_ustmesh)       :: umesh      ! maillage non structuré
   type(st_field)         :: field      ! tableau des champs
-  type(st_genericfield)  :: bocofield  ! liste chaînée de champs génériques
+  integer                :: nbocofield ! nombre de champs génériques
+  type(st_genericfield), pointer &
+                         :: bocofield  ! liste chaînée de champs génériques
 endtype st_grid
 
 
@@ -138,7 +141,30 @@ character(len=strlen) :: str
 
 endfunction name_grid
 
+!------------------------------------------------------------------------------!
+! Procédure : ajout avec allocation d'une structure champ générique
+! (par insertion)
+!------------------------------------------------------------------------------!
+function newbocofield(grid,dim,nscal,nvect,ntens) result(pbocofield)
+implicit none
+type(st_genericfield), pointer :: pbocofield
+type(st_grid)                  :: grid
+integer                        :: dim, nscal, nvect, ntens
 
+  grid%nbocofield = grid%nbocofield + 1
+
+  if (grid%nbocofield == 1) then
+   allocate(pbocofield)
+   call new(pbocofield,dim,nscal,nvect,ntens)
+   nullify(pbocofield%next)
+   call init_genericfield(pbocofield,0._krp,v3d(0._krp,0._krp,0._krp))
+  else
+    pbocofield => insert_newgfield(grid%bocofield,dim,nscal,nvect,ntens)
+    call init_genericfield(pbocofield,0._krp,v3d(0._krp,0._krp,0._krp))
+  endif
+  grid%bocofield => pbocofield
+
+endfunction newbocofield
 
 
 endmodule MGRID
