@@ -1,13 +1,13 @@
 !------------------------------------------------------------------------------!
-! MENU TYPHON V 0.0.1b
+! MENU TYPHON 
 !------------------------------------------------------------------------------!
 
 BLOCK:PROJECT           ! DEFINITION DU PROJET
   NZONE   = 1           ! nombre de zones (facultatif, défaut = 1) 
   COORD   = 2D          ! type de repère  : 2D=2DPLAN / 2DAXI / 3D
   TIME    = UNSTEADY    ! type d'intégration temporelle : STEADY / UNSTEADY / PERIODIC
-  DURATION  = 200.      ! UNSTEADY : durée totale du calcul (temps physique)
-  BASETIME  = 1.        ! UNSTEADY : temps de base pour le couplage ou temps de cycle
+  DURATION  = 50.       ! UNSTEADY : durée totale du calcul (temps physique)
+  BASETIME  = 10.       ! UNSTEADY : temps de base pour le couplage ou temps de cycle
 ENDBLOCK               
 
 BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
@@ -35,8 +35,9 @@ BLOCK:MODEL
   HEATCAPA = 1.
 ENDBLOCK
 
-BLOCK:TIME_PARAM  ! Bloc nécessaire mais vide
-  VAR=1           ! variable bidon
+BLOCK:TIME_PARAM 
+  DTCALC = GIVEN
+  DT     = 1.
 ENDBLOCK
 
 BLOCK:SPAT_PARAM  ! Bloc nécessaire mais vide

@@ -1,0 +1,35 @@
+-------------------------------------------------
+CAS DE NON REGRESSION - Solveur KDIF
+-------------------------------------------------
+
+Echauffement d'un tube initialement à 100K par une paroi à 1000K.
+
+-------------------------------------------------
+main.rpm      : fichier de paramètres du calcul
+tube.cgns     : maillage au format CGNS
+-------------------------------------------------
+
+* MAILLAGE
+ - maillage cartésien d'un rectangle 5x2 cellules
+
+* MODELE
+ - conduction de la chaleur, modèle linéaire (lambda et Cp constants)
+
+* CONDITIONS AUX LIMITES
+ - isotherme sur la paroi (WALL) du tube
+ - adiabatique (extrapolation de température) sur les sections (SYM)
+ - infini (extrapolation par gradient) sur la frontière (INFINI)
+
+* PARAMETRES DE SIMULATION
+ - temps total 50. par cycle de 10.
+ - pas de temps 1. pour l'intégration explicite
+   (le Fourier équivalent vaut ?)
+
+-------------------------------------------------
+TEST DE NON REGRESSION
+-------------------------------------------------
+
+-------------------------------------------------
+COMMENTAIRES 
+-------------------------------------------------
+
