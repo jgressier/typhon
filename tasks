@@ -380,3 +380,9 @@ Task 0058 (Jérémie) : Mesh : Bug correction for mesh with QUAD faces
 Task 0059 (Jérémie) : Val : NS : validation case for inviscid flow (SHOCK-REFX/DIFFRACTION)
 ---------------------------------------------------------------------------------
 - unsteady moving shock wave past a corner
+
+---------------------------------------------------------------------------------
+Task 0060 (Jérémie) : AMR : AMR parameters
+---------------------------------------------------------------------------------
+- structures and parameters reading (MENU_AMR, def_amr)
+- SHOCK-REFX/FLAT/AMR case

@@ -34,9 +34,11 @@ Task Dévlp.  R. cible début fin   Type  Développement
      Jérémie   0.1.5              Solv  Surrelaxation Jacobi, SOR, SSOR
      Jérémie   0.1.5              Solv  Gel des matrices d'implicitation en fonction du résidu
                0.1.5              KDIF  condition limite de rayonnement
-               0.1.5              Opt   Optimisation des calculs GEO3D et proc. appelantes
+0060 Jérémie   0.1.6  25/07 02/08 AMR   AMR parameters
+0061           0.1.6              AMR   One-level refinement of a spherical area
      Jérémie   0.1.6              NS    Viscous fluxes
      Jérémie   0.1.6              KDIF  Implicitation des conditions limites
+               0.2.0              Opt   Optimisation des calculs GEO3D et proc. appelantes
                0.2.0              Make  Restructuration des sorties (get_data/calc_data/output)
                0.2.0              Out   Sorties multiples (block:output)
      Jérémie   0.2.0              Opt   Remplacement par boucles FORALL
