@@ -21,6 +21,7 @@ PARAM_MOD = MENU_BOCO.$(MOD)     \
 
 PARAM_OBJ := $(PARAM_MOD:.$(MOD)=.o)  \
             def_boco.o         \
+            def_capteurs.o     \
             def_init.o         \
             def_mesh.o         \
             def_other.o        \

@@ -24,6 +24,7 @@ character, parameter :: boco_integral = 'I'    ! intégrale   d'un champ sur boco
 character, parameter :: residuals     = 'R'    ! calcul de résidu moyen
 
 ! -- type de stockage --
+character, parameter :: no_store   = 'X'       ! stockage momentanné de l'itération uniquement
 character, parameter :: phys_tstep = 'T'       ! à chaque cycle
 character, parameter :: ziter      = 'Z'       ! pour chaque itération interne de zone
 
@@ -36,8 +37,11 @@ character, parameter :: ziter      = 'Z'       ! pour chaque itération interne d
 type mnu_capteur
   character             :: type        ! type de capteur
   character             :: store       ! type de stockage
-  character(len=strlen) :: family      ! famille associée (si nécessaire)
+  character(len=strlen) :: name        ! 
+  character(len=strlen) :: boco_name   ! famille associée (si nécessaire)
                                        !   DEV: on peut extrapoler à plusieurs familles
+                                       !        ou proposer la fusion de condition limite dans MESH
+  integer               :: boco_index  ! index de condition limite
   integer               :: quantity    ! quantité à calculer (selon solveur)
   type(v3d)             :: center, dir ! vecteurs centre et direction (si nécessaire)
 endtype mnu_capteur

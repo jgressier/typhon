@@ -111,6 +111,14 @@ call def_boco(block, solver, zone%defsolver, zone%coupling, zone%ncoupling, &
 
 call def_init(block, solver, zone%defsolver)
 
+! -------------------------
+! Définition des capteurs
+
+call def_capteurs(block, solver, zone%defsolver)
+
+! -------------------------
+! Définition des autres paramètres
+
 call def_other(block, solver, zone%defsolver)
 
 
@@ -122,4 +130,5 @@ endsubroutine trait_zoneparam
 !
 ! Juil 2002 : création de la procédure
 ! Sept 2003 : appel à la définition de solveur NS
+! Nov  2003 : appel à la définition de capteurs
 !------------------------------------------------------------------------------!
