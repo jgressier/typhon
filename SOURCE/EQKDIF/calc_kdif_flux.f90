@@ -11,8 +11,8 @@
 !------------------------------------------------------------------------------!
 subroutine calc_kdif_flux(defsolver, defspat, nflux, face,   &
                           cg_l, cell_l, grad_l,              &
-                          cg_r, cell_r, grad_r, flux)
-
+                          cg_r, cell_r, grad_r, flux,        &
+                          calc_jac, jacL, jacR)
 use TYPHMAKE
 use OUTPUT
 use VARCOM
@@ -38,19 +38,24 @@ type(st_kdifetat), dimension(1:nflux) &
                       :: cell_l, cell_r   ! champs des valeurs primitives
 type(v3d),         dimension(1:nflux) &
                       :: grad_l, grad_r   ! gradients aux centres des cellules
+logical               :: calc_jac         ! choix de calcul de la jacobienne
+
 
 ! -- Declaration des sorties --
 real(krp), dimension(nflux, defsolver%nequat) :: flux
+real(krp), dimension(nflux)                   :: jacL, jacR  ! jac associées
 
 ! -- Declaration des variables internes --
-real(krp), parameter :: theta = 1._krp
-integer   :: if
-real(krp), dimension(:), allocatable :: kH, dHR, dHL, dLR  ! voir allocation
-type(v3d), dimension(:), allocatable :: vLR                ! vecteur entre centres de cellules
-real(krp) :: TH                                            ! température en H
-real(krp) :: Fcomp, Favg                                   ! flux compacts et moyens
-real(krp) :: id, pscal                                     ! reéls temporaires
-type(v3d) :: vi                                            ! vecteur intermédiaire
+real(krp), parameter      :: theta = 1._krp
+real(krp), dimension(:), allocatable &
+                          :: kH, dHR, dHL, dLR  ! voir allocation
+type(v3d), dimension(:), allocatable &
+                          :: vLR                ! vecteur entre centres de cellules
+real(krp)                 :: TH                 ! température en H
+real(krp)                 :: Fcomp, Favg        ! flux compacts et moyens
+real(krp)                 :: id, pscal          ! reéls temporaires
+type(v3d)                 :: vi                 ! vecteur intermédiaire
+integer                   :: if
 
 ! -- Debut de la procedure --
 
@@ -125,6 +130,18 @@ case(dis_full)
 
 endselect
 
+!--------------------------------------------------------------
+! Calcul des jacobiennes
+!--------------------------------------------------------------
+if (calc_jac) then
+  do if = 1, nflux
+    jacR(if) =  - kH(if) * (vLR(if).scal.face(if)%normale) &
+                  / (defsolver%defkdif%materiau%Cp * dLR(if)**2)
+    jacL(if) = -jacR(if)
+  enddo
+endif
+
+
 deallocate(kH, dHR, dHL, dLR, vLR)
 
 
@@ -133,8 +150,9 @@ endsubroutine calc_kdif_flux
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! avr  2003  : création de la procédure : méthode COMPACTE
-! juil 2003  : conductivité non constante
-! sept 2003  : optimisation de la procédure pour récupérer les temps CPU initiaux
-! oct  2003  : implémentation des trois méthodes de calcul COMPACT, AVERAGE, FULL
+! avr  2003 : création de la procédure : méthode COMPACTE
+! juil 2003 : conductivité non constante
+! sept 2003 : optimisation de la procédure pour récupérer les temps CPU initiaux
+! oct  2003 : implémentation des trois méthodes de calcul COMPACT, AVERAGE, FULL
+! avr  2004 : calcul des jacobiennes pour implicitation
 !------------------------------------------------------------------------------!

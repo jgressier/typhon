@@ -60,6 +60,6 @@ endsubroutine calc_ust_checkface
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! Janv 2003 (v0.0.1b): création de la procédure
-! Mai  2003          : correction de l'orientation des normales de faces limites
+! jan  2003 : création de la procédure
+! mai  2003 : correction de l'orientation des normales de faces limites
 !------------------------------------------------------------------------------!

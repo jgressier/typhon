@@ -9,7 +9,8 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine integration_kdif_ust(dt, defsolver, defspat, domaine, field, flux)
+subroutine integration_kdif_ust(dt, defsolver, defspat, domaine, field, flux, &
+                                calc_jac, jacL, jacR)
 
 use TYPHMAKE
 use OUTPUT
@@ -27,18 +28,20 @@ real(krp)        :: dt               ! pas de temps CFL
 type(mnu_solver) :: defsolver        ! type d'équation à résoudre
 type(mnu_spat)   :: defspat          ! paramètres d'intégration spatiale
 type(st_ustmesh) :: domaine          ! domaine non structuré à intégrer
+logical          :: calc_jac         ! choix de calcul de la jacobienne
 
 ! -- Declaration des entrées/sorties --
 type(st_field)   :: field            ! champ des valeurs et résidus
 
 ! -- Declaration des sorties --
-type(st_genericfield) :: flux
+type(st_genericfield)   :: flux        ! flux physiques
+real(krp), dimension(*) :: jacL, jacR  ! jacobiennes associées (gauche et droite)
 
 ! -- Declaration des variables internes --
 integer :: if, nfb              ! index de face et taille de bloc courant
 integer :: nbuf                 ! taille de buffer 
 integer :: ib, nbloc            ! index de bloc et nombre de blocs
-integer :: ideb                 ! index de début de bloc
+integer :: ideb, ifin           ! index de début et fin de bloc
 integer :: it                   ! index de tableau
 integer :: icl, icr             ! index de cellule à gauche et à droite
 type(st_kdifetat), dimension(:), allocatable & 
@@ -72,7 +75,7 @@ ideb = 1
 do ib = 1, nbloc
 
   !print*,"!!! DEBUG integration bloc,",ib," de",ideb," à",ideb+nfb-1
-  !! DEV : optimisation ? 13% du temps de calcul !!!
+  !! DEV : optimisation ? 13% du temps de calcul en explicite !!!
   do it = 1, nfb
     if  = ideb+it-1
     icl = domaine%facecell%fils(if,1)
@@ -88,12 +91,15 @@ do ib = 1, nbloc
   ! - dans une version ultérieure, il sera nécessaire de faire intervenir les gradients
   ! - l'accès au tableau flux n'est pas programmé de manière générale !!! DEV
 
+  ifin = ideb+nfb-1
+
   ! ATTENTION : le flux n'est passé ici que pour UN SEUL scalaire
 
   call calc_kdif_flux(defsolver, defspat,                             &
-                      nfb, domaine%mesh%iface(ideb:ideb+nfb-1, 1, 1), &
+                      nfb, domaine%mesh%iface(ideb:ifin, 1, 1),       &
                       cg_l, cell_l, grad_l, cg_r, cell_r, grad_r,     &
-                      flux%tabscal(1)%scal(ideb:ideb+nfb-1))
+                      flux%tabscal(1)%scal(ideb:ifin),                &
+                      calc_jac, jacL(ideb:ifin), jacR(ideb:ifin))
 
   ideb = ideb + nfb
   nfb  = nbuf         ! tous les blocs suivants sont de taille nbuf
@@ -110,4 +116,5 @@ endsubroutine integration_kdif_ust
 ! avr  2003 : création de la procédure
 ! juin 2003 : màj gestion variables conservatives et primitives
 ! oct  2003 : ajout des gradients dans la distribution des états gauche et droit
+! avr  2004 : calcul des jacobiennes pour implicitation
 !------------------------------------------------------------------------------!
