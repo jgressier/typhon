@@ -8,7 +8,7 @@
 !
 !------------------------------------------------------------------------------!
 subroutine implicit_step(dt, typtemps, defsolver, defspat, deftime, &
-                         umesh, field, coupling, ncp)
+                         umesh, field, coupling, ncp, nitdual, cvg_dual)
 
 use TYPHMAKE
 use OUTPUT
@@ -30,20 +30,39 @@ type(mnu_spat)   :: defspat    ! parametres d'integration spatiale
 type(mnu_time)   :: deftime    ! parametres d'integration spatiale
 type(st_ustmesh) :: umesh      ! domaine non structure a integrer
 integer          :: ncp        ! nombre de couplages de la zone
+integer(kip)     :: nitdual
 
 ! -- Declaration des entrees/sorties --
 type(st_field)   :: field            ! champ des valeurs et residus
 type(mnu_zonecoupling), dimension(1:ncp) &
                  :: coupling ! donnees de couplage
+logical          :: cvg_dual
 
 ! -- Declaration des variables internes --
 type(st_dlu)          :: mat
 type(st_genericfield) :: flux             ! tableaux des flux
 real(krp), dimension(:), allocatable &
                       :: jacL, jacR       ! tableaux de jacobiennes des flux
-integer(kip)          :: if, ic1, ic2, ic, info
+integer(kip)          :: if, ic1, ic2, ic, info, ip, ib, i, icell
+
+type(st_genericfield) :: etconsdual ! variable supplementaire pas de temps dual
+real(krp)             :: dtau, dualcte, maxres, crit_cvdual
+logical               :: meth_dual
+
 
 ! -- Debut de la procedure --
+
+!PROVISOIRE
+dtau = 1000
+crit_cvdual = 0.001_krp
+dualcte = 1/dtau
+!meth_dual = .true.
+meth_dual = .false.
+
+if (.not.meth_dual) then
+  dualcte = 0
+  cvg_dual = .true.
+endif
 
 allocate(jacL(umesh%nface))
 allocate(jacR(umesh%nface))
@@ -56,17 +75,28 @@ allocate(jacR(umesh%nface))
 
 call new(flux, umesh%nface, field%nscal, field%nvect, 0)
 
+if (nitdual==1) then
+  ! -- allocation variable supplementaire pas de temps dual --
+  call new(etconsdual, field%ncell, field%nscal, field%nvect, 0)
+  etconsdual%tabscal(1)%scal = field%etatcons%tabscal(1)%scal
+endif
+
 select case(defsolver%typ_solver)
 case(solKDIF)
   call integration_kdif_ust(dt, defsolver, defspat, umesh, field, flux, .true., jacL, jacR)
 case default
   call erreur("incoherence interne (implicit_step)", "solveur inconnu")
 endselect
-
+ 
 ! -- flux surfaciques -> flux de surfaces et calcul des residus  --
-
 call flux_to_res(dt, umesh, flux, field%residu, .true., jacL, jacR)
 
+do ic = 1, field%ncell
+  field%residu%tabscal(1)%scal(ic) = field%residu%tabscal(1)%scal(ic) + &
+                                     ( etconsdual%tabscal(1)%scal(ic) - &
+                                     field%etatcons%tabscal(1)%scal(ic) ) * &
+                                     umesh%mesh%volume(ic,1,1) / dt
+enddo
 
 !--------------------------------------------------
 ! phase implicite 
@@ -101,11 +131,10 @@ do if = 1, mat%ncouple
 enddo
 
 do ic = 1, mat%dim
-  mat%diag(ic) = mat%diag(ic) + umesh%mesh%volume(ic,1,1) / dt
+  mat%diag(ic) = mat%diag(ic) + umesh%mesh%volume(ic,1,1) / dt + dualcte * &
+                 umesh%mesh%volume(ic,1,1)
   !mat%diag(ic) = umesh%mesh%volume(ic,1,1) / dt
 enddo
-
-deallocate(jacL, jacR)
 
 ! resolution
 
@@ -123,33 +152,96 @@ case(alg_gs)
 
 case(alg_sor)
   call erreur("developpement","Methode SOR non implementee")
-  
+ 
 case default
   call erreur("incoherence","methode d'inversion inconnue")
 endselect
 
 call delete(mat)
 
-!--------------------------------------------------
+do ic = 1, field%ncell
+  field%etatcons%tabscal(1)%scal(ic) = field%etatcons%tabscal(1)%scal(ic) + &
+                                       field%residu%tabscal(1)%scal(ic)
+enddo
 
-!select case(typtemps)
-! case(instationnaire) ! corrections de flux seulement en instationnaire
+! condition de convergence sur le pas de temps dual  
+maxres = abs(field%residu%tabscal(1)%scal(1))
+do ic = 1, umesh%ncell_int
+  if (abs(field%residu%tabscal(1)%scal(ic)) .gt. maxres) then
+    maxres = abs(field%residu%tabscal(1)%scal(ic))
+  endif
+enddo
 
-! ! Calcul de l'"energie" a l'interface, en vue de la correction de flux, pour 
-! ! le couplage avec echanges espaces
-! !DVT : flux%tabscal(1) !
-! if (ncp>0) then
-!   call accumulfluxcorr(dt, defsolver, umesh%nboco, umesh%boco, &
-!                        umesh%nface, flux%tabscal(1)%scal, ncp, &
-!                        coupling)
-! endif
+if (nitdual.ne.1) then
+  do ic = 1, field%ncell
+    field%residu%tabscal(1)%scal(ic) = dt * dualcte * &
+                                       field%residu%tabscal(1)%scal(ic) - &
+                                       etconsdual%tabscal(1)%scal(ic) + &
+                                       field%etatcons%tabscal(1)%scal(ic)
+  enddo
+endif
 
-!endselect
+if (meth_dual) then
+  if (maxres < crit_cvdual) then
+    cvg_dual = .true.
+    print*, "Dual Time-Stepping en : ", nitdual, "iteration(s)"
 
-if (ncp > 0) call erreur("Developpement","couplage interdit en implicite")
+    ! field%etatcons <- donnees de debut d'iteration Dual-Stepping
+    field%etatcons%tabscal(1)%scal = etconsdual%tabscal(1)%scal
 
+    !--------------------------------------------------
+    select case(defsolver%typ_solver)
+    case(solKDIF)
+
+    ! Mise à jour des variables primitives des cellules limitrophes des 
+    ! interfaces de couplage
+    do ip = 1, field%nscal
+      do ic = 1, ncp
+        do ib = 1, umesh%nboco
+          if(samestring(coupling(ic)%family, umesh%boco(ib)%family)) then
+            do i = 1, umesh%boco(ib)%nface
+              if = umesh%boco(ib)%iface(i)
+              icell = umesh%facecell%fils(if,1)
+              field%etatprim%tabscal(ip)%scal(icell) = &
+                   ( field%etatcons%tabscal(ip)%scal(icell) + &
+                  field%residu%tabscal(1)%scal(icell) ) / &
+                  defsolver%defkdif%materiau%Cp 
+            enddo
+          endif
+        enddo
+      enddo
+    enddo
+
+    ! Mise a jour des flux pour connaitre ceux aux interfaces de couplage
+    call integration_kdif_ust(dt, defsolver, defspat, umesh, field, flux, .false., jacL, jacR)
+
+    case default
+      call erreur("incohérence interne (implicit_step)", "solveur inconnu")
+    endselect
+
+    select case(typtemps)
+      case(instationnaire) ! corrections de flux seulement en instationnaire
+
+     ! Calcul de l'"energie" a l'interface,en vue de la correction de flux, pour 
+     ! le couplage avec echanges espaces
+     !DVT : flux%tabscal(1) !
+      if (ncp>0) then
+        call accumulfluxcorr(dt, defsolver, umesh%nboco, umesh%boco, &
+                             umesh%nface, flux%tabscal(1)%scal, ncp, &
+                             coupling)
+      endif
+    endselect
+
+    call delete(etconsdual)
+
+  endif
+
+else
+  call delete(etconsdual)
+endif
+
+deallocate(jacL, jacR)
 call delete(flux)
-
 
 endsubroutine implicit_step
 

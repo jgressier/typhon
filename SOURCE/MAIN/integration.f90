@@ -27,11 +27,13 @@ type(st_world) :: lworld
 
 ! -- Declaration des variables internes --
 type(st_grid), pointer :: pgrid
+type(st_field), pointer :: pfield
 !real(krp)             :: macro_dt
 integer, dimension(:), allocatable &
                        :: exchcycle ! indices des cycles d'echange pour les differents couplages de zones
 integer                :: ir, izone, if, ib, ic
 integer                :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
+integer                :: itc
 
 ! -- Debut de la procedure --
 
@@ -44,7 +46,23 @@ lworld%info%curtps          = 0._krp
 lworld%info%residu_ref      = 1._krp
 lworld%info%fin_integration = .false.
 
+! Nouveau champ pour convergence locale 20/10/04
+if (lworld%prj%it_cycle==iterate) then
+  do izone = 1, lworld%prj%nzone
+
+    pgrid => lworld%zone(izone)%grid
+
+    do while (associated(pgrid))
+      call init_champ_ust(lworld%zone(izone)%defsolver, pgrid%umesh, pgrid)
+      pgrid%info%field_cyclestart => pgrid%field
+      pgrid => pgrid%next
+    enddo
+
+  enddo
+endif
+
 ! Allocation du tableau des indices de cycle d'echange pour les calculs couples
+
 allocate(exchcycle(lworld%prj%ncoupling))
 exchcycle(:) = 1 ! initialisation a 1 : 1er echange au 1er cycle, a partir des conditions initiales
 
@@ -54,9 +72,13 @@ exchcycle(:) = 1 ! initialisation a 1 : 1er echange au 1er cycle, a partir des c
 do izone = 1, lworld%prj%nzone
   pgrid => lworld%zone(izone)%grid
   do while (associated(pgrid))
-    call alloc_res(pgrid%info%field_loc)
-    !! DEV : l'allocation ne doit se faire que dans certains cas
-    call alloc_grad(pgrid%info%field_loc)
+    pfield => pgrid%field
+    do while (associated(pfield))
+      call alloc_res(pfield)
+      !! DEV : l'allocation ne doit se faire que dans certains cas
+      call alloc_grad(pfield)
+      pfield => pfield%next
+    enddo
     pgrid => pgrid%next
   enddo
 enddo
@@ -94,9 +116,22 @@ do while (.not. lworld%info%fin_integration)
   call print_info(6,str_w)
 
   ! -- integration d'un cycle --
-
-  call integration_cycle(lworld, exchcycle, lworld%prj%ncoupling)  
-
+  ! -- Cas de convergence locale : champ de debut de cycle retenu 
+  ! -- dans field_cyclestart  - 20/10/04
+  if (lworld%prj%it_cycle == iterate) then
+    do izone = 1,lworld%prj%nzone
+      call transfer_field(lworld%zone(izone)%grid%info%field_cyclestart, &
+                                  lworld%zone(izone)%grid%info%field_loc)
+    enddo
+    lworld%info%cvloc = .false.
+    itc = 0
+    do while (.not. lworld%info%cvloc)
+      itc = itc+1
+      call integration_cycle(lworld, exchcycle, lworld%prj%ncoupling,itc)
+    enddo
+  else
+    call integration_cycle(lworld, exchcycle, lworld%prj%ncoupling,1)  
+  endif
 
   ! -- Actualisation des conditions aux limites au raccord
   do ic = 1, lworld%prj%ncoupling
@@ -180,4 +215,5 @@ endsubroutine integration
 !              exchcycle
 ! avr  2004 : integration des structures MGRID pour tous les solveurs
 ! oct  2004 : field chained list
+! oct  2004 : local convergence
 !------------------------------------------------------------------------------!

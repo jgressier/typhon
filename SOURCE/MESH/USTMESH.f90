@@ -229,6 +229,9 @@ type(st_ustboco) :: bc
 integer          :: i
 
   deallocate(bc%iface)
+  if (associated(bc%bocofield)) then
+    deallocate(bc%bocofield)
+  endif
 
 endsubroutine delete_ustboco
 

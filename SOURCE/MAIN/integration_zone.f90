@@ -27,51 +27,62 @@ type(st_zone) :: zone            ! zone a integrer
 ! -- Declaration des variables internes --
 type(st_grid), pointer :: pgrid
 integer                :: if
+logical                :: cvg_dual   ! etat de convergence pas de temps dual
+integer(kip)           :: nitdual    ! nombre d'iterations pas de temps dual
 
 ! -- Debut de la procedure --
 
 ! -- Preparation du calcul --
 
-pgrid => zone%grid
-do while (associated(pgrid))
-  call calc_varprim(zone%defsolver, pgrid%info%field_loc)     ! calcul des var. primitives
-  pgrid => pgrid%next
-enddo
+cvg_dual = .false.
+nitdual = 0
 
-! -- calcul des conditions aux limites pour tous les domaines --
+do while(.not. cvg_dual)
 
-call conditions_limites(zone)
-    
-! on ne calcule les gradients que dans les cas necessaires
+  nitdual = nitdual + 1
 
-if (zone%defspat%calc_grad) then
   pgrid => zone%grid
   do while (associated(pgrid))
-    call calc_gradient(zone%defsolver, pgrid,                 &
-                       pgrid%info%field_loc%etatprim, pgrid%info%field_loc%gradient)
-    call calc_gradient_limite(zone%defsolver, pgrid%umesh, pgrid%info%field_loc%gradient)
+    call calc_varprim(zone%defsolver, pgrid%info%field_loc)     ! calcul des var. primitives
     pgrid => pgrid%next
   enddo
-endif
 
-! -- integration des domaines --
+  ! -- calcul des conditions aux limites pour tous les domaines --
 
-pgrid => zone%grid
-do while (associated(pgrid))
-  ! DEV : changer les structures de couplages dans MGRID
-  call integration_grid(dt, zone%info%typ_temps,                    &
-                        zone%defsolver, zone%defspat, zone%deftime, &
-                        pgrid, zone%coupling, zone%ncoupling)
+  call conditions_limites(zone)
+    
+  ! on ne calcule les gradients que dans les cas necessaires
 
-  ! Desallocation des eventuelles listes chainees de champ generique utilisees
-  if (pgrid%nbocofield .ne. 0) then
-    call delete_chainedgfield(pgrid%bocofield)
-    pgrid%nbocofield=0
+  if (zone%defspat%calc_grad) then
+    pgrid => zone%grid
+    do while (associated(pgrid))
+      call calc_gradient(zone%defsolver, pgrid,                 &
+                         pgrid%info%field_loc%etatprim, pgrid%info%field_loc%gradient)
+      call calc_gradient_limite(zone%defsolver, pgrid%umesh, pgrid%info%field_loc%gradient)
+      pgrid => pgrid%next
+    enddo
   endif
 
-  pgrid => pgrid%next
-enddo
+  ! -- integration des domaines --
 
+  pgrid => zone%grid
+  do while (associated(pgrid))
+    ! DEV : changer les structures de couplages dans MGRID
+    call integration_grid(dt, zone%info%typ_temps,                    &
+                          zone%defsolver, zone%defspat, zone%deftime, &
+                          pgrid, zone%coupling, zone%ncoupling, nitdual, &
+                          cvg_dual)
+
+   ! Desallocation des eventuelles listes chainees de champ generique utilisees
+    if (pgrid%nbocofield .ne. 0) then
+      call delete_chainedgfield(pgrid%bocofield)
+      pgrid%nbocofield=0
+    endif
+
+    pgrid => pgrid%next
+  enddo
+
+enddo
 
 
 !-----------------------------

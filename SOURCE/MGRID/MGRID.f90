@@ -160,8 +160,6 @@ type(st_grid)  :: grid
   call grid_dealloc_gradcond(grid) 
   call delete(grid%umesh)
   call delete_chainedfield(grid%field)
-  
-  !deallocate(grid%info%field_loc)
 
   ! destruction des sous-grilles
   call delete_chainedgrid(grid%subgrid)
@@ -240,10 +238,10 @@ integer                 :: dim, nscal, nvect, ncell, nface
 
   if (grid%nfield == 1) then
    allocate(pfield)
-   call new(pfield,nscal,nvect,ncell,nface)
+   call new(pfield,grid%nfield,nscal,nvect,ncell,nface)
    nullify(pfield%next)
   else
-    pfield => insert_newfield(grid%field,nscal,nvect,ncell,nface)
+    pfield => insert_newfield(grid%field,grid%nfield,nscal,nvect,ncell,nface)
   endif
   grid%field => pfield
 

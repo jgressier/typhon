@@ -48,7 +48,7 @@ call verify_cellvtex(ust_mesh%mesh, cellvtex)
 
 ! -- Entete de fichier ---
 
-write(uf_chpresu,*) 'ZONE T="USTMESH", F=FEPOINT, N=',ust_mesh%nvtex, &
+write(uf,*) 'ZONE T="USTMESH", F=FEPOINT, N=',ust_mesh%nvtex, &
                     ',E=',cellvtex%nquad,',ET=QUADRILATERAL'
 
 ! -- Calcul des valeurs aux sommets --
@@ -60,7 +60,7 @@ call interpol_onvtex(0, cellvtex, field%etatprim, vtexfield)
 
 do i = 1, vtexfield%dim
   vtex = ust_mesh%mesh%vertex(i,1,1)
-  write(uf_chpresu,'(4e18.8)') vtex%x, vtex%y, vtex%z, vtexfield%tabscal(1)%scal(i)
+  write(uf,'(4e18.8)') vtex%x, vtex%y, vtex%z, vtexfield%tabscal(1)%scal(i)
 enddo
 
 ! -- Ecriture de la connectivite --
@@ -69,7 +69,7 @@ enddo
 
 !write(sformat,*) '(i8)'
 do i = 1, cellvtex%nquad
-  write(uf_chpresu, '(4i8)') cellvtex%quad%fils(i,1:4)
+  write(uf, '(4i8)') cellvtex%quad%fils(i,1:4)
 enddo
 
 ! desallocation

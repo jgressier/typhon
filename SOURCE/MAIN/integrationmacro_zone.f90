@@ -106,12 +106,12 @@ do while (.not.fin)
       enddo
       ! Correction de flux
       if (cumulreste == oui) then
-        call corr_varprim(lzone%grid%field, lzone%grid%umesh, &
+        call corr_varprim(lzone%grid%info%field_loc, lzone%grid%umesh, &
                           lzone%defsolver, &
                           lzone%coupling(ic)%zcoupling%etatcons, nbc, &
                           part_cor, typ_cor, .false.)
       else
-        call corr_varprim(lzone%grid%field, lzone%grid%umesh, &
+        call corr_varprim(lzone%grid%info%field_loc, lzone%grid%umesh, &
                           lzone%defsolver, &
                           lzone%coupling(ic)%zcoupling%etatcons, nbc, &
                           part_cor, typ_cor, fin)

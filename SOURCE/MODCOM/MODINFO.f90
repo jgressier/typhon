@@ -34,6 +34,8 @@ type st_info
   integer   :: my_id                ! id of the current process
   integer, dimension(:), pointer &
             :: head_proc            ! id of heading proc for each zone
+  logical   :: cvloc                ! satisfaction du critere de convergence 
+                                    ! locale
 endtype st_info
 
 
@@ -79,5 +81,6 @@ endmodule MODINFO
 !
 ! mars 2003 : creation du module
 ! sept 2003 : informations specifiques pour l'integration d'un cycle
-! oct 2003  : ajout de residu_ref_origine
+! oct  2003 : ajout de residu_ref_origine
+! oct  2004 : local convergence parameters 
 !------------------------------------------------------------------------------!

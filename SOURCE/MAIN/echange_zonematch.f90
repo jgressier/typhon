@@ -74,8 +74,8 @@ integer                        :: typ_cor1, typ_cor2 ! type de correction
 !  open(unit = uf, file = "t"//trim(adjustl(strof(icycle,3)))//".dat", form = 'formatted')
 !  write(uf, '(a)') 'VARIABLES="X","Y","Z", "T"'
 !
-!  call output_field(uf, zone1%ust_mesh, zone2%ust_mesh, zone1%field, &
-!                    zone2%field,"FIN DU CYCLE PRECEDENT")
+!  call output_field(uf, zone1%ust_mesh, zone2%ust_mesh, zone1%info%field_loc, &
+!                    zone2%info%field_loc,"FIN DU CYCLE PRECEDENT")
 !endif
 !-----------------------------------------------------------------------------
 
@@ -95,7 +95,7 @@ select case(typtemps)
   case(instationnaire) ! On applique des corrections de flux entre les echanges
     call choixcorrection(zone1, zone2, placement, corcoef, typ_cor1, nfacelim,&
                          nbc1, nbc2, ncoupl2)
-
+!corcoef(1:nfacelim)=0.5
     ! Correction
     if (placement == avant) then
 ! DEBUG
@@ -108,11 +108,10 @@ endselect
 
 ! -----------------PROVISOIRE------------------------------------------------
 !if ((icycle.lt.10)) then
-!  call output_field(uf, zone1%ust_mesh, zone2%ust_mesh, zone1%field, &
-!                    zone2%field,"APRES CORRECTION")
+!  call output_field(uf, zone1%ust_mesh, zone2%ust_mesh, zone1%info%field_loc, &
+!                    zone2%info%field_loc,"APRES CORRECTION")
 !endif
 !-----------------------------------------------------------------------------
-
 
 typsolver1 = zone1%defsolver%typ_solver
 typsolver2 = zone2%defsolver%typ_solver

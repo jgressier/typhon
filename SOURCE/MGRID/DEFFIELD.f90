@@ -31,7 +31,8 @@ implicit none
 !------------------------------------------------------------------------------!
 
 type st_field
-  type(st_field), pointer :: next          ! pointeur pour liste chainee
+  integer                 :: id            ! numero de champ
+  type(st_field), pointer :: next          ! pointeur pour liste chaînée
   integer                 :: nscal, nvect  ! dimension de base des champs
   integer                 :: ncell, nface  ! nombre de cellules et faces
   logical                 :: allocgrad     ! allocation  des gradients ou non
@@ -63,7 +64,6 @@ endinterface
 
 ! -- IMPLEMENTATION ---------------------------------------------------------
 contains
-
 
 !------------------------------------------------------------------------------!
 ! Procedure : allocation des gradients
@@ -180,13 +180,14 @@ endsubroutine dealloc_prim
 !------------------------------------------------------------------------------!
 ! Procedure : allocation d'une structure FIELD
 !------------------------------------------------------------------------------!
-subroutine new_field(field, n_scal, n_vect, ncell, nface)
+subroutine new_field(field, id, n_scal, n_vect, ncell, nface)
 implicit none 
 type(st_field) :: field             ! champ a creer
 integer        :: ncell, nface      ! nombre de cellules et faces
 integer        :: n_scal, n_vect    ! nombre de scalaires, vecteurs et tenseurs
-integer        :: i
+integer        :: id                ! numero de champ
 
+  field%id        = id
   field%ncell     = ncell
   field%nface     = nface
   field%nscal     = n_scal
@@ -219,14 +220,15 @@ endsubroutine delete_field
 !------------------------------------------------------------------------------!
 ! Procedure : creation et lien chaine d'une structure FIELD
 !------------------------------------------------------------------------------!
-function insert_newfield(field, n_scal, n_vect, ncell, nface) result(pfield)
+function insert_newfield(field, id, n_scal, n_vect, ncell, nface) result(pfield)
 implicit none
 type(st_field), pointer :: pfield
 type(st_field), target  :: field
 integer                 :: n_scal,n_vect,ncell,nface
+integer                 :: id
 
   allocate(pfield)
-  call new(pfield,n_scal,n_vect,ncell,nface)
+  call new(pfield,id,n_scal,n_vect,ncell,nface)
   pfield%next => field  
 
 endfunction insert_newfield
@@ -249,8 +251,96 @@ type(st_field), pointer :: pfield, dfield
 
 endsubroutine delete_chainedfield
 
+!------------------------------------------------------------------------------
+! Procédure : transfert de champ : rfield reçoit ifield
+!------------------------------------------------------------------------------
+subroutine transfer_field(rfield, ifield)
+implicit none
+type(st_field) :: ifield, rfield
 
+rfield%nscal = ifield%nscal
+rfield%nvect = ifield%nvect
+rfield%ncell = ifield%ncell
+rfield%nface = ifield%nface
+rfield%allocgrad = ifield%allocgrad
+rfield%allocres = ifield%allocres
+rfield%allocprim = ifield%allocprim
+rfield%calcgrad = ifield%calcgrad
+call transfer_gfield(rfield%etatcons,ifield%etatcons)
+call transfer_gfield(rfield%etatprim,ifield%etatprim)
+call transfer_gfield(rfield%gradient,ifield%gradient)
+call transfer_gfield(rfield%residu,ifield%residu)
+  
+endsubroutine transfer_field
 
+!------------------------------------------------------------------------------
+! Procédure : transfert de champ générique : rgfield reçoit igfield
+!------------------------------------------------------------------------------
+subroutine transfer_gfield(rgfield, igfield)
+implicit none
+type(st_genericfield) :: igfield, rgfield
+integer               :: i
+
+rgfield%nscal = igfield%nscal
+rgfield%nvect = igfield%nvect
+rgfield%ntens = igfield%ntens
+rgfield%dim = igfield%dim
+do i = 1, igfield%nscal
+  call transfer_scafield(rgfield%tabscal(i),igfield%tabscal(i))
+enddo
+do i = 1, igfield%nvect
+  call transfer_vecfield(rgfield%tabvect(i),igfield%tabvect(i))
+enddo
+do i = 1, igfield%ntens
+  call transfer_tenfield(rgfield%tabtens(i),igfield%tabtens(i))
+enddo
+  
+endsubroutine transfer_gfield
+
+!------------------------------------------------------------------------------
+!  Procédure : transfert de champ scalaire : rscafield reçoit iscafield
+!------------------------------------------------------------------------------
+subroutine transfer_scafield(rscafield,iscafield)
+implicit none
+type(st_scafield) :: iscafield, rscafield
+integer           :: i
+
+rscafield%dim= iscafield%dim
+do i = 1, iscafield%dim
+  rscafield%scal(i) = iscafield%scal(i)
+enddo
+
+endsubroutine transfer_scafield
+
+!------------------------------------------------------------------------------
+! Procédure : transfert de champ vectoriel : rvecfield reçoit ivecfield
+!------------------------------------------------------------------------------
+subroutine transfer_vecfield(rvecfield,ivecfield)
+implicit none
+type(st_vecfield) :: ivecfield, rvecfield
+integer           :: i
+
+rvecfield%dim= ivecfield%dim
+do i = 1, ivecfield%dim
+  rvecfield%vect(i)= ivecfield%vect(i)
+enddo
+
+endsubroutine transfer_vecfield
+
+!------------------------------------------------------------------------------
+! Procédure : transfert de champ tensoriel : rtenfield reçoit itenfield
+!------------------------------------------------------------------------------
+subroutine transfer_tenfield(rtenfield,itenfield)
+implicit none
+type(st_tenfield) :: itenfield, rtenfield
+integer           :: i
+
+rtenfield%dim= itenfield%dim
+do i = 1, itenfield%dim
+  rtenfield%tens(i)= itenfield%tens(i)
+enddo
+
+endsubroutine transfer_tenfield
 
 endmodule DEFFIELD
 

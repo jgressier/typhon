@@ -33,7 +33,10 @@ type mnu_project
   real(krp)       :: tpsbase    ! pas de temps de base du couplage
   integer         :: ncycle     ! nombre de cycle (en stationnaire ou periodique)
   real(krp)       :: residumax  ! valeur maximale du residu admise (stationnaire)
-  real(krp)       :: dtbase     ! pas de temps de base d'un cycle 
+  real(krp)       :: dtbase     ! pas de temps de base d'un cycle
+  integer         :: it_cycle   ! iteration sur les cycles pour la convergence 
+                                ! locale
+  real(krp)       :: eps_cvloc  ! critere de convergence locale
 endtype mnu_project
 
 
@@ -65,6 +68,7 @@ endmodule MENU_GEN
 ! Historique des modifications
 !
 ! nov  2002 : creation du module
+! oct  2004 : local convergence parameters
 !------------------------------------------------------------------------------!
 
 

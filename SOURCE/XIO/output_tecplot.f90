@@ -35,6 +35,8 @@ type(st_genericfield) :: vfield
 ! -- Debut de la procedure --
 if (position == end_calc) then  !DEV2602
 
+  call print_info(2,"* sauvegarde au format TECPLOT : " // trim(nom))
+
   if ((outp_typ == outp_NODE).or.(outp_typ == outp_CENTER)) then !DEV2602
 
     ! DEVELOPPEMENT PROVISOIRE

@@ -48,8 +48,8 @@ do ic = 1, lworld%zone(iz2)%ncoupling
   endif
 enddo
 
-
 ! Determination des indices de condition aux limites pour les zones 1 et 2
+
 do ib = 1, lworld%zone(iz1)%grid%umesh%nboco
   if (samestring(lworld%zone(iz1)%coupling(ncoupl1)%family, &
                  lworld%zone(iz1)%grid%umesh%boco(ib)%family)) then

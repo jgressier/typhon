@@ -35,6 +35,8 @@ type(st_genericfield) :: vfield
 
 if (position == end_calc) then 
 
+  call print_info(2,"* sauvegarde au format VTK : " // trim(nom))
+
   if ((outp_typ == outp_NODE).or.(outp_typ == outp_CENTER)) then !DEV2602
 
     ! DEVELOPPEMENT PROVISOIRE
