@@ -40,6 +40,7 @@ character(len=dimrpmlig):: str            ! chaîne RPM intermédiaire
 ! -------------------------
 ! définition de la modélisation
 
+call init_mnu_solver(zone%defsolver)
 zone%defsolver%typ_solver = solver
 
 select case(solver)
@@ -67,6 +68,8 @@ call def_mesh(block, zone%defmesh)
 call def_time(prj, block, solver, zone%deftime)
 
 call def_spat(block, solver, zone%defspat)
+
+call def_amr(block, solver, zone%defsolver%defamr)
 
 ! -------------------------
 ! Définition des conditions aux limites et paramètres de couplage

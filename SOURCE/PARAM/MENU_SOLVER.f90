@@ -19,6 +19,7 @@ use MENU_VORTEX   ! Définition des solveurs type VORTEX (lagrangien)
 use MENU_BOCO     ! Définition des conditions limites
 use MENU_INIT     ! Définition de l'initialisation
 use MENU_CAPTEURS ! Définition des capteurs
+use MENU_AMR      ! Définition des paramètres de raffinement
 
 implicit none
 
@@ -50,6 +51,7 @@ type mnu_solver
   type(mnu_ns)    :: defns           ! options si solveur NS
   type(mnu_kdif)  :: defkdif         ! options si solveur KDIF
   type(mnu_vort)  :: defvort         ! options si solveur VORTEX
+  type(mnu_amr)   :: defamr          ! options si AMR
   integer         :: nboco           ! nombre de conditions aux limites
   type(mnu_boco), dimension(:), pointer &
                   :: boco            ! définitions des conditions aux limites
@@ -75,12 +77,29 @@ endinterface
 contains
 
 !------------------------------------------------------------------------------!
+! Procédure : initialisation d'une structure MNU_SOLVER
+!------------------------------------------------------------------------------!
+subroutine init_mnu_solver(defsolver)
+implicit none
+type(mnu_solver)  :: defsolver
+
+  defsolver%nboco  = 0
+  defsolver%nprobe = 0
+  defsolver%ninit  = 0
+  defsolver%defamr%nbcriter = 0     ! call init(defsolver%defamr)
+
+endsubroutine init_mnu_solver
+
+
+!------------------------------------------------------------------------------!
 ! Procédure : desallocation d'une structure MNU_SOLVER
 !------------------------------------------------------------------------------!
 subroutine delete_mnu_solver(defsolver)
 implicit none
 type(mnu_solver)  :: defsolver
 integer           :: ib
+
+  call delete(defsolver%defamr)
 
   select case(defsolver%typ_solver)
   case(solKDIF)
@@ -216,6 +235,7 @@ endmodule MENU_SOLVER
 !             index de conditions limites ou de capteurs en fonction du nom
 ! fev  2004 : définition du solveur VORTEX
 ! juin 2004 : procédure delete : condition limite Fourier non uniforme
+! july 2004 : add AMR parameters
 !------------------------------------------------------------------------------!
 
 

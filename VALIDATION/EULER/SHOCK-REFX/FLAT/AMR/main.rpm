@@ -1,0 +1,85 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON 
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+  NZONE     = 1       
+  COORD     = 2D      
+  TIME      = STEADY 
+  RESIDUALS = 1.e-8
+ENDBLOCK               
+
+BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+  FORMAT = VTK         
+  FILE   = "typhon.vtk" 
+ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "flat" 
+  SOLVER = EULER  
+ENDBLOCK
+
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = CGNS
+  FILE   = "rect4x1.cgns"
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS = EULER
+  GAS      = AIR
+ENDBLOCK
+
+BLOCK:TIME_PARAM 
+  CFL = 2.3
+ENDBLOCK
+
+BLOCK:SPAT_PARAM  
+  SCHEME = HLL
+ENDBLOCK
+
+BLOCK:AMR
+  MAXLEVEL    = 1
+  REFINEMENT  = 2
+  METHOD      = EVOLUTIVE
+  PERIODICITY = TIMESTEP
+ENDBLOCK
+
+BLOCK:INIT
+  PI      = 1.E5
+  TI      = 300.
+  MACH    = 4.
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = DOWN
+  TYPE   = SYMMETRY
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = RIGHT
+  TYPE   = SUPERSONIC_OUTLET 
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY    = LEFT
+  TYPE      = SUPERSONIC_INLET
+  PI        = 1.E5
+  TI        = 300.
+  MACH      = 4.
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO  ! inlet conditions for a shock wave sigma=-18.43495°, impinges at x=3
+  FAMILY    = UP
+  TYPE      = SUPERSONIC_INLET
+  PI        = 98497.053              ! p1/p0 = 1.7
+  TI        = 300.
+  MACH      = 3.60110
+  DIRECTION = (1., -0.0967742, 0.)   ! theta = -5.52754°
+ENDBLOCK
+

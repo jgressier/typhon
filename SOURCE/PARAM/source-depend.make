@@ -7,7 +7,8 @@ LDIR := PARAM
 
 PARAM_LIB = $(PRJLIB)/libt_param.a
 
-PARAM_MOD = MENU_BOCO.$(MOD)     \
+PARAM_MOD = MENU_AMR.$(MOD)      \
+            MENU_BOCO.$(MOD)     \
             MENU_CAPTEURS.$(MOD) \
             MENU_COUPLING.$(MOD) \
             MENU_GEN.$(MOD)      \
@@ -20,6 +21,7 @@ PARAM_MOD = MENU_BOCO.$(MOD)     \
 
 
 PARAM_OBJ := $(PARAM_MOD:.$(MOD)=.o)  \
+            def_amr.o          \
             def_boco.o         \
             def_capteurs.o     \
             def_init.o         \
