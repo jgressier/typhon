@@ -288,8 +288,8 @@ integer :: i
 
   do i = 1, size(v)
     v(i)%x = v(i)%x - a(i)%x
-    v(i)%y = v(i)%y - a(i)%x
-    v(i)%z = v(i)%z - a(i)%x
+    v(i)%y = v(i)%y - a(i)%y
+    v(i)%z = v(i)%z - a(i)%z
   enddo
 
 end subroutine v3d_shiftopp_tt
