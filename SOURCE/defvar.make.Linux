@@ -9,14 +9,11 @@ CF = ifc
 FB = -implicitnone -I$(PRJINC)
 
 # Optimisation classique
-# -tpp7 (optimisation P4)    -xW (instructions P4)
-# -ipo  (optimisation interprocédure entre fichiers)
-# Profiling
-# -pg (informations pour gprof)
-#FO = -O3 -tpp7 -xW 
-#FO = -O3 -tpp7 -xW -pg
-# Extensive runtime error checking
-FO = -C
+FO_debug = -C
+FO_opt   = -O3 
+FO_prof  = $(FO_opt) -pg
+FO_      = $(FO_debug)
+FO = $(FO_$(OPT))
 
 ####### Definition de l'éditeur de lien et des options
 
