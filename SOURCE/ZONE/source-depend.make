@@ -16,6 +16,7 @@ ZONE_MOD = BOUND.$(MOD)                  \
 
 ZONE_OBJ := $(ZONE_MOD:.$(MOD)=.o)       \
             calc_gradient.o              \
+            calc_gradient_limite.o       \
             calc_varcons.o               \
             calc_varprim.o               \
             calcboco_ust.o               \

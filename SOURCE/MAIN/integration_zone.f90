@@ -33,17 +33,21 @@ integer     :: if
 
 do if = 1, zone%ndom
   call calc_varprim(zone%defsolver, zone%field(if))     ! calcul des var. primitives
-    
-  ! on ne calcule les gradients que dans les cas nécessaires
-  if (zone%defspat%calc_grad) then
-    call calc_gradient(zone%defsolver, zone%ust_mesh,                 &
-                       zone%field(if)%etatprim, zone%field(if)%gradient)
-  endif
 enddo
 
 ! -- calcul des conditions aux limites pour tous les domaines --
 
 call conditions_limites(zone)
+    
+! on ne calcule les gradients que dans les cas nécessaires
+
+if (zone%defspat%calc_grad) then
+  do if = 1, zone%ndom
+    call calc_gradient(zone%defsolver, zone%ust_mesh,                 &
+                       zone%field(if)%etatprim, zone%field(if)%gradient)
+    call calc_gradient_limite(zone%defsolver, zone%ust_mesh, zone%field(if)%gradient)
+  enddo
+endif
 
 ! -- intégration des domaines --
 
@@ -63,6 +67,7 @@ endsubroutine integration_zone
 !
 ! août 2002 : création de la procédure
 ! juil 2003 : modification arguments integration_ustdomaine
-! oct  2003 : insertion des procédures de calcul var. primitves et gradients
-!             (avant le calcul des conditions aux limites)
+! oct  2003 : insertion des procédures de calcul var. primitives et gradients
+!             (calcul des conditions aux limites avant calcul de gradients)
+!             ajout du calcul des gradients aux limites (set_gradient_limite)
 !------------------------------------------------------------------------------!
