@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
-! Procedure : integration_macrodt         Auteur : J. Gressier
+! Procedure : integration_cycle           Auteur : J. Gressier
 !                                         Date   : Juillet 2002
-! Fonction                                Modif  : Juillet 2003
+! Fonction                                Modif  : (cf Historique)
 !   Intégration de toutes les données sur un écart de temps donné,
 !   identique pour toutes les zones, et avec une représentation
 !   physique uniquement
@@ -9,7 +9,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine integration_macrodt(mdt, lworld, excht, ncoupling)
+subroutine integration_cycle(lworld, excht, ncoupling)
 
 use TYPHMAKE
 use OUTPUT
@@ -19,9 +19,8 @@ use MODWORLD
 implicit none
 
 ! -- Declaration des entrées --
-integer                 :: ncoupling          ! nombre de couplages
-real(krp)               :: mdt                ! pas de temps macro (sens physique)
-real(krp), dimension(1:ncoupling) :: excht      ! instant d'échange (pour les différents couplages de zones)
+integer                 :: ncoupling        ! nombre de couplages
+real(krp), dimension(1:ncoupling) :: excht  ! instant d'échange (pour les différents couplages de zones)
 
 ! -- Declaration des entrées/sorties --
 type(st_world) :: lworld
@@ -29,10 +28,13 @@ type(st_world) :: lworld
 ! -- Declaration des sorties --
 
 ! -- Declaration des variables internes --
+real(krp)               :: mdt              ! pas de temps macro (sens physique)
 integer   :: izone, ir, ifield, if
 integer   :: iz1, iz2, ic, ncoupl1, ncoupl2, ib, nbc1, nbc2
 
 ! -- Debut de la procedure --
+
+mdt = lworld%prj%dtbase
 
 ! allocation des champs de résidus
 !do izone = 1, lworld%prj%nzone
@@ -134,21 +136,30 @@ endif
 
 !------------------------------------------------------------------------------------------------------------------
 
+! --------------------------------------
+! Intégration de chacune des zones 
+! --------------------------------------
+
 do izone = 1, lworld%prj%nzone
- call integrationmacro_zone(mdt, lworld%zone(izone))
-! do if = 1, lworld%zone(izone)%ndom
-!   call dealloc_res(lworld%zone(izone)%field(if))
-! enddo
+ 
+  call integrationmacro_zone(mdt, lworld%zone(izone))
+
+  ! do if = 1, lworld%zone(izone)%ndom
+  !   call dealloc_res(lworld%zone(izone)%field(if))
+  ! enddo
 enddo
 
-endsubroutine integration_macrodt
 
+!-------------------------------------
+endsubroutine integration_cycle
 
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juillet 2002 (v0.0.1b): création de la procédure
-! mai 2003              : procédures d'échange
-! juillet 2003           : ajout pour corrections de flux et déplacement de
-!                          l'allocation des residus
+! juil  2002 : création de la procédure
+! mai   2003 : procédures d'échange
+! juil  2003 : ajout de corrections de flux lors de couplage
+!              allocation des residus globale pour tous les cycles
+! sept  2003 : changement de nom de la procédure (ancien: integration_macrodt)
+!              gestion du calcul selon résidus 
 !------------------------------------------------------------------------------!
