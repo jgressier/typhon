@@ -9,9 +9,9 @@ Liste des développement courants
 Dévelop.  R. cible  début     fin       Terminé  Développement
 --------------------------------------------------------------------------------------------------------
 Emmanuel   0.2.0   18/07/03                      Corrections de flux pour échanges espacés
+Jérémie    0.1.2                                 Optimisation de la procédure "calc_fourier"
 --------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------
-
 
 --------------------------------------------------------------------------------------------------------
 release 0.1.1
@@ -21,7 +21,7 @@ Développeur  début     fin       Terminé  Développement
 --------------------------------------------------------------------------------------------------------
 Jérémie     11/07/03   29/07/03     Ok    Ajout des bases pour capteurs (menu et structures)
 Emmanuel    11/07/03   28/07/03     Ok    Conductivité polynomiale (0)
-Emmanuel    18/07/03  fin juillet         Corrections de flux pour échanges espacés
+Emmanuel    18/07/03   cf next release    Corrections de flux pour échanges espacés
 Emmanuel    28/07/03   ?            Ok    Corrections pour options de compilation sévères (1)
 Emmanuel    29/07/03   ?            Ok    Calcul du nombre de Fourier
 Emmanuel    29/07/03   ?            Ok    Procédure calcul des données (2) d'un raccord

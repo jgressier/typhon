@@ -12,6 +12,9 @@ FB = -I$(PRJINC)
 # -tpp7 (optimisation P4)    -xW (instructions P4)
 # -ipo  (optimisation interprocédure entre fichiers)
 #FO = -O3 -tpp7 -xW 
+# Profiling
+# -pg (informations pour gprof)
+#FO = -O3 -tpp7 -xW -pg
 # Débuggage
 FO = -C
 

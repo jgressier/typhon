@@ -13,3 +13,6 @@ options     : -O3 -tpp7 -xW
 
 release     KDIF/CYL1D
  0.1.0        1.86 
+ 0.1.1        6.02(1) 
+
+(1) calcul du Fourier à optimiser
