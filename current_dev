@@ -9,6 +9,16 @@ Liste des développement courants
 --------------------------------------------------------------------
 Roadmap
 --------------------------------------------------------------------
+0.2 : NS  development
+0.3 : MPI development
+0.4 : AMR development
+0.5 : AMR/MPI
+1b.0 : Inputs/Outputs/Validation
+	- CGNS inputs/outputs
+	- restart files
+--------------------------------------------------------------------
+To improve
+- KDIF  Bug: timestep computation for non linear material
 --------------------------------------------------------------------
 
 Task Dévlp.  R. cible début fin   Type  Développement
@@ -21,7 +31,7 @@ Task Dévlp.  R. cible début fin   Type  Développement
 0051 Jérémie   0.1.5              KDIF  Bug: timestep computation for non linear material
 0063 Jérémie   0.1.5              Out   Tecplot outputs : FEBLOCK format and output of scalars & vectors
 0064 Jérémie   0.1.5              Out   CGNS outputs
-0064 Jérémie   0.1.5  31/01 31/01 Make  Compilation with intel fortran 8.1
+0065 Jérémie   0.1.5  31/01 31/01 Make  Compilation with intel fortran 8.1
      Jérémie   0.1.5              Solv  Surrelaxation Jacobi, SOR, SSOR
      Jérémie   0.1.5              Solv  Gel des matrices d'implicitation en fonction du résidu
                0.1.5              KDIF  condition limite de rayonnement
@@ -34,6 +44,9 @@ Task Dévlp.  R. cible début fin   Type  Développement
 0081 Jérémie   0.1.6              NS    Viscous fluxes
 0090 Jérémie   0.2.0  03/12       Opt   GEO3D optimization (array calls)
 0091           0.2.0              Opt   Memory (pre-allocate scalar, v3d, tensor arrays, dim block)
+0100           0.2.0  01/02       IHM   Symbolic functions module
+0101           0.2.0              IHM   Symbolic functions for initialisation
+0102           0.2.0              IHM   Symbolic functions for boundary condtitions
                0.2.0              Make  Restructuration des sorties (get_data/calc_data/output)
                0.2.0              Out   Sorties multiples (block:output)
      Jérémie   0.2.0              Opt   Remplacement par boucles FORALL
