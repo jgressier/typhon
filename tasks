@@ -175,3 +175,11 @@ Task 0025 (Jérémie) : Make : Integration de KDIF dans les structures MGRID
 - modification et compilation effectuée
 - validation KDIF/CYL1D, COUPLING/DEFORME, VORTEX/VANVOOREN
 
+---------------------------------------------------------------------------------
+Task 0026 (Jérémie) : Make : Implicitation directe LU
+---------------------------------------------------------------------------------
+- librairie MATH : création et mouvement de modules de MODCOM
+- définition des types d'intégration temporelle et d'implicitation (MENU_PARAM)
+- définition de routines d'inversion algébrique (SPARSE_MAT, dlu_lu)
+- modification des appels de routines d'integration temporelle
+  (integration_grid, explicit_step, implicit_step)
