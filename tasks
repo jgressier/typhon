@@ -78,6 +78,14 @@ fichiers supprimés : calcboco_ust_coupling, calcboco_ust_coupling_face,
            calcboco_kdif_coupling_face, calcboco_kdif_ust
 
 ---------------------------------------------------------------------------------
+Task 0007 (Jérémie) : Restructuration du calcul des champs prim, grad, et cond. lim.
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+Task 0008 (Jérémie) : Développement des capteurs
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
 Task 0009 (Emmanuel) : COUPL : connectivités de zones en maillage coincident:
 ---------------------------------------------------------------------------------
 Les indices de faces concernées par les conditions aux limites aux interfaces
@@ -116,3 +124,9 @@ fichiers : echange_zonematch.f90, echange_zonedata.f90
 fichiers nouveaux : calc_fourier.f90, calc_fouriercycle.f90, 
                     calc_kdif_fourier.f90
 
+---------------------------------------------------------------------------------
+Task 0012 (Jérémie) : Make : Compilation sur SUN
+---------------------------------------------------------------------------------
+* mise à jour de fichiers, suite à la sévérité du compilateur
+* mise à jour des paramètres pour SUN
+* problème de gestions des modules (noms en minuscules)
