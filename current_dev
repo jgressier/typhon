@@ -22,7 +22,7 @@ Task Dévlp.  R. cible début fin   Type  Développement
 0028 Jérémie   0.1.4  16/04 16/04 Solv  résolution par méthode JACOBI
 0029 Jérémie   0.1.4  16/04 16/04 IHM   choix du résidu maximal de cycle (residu max global sinon)
 0030           0.1.4  21/04 08/06 Out   Sorties au format VTK
-0031           0.1.4  10/06       Val   maillage 3D TETRA 
+0031           0.1.4  10/06 15/06 Val   maillage 3D TETRA 
 0032 Emmanuel  0.1.4        19/04 Coupl différents types de correction
 0033 Emmanuel  0.1.4        19/04 Coupl orientation du coef. de correction en fonction des diffusivités
 0034 Emmanuel  0.1.4        19/04 Out   sortie des val. de température, flux d'interface et corrections
@@ -32,6 +32,8 @@ Task Dévlp.  R. cible début fin   Type  Développement
      Jérémie   0.1.4              Make  Sauvegarde de capteurs BOCO_FIELD
                0.1.4              Make  calcul des index de conditions limites connectées à la lecture
      Jérémie   0.1.4              Opt   explosion temps de calcul VALIDATION/KDIF/KNL2
+0037 Jérémie   0.1.5  17/06 21/06 Val   maillage 3D PRISM/TETRA (2)
+0038           0.1.5              Val   maillage 3D HEXA 
 0041 Emmanuel  0.1.4  22/06 23/06 Make  lien chainé champ générique pour grille
      Jérémie   0.1.5              Solv  Optimisation de la structure DLU (SPARSE_MAT) (faces limites)
      Jérémie   0.1.5              Solv  Inversion Gauss-Seidel
@@ -43,6 +45,7 @@ Task Dévlp.  R. cible début fin   Type  Développement
 0040 Jérémie   0.2.0              Make  Solveur Fluide Parfait - procédures de base II
                0.2.0              Make  Restructuration des sorties (get_data/calc_data/output)
                0.2.0              Out   Sorties multiples (block:output)
+     Jérémie   0.2.0              Opt   Remplacement par boucles FORALL
                0.2.0              Make  Restructuration de MAIN/integration_cycle (split)
                0.2.0              Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
                0.2.0              Make  Split de DEFFIELD (BASEFIELD / GENERICFIELD / DEFFIELD)
@@ -62,6 +65,7 @@ Task Dévlp.  R. cible début fin   Type  Développement
                1.0.0              Opt   Optimisation des structures de données pour l'accès mémoire
 --------------------------------------------------------------------------------------------------------
 (1) dans les modules (ZONE etc) et les procédures d'intégration spécifiques
+(2) Lecture validée, problème de convergence
 --------------------------------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------------------------------
