@@ -13,7 +13,6 @@ EQNS_MOD = EQNS.$(MOD)      \
 
 EQNS_OBJ := $(EQNS_MOD:.$(MOD)=.o)    \
             calc_flux_hlle.o          \
-            calc_ns_flux.o            \
             calc_ns_timestep.o        \
             calc_roe_states.o         \
             calc_varcons_ns.o         \
