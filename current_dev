@@ -27,6 +27,7 @@ Task Dévlp.  R. cible début fin   Type  Développement
 0051 Jérémie   0.1.5              KDIF  Bug: timestep computation for non linear material
 0053 Jérémie   0.1.5  06/07 07/07 Out   Generalization of VTK outputs (scalars & vectors)
 0054 Jérémie   0.1.5  07/07 08/07 NS    Validation on uniform test case (debug HLLE)
+0055 Jérémie   0.1.5  07/07 08/07 NS    Validation on 2D shock reflection (debug HLLE)
      Jérémie   0.1.5              Solv  Surrelaxation Jacobi, SOR, SSOR
      Jérémie   0.1.5              Solv  Gel des matrices d'implicitation en fonction du résidu
                0.1.5              KDIF  condition limite de rayonnement

@@ -363,3 +363,9 @@ Task 0054 (Jérémie) : NS : Validation on uniform test case
 ---------------------------------------------------------------------------------
 - NRG/EULER/UNI
 - Bug HLLE flux
+
+---------------------------------------------------------------------------------
+Task 0054 (Jérémie) : NS    Validation on 2D shock reflection (debug HLLE)
+---------------------------------------------------------------------------------
+- VALDITION/EULER/SHOCK-REFX/FLAT
+- Bug HLLE flux

@@ -59,11 +59,11 @@ ig1 = 1._krp/(g - 1._krp)
 allocate(roe(1:nflux))
 
 call calc_roe_states(defsolver%defns%properties(1), nflux, cell_l, cell_r, roe)
-!print*,"roe",roe
 ! -- Calcul du flux --
 
 do if = 1, nflux
 
+  !print*,"roe",abs(roe(if)%velocity)
   fn  = face(if)%normale 
   vnl = cell_l(if)%velocity.scal.fn                    ! face normal velocity (left  state)
   vnr = cell_r(if)%velocity.scal.fn                    !                      (right state)
@@ -77,11 +77,13 @@ do if = 1, nflux
   rer = ig1*cell_r(if)%pressure + .5_krp*cell_r(if)%density*sqrabs(cell_r(if)%velocity)
 
   sl  = min(0._krp, vnl-al, vm-am)                  ! left  highest wave speed
+  !print*, cell_l(if)%density
+  !print*, cell_r(if)%pressure
   sr  = max(0._krp, vnr+ar, vm+am)                  ! right highest wave speed
   iks = 1._krp/(sr-sl)
   kl  =  sr*iks
   kr  = -sl*iks
-  ku  = -sl*sr*iks
+  ku  =  sl*sr*iks
 
   ! mass flux
   flux%tabscal(1)%scal(ideb-1+if) = (kl*vnl-ku)*cell_l(if)%density + (kr*vnr+ku)*cell_r(if)%density
