@@ -9,15 +9,22 @@ include_header
 dnl -------------------------------------------------------------
 
 section([Gas model])
+item([perfect gaz])
+<br>
 
-skip_line
 section([Dynamics])
+item([inviscid])
+<br>
 
-skip_line
 section([Numerical Schemes])
+item([HHLE upwind scheme])
+item([MUSCL second order extension])
+<br>
 
-skip_line
 section([Boundary Conditions])
+item([symmetry])
+item([subsonic or supersonic inlet])
+item([subsonic or supersonic outlet])
 
 skip_line
 

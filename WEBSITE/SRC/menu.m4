@@ -33,8 +33,8 @@ define([print_t1], [
 ])
 define([print_t2], [
   ifelse(id2, $1, 
-    [<td bgcolor=c7d6df>hyperlink([m_]id1[_]$1, id1[_]$1.html)</td>], 
-    [<td>hyperlink([m_]id1[_]$1, id1[_]$1.html)</td>] )
+    [<td width=1* bgcolor=c7d6df>hyperlink([m_]id1[_]$1, id1[_]$1.html)</td>], 
+    [<td width=1*>hyperlink([m_]id1[_]$1, id1[_]$1.html)</td>] )
 ])
 
 dnl =========== write menu left ================================================
@@ -57,7 +57,7 @@ define([write_menu_head], [
   <table width="100%" bgcolor="d7e6ef" border=0 cellspacing="0" cellpadding="4" class=menu1>
   dnl<table width="100%" background=img_dir([bg-menu-head.png]) border=0 cellspacing="0" cellpadding="4">
   <tr valign="middle">
-  <td class=menu1></td>
+  <td width=1* class=menu1></td>
   ifelse(id1, [index], [
     print_t2([pres])
     print_t2([news]) ])
@@ -76,7 +76,7 @@ define([write_menu_head], [
     print_t2([download])
     print_t2([install])
     print_t2([faq]) ])
-  <td class=menu1></td>
+  <td width=1* class=menu1></td>
   </tr>
   </table>
 ])

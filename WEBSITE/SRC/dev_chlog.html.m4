@@ -6,11 +6,11 @@ define([id2], [chlog])
 
 include_header
 
-define([beginlist],  [<table class=defaut border=0 cellpadding=0 cellspacing=0>])
+define([beginlist],  [<table class=defaut border=0 cellpadding=0 cellspacing=0 style="padding-left:10pt; padding-right:10pt">])
 define([endlist],    [</table><br>])
-define([writefunc], [<tr class=blue><td align=center>$1</td><td>$2</td></tr>])
-define([writedev],  [<tr class=orange><td align=center>$1</td><td>$2</td></tr>])
-define([writebug],  [<tr class=red><td align=center>$1</td><td>$2</td></tr>])
+define([writefunc], [<tr class=blue><td align=center>$1</td><td width=10><td>$2</td></tr>])
+define([writedev],  [<tr class=orange><td align=center>$1</td><td width=10><td>$2</td></tr>])
+define([writebug],  [<tr class=red><td align=center>$1</td><td width=10><td>$2</td></tr>])
 
 dnl -------------------------------------------------------------
 
