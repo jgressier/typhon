@@ -19,7 +19,7 @@ Task Dévlp.  R. cible début fin   Type  Développement
 0043 Jérémie   0.1.5  30/06 01/07 NS    reading and set-up of boundary conditions
 0044 Jérémie   0.1.5  01/07 05/07 NS    initialization parameters et actual initialization
 0046 Jérémie   0.1.5  04/07 06/07 NS    main computational subroutines 
-0047 Jérémie   0.1.5              Val   KDIF: pas de convergence SPHERE en PRISM/TETRA
+0047 Jérémie   0.1.5  11/07       Val   KDIF: pas de convergence SPHERE en PRISM/TETRA
 0048 Jérémie   0.1.5  06/07 06/07 Make  Restructuring calcboco subroutines (uniform or not)
 0049 Jérémie   0.1.5  06/07 06/07 NS    Calculation of boundary conditions
 0050 Jérémie   0.1.5  06/07 06/07 NS    HLLE numerical flux
@@ -28,10 +28,13 @@ Task Dévlp.  R. cible début fin   Type  Développement
 0053 Jérémie   0.1.5  06/07 07/07 Out   Generalization of VTK outputs (scalars & vectors)
 0054 Jérémie   0.1.5  07/07 08/07 NS    Validation on uniform test case (debug HLLE)
 0055 Jérémie   0.1.5  07/07 08/07 NS    Validation on 2D shock reflection (debug HLLE)
+0057 Jérémie   0.1.6  10/07       GUI   TYMON user interface (Typhon monitor)
+0058 Jérémie   0.1.5  12/07 12/07 Mesh  Bug correction for mesh with QUAD faces
      Jérémie   0.1.5              Solv  Surrelaxation Jacobi, SOR, SSOR
      Jérémie   0.1.5              Solv  Gel des matrices d'implicitation en fonction du résidu
                0.1.5              KDIF  condition limite de rayonnement
                0.1.5              Opt   Optimisation des calculs GEO3D et proc. appelantes
+     Jérémie   0.1.6              NS    Viscous fluxes
      Jérémie   0.1.6              KDIF  Implicitation des conditions limites
                0.2.0              Make  Restructuration des sorties (get_data/calc_data/output)
                0.2.0              Out   Sorties multiples (block:output)

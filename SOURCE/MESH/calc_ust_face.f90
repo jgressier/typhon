@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_ust_face               Auteur : J. Gressier
 !                                         Date   : Novembre 2002
-! Fonction                                Modif  :
+! Fonction                                Modif  : see history
 !   Calcul des faces
 !   . barycentre de la face (ou centre de gravité)  (cgface)
 !   . normale (sens arbitraire) de la face  
@@ -42,7 +42,7 @@ type(v3d)      :: pt, cg1, cg2   ! point et CG intermédiaires
 
 ! -- Debut de la procedure --
 
-print*,"debug",facevtex%nbnodes
+!print*,"debug",facevtex%nbnodes
 nface = facevtex%nbnodes          ! nombre de faces dans la connectivité
 allocate(vtex(facevtex%nbfils))   ! nombre maximal de sommets par face
 
@@ -92,7 +92,7 @@ do if = 1, nface
     ! calcul du second triangle élémentaire
     pt   = .5 * ( (vtex(3)-vtex(1)) .vect. (vtex(4)-vtex(1)) )
     s2   = abs(pt) 
-    cg1  = (vtex(1) + vtex(3) + vtex(4)) / 3._krp
+    cg2  = (vtex(1) + vtex(3) + vtex(4)) / 3._krp
     ! calcul des normales et surfaces
     norm = norm + pt
     surf = abs(norm)
@@ -111,3 +111,9 @@ enddo
 deallocate(vtex)
 
 endsubroutine calc_ust_face
+!------------------------------------------------------------------------------!
+! Change history
+!
+! nov  2002 : creation
+! july 2004 : bug correction (computation of QUAD face center)
+!------------------------------------------------------------------------------!

@@ -365,7 +365,13 @@ Task 0054 (Jérémie) : NS : Validation on uniform test case
 - Bug HLLE flux
 
 ---------------------------------------------------------------------------------
-Task 0054 (Jérémie) : NS    Validation on 2D shock reflection (debug HLLE)
+Task 0054 (Jérémie) : NS : Validation on 2D shock reflection (debug HLLE)
 ---------------------------------------------------------------------------------
-- VALDITION/EULER/SHOCK-REFX/FLAT
+- VALIDATION/EULER/SHOCK-REFX/FLAT
 - Bug HLLE flux
+
+---------------------------------------------------------------------------------
+Task 0058 (Jérémie) : Mesh : Bug correction for mesh with QUAD faces
+---------------------------------------------------------------------------------
+- known problem : bad position of prism center (KDIF/SPHERE/HYB)
+- calc_ust_face : bug in the computation of face gravity center
