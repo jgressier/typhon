@@ -47,7 +47,7 @@ do i = 1, defsolver%ninit
 
   select case(defsolver%typ_solver)
   case(solKDIF)
-    call init_kdif_ust(defsolver%init(i)%kdif, champ)
+    call init_kdif_ust(defsolver%init(i)%kdif, champ, defsolver%init(i)%unif, ust_mesh%mesh)
   case(solVORTEX)
     call init_vort_ust(defsolver%init(i)%vortex, champ)
   case default

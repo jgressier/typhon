@@ -220,3 +220,6 @@ Task 0034 (Emmanuel) : Out
   du temps et valeur de correction en fct du temps (TYPE = resp. WALLTEMP, FLUX
   et CORRECTION)
 
+Task 0035 (Emmanuel) : KDIF
+---------------------------------------------------------------------------------
+- condition initiale de température non uniforme : loi linéaire.

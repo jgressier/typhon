@@ -90,7 +90,16 @@ integer           :: ib
   endselect
 
   ! -- destruction des paramètres d'initialisation --
-
+  select case(defsolver%typ_solver)
+  case(solKDIF)
+    do ib = 1, defsolver%ninit
+      if (defsolver%init(ib)%unif==init_nonunif) then
+        deallocate(defsolver%init(ib)%kdif%coef)
+      endif
+    enddo
+  case(solNS)
+  case(solVORTEX)
+  endselect
   if (defsolver%ninit >= 1) then
     deallocate(defsolver%init)
   endif

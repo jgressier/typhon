@@ -52,8 +52,9 @@ do i = 1, n_init
 
   ! -- Détermination des caractéristiques communes
 
-  !call rpmgetkeyvalstr(pcour, "FAMILY", str)
-  !defsolver%boco(ib)%family = str
+  call rpmgetkeyvalstr(pcour, "UNIFORMITY", str, "YES")
+  if (samestring(str, "YES"))  defsolver%init(i)%unif = init_unif
+  if (samestring(str, "NO"))   defsolver%init(i)%unif = init_nonunif
 
   ! -- Détermination du type de repère
 
@@ -72,7 +73,7 @@ do i = 1, n_init
 
   select case(isolver)
   case(solKDIF)
-    call def_init_kdif(pcour, defsolver%init(i)%kdif)
+    call def_init_kdif(pcour, defsolver%init(i)%kdif, defsolver%init(i)%unif)
   case(solVORTEX)
     call def_init_vortex(pcour, defsolver%init(i)%vortex)
   case default

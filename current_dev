@@ -30,6 +30,7 @@ Task Dévlp.  R. cible début fin   Type  Développement
 0032 Emmanuel  0.1.4        19/04 Coupl différents types de correction
 0033 Emmanuel  0.1.4        19/04 Coupl orientation du coefficient de correction en fonction des diffusivités
 0034 Emmanuel  0.1.4        19/04 Out   sortie des valeurs de température et flux d'interface et des corrections
+0035 Emmanuel  0.1.4        13/05 KDIF  condition initiale de température non uniforme linéaire
      Jérémie   0.1.5              Solv  Optimisation de la structure DLU (SPARSE_MAT) (faces limites)
                0.1.5              KDIF  condition limite de rayonnement
                0.1.5              Opt   Optimisation des calculs GEO3D et proc. appelantes

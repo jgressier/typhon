@@ -21,8 +21,9 @@ implicit none
 
 ! -- Variables globales du module -------------------------------------------
 
-! -- Définition des entiers caractéristiques pour le type de solveur --
-
+! -- Définition des entiers caractéristiques pour l'uniformité de la CI --
+integer, parameter :: init_unif    = 10   
+integer, parameter :: init_nonunif = 20 
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
@@ -32,6 +33,7 @@ implicit none
 type mnu_init
   type(st_init_kdif)  :: kdif     ! condition aux limites propre au solveur KDIF
   type(st_init_vort)  :: vortex   ! condition aux limites propre au solveur VORTEX
+  integer             :: unif     ! uniformité de la condition initiale
 endtype mnu_init
 
 

@@ -58,6 +58,9 @@ endtype st_boco_kdif
 !------------------------------------------------------------------------------!
 type st_init_kdif
   real(krp) :: temp           ! température du champ
+  real(krp), dimension(:), pointer &
+            :: coef           ! coefficients pour la variation spatialement 
+                              ! linéaire de la condition initiale, provisoire
 endtype st_init_kdif
 
 
