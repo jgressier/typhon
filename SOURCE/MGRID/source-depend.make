@@ -15,7 +15,8 @@ MGRID_MOD = BASEFIELD.$(MOD)    \
 
 MGRID_OBJ = $(MGRID_MOD:.$(MOD)=.o)  \
             calc_gradient.o          \
-            calc_gradient_limite.o  
+            calc_gradient_limite.o   \
+            #precalc_grad_lsq.o 
 
 D_MGRID_OBJ = $(MGRID_OBJ:%=$(PRJOBJ)/%)
 
@@ -27,13 +28,13 @@ all: $(MGRID_LIB)
 
 $(MGRID_LIB): $(D_MGRID_OBJ)
 	@echo ---------------------------------------------------------------
-	@echo \* Création de la librairie $(MGRID_LIB)
+	@echo \* Creating library $(MGRID_LIB)
 	@touch $(MGRID_LIB) ; rm $(MGRID_LIB)
 	@$(AR) ruv $(MGRID_LIB) $(D_MGRID_OBJ)
-	@echo \* Création de l\'index de la librairie
+	@echo \* Creating library index
 	@$(RAN)    $(MGRID_LIB)
 	@echo ---------------------------------------------------------------
-	@echo \* LIBRAIRIE $(MGRID_LIB) créée
+	@echo \* $(MGRID_LIB) LIBRARY created
 	@echo ---------------------------------------------------------------
 
 MGRID_clean:

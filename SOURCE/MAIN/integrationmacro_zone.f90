@@ -136,7 +136,7 @@ do while (.not.fin)
                           ! apres homogeneisation des solveurs dans MGRID
     select case(lzone%defsolver%typ_solver)
     case(solKDIF, solNS)
-      call update_champ(lzone%info, lzone%grid%field_loc, &
+      call update_champ(lzone%info, lzone%grid%info%field_loc, &
                         lzone%grid%umesh%ncell_int)  ! maj  des var. conservatives
     case(solVORTEX)
       ! pas de mise a jour pour le moment 

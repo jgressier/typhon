@@ -42,14 +42,14 @@ type(mnu_zonecoupling), dimension(1:ncoupling) &
 select case(deftime%tps_meth)
 
 case(tps_expl)
-  call explicit_step(dt, typtemps, defsolver, defspat, deftime, grid%umesh, grid%field_loc, &
+  call explicit_step(dt, typtemps, defsolver, defspat, deftime, grid%umesh, grid%info%field_loc, &
                      coupling, ncoupling)
 
 case(tps_rk)
   call erreur("developpement","methode RUNGE KUTTA non implementee")
 
 case(tps_impl)
-  call implicit_step(dt, typtemps, defsolver, defspat, deftime, grid%umesh, grid%field_loc, &
+  call implicit_step(dt, typtemps, defsolver, defspat, deftime, grid%umesh, grid%info%field_loc, &
                      coupling, ncoupling)
 
 case(tps_dualt)

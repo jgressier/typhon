@@ -54,9 +54,9 @@ exchcycle(:) = 1 ! initialisation a 1 : 1er echange au 1er cycle, a partir des c
 do izone = 1, lworld%prj%nzone
   pgrid => lworld%zone(izone)%grid
   do while (associated(pgrid))
-    call alloc_res(pgrid%field_loc)
+    call alloc_res(pgrid%info%field_loc)
     !! DEV : l'allocation ne doit se faire que dans certains cas
-    call alloc_grad(pgrid%field_loc)
+    call alloc_grad(pgrid%info%field_loc)
     pgrid => pgrid%next
   enddo
 enddo
@@ -131,7 +131,7 @@ enddo
 
 ! Mise a jour des variables primitives
 do izone = 1, lworld%prj%nzone
-  call calc_varprim(lworld%zone(izone)%defsolver, lworld%zone(izone)%grid%field_loc)
+  call calc_varprim(lworld%zone(izone)%defsolver, lworld%zone(izone)%grid%info%field_loc)
 enddo
 
 ! Mise a jour des conditions aux limites, notamment de couplage pour l'affichage des donnees :
@@ -161,8 +161,8 @@ deallocate(exchcycle)
 do izone = 1, lworld%prj%nzone
  select case(lworld%zone(izone)%defsolver%typ_solver)    ! DEV : en attendant homogeneisation
  case(solKDIF)                                           ! de l'acces des champs dans 
-   call dealloc_res(lworld%zone(izone)%grid%field_loc)       ! les structures MGRID
-   call dealloc_grad(lworld%zone(izone)%grid%field_loc)
+   call dealloc_res(lworld%zone(izone)%grid%info%field_loc)       ! les structures MGRID
+   call dealloc_grad(lworld%zone(izone)%grid%info%field_loc)
  case(solVORTEX)
  endselect
 enddo

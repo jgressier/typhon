@@ -1,5 +1,5 @@
 !------------------------------------------------------------------------------!
-! Procedure : precalc_grad_lsq               Auteur : J. Gressier
+! Procedure : precalc_grad_lsq            Auteur : J. Gressier
 !                                         Date   : Septembre 2003
 ! Fonction                                Modif  : (cf historique)
 !   Calcul des gradients d'un champ generique (conservatif ou primitif)
@@ -16,12 +16,13 @@ use VARCOM
 use MENU_SOLVER
 use DEFFIELD
 use USTMESH
+use TENSOR3
 
 implicit none
 
 ! -- Declaration des entrees --
 type(mnu_solver)      :: def_solver  ! definition des parametres du solveur
-type(st_mgrid)        :: mgrid       ! maillage et connectivites
+type(st_grid)         :: mgrid       ! maillage et connectivites
 
 ! -- Declaration des sorties --
 type(st_genericfield) :: grad        ! champ des gradients

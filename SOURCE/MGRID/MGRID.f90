@@ -25,21 +25,40 @@ implicit none
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
+! Definition ST_INFOGRID : 
+!------------------------------------------------------------------------------!
+type st_infogrid
+  integer                 :: id                ! grid index
+  integer                 :: mpi_cpu           ! CPU/process  index
+  type(st_field), pointer :: field_loc         ! pointer to instantaneous field
+  type(st_field), pointer :: field_cyclestart  ! pointer to starting cycle field
+endtype st_infogrid
+
+!------------------------------------------------------------------------------!
+! Definition ST_INFOGRID : 
+!------------------------------------------------------------------------------!
+type st_grd_optmem
+  logical            :: gradcond_computed
+  type(t3d), pointer :: gradcond(:)
+endtype st_grd_optmem
+
+!------------------------------------------------------------------------------!
 ! Definition de la structure ST_GRID : grid maillage general et champ
 !------------------------------------------------------------------------------!
 type st_grid
-  integer                :: id         ! numero de grid
-  integer                :: mpi_cpu    ! numero de CPU charge du calcul
-  type(st_grid), pointer :: next       ! pointeur de liste chainee
-  type(st_grid), pointer :: subgrid    ! pointeur de liste chainee
-  type(st_ustmesh)       :: umesh      ! maillage non structure
-  integer                :: nfield     ! nombre de champs
-  type(st_field), pointer:: field      ! tableau des champs
-  integer                :: nbocofield ! nombre de champs generiques
+  type(st_infogrid)       :: info       ! grid information
+  type(st_grid), pointer  :: next       ! pointeur de liste chainee
+  type(st_grid), pointer  :: subgrid    ! pointeur de liste chainee
+  type(st_ustmesh)        :: umesh      ! maillage non structure (geometry + connectivity)
+
+  integer                 :: nfield     ! nombre de champs
+  type(st_field), pointer :: field      ! chained list of field (cons, prim, grad, residuals)
+
+  integer                 :: nbocofield ! nombre de champs generiques
   type(st_genericfield), pointer &
-                         :: bocofield  ! liste chainee de champs generiques
-  type(st_field), pointer:: field_loc  ! champ local pour l'integration
-  type(st_field), pointer:: field_cyclestart  ! champ de debut de cycle
+                          :: bocofield  ! chained list of generic fields (sca, vec, tens)
+                                        !   for boundary conditions
+  type(st_grd_optmem)     :: optmem     ! 
 endtype st_grid
 
 
@@ -72,7 +91,7 @@ implicit none
 type(st_grid)  :: grid
 integer        :: id
 
-  grid%id = id
+  grid%info%id = id
   nullify(grid%next)
   nullify(grid%subgrid)
 
@@ -105,7 +124,8 @@ type(st_grid)  :: grid
   ! destruction des champs et maillage de la grille
   call delete(grid%umesh)
   call delete_chainedfield(grid%field)
-  deallocate(grid%field_loc)
+  
+  !deallocate(grid%info%field_loc)
 
   ! destruction des sous-grilles
   call delete_chainedgrid(grid%subgrid)

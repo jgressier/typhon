@@ -81,7 +81,7 @@ do i=1, nfacelim
   select case(zone1%defsolver%defkdif%materiau%type)
   case(mat_LIN, mat_KNL)
     conduct1 = valeur_loi(zone1%defsolver%defkdif%materiau%Kd, &
-                          zone1%grid%field_loc%etatprim%tabscal(1)%scal(icl1))
+                          zone1%grid%info%field_loc%etatprim%tabscal(1)%scal(icl1))
   case(mat_XMAT)
     call erreur("Calcul de materiau","Materiau non lineaire interdit")
   endselect
@@ -90,7 +90,7 @@ do i=1, nfacelim
   select case(zone2%defsolver%defkdif%materiau%type)
   case(mat_LIN, mat_KNL)
     conduct2 = valeur_loi(zone2%defsolver%defkdif%materiau%Kd, &
-                          zone2%grid%field_loc%etatprim%tabscal(1)%scal(icl2))
+                          zone2%grid%info%field_loc%etatprim%tabscal(1)%scal(icl2))
   case(mat_XMAT)
     call erreur("Calcul de materiau","Materiau non lineaire interdit")
   endselect
