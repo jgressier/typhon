@@ -14,13 +14,15 @@ Task Dévlp.  R. cible début fin   Type  Développement
 0001 Jérémie   0.1.3  29/10 29/10 SCH   bug calcul de gradients
 0002 Jérémie   0.1.3  29/10 04/11 Val   maillage 2D TRI - méthode flux FULL
 0003 Jérémie   0.1.3  29/10 04/11 SCH   amélioration calcul gradients (avec ghost-cell)
-               0.1.3              Coupl calcul de connectivités des faces couplées
-               0.1.3              KDIF  condition limite de convection h(T-Tref)
 0006 Emmanuel  0.1.3  12/11 18/11 Coupl Orientation des conditions aux limites aux raccords par COUPLING
-               0.1.4              KDIF  condition limite de rayonnement
-0005 Jérémie   0.1.4  18/11 19/11 Out   Définition de capteurs
+0005 Jérémie   0.1.3  18/11 19/11 Out   Définition de capteurs
+0007 Jérémie   0.1.3  26/11       Make  Restructuration du calcul des champs prim, grad, et cond. lim.
+0008 Jérémie   0.1.3  26/11       Out   Sauvegarde de capteurs BOCO_FIELD
+0009           0.1.3              Coupl calcul de connectivités des faces couplées
+0010           0.1.3              KDIF  condition limite de convection h(T-Tref)
                0.1.4              Make  calcul des index de conditions limites connectées à la lecture
                0.1.4              Val   maillage 3D TETRA et/ou HEXA
+               0.1.4              KDIF  condition limite de rayonnement
                0.1.4              IHM   affichage intermittent des itérations (mod(it,10))
      Emmanuel  0.2.0  18/07             Corrections de flux pour échanges espacés
 0004 Emmanuel  0.2.0        07/11 Coupl Première version de couplage stationnaire
@@ -28,6 +30,7 @@ Task Dévlp.  R. cible début fin   Type  Développement
                0.2.0              Out   Sorties multiples (block:output)
                0.2.0                    Restructuration de MAIN/integration_cycle (split)
                0.2.0              Make  Suppression des structures de données STRMESH (1)
+               0.2.0              Make  Structuration des champs et maillages par niveau 
                0.2.0              Make  Définition des historiques
                0.2.0              Make  Restructuration des données SOLVEUR (structure commune)
                0.2.0              Make  Initialisation conditionnelle MPI
