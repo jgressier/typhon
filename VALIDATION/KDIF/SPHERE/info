@@ -1,0 +1,62 @@
+-------------------------------------------------
+CAS DE CONDUCTION DE LA CHALEUR
+-------------------------------------------------
+EVOLUTION SPHERIQUE 1D
+-------------------------------------------------
+main.rpm      : fichier de paramètres du calcul
+tetra.cgns    : maillage au format CGNS
+-------------------------------------------------
+
+* MAILLAGE
+ - demi sphere (rayon intérieur 1, rayon extérieur 10)
+ - 28894 tetra
+
+* MODELE
+ - conduction de la chaleur, modèle linéaire (lambda et Cp constants)
+
+* CONDITIONS AUX LIMITES
+ - isothermes sur les parois (SPHERE et EXT) de la sphere
+ - adiabatique sur les sections (SYM)
+
+* PARAMETRES DE SIMULATION
+ - convergence à 1.e-4 
+ - Flux FULL
+ - Fourier à 50, méthode implicite JACOBI, paramètres par défaut
+
+
+-------------------------------------------------
+SOLUTION THEORIQUE OU COMPARAISON EXPERIMENTALE
+-------------------------------------------------
+
+Soit T1 et T2, les températures respectivement imposées sur les parois
+du cylindre en R1 et R2. La solution théorique (pour une conductivité 
+constante) est
+
+T(r) = (T2-T1)*R1*R2/(R1-R2)/r + (T2*R2 - T1*R1)*(R2-R1)
+
+
+-------------------------------------------------
+COMMENTAIRES SUR LA SOLUTION
+-------------------------------------------------
+
+
+-------------------------------------------------
+Benchmark
+-------------------------------------------------
+Harfang: Pentium 4 - 1.7GHz - 512 Mo
+Akira  : R14000a   - 600MHz -  64 Go
+Blasius:
+
+Version    Harfang         Akira
+0.1.4    140m (28Mo)      77m (27Mo)
+
+
+
+
+
+
+
+
+
+
+

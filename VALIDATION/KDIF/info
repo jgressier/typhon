@@ -14,6 +14,11 @@ STABILITE_TUBE : validation en stabilité, maillage 1D.
 
 CYL1D : évolution cylindrique 1D. Validation sur les champs de température.
         Comparaison avec la solution théorique analytique.
+        (plusieurs maillages, plusieurs cas de paramètres de calcul)
+
+SPHERE : évolution sphérique 1D. Validation sur les champs de température.
+         Comparaison avec la solution théorique analytique.
+         (plusieurs maillages, plusieurs cas de paramètres de calcul)
 
 _________________________________________
 * VALIDATION A CONDUCTIVITE POLYNOMIALE *
