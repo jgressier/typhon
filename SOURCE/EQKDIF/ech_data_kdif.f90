@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !   Limitation au cas un domaine unique par zone
 !------------------------------------------------------------------------------!
-
+ 
 subroutine ech_data_kdif(donnees_echange_inst1, zone1, nbc1, &
                          donnees_echange_inst2, zone2, nbc2, ncoupl1, &
                          ncoupl2, typcor )

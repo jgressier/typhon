@@ -9,7 +9,7 @@
 !------------------------------------------------------------------------------!
 subroutine corr_varprim(field, domaine, def_solver, dif_enflux, nb, part_cor, &
                         typ_cor, fincycle)
-
+ 
 use TYPHMAKE
 use OUTPUT
 use VARCOM

@@ -7,7 +7,7 @@
 !
 ! Defauts/Limitations/Divers :
 !------------------------------------------------------------------------------!
-
+ 
 subroutine calcdifflux_kdif(etatcons1, etatcons2, nfacelim, corcoef, connface2)
 
 use OUTPUT

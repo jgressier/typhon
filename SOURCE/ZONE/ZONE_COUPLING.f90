@@ -25,7 +25,7 @@ type st_zonecoupling
   integer                    :: nface_ext      ! nb de faces côté externe
   type(st_genericfield)      :: echdata        ! données d'échange (champ de zone externe)
   type(st_genericfield)      :: etatcons       ! énergie à l'interface
-  integer, dimension(:), pointer &
+  integer, dimension(:), pointer & 
                              :: connface       ! connectivité de face (dim = nface_int)
                                                !   connface(i) = j
                                                !   : face i interne = face j externe

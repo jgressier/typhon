@@ -9,7 +9,7 @@
 !
 !------------------------------------------------------------------------------!
 subroutine integration_cycle(lworld, exchcycle, ncoupling)
-
+ 
 use TYPHMAKE
 use OUTPUT
 use VARCOM

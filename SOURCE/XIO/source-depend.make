@@ -1,6 +1,6 @@
 ############################################################
 ##   Compilation de la librairie XIO
-
+ 
 LDIR = XIO
 
 ####### Files

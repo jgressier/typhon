@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers : pour l'instant, une methode de calcul commune 
 !				aux deux zones
 !------------------------------------------------------------------------------
-
+ 
 subroutine choixcorrection(zone1, zone2, placement, corcoef, typ_cor, &
                            nfacelim, nbc1, nbc2, ncoupl2)
 

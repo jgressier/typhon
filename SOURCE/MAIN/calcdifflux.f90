@@ -7,7 +7,7 @@
 !  selon solver.
 ! Defauts/Limitations/Divers :
 !------------------------------------------------------------------------------!
-
+ 
 subroutine calcdifflux(etatcons1, etatcons2, nfacelim, solvercoupling, &
                        corcoef, connface2)
 

@@ -10,7 +10,7 @@
 subroutine correction(zone1, zone2, nfacelim, corcoef, nbc1, nbc2, ncoupl1, &
                       ncoupl2, part_cor1, part_cor2, typ_cor1, typ_cor2, &
                       fincycle)
-
+ 
 use OUTPUT
 use VARCOM
 use DEFZONE

@@ -8,7 +8,7 @@
 !
 !----------------------------------------------------------------------------------------
 module VARCOM
-
+ 
 
 use TYPHMAKE   ! Définition de la précision machine
 

@@ -27,6 +27,9 @@ Task Dévlp.  R. cible début fin   Type  Développement
      Jérémie   0.1.4              Make  Sauvegarde de capteurs BOCO_FIELD
                0.1.4              Make  calcul des index de conditions limites connectées à la lecture
      Jérémie   0.1.4              Opt   explosion temps de calcul VALIDATION/KDIF/KNL2
+0032 Emmanuel  0.1.4        19/04 Coupl différents types de correction
+0033 Emmanuel  0.1.4        19/04 Coupl orientation du coefficient de correction en fonction des diffusivités
+0034 Emmanuel  0.1.4        19/04 Out   sortie des valeurs de température et flux d'interface et des corrections
      Jérémie   0.1.5              Solv  Optimisation de la structure DLU (SPARSE_MAT) (faces limites)
                0.1.5              KDIF  condition limite de rayonnement
                0.1.5              Opt   Optimisation des calculs GEO3D et proc. appelantes

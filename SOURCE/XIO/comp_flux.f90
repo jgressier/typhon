@@ -143,6 +143,6 @@ endsubroutine comp_flux
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juin 2003 : création de la procédure
-! juil 2003 : conductivité non constante
+! juin 2003 (v0.0.1b): création de la procédure
+! juillet 2003       : conductivité non constante
 !------------------------------------------------------------------------------!

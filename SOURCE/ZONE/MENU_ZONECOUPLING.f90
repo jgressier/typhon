@@ -28,7 +28,7 @@ type mnu_zonecoupling
   real(krp)                  :: partcor    ! part de correction à faire par 
                                            ! itération <=1
   integer                    :: typ_cor    ! type de répartition de correction
-endtype mnu_zonecoupling
+endtype mnu_zonecoupling 
 
 ! -- INTERFACES -------------------------------------------------------------
 

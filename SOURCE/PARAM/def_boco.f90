@@ -9,7 +9,7 @@
 !
 !------------------------------------------------------------------------------!
 subroutine def_boco(block, isolver, defsolver, zcoupling, ncoupling)
-
+ 
 use RPM
 use TYPHMAKE
 use OUTPUT

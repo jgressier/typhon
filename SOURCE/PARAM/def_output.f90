@@ -9,7 +9,7 @@
 !
 !------------------------------------------------------------------------------!
 subroutine def_output(block, world)
-
+ 
 use RPM
 use TYPHMAKE
 use OUTPUT

@@ -8,7 +8,7 @@
 !
 !------------------------------------------------------------------------------!
 subroutine output_result(world, position) !DEV2602 subroutine output_result(world)
-
+ 
 use TYPHMAKE
 use OUTPUT
 use VARCOM
