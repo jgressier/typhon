@@ -57,7 +57,8 @@ do i=1, domaine%boco(nb)%nface
 !    if (.not. fincycle) then
       if (abs(dif_enflux%tabscal(3)%scal(i)) .ge. &
           abs(part_cor*dif_enflux%tabscal(2)%scal(i)) ) then
-!print*, "debug correction répartie C", dif_enflux%tabscal(3)%scal(i), part_cor*dif_enflux%tabscal(2)%scal(i)
+          !print*, "debug correction répartie C", dif_enflux%tabscal(3)%scal(i), &
+          !          part_cor*dif_enflux%tabscal(2)%scal(i)
         do ip = 1, field%nscal
           field%residu%tabscal(ip)%scal(ic1) = &
                                        - part_cor*dif_enflux%tabscal(2)%scal(i)
@@ -75,7 +76,8 @@ do i=1, domaine%boco(nb)%nface
         !                                part_cor*dif_enflux%tabvect(2)%vect(i)
         !enddo
       else
-!print*, "debug correction répartie NC", dif_enflux%tabscal(3)%scal(i), part_cor*dif_enflux%tabscal(2)%scal(i)
+        !print*, "debug correction répartie NC", dif_enflux%tabscal(3)%scal(i), &
+        !          part_cor*dif_enflux%tabscal(2)%scal(i)
         do ip = 1, field%nscal
           field%residu%tabscal(ip)%scal(ic1) = - dif_enflux%tabscal(3)%scal(i)
           field%residu%tabscal(ip)%scal(ic2) = dif_enflux%tabscal(3)%scal(i)
@@ -189,7 +191,9 @@ do i=1, domaine%boco(nb)%nface
   enddo
 
   if (typ_cor == bocoT2) then
-    def_solver%boco(domaine%boco(nb)%idefboco)%boco_kdif%temp(i)=def_solver%boco(domaine%boco(nb)%idefboco)%boco_kdif%temp(i)+(field%residu%tabscal(ip)%scal(ic2)/def_solver%defkdif%materiau%Cp)
+    def_solver%boco(domaine%boco(nb)%idefboco)%boco_kdif%temp(i)= &
+      def_solver%boco(domaine%boco(nb)%idefboco)%boco_kdif%temp(i)&
+      +(field%residu%tabscal(ip)%scal(ic2)/def_solver%defkdif%materiau%Cp)
 
   else
 
@@ -217,5 +221,5 @@ endsubroutine corr_varprim_kdif
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juillet 2003 (v0.0.1b): création de la procédure
+! juillet 2003 : création de la procédure
 !------------------------------------------------------------------------------!

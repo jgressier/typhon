@@ -18,8 +18,9 @@ use MODWORLD
 implicit none
 
 ! -- Declaration des entrées --
-integer                 :: ncoupling        ! nombre de couplages
-integer, dimension(1:ncoupling) :: exchcycle  ! indice du cycle d'échange (pour les différents couplages de zones)
+integer                         :: ncoupling  ! nombre de couplages
+integer, dimension(1:ncoupling) :: exchcycle  ! indice du cycle d'échange
+                                              ! (pour les différents couplages de zones)
 
 ! -- Declaration des entrées/sorties --
 type(st_world) :: lworld
@@ -60,7 +61,9 @@ do ir = 1, ncoupling
      case(instationnaire)
      ! réinitialisation à 0 des tableaux de cumul de flux pour la correction 
      ! de flux
-print*, "correction de flux", lworld%zone(iz1)%coupling(ncoupl1)%zcoupling%etatcons%tabscal(1)%scal(1), lworld%zone(iz1)%coupling(ncoupl1)%zcoupling%etatcons%tabscal(2)%scal(1), lworld%zone(iz1)%coupling(ncoupl1)%zcoupling%etatcons%tabscal(3)%scal(1)
+     print*, "correction de flux", lworld%zone(iz1)%coupling(ncoupl1)%zcoupling%etatcons%tabscal(1)%scal(1), &
+             lworld%zone(iz1)%coupling(ncoupl1)%zcoupling%etatcons%tabscal(2)%scal(1), &
+             lworld%zone(iz1)%coupling(ncoupl1)%zcoupling%etatcons%tabscal(3)%scal(1)
      lworld%zone(iz1)%coupling(ncoupl1)%zcoupling%etatcons%tabscal(1)%scal(:) = 0._krp
      lworld%zone(iz2)%coupling(ncoupl2)%zcoupling%etatcons%tabscal(1)%scal(:) = 0._krp
 

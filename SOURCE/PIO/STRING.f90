@@ -197,7 +197,7 @@ integer function index_rightpar (str, ip, info)
   np     = 1         
   i      = ip+1
   do while ((i <= len).and.(np > 0))
-    select case(str(i))
+    select case(str(i:i))
     case('(')
       np = np + 1
     case(')')

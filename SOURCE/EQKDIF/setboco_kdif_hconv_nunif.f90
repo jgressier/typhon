@@ -58,7 +58,8 @@ do ifb = 1, ustboco%nface
 
   ! Calcul approché de la température du point fictif pour calcul des gradients
   do ip = 1, champ%nscal
-    champ%etatprim%tabscal(ip)%scal(ighost) = ( (conduct/d) * champ%etatprim%tabscal(ip)%scal(ic) + hcoef(ifb)*hTfluid(ifb) ) / (conduct/d+hcoef(ifb))
+    champ%etatprim%tabscal(ip)%scal(ighost) = ( (conduct/d) * &
+      champ%etatprim%tabscal(ip)%scal(ic) + hcoef(ifb)*hTfluid(ifb) ) / (conduct/d+hcoef(ifb))
   enddo
 
   ! Calcul du flux
@@ -71,6 +72,6 @@ endsubroutine setboco_kdif_hconv_nunif
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juin 2004             : création de la procédure
+! juin 2004 : création de la procédure
 !------------------------------------------------------------------------------!
 

@@ -57,10 +57,9 @@ do iboco = 1, ustdom%nboco
       open(unit=1002, file = trim(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%fluxfile), form="formatted")
       read(1002,*)  (defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%flux_nunif(i),i = 1, ustdom%boco(iboco)%nface) 
       close(1002)
-      do i=1,ustdom%boco(iboco)%nface
-        ! convention de flux sortant dans le code / CL : flux entrant pour l'utilisateur
-        defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%flux_nunif(i) = - defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%flux_nunif(i)
-      enddo
+      ! convention de flux sortant dans le code / CL : flux entrant pour l'utilisateur
+      defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%flux_nunif(:) = &
+        - defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%flux_nunif(:)
     endif
   endif
 
@@ -75,10 +74,11 @@ do iboco = 1, ustdom%nboco
       open(unit=1002, file = trim(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%hfile), form="formatted")
       read(1002,*)  (defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%h_nunif(i),i = 1, ustdom%boco(iboco)%nface) 
       close(1002)
-      do i=1,ustdom%boco(iboco)%nface
-        ! convention de flux sortant dans le code / CL : flux entrant pour l'utilisateur
-        defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%h_nunif(i) = - defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%h_nunif(i)
-      enddo
+      !do i=1,ustdom%boco(iboco)%nface
+      ! convention de flux sortant dans le code / CL : flux entrant pour l'utilisateur
+      defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%h_nunif(:) = &
+        - defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%h_nunif(:)
+      !enddo
     endif
 
     if(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%tconvfile .ne. cnull) then

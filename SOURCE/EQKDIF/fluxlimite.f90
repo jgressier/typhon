@@ -33,7 +33,9 @@ integer          :: ifb, if, ib, idef     ! index de liste, index de face limite
 
 do ib = 1, domaine%nboco
   idef = domaine%boco(ib)%idefboco
-  if ( (defsolver%boco(idef)%typ_boco == bc_wall_adiab) .or. (defsolver%boco(idef)%typ_boco == bc_wall_flux) .or. (defsolver%boco(idef)%typ_boco == bc_wall_hconv) ) then
+  if ( (defsolver%boco(idef)%typ_boco == bc_wall_adiab).or. &
+       (defsolver%boco(idef)%typ_boco == bc_wall_flux) .or. &
+       (defsolver%boco(idef)%typ_boco == bc_wall_hconv) ) then
     do ifb = 1, domaine%boco(ib)%nface
       if = domaine%boco(ib)%iface(ifb)
       flux%tabscal(1)%scal(if) = domaine%boco(ib)%bocofield%tabscal(1)%scal(ifb)
@@ -46,5 +48,5 @@ endsubroutine fluxlimite
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juin 2004             : création de la procédure
+! juin 2004 : création de la procédure
 !------------------------------------------------------------------------------!

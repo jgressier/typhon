@@ -8,7 +8,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine def_init_kdif(block, init, unif)
+subroutine def_init_kdif(block, initk, unif)
 
 use RPM
 use TYPHMAKE
@@ -25,7 +25,7 @@ integer                :: type     ! type de condition aux limites
 integer                :: unif     ! uniformité de la condition initiale
 
 ! -- Declaration des sorties --
-type(st_init_kdif) :: init
+type(st_init_kdif) :: initk
 
 ! -- Declaration des variables internes --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
@@ -36,13 +36,13 @@ character(len=dimrpmlig) :: str            ! chaîne RPM intermédiaire
 
 pblock => block
 if (unif == init_unif) then
-  call rpmgetkeyvalreal(pblock, "TEMP", init%temp)
+  call rpmgetkeyvalreal(pblock, "TEMP", initk%temp)
 else ! provisoire
   call print_info(10,"    répartition linéaire de température initiale")
-  allocate(init%coef(4))
+  allocate(initk%coef(4))
   call rpmgetkeyvalstr(pblock, "TEMPC_FILE", str)
   open(unit=1003, file = str, form="formatted")
-  read(1003,*) (init%coef(i),i = 1, 4) 
+  read(1003,*) (initk%coef(i),i = 1, 4) 
   close(1003)
 endif
 
@@ -52,7 +52,7 @@ endsubroutine def_init_kdif
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mars 2003 (v0.0.1b): création de la routine
+! mars 2003 : création de la routine
 !------------------------------------------------------------------------------!
 
 

@@ -56,7 +56,8 @@ do ifb = 1, ustboco%nface
 
   ! Calcul approché de la température du point fictif pour calcul des gradients
   do ip = 1, champ%nscal
-    champ%etatprim%tabscal(ip)%scal(ighost) = ( (conduct/d) * champ%etatprim%tabscal(ip)%scal(ic) + hcoef*hTfluid ) / (conduct/d+hcoef)
+    champ%etatprim%tabscal(ip)%scal(ighost) = & 
+      ( (conduct/d) * champ%etatprim%tabscal(ip)%scal(ic) + hcoef*hTfluid ) / (conduct/d+hcoef)
   enddo
 
   ! Calcul du flux

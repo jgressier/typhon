@@ -64,7 +64,8 @@ enddo
 
 ! -- construction d'une connectivité cgnsboco/vertex associée --
 
-dim = count(mkvtex==.true.)
+!dim = count(mkvtex==.true.)
+dim = count(mkvtex)
 cgboco%nom    = cgnsboco%nom
 cgboco%family = cgnsboco%family
 call new(cgboco%list, dim)

@@ -8,7 +8,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine def_init_vortex(block, init)
+subroutine def_init_vortex(block, initv)
 
 use RPM
 use TYPHMAKE
@@ -23,7 +23,7 @@ type(rpmblock), target :: block    ! bloc RPM contenant les définitions
 integer                :: type     ! type de condition aux limites
 
 ! -- Declaration des sorties --
-type(st_init_vort)     :: init
+type(st_init_vort)     :: initv
 
 ! -- Declaration des variables internes --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM

@@ -38,13 +38,15 @@ do ir = 1, lworld%prj%ncoupling
   call calcul_raccord(lworld, ir, iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2)
 
   if (curtps == 0) then
-    open(unit = ufc, file = trim(lworld%output(io)%fichier)//trim(adjustl(strof(ir,3)))//'_'//trim(adjustl(strof(1,3)))//'.dat', form = 'formatted')
+    open(unit = ufc, file = trim(lworld%output(io)%fichier)//trim(adjustl(strof(ir,3)))//'_'//&
+                            trim(adjustl(strof(1,3)))//'.dat', form = 'formatted')
     write(ufc, '(a)') 'VARIABLES="t","CORRECTION"'
     write(ufc,*) 'ZONE T="'//trim(lworld%zone(iz1)%nom)//' / '//trim(lworld%zone(iz2)%nom)//'"'
     ufc1 = ufc
     ufc = ufc+1
 
-    open(unit = ufc, file = trim(lworld%output(io)%fichier)//trim(adjustl(strof(ir,3)))//'_'//trim(adjustl(strof(2,3)))//'.dat', form = 'formatted')
+    open(unit = ufc, file = trim(lworld%output(io)%fichier)//trim(adjustl(strof(ir,3)))//'_'//&
+                            trim(adjustl(strof(2,3)))//'.dat', form = 'formatted')
     write(ufc, '(a)') 'VARIABLES="t","CORRECTION"'
     write(ufc,*) 'ZONE T="'//trim(lworld%zone(iz2)%nom)//' / '//trim(lworld%zone(iz1)%nom)//'"'
     ufc2 = ufc
