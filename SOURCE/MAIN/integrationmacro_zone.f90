@@ -117,18 +117,20 @@ do while (.not.fin)
   case(stationnaire)
     lzone%info%residu_ref = max(lzone%info%residu_ref, lzone%info%cur_res)
     if (lzone%info%cur_res/lzone%info%residu_ref <= lzone%info%residumax) fin = .true.
-    write(str_w,'(a,i5,a,g10.4)') "    iteration",iter," | residu = ", &
-                                  log10(lzone%info%cur_res/lzone%info%residu_ref)
+    if (mod(iter,10) == 0) &
+      write(str_w,'(a,i5,a,g10.4)') "    iteration",iter," | residu = ", &
+                                    log10(lzone%info%cur_res/lzone%info%residu_ref)
 
   case(instationnaire)
     local_t = local_t + dt
-    write(str_w,'(a,i5,a,g10.4)') "    integration",iter," à t local =",local_t
+    if (mod(iter,10) == 0) &
+      write(str_w,'(a,i5,a,g10.4)') "    integration",iter," à t local =",local_t
   
   case(periodique)
 
   endselect
 
-  call print_info(9,str_w)
+  if (mod(iter,10) == 0) call print_info(9,str_w)
 
 enddo
 
