@@ -44,17 +44,27 @@ if (position == end_calc) then
 
       select case(world%zone(izone)%defsolver%typ_solver)
 
+      case(solNS)
+        write(uf_chpresu,'(a)') '# vtk DataFile Version 2.0'
+        write(uf_chpresu,'(a)') 'TYPHON-NS'
+        write(uf_chpresu,'(a)') 'ASCII'
+        call output_vtk_cell(uf_chpresu, world%zone(izone)%defsolver, &
+                             world%zone(izone)%grid%umesh, world%zone(izone)%grid%field)
+
       case(solKDIF)
 
         write(uf_chpresu,'(a)') '# vtk DataFile Version 2.0'
         write(uf_chpresu,'(a)') 'TYPHON-KDIF'
         write(uf_chpresu,'(a)') 'ASCII'
-        call output_vtk_cell(uf_chpresu, world%zone(izone)%grid%umesh, &
-                             world%zone(izone)%grid%field)
+        call output_vtk_cell(uf_chpresu, world%zone(izone)%defsolver, &
+                             world%zone(izone)%grid%umesh, world%zone(izone)%grid%field)
 
       case(solVORTEX)
 
         call erreur("Développement","les sorties VORTEX ne sont pas prévues dans ce format")
+
+      case default
+        call erreur("Développement","solveur inconnu (output_vtk)")
 
       endselect
 
