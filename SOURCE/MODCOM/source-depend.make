@@ -7,7 +7,8 @@ LDIR := MODCOM
 
 MODCOM_LIB = libt_modcom.a
 
-MODCOM_MOD = TYPHMAKE.$(MOD)    \
+MODCOM_MOD = CONNECTIVITY.$(MOD) \
+             TYPHMAKE.$(MOD)     \
              VARCOM.$(MOD) 
 
 MODCOM_OBJ = $(MODCOM_MOD:.$(MOD)=.o) # \

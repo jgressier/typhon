@@ -46,6 +46,8 @@ endtype st_ustboco
 ! Définition de la structure ST_USTCONNECT : Définition de la connectivité
 !   Sommets, faces, cellules
 !------------------------------------------------------------------------------!
+!!!!!!!! A TERME, CETTE STRUCTURE DOIT ETRE SUPPRIMEE ET REMPLACEE !!!!!!!!!!!!!
+!!!!!!!! PAR LES STRUCTURES DE CONNECTIVITY (MODCOM)               !!!!!!!!!!!!!
 type st_ustconnect
   integer                 :: nbnodes     ! nombre de d'ensemble connectivités
   integer                 :: nbfils      ! nombre de connectivités par ensemble
@@ -70,8 +72,8 @@ type st_ustmesh
   type(st_mesh)         :: mesh            ! maillage associé (géométrie)
 !! type(st_ustconnect), pointer &           ! tableau par type d'élements (nbfils)
   type(st_ustconnect)   :: facevtex, &     ! connectivité face   -> sommets   par type
-                           cellface, &     ! connectivité cellule-> faces     par type
-                           cellvtex, &     ! connectivité cellule-> vtex      par type
+      !! non utilisé       cellface, &     ! connectivité cellule-> faces     par type
+      !! non utilisé       cellvtex, &     ! connectivité cellule-> vtex      par type
                            facecell        ! connectivité face   -> cellules  par type
   integer               :: nboco          ! nombre de conditions aux limites
   type(st_ustboco), dimension(:), pointer &
