@@ -58,6 +58,10 @@ include    XIO/source-depend.make
 include   MAIN/source-depend.make 
 
 
+####### Build main
+
+MAIN = Obj/main.o # dépendances dans MAIN/depends.make
+
 ####### Build rules
 
 all: $(PRGNAME)
@@ -68,7 +72,7 @@ $(PRGNAME) : $(D_LIBRARIES) $(MAKEFILE)
 	@echo EDITION DE LIEN DE $(PRGNAME) ---
 	@echo Librairies externes : $(EXTLIBS)
 	@echo Librairies TYPHON   : $(LIBRARIES)
-	@$(LINKER) -L/usr/lib $(LINKFB) $(D_LIBRARIES) $(EXTLIBS) -o $(PRGNAME)
+	@$(LINKER) $(LINKFB) $(MAIN) $(D_LIBRARIES) $(EXTLIBS) -o $(PRGNAME)
 	@echo --- Création de $(PRGNAME) terminée ---
 
 clean:  CGNS_clean  MAIN_clean  MESH_clean  MODCOM_clean  PARAM_clean  \

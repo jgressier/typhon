@@ -12,7 +12,7 @@ PRJOBJ  = $(PRJDIR)/Obj
 ####### Définition des utilitaires
 
 AR          = ar
-RAN         = ranlib
+RAN         = touch
 MAKE        = make
 MAKEDEPENDS = Util/make_depends
 
