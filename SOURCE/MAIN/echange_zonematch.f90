@@ -8,7 +8,7 @@
 !				aux deux zones
 !------------------------------------------------------------------------------!
 
-subroutine echange_zonematch(zone1, zone2, typcalc, nfacelim, nbc1, nbc2, ncoupl1, ncoupl2)
+subroutine echange_zonematch(zone1, zone2, typcalc, nfacelim, nbc1, nbc2, ncoupl1, ncoupl2, corcoef)
 
 use OUTPUT
 use DEFZONE
@@ -25,8 +25,8 @@ integer                    :: nfacelim            ! nombre de faces limites
 integer                    :: nbc1, nbc2          ! indice des conditions aux limites 
                                                   ! concernées dans les zones 1 et 2                                                  
 integer                    :: ncoupl1, ncoupl2    ! numéro (identité) du raccord
-                                                  ! dans les zones 1 et 2                                                  
-
+                                                  ! dans les zones 1 et 2                                                 
+real(krp)                  :: corcoef             ! coefficient de correction de flux
 
 ! -- Declaration des sorties --
 
@@ -39,7 +39,6 @@ type(v3d), dimension(nfacelim) :: vecinter ! vecteurs inter-cellule
 integer                        :: typmethod
 type(v3d)                      :: cg1, cg2, cgface ! centres des cellules des zones 1 et 2, et des faces
 integer                        :: typsolver1, typsolver2
-real(krp)                      :: a
 real(krp)                      :: dif_enflux     ! différence des énergies d'interface dans les deuxzones
 
 ! -- Debut de la procedure --
@@ -48,14 +47,9 @@ real(krp)                      :: dif_enflux     ! différence des énergies d'int
 
 call calcdifflux(zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal, &
                  zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal, &
-                 nfacelim, zone1%coupling(ncoupl1)%zcoupling%solvercoupling )
-!print*, "DEBUG : dif_enflux = ", &
-!        zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal(1)%scal(1), &
-!        zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal(1)%scal(1), &
-!        zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal(2)%scal(1), &
-!        zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal(2)%scal(1)
+                 nfacelim, zone1%coupling(ncoupl1)%zcoupling%solvercoupling, &
+                 corcoef )
 
-! DVT : implémenter un choix de correction avt (ou après) l'echange
 ! Calcul des variables primitives avec correction de flux
 do ifield = 1, zone1%ndom
   call corr_varprim(zone1%field(ifield), &
@@ -131,4 +125,5 @@ endsubroutine echange_zonematch
 !
 ! mai 2003 (v0.0.1b): création de la procédure
 ! juillet 2003      : ajouts pour corrections de  flux
+! oct 2003          : ajout coef correction de flux
 !------------------------------------------------------------------------------!

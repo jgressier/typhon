@@ -22,7 +22,8 @@ type mnu_coupling
   integer               :: typ_calc      ! type de calcul/connection des maillages
   integer               :: period_mode   ! mode de calcul de la périodicité
   integer               :: typ_interpol  ! type de calcul/interpolation
-  integer               :: n_tpsbase     ! périodicité du couplage  
+  integer               :: n_tpsbase     ! périodicité du couplage
+  real(krp)             :: corcoef      ! coefficient pour correction de flux
 endtype mnu_coupling
 
 
@@ -46,6 +47,7 @@ endmodule MENU_COUPLING
 ! Historique des modifications
 !
 ! juin 2003 (v0.0.1b): création du module
+! oct 2003           : ajout coeff correction de flux
 !------------------------------------------------------------------------------!
 
 

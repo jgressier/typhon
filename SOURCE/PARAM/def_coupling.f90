@@ -169,4 +169,16 @@ case default
 endselect
 
 
+! -- Détermination de la valeur du coefficient de correction de flux 
+
+call rpmgetkeyvalreal(pcour, "FLUXCORR_COEF", coupling%corcoef, 0.5_krp)
+
+
 endsubroutine def_coupling
+
+!------------------------------------------------------------------------------!
+! Historique des modifications
+!
+! mai 2003 (v0.0.1b): création de la procédure
+! oct 2003          : ajout coef correction de flux
+!------------------------------------------------------------------------------!

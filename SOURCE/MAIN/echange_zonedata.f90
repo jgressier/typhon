@@ -36,7 +36,8 @@ case(mesh_match)
 call echange_zonematch(lworld%zone(iz1), lworld%zone(iz2), &
                       lworld%coupling(ir)%typ_interpol, &
                       lworld%zone(iz1)%ust_mesh%boco(nbc1)%nface,&
-                      nbc1, nbc2, ncoupl1, ncoupl2  )
+                      nbc1, nbc2, ncoupl1, ncoupl2, &
+                      lworld%coupling(ir)%corcoef )
   
 case(mesh_nonmatch)
 call erreur("Développement","'nonmatch' : Cas non implémenté")
@@ -50,3 +51,10 @@ call erreur("Développement (echange_zonedata)","Cas non implémenté")
 endselect 
 
 endsubroutine echange_zonedata
+
+!------------------------------------------------------------------------------!
+! Historique des modifications
+!
+! mai 2003 (v0.0.1b): création de la procédure
+! oct 2003          : ajout coef correction de flux
+!------------------------------------------------------------------------------!

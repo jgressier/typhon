@@ -8,7 +8,7 @@
 ! Defauts/Limitations/Divers :
 !------------------------------------------------------------------------------!
 
-subroutine calcdifflux_kdif(etatcons1, etatcons2, nfacelim)
+subroutine calcdifflux_kdif(etatcons1, etatcons2, nfacelim, corcoef)
 
 use OUTPUT
 use DEFZONE
@@ -20,6 +20,7 @@ implicit none
 
 ! -- Declaration des entrées --
 integer                    :: nfacelim            ! nombre de faces limites
+real(krp)                  :: corcoef             ! coeff correction de flux
 
 ! -- Declaration des entrées/sorties --
 type(st_scafield), dimension(2) &
@@ -29,7 +30,6 @@ type(st_scafield), dimension(2) &
 
 ! -- Declaration des variables internes --
 integer                        :: i              ! indice de face
-real(krp)                      :: a              ! coefficient correcteur
 real(krp)                      :: dif_enflux     ! différence des énergies d'interface dans les deux zones
 
 ! -- Debut de la procedure --
@@ -42,19 +42,8 @@ do i=1, nfacelim
 ! (les flux sortant de part et d'autre)
 dif_enflux = etatcons2(1)%scal(i) + etatcons1(1)%scal(i)
 
-  !1ere possibilité
-   a = -0.5_krp
-
-  !2eme possibilité : on garde le flux maximum
-!  a = -1._krp
-
-  !3eme possibilité : on garde le flux minimum
-!  a = 0._krp
-
-  etatcons1(2)%scal(i) = a*dif_enflux
-  etatcons2(2)%scal(i) = (-1._krp-a)*dif_enflux
-
-  !4eme possibilite : maximum et minimum en alternance : à faire
+  etatcons1(2)%scal(i) = -corcoef*dif_enflux
+  etatcons2(2)%scal(i) = (-1._krp + corcoef)*dif_enflux
 
 enddo
 
@@ -64,4 +53,5 @@ endsubroutine calcdifflux_kdif
 ! Historique des modifications
 !
 ! juillet 2003 (v0.0.1b): création de la procédure
+! oct 2003              : ajout coefficient correction de flux
 !------------------------------------------------------------------------------!
