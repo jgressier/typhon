@@ -64,6 +64,7 @@ call delete(loc_world)
 !###### Desallocation
 
 call print_etape("> Fin du calcul")
+call finalize_exch(loc_world%info)
 
 !#########
 endprogram
