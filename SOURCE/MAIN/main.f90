@@ -11,15 +11,15 @@
  
 program main
 
-use TYPHMAKE     ! définition de la précision par défaut
-use VARCOM      ! définition des types internes et variables globales
-use OUTPUT      ! définition des procédures et unités pour les sorties
-use MODWORLD        ! Définition des structures pour le maillage
+use TYPHMAKE    ! definition de la precision par defaut
+use VARCOM      ! definition des types internes et variables globales
+use OUTPUT      ! definition des procedures et unites pour les sorties
+use MODWORLD    ! Definition des structures pour le maillage
 
 implicit none
 
 ! -- Variables locale --
-type(st_world) :: loc_world      ! structure encapsulant toutes les données TYPHON
+type(st_world) :: loc_world      ! structure encapsulant toutes les donnees TYPHON
 
 ! -- Debut de la procedure --
 
@@ -40,7 +40,7 @@ call init_varcom()
 
 call def_param(loc_world)
 
-!###### LECTURE MAILLAGE et Génération des structures de données
+!###### LECTURE MAILLAGE et Generation des structures de donnees
 
 call print_etape("> LECTURE : maillages et condition aux limites")
 call lecture_maillage(loc_world)

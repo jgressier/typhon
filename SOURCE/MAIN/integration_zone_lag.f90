@@ -14,7 +14,7 @@ use TYPHMAKE
 use OUTPUT
 use VARCOM
 use DEFZONE
-use LAPACK      ! bibliothèque d'algèbre linéaire
+use LAPACK      ! linear algebra
 
 implicit none
 

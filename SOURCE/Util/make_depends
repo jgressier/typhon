@@ -19,7 +19,8 @@ for fic in *.f90 ; do
     grep -i '^ *use ' $fic       | 
       sed 's/!.*$//'             | 
       sed 's/ *$/.$(MOD)    \\/' | 
-      sed 's/^ *use /                         $(PRJINC)\//' >> $TARGET
+      tr   a-z A-Z               |
+      sed 's/^ *USE /                         $(PRJINC)\//' >> $TARGET
     echo >> $TARGET
   fi
 
@@ -29,7 +30,8 @@ for fic in *.f90 ; do
   grep -i '^ *use ' $fic       | 
     sed 's/!.*$//'             | 
     sed 's/ *$/.$(MOD)    \\/' | 
-    sed 's/^ *use /                         $(PRJINC)\//' >> $TARGET
+    tr   a-z A-Z               |
+    sed 's/^ *USE /                         $(PRJINC)\//' >> $TARGET
   echo >> $TARGET
 
 done

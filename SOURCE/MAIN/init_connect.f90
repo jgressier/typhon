@@ -11,7 +11,7 @@
 subroutine init_connect(zone)
 
 use TYPHMAKE
-use VARCOM     ! Définition des constantes
+use VARCOM     ! Definition des constantes
 use OUTPUT
 use DEFZONE
 

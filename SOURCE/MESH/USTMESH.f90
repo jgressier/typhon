@@ -11,10 +11,10 @@
 
 module USTMESH
 
-use TYPHMAKE      ! Definition de la precision
+use TYPHMAKE      ! machine accuracy
 use GEO3D 
-use MESHBASE      ! Librairie pour les éléments géométriques de base
-use CONNECTIVITY  ! Librairie de gestion de listes et connectivités
+use MESHBASE      ! geometrical basic elements
+use CONNECTIVITY  ! lists & connectivity 
 use DEFFIELD
 
 implicit none

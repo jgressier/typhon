@@ -13,13 +13,13 @@
 module MENU_SOLVER
 
 use TYPHMAKE      ! Definition de la precision
-use MENU_NS       ! Définition des solveurs type NS
-use MENU_KDIF     ! Définition des solveurs type Equation de diffusion
-use MENU_VORTEX   ! Définition des solveurs type VORTEX (lagrangien)
-use MENU_BOCO     ! Définition des conditions limites
-use MENU_INIT     ! Définition de l'initialisation
-use MENU_CAPTEURS ! Définition des capteurs
-use MENU_AMR      ! Définition des paramètres de raffinement
+use MENU_NS       ! Definition des solveurs type NS
+use MENU_KDIF     ! Definition des solveurs type Equation de diffusion
+use MENU_VORTEX   ! Definition des solveurs type VORTEX (lagrangien)
+use MENU_BOCO     ! Definition des conditions limites
+use MENU_INIT     ! Definition de l'initialisation
+use MENU_CAPTEURS ! Definition des capteurs
+use MENU_AMR      ! Definition des parametres de raffinement
 
 implicit none
 

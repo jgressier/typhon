@@ -15,7 +15,7 @@ module STRMESH
 use TYPHMAKE   ! Definition de la precision
 use OUTPUT
 use GEO3D      ! 
-use MESHBASE   ! Librairie pour les éléments géométriques de base
+use MESHBASE   ! basic geometrical elements
 
 implicit none
 

@@ -10,7 +10,7 @@
 module VARCOM
  
 
-use TYPHMAKE   ! Définition de la précision machine
+use TYPHMAKE   ! machine accuracy definition
 
 
 ! -- Variables globales du module -------------------------------------------

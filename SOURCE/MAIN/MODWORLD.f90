@@ -2,7 +2,7 @@
 ! MODULE : MODWORLD                       Auteur : J. Gressier
 !                                         Date   : Novembre 2002
 ! Fonction                                Modif  : Juin 2003
-!   Définition des structures de données générales
+!   Définition des structures de donnees generales
 !   Encapsulation de toutes les structures
 !
 ! Defauts/Limitations/Divers :
@@ -12,10 +12,10 @@
 module MODWORLD
 
 use TYPHMAKE       ! Definition de la precision
-use MENU_GEN       ! Définition des paramètres généraux
-use MENU_COUPLING  ! Définition des paramètre de couplage
-use MODINFO        ! Définition des informations générales
-use DEFZONE        ! Définition des zones (maillages)
+use MENU_GEN       ! Definition des paramètres generaux
+use MENU_COUPLING  ! Definition des paramètre de couplage
+use MODINFO        ! Definition des informations generales
+use DEFZONE        ! Definition des zones (maillages)
 
 implicit none
 
@@ -26,19 +26,19 @@ implicit none
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_WORLD : ensemble des données
+! Definition de la structure ST_WORLD : ensemble des donnees
 !------------------------------------------------------------------------------!
 type st_world
-  type(mnu_project)   :: prj        ! parametres généraux du projet
-  type(st_info)       :: info       ! informations générales sur le calcul
+  type(mnu_project)   :: prj        ! parametres generaux du projet
+  type(st_info)       :: info       ! informations generales sur le calcul
   type(st_zone), dimension(:), pointer &
                       :: zone       ! liste de zones
-  integer             :: noutput    ! nombre de définition des sorties
+  integer             :: noutput    ! nombre de definition des sorties
   type(mnu_output), dimension(:), pointer &
                       :: output     ! liste des sorties
   !integer             :: ncoupling  ! nombre de couplages entre zones
   type(mnu_coupling), dimension(:),pointer &
-                      :: coupling   ! paramètres généraux de couplage
+                      :: coupling   ! paramètres generaux de couplage
 endtype st_world
 
 
@@ -59,7 +59,7 @@ endinterface
 contains
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation d'une structure WORLD
+! Procedure : allocation d'une structure WORLD
 !------------------------------------------------------------------------------!
 subroutine new_world(world, nzone, noutput, ncoupling)
 implicit none
@@ -89,7 +89,7 @@ endsubroutine new_world
 
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure WORLD
+! Procedure : desallocation d'une structure WORLD
 !------------------------------------------------------------------------------!
 subroutine delete_world(world)
 implicit none
@@ -119,5 +119,5 @@ endmodule MODWORLD
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! Nov  2002 (v0.0.1b): création du module
+! Nov  2002 : creation du module
 !------------------------------------------------------------------------------!

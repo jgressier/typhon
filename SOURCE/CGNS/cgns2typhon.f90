@@ -11,9 +11,9 @@
 
 subroutine cgns2typhon(cgnsworld, typhonworld) 
 
-use CGNS_STRUCT   ! Définition des structures CGNS
+use CGNS_STRUCT   ! Definition des structures CGNS
 use MODWORLD
-use DEFZONE          ! Définition des structures TYPHON
+use DEFZONE          ! Definition des structures TYPHON
 use OUTPUT        ! Sorties standard TYPHON
 
 

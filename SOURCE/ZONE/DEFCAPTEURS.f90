@@ -10,8 +10,8 @@
 
 module DEFCAPTEURS
 
-use TYPHMAKE      ! Definition de la precision/données informatiques
-use DEFFIELD      ! Définition des champs physiques
+use TYPHMAKE      ! machine accuracy
+use DEFFIELD      ! physical data & fields
 
 implicit none
 

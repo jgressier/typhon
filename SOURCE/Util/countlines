@@ -1,0 +1,7 @@
+#!/bin/sh
+
+echo "* number of files : "$(ls -l */*.f90 | wc -l)
+echo "* total lines     : "$(cat */*.f90   | wc -l)
+echo "* coded lines     : "$(cat */*.f90   | grep -v '^ *$' | grep -v '^ *!' | wc -l)
+echo "* comments        : "$(cat */*.f90   | grep '^ *!' | wc -l)
+

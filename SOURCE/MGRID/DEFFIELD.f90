@@ -14,8 +14,8 @@ module DEFFIELD
 
 use TYPHMAKE     ! Definition de la precision
 use OUTPUT
-use GEO3D        ! module de définition des vecteurs et opérateurs associés
-use TENSOR3      ! module de définition des tenseurs et opérateurs associés
+use GEO3D        ! 
+use TENSOR3      ! 
 
 implicit none
 
