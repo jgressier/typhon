@@ -76,8 +76,8 @@ do iboco = 1, ustdom%nboco
       close(1002)
       !do i=1,ustdom%boco(iboco)%nface
       ! convention de flux sortant dans le code / CL : flux entrant pour l'utilisateur
-      defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%h_nunif(:) = &
-        - defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%h_nunif(:)
+      !defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%h_nunif(:) = &
+      !  - defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%h_nunif(:)
       !enddo
     endif
 

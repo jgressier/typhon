@@ -1,0 +1,46 @@
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE ACIER
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = CGNS
+  FILE   = "geom1.cgns"
+ENDBLOCK
+
+BLOCK:MODEL
+  MATERIAL = DEFINITION
+  CONDUCT = 0.1
+  HEATCAPA = 1
+ENDBLOCK
+
+BLOCK:TIME_PARAM
+  FOURIER = 0.001
+ENDBLOCK
+
+BLOCK:SPAT_PARAM
+  DISSIPATIVE_FLUX = FULL
+ENDBLOCK
+
+BLOCK:INIT
+  TEMP = 500
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = ENTREE
+  TYPE = CONVECTION_WALL
+  T_CONV = 1000
+  H = 10
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = MUR 
+  TYPE   = EXTRAPOLATE
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = INTERFACE
+  TYPE   = CONVECTION_WALL
+  T_CONV = 1000
+  H = 20
+ENDBLOCK
+

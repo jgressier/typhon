@@ -77,7 +77,7 @@ case(bc_wall_hconv)
   
   case(uniform)
     call rpmgetkeyvalreal(pblock, "H", boco%h_conv)
-    boco%h_conv = - boco%h_conv ! convention flux sortant dans le code
+    !boco%h_conv = - boco%h_conv ! convention flux sortant dans le code
                                 ! CL : convention flux entrant pour utilisateur
     call rpmgetkeyvalreal(pblock, "T_CONV", boco%temp_conv)
 

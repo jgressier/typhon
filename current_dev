@@ -27,6 +27,7 @@ Task Dévlp.  R. cible début fin   Type  Développement
 0071 Jérémie   0.1.6              Mesh  Split of an internal mesh into two or many grids
 0072 Jérémie   0.1.6              Exch  Sequential message passing between zones (coupling)
      Jérémie   0.1.6              KDIF  Implicitation des conditions limites
+0073 Emmanuel  0.1.6        13/10 KDIF  Bug : convection boundary condition + validation case
                0.2.0              Opt   Optimisation des calculs GEO3D et proc. appelantes
                0.2.0              Make  Restructuration des sorties (get_data/calc_data/output)
                0.2.0              Out   Sorties multiples (block:output)

@@ -42,3 +42,11 @@ STABILITE_KNL : validation en stabilité (toujours en maillage 1D).
                   évaluée en jouant sur la valeur de la conductivité 
                   (apparition d'oscillations non amorties au nombre de Fourier
                   limite).
+
+____________________________________________
+* VALIDATION CONDITION LIMITE DE CONVECTION*
+--------------------------------------------
+
+CONV_1D : validation de la condition de convection : comparaison avec les champs
+          de température calculés analytiquement.
+

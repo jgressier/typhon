@@ -399,3 +399,10 @@ Task 0062 (Jérémie) : Out : Residual monitors
 - initialization of history files (monres, monphy) (MAIN/init_capteurs)
 - new structure in ZONE : probe data and parameters (to be done)
 - automatic initialization of residual history for steady cases
+
+---------------------------------------------------------------------------------
+Task 0073 (Emmanuel) : KDIF : convection boundary condition
+---------------------------------------------------------------------------------
+- bug : bad assignment of the convection parameter h
+- VALIDATION/KDIF/CONV_1D case
+
