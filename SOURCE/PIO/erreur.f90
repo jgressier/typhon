@@ -17,9 +17,9 @@ character(len=*) str2            ! chaine 2
 
 ! -- Debut de la procedure --
 
-write(uf_stdout,'(aaaaa)') "!!! Erreur ",trim(str1)," : ",trim(str2)," !!!"
+write(uf_stdout,'(a,a,a,a,a)') "!!! Erreur ",trim(str1)," : ",trim(str2)," !!!"
 write(uf_log,'(a)')    "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-write(uf_log,'(aaaa)')    "[STOP] Erreur ",trim(str1)," : ",trim(str2)
+write(uf_log,'(a,a,a,a)')    "[STOP] Erreur ",trim(str1)," : ",trim(str2)
 
 stop
 

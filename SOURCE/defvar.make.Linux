@@ -18,7 +18,7 @@ FO = $(FO_$(OPT))
 ####### Definition de l'éditeur de lien et des options
 
 # Editeur de lien
-LINKER = ifc
+LINKER = $(CF)
 
 # Options de base
 LINKFB  = $(FO) -L$(PRJEXT)
@@ -26,5 +26,6 @@ LINKFB  = $(FO) -L$(PRJEXT)
 ####### Librairies systèmes
 
 MPILIB     = -lmpich -lPEPCF90
-CGNSLIB    = -lcgns
-LAPACKLIBS = -llapack3 -lblas3 # installation locale
+CGNSLIB    = -LLIBEXT -lcgns #-lcgns
+LAPACKLIBS = -L/opt/aero/lib -lflapack -lfblas # installation locale
+

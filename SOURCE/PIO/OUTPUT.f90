@@ -143,7 +143,7 @@ implicit none
 
 ! -- Debut de la procedure --
 
-  write(uf_log,'(aa)')   "[WARNING] ",trim(str)
+  write(uf_log,'(a,a)')   "[WARNING] ",trim(str)
 
 endsubroutine print_warning
   
@@ -166,9 +166,9 @@ implicit none
 
   if (n <= std_maxlevel) then
     write(uf_stdout,'(a)') trim(str)
-    write(uf_log,'(aa)')    str_std, trim(str)
+    write(uf_log,'(a,a)')    str_std, trim(str)
   elseif (n <= log_maxlevel) then
-    write(uf_log,'(aa)')    str_log, trim(str)
+    write(uf_log,'(a,a)')    str_log, trim(str)
   endif
 
 endsubroutine print_info
@@ -191,7 +191,7 @@ implicit none
 
   call erreur("interne","procedure print_std obsolete")
   write(uf_stdout,'(a)') trim(str)
-  write(uf_log,'(aa)')    "[OUT] ",trim(str)
+  write(uf_log,'(a,a)')    "[OUT] ",trim(str)
 
 endsubroutine print_std
   
@@ -213,7 +213,7 @@ implicit none
 
   call erreur("interne","procedure print_log obsolete")
   write(uf_stdout,'(a)') trim(str)
-  write(uf_log,'(aa)')    "[OUT] ",trim(str)
+  write(uf_log,'(a,a)')    "[OUT] ",trim(str)
 
 endsubroutine print_log
   

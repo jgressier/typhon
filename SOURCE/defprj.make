@@ -37,14 +37,14 @@ MAKEDEPENDS = Util/make_depends
 	@echo Il est anormal de passer par cette directive de compilation !!!
 	$(CF) $(FF) -c $<
 
-$(PRJINC)/%.$(MOD): %.f90  
-	@echo - MODULE : compilation du fichier $*
-	$(CF) $(FF) -c $< -o $(PRJOBJ)/$*.o
+$(PRJINC)/%.$(MOD): 
+	@echo - MODULE : compiling file $*
+	$(CF) $(FF) -c ${$*.source} -o $(PRJOBJ)/${$*.objet}
 	@echo - transfert du module $*
 	@mv $*.$(MOD) $(PRJINC)
 
 $(PRJOBJ)/%.o: %.f90
-	@echo - OBJET : compilation du fichier $*
+	@echo - OBJECT : compiling file $*
 	$(CF) $(FF) -c $< -o $(PRJOBJ)/$*.o
 
 # intermédiaire pour les dépendances, garantissant la compilation
@@ -52,4 +52,5 @@ $(PRJOBJ)/%.o: %.f90
 #	@echo - compilation du fichier $*
 #	$(CF) $(FF) -c $< -o $(PRJOBJ)/$*.o
 #	@touch $*.dep
+
 

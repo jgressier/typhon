@@ -401,6 +401,12 @@ Task 0062 (Jérémie) : Out : Residual monitors
 - automatic initialization of residual history for steady cases
 
 ---------------------------------------------------------------------------------
+Task 0065 (Jérémie) : Make : Compilation with intel fortran 8.1
+---------------------------------------------------------------------------------
+- handle low-case module names
+- some fixes on output format
+
+---------------------------------------------------------------------------------
 Task 0069 (Jérémie) : NS : Gradients computation
 ---------------------------------------------------------------------------------
 - computation of vector gradients (calc_gradient)

@@ -15,15 +15,16 @@ for fic in *.f90 ; do
   # MODULE
 
   if [ -n "$(grep -i '^ *module ' $fic)" ] ; then
-    module=$(echo ${fic%.f90} | tr a-z A-Z)
+    module=$(echo ${fic%.f90} | tr A-Z a-z)
+    #echo $module.module:=${PWD##*/}/$fic >> $TARGET
     echo $module.source:=${PWD##*/}/$fic >> $TARGET
     echo $module.objet:=${fic%.f90}.o >> $TARGET
-    echo '$(PRJINC)/'${fic%.f90}.'$(MOD)': \\ >> $TARGET
+    echo '$(PRJINC)/'${module}.'$(MOD)': \\ >> $TARGET
     grep -i '^ *use ' $fic       | 
       sed 's/!.*$//'             | 
+      tr   A-Z a-z               |
       sed 's/ *$/.$(MOD)    \\/' | 
-      tr   a-z A-Z               |
-      sed 's/^ *USE /                         $(PRJINC)\//' >> $TARGET
+      sed 's/^ *use /                         $(PRJINC)\//' >> $TARGET
     echo >> $TARGET
   fi
 
@@ -32,9 +33,10 @@ for fic in *.f90 ; do
   echo '$(PRJOBJ)/'${fic%.f90}.o: \\   >> $TARGET
   grep -i '^ *use ' $fic       | 
     sed 's/!.*$//'             | 
+    tr   A-Z a-z               |
     sed 's/ *$/.$(MOD)    \\/' | 
-    tr   a-z A-Z               |
-    sed 's/^ *USE /                         $(PRJINC)\//' >> $TARGET
+    sed 's/^ *use /                         $(PRJINC)\//' >> $TARGET
   echo >> $TARGET
 
 done
+

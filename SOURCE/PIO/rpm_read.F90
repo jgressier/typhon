@@ -223,13 +223,14 @@ endsubroutine readrpmdata
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-character(len=len(strin)) function trait_rpmlig(strin)
+function trait_rpmlig(strin) result(strout)
 
   use STRING
   implicit none 
 
 ! -- Declaration des Parametres --
   character(len=dimrpmlig), intent(in)   :: strin
+  character(len=len(strin))              :: strout
 
 ! -- Declaration des variables internes --
   character(len=len(strin)) :: s
@@ -249,7 +250,7 @@ character(len=len(strin)) function trait_rpmlig(strin)
     ! mise en majuscules et suppression des espaces en début
     s = adjustl(rpmuppercase(strin))
   endif
-  trait_rpmlig = s
+  strout = s
   
 contains
 !------------------------------------------------------------------------------!
