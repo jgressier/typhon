@@ -36,11 +36,12 @@ do ic = 1, zone%defsolver%nprobe
   case(boco_integral)
     call erreur("Développement","type BOCO_INTEGRAL non implémenté")
   case(residuals)
-    call erreur("Développement","type RESIDUALS non implémenté")
+
   endselect
 
 enddo
 
+write(uf_monres,*) zone%info%iter_tot, log10(zone%info%cur_res)
 
 !-----------------------------
 endsubroutine capteurs

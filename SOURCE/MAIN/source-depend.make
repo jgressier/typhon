@@ -34,6 +34,7 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            init_coupling.o          \
            init_maillage.o          \
            init_world.o             \
+           init_zone.o              \
            integration.o            \
            integration_cycle.o      \
            integration_grid.o       \

@@ -33,6 +33,8 @@ integer  uf_cdlim     ! conditions aux limites
 
 integer  uf_stdout    ! sortie standard (informations standard)
 integer  uf_log       ! fichier log     (informations détaillées)
+integer  uf_monres    ! residual monitor
+integer  uf_monphy    ! physical value monitor
 integer  uf_residu    ! residus
 integer  uf_mesure    ! mesures diverses
 integer  uf_chpresu   ! champs de résultats
@@ -86,6 +88,8 @@ implicit none
   ! unités de sorties
   uf_stdout  = 6    ! sortie standard (informations standard)
   uf_log     = 9    ! fichier log     (informations détaillées)
+  uf_monres  = 31   ! monres file : residual monitor
+  uf_monphy  = 32   ! monphy file : physical value monitor
   uf_residu  = 40   ! residus
   uf_mesure  = 50   ! mesures diverses
   uf_chpresu = 55   ! champs résultats

@@ -20,6 +20,24 @@ endinterface
 contains 
 
 !------------------------------------------------------------------------------!
+! Fonction : Mise en minuscule d'un caractère
+!------------------------------------------------------------------------------!
+function lowercasechar(c)
+  implicit none
+  character, intent(in) :: c
+  character             :: lowercasechar
+  integer               :: i
+
+  i = iachar(c)
+  select case(i)
+    case(iposamaj:iposzmaj)
+      lowercasechar = achar(i-iposamaj+iposamin)
+    case default
+      lowercasechar = c
+  endselect
+endfunction
+
+!------------------------------------------------------------------------------!
 ! Fonction : Mise en majuscule d'un caractère
 !------------------------------------------------------------------------------!
 function uppercasechar(c)
@@ -36,6 +54,20 @@ function uppercasechar(c)
       uppercasechar = c
   endselect
 endfunction
+
+!------------------------------------------------------------------------------!
+! Fonction : Mise en minuscule d'une chaîne de caractères
+!------------------------------------------------------------------------------!
+function lowercase(str) result(strout)
+  implicit none
+  character(len=*), intent(in) :: str
+  character(len=len(str))      :: strout
+  integer                      :: i
+
+  do i = 1, len(str)
+    strout(i:i) = lowercasechar(str(i:i))
+  enddo
+endfunction lowercase
 
 !------------------------------------------------------------------------------!
 ! Fonction : Mise en majuscule d'une chaîne de caractères
@@ -92,6 +124,23 @@ function strof_int2(nb) result(strout)
   strout = adjustl(strout)
 
 endfunction strof_int2
+
+!------------------------------------------------------------------------------!
+! Fonction : tranformation entier -> chaîne de caractères (len=l)
+!------------------------------------------------------------------------------!
+function strof_full_int(nb, l) result(strout)
+  implicit none
+  integer, intent(in) :: nb, l   ! nombre à transformer, et longueur
+  character(len=l)    :: strout  ! longueur de la chaîne
+  character(len=20)   :: sform
+  integer             :: tl      ! trimmed length
+
+  write(sform,'(i20)') nb
+  sform  = adjustl(sform)
+  tl     = len_trim(sform)
+  strout = repeat('0',l-tl)//trim(sform)
+
+endfunction strof_full_int
 
 !------------------------------------------------------------------------------!
 ! Fonction : Test logique d'égalité des chaînes de caractères

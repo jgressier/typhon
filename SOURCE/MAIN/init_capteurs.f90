@@ -30,16 +30,38 @@ integer :: i             ! index de domaine/capteurs
 
 ! -- Debut de la procedure --
 
+print*,'capteurs:',zone%info%typ_temps
+select case(zone%info%typ_temps)
+
+case(stationnaire)
+  !!! DEV : GESTION des entrées/sorties et numéros d'unités par MODULE
+  open(unit=uf_monres, file="monres."//strof_full_int(1,3), form = "formatted")
+  write(uf_monres,'(a)') "@variables: it residual"
+
+case(instationnaire)
+  !!! DEV : GESTION des entrées/sorties et numéros d'unités par MODULE
+  open(unit=uf_monphy, file="monphy."//strof_full_int(1,3), form = "formatted")
+  write(uf_monphy,'(a)') "@variables: time"
+  
+case(periodique)
+case default
+  call erreur("incohérence interne","mode inconnu pour l'initialisation des capteurs")
+endselect
+
 do i = 1, zone%defsolver%nprobe
 
   select case(zone%info%typ_temps)
 
   case(stationnaire)
+    call erreur("développement","mode non traité l'initialisation des capteurs")
 
   case(instationnaire)
+    call erreur("développement","mode non traité l'initialisation des capteurs")
   
   case(periodique)
-  
+    call erreur("incohérence interne","mode non traité l'initialisation des capteurs")
+  case default
+    call erreur("incohérence interne","mode inconnu pour l'initialisation des capteurs")
   endselect
 
 enddo

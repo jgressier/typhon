@@ -27,7 +27,6 @@ type(st_zone) :: lzone            ! zone à intégrer
 ! -- Declaration des variables internes --
 real(krp)   :: local_t            ! temps local (0 à mdt)
 real(krp)   :: dt                 ! pas de temps de la zone
-integer     :: iter               ! numéro d'itération local au cycle
 integer     :: if, ic, ib, nbc    ! index de champ, couplage et boco
 real(krp)   :: part_cor           ! part de correction à appliquer
 integer     :: typ_cor            ! type de correction
@@ -42,7 +41,7 @@ oui = 1
 non = 2
 cumulreste = oui
 
-iter    = 0
+lzone%info%iter_loc    = 0
 local_t = 0._krp
 fin     = .false.
 
@@ -68,7 +67,9 @@ call print_info(7,str_w)
 
 do while (.not.fin)
 
-  iter = iter + 1
+  
+  lzone%info%iter_loc = lzone%info%iter_loc + 1
+  lzone%info%iter_tot = lzone%info%iter_tot + 1
   
   ! ---
   call calc_zonetimestep(lzone, dt)
@@ -156,27 +157,27 @@ do while (.not.fin)
   case(stationnaire)
     lzone%info%residu_ref = max(lzone%info%residu_ref, lzone%info%cur_res)
     if (lzone%info%cur_res/lzone%info%residu_ref <= lzone%info%residumax) fin = .true.
-    if (mod(iter,10) == 0) &
-      write(str_w,'(a,i5,a,g10.4)') "    iteration",iter," | residu = ", log10(lzone%info%cur_res)
+    if (mod(lzone%info%iter_loc,10) == 0) &
+      write(str_w,'(a,i5,a,g10.4)') "    iteration",lzone%info%iter_loc," | residu = ", log10(lzone%info%cur_res)
 !                                    log10(lzone%info%cur_res/lzone%info%residu_ref)
 
   case(instationnaire)
     local_t = local_t + dt
-    if (mod(iter,10) == 0) &
-      write(str_w,'(a,i5,a,g10.4)') "    integration",iter," à t local =",local_t
+    if (mod(lzone%info%iter_loc,10) == 0) &
+      write(str_w,'(a,i5,a,g10.4)') "    integration",lzone%info%iter_loc," à t local =",local_t
   
   case(periodique)
 
   endselect
 
-  if (mod(iter,10) == 0) call print_info(9,str_w)
+  if (mod(lzone%info%iter_loc,10) == 0) call print_info(9,str_w)
+
+  call capteurs(lzone)
 
 enddo
 
-write(str_w,'(a,i5,a)') "    intégration terminée en ",iter," itérations"
+write(str_w,'(a,i5,a)') "    intégration terminée en ",lzone%info%iter_loc," itérations"
 call print_info(9,str_w)
-
-call capteurs(lzone)
 
 !---------------------------------------
 endsubroutine integrationmacro_zone

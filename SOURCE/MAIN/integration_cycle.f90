@@ -118,6 +118,7 @@ do izone = 1, lworld%prj%nzone
  
   ! -- Initialisation des infos pour le cycle
 
+  lworld%zone(izone)%info%iter_tot  = 0
   lworld%zone(izone)%info%typ_temps = lworld%prj%typ_temps
 
   select case(lworld%prj%typ_temps)

@@ -61,7 +61,7 @@ endinterface
 contains
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure MNU_SOLVER
+! Procédure : desallocation d'une structure MNU_CAPTEUR
 !------------------------------------------------------------------------------!
 subroutine delete_mnu_capteur(defcapteur)
 implicit none

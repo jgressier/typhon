@@ -96,7 +96,11 @@ $(PRGNAME)-mpi : $(MAIN) $(D_LIBMPI) $(MAKEFILE)
 	@echo --- Création de $(PRGNAME)-mpi terminée ---
 
 clean:
-	-rm $(PRGNAME)-seq $(PRGNAME)-mpi $(OBJECTS) $(D_LIBMPI) $(D_LIBSEQ) $(PRJINC)/*.$(MOD)
+	-rm $(PRGNAME)-seq $(PRGNAME)-mpi 
+	-rm $(OBJECTS) 
+	-rm $(D_LIBMPI) $(D_LIBSEQ) 
+	-rm $(PRJINC)/*.$(MOD)
+	-rm *.$(MOD)
 
 
 ####### Dependencies

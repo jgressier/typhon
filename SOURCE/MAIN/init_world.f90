@@ -27,6 +27,16 @@ integer :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
 
 ! -- Debut de la procedure --
 
+
+!--------------------------------------------------------------------
+! Initialization of zone parameters
+
+call print_info(5,"* Initialisation des zones")
+do izone = 1, world%prj%nzone
+  call init_zone(world%zone(izone), world%prj)
+enddo
+
+
 !--------------------------------------------------------------------
 ! Lecture, transformation des maillages, calcul des paramètres géométriques et connectivités
 

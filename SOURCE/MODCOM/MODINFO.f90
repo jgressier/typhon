@@ -43,6 +43,8 @@ endtype st_info
 type st_infozone
   character :: typ_temps            ! (S)tationnaire, (I)nstationnaire, (P)ériodique
   logical   :: fin_cycle            ! fin d'intégration du cycle
+  integer   :: iter_tot             ! nombre d'itération total
+  integer   :: iter_loc             ! nombre d'itération local dans le cycle
   integer   :: nbstep               ! nombre de pas maximal du cycle
   real(krp) :: cycle_dt             ! durée du cycle
   real(krp) :: residumax            ! residu maximal admissible pour le cycle
