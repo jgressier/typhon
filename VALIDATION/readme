@@ -1,0 +1,24 @@
+BASE DE DONNEES DE VALIDATION
+--------------------------------------------------------------
+
+--------------------------------------------------------------
+Utilisation des cas
+--------------------------------------------------------------
+
+
+
+--------------------------------------------------------------
+Création de cas
+--------------------------------------------------------------
+
+Les cas doivent contenir 
+- les fichiers nécessaires au calcul (menus "rpm" et maillages)
+- un fichier "info" détaillant le cas (modèle, paramètres, etc)
+- un ou des fichiers de références des résultats permettant de
+  s'assurer de la non régression des résultats, ainsi que des
+  fichiers de résultats expérimentaux ou théoriques.
+
+Rq : il est possible que des développements nécessitent la 
+     modification des fichiers de références. Cela doit être
+     soigneusement vérifié afin de ne pas dégrader le cas
+     de non régression.

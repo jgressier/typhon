@@ -14,7 +14,7 @@ FF   = $(FB) $(FO)
 
 # Précision
 
-PREC = SP
+PREC = SP    # Choix de la double précision (SP ou DP)
 
 ####### Files and Lists
 
@@ -70,7 +70,7 @@ $(PRGNAME) : $(D_LIBRARIES) $(MAKEFILE)
 	@echo Librairies externes : $(EXTLIBS)
 	@echo Librairies TYPHON   : $(LIBRARIES)
 	@$(LINKER) $(LINKFB) $(D_LIBRARIES) $(EXTLIBS) -o $(PRGNAME)
-	@echo --- Création terminée ---
+	@echo --- Création de $(PRGNAME) terminée ---
 
 clean:  CGNS_clean  MAIN_clean  MESH_clean  MODCOM_clean  PARAM_clean  \
         PIO_clean  XIO_clean  ZONE_clean  EQKDIF_clean
