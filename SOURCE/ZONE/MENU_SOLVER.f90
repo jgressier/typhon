@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! MODULE : MENU_SOLVER                    Auteur : J. Gressier
 !                                         Date   : Aout 2002
-! Fonction                                Modif  : Mars 2003 (cf Historique)
+! Fonction                                Modif  : Juillet 2003 (cf Historique)
 !   Définition des structures pour les entrées du programme TYPHON
 !   Structures pour les options des solveurs 
 !
@@ -63,7 +63,14 @@ implicit none
 type(mnu_solver)  :: defsolver
 
   print*,'!! DEBUG destruction de structure "paramètres" à compléter'
-
+  call delete(defsolver%defkdif%materiau%Kd)
+  if (defsolver%nboco>1) then
+  deallocate(defsolver%boco)
+  endif
+  if (defsolver%ninit>1) then
+  deallocate(defsolver%init)
+  endif
+  
 endsubroutine delete_mnu_solver
 
 
@@ -77,6 +84,7 @@ endmodule MENU_SOLVER
 ! aout 2002 (v0.0.1b): création du module
 ! mars 2003          : ajout des conditions aux limites
 !                      ajout des structures d'initialisation
+! juillet 2003       : procédure delete : Kd
 !
 ! améliorations futures : implémenter les procédures delete
 !------------------------------------------------------------------------------!

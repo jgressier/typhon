@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : comp_flux                   Auteur : E. Radenac
 !                                         Date   : Juin 2003
-! Fonction                                Modif  :
+! Fonction                                Modif  : Juillet 2003
 !   Comparaison des flux de part et d'autre d'une interface de deux zones
 !
 ! Defauts/Limitations/Divers :
@@ -15,6 +15,7 @@ use OUTPUT
 use TYPHMAKE
 use GEO3D
 use VARCOM
+use MATER_LOI
 
 implicit none
 
@@ -69,20 +70,38 @@ do i=1, nfacelim
 enddo 
 
 ! Conductivités :
- 
-select case(zone1%defsolver%defkdif%materiau%type)
-case(mat_LIN)
-  conduct1(:) = zone1%defsolver%defkdif%materiau%Kd%valeur
-case(mat_KNL, mat_XMAT)
-  call erreur("Calcul de matériau","Materiau non linéaire interdit")
-endselect
 
-select case(zone2%defsolver%defkdif%materiau%type)
-case(mat_LIN)
-  conduct2(:) = zone2%defsolver%defkdif%materiau%Kd%valeur
-case(mat_KNL, mat_XMAT)
-  call erreur("Calcul de matériau","Materiau non linéaire interdit")
-endselect
+!--DVT--------------------------------------------------------------
+do i=1, nfacelim
+  select case(zone1%defsolver%defkdif%materiau%type)
+  case(mat_LIN, mat_KNL)
+    conduct1(i) = valeur_loi(zone1%defsolver%defkdif%materiau%Kd, temp1(i))
+  case(mat_XMAT)
+    call erreur("Calcul de matériau","Materiau non linéaire interdit")
+  endselect
+
+  select case(zone2%defsolver%defkdif%materiau%type)
+  case(mat_LIN, mat_KNL)
+    conduct2(i) = valeur_loi(zone2%defsolver%defkdif%materiau%Kd, temp2(i))
+  case(mat_XMAT)
+    call erreur("Calcul de matériau","Materiau non linéaire interdit")
+  endselect 
+enddo
+!-------------------------------------------------------------------
+
+!select case(zone1%defsolver%defkdif%materiau%type)
+!case(mat_LIN)
+!  conduct1(:) = zone1%defsolver%defkdif%materiau%Kd%valeur
+!case(mat_KNL, mat_XMAT)
+!  call erreur("Calcul de matériau","Materiau non linéaire interdit")
+!endselect
+!
+!select case(zone2%defsolver%defkdif%materiau%type)
+!case(mat_LIN)
+!  conduct2(:) = zone2%defsolver%defkdif%materiau%Kd%valeur
+!case(mat_KNL, mat_XMAT)
+!  call erreur("Calcul de matériau","Materiau non linéaire interdit")
+!endselect
 
 ! Flux :
 flux1(:) = - conduct1(:) * ( tempinter(:) - temp1(:) ) / d1(:)
@@ -120,3 +139,10 @@ do i = 1, nfacelim
 enddo
 
 endsubroutine comp_flux
+
+!------------------------------------------------------------------------------!
+! Historique des modifications
+!
+! juin 2003 (v0.0.1b): création de la procédure
+! juillet 2003       : conductivité non constante
+!------------------------------------------------------------------------------!

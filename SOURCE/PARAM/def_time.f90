@@ -15,6 +15,8 @@ use TYPHMAKE
 use OUTPUT
 use VARCOM
 use MENU_NUM
+!DVT
+use MENU_SOLVER
 
 implicit none
 
@@ -22,7 +24,9 @@ implicit none
 type(rpmblock), target :: block
 
 ! -- Declaration des sorties --
-type(mnu_time) :: deftime
+!type(mnu_time) :: deftime
+!DVT
+type(mnu_solver) :: deftime
 
 ! -- Declaration des variables internes --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM

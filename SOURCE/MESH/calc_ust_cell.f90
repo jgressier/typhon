@@ -20,7 +20,7 @@ implicit none
 ! -- Declaration des entrées --
 integer                   :: ncell      ! nombre de cellules
 integer                   :: nface      ! nombre de faces
-type(st_ustconnect)       :: facecell   ! connectivité face->cellules
+type(st_connect)       :: facecell   ! connectivité face->cellules
 type(v3d), dimension(nface,2) :: cg_elem    ! centres de volume élémentaire
 real(krp), dimension(nface,2) :: vol_elem   ! volumes de volume élémentaire
 

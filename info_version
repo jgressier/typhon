@@ -1,0 +1,18 @@
+MEMO pour la création de release CVS
+---------------------------------------------
+
+un numéro de version (release) classique est sous la forme rel-i-j-k
+où i est le numéro de version majeur
+   j     le numéro de version mineur
+   k     le numéro de version pour correction et améliorations
+
+
+Pour créer une release, il est nécessaire de :
+
+- vérifier la compilation sur le plus de système possible
+- passer les tests de non-regression (NRG)
+- passer les tests de validation (et commenter éventuellement les résultats)
+- remplir le fichier VALIDATION/benchmark
+- mettre à jour le numéro de version dans SOURCE/MODCOM/VARCOM.f90
+- mettre à jour le fichier SOURCE/_DOC/VERSION
+- "cvs tag rel-i-j-k" au niveau de TYPHON (ou "rtag" si working copy à jour)

@@ -27,7 +27,7 @@ subroutine readrpmblock(nio, nerr, iaff, firstblock)
   integer                  :: nbloc         ! nombre de bloc
   integer                  :: posc          ! position de caractère
   logical                  :: inblock       ! bloc en cours de traitement
-  character(len=dimrpmlig) :: str           ! chaîne courante
+  character(len=dimrpmlig) :: strc           ! chaîne courante
   character(len=dimrpmlig), dimension(:), allocatable &
                            :: buffer
   type(rpmblock), pointer  :: newblock, blockcourant
@@ -42,10 +42,10 @@ subroutine readrpmblock(nio, nerr, iaff, firstblock)
   
   do while ((lectstat == 0).and.(ilig <= dimbuf))
   
-    read(unit=nio, fmt='(a)', iostat=lectstat) str
+    read(unit=nio, fmt='(a)', iostat=lectstat) strc
     if (lectstat == 0) then
-      if (iaff >= 4) write(nerr,*) "RPM: lecture - ",ilig," : ",trim(str)
-      buffer(ilig) = trait_rpmlig(str)
+      if (iaff >= 4) write(nerr,*) "RPM: lecture - ",ilig," : ",trim(strc)
+      buffer(ilig) = trait_rpmlig(strc)
     else
       buffer(ilig) = ""
       if (iaff >= 2) write(nerr,*) "RPM: Fin de fichier"
@@ -151,7 +151,7 @@ subroutine readrpmdata(nio, pdata, entete, iaff)
   integer                           :: lectstat    ! statut de la lecture
   integer                           :: n, i, pos      
   real, dimension(:,:), allocatable :: buffer      ! buffer avant affectation
-  character(len=dimrpmlig)          :: str         ! ligne intermédiaire
+  character(len=dimrpmlig)          :: strc         ! ligne intermédiaire
   logical                           :: fin         ! test
 
 ! -- Debut de la procedure --
@@ -161,19 +161,19 @@ subroutine readrpmdata(nio, pdata, entete, iaff)
   !print*,"cdata 2"
   
   ! Calcul du nombre de variables
-  str = adjustl(entete(index(entete,'=')+1:))  ! Extraction de DATA=
-  pdata%nbvar = numbchar(str,',') + 1
+  strc = adjustl(entete(index(entete,'=')+1:))  ! Extraction de DATA=
+  pdata%nbvar = numbchar(strc,',') + 1
   if (iaff >= 4) write(6,*) "DATA variables : ",pdata%nbvar," trouvées"
 
   ! Extraction des noms de variables 
   allocate(pdata%name(pdata%nbvar))
   do n = 1, pdata%nbvar
     if (n == pdata%nbvar) then  ! dernière variable, à traiter sans virgule
-      pdata%name(n) = trim(str)
+      pdata%name(n) = trim(strc)
     else
-      pos = index(str,',')  
-      pdata%name(n) = str(1:pos-1)  ! extraction du nom
-      str = adjustl(str(pos+1:))    ! décalage
+      pos = index(strc,',')  
+      pdata%name(n) = strc(1:pos-1)  ! extraction du nom
+      strc = adjustl(strc(pos+1:))    ! décalage
     endif
     if (len_trim(pdata%name(n)) == 0) call rpmerr("Nom de variable incorrect")
     ! vérification de non redondance des noms de variables
@@ -189,14 +189,14 @@ subroutine readrpmdata(nio, pdata, entete, iaff)
   n   = 0
   fin = .false.
   do while ((n < dimbuffer).and.(.not.fin))
-   read(unit=nio, fmt='(a)', iostat=lectstat) str
-   str = trait_rpmlig(str)
+   read(unit=nio, fmt='(a)', iostat=lectstat) strc
+   strc = trait_rpmlig(strc)
    if (lectstat /= 0) call rpmerr("Erreur de lecture de fichier inattendue")
-   if (samestring(str,'ENDDATA')) then
+   if (samestring(strc,'ENDDATA')) then
      fin = .true.
    else
      n = n + 1
-     read(str,*,iostat=lectstat) buffer(:,n)
+     read(strc,*,iostat=lectstat) buffer(:,n)
      if (lectstat /= 0) call rpmerr("Données incohérentes")
    endif
   enddo
@@ -255,14 +255,14 @@ contains
 !------------------------------------------------------------------------------!
 ! mise en majuscule sauf chaîne entre "
 !------------------------------------------------------------------------------!
-function rpmuppercase(str)
+function rpmuppercase(strc)
 implicit none
-character(len=*)        :: str
-character(len=len(str)) :: rpmuppercase
+character(len=*)        :: strc
+character(len=len(strc)) :: rpmuppercase
 integer   :: i
 logical   :: inquote
   
-  rpmuppercase = str
+  rpmuppercase = strc
   inquote      = .false.
   do i = 1, len(rpmuppercase)
     if (rpmuppercase(i:i) == rpmquotechar) inquote = .not.inquote

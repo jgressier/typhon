@@ -25,7 +25,7 @@ integer                  :: nvtex           ! nombre total de sommets
 type(st_cgns_ustconnect) :: cell_vtex       ! conn. CGNS         : cellule -> sommets
 
 ! -- Sorties --
-type(st_ustconnect)      :: face_cell, &    ! conn. Typhon       : face -> cellules
+type(st_connect)      :: face_cell, &    ! conn. Typhon       : face -> cellules
                             face_vtex       ! conn. Typhon       : face -> sommets
 
 ! -- type connectivité locale sommets -> faces --
@@ -124,11 +124,11 @@ case(TETRA_4) ! quatre faces (triangles) pour chacune trois sommets
     call traitface(ns, icell, face, face_vtex, face_cell, vtex_face)
   enddo
 
-case(PYRA_5) ! 1 quadrangle (4 sommets) et 4 triangles par élément
+case(PYRA_5) ! 1 quadrangle (4 sommets) et 4 triangles par élément PYRA
   call erreur("Développement", "Traitement des éléments PYRA_5 non implémenté")
   ! CF PDF : CGNS SIDS pages 21-23
 
-case(PENTA_6) ! 3 quadrangles (4 sommets) et 2 triangles par élément
+case(PENTA_6) ! 3 quadrangles (4 sommets) et 2 triangles par élément PENTA
   call erreur("Développement", "Traitement des éléments PYRA_5 non implémenté")
   ! CF PDF : CGNS SIDS pages 21-23
 
@@ -160,8 +160,8 @@ contains      ! SOUS-PROCEDURES
   integer                    :: icell     ! cellule en cours de décomposition en faces
   integer, dimension(1:nsom) :: face      ! face courante de la cellule
   ! -- Entrées/Sorties --
-  type(st_ustconnect)        :: face_vtex ! connectivité face->sommets  à créer
-  type(st_ustconnect)        :: face_cell ! connectivité face->cellules à créer
+  type(st_connect)        :: face_vtex ! connectivité face->sommets  à créer
+  type(st_connect)        :: face_cell ! connectivité face->cellules à créer
   type(stloc_vtex_face)      :: vtex_face ! connectivité sommets->(faces créées)
   ! Variables internes
   integer :: iface, newf   ! index de face si déjà créée, ou index de nouvelle face 
@@ -214,7 +214,7 @@ contains      ! SOUS-PROCEDURES
   ! -- Entrées --
   integer, dimension(:)   :: face      ! face
   integer                 :: nsom      ! nombre de sommets de la face
-  type(st_ustconnect)     :: face_vtex ! connectivité face->sommets  à créer
+  type(st_connect)     :: face_vtex ! connectivité face->sommets  à créer
   type(stloc_vtex_face)   :: vtex_face ! connectivité sommets->(faces créées)
   ! -- Variables internes --
   integer :: iface, isom   

@@ -27,7 +27,7 @@ integer                     :: ndim       ! nombre de dimension des coordonnées 
 integer                     :: ncell      ! nombre de cellules
 integer                     :: nface      ! nombre de faces
 type(v3d), dimension(ncell) :: midcell    ! centres de cellule approchés ( /= barycentre )
-type(st_ustconnect)         :: facecell   ! connectivité face->cellules
+type(st_connect)         :: facecell   ! connectivité face->cellules
 type(v3d), dimension(nface) :: cgface     ! barycentre de face
 type(st_face), dimension(nface) &
                             :: face       ! faces (surfaces et normales)

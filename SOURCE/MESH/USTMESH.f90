@@ -6,15 +6,15 @@
 !   non structurés
 !
 ! Defauts/Limitations/Divers :
-! Historique :
 !
 !------------------------------------------------------------------------------!
 
 module USTMESH
 
-use TYPHMAKE   ! Definition de la precision
+use TYPHMAKE      ! Definition de la precision
 use GEO3D 
-use MESHBASE  ! Librairie pour les éléments géométriques de base
+use MESHBASE      ! Librairie pour les éléments géométriques de base
+use CONNECTIVITY  ! Librairie de gestion de listes et connectivités
 
 implicit none
 
@@ -22,8 +22,6 @@ implicit none
 
 
 ! -- DECLARATIONS -----------------------------------------------------------
-
-
 
 
 !------------------------------------------------------------------------------!
@@ -43,18 +41,6 @@ endtype st_ustboco
 
 
 !------------------------------------------------------------------------------!
-! Définition de la structure ST_USTCONNECT : Définition de la connectivité
-!   Sommets, faces, cellules
-!------------------------------------------------------------------------------!
-type st_ustconnect
-  integer                 :: nbnodes     ! nombre de d'ensemble connectivités
-  integer                 :: nbfils      ! nombre de connectivités par ensemble
-  integer, dimension(:,:), pointer &
-                          :: fils        ! définition de la connectivité
-endtype st_ustconnect
-
-
-!------------------------------------------------------------------------------!
 ! Définition de la structure ST_USTMESH : Maillage non structuré
 !------------------------------------------------------------------------------!
 ! les tableaux de faces et de cellules contiennent les éléments internes puis
@@ -68,10 +54,10 @@ type st_ustmesh
   integer               :: nface_int, ncell_int  ! nombre de faces et cellules internes
   integer               :: nface_lim, ncell_lim  ! nombre de faces et cellules limites
   type(st_mesh)         :: mesh            ! maillage associé (géométrie)
-!! type(st_ustconnect), pointer &           ! tableau par type d'élements (nbfils)
-  type(st_ustconnect)   :: facevtex, &     ! connectivité face   -> sommets   par type
-                           cellface, &     ! connectivité cellule-> faces     par type
-                           cellvtex, &     ! connectivité cellule-> vtex      par type
+!! type(st_connect), pointer &           ! tableau par type d'élements (nbfils)
+  type(st_connect)      :: facevtex, &     ! connectivité face   -> sommets   par type
+      !! non utilisé       cellface, &     ! connectivité cellule-> faces     par type
+      !! non utilisé       cellvtex, &     ! connectivité cellule-> vtex      par type
                            facecell        ! connectivité face   -> cellules  par type
   integer               :: nboco          ! nombre de conditions aux limites
   type(st_ustboco), dimension(:), pointer &
@@ -79,24 +65,37 @@ type st_ustmesh
 endtype st_ustmesh
 
 
+!------------------------------------------------------------------------------!
+! structure ST_CELLVTEX : Définition de connectivité CELL -> VERTEX
+!   une connectivité spéciale est définie pour une meilleure gestions des
+!   actions selon le type des éléments.
+!------------------------------------------------------------------------------!
+type st_cellvtex
+  integer          :: dim                      ! dimension spatiale des éléments (2D/3D)
+  integer          :: nbar, ntri, nquad, &     ! nombre d'éléments par famille
+                      ntetra, npyra, npenta, nhexa  
+  type(st_connect) :: bar, tri, quad,    &     ! définition des éléments
+                      tetra, pyra, penta, hexa
+  integer, dimension(:), pointer &
+                   :: ibar, itri, iquad, &     ! redirection d'index vers "icell" de ustmesh
+                      itetra, ipyra, ipenta, ihexa 
+endtype st_cellvtex
+
+
+
 ! -- INTERFACES -------------------------------------------------------------
 
 interface new
-  module procedure new_ustmesh, new_ustconnect
+  module procedure new_ustmesh, new_cellvtex
+endinterface
+
+interface init
+  module procedure init_cellvtex
 endinterface
 
 interface delete
-  module procedure delete_ustmesh, delete_ustconnect
+  module procedure delete_ustmesh, delete_cellvtex
 endinterface
-
-interface copy
-  module procedure copy_ustconnect
-endinterface
-
-interface realloc
-  module procedure realloc_ustconnect
-endinterface
-
 
 
 ! -- Fonctions et Operateurs ------------------------------------------------
@@ -157,68 +156,99 @@ endsubroutine delete_ustmesh
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation d'une structure USTCONNECT
+! Procédure : allocation des tableaux d'une structure CELLVTEX
 !------------------------------------------------------------------------------!
-subroutine new_ustconnect(conn, nbnodes, nbfils)
+subroutine new_cellvtex(conn)
 implicit none
-type(st_ustconnect) :: conn
-integer             :: nbnodes, nbfils
+type(st_cellvtex) :: conn
 
-  conn%nbnodes = nbnodes
-  conn%nbfils  = nbfils
-  allocate(conn%fils(nbnodes, nbfils))
+  if (conn%nbar   /= 0) then
+    call new(conn%bar, conn%nbar, 2)
+    allocate(conn%ibar(conn%nbar))
+  endif
+  if (conn%ntri   /= 0) then
+    call new(conn%tri, conn%ntri, 3)
+    allocate(conn%itri(conn%ntri))
+  endif
+  if (conn%nquad  /= 0) then
+    call new(conn%quad, conn%nquad, 4)
+    allocate(conn%iquad(conn%nquad))
+  endif
+  if (conn%ntetra /= 0) then
+    call new(conn%tetra, conn%ntetra, 4)
+    allocate(conn%itetra(conn%ntetra))
+  endif
+  if (conn%npyra  /= 0) then
+    call new(conn%pyra, conn%npyra, 5)
+    allocate(conn%ipyra(conn%npyra))
+  endif
+  if (conn%npenta /= 0) then
+    call new(conn%penta, conn%npenta, 6)
+    allocate(conn%ipenta(conn%npenta))
+  endif
+  if (conn%nhexa  /= 0) then
+    call new(conn%hexa, conn%nhexa, 8)
+    allocate(conn%ihexa(conn%nhexa))
+  endif
 
-endsubroutine new_ustconnect
+endsubroutine new_cellvtex
 
 
 !------------------------------------------------------------------------------!
-! Procédure : reallocation d'une structure USTCONNECT
+! Procédure : Intialisation des tableaux d'une structure CELLVTEX
 !------------------------------------------------------------------------------!
-subroutine realloc_ustconnect(conn, nbnodes, nbfils)
+subroutine init_cellvtex(conn)
 implicit none
-type(st_ustconnect) :: conn, prov
-integer             :: nbnodes,      nbfils      ! nouvelle taille
-integer             :: old_nbnodes, old_nbfils   ! ancienne taille
-integer             :: min_nbnodes, min_nbfils   ! ancienne taille
+type(st_cellvtex) :: conn
 
-  prov = copy(conn)
-  conn%nbnodes = nbnodes                   ! affectation des nouvelles tailles
-  conn%nbfils  = nbfils 
-  deallocate(conn%fils)                    ! désallocation de l'ancien tableau     
-  allocate(conn%fils(nbnodes, nbfils))     ! allocation du nouveau tableau
-  conn%fils(1:nbnodes, 1:nbfils) = 0       ! initialisation
-  min_nbnodes = min(nbnodes, prov%nbnodes)
-  min_nbfils  = min(nbfils,  prov%nbfils)  ! copie des connectivités
-  conn%fils(1:min_nbnodes, 1:min_nbfils) = prov%fils(1:min_nbnodes, 1:min_nbfils) 
+  conn%nbar   = 0
+  conn%ntri   = 0
+  conn%nquad  = 0
+  conn%ntetra = 0
+  conn%npyra  = 0
+  conn%npenta = 0
+  conn%nhexa  = 0
 
-endsubroutine realloc_ustconnect
+endsubroutine init_cellvtex
 
 
 !------------------------------------------------------------------------------!
-! Procédure : allocation d'une structure USTCONNECT par copie
+! Procédure :desallocation d'une structure CELLVTEX
 !------------------------------------------------------------------------------!
-function copy_ustconnect(source)
+subroutine delete_cellvtex(conn)
 implicit none
-type(st_ustconnect) :: copy_ustconnect, source
+type(st_cellvtex) :: conn
 
-  copy_ustconnect%nbnodes = source%nbnodes
-  copy_ustconnect%nbfils  = source%nbfils
-  allocate(copy_ustconnect%fils(copy_ustconnect%nbnodes, copy_ustconnect%nbfils))
-  copy_ustconnect%fils    = source%fils
+  if (conn%nbar   /= 0) then
+    call delete(conn%bar)
+    deallocate(conn%ibar)
+  endif
+  if (conn%ntri   /= 0) then
+    call delete(conn%tri)
+    deallocate(conn%itri)
+  endif
+  if (conn%nquad  /= 0) then
+    call delete(conn%quad)
+    deallocate(conn%iquad)
+  endif
+  if (conn%ntetra /= 0) then
+    call delete(conn%tetra)
+    deallocate(conn%itetra)
+  endif
+  if (conn%npyra  /= 0) then
+    call delete(conn%pyra)
+    deallocate(conn%ipyra)
+  endif
+  if (conn%npenta /= 0) then
+    call delete(conn%penta)
+    deallocate(conn%ipenta)
+  endif
+  if (conn%nhexa  /= 0) then
+    call delete(conn%hexa)
+    deallocate(conn%ihexa)
+  endif
 
-endfunction copy_ustconnect
-
-
-!------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure USTCONNECT
-!------------------------------------------------------------------------------!
-subroutine delete_ustconnect(conn)
-implicit none
-type(st_ustconnect) :: conn
-
-  if (associated(conn%fils)) deallocate(conn%fils)
-
-endsubroutine delete_ustconnect
+endsubroutine delete_cellvtex
 
 
 
@@ -228,7 +258,9 @@ endmodule USTMESH
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! oct 2002 (v0.0.1b): création du module
+! oct  2002 : création du module
+! juil 2003 : suppression des structures USTCONNECT, définition dans CONNECTIVITY
+!             création d'une structure de connectivité CELLVTEX
 !------------------------------------------------------------------------------!
 
 

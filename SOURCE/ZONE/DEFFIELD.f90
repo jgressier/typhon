@@ -216,6 +216,7 @@ integer               :: i
   if (gfield%nscal > 0) then
     allocate(gfield%tabscal(n_scal))          ! allocation du tableau de champs scalaires
     do i = 1, n_scal
+      
       call new(gfield%tabscal(i), gfield%dim)  ! allocation champ par champ
     enddo
   endif
@@ -284,10 +285,12 @@ integer               :: i
 !print*, "DEBUG DELETE GFIELD", gfield%nscal, gfield%nvect, gfield%ntens 
   if (gfield%nscal > 0) then
     do i = 1, gfield%nscal
+      !!print*, "delete scalaire ",i
       call delete(gfield%tabscal(i))
     enddo
     deallocate(gfield%tabscal)
   endif
+  !! print*, "fin delete scalaire "
 
   if (gfield%nvect > 0) then
     do i = 1, gfield%nvect

@@ -8,6 +8,7 @@ LDIR := ZONE
 ZONE_LIB = libt_zone.a
 
 ZONE_MOD = BOUND.$(MOD)                  \
+           DEFCAPTEURS.$(MOD)            \
            DEFFIELD.$(MOD)               \
            DEFZONE.$(MOD)                \
            MENU_SOLVER.$(MOD)            \
@@ -25,6 +26,7 @@ ZONE_OBJ := $(ZONE_MOD:.$(MOD)=.o)       \
             init_champ_ust.o             \
             init_connect_ust.o           \
             init_ustboco_ghostface.o     \
+            interpol_onvtex.o            \
             update_champ.o
 
 

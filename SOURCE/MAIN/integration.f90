@@ -28,13 +28,8 @@ type(st_world) :: lworld
 real(krp)      :: macro_dt
 real(krp), dimension(:), allocatable &
                :: excht ! instants d'échange pour les différents couplages de zones
-real(krp)      :: enrtps ! instant d'enregistrement des données (output)
-integer        :: ir, izone
-
-! DVT
-!integer   :: ic1, ic2, i
-!real(krp) :: dist, fourier 
-!type(v3d) :: dcg
+integer        :: ir, izone, if
+integer        :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
 
 ! -- Debut de la procedure --
 
@@ -46,29 +41,18 @@ lworld%info%icycle          = 0
 lworld%info%curtps          = 0._krp
 lworld%info%fin_integration = .false.
 
-enrtps = lworld%prj%duree-macro_dt
-if (lworld%prj%ncoupling > 0) then
+
+!if (lworld%prj%ncoupling > 0) then
   allocate(excht(lworld%prj%ncoupling))
   excht(:) = 0._krp
-endif
+!endif
 
-!---------------------------------------------------------------------------------------------------------------------
-! DVT : Nb de Fourier de chaque zone pour un maillage régulier
-!---------------------------------------------------------------------------------------------------------------------
-!do i = 1, lworld%prj%nzone
-!
-!ic1 = lworld%zone(i)%ust_mesh%facecell%fils(1,1)
-!ic2 = lworld%zone(i)%ust_mesh%facecell%fils(1,2)
-!dcg = lworld%zone(i)%ust_mesh%mesh%centre(ic2,1,1) - lworld%zone(i)%ust_mesh%mesh%centre(ic1,1,1)
-!dist = abs(dcg)
-!fourier = lworld%zone(i)%defsolver%defkdif%materiau%Kd%valeur *lworld%zone(i)%ust_mesh%mesh%iface(1,1,1)%surface &
-!           * macro_dt/ (lworld%zone(i)%defsolver%defkdif%materiau%Cp * lworld%zone(i)%ust_mesh%mesh%volume(ic1,1,1) &
-!           *dist)
-!write(str_w,'(a,i,a,g10.4)') "* FOURIER zone ", i, " : ", fourier
-!call print_info(6, str_w)   
-!
-!enddo                           
-!-----------------------------------------------------------------------------------------------------------------------
+! allocation des champs de résidus
+do izone = 1, lworld%prj%nzone
+  do if = 1, lworld%zone(izone)%ndom
+    call alloc_res(lworld%zone(izone)%field(if))
+  enddo
+enddo
 
 !-----------------------------------------------------------------------------------------------------------------------
 ! DVT : Ouverture du fichier de comparaison des flux à l'interface
@@ -85,10 +69,8 @@ do while (.not. lworld%info%fin_integration)
                                 " : t = ",  lworld%info%curtps
   call print_info(6,str_w)
 
-  call integration_macrodt(macro_dt, lworld, excht, lworld%prj%ncoupling, enrtps )
-  
-  !enrtps = enrtps + 100
-  
+  call integration_macrodt(macro_dt, lworld, excht, lworld%prj%ncoupling)  
+    
   lworld%info%curtps = lworld%info%curtps + macro_dt
 
   if (lworld%info%curtps >= lworld%prj%duree) then
@@ -100,7 +82,8 @@ enddo
 ! Mise à jour des conditions aux limites, notamment de couplage pour l'affichage des données :
 if (lworld%prj%ncoupling > 0) then
   do ir = 1, lworld%prj%ncoupling
-      call echange_zonedata(lworld,ir)  
+      call calcul_raccord(lworld, ir, iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2)
+      call echange_zonedata(lworld,ir, iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2) 
   enddo
 endif
 
@@ -111,15 +94,24 @@ enddo
 !-----------------------------------------------------------------------------------------------------------------------
 ! DVT : Fermeture du fichier de comparaison des flux à l'interface
 !-----------------------------------------------------------------------------------------------------------------------
-if (lworld%prj%ncoupling > 0) then
+!if (lworld%prj%ncoupling > 0) then
   deallocate(excht)
   close(uf_compflux)
-endif
+!endif
 !-----------------------------------------------------------------------------------------------------------------------
+
+do izone = 1, lworld%prj%nzone
+ do if = 1, lworld%zone(izone)%ndom
+   call dealloc_res(lworld%zone(izone)%field(if))
+ enddo
+enddo
+
 endsubroutine integration
 
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
 ! juil 2002 (v0.0.1b): création de la procédure
+! juin 2003          : instant d'échange excht
+!                      mise à jour des CL pour le fichier de sortie
 !------------------------------------------------------------------------------!

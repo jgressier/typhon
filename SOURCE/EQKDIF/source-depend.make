@@ -14,9 +14,12 @@ EQKDIF_MOD = EQKDIF.$(MOD)      \
 
 
 EQKDIF_OBJ := $(EQKDIF_MOD:.$(MOD)=.o)        \
+              accumulfluxcorr_kdif.o          \
+              corr_varprim_kdif.o             \
               def_boco_kdif.o                 \
               def_init_kdif.o                 \
               def_model_kdif.o                \
+              calcdifflux_kdif.o              \
               calc_kdif_flux.o                \
               calc_fluxinter_kdif.o           \
               calc_flux_fluxface.o            \
@@ -27,6 +30,7 @@ EQKDIF_OBJ := $(EQKDIF_MOD:.$(MOD)=.o)        \
               calc_flux_fluxspe_3D.o          \
               calc_flux_fluxspe_consistant.o  \
               calc_flux_fluxspe_compact.o     \
+              calc_fourier.o                  \
               calc_tempinter_kdif.o           \
               calc_varcons_kdif.o             \
               calc_varprim_kdif.o             \

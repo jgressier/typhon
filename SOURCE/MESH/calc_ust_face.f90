@@ -21,7 +21,7 @@ use GEO3D
 implicit none
 
 ! -- Declaration des entrées --
-type(st_ustconnect)      :: facevtex
+type(st_connect)      :: facevtex
 
 ! -- Declaration des entrées/sorties --
 type(st_mesh)            :: mesh      ! entrées:vertex / sorties:iface

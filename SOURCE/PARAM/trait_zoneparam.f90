@@ -88,10 +88,11 @@ enddo
 
 ! Allocation de coupling
 zone%ncoupling = nzr
-if (zone%ncoupling > 0) then
+!if (zone%ncoupling > 0) then
   allocate(zone%coupling(zone%ncoupling))
-endif
+!endif
 
+print*, "!DEBUG", zone%nom , zone%ncoupling
 ! Conditions aux limites
 
 call def_boco(block, solver, zone%defsolver, zone%coupling, zone%ncoupling)

@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : integrationmacro_zone       Auteur : J. Gressier
 !                                         Date   : Juillet 2002
-! Fonction                                Modif  : Juin 2003 (cf Historique)
+! Fonction                                Modif  : Juillet 2003 (cf Historique)
 !   Intégration d'une zone sur un écart de temps donné,
 !   d'une représentation physique uniquement
 !
@@ -15,6 +15,8 @@ use OUTPUT
 use VARCOM
 use DEFZONE
 use DEFFIELD
+use GEO3D
+use MATER_LOI
 
 implicit none
 
@@ -28,15 +30,12 @@ type(st_zone) :: lzone            ! zone à intégrer
 real(krp)   :: local_t            ! temps local (0 à mdt)
 real(krp)   :: dt                 ! pas de temps de la zone
 integer     :: if                 ! index de champ
+real(krp)   :: fourier
 
 ! -- Debut de la procedure --
 local_t = 0._krp
 
-! allocation des champs de résidus
 !print*, "DEBUG INTEGRATIONMACRO_ZONE"
-do if = 1, lzone%ndom
-  call alloc_res(lzone%field(if))
-enddo
 
 do while (local_t < mdt)
   
@@ -47,26 +46,29 @@ do while (local_t < mdt)
 
   !call calc_zonetimestep(local_t, lzone, dt)
   dt = mdt
-
+  call calc_fourier(fourier, dt, lzone%ust_mesh, &
+                  lzone%defsolver%defkdif%materiau, &
+                  lzone%field(1)%etatprim%tabscal(1) )
+  write(str_w,'(a,i,a,g10.4)') "* FOURIER zone ", lzone%id, " : ", fourier
+  call print_info(6, str_w)
+   
   call integration_zone(dt, lzone)
 
   local_t = local_t + dt
 
   do if = 1, lzone%ndom
-    print*,'!! DEBUG update dom =',if
+    !! print*,'!! DEBUG update dom =',if
     call update_champ(lzone%field(if))                   ! màj    des var. conservatives
-    call calc_varprim(lzone%defsolver, lzone%field(if), &
-                      lzone%ust_mesh%ncell_int)  ! calcul des var. primitives
+!    call calc_varprim(lzone%defsolver, lzone%field(if), &
+!                      lzone%ust_mesh%ncell_int)  ! calcul des var. primitives
+!DEBUG
+    call calc_varprim(lzone%defsolver, lzone%field(if))   ! calcul des var. primitives
   enddo
 
 enddo
 
 call capteurs(lzone)
 
-do if = 1, lzone%ndom
-  call dealloc_res(lzone%field(if))
-enddo
-!print*, "DEBUG : fin dealloc"
 endsubroutine integrationmacro_zone
 
 !------------------------------------------------------------------------------!
@@ -74,4 +76,6 @@ endsubroutine integrationmacro_zone
 !
 ! juil  2002 (v0.0.1b) : création de la procédure
 ! juin  2003           : champs multiples
+! juil  2003           : calcul du nombre de Fourier de la zone et deplacement
+!                        de l'allocation des residus vers integration_macrodt
 !------------------------------------------------------------------------------!

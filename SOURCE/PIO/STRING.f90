@@ -13,6 +13,10 @@ integer, parameter :: iposzmaj = iachar('Z')
 !  module procedure charuppercase, struppercase
 !endinterface
 
+interface strof
+  module procedure strof_int
+endinterface
+
 contains 
 
 !------------------------------------------------------------------------------!
@@ -45,7 +49,20 @@ function uppercase(str) result(strout)
   do i = 1, len(str)
     strout(i:i) = uppercasechar(str(i:i))
   enddo
-endfunction
+endfunction uppercase
+
+!------------------------------------------------------------------------------!
+! Fonction : Mise en majuscule d'une chaîne de caractères
+!------------------------------------------------------------------------------!
+function strof_int(nb, l) result(strout)
+  implicit none
+  integer, intent(in) :: nb, l   ! nombre à transformer, et longueur
+  character(len=l)    :: strout  ! longueur de la chaîne
+  character(len=3) :: sform
+
+  write(sform,'(i3)') l   
+  write(strout,'(i'//trim(adjustl(sform))//')') nb
+endfunction strof_int
 
 !------------------------------------------------------------------------------!
 ! Fonction : Test logique d'égalité des chaînes de caractères

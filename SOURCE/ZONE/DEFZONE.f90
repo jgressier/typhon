@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! MODULE : DEFZONE                        Auteur : J. Gressier
 !                                         Date   : Juillet 2002
-! Fonction                                Modif  : Juin 2003 (cf historique)
+! Fonction                                Modif  : Juillet 2003 (cf historique)
 !   Définition des structures de données des zones (contient
 !   maillage, type de solveur et info)
 !
@@ -86,20 +86,22 @@ integer        :: i
     enddo 
     deallocate(zone%str_mesh)
   endif
-
+  
+  call delete(zone%defsolver)
+  
   if (zone%nmesh_ust >= 1) then
     print*,"desallocation ust_mesh" !! DEBUG
     call delete(zone%ust_mesh)
   endif
   
-  if (zone%ncoupling >= 1) then
+!  if (zone%ncoupling >= 1) then
     print*,"desallocation tableau coupling" !! DEBUG
     do i = 1, zone%ncoupling
       print*,"desallocation coupling ",i !! DEBUG
       call delete(zone%coupling(i))
     enddo  
     deallocate(zone%coupling)
-  endif
+!  endif
 
   do i = 1, zone%ndom
     print*,"desallocation champ ",i !! DEBUG
@@ -122,4 +124,5 @@ endmodule DEFZONE
 !
 ! juil 2002 (v0.0.1b): création du module
 ! juin 2003          : structuration des champs par type (scalaire, vecteur...)
+! juillet 2003       : delete zone%defsolver
 !------------------------------------------------------------------------------!

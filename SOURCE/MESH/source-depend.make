@@ -15,6 +15,7 @@ MESH_MOD = GEO3D.$(MOD)     \
 
 MESH_OBJ = $(MESH_MOD:.$(MOD)=.o)  \
            calc_connface.o         \
+           calc_cellvtex.o         \
            calc_ust_cell.o         \
            calc_ust_elemvol.o      \
            calc_ust_midcell.o      \
@@ -24,7 +25,8 @@ MESH_OBJ = $(MESH_MOD:.$(MOD)=.o)  \
            extract_points.o        \
            extract_pts_index.o     \
            reorder_ustconnect.o    \
-           test_ustmesh.o   
+           test_ustmesh.o          \
+           verify_cellvtex.o
 
 
 D_MESH_OBJ = $(MESH_OBJ:%=$(PRJOBJ)/%)
