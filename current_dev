@@ -10,6 +10,7 @@ Dévelop.  R. cible  début     fin       Terminé  Développement
 --------------------------------------------------------------------------------------------------------
 Emmanuel   0.2.0   18/07/03                      Corrections de flux pour échanges espacés
 Jérémie    0.1.2                                 Optimisation de la procédure "calc_fourier"
+Jérémie    0.1.2   08/09/03                      Calcul de pas de temps à Fourier imposé
 --------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------
 
@@ -31,6 +32,7 @@ Jérémie     29/07/03   06/08/03     Ok    Format de sortie TECPLOT avec connecti
 (1): def_time, def_spat, def_other, trait_zoneparam, integrationmacro_zone
 (2): les différents indices : couplage et conditions limites pour chaque zone
 (3): Calcul des connectivités
+--------------------------------------------------------------------------------------------------------
 
 --------------------------------------------------------------------------------------------------------
 release 0.1.0
