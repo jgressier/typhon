@@ -14,7 +14,6 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            accumulfluxcorr.o        \
            calc_bilan.o             \
            calcdifflux.o            \
-           calc_flux_euler.o        \
            calc_volum.o             \
            calcul_raccord.o         \
            capteurs.o               \

@@ -57,11 +57,7 @@ do while (local_t < mdt)
   local_t = local_t + dt
 
   do if = 1, lzone%ndom
-    !! print*,'!! DEBUG update dom =',if
     call update_champ(lzone%field(if))                   ! màj    des var. conservatives
-!    call calc_varprim(lzone%defsolver, lzone%field(if), &
-!                      lzone%ust_mesh%ncell_int)  ! calcul des var. primitives
-!DEBUG
     call calc_varprim(lzone%defsolver, lzone%field(if))   ! calcul des var. primitives
   enddo
 
