@@ -13,10 +13,10 @@ FB = -implicitnone -I$(PRJINC)
 # -ipo  (optimisation interprocédure entre fichiers)
 # Profiling
 # -pg (informations pour gprof)
-FO = -O3 -tpp7 -xW 
+#FO = -O3 -tpp7 -xW 
 #FO = -O3 -tpp7 -xW -pg
 # Extensive runtime error checking
-#FO = -C
+FO = -C
 
 ####### Definition de l'éditeur de lien et des options
 
@@ -28,4 +28,6 @@ LINKFB  = $(FO) -L$(PRJEXT)
 
 ####### Librairies systèmes
 
+MPILIB     = -lmpich
+CGNSLIB    = -lcgns
 LAPACKLIBS = -llapack3 -lblas3 # installation locale

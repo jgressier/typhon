@@ -23,6 +23,7 @@ type(st_world) :: loc_world      ! structure encapsulant toutes les données TYPH
 
 ! -- Debut de la procedure --
 
+call init_exch_protocol(loc_world%info)
 call init_output()
 
 !###### ENTETE

@@ -291,6 +291,13 @@ Task 0041 (Emmanuel) : Make : liste chainée de bocofield (grid)
   de champ générique (DEFFIELD)
 
 ---------------------------------------------------------------------------------
+Task 0041 (Jérémie) : Make : compilation MPI/Sequentiel
+---------------------------------------------------------------------------------
+- librairie TYPHON EXCHANGE
+- définition de procédures en double pour le séquentiel et le parallèle
+- adapatation des Makefile
+
+---------------------------------------------------------------------------------
 Task 0043 (Jérémie) : NS : reading et set-up of boundary conditions
 ---------------------------------------------------------------------------------
 - sub/supersonic inlet & outlet

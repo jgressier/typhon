@@ -1,6 +1,8 @@
 ############################################################
 ##   Compilation du code TYPHON
 
+all: seq mpi
+
 ####### Compiler, tools and options
 
 SYS = $(shell Util/test-systeme)
@@ -14,7 +16,7 @@ FF   = $(FB) $(FO)
 
 # Précision
 
-PREC = SP    # Choix de la double précision (SP ou DP)
+#PREC = SP    # Choix de la double précision (SP ou DP)
 
 ####### Files and Lists
 
@@ -22,49 +24,50 @@ MAKEFILE= Makefile
 
 PRGNAME = Typhon
 
-all: $(PRGNAME)
-
-EXTLIBS   = $(LAPACKLIBS)
+EXTLIBS   = $(CGNSLIB) $(LAPACKLIBS)
 
 include librairies.make
 
-#LIBRARIES = libcgns.a libt_modcom.a libt_pio.a libt_eqkdif.a libt_param.a libt_cgns.a libt_mesh.a libt_zone.a libt_xio.a  libt_main.a   # libt_eqns.a  \
+LIB1 = libt_main.a   \
+       libt_xio.a    \
+       libt_cgns.a   \
+       libt_zone.a 
 
-LIBRARIES = libt_main.a   \
-            libt_xio.a    \
-            libt_cgns.a   \
-            libt_zone.a   \
-            libt_param.a  \
-            libt_vortex.a \
-            libt_eqns.a   \
-            libt_eqkdif.a \
-            libt_mgrid.a  \
-            libt_mesh.a   \
-            libt_pio.a    \
-            libt_math.a   \
-            libt_modcom.a \
-            libcgns.a 
+LIB2 = libt_param.a  \
+       libt_vortex.a \
+       libt_eqns.a   \
+       libt_eqkdif.a \
+       libt_mgrid.a  \
+       libt_mesh.a   \
+       libt_pio.a    \
+       libt_math.a   \
+       libt_modcom.a 
 
-D_LIBRARIES = $(LIBRARIES:%=$(PRJLIB)/%)
+LIBSEQ = $(LIB1) libt_exchseq.a $(LIB2)
+LIBMPI = $(LIB1) libt_exchmpi.a $(LIB2)
 
-VPATH = CGNS:EQNS:EQKDIF:MAIN:MGRID:MESH:MODCOM:MATH:PARAM:PIO:VORTEX:XIO:ZONE
+D_LIBSEQ = $(LIBSEQ:%=$(PRJLIB)/%)
+D_LIBMPI = $(LIBMPI:%=$(PRJLIB)/%)
+
+VPATH = CGNS:EQNS:EQKDIF:EXCHANGE:MAIN:MGRID:MESH:MODCOM:MATH:PARAM:PIO:VORTEX:XIO:ZONE
 
 
 ####### Build libraries
 
-include MODCOM/source-depend.make 
-include   MATH/source-depend.make 
-include    PIO/source-depend.make
-include   MESH/source-depend.make
-include  MGRID/source-depend.make
-include   EQNS/source-depend.make
-include EQKDIF/source-depend.make
-include VORTEX/source-depend.make
-include  PARAM/source-depend.make
-include   ZONE/source-depend.make
-include   CGNS/source-depend.make
-include    XIO/source-depend.make
-include   MAIN/source-depend.make 
+include   MODCOM/source-depend.make 
+include     MATH/source-depend.make 
+include      PIO/source-depend.make
+include     MESH/source-depend.make
+include    MGRID/source-depend.make
+include     EQNS/source-depend.make
+include   EQKDIF/source-depend.make
+include EXCHANGE/source-depend.make
+include   VORTEX/source-depend.make
+include    PARAM/source-depend.make
+include     ZONE/source-depend.make
+include     CGNS/source-depend.make
+include      XIO/source-depend.make
+include     MAIN/source-depend.make 
 
 
 ####### Build main
@@ -73,25 +76,33 @@ MAIN = Obj/main.o # dépendances dans MAIN/depends.make
 
 ####### Build rules
 
-all: $(PRGNAME)
+seq: $(PRGNAME)-seq
+mpi: $(PRGNAME)-mpi
 
-
-$(PRGNAME) : $(MAIN) $(D_LIBRARIES) $(MAKEFILE)
+$(PRGNAME)-seq : $(MAIN) $(D_LIBSEQ) $(MAKEFILE)
 	@echo ---------------------------------------------------------------
-	@echo EDITION DE LIEN DE $(PRGNAME) ---
+	@echo EDITION DE LIEN DE $(PRGNAME)-seq ---
 	@echo Librairies externes : $(EXTLIBS)
-	@echo Librairies TYPHON   : $(LIBRARIES)
-	@$(LINKER) $(LINKFB) $(MAIN) $(D_LIBRARIES) $(EXTLIBS) -o $(PRGNAME)
-	@echo --- Création de $(PRGNAME) terminée ---
+	@echo Librairies TYPHON   : $(LIBSEQ)
+	@$(LINKER) $(LINKFB) $(MAIN) $(D_LIBSEQ) $(EXTLIBS) -o $(PRGNAME)-seq
+	@echo --- Création de $(PRGNAME)-seq terminée ---
 
-clean:  CGNS_clean MAIN_clean MESH_clean MODCOM_clean MATH_clean PARAM_clean  \
-        PIO_clean  XIO_clean  ZONE_clean EQKDIF_clean EQNS_clean VORTEX_clean
-	-rm $(PRGNAME) $(OBJECTS) $(D_LIBRARIES) $(PRJINC)/*.$(MOD)
+$(PRGNAME)-mpi : $(MAIN) $(D_LIBMPI) $(MAKEFILE)
+	@echo ---------------------------------------------------------------
+	@echo EDITION DE LIEN DE $(PRGNAME)-mpi ---
+	@echo Librairies externes : $(EXTLIBS) $(MPILIB)
+	@echo Librairies TYPHON   : $(LIBMPI)
+	@$(LINKER) $(LINKFB) $(MAIN) $(D_LIBMPI) $(EXTLIBS) $(MPILIB) -o $(PRGNAME)-mpi
+	@echo --- Création de $(PRGNAME)-mpi terminée ---
+
+clean:
+	-rm $(PRGNAME)-seq $(PRGNAME)-mpi $(OBJECTS) $(D_LIBMPI) $(D_LIBSEQ) $(PRJINC)/*.$(MOD)
 
 
 ####### Dependencies
 
-$(PRGNAME): $(MAKEFILE) 
+$(PRGNAME)-seq: $(MAKEFILE) 
+$(PRGNAME)-mpi: $(MAKEFILE) 
 
 # Dependances de modules
 

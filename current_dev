@@ -33,7 +33,7 @@ Task Dévlp.  R. cible début fin   Type  Développement
                0.2.0              Make  Liste chaînée de GENERICFIELD et FIELD
                0.2.0              Make  Définition des historiques
                0.2.0              Make  Restructuration des données SOLVEUR (structure commune)
-               0.2.0              Make  Initialisation conditionnelle MPI
+0042 Jérémie   0.2.0  01/07 02/07 Make  compilation MPI/Sequentiel
                0.2.0              IHM   Test des mots-clefs RPM non lus
                0.2.0              Mesh  Vérification de maillage
                0.3.0              Mesh  Raffinement de maillage complet

@@ -49,7 +49,7 @@ integer                 :: ic, ic1, ic2 ! indices de cellules
 
 ! boucle sur la liste des faces et sommation pour les cellules
 
-print*,"!! DEBUG : sommation"
+!print*,"!! DEBUG : sommation"
 do if = 1, nface
 
   ic1 = facecell%fils(if,1)

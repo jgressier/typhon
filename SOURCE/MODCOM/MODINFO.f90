@@ -23,12 +23,15 @@ implicit none
 
 !------------------------------------------------------------------------------!
 ! Définition de la structure ST_INFO : informations générales sur la gestion du calcul
+! niveau WORLD
 !------------------------------------------------------------------------------!
 type st_info
   logical   :: fin_integration      ! fin d'intégration
   integer   :: icycle               ! cycle courant
   real(krp) :: curtps               ! temps physique courant
   real(krp) :: residu_ref, cur_res  ! residu de référence et courant
+  integer   :: nbproc               ! total number of communicating processors
+  integer   :: my_id                ! id of the current process
 endtype st_info
 
 
