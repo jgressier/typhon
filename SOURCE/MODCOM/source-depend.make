@@ -9,10 +9,7 @@ MODCOM_LIB = $(PRJLIB)/libt_modcom.a
 
 MODCOM_MOD = CONNECTIVITY.$(MOD)     \
              GEO2D.$(MOD)            \
-             INTEGRATION.$(MOD)      \
-             INTERPOL.$(MOD)         \
              LAPACK.$(MOD)           \
-             MATH.$(MOD)             \
              MODINFO.$(MOD)          \
              TYPHMAKE.$(MOD)         \
              VARCOM.$(MOD)           
