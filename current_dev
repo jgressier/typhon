@@ -9,32 +9,11 @@ Liste des développement courants
 
 Task Dévlp.  R. cible début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
-     Jérémie   0.1.4              Make  problème de désallocation en fin de calcul (SGI)
-0010 Emmanuel  0.1.4  23/06 25/06 KDIF  condition limite de convection h(T-Tref) et de Neumann
-0020 Jérémie   0.1.4  12/02 06/04 Make  Solveur Vortex - procédures de base
-0021 Jérémie   0.1.4  07/04 07/04 Make  Solveur Vortex - Solveur KDIF : vérification  
-0022 Jérémie   0.1.4  07/04 09/04 Make  Solveur Vortex - débuggage et validation
-0023 Jérémie   0.1.4  09/04 09/04 Make  Première fusion avec branche VORTEX
-0024 Jérémie   0.1.4  10/04 10/04 Make  Suppression des structures de données STRMESH (1)
-0025 Jérémie   0.1.4  10/04 12/04 Make  Integration de KDIF dans les structures MGRID
-0026 Jérémie   0.1.4  13/04 16/04 KDIF  implicitation méthode directe LU
-0027 Jérémie   0.1.4  16/04 16/04 IHM   affichage intermittent des itérations (mod(it,10))
-0028 Jérémie   0.1.4  16/04 16/04 Solv  résolution par méthode JACOBI
-0029 Jérémie   0.1.4  16/04 16/04 IHM   choix du résidu maximal de cycle (residu max global sinon)
-0030           0.1.4  21/04 08/06 Out   Sorties au format VTK
-0031           0.1.4  10/06 15/06 Val   maillage 3D TETRA 
-0032 Emmanuel  0.1.4        19/04 Coupl différents types de correction
-0033 Emmanuel  0.1.4        19/04 Coupl orientation du coef. de correction en fonction des diffusivités
-0034 Emmanuel  0.1.4        19/04 Out   sortie des val. de température, flux d'interface et corrections
-0035 Emmanuel  0.1.4        13/05 KDIF  condition initiale de température non uniforme linéaire
-0036 Jérémie   0.1.4  07/06 08/06 Make  mémorisation des connectivités cell->vtex
                0.1.4              Coupl structures de cumul de flux dans MGRID
      Jérémie   0.1.4              Make  Sauvegarde de capteurs BOCO_FIELD
                0.1.4              Make  calcul des index de conditions limites connectées à la lecture
      Jérémie   0.1.4              Opt   explosion temps de calcul VALIDATION/KDIF/KNL2
-0037 Jérémie   0.1.5  17/06 21/06 Val   maillage 3D PRISM/TETRA (2)
 0038           0.1.5              Val   maillage 3D HEXA 
-0041 Emmanuel  0.1.4  22/06 23/06 Make  lien chainé champ générique pour grille
      Jérémie   0.1.5              Solv  Optimisation de la structure DLU (SPARSE_MAT) (faces limites)
      Jérémie   0.1.5              Solv  Inversion Gauss-Seidel
      Jérémie   0.1.5              Solv  Surrelaxation Jacobi, SOR, SSOR
@@ -63,6 +42,34 @@ Task Dévlp.  R. cible début fin   Type  Développement
                1.0.0              Make  Restructuration des bibliothèques RPM
                1.0.0              IHM   Imbrication des blocs RPM
                1.0.0              Opt   Optimisation des structures de données pour l'accès mémoire
+--------------------------------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------------------------------
+release 0.1.4 - 1er juillet 2004
+--------------------------------------------------------------------------------------------------------
+
+Task Dévlp.  R. cible début fin   Type  Développement
+--------------------------------------------------------------------------------------------------------
+0010 Emmanuel  0.1.4  23/06 25/06 KDIF  condition limite de convection h(T-Tref) et de Neumann
+0020 Jérémie   0.1.4  12/02 06/04 Make  Solveur Vortex - procédures de base
+0021 Jérémie   0.1.4  07/04 07/04 Make  Solveur Vortex - Solveur KDIF : vérification  
+0022 Jérémie   0.1.4  07/04 09/04 Make  Solveur Vortex - débuggage et validation
+0023 Jérémie   0.1.4  09/04 09/04 Make  Première fusion avec branche VORTEX
+0024 Jérémie   0.1.4  10/04 10/04 Make  Suppression des structures de données STRMESH (1)
+0025 Jérémie   0.1.4  10/04 12/04 Make  Integration de KDIF dans les structures MGRID
+0026 Jérémie   0.1.4  13/04 16/04 KDIF  implicitation méthode directe LU
+0027 Jérémie   0.1.4  16/04 16/04 IHM   affichage intermittent des itérations (mod(it,10))
+0028 Jérémie   0.1.4  16/04 16/04 Solv  résolution par méthode JACOBI
+0029 Jérémie   0.1.4  16/04 16/04 IHM   choix du résidu maximal de cycle (residu max global sinon)
+0030           0.1.4  21/04 08/06 Out   Sorties au format VTK
+0031           0.1.4  10/06 15/06 Val   maillage 3D TETRA 
+0032 Emmanuel  0.1.4        19/04 Coupl différents types de correction
+0033 Emmanuel  0.1.4        19/04 Coupl orientation du coef. de correction en fonction des diffusivités
+0034 Emmanuel  0.1.4        19/04 Out   sortie des val. de température, flux d'interface et corrections
+0035 Emmanuel  0.1.4        13/05 KDIF  condition initiale de température non uniforme linéaire
+0036 Jérémie   0.1.4  07/06 08/06 Make  mémorisation des connectivités cell->vtex
+0037 Jérémie   0.1.5  17/06 21/06 Val   maillage 3D PRISM/TETRA (2)
+0041 Emmanuel  0.1.4  22/06 23/06 Make  lien chainé champ générique pour grille
 --------------------------------------------------------------------------------------------------------
 (1) dans les modules (ZONE etc) et les procédures d'intégration spécifiques
 (2) Lecture validée, problème de convergence

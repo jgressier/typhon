@@ -2,7 +2,7 @@
 ECOULEMENT INCOMPRESSIBLE - PROFIL VAN DE VOOREN
 -------------------------------------------------
 main.rpm      : fichier de paramètres du calcul
-cyl.cgns      : maillage au format CGNS
+vooren.mty      : maillage au format CGNS
 -------------------------------------------------
 
 * MAILLAGE
@@ -37,3 +37,9 @@ COMMENTAIRES SUR LA SOLUTION
 -------------------------------------------------
 Benchmark
 -------------------------------------------------
+Harfang: Pentium 4 - 1.7GHz - 512 Mo
+Akira  : R14000a   - 600MHz -  64 Go
+Blasius:
+
+
+
