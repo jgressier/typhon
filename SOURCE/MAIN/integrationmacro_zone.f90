@@ -161,6 +161,8 @@ do while (.not.fin)
       write(str_w,'(a,i5,a,g10.4)') "    iteration",lzone%info%iter_loc," | residu = ", log10(lzone%info%cur_res)
 !                                    log10(lzone%info%cur_res/lzone%info%residu_ref)
 
+    if (mod(lzone%info%iter_loc,10) == 0) call print_info(9,str_w)
+
   case(instationnaire)
     local_t = local_t + dt
 !   if (mod(lzone%info%iter_loc,10) == 0) &
@@ -172,7 +174,7 @@ do while (.not.fin)
   endselect
 
 !  if (mod(lzone%info%iter_loc,10) == 0) call print_info(9,str_w)
-  if (fin) call print_info(9,str_w)
+!  if (fin) call print_info(9,str_w)
 
   call capteurs(lzone)
 
