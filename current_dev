@@ -23,6 +23,8 @@ Jérémie    0.2.0   25/09/03                      Calcul des gradients des champs
            1.0.0                                 Restructuration des bibliothèques RPM
            1.0.0                                 Imbrication des blocs RPM
            0.2.0                                 Définition de capteurs et historiques
+Emmanuel   0.2.0             13/10/03    Ok      Choix du type de sortie (valeurs aux centres ou aux noeuds)
+Emmanuel   0.2.0             13/10/03    Ok      Choix du coefficient de correction de flux
 --------------------------------------------------------------------------------------------------------
 (0) de v0.1.0 à v0.1.1, le temps CPU a été multiplié par 4 : après optimisation, le tps CPU
     reste supérieur à la version originale pour des raisons indéterminées
