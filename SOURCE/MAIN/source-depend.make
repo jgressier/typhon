@@ -30,7 +30,6 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            init_world.o             \
            integration.o            \
            integration_cycle.o      \
-           integration_strdomaine.o \
            integration_ustdomaine.o \
            integration_zone.o       \
            integrationmacro_zone.o  \

@@ -89,13 +89,14 @@ do while (.not.fin)
   ! ---
 
   do if = 1, lzone%ndom
-    call update_champ(lzone%info, lzone%field(if), lzone%ust_mesh%ncell_int)  ! màj    des var. conservatives
-    call calc_varprim(lzone%defsolver, lzone%field(if))     ! calcul des var. primitives
-    
-    if (lzone%defspat%calc_grad) then
-      call calc_gradient(lzone%defsolver, lzone%ust_mesh,                 &
-                         lzone%field(if)%etatprim, lzone%field(if)%gradient)
-    endif
+    call update_champ(lzone%info, lzone%field(if), lzone%ust_mesh%ncell_int)  ! màj  des var. conservatives
+   ! !call calc_varprim(lzone%defsolver, lzone%field(if))     ! calcul des var. primitives
+   ! 
+   ! ! on ne calcule les gradients que dans les cas nécessaires
+   ! if (lzone%defspat%calc_grad) then
+   !   call calc_gradient(lzone%defsolver, lzone%ust_mesh,                 &
+   !                      lzone%field(if)%etatprim, lzone%field(if)%gradient)
+   ! endif
   enddo
 
   ! écriture d'informations
@@ -128,9 +129,10 @@ endsubroutine integrationmacro_zone
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juil  2002  : création de la procédure
-! juin  2003  : champs multiples
-! juil  2003  : calcul du nombre de Fourier de la zone 
-!               allocation des residus remontée à integration_macrodt
-! sept  2003  : calcul des gradients
+! juil 2002 : création de la procédure
+! juin 2003 : champs multiples
+! juil 2003 : calcul du nombre de Fourier de la zone 
+!             allocation des residus remontée à integration_macrodt
+! sept 2003 : calcul des gradients
+! oct  2003 : déplacement des proc. calc_gradient et calc_varprim dans integration_zone
 !------------------------------------------------------------------------------!
