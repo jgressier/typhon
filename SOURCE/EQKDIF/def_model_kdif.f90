@@ -80,8 +80,8 @@ if (samestring(str,"DEFINITION")) then
       allocate(defsolver%defkdif%materiau%Kd%poly%coef(defsolver%defkdif%materiau%Kd%poly%ordre+1))
       call rpmgetkeyvalstr(pcour, "COEFFILE", str)
       open(unit=1001, file = str, form="formatted")
-      read(1001,*),  (defsolver%defkdif%materiau%Kd%poly%coef(i),i = 1, &
-                      defsolver%defkdif%materiau%Kd%poly%ordre+1) 
+      read(1001,*) (defsolver%defkdif%materiau%Kd%poly%coef(i),i = 1, &
+                    defsolver%defkdif%materiau%Kd%poly%ordre+1) 
       close(1001)
 
     case(LOI_PTS)

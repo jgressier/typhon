@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine extract_points(umesh, index, liste)
+subroutine extract_points(umesh, indx, liste)
 
 use TYPHMAKE
 use GEO3D
@@ -18,7 +18,7 @@ implicit none
 
 ! -- Declaration des entrées --
 type(st_ustmesh) :: umesh
-integer, dimension(1:umesh%nvtex) :: index     ! liste des index des points renumérotés
+integer, dimension(1:umesh%nvtex) :: indx     ! liste des index des points renumérotés
 
 ! -- Declaration des entrées/sorties --
 
@@ -33,8 +33,8 @@ integer :: if, iface, iv, nvtex
 !! instruction where ?
 
 do iv = 1, umesh%nvtex
-  if (index(iv) /= 0) then
-    liste(index(iv)) = umesh%mesh%vertex(iv,1,1)
+  if (indx(iv) /= 0) then
+    liste(indx(iv)) = umesh%mesh%vertex(iv,1,1)
   endif
 enddo
 
