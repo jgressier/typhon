@@ -1,0 +1,26 @@
+Description détaillée des tâches (référence au numéro de tâche lors "cvs commit")
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+Task 0001 (Jérémie) : SCH : Bug dans le calcul des gradients
+---------------------------------------------------------------------------------
+Les numéros d'indices gauche et droit étaient mal définis dans le calcul du 
+second membre. On avait forcément des gradients nuls.
+
+---------------------------------------------------------------------------------
+Task 0002 (Jérémie) : Val : maillage 2D TRI - méthode flux FULL
+---------------------------------------------------------------------------------
+Test de maillage avec TRI, validation de la méthode de calcul de gradients FULL
+- Le calcul des gradients (FULL) plante car les cellules limites ne sont pas utilisées
+  Certains TRI ont deux cellules voisines limites, donc un seul voisin interne, ce
+  qui provoque la dégérescence de la matrice à inverser. cf task 0003
+
+---------------------------------------------------------------------------------
+Task 0003 (Jérémie) : SCH : amélioration calcul gradients (avec ghost-cell)
+---------------------------------------------------------------------------------
+(obligatoire pour les TRI, cf task 0002)
+Les cellules limites sont incluses dans le calcul des gradients. Il est nécessaire
+de faire le calcul des conditions aux limites avant le calcul des gradients.
+Dans calc_gradient, les contributions sont codées deux fois pour éviter des "if"
+dans les boucles.
+ 

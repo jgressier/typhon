@@ -4,20 +4,31 @@ Liste des développement courants
 * à ajouter dans  SOURCE/_DOC/VERSION et  SOURCE/_DOC/VERSION-changes
   lors de la définition de release
 * en liaison avec les développements à faire dans SOURCE/_DEV/TODO
+* remplir le fichier de description des tâches "task"
 
 
-Dévelop.  R. cible  début     fin       Terminé  Développement
+Task Dévlp.    R. cible  début     fin       Terminé  Développement
 --------------------------------------------------------------------------------------------------------
-Emmanuel   0.2.0   18/07/03                      Corrections de flux pour échanges espacés
-Jérémie    0.2.0   15/09/03                      Solveur Fluide Parfait - fonctionnalités de base
-           0.2.0                                 Restructuration de MAIN/integration_cycle (split)
-           0.2.0                                 Suppression des structures de données STRMESH (1)
-           0.2.0                                 Implicitation du solveur KDIF
-           0.2.0                                 Définition de capteurs et historiques
-           1.0.0                                 Optimisation du calcul de loi polynomiale
-           1.0.0                                 Restructuration des bibliothèques RPM
-           1.0.0                                 Imbrication des blocs RPM
-           1.0.0                                 Optimisation des structures de données pour l'accès mémoire
+     Jérémie    0.1.3   17/10/03  17/10/03    Ok      Make: compilation sur SGI
+     Jérémie    0.1.3                                 Make: problème de désallocation en fin de calcul (SGI)
+0001 Jérémie    0.1.3   29/10/03  29/10/03    Ok      SCH: bug calcul de gradients
+0002 Jérémie    0.1.3   29/10/03                      Validation: maillage 2D TRI - méthode flux FULL
+     Jérémie    0.1.3   29/10/03                      SCH: amélioration calcul gradients (avec ghost-cell)
+                0.1.3                                 Couplage: calcul de connectivités des faces couplées
+                0.1.3                                 KDIF: condition limite de convection h(T-Tref)
+                0.1.4                                 KDIF: condition limite de rayonnement
+                0.1.4                                 Validation: maillage 3D TETRA et/ou HEXA
+     Emmanuel   0.2.0   18/07/03                      Corrections de flux pour échanges espacés
+     Jérémie    0.2.0   15/09/03                      Solveur Fluide Parfait - fonctionnalités de base
+                0.2.0                                 Restructuration de MAIN/integration_cycle (split)
+                0.2.0                                 Suppression des structures de données STRMESH (1)
+                0.2.0                                 Implicitation du solveur KDIF
+                0.2.0                                 Définition de capteurs et historiques
+                1.0.0                                 Optimisation du calcul KDIF/flux COMPACT
+                1.0.0                                 Optimisation du calcul de loi polynomiale
+                1.0.0                                 Restructuration des bibliothèques RPM
+                1.0.0                                 Imbrication des blocs RPM
+                1.0.0                                 Optimisation des structures de données pour l'accès mémoire
 --------------------------------------------------------------------------------------------------------
 (1) dans les modules (ZONE etc) et les procédures d'intégration spécifiques
 --------------------------------------------------------------------------------------------------------
