@@ -25,7 +25,7 @@ ENDBLOCK
 
 BLOCK:MESH
   FORMAT = CGNS
-  FILE   = "rect4x1.cgns"
+  FILE   = "rect4x1-triraf.cgns"
 ENDBLOCK
 
 BLOCK:MODEL
