@@ -100,8 +100,7 @@ zone%ncoupling = nzr
 
 ! Conditions aux limites
 
-call def_boco(block, solver, zone%defsolver, zone%coupling, zone%ncoupling, &
-              zone%ust_mesh)
+call def_boco(block, solver, zone%defsolver, zone%coupling, zone%ncoupling)
 
 ! -------------------------
 ! Définition de l'initialisation

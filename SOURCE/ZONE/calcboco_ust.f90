@@ -1,9 +1,9 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calcboco_ust                Auteur : J. Gressier
 !                                         Date   : Avril 2003
-! Fonction                                Modif  : Juin 2003 (cf Historique)
+! Fonction                                Modif  : (cf Historique)
 !   Calcul des conditions aux limites pour maillage non structuré
-!   Aiguillage des appel selon le type (général ou par solveur)
+!   Aiguillage des appels selon le type (général ou par solveur)
 !
 ! Defauts/Limitations/Divers :
 !
@@ -94,5 +94,5 @@ endsubroutine calcboco_ust
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! avril 2003 (v0.0.1b): création de la procédure
+! avril 2003 : création de la procédure
 !------------------------------------------------------------------------------!

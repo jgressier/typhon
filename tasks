@@ -164,3 +164,14 @@ Task 0023 (Jérémie) : Make : fusion avec la branche de développement VORTEX
 ---------------------------------------------------------------------------------
 - fusion et gestion des conflits
 
+---------------------------------------------------------------------------------
+Task 0024 (Jérémie) : Make : Suppression des structures de données STRMESH 
+---------------------------------------------------------------------------------
+- les données de maillage structurées seront représentées en non structuré
+
+---------------------------------------------------------------------------------
+Task 0025 (Jérémie) : Make : Integration de KDIF dans les structures MGRID
+---------------------------------------------------------------------------------
+- modification et compilation effectuée
+- validation KDIF/CYL1D, COUPLING/DEFORME, VORTEX/VANVOOREN
+

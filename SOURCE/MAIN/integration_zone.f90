@@ -25,14 +25,17 @@ type(st_zone) :: zone            ! zone à intégrer
 ! retour des résidus à travers le champ field de la structure zone
 
 ! -- Declaration des variables internes --
-integer     :: if
+type(st_grid), pointer :: pgrid
+integer                :: if
 
 ! -- Debut de la procedure --
 
 ! -- Préparation du calcul --
 
-do if = 1, zone%ndom
-  call calc_varprim(zone%defsolver, zone%field(if))     ! calcul des var. primitives
+pgrid => zone%grid
+do while (associated(pgrid))
+  call calc_varprim(zone%defsolver, pgrid%field)     ! calcul des var. primitives
+  pgrid => pgrid%next
 enddo
 
 ! -- calcul des conditions aux limites pour tous les domaines --
@@ -42,20 +45,24 @@ call conditions_limites(zone)
 ! on ne calcule les gradients que dans les cas nécessaires
 
 if (zone%defspat%calc_grad) then
-  do if = 1, zone%ndom
-    call calc_gradient(zone%defsolver, zone%ust_mesh,                 &
-                       zone%field(if)%etatprim, zone%field(if)%gradient)
-    call calc_gradient_limite(zone%defsolver, zone%ust_mesh, zone%field(if)%gradient)
+  pgrid => zone%grid
+  do while (associated(pgrid))
+    call calc_gradient(zone%defsolver, pgrid%umesh,                 &
+                       pgrid%field%etatprim, pgrid%field%gradient)
+    call calc_gradient_limite(zone%defsolver, pgrid%umesh, pgrid%field%gradient)
+    pgrid => pgrid%next
   enddo
 endif
 
 ! -- intégration des domaines --
 
-do if = 1, zone%ndom
-  call integration_ustdomaine(dt, zone%defsolver, zone%defspat,  &
-                              zone%ust_mesh, zone%field(if), &
-                              zone%coupling, zone%ncoupling, &
+pgrid => zone%grid
+do while (associated(pgrid))
+  call integration_ustdomaine(dt, zone%defsolver, zone%defspat, &
+                              pgrid%umesh, pgrid%field,         &
+                              zone%coupling, zone%ncoupling,    &
                               zone%info%typ_temps)
+  pgrid => pgrid%next
 enddo
 
 
@@ -72,4 +79,5 @@ endsubroutine integration_zone
 ! oct  2003 : insertion des procédures de calcul var. primitives et gradients
 !             (calcul des conditions aux limites avant calcul de gradients)
 !             ajout du calcul des gradients aux limites (set_gradient_limite)
+! avr  2004 : traitement des listes chaînées de structures MGRID
 !------------------------------------------------------------------------------!

@@ -14,6 +14,7 @@ use TYPHMAKE
 use OUTPUT
 use VARCOM
 use MODWORLD
+use MGRID
 
 implicit none
 
@@ -24,6 +25,7 @@ type(st_zone) :: lzone
 real(krp)      :: dt
 
 ! -- Declaration des variables internes --
+type(st_grid), pointer               :: pgrid    ! pointeur sur grille
 real(krp), dimension(:), allocatable :: dtloc    ! tableau de pas de temps local
 integer                              :: ncell    ! nombre de cellules pour le calcul
 
@@ -40,30 +42,40 @@ select case(lzone%defsolver%typ_solver)
 !--------------------------------------------------------
 case(solKDIF)
 
-  ncell = lzone%ust_mesh%ncell_int
-  allocate(dtloc(ncell))
+  pgrid => lzone%grid
+  dt    =  1.e20        ! DEV (max de real)
 
-  select case(lzone%deftime%stab_meth)
+  do while (associated(pgrid))   ! BOUCLE sur les grilles (liste chaînée)
 
-  case(given_dt)   ! -- Pas de temps imposé --
-    dtloc(1:ncell) = lzone%deftime%dt
+    ncell = pgrid%umesh%ncell_int
+    allocate(dtloc(ncell))
 
-  case(stab_cond)  ! -- Calcul par condition de stabilité (deftim%stabnb) --
-    select case(lzone%defsolver%typ_solver)
-    case(solKDIF)
-      call calc_kdif_timestep(lzone%deftime, lzone%defsolver%defkdif%materiau, &
-                              lzone%ust_mesh, lzone%field, dtloc, ncell)
+    select case(lzone%deftime%stab_meth)
+
+    case(given_dt)   ! -- Pas de temps imposé --
+      dtloc(1:ncell) = lzone%deftime%dt
+
+    case(stab_cond)  ! -- Calcul par condition de stabilité (deftim%stabnb) --
+      select case(lzone%defsolver%typ_solver)
+      case(solKDIF)
+        call calc_kdif_timestep(lzone%deftime, lzone%defsolver%defkdif%materiau, &
+                                pgrid%umesh, pgrid%field, dtloc, ncell)
+      case default
+        call erreur("incohérence interne (calc_zonetimestep)", "solveur inconnu")
+      endselect
+
     case default
-      call erreur("incohérence interne (calc_zonetimestep)", "solveur inconnu")
-    endselect
+      call erreur("incohérence interne (calc_zonetimestep)", "condition incompatible")
+    endselect  
 
-  case default
-    call erreur("incohérence interne (calc_zonetimestep)", "condition incompatible")
-  endselect  
+    ! -- DEV -- pas de temps global imposé dans cette version
+    dt = min(dt, minval(dtloc))
+    deallocate(dtloc)
 
-  ! -- DEV -- pas de temps global imposé dans cette version
-  dt = minval(dtloc)
-  deallocate(dtloc)
+    ! grille suivante
+    pgrid => pgrid%next
+
+  enddo
 
 !--------------------------------------------------------
 ! méthode LAGRANGIENNE
@@ -87,4 +99,5 @@ endsubroutine calc_zonetimestep
 !
 ! sept 2003 : création, appel des procédures spécifiques aux solveurs
 ! mars 2003 : calcul de pas de temps pour méthodes lagrangiennes
+! avr  2004 : calcul KDIF sur liste chaînée de grilles
 !------------------------------------------------------------------------------!

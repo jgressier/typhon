@@ -8,7 +8,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine def_boco(block, isolver, defsolver, zcoupling, ncoupling, ustdom)
+subroutine def_boco(block, isolver, defsolver, zcoupling, ncoupling)
 
 use RPM
 use TYPHMAKE
@@ -25,7 +25,7 @@ implicit none
 type(rpmblock), target :: block
 integer                :: isolver
 integer                :: ncoupling
-type(st_ustmesh)       :: ustdom
+!type(st_ustmesh)       :: ustdom
 
 ! -- Declaration des sorties --
 type(mnu_solver)                             :: defsolver
@@ -184,8 +184,8 @@ endsubroutine def_boco
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mars 2003 (v0.0.1b): création de la routine
-! fev  2004          : ajout des CL propres au solveur VORTEX (cf MENU_VORTEX)
+! mars 2003 : création de la routine
+! fev  2004 : ajout des CL propres au solveur VORTEX (cf MENU_VORTEX)
 !------------------------------------------------------------------------------!
 
 

@@ -44,15 +44,15 @@ type(v3d)                       :: vecinter
 do i=1, nfacelim    
   
   ! indices des faces concernées
-  if1 = zone1%ust_mesh%boco(nbc1)%iface(i)
-  if2 = zone2%ust_mesh%boco(nbc2)%iface(i)
+  if1 = zone1%grid%umesh%boco(nbc1)%iface(i)
+  if2 = zone2%grid%umesh%boco(nbc2)%iface(i)
    
-  cgface = zone1%ust_mesh%mesh%iface(if1,1,1)%centre
-  ic1 = zone1%ust_mesh%facecell%fils(if1,1)
-  icg1 = zone1%ust_mesh%facecell%fils(if1,2)
-  cg1 = zone1%ust_mesh%mesh%centre(ic1,1,1)
-  ic2 = zone2%ust_mesh%facecell%fils(if2,1)
-  cg2 = zone2%ust_mesh%mesh%centre(ic2,1,1)
+  cgface = zone1%grid%umesh%mesh%iface(if1,1,1)%centre
+  ic1 = zone1%grid%umesh%facecell%fils(if1,1)
+  icg1 = zone1%grid%umesh%facecell%fils(if1,2)
+  cg1 = zone1%grid%umesh%mesh%centre(ic1,1,1)
+  ic2 = zone2%grid%umesh%facecell%fils(if2,1)
+  cg2 = zone2%grid%umesh%mesh%centre(ic2,1,1)
 
   ! calcul du vecteur unitaire "inter-cellules"
   vecinter = (cg2 - cg1) / abs((cg2 - cg1))
@@ -63,9 +63,9 @@ do i=1, nfacelim
 
   ! Températures
 
-  temp1(i) = zone1%field(1)%etatprim%tabscal(1)%scal(ic1)
-  temp2(i) = zone2%field(1)%etatprim%tabscal(1)%scal(ic2)
-  tempinter(i) = zone1%field(1)%etatprim%tabscal(1)%scal(icg1)
+  temp1(i) = zone1%grid%field%etatprim%tabscal(1)%scal(ic1)
+  temp2(i) = zone2%grid%field%etatprim%tabscal(1)%scal(ic2)
+  tempinter(i) = zone1%grid%field%etatprim%tabscal(1)%scal(icg1)
   
 enddo 
 
@@ -122,18 +122,18 @@ do i = 1, nfacelim
   endif
 
   if (abs(flux1(i)) == 0._krp) then
-    if (zone1%defsolver%boco(zone1%ust_mesh%boco(nbc1)%idefboco)%boco_kdif%flux_nunif(i) == 0._krp) then
+    if (zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%boco_kdif%flux_nunif(i) == 0._krp) then
       dfluxcalc = 0._krp
     else
       dfluxcalc = 1._krp
     endif
   else
-    dfluxcalc = abs( zone1%defsolver%boco(zone1%ust_mesh%boco(nbc1)%idefboco)%boco_kdif%flux_nunif(i) - &
+    dfluxcalc = abs( zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%boco_kdif%flux_nunif(i) - &
                      abs(flux1(i)) )/ abs(flux1(i))
   endif
 
   write(uf_compflux,'(6e18.8)') curtps, abs(flux1(i)), abs(flux2(i)), dflux, &
-            zone1%defsolver%boco(zone1%ust_mesh%boco(nbc1)%idefboco)%boco_kdif%flux_nunif(i), &
+            zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%boco_kdif%flux_nunif(i), &
             dfluxcalc 
                   
 enddo
@@ -143,6 +143,6 @@ endsubroutine comp_flux
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juin 2003 (v0.0.1b): création de la procédure
-! juillet 2003       : conductivité non constante
+! juin 2003 : création de la procédure
+! juil 2003 : conductivité non constante
 !------------------------------------------------------------------------------!

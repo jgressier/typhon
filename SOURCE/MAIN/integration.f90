@@ -26,11 +26,12 @@ type(st_world) :: lworld
 ! -- Declaration des sorties --
 
 ! -- Declaration des variables internes --
-!real(krp)      :: macro_dt
+type(st_grid), pointer :: pgrid
+!real(krp)             :: macro_dt
 integer, dimension(:), allocatable &
-               :: exchcycle ! indices des cycles d'échange pour les différents couplages de zones
-integer        :: ir, izone, if, ib, ic
-integer        :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
+                       :: exchcycle ! indices des cycles d'échange pour les différents couplages de zones
+integer                :: ir, izone, if, ib, ic
+integer                :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
 
 ! -- Debut de la procedure --
 
@@ -48,12 +49,15 @@ allocate(exchcycle(lworld%prj%ncoupling))
 exchcycle(:) = 1 ! initialisation à 1 : 1er échange au 1er cycle, à partir des conditions initiales
 
 
-! allocation des champs de résidus
+! allocation des champs de résidus et gradients
+
 do izone = 1, lworld%prj%nzone
-  do if = 1, lworld%zone(izone)%ndom
-    call alloc_res(lworld%zone(izone)%field(if))
+  pgrid => lworld%zone(izone)%grid
+  do while (associated(pgrid))
+    call alloc_res(pgrid%field)
     !! DEV : l'allocation ne doit se faire que dans certains cas
-    call alloc_grad(lworld%zone(izone)%field(if))
+    call alloc_grad(pgrid%field)
+    pgrid => pgrid%next
   enddo
 enddo
 
@@ -98,11 +102,11 @@ do while (.not. lworld%info%fin_integration)
   do izone = 1, lworld%prj%nzone
     ! Boucle sur les conditiosn aux limites et sur les couplages pour
     ! repérer les conditions correspondant à des raccords
-    do ib = 1, lworld%zone(izone)%ust_mesh%nboco
+    do ib = 1, lworld%zone(izone)%grid%umesh%nboco
       do ic = 1, lworld%zone(izone)%ncoupling
         if(samestring(lworld%zone(izone)%coupling(ic)%family, &
-           lworld%zone(izone)%ust_mesh%boco(ib)%family)) then
-          lworld%zone(izone)%defsolver%boco(lworld%zone(izone)%ust_mesh%boco(ib)%idefboco)%typ_boco = bc_wall_isoth
+           lworld%zone(izone)%grid%umesh%boco(ib)%family)) then
+          lworld%zone(izone)%defsolver%boco(lworld%zone(izone)%grid%umesh%boco(ib)%idefboco)%typ_boco = bc_wall_isoth
         endif
       enddo
     enddo
@@ -156,14 +160,12 @@ enddo
 deallocate(exchcycle)
 
 do izone = 1, lworld%prj%nzone
- do if = 1, lworld%zone(izone)%ndom
-   select case(lworld%zone(izone)%defsolver%typ_solver)    ! DEV : en attendant homogénéisation
-   case(solKDIF)                                           ! de l'accès des champs dans 
-     call dealloc_res(lworld%zone(izone)%field(if))        ! les structures MGRID
-     call dealloc_grad(lworld%zone(izone)%field(if))
-   case(solVORTEX)
-   endselect
- enddo
+ select case(lworld%zone(izone)%defsolver%typ_solver)    ! DEV : en attendant homogénéisation
+ case(solKDIF)                                           ! de l'accès des champs dans 
+   call dealloc_res(lworld%zone(izone)%grid%field)       ! les structures MGRID
+   call dealloc_grad(lworld%zone(izone)%grid%field)
+ case(solVORTEX)
+ endselect
 enddo
 
 endsubroutine integration
@@ -177,4 +179,5 @@ endsubroutine integration
 ! sept 2003 : gestion du calcul par résidus (optionnel) + réorganisation
 ! oct  2003 : remplacement d'instant d'échange excht par indice de cycle d'échange
 !              exchcycle
+! avr  2004 : integration des structures MGRID pour tous les solveurs
 !------------------------------------------------------------------------------!

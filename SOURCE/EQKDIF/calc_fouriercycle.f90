@@ -43,11 +43,11 @@ case(stab_cond)  ! -- Calcul par condition de stabilité (deftim%stabnb) --
   
   case(solKDIF)
 
-    ncell = lzone%ust_mesh%ncell_int
+    ncell = lzone%grid%umesh%ncell_int
     allocate(fourierloc(ncell))
 
     call calc_kdif_fourier(dtcycle, lzone%defsolver%defkdif%materiau, &
-                            lzone%ust_mesh, lzone%field, fourierloc, ncell)
+                            lzone%grid%umesh, lzone%grid%field, fourierloc, ncell)
     ! -- DEV -- choix du nombre de Fourier global encore à faire
 
     ! valeur maximale des cellules de la zone

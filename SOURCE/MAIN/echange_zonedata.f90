@@ -46,19 +46,19 @@ dtexch = lworld%coupling(ir)%n_tpsbase*lworld%prj%dtbase
 !-------------------------------------------------------------------------------
 
 call echange_zonematch(lworld%zone(iz1), lworld%zone(iz2), &
-                      lworld%coupling(ir)%typ_interpol, &
-                      lworld%zone(iz1)%ust_mesh%boco(nbc1)%nface, &
-                      nbc1, nbc2, ncoupl1, ncoupl2, lworld%prj%typ_temps, &
-                      dtexch)
+                       lworld%coupling(ir)%typ_interpol, &
+                       lworld%zone(iz1)%grid%umesh%boco(nbc1)%nface, &
+                       nbc1, nbc2, ncoupl1, ncoupl2, lworld%prj%typ_temps, &
+                       dtexch)
   
 case(mesh_nonmatch)
-call erreur("Développement","'nonmatch' : Cas non implémenté")
+  call erreur("Développement","'nonmatch' : Cas non implémenté")
     
 case(mesh_slide)
-call erreur("Développement","'slide' : Cas non implémenté")
+  call erreur("Développement","'slide' : Cas non implémenté")
     
 case default
-call erreur("Développement (echange_zonedata)","Cas non implémenté")
+  call erreur("Développement (echange_zonedata)","Cas non implémenté")
   
 endselect 
 
@@ -67,8 +67,9 @@ endsubroutine echange_zonedata
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mai 2003 (v0.0.1b): création de la procédure
-! oct 2003          : ajout coef correction de flux
-! oct 2003          : ajout du type temporel d'intégration pour choix dans
-!                      echange_zonematch
+! mai 2003 : création de la procédure
+! oct 2003 : ajout coef correction de flux
+! oct 2003 : ajout du type temporel d'intégration pour choix dans
+!            echange_zonematch
+! avr 2004 : modification en structure MGRID, limité à une grille
 !------------------------------------------------------------------------------!

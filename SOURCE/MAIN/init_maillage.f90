@@ -28,38 +28,20 @@ type(st_grid), pointer :: pgrid
 
 ! -- Debut de la procedure --
 
-select case(zone%typ_mesh)
+select case(zone%defsolver%typ_solver)
 
-case(mshSTR)
-  call erreur("Dévéloppement (init_maillage)", &
-              "maillage structuré non implémenté")
-  !do i = 1, zone%str_mesh%nblock
-  !  call integration_strdomaine(dt, zone%typ_solver, zone%str_mesh%block(i))
-  !enddo
+case(solKDIF)
+  call calc_ustmesh(zone%grid%umesh)
 
-case(mshUST)
-
-  select case(zone%defsolver%typ_solver)
-
-  case(solKDIF)
-    call calc_ustmesh(zone%ust_mesh)
-
-  case(solVORTEX)
-    pgrid => zone%grid
-    do while (associated(pgrid))
-      call calc_ustmesh(pgrid%umesh)
-      pgrid => pgrid%next
-    enddo
+case(solVORTEX)
+  pgrid => zone%grid
+  do while (associated(pgrid))
+    call calc_ustmesh(pgrid%umesh)
+    pgrid => pgrid%next
+  enddo
     
-  case default
-  endselect
-
 case default
-  call erreur("incohérence interne (init_maillage)", &
-              "type de maillage inconnu")
-
 endselect
-
 
 endsubroutine init_maillage
 

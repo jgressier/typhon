@@ -40,24 +40,23 @@ call calcdifflux(zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal, &
                   corcoef, zone2%coupling(ncoupl2)%zcoupling%connface )
 
 ! Calcul des variables primitives avec correction de flux
-do ifield = 1, zone1%ndom
-  call corr_varprim(zone1%field(ifield), &
-                    zone1%ust_mesh, &
-                    zone1%defsolver, &
-                    zone1%coupling(ncoupl1)%zcoupling%etatcons, nbc1)
-enddo
 
-do ifield = 1, zone2%ndom
-  call corr_varprim(zone2%field(ifield), &
-                    zone2%ust_mesh, &
-                    zone2%defsolver, &
-                    zone2%coupling(ncoupl2)%zcoupling%etatcons, nbc2)
-enddo
+call corr_varprim(zone1%grid%field, &
+                  zone1%grid%umesh, &
+                  zone1%defsolver,  &
+                  zone1%coupling(ncoupl1)%zcoupling%etatcons, nbc1)
+
+call corr_varprim(zone2%grid%field, &
+                  zone2%grid%umesh, &
+                  zone2%defsolver,  &
+                  zone2%coupling(ncoupl2)%zcoupling%etatcons, nbc2)
+
 
 endsubroutine correction
 
 !------------------------------------------------------------------------------
 ! Historique des modifications
 !
-! février 2004 : création de la procédure
+! fev  2004 : création de la procédure
+! avr  2004 : changement de structure (MGRID) : limité à une grille
 !------------------------------------------------------------------------------

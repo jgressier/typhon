@@ -38,9 +38,9 @@ implicit none
 type st_zone
   integer               :: id         ! numéro de zone
   character(len=strlen) :: nom        ! nom de la zone
-  integer               :: ndom       ! nombre de domaine total (cas hybride)
-  integer               :: nmesh_str  ! nombre de domaines     structurés
-  integer               :: nmesh_ust  ! nombre de domaines non structurés
+  !integer               :: ndom       ! nombre de domaine total (cas hybride)
+  !integer               :: nmesh_str  ! nombre de domaines     structurés
+  !integer               :: nmesh_ust  ! nombre de domaines non structurés
   integer               :: nprobe     ! nombre de capteurs
   integer               :: ncoupling  ! nombre d'échanges avec d'autres zones
   type(st_infozone)     :: info       ! information sur l'intégration
@@ -55,18 +55,18 @@ type st_zone
                                       !   H : hybride
   integer               :: mpi_cpu    ! numéro de CPU chargé du calcul
 
-  type(st_strmesh), dimension(:), pointer &
-                        :: str_mesh   ! maillage multibloc structuré
+  !type(st_strmesh), dimension(:), pointer &
+  !                      :: str_mesh   ! maillage multibloc structuré
   integer                :: ngrid      ! nombre de grilles (mesh + field)
   type(st_grid), pointer :: grid       ! liste chaînée de grilles
   !integer               :: nmesh      ! nombre champs (liste chaînée)  
   !integer               :: nfield     ! nombre champs (liste chaînée)  
   !type(st_ustmesh), pointer &
-  type(st_ustmesh) & !, dimension(:), pointer &
-                        :: ust_mesh   ! liste chaînée de maillage non structuré
+  !type(st_ustmesh) & !, dimension(:), pointer &
+  !                      :: ust_mesh   ! liste chaînée de maillage non structuré
   !type(st_field), pointer &
-  type(st_field), dimension(:), pointer &
-                        :: field      ! tableau des champs
+  !type(st_field), dimension(:), pointer &
+  !                      :: field      ! tableau des champs
   type(st_capteur), dimension(:), pointer &
                         :: probe      ! tableau des capteurs
   type(mnu_zonecoupling), dimension(:), pointer &
@@ -101,7 +101,7 @@ integer        :: id
 
   zone%id = id
 
-  zone%ndom  = 0   ! DEV: à supprimer après homogénéisation dans MGRID
+  !zone%ndom  = 0   ! DEV: à supprimer après homogénéisation dans MGRID
 
   zone%ngrid = 0
   nullify(zone%grid)
@@ -117,7 +117,7 @@ implicit none
 type(st_zone)  :: zone
 integer        :: i     
 
-  print*,'DEBUG: destruction de zone '
+  !print*,'DEBUG: destruction de zone '
   !if (zone%nmesh_str >= 1) then
   !  do i = 1, zone%nmesh_str
   !    call delete(zone%str_mesh(i))   
@@ -128,10 +128,10 @@ integer        :: i
   call delete(zone%defsolver)
   
   ! Destruction des structures USTMESH (DEV: dans MGRID)
-  if (zone%nmesh_ust >= 1) then
-    print*,"desallocation ust_mesh" !! DEBUG
-    call delete(zone%ust_mesh)
-  endif
+  !if (zone%nmesh_ust >= 1) then
+  !  print*,"desallocation ust_mesh" !! DEBUG
+  !  call delete(zone%ust_mesh)
+  !endif
   
 !  if (zone%ncoupling >= 1) then
     print*,"desallocation tableau coupling" !! DEBUG
@@ -143,23 +143,24 @@ integer        :: i
 !  endif
 
   ! Destruction des champs (structures FIELD) (DEV: dans MGRID)
-  print*,'debug delete_zone : ',zone%ndom,' ndom'
-  do i = 1, zone%ndom
-    print*,"desallocation champ ",i !! DEBUG
-    call delete(zone%field(i))
-  enddo
-  if (zone%ndom >= 1) deallocate(zone%field)
+  !print*,'debug delete_zone : ',zone%ndom,' ndom'
+  !do i = 1, zone%ndom
+  !  print*,"desallocation champ ",i !! DEBUG
+  !  call delete(zone%field(i))
+  !enddo
+  !if (zone%ndom >= 1) deallocate(zone%field)
 
   ! Destruction des structures MGRID
-  
 
-  print*,'fin de destruction de zone interne' !! DEBUG
+  print*,'DEV!!! destruction des MGRID à effectuer'  
+
+  !print*,'fin de destruction de zone interne' !! DEBUG
 
 endsubroutine delete_zone
 
 
 !------------------------------------------------------------------------------!
-! Procédure : ajout avec allocation d'une structure grille
+! Procédure : ajout avec allocation d'une structure grille (par insertion)
 !------------------------------------------------------------------------------!
 function newgrid(zone) result(pgrid)
 implicit none

@@ -98,8 +98,8 @@ do while (.not.fin)
                           ! après homogénéisation des solveurs dans MGRID
     select case(lzone%defsolver%typ_solver)
     case(solKDIF)
-      call update_champ(lzone%info, lzone%field(1), &
-                        lzone%ust_mesh%ncell_int)  ! màj  des var. conservatives
+      call update_champ(lzone%info, lzone%grid%field, &
+                        lzone%grid%umesh%ncell_int)  ! màj  des var. conservatives
     case(solVORTEX)
       ! pas de mise à jour pour le moment 
       ! DEV : mise à jour de la position des vortex libres

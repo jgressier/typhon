@@ -110,16 +110,16 @@ typsolver2 = zone2%defsolver%typ_solver
 do i=1, nfacelim    
   
   ! indices des faces concernées
-  if = zone1%ust_mesh%boco(nbc1)%iface(i)
-  if2 = zone2%ust_mesh%boco(nbc2)%iface(zone2%coupling(ncoupl2)%zcoupling%connface(i))
+  if  = zone1%grid%umesh%boco(nbc1)%iface(i)
+  if2 = zone2%grid%umesh%boco(nbc2)%iface(zone2%coupling(ncoupl2)%zcoupling%connface(i))
   
-  normale(i) = zone1%ust_mesh%mesh%iface(if,1,1)%normale
+  normale(i) = zone1%grid%umesh%mesh%iface(if,1,1)%normale
  
-  cgface = zone1%ust_mesh%mesh%iface(if,1,1)%centre
-  ic = zone1%ust_mesh%facecell%fils(if,1)
-  cg1 = zone1%ust_mesh%mesh%centre(ic,1,1)
-  ic = zone2%ust_mesh%facecell%fils(if2,1)
-  cg2 = zone2%ust_mesh%mesh%centre(ic,1,1)
+  cgface = zone1%grid%umesh%mesh%iface(if,1,1)%centre
+  ic = zone1%grid%umesh%facecell%fils(if,1)
+  cg1 = zone1%grid%umesh%mesh%centre(ic,1,1)
+  ic = zone2%grid%umesh%facecell%fils(if2,1)
+  cg2 = zone2%grid%umesh%mesh%centre(ic,1,1)
 
   ! calcul du vecteur unitaire "inter-cellules"
   vecinter(i) = (cg2 - cg1) / abs((cg2 - cg1))
@@ -131,8 +131,8 @@ do i=1, nfacelim
 enddo 
 
 ! Type de méthode de calcul:
-typmethod = zone1%defsolver%boco(zone1%ust_mesh%boco(nbc1)%idefboco)%typ_calc
-! = zone2%defsolver%boco(zone2%ust_mesh%boco(nbc2)%idefboco)%typ_calc
+typmethod = zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%typ_calc
+! = zone2%defsolver%boco(zone2%grid%umesh%boco(nbc2)%idefboco)%typ_calc
 
 ! Valeurs des données instationnaires à échanger
 call donnees_echange(zone1%coupling(ncoupl1)%zcoupling%solvercoupling, &
@@ -146,8 +146,8 @@ call echange(zone1%coupling(ncoupl1)%zcoupling%echdata, &
              zone2%coupling(ncoupl2)%zcoupling%echdata, &
              normale, vecinter, d1, d2, nfacelim, typcalc, typmethod,&
              zone1%coupling(ncoupl1)%zcoupling%solvercoupling, &
-             zone1%defsolver%boco(zone1%ust_mesh%boco(nbc1)%idefboco), &
-             zone2%defsolver%boco(zone2%ust_mesh%boco(nbc2)%idefboco), &
+             zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco), &
+             zone2%defsolver%boco(zone2%grid%umesh%boco(nbc2)%idefboco), &
              zone2%coupling(ncoupl2)%zcoupling%connface)
 
 select case(typtemps)
@@ -167,11 +167,11 @@ endsubroutine echange_zonematch
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mai 2003 (v0.0.1b): création de la procédure
-! juillet 2003      : ajouts pour corrections de  flux
-! oct 2003          : ajout coef correction de flux
-! oct 2003          : correction de flux seulement pour le cas instationnaire
-! jan 2004          : orientation vers des corrections de flux avant ou apres
-!                     le calcul des quantités d'interface selon les cas
-! fev 2004          : procédures choixcorrection, correction
+! mai  2003 : création de la procédure
+! juil 2003 : ajouts pour corrections de  flux
+! oct  2003 : ajout coef correction de flux
+! oct  2003 : correction de flux seulement pour le cas instationnaire
+! jan  2004 : orientation vers des corrections de flux avant ou apres
+!             le calcul des quantités d'interface selon les cas
+! fev  2004 : procédures choixcorrection, correction
 !------------------------------------------------------------------------------!

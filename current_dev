@@ -11,11 +11,12 @@ Task Dévlp.  R. cible début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
      Jérémie   0.1.4              Make  problème de désallocation en fin de calcul (SGI)
 0010           0.1.4              KDIF  condition limite de convection h(T-Tref)
-     Jérémie   0.1.4  15/09       Make  Solveur Fluide Parfait - procédures de base
 0020 Jérémie   0.1.4  12/02 06/04 Make  Solveur Vortex - procédures de base
-0021 Jérémie   0.1.4  07/04       Make  Solveur Vortex - Solveur KDIF : vérification  
+0021 Jérémie   0.1.4  07/04 07/04 Make  Solveur Vortex - Solveur KDIF : vérification  
 0022 Jérémie   0.1.4  07/04 09/04 Make  Solveur Vortex - débuggage et validation
 0023 Jérémie   0.1.4  09/04 09/04 Make  Première fusion avec branche VORTEX
+0024 Jérémie   0.1.4  10/04 10/04 Make  Suppression des structures de données STRMESH (1)
+0025 Jérémie   0.1.4  10/04       Make  Integration de KDIF dans les structures MGRID
      Jérémie   0.1.4              Make  Sauvegarde de capteurs BOCO_FIELD
                0.1.4              Make  calcul des index de conditions limites connectées à la lecture
      Jérémie   0.1.4              Opt   explosion temps de calcul VALIDATION/KDIF/KNL2
@@ -32,7 +33,6 @@ Task Dévlp.  R. cible début fin   Type  Développement
                0.2.0              Out   Sorties multiples (block:output)
                0.2.0              Make  Restructuration de MAIN/integration_cycle (split)
                0.2.0              Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
-               0.2.0              Make  Suppression des structures de données STRMESH (1)
                0.2.0              Make  Split de DEFFIELD (BASEFIELD / GENERICFIELD / DEFFIELD)
                0.2.0              Make  Liste chaînée de GENERICFIELD et FIELD
                0.2.0              Make  Structuration des champs et maillages par niveau 

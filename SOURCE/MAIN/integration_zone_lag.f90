@@ -180,7 +180,7 @@ do ib = 1, zone%defsolver%nboco  ! boucle sur boco / rech. de cond. singularités
     nf    =  pgrid%umesh%nface
     !print*,'debug field scalaires : ',pgrid%bocofield%nscal,'x',pgrid%bocofield%dim
     do if = 1, nf+1
-      print*,'debug redistribution ',if,'sur',nf ,':',rhs(irhs+if,1)
+      !print*,'debug redistribution ',if,'sur',nf ,':',rhs(irhs+if,1)
       pgrid%bocofield%tabscal(1)%scal(if) = rhs(irhs+if,1)
     enddo
     irhs  = irhs + (nf+1)

@@ -36,10 +36,12 @@ type(st_field)   :: champ            ! champ des états
 ! -- Debut de la procedure --
 
 select case(typsolver)
-    case(solKDIF)
-        call calcboco_kdif_ust_unif(defboco, ustboco, ustdom, champ)
-    case default
-       call erreur("incohérence interne (def_boco)","solveur inconnu")
+  case(solKDIF)
+    call calcboco_kdif_ust_unif(defboco, ustboco, ustdom, champ)
+  case(solVORTEX)
+    ! rien à faire
+  case default
+    call erreur("incohérence interne (def_boco)","solveur inconnu")
 endselect
 
 endsubroutine calcboco_ust_unif
@@ -47,5 +49,5 @@ endsubroutine calcboco_ust_unif
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! novembre 2003 (v0.0.1b): création de la procédure
+! nov  2003 : création de la procédure
 !------------------------------------------------------------------------------!

@@ -35,7 +35,8 @@ integer                :: ig
 select case(zone%defsolver%typ_solver)
 
 case(solKDIF)
-  call init_boco_kdif(zone%defsolver, zone%ust_mesh)
+  if (zone%ngrid /= 1) call erreur("Init BOCO","une seule grille acceptée")
+  call init_boco_kdif(zone%defsolver, zone%grid%umesh)
 
 case(solVORTEX)
   pgrid => zone%grid

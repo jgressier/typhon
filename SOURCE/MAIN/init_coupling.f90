@@ -49,14 +49,14 @@ enddo
   
 ! Détermination des indices de condition aux limites pour les zones 1 et 2
 
-do ib = 1, zone1%ust_mesh%nboco
-  if (samestring(zone1%coupling(ncoupl1)%family, zone1%ust_mesh%boco(ib)%family)) then
+do ib = 1, zone1%grid%umesh%nboco
+  if (samestring(zone1%coupling(ncoupl1)%family, zone1%grid%umesh%boco(ib)%family)) then
     nbc1 = ib
   endif
 enddo
 
-do ib = 1, zone2%ust_mesh%nboco
-  if (samestring(zone2%coupling(ncoupl2)%family, zone2%ust_mesh%boco(ib)%family)) then
+do ib = 1, zone2%grid%umesh%nboco
+  if (samestring(zone2%coupling(ncoupl2)%family, zone2%grid%umesh%boco(ib)%family)) then
     nbc2 = ib
   endif
 enddo
@@ -96,14 +96,14 @@ endselect
 
 ! Initialisation des structures du couplage
 
-call new(zone1%coupling(ncoupl1)%zcoupling, zone1%ust_mesh%boco(nbc1)%nface)
-call new(zone2%coupling(ncoupl2)%zcoupling, zone2%ust_mesh%boco(nbc2)%nface)
+call new(zone1%coupling(ncoupl1)%zcoupling, zone1%grid%umesh%boco(nbc1)%nface)
+call new(zone2%coupling(ncoupl2)%zcoupling, zone2%grid%umesh%boco(nbc2)%nface)
 
 ! calcul des connections et connectivités entre zones
 ! maillages coincidants
-call calc_connface(zone1%ust_mesh, zone1%ust_mesh%boco(nbc1), &
+call calc_connface(zone1%grid%umesh, zone1%grid%umesh%boco(nbc1), &
                    zone1%coupling(ncoupl1)%zcoupling%connface, &
-                   zone2%ust_mesh, zone2%ust_mesh%boco(nbc2), &
+                   zone2%grid%umesh, zone2%grid%umesh%boco(nbc2), &
                    zone2%coupling(ncoupl2)%zcoupling%connface)
 
   write(uf_log,"(a,5i)")"conn de zones : ", &
@@ -113,5 +113,6 @@ endsubroutine init_coupling
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juin 2003 (v0.0.1b) : création de la procédure
+! juin 2003 : création de la procédure
+! avr  2004 : modification par intégration MGRID (grille unique)
 !------------------------------------------------------------------------------!

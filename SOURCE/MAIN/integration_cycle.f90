@@ -93,7 +93,7 @@ ir =1 ! DVT : provisoire
 ! deux zones couplées
 call calcul_raccord(lworld, ir, iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2)
 
-call comp_flux(lworld%zone(iz1), lworld%zone(iz2), nbc1, nbc2, lworld%zone(iz1)%ust_mesh%boco(nbc1)%nface,  &
+call comp_flux(lworld%zone(iz1), lworld%zone(iz2), nbc1, nbc2, lworld%zone(iz1)%grid%umesh%boco(nbc1)%nface,  &
                     lworld%info%curtps, ncoupl1)
 endif
 

@@ -35,41 +35,41 @@ real(krp) :: conduct
 
 ! -- Debut de la procedure --
 
-do i=1, zone1%ust_mesh%boco(nbc1)%nface
+do i=1, zone1%grid%umesh%boco(nbc1)%nface
   
-  if1 = zone1%ust_mesh%boco(nbc1)%iface(i)
-  if2 = zone2%ust_mesh%boco(nbc2)%iface(zone2%coupling(ncoupl2)%zcoupling%connface(i))
+  if1 = zone1%grid%umesh%boco(nbc1)%iface(i)
+  if2 = zone2%grid%umesh%boco(nbc2)%iface(zone2%coupling(ncoupl2)%zcoupling%connface(i))
 
-  icl1 = zone1%ust_mesh%facecell%fils(if1,1)
-  icl2 = zone2%ust_mesh%facecell%fils(if2,1)
+  icl1 = zone1%grid%umesh%facecell%fils(if1,1)
+  icl2 = zone2%grid%umesh%facecell%fils(if2,1)
 
   ! Calcul de conductivité de la zone 1
   select case(zone1%defsolver%defkdif%materiau%type)
   case(mat_LIN, mat_KNL)
     conduct = valeur_loi(zone1%defsolver%defkdif%materiau%Kd, &
-                         zone1%field(1)%etatprim%tabscal(1)%scal(icl1))
+                         zone1%grid%field%etatprim%tabscal(1)%scal(icl1))
   case(mat_XMAT)
     call erreur("Calcul de matériau","Materiau non linéaire interdit")
   endselect
 
   ! Affectation des données d'échange de la zone 1
-  donnees_echange_inst1%tabscal(1)%scal(i) = zone1%field(1)%etatprim%tabscal(1)%scal(icl1)
+  donnees_echange_inst1%tabscal(1)%scal(i) = zone1%grid%field%etatprim%tabscal(1)%scal(icl1)
   donnees_echange_inst1%tabscal(2)%scal(i) = conduct
-  !donnees_echange_inst1%tabvect(1)%vect(if) = zone1%field(1)%gradient%tabvect(1)%vect(icl)
+  !donnees_echange_inst1%tabvect(1)%vect(if) = zone1%grid%field%gradient%tabvect(1)%vect(icl)
 
   ! Calcul de conductivité de la zone 2
   select case(zone2%defsolver%defkdif%materiau%type)
   case(mat_LIN, mat_KNL)
     conduct = valeur_loi(zone2%defsolver%defkdif%materiau%Kd, &
-                         zone2%field(1)%etatprim%tabscal(1)%scal(icl2))
+                         zone2%grid%field%etatprim%tabscal(1)%scal(icl2))
   case(mat_XMAT)
     call erreur("Calcul de matériau","Materiau non linéaire interdit")
   endselect
 
   ! Affectation des données d'échange de la zone 2
-  donnees_echange_inst2%tabscal(1)%scal(i) = zone2%field(1)%etatprim%tabscal(1)%scal(icl2)
+  donnees_echange_inst2%tabscal(1)%scal(i) = zone2%grid%field%etatprim%tabscal(1)%scal(icl2)
   donnees_echange_inst2%tabscal(2)%scal(i) = conduct
-  !donnees_echange_inst2%tabvect(1)%vect(if) = zone2%field(1)%gradient%tabvect(1)%vect(icl)  
+  !donnees_echange_inst2%tabvect(1)%vect(if) = zone2%grid%field%gradient%tabvect(1)%vect(icl)  
 
 enddo
 

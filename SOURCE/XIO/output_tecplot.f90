@@ -43,12 +43,8 @@ do izone = 1, world%prj%nzone
   case(solKDIF)
 
     write(uf_chpresu,'(a)') 'VARIABLES="X","Y","Z","T"'
-
-    do i = 1, world%zone(izone)%nmesh_ust
-      ! attention : ustmesh n'est pas un tableau
-      call output_tec_ust(uf_chpresu, world%zone(izone)%ust_mesh, &
-                          world%zone(izone)%field, outp_typ)
-    enddo
+    call output_tec_ust(uf_chpresu, world%zone(izone)%grid%umesh, &
+                        world%zone(izone)%grid%field, outp_typ)
 
   case(solVORTEX)
 
@@ -89,6 +85,7 @@ enddo ! fin boucle : zone
 close(uf_chpresu)
 
 endsubroutine output_tecplot
+
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
