@@ -1,0 +1,54 @@
+-------------------------------------------------
+CAS DE CONDUCTION DE LA CHALEUR 
+COMPARAISON COUPLAGE - CALCUL MONOZONE
+-------------------------------------------------
+EVOLUTION 1D, conduction non constante : polynomiale
+-------------------------------------------------
+main.rpm      : fichier de paramètres du calcul couplé
+zone1.rpm     : fichier de paramètres de la zone couplée 1
+zone2.rpm     : fichier de paramètres de la zone couplée 2
+zone3.rpm     : fichier de paramètres du calcul monozone
+geom1.cgns    : maillage au format CGNS de la zone couplée 1
+geom2.cgns    : maillage au format CGNS de la zone couplée 2
+geom.cgns     : maillage au format CGNS pour le calcul monozone
+coef          : coefficients de la conductivité polynomiale calcul monozone
+coef1         : coefficients de la conductivité polynomiale zone 1
+coef2         : coefficients de la conductivité polynomiale zone 2
+
+-------------------------------------------------
+
+* MAILLAGE
+ - barre 1D (longueur 10 (zone 1) + 15 (zone 2) en x et largeur 5 en y)
+
+* MODELE
+ - conduction de la chaleur, modèle non linéaire (lambda non constant)
+ - conductivité : 0,001 + 0,0002 T
+
+* CONDITIONS AUX LIMITES
+ - isothermes aux extrémités gauche et droite (ENTREE : 1000 K et SORTIE :
+   500 K)
+ - extrapolate sur les bords (MUR)
+ - coupling à l'interface (INTERFACE), pour le cas de calcul couplé
+
+* CONDITIONS INITIALES
+ - 1000 K
+
+* PARAMETRES DE SIMULATION
+ - temps total 5000. pour s'assurer de la convergence (non mesurée)
+ - pas de temps 1 pour l'intégration explicite
+
+* COUPLAGE
+ - cellule fictive
+ - interpolation compacte
+ - maillages coincidents
+
+-------------------------------------------------
+COMMENTAIRES SUR LA SOLUTION
+-------------------------------------------------
+ - compt10.dat, ..., compt5000.dat : fichiers tecplot de sortie de calculs 
+   couplés à t = 10, ... t = 5000 => regroupés dans typh.lay.
+
+ - erreur.dat : erreurs relatives entre les calculs monozone (zone 3)
+   et couplé (zones 1 et 2)
+
+ - bonne adéquation : erreur relative maximale de 3 E-3.

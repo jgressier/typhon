@@ -1,0 +1,94 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON V 0.0.1b
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+ !MEMMODE = NORMAL      ! optimisation mémoire : NORMAL / SAVECPU / SAVEMEMORY !
+                        !   (faculatif, defaut = NORMAL)
+  NZONE   = 4           ! nombre de zones (facultatif, défaut = 1) 
+  NCOUPLING = 2         ! nombre de raccords
+  COORD   = 2D          ! type de repère  : 2D=2DPLAN / 2DAXI / 3D
+  TIME    = UNSTEADY    ! type d'intégration temporelle : STEADY / UNSTEADY / PERIODIC
+  DURATION  = 2000.      ! UNSTEADY : durée totale du calcul (temps physique)
+ !PERIOD    = 100.      ! PERIODIC : durée de la période
+ !NCYCLE    = 50        ! STEADY / PERIODIC : nombre de cycle total ou par période
+ !RESIDUALS = 1.E-6     ! STEADY : résidu maximal dans le champ
+  BASETIME  = 1.       ! UNSTEADY : temps de base pour le couplage ou temps de cycle
+ENDBLOCK               
+
+BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+  FORMAT = TECPLOT      ! format du fichier de sortie : RAW / TECPLOT / VIGIE
+  FILE   = "typhon.dat" ! nom du fichier de sortie
+ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "zone1_501"       ! nom de la zone (facultatif)
+  SOLVER = HEAT         ! type de solveur : HEAT / EULER / NS
+ 
+  FILE   = "zone1_501.rpm"         ! nom du fichier RPM pour la définition de la zone (facultatif)
+ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "zone1_502"       ! nom de la zone (facultatif)
+  SOLVER = HEAT         ! type de solveur : HEAT / EULER / NS
+ 
+  FILE   = "zone1_502.rpm"         ! nom du fichier RPM pour la définition de la zone (facultatif)
+ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "zone2_501"       ! nom de la zone (facultatif)
+  SOLVER = HEAT         ! type de solveur : HEAT / EULER / NS
+  
+  FILE   = "zone2_501.rpm"         ! nom du fichier RPM pour la définition de la zone (facultatif)
+ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "zone2_502"       ! nom de la zone (facultatif)
+  SOLVER = HEAT         ! type de solveur : HEAT / EULER / NS
+ 
+  FILE   = "zone2_502.rpm"         ! nom du fichier RPM pour la définition de la zone (facultatif)
+ENDBLOCK
+
+BLOCK:COUPLING      ! ECHANGES ENTRE ZONES
+  ZONE1         = "zone1_501"  ! première zone couplée
+  ZONE2         = "zone2_501"  ! deuxième zone couplée
+  
+  MESH          = MATCHING ! coincidence des maillages des 2 zones : MATCHING/NONMATCHING/SLIDING
+  
+  INTERPOLATION = COMPACT  ! type de calcul : COMPACT = 1D / CONSISTANT / 3D
+  THETA         = 1.       ! calcul 3D : coefficient du terme du second ordre
+  
+  MODE          = FIXED    ! déclenchement du couplage : à intervalles donnés ou avec senseur : 
+                           ! FIXED/SENSOR
+  PERIOD        = 1        ! MODE FIXED, par défaut à 1.
+  SENSOR        =          ! MODE SENSOR
+  			   ! FLUXCOMPARISON / TEMPEVOL (évolution suffisante de
+  			   ! la température)  			   
+  NMIN          = 5        ! SENSEUR ACTIF : durée minimale entre deux échanges
+  NMAX          = 20       ! SENSEUR ACTIF : durée maximale entre deux échanges
+  EPSILON       = 0.2      ! SENSEUR ACTIF (EVOLTEMP) : coefficient du senseur
+  ECARTFLUX     = 0.1      ! SENSEUR ACTIF (COMPARAISONFLUX) : écart maximal entre les flux
+  
+ENDBLOCK   
+
+BLOCK:COUPLING      ! ECHANGES ENTRE ZONES
+  ZONE1         = "zone1_502"  ! première zone couplée
+  ZONE2         = "zone2_502"  ! deuxième zone couplée
+  
+  MESH          = MATCHING ! coincidence des maillages des 2 zones : MATCHING/NONMATCHING/SLIDING
+  
+  INTERPOLATION = COMPACT  ! type de calcul : COMPACT = 1D / CONSISTANT / 3D
+  THETA         = 1.       ! calcul 3D : coefficient du terme du second ordre
+  
+  MODE          = FIXED    ! déclenchement du couplage : à intervalles donnés ou avec senseur : 
+                           ! FIXED/SENSOR
+  PERIOD        = 1        ! MODE FIXED, par défaut à 1.
+  SENSOR        =          ! MODE SENSOR
+  			   ! FLUXCOMPARISON / TEMPEVOL (évolution suffisante de
+  			   ! la température)  			   
+  NMIN          = 5        ! SENSEUR ACTIF : durée minimale entre deux échanges
+  NMAX          = 20       ! SENSEUR ACTIF : durée maximale entre deux échanges
+  EPSILON       = 0.2      ! SENSEUR ACTIF (EVOLTEMP) : coefficient du senseur
+  ECARTFLUX     = 0.1      ! SENSEUR ACTIF (COMPARAISONFLUX) : écart maximal entre les flux
+  
+ENDBLOCK   

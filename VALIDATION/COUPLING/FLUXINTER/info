@@ -1,0 +1,65 @@
+-------------------------------------------------
+CAS DE CONDUCTION DE LA CHALEUR 
+VERIFICATION DE LA CONSERVATION DU FLUX A L'INTERFACE
+
+! A MODIFIER AVEC COMPARAISON DE FLUX : fichier compflux provisoire !
+! compflux : seulement le premier couplage, ici : zone1 + zone2     !
+
+-------------------------------------------------
+EVOLUTION 1D, conduction constante
+-------------------------------------------------
+main.rpm      : fichier de paramètres du calcul couplé
+zone1.rpm     : fichier de paramètres de la zone couplée 1
+zone2.rpm     : fichier de paramètres de la zone couplée 2
+zone1c.rpm    : fichier de paramètres de la zone couplée 1 (mise en contact de 
+                2 matériaux de températures initiales différentes)
+zone2c.rpm    : fichier de paramètres de la zone couplée 2 (mise en contact de 
+                2 matériaux de températures initiales différentes)
+zone1_Kgd.rpm : fichier de paramètres de la zone couplée 1 (conductivités
+                plus importantes)
+zone2_Kgd.rpm : fichier de paramètres de la zone couplée 2 (conductivités
+                plus importantes)
+geom1.cgns    : maillage au format CGNS de la zone couplée 1
+geom2.cgns    : maillage au format CGNS de la zone couplée 2
+
+-------------------------------------------------
+
+* MAILLAGE
+ - barre 1D (longueur 10 (zone 1) + 15 (zone 2) en x et largeur 5 en y)
+
+* MODELE
+ - conduction de la chaleur, modèle linéaire (lambda et capacité thermique 
+   constants)
+ - conductivité : zone1 : 0,2, zone2 : 0,1
+                  zone1c : 0,2, zone2c : 0,1
+                  zone1_Kgd : 0,4, zone2_Kgd : 0,2
+
+* CONDITIONS AUX LIMITES
+ - isothermes aux extrémités gauche et droite (ENTREE : 1000 K et SORTIE :
+   500 K)
+ - extrapolate sur les bords (MUR)
+ - coupling à l'interface (INTERFACE), pour le cas de calcul couplé
+
+* CONDITIONS INITIALES
+ - 1000 K partout pour zone1.rpm - zone2.rpm et zone1_Kgd.rpm - zone2_Kgd.rpm
+ - 1000 K en zone 1 (zone1c.rpm) et 500 K en zone 2 (zone2c.rpm)
+
+* PARAMETRES DE SIMULATION
+ - temps total 3500. pour s'assurer de la convergence (non mesurée)
+ - pas de temps 1 pour l'intégration explicite
+
+* COUPLAGE
+ - cellule fictive
+ - interpolation compacte
+ - maillages coincidents
+
+-------------------------------------------------
+COMMENTAIRES SUR LA SOLUTION
+-------------------------------------------------
+
+- Bonne conservation du flux à l'interface. Cas critique : quand le flux
+  est faible (zone1 - zone2 ou, à moindre échelle car les conductivités 
+  sont deux fois plus grandes, zone1_Kgd - zone2_Kgd) => question de précision
+  machine (les essais sont plus convaincants avec une précision double que 
+  simple)
+- Possibilité d'imposer le flux calculé : erreur relative faible.

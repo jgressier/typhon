@@ -1,0 +1,50 @@
+-------------------------------------------------
+CAS DE CONDUCTION DE LA CHALEUR 
+STABILITE
+-------------------------------------------------
+EVOLUTION 1D, conductivité polynomiale
+-------------------------------------------------
+main.rpm      : fichier de paramètres du calcul couplé
+zone1.rpm     : fichier de paramètres de la zone couplée 1
+zone2.rpm     : fichier de paramètres de la zone couplée 2
+geom1.cgns    : maillage au format CGNS de la zone couplée 1
+geom2.cgns    : maillage au format CGNS de la zone couplée 2
+coef1         : coefficients de la conductivité polynomiale à gauche 
+coef2         : coefficients de la conductivité polynomiale à droite
+
+-------------------------------------------------
+
+* MAILLAGE
+ - barre 1D (longueur 10 (zone 1) + 15 (zone 2) en x et largeur 5 en y)
+
+* MODELE
+ - conduction de la chaleur, modèle non linéaire (lambda polynomial)
+
+* CONDITIONS AUX LIMITES
+ - isothermes aux extrémités gauche et droite (ENTREE : 1000 K et SORTIE :
+   500 K)
+ - extrapolate sur les bords (MUR)
+ - coupling à l'interface (INTERFACE), pour le cas de calcul couplé
+
+* CONDITIONS INITIALES
+ - 1000 K
+
+* PARAMETRES DE SIMULATION
+ - durée d'intégration 1400 (convergence, non mesurée)
+ - pas de temps 1 pour l'intégration explicite
+
+* COUPLAGE
+ - cellule fictive
+ - interpolation compacte
+ - maillages coincidents
+
+-------------------------------------------------
+COMMENTAIRES SUR LA SOLUTION
+-------------------------------------------------
+ - zonex_510 : lambda1 = 0,01 + 0,0005 T ; lambda2 = 0,0003116 T.
+   Fourier max dans la zone & : 0.510
+   STABLE
+
+ - zonex_515 : lambda1 = 0,01459 + 0,0005 T ; lambda2 = 0,0003116 T.
+   Fourier max dans la zone 1 : 0.51459
+   INSTABLE

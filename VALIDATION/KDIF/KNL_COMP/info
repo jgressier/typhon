@@ -1,0 +1,35 @@
+-------------------------------------------------
+CAS DE CONDUCTION DE LA CHALEUR
+-------------------------------------------------
+EVOLUTION 1D, conduction polynomiale degré 0/conduction constante : comparaison
+-------------------------------------------------
+main.rpm      : fichier de paramètres du calcul
+geom1.cgns    : maillage au format CGNS
+coef          : coefficients de la conductivité polynomiale
+-------------------------------------------------
+
+* MAILLAGE
+ - barre 1D (longueur 10 en x et largeur 5 en y)
+
+* MODELE
+ - conduction de la chaleur, modèle non linéaire comparé au modèle linéaire
+ - conductivité : 0,3 ( programmé dans les deux cas)
+
+* CONDITIONS AUX LIMITES
+ - isothermes aux extrémités gauche et droite (ENTREE : 1000 K et INTERFACE :
+   500 K)
+ - extrapolate sur les bords (MUR)
+
+* CONDITIONS INITIALES
+ - 1000 K
+
+* PARAMETRES DE SIMULATION
+ - temps total 5000. pour s'assurer de la convergence (non mesurée)
+ - pas de temps 1 pour l'intégration explicite)
+
+
+-------------------------------------------------
+COMPARAISON EXPERIMENTALE
+-------------------------------------------------
+
+ - On obtient les memes résultats (heureusement !!)

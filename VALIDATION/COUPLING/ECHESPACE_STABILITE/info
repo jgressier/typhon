@@ -1,0 +1,45 @@
+-------------------------------------------------
+CAS DE CONDUCTION DE LA CHALEUR 
+STABILITE AVEC ECHANGES ESPACES
+
+! A MODIFIER QUAND CHOIX DE CORRECTION DANS LE MENU !
+
+-------------------------------------------------
+EVOLUTION 1D, conduction constante
+-------------------------------------------------
+main.rpm      : fichier de paramètres du calcul couplé
+zone1.rpm     : fichier de paramètres de la zone couplée 1
+zone2.rpm     : fichier de paramètres de la zone couplée 2
+geom1.cgns    : maillage au format CGNS de la zone couplée 1
+geom2.cgns    : maillage au format CGNS de la zone couplée 2
+
+-------------------------------------------------
+
+* MAILLAGE
+ - barre 1D (longueur 10 (zone 1) + 15 (zone 2) en x et largeur 5 en y)
+
+* MODELE
+ - conduction de la chaleur, modèle linéaire (lambda et capacité thermique 
+   constants)
+
+* CONDITIONS AUX LIMITES
+ - isothermes aux extrémités gauche et droite (ENTREE : 1000 K et SORTIE :
+   500 K)
+ - extrapolate sur les bords (MUR)
+ - coupling à l'interface (INTERFACE), pour le cas de calcul couplé
+
+* CONDITIONS INITIALES
+ - 1000 K
+
+* PARAMETRES DE SIMULATION
+ - pas de temps 1 pour l'intégration explicite
+
+* COUPLAGE
+ - cellule fictive
+ - interpolation compacte
+ - maillages coincidents
+
+-------------------------------------------------
+COMMENTAIRES SUR LA SOLUTION
+-------------------------------------------------
+
