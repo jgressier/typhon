@@ -15,7 +15,7 @@ use TYPHMAKE   ! Définition de la précision machine
 
 ! -- Variables globales du module -------------------------------------------
 
-character(len=6), parameter :: version = "0.1.2"
+character(len=6), parameter :: version = "0.1.3"
 
 logical        :: mpi_run              ! calcul parallèle MPI ou non
 character      :: memory_mode          ! mode d'économie mémoire
@@ -28,7 +28,7 @@ integer        :: taille_buffer        ! taille de buffer pour la distribution d
 ! -- Définition des fonctionnalités
 
 logical, parameter :: pass_kdif  = .true.
-logical, parameter :: pass_ns    = .false.
+logical, parameter :: pass_ns    = .true.
 logical, parameter :: pass_mpi   = .false.
 logical, parameter :: pass_amr   = .false.
 logical, parameter :: pass_coupl_int = .true.

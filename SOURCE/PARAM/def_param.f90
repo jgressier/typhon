@@ -38,7 +38,7 @@ if (info /= 0) call erreur("Lecture du menu","fichier "//trim(fic)// &
                            " introuvable ou interdit en lecture")
 
 allocate(firstblock)
-nullify(firstblock)
+nullify(firstblock)   ! nécessaire pour le bon fonctionnement de readrpmblock
 
 call readrpmblock(uf_menu, uf_log, 1, firstblock) ! Lecture du fichier de paramètres
 close(uf_menu)

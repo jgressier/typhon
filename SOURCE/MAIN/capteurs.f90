@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : capteurs                    Auteur : J. Gressier
 !                                         Date   : Mai 2003
-! Fonction                                Modif  :
+! Fonction                                Modif  : (cf historique)
 !   Calcul des quantités définis par les capteurs
 !
 ! Defauts/Limitations/Divers :
@@ -17,39 +17,30 @@ use DEFZONE
 implicit none
 
 ! -- Declaration des entrées --
-real(krp)     :: dt              ! pas de temps propre à la zone
-type(st_zone) :: zone            ! zone à intégrer
+type(st_zone) :: zone            ! zone 
 
 ! -- Declaration des sorties --
 
 ! -- Declaration des variables internes --
+integer    :: ic                 ! index de capteur
 
 ! -- Debut de la procedure --
 
+do ic = 1, zone%defsolver%nprobe
 
-! -- intégration des domaines --
+  select case(zone%defsolver%probe(ic)%type)
+  case(probe)
+    call erreur("Développement","type PROBE non implémenté")
+  case(boco_field)
+    call prb_boco_field()
+  case(boco_integral)
+    call erreur("Développement","type BOCO_INTEGRAL non implémenté")
+  case(residuals)
+    call erreur("Développement","type RESIDUALS non implémenté")
+  endselect
 
-select case(zone%typ_mesh)
- 
-case(mshSTR)
-  call erreur("Dévéloppement (capteurs)", &
-              "maillage structuré non implémenté")
-  !do i = 1, zone%str_mesh%nblock
-  !  call capteurs_str(dt, zone%defsolver, zone%str_mesh%block(i))
-  !enddo
+enddo
 
-case(mshUST)
-  !call erreur("Développement (capteurs)", &
-  !            "maillage non structuré non implémenté")
-  !call capteurs_ust(dt, zone%defsolver, zone%ust_mesh, zone%field)
-  write(*,"(a,5f10.1)")"capteur : ", &
-                       zone%field(1)%etatprim%tabscal(1)%scal(1:10:2) !! DEBUG
-
-case default
-  call erreur("incohérence interne (capteurs)", &
-              "type de maillage inconnu")
-
-endselect
 
 !-----------------------------
 endsubroutine capteurs
@@ -57,5 +48,6 @@ endsubroutine capteurs
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mai 2003 (v0.0.1b): création de la procédure
+! mai 2003 : création de la procédure (test pour debuggage)
+! nov 2003 : redirection selon type de capteur
 !------------------------------------------------------------------------------!

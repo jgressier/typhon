@@ -101,8 +101,11 @@ else
       call erreur("lecture de menu (PROBE)","quantité inconnue")
     endif  
 
-    ! DEV: vérification du type en fonction du solveur  
+    ! DEV : vérification du type en fonction du solveur  
 
+    ! DEV : procédure init_capteurs ?
+
+    ! DEV : PARAMETRE DE STOCKAGE
   enddo
 
 endif

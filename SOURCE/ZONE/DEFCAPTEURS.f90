@@ -61,6 +61,18 @@ integer           :: i
 endsubroutine delete_capteur
 
 
+!------------------------------------------------------------------------------!
+! Function : numéro d'unité pour sauvegarde
+!------------------------------------------------------------------------------!
+integer function capteur_get_unit(iz, ic)
+implicit none
+integer :: iz, ic   ! numéro de zone et de capteur
+
+  capteur_get_unit = iz*100 + 20 + ic
+
+endfunction capteur_get_unit
+
+
 
 
 endmodule DEFCAPTEURS
@@ -69,4 +81,5 @@ endmodule DEFCAPTEURS
 ! Historique des modifications
 !
 ! juil 2003 : création du module
+! nov  2003 : création de numéro d'unité
 !------------------------------------------------------------------------------!
