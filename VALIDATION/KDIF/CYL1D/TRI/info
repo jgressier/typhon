@@ -1,0 +1,50 @@
+-------------------------------------------------
+CAS DE CONDUCTION DE LA CHALEUR
+-------------------------------------------------
+EVOLUTION CYLINDRIQUE 1D
+-------------------------------------------------
+main.rpm        : fichier de paramètres du calcul
+cyl-qtri20.cgns : maillage au format CGNS
+-------------------------------------------------
+
+* MAILLAGE
+ - demi anneau (rayon intérieur 5, rayon extérieur 10)
+ - maillages
+   . qtri20 : QUAD séparé en 2 TRI sans lissage, TRI aplatis
+   . qtri   : idem, et de plus mauvaise qualité (< 0.3)
+   . tri    : maillage de TRI avec lissage (qualité ~ 0.6-0.8)
+
+* MODELE
+ - conduction de la chaleur, modèle linéaire (lambda et Cp constants)
+
+* CONDITIONS AUX LIMITES
+ - isothermes sur les parois (INT et EXT) du cylindre
+ - adiabatique sur les sections (SYM)
+
+* PARAMETRES DE SIMULATION
+ - convergence à 1.e-5 
+ - Fourier à 0.48
+ - méthode de calcul des flux : FULL 
+
+
+-------------------------------------------------
+SOLUTION THEORIQUE OU COMPARAISON EXPERIMENTALE
+-------------------------------------------------
+
+Soit T1 et T2, les températures respectivement imposées sur les parois
+du cylindre en R1 et R2. La solution théorique (pour une conductivité 
+constante) est
+
+T(r) = T1 + (T2-T1)*ln(r/R1)/ln(R2/R1)
+
+
+-------------------------------------------------
+COMMENTAIRES SUR LA SOLUTION
+-------------------------------------------------
+- on montre ici que la méthode COMPACT (non consistante) est
+  relativement loin de la solution théorique
+- la méthode FULL corrige très nettement les défauts
+
+-------------------------------------------------
+Benchmark
+-------------------------------------------------
