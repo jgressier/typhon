@@ -19,10 +19,12 @@ Task Dévlp.  R. cible début fin   Type  Développement
                0.1.4              KDIF  condition limite de rayonnement
                0.1.4              Val   maillage 3D TETRA et/ou HEXA
                0.1.4              IHM   affichage intermittent des itérations (mod(it,10))
+0006 Emmanuel  0.1.3  12/11 18/11 Coupl Orientation des conditions aux limites aux raccords par COUPLING
 0005 Jérémie   0.1.4              Out   Définition de capteurs et historiques
      Emmanuel  0.2.0  18/07             Corrections de flux pour échanges espacés
-     Jérémie   0.2.0  15/09       Make  Solveur Fluide Parfait - procédures de base
 0004 Emmanuel  0.2.0        07/11 Coupl Première version de couplage stationnaire
+     Jérémie   0.2.0  15/09             Solveur Fluide Parfait - fonctionnalités de base
+     Jérémie   0.2.0  15/09       Make  Solveur Fluide Parfait - procédures de base
                0.2.0              Out   Sorties multiples (block:output)
                0.2.0                    Restructuration de MAIN/integration_cycle (split)
                0.2.0              Make  Suppression des structures de données STRMESH (1)

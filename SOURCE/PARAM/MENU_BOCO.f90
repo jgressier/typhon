@@ -18,7 +18,12 @@ use MENU_KDIF ! Définition des solveurs type Equation de diffusion
 
 implicit none
 
+
 ! -- Variables globales du module -------------------------------------------
+
+! -- Définition des entiers caractéristiques pour l'uniformité de la CL --
+integer, parameter :: uniform   = 10   
+integer, parameter :: nonuniform = 20 
 
 ! -- Définition des entiers caractéristiques pour le type de solveur --
 
@@ -37,7 +42,7 @@ type mnu_boco
                                          !   CONNECTION    : type de connection (GHOSTFACE,...)?!  
                                          !   COUPLING      : type de connection (GHOSTFACE,...)?!  
                                          !   EXTRAPOLATION : ordre d'extrapolation?!
-                                     
+  integer               :: boco_unif     ! condition aux limites uniforme ou non                                   
   integer               :: order_extrap  ! ordre d'extrapolation : A INCLURE dans typ_calc
 
   type(st_boco_kdif)    :: boco_kdif     ! condition aux limites propre au solveur KDIF
@@ -70,8 +75,9 @@ implicit none
 character(len=*) str
 
   bocotype = inull
+
   if (samestring(str, "CONNECTION" ))          bocotype = bc_connection
-  if (samestring(str, "COUPLING" ))            bocotype = bc_coupling
+  if (samestring(str, "COUPLING" ))            bocotype = bc_wall_isoth
 
   if (samestring(str, "SYMMETRY" ))            bocotype =  bc_geo_sym   
   if (samestring(str, "PERIODIC" ))            bocotype =  bc_geo_period
@@ -120,6 +126,7 @@ endmodule MENU_BOCO
 ! nov  2002 (v0.0.1b): création du module
 ! mars 2003          : définition des types de conditions aux limites
 ! juin 2003          : regroupement des types "connection", ajout de "coupling"
+! nov 2003           : ajout de l'uniformité ou non des CL
 !------------------------------------------------------------------------------!
 
 

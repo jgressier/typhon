@@ -8,11 +8,12 @@
 !
 !------------------------------------------------------------------------------!
 
-subroutine stock_kdif_cond_coupling(conditions_coupling, temp, flux, if)
+subroutine stock_kdif_cond_coupling(bocokdif, temp, flux, if)
 
 use TYPHMAKE
 use OUTPUT
 use DEFFIELD
+use MENU_KDIF
 
 implicit none
 
@@ -22,13 +23,15 @@ real(krp) :: flux     ! flux attribué
 integer ::   if       ! indice de la face concernée
 
 ! -- Declaration des entrées/sorties --
-type(st_genericfield) :: conditions_coupling ! stockage des conditions
+type(st_boco_kdif) :: bocokdif ! stockage des conditions
 
 ! -- Declaration des variables internes --
 
 ! -- Debut de la procedure --
 
-conditions_coupling%tabscal(1)%scal(if) = temp
-conditions_coupling%tabscal(2)%scal(if) = flux
+bocokdif%temp(if) = temp
+bocokdif%flux_nunif(if) = flux
+
+
 
 endsubroutine stock_kdif_cond_coupling

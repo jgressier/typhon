@@ -49,21 +49,34 @@ real(krp)             :: rflux, etatcons
 
 ! Calcul de l'"énergie" à l'interface.  On accumule les flux.
 
-do ib =1, domainenboco
-  if (defsolverboco(domaineboco(ib)%idefboco)%typ_boco == bc_coupling) then
-    do i = 1, domaineboco(ib)%nface
-      if = domaineboco(ib)%iface(i)
-      do ic = 1, ncoupling
-        if (samestring(coupling(ic)%family, domaineboco(ib)%family)) then
-          rflux = flux(if)
-          etatcons = coupling(ic)%zcoupling%etatcons%tabscal(1)%scal(i)
-          coupling(ic)%zcoupling%etatcons%tabscal(1)%scal(i) = etatcons + rflux * dt
-        endif
-      enddo
-    enddo
-  endif
-enddo
+! PROVISOIRE : A EFFACER
+!do ib =1, domainenboco
+!  if (defsolverboco(domaineboco(ib)%idefboco)%typ_boco == bc_coupling) then
+!    do i = 1, domaineboco(ib)%nface
+!      if = domaineboco(ib)%iface(i)
+!      do ic = 1, ncoupling
+!        if (samestring(coupling(ic)%family, domaineboco(ib)%family)) then
+!          rflux = flux(if)
+!          etatcons = coupling(ic)%zcoupling%etatcons%tabscal(1)%scal(i)
+!          coupling(ic)%zcoupling%etatcons%tabscal(1)%scal(i) = etatcons + rflux * dt
+!        endif
+!      enddo
+!    enddo
+!  endif
+!enddo
 
+do ic =1, ncoupling
+  do ib =1, domainenboco
+    if (samestring(coupling(ic)%family, domaineboco(ib)%family)) then
+      do i = 1, domaineboco(ib)%nface
+        if = domaineboco(ib)%iface(i)
+        rflux = flux(if)
+        etatcons = coupling(ic)%zcoupling%etatcons%tabscal(1)%scal(i)
+        coupling(ic)%zcoupling%etatcons%tabscal(1)%scal(i) = etatcons + rflux * dt
+      enddo
+    endif
+  enddo
+enddo
 
 endsubroutine accumulfluxcorr_kdif
 

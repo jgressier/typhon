@@ -122,18 +122,18 @@ do i = 1, nfacelim
   endif
 
   if (abs(flux1(i)) == 0._krp) then
-    if (zone1%coupling(1)%zcoupling%cond_coupling%tabscal(2)%scal(i) == 0._krp) then
+    if (zone1%defsolver%boco(zone1%ust_mesh%boco(nbc1)%idefboco)%boco_kdif%flux_nunif(i) == 0._krp) then
       dfluxcalc = 0._krp
     else
       dfluxcalc = 1._krp
     endif
   else
-    dfluxcalc = abs( zone1%coupling(1)%zcoupling%cond_coupling%tabscal(2)%scal(i) - &
+    dfluxcalc = abs( zone1%defsolver%boco(zone1%ust_mesh%boco(nbc1)%idefboco)%boco_kdif%flux_nunif(i) - &
                      abs(flux1(i)) )/ abs(flux1(i))
   endif
 
   write(uf_compflux,'(6e18.8)') curtps, abs(flux1(i)), abs(flux2(i)), dflux, &
-            zone1%coupling(1)%zcoupling%cond_coupling%tabscal(2)%scal(i), &
+            zone1%defsolver%boco(zone1%ust_mesh%boco(nbc1)%idefboco)%boco_kdif%flux_nunif(i), &
             dfluxcalc 
                   
 enddo

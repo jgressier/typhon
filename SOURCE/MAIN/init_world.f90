@@ -52,7 +52,13 @@ do izone = 1, world%prj%nzone
   call init_champ(world%zone(izone))
 enddo
 
-! initialisation des echanges entre zones
+! Initialisation des conditions limites
+call print_info(5,"Initialisation des conditions aux limites")
+do izone = 1, world%prj%nzone
+  call init_boco(world%zone(izone))
+enddo
+
+! Initialisation des echanges entre zones
 do icoupling = 1,  world%prj%ncoupling
   call print_info(5,"Calcul et Initialisation des échanges entre zones")
   call init_coupling(world%zone(world%coupling(icoupling)%zone1), &

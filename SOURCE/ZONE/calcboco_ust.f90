@@ -56,34 +56,32 @@ do ib = 1, ustdom%nboco
   case(bc_geo_extrapol)
     call calcboco_ust_extrapol(defsolver%boco(idef), ustdom%boco(ib), ustdom, champ)
 
+! PROVISOIRE : à retirer
   case(bc_connection)
     call erreur("Développement","'bc_connection' : Cas non implémenté")
-   ! do ir = 1, ncoupling
-   !   if (samestring(zcoupling(i)%family, ustdom%boco(ib)%family)) then
-   !     nrac = ir
-   !   endif
-   ! enddo
-   !   
-   ! call calcboco_ust_connect(defsolver%boco(idef), ustdom%boco(ib), ustdom, champ, &
-   ! 				zcoupling(nrac)%zcoupling%cond_coupling)
-  
-  case(bc_coupling)
-    do ir = 1, ncoupling
-      if (samestring(zone%coupling(ir)%family, ustdom%boco(ib)%family)) then
-        nrac = ir
-      endif
-    enddo
-
-    call calcboco_ust_coupling(defsolver%boco(idef), ustdom%boco(ib), ustdom, champ, &
-    				zone%coupling(nrac)%zcoupling%cond_coupling, &
-                                zone%coupling(nrac)%zcoupling%solvercoupling)
-   
-  case default    
-    select case(defsolver%typ_solver)
-    case(solKDIF)
-        call calcboco_kdif_ust(defsolver%boco(idef), ustdom%boco(ib), ustdom, champ)
-     case default
-       call erreur("incohérence interne (def_boco)","solveur inconnu")
+!  
+!  case(bc_coupling)
+!    ! -- détermination de l'indice du couplage
+!    do ir = 1, ncoupling
+!      if (samestring(zone%coupling(ir)%family, ustdom%boco(ib)%family)) then
+!        nrac = ir
+!      endif
+!    enddo
+!
+!    call calcboco_ust_coupling(defsolver%boco(idef), ustdom%boco(ib), ustdom, champ, &
+!    				zone%coupling(nrac)%zcoupling%cond_coupling, &
+!                                zone%coupling(nrac)%zcoupling%solvercoupling, &
+!                                zone%coupling(nrac)%zcoupling%bocotype)
+!   
+  case default 
+    select case(defsolver%boco(idef)%boco_unif)
+    case(uniform)
+      call calcboco_ust_unif(defsolver%boco(idef), ustdom%boco(ib), ustdom, champ, &
+                            defsolver%typ_solver)
+    case(nonuniform)
+      call calcboco_ust_nunif(defsolver%boco(idef), ustdom%boco(ib), ustdom, champ, &
+                            defsolver%typ_solver)
+ 
     endselect
 
   endselect

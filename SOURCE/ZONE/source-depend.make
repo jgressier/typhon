@@ -20,10 +20,11 @@ ZONE_OBJ := $(ZONE_MOD:.$(MOD)=.o)       \
             calc_varcons.o               \
             calc_varprim.o               \
             calcboco_ust.o               \
-            calcboco_ust_coupling.o      \
-            calcboco_ust_coupling_face.o \
             calcboco_ust_extrapol.o      \
+            calcboco_ust_nunif.o         \
+            calcboco_ust_unif.o          \
             donnees_echange.o            \
+            init_boco_ust.o              \
             init_champ_ust.o             \
             init_connect_ust.o           \
             init_ustboco_ghostface.o     \

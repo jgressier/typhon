@@ -23,7 +23,6 @@ type st_zonecoupling
   integer                    :: nface_int      ! nb de faces côté interne
   integer                    :: nface_ext      ! nb de faces côté externe
   type(st_genericfield)      :: echdata        ! données d'échange (champ de zone externe)
-  type(st_genericfield)      :: cond_coupling  ! stockage des données calculées
   type(st_genericfield)      :: etatcons       ! énergie à l'interface
   integer, dimension(:), pointer &
                              :: connface       ! connectivité de face (dim = nface_int)
@@ -65,8 +64,6 @@ endsubroutine new_zcoupling
 subroutine delete_zcoupling(zc)
 implicit none
 type(st_zonecoupling)  :: zc
-
-call delete(zc%cond_coupling)
 
 call delete(zc%echdata)
 

@@ -40,3 +40,30 @@ Modification du déclenchement des échanges : plus en instant d'échange mais en
 numéro de cycle d'échange.
 fichiers : integration, integration_cycle, integration_ustdomaine, integration_zone,
  echange_zonedata, echange_zonematch, corr_varprim_kdif, MODINFO, def_project
+
+---------------------------------------------------------------------------------
+Task 0006 (Emmanuel) : COUPL : modification du type de condition COUPLING :
+                               orientation vers des conditions "naturelles"
+---------------------------------------------------------------------------------
+Le type de condition "COUPLING" n'est plus un type de condition aux limites à
+part entière (plus de variable bc_coupling), mais dirige vers des conditions de 
+Dirichlet, de Von Neumann ou de convection.
+Modification des conditions aux limites nécessaire : elles ne sont plus 
+nécessairement uniformes.
+Suppression de la variable conditions_coupling dans ZONE_COUPLING : le stockage
+des données calculées à l'échange se fait maintenant directement dans les
+tableaux des conditions limites.
+Provisoirement, bocotype("COUPLING")=bc_wall_isoth : condition de Dirichlet par
+défaut à l'initialisation.
+Mise à jour après chaque cycle des type de condition aux limites au raccord : 
+possibilité de changer à chaque cycle.
+
+fichiers : MENU_BOCO, MENU_SOLVER, trait_zoneparam, def_boco, ZONE_COUPLING, 
+ calcboco_ust, integration, comp_flux, init_world, echange_zonematch, echange, 
+ MENU_KDIF, echange_kdif, stock_kdif_cond_coupling, def_boco_kdif, 
+ accumulfluxcorr_kdif, init_coupling_kdif
+fichiers nouveaux : init_boco, init_boco_ust, calcboco_ust_unif, 
+ calcboco_ust_nunif, init_boco_kdif, calcboco_kdif_ust_unif, 
+ calcboco_kdif_ust_nunif, setboco_kdif_isoth_unif, setboco_kdif_isoth_nunif
+fichiers supprimés : calcboco_ust_coupling, calcboco_ust_coupling_face, 
+ calcboco_kdif_coupling_face, calcboco_kdif_ust

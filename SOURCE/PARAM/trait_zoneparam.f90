@@ -84,9 +84,11 @@ do ib = 1, nboco
   ! -- Détermination du type de condition aux limites 
 
   call rpmgetkeyvalstr(pcour, "TYPE", str)
-  
-  select case(bocotype(str))
-  case(bc_coupling)
+! PROVISOIRE
+!  select case(bocotype(str))
+!  case(bc_coupling)
+  select case(str)
+  case("COUPLING")
   nzr = nzr+1
   endselect
 
@@ -101,7 +103,8 @@ zone%ncoupling = nzr
 print*, "!DEBUG", zone%nom , zone%ncoupling
 ! Conditions aux limites
 
-call def_boco(block, solver, zone%defsolver, zone%coupling, zone%ncoupling)
+call def_boco(block, solver, zone%defsolver, zone%coupling, zone%ncoupling, &
+              zone%ust_mesh)
 
 ! -------------------------
 ! Définition de l'initialisation

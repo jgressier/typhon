@@ -23,6 +23,7 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            echange.o                \
            echange_zonedata.o       \
            echange_zonematch.o      \
+           init_boco.o              \
            init_champ.o             \
            init_connect.o           \
            init_coupling.o          \

@@ -28,7 +28,7 @@ type(st_world) :: lworld
 !real(krp)      :: macro_dt
 integer, dimension(:), allocatable &
                :: exchcycle ! indices des cycles d'échange pour les différents couplages de zones
-integer        :: ir, izone, if
+integer        :: ir, izone, if, ib, ic
 integer        :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
 
 ! -- Debut de la procedure --
@@ -41,7 +41,6 @@ lworld%info%icycle          = 0
 lworld%info%curtps          = 0._krp
 lworld%info%residu_ref      = 0._krp
 lworld%info%fin_integration = .false.
-
 
 ! Allocation du tableau des inidices de cycle d'échange pour les calculs couplés
 allocate(exchcycle(lworld%prj%ncoupling))
@@ -91,7 +90,22 @@ do while (.not. lworld%info%fin_integration)
   ! -- intégration d'un cycle --
 
   call integration_cycle(lworld, exchcycle, lworld%prj%ncoupling)  
-    
+  
+  ! -- Actualisation des conditions aux limites au raccord
+  ! PROVISOIREMENT tout à condition de Dirichlet
+  do izone = 1, lworld%prj%nzone
+    ! Boucle sur les conditiosn aux limites et sur les couplages pour
+    ! repérer les conditions correspondant à des raccords
+    do ib = 1, lworld%zone(izone)%ust_mesh%nboco
+      do ic = 1, lworld%zone(izone)%ncoupling
+        if(samestring(lworld%zone(izone)%coupling(ic)%family, &
+           lworld%zone(izone)%ust_mesh%boco(ib)%family)) then
+          lworld%zone(izone)%defsolver%boco(lworld%zone(izone)%ust_mesh%boco(ib)%idefboco)%typ_boco = bc_wall_isoth
+        endif
+      enddo
+    enddo
+  enddo
+
   ! -- écriture d'informations en fin de cycle --
 
   select case(lworld%prj%typ_temps)

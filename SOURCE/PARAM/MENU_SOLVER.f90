@@ -11,8 +11,8 @@
 module MENU_SOLVER
 
 use TYPHMAKE   ! Definition de la precision
-use MENU_NS    ! Définition des solveurs type NS
-use MENU_KDIF  ! Définition des solveurs type Equation de diffusion
+use MENU_NS   ! Définition des solveurs type NS
+use MENU_KDIF ! Définition des solveurs type Equation de diffusion
 use MENU_BOCO
 use MENU_INIT
 
@@ -32,8 +32,8 @@ implicit none
 type mnu_solver
   integer         :: typ_solver      ! type de solveur (cf definitions VARCOM) 
   integer         :: nequat          ! nombre d'équations
-  type(mnu_ns)    :: defns           ! options si solveur NS
-  type(mnu_kdif)  :: defkdif         ! options si solveur KDIF
+  type(mnu_ns)    :: defns          ! options si solveur NS
+  type(mnu_kdif)  :: defkdif        ! options si solveur KDIF
   integer         :: nboco           ! nombre de conditions aux limites
   type(mnu_boco), dimension(:), pointer &
                   :: boco            ! définitions des conditions aux limites
@@ -61,16 +61,33 @@ contains
 subroutine delete_mnu_solver(defsolver)
 implicit none
 type(mnu_solver)  :: defsolver
+integer           :: ib
 
   print*,'!! DEBUG destruction de structure "paramètres" à compléter'
   call delete(defsolver%defkdif%materiau%Kd)
-  if (defsolver%nboco>1) then
-  deallocate(defsolver%boco)
-  endif
+
   if (defsolver%ninit>1) then
-  deallocate(defsolver%init)
+    deallocate(defsolver%init)
   endif
-  
+
+  do ib = 1, defsolver%nboco
+    select case(defsolver%boco(ib)%boco_unif)
+    case(nonuniform)
+      if (defsolver%boco(ib)%boco_kdif%alloctemp == .true.) then
+        deallocate(defsolver%boco(ib)%boco_kdif%temp)
+        defsolver%boco(ib)%boco_kdif%alloctemp = .false.
+      endif
+      if (defsolver%boco(ib)%boco_kdif%allocflux == .true.) then
+        deallocate(defsolver%boco(ib)%boco_kdif%flux_nunif)
+        defsolver%boco(ib)%boco_kdif%allocflux = .false.
+      endif
+    endselect
+  enddo
+
+  if (defsolver%nboco>1) then
+    deallocate(defsolver%boco)
+  endif
+
 endsubroutine delete_mnu_solver
 
 

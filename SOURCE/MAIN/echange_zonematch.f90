@@ -8,7 +8,7 @@
 !				aux deux zones
 !------------------------------------------------------------------------------!
 
-! ------PROVISOIRE pour affichage des champs avt et apres cor de flux-----------
+! -----------------PROVISOIRE-----------------------------------------------
 !subroutine echange_zonematch(zone1, zone2, typcalc, nfacelim, nbc1, nbc2, ncoupl1, ncoupl2, corcoef, icycle, typtemps)
 ! --------------------------------------------------------------------------
 subroutine echange_zonematch(zone1, zone2, typcalc, nfacelim, nbc1, nbc2, ncoupl1, ncoupl2, corcoef, typtemps)
@@ -33,7 +33,7 @@ integer                    :: ncoupl1, ncoupl2    ! numéro (identité) du raccord
 real(krp)                  :: corcoef             ! coefficient de correction de flux
 character                  :: typtemps
 
-! ------PROVISOIRE pour affichage des champs avt et apres cor de flux-----------
+! -----------------PROVISOIRE-----------------------------------------------
 !integer     :: icycle
 !---------------------------------------------------------------------------
 
@@ -52,12 +52,14 @@ type(v3d)                      :: cg1, cg2, cgface ! centres des cellules des zo
 integer                        :: typsolver1, typsolver2
 real(krp)                      :: dif_enflux     ! différence des énergies d'interface dans les deuxzones
 
-! ------PROVISOIRE pour affichage des champs avt et apres cor de flux-----------
-integer     :: uf
+
+! -----------------PROVISOIRE-----------------------------------------------
+!integer     :: uf
 !---------------------------------------------------------------------------
 
 ! -- Debut de la procedure --
-! ------PROVISOIRE pour affichage des champs avt et apres cor de flux-----------
+
+! -----------------PROVISOIRE------------------------------------------------
 !  uf = 556
 !if ((icycle.lt.10)) then
 !  open(unit = uf, file = "t"//trim(adjustl(strof(icycle,3)))//".dat", form = 'formatted')
@@ -96,7 +98,7 @@ select case(typtemps)
 
 endselect
 
-! --------PROVISOIRE pour affichage des champs avt et apres cor de flux---------
+! -----------------PROVISOIRE------------------------------------------------
 !if ((icycle.lt.10)) then
 !  call output_field(uf, zone1%ust_mesh, zone2%ust_mesh, zone1%field, &
 !                    zone2%field,"APRES CORRECTION")
@@ -150,9 +152,9 @@ call donnees_echange(zone2%coupling(ncoupl2)%zcoupling%solvercoupling, &
 call echange(zone1%coupling(ncoupl1)%zcoupling%echdata, &
              zone2%coupling(ncoupl2)%zcoupling%echdata, &
              normale, vecinter, d1, d2, nfacelim, typcalc, typmethod,&
-             zone1%coupling(ncoupl1)%zcoupling%cond_coupling, &
-             zone2%coupling(ncoupl2)%zcoupling%cond_coupling, &
-             zone1%coupling(ncoupl1)%zcoupling%solvercoupling)
+             zone1%coupling(ncoupl1)%zcoupling%solvercoupling, &
+             zone1%defsolver%boco(zone1%ust_mesh%boco(nbc1)%idefboco), &
+             zone2%defsolver%boco(zone2%ust_mesh%boco(nbc2)%idefboco))
 
 !endif
 

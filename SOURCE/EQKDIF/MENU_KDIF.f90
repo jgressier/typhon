@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! MODULE : MENU_KDIF                      Auteur : J. Gressier
 !                                         Date   : Novembre 2002
-! Fonction                                Modif  : 
+! Fonction                                Modif  : (cf Historique)
 !   Définition des structures pour les entrées du programme TYPHON
 !   Structures pour les options du solveur KDIF
 !
@@ -37,6 +37,16 @@ endtype mnu_kdif
 type st_boco_kdif
   real(krp) :: temp_ext       ! température extérieure pour le rayonnement
   real(krp) :: temp_wall      ! température de paroi (si isotherme)
+  real(krp), dimension(:), pointer  &
+            :: temp           ! température de paroi non uniforme
+  logical   :: alloctemp      ! allocation du tableau temp
+  character (len=strlen) &
+            :: tempfile       ! nom de fichier de définition de la temp non uniforme  
+  real(krp), dimension(:), pointer  &
+            :: flux_nunif     ! flux non uniforme
+  logical   :: allocflux      ! allocation du tableau flux_nunif
+  character (len=strlen) &
+            :: fluxfile       ! nom de fichier de définition du flux non uniforme  
   real(krp) :: h_conv         ! coefficient de convection
   real(krp) :: temp_conv      ! température de relaxation pour la convection
   real(krp) :: flux           ! flux (si flux imposé)
@@ -88,6 +98,10 @@ endfunction bctype_of_kdifboco
 
 endmodule MENU_KDIF
 
-
-
-
+!------------------------------------------------------------------------------!
+! Historique des modifications
+!
+! nov  2002 (v0.0.1b): création du module
+! nov 2003           : ajout de la température non uniforme de paroi 
+!                      (CL Dirichlet)
+!------------------------------------------------------------------------------!

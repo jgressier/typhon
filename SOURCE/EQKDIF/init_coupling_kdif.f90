@@ -36,12 +36,10 @@ integer                :: i
   vnul%y = 0._krp
   vnul%z = 0._krp
 
-  call new(coupling%zcoupling%cond_coupling, nface, 2, 0, 0)
   call new(coupling%zcoupling%echdata, nface, 2, 1, 0)
   call new(coupling%zcoupling%etatcons, nface, 2, 0, 0)
 
   call init_genericfield(coupling%zcoupling%echdata, 0._krp, vnul)
-  call init_genericfield(coupling%zcoupling%cond_coupling, 0._krp, vnul)
   call init_genericfield(coupling%zcoupling%etatcons, 0._krp, vnul)
 
 endsubroutine init_coupling_kdif

@@ -8,7 +8,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine def_boco(block, isolver, defsolver, zcoupling, ncoupling)
+subroutine def_boco(block, isolver, defsolver, zcoupling, ncoupling, ustdom)
 
 use RPM
 use TYPHMAKE
@@ -17,6 +17,7 @@ use VARCOM
 use MENU_SOLVER
 use MENU_BOCO
 use MENU_ZONECOUPLING
+use USTMESH
 
 implicit none
 
@@ -24,6 +25,7 @@ implicit none
 type(rpmblock), target :: block
 integer                :: isolver
 integer                :: ncoupling
+type(st_ustmesh)       :: ustdom
 
 ! -- Declaration des sorties --
 type(mnu_solver)                             :: defsolver
@@ -32,7 +34,7 @@ type(mnu_zonecoupling), dimension(ncoupling) :: zcoupling
 ! -- Declaration des variables internes --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nboco          ! nombre de conditions aux limites
-integer                  :: ib, nkey
+integer                  :: ib, nkey, iboco
 integer                  :: izr            ! indice de parcours du tableau de raccords
 character(len=dimrpmlig) :: str            ! chaîne RPM intermédiaire
 
@@ -54,6 +56,14 @@ izr = 0 !initialisation
 
 do ib = 1, nboco
 
+  ! -- Initialisation des allocations de tableaux de CL à FALSE
+  defsolver%boco(ib)%boco_kdif%alloctemp = .false.
+  defsolver%boco(ib)%boco_kdif%allocflux = .false.
+
+  ! -- Initialisation des noms de fichier de température, flux
+  defsolver%boco(ib)%boco_kdif%tempfile = cnull
+  defsolver%boco(ib)%boco_kdif%fluxfile = cnull
+
   call seekrpmblock(pblock, "BOCO", ib, pcour, nkey)
 
   ! -- Détermination du nom de famille
@@ -73,37 +83,32 @@ do ib = 1, nboco
     call erreur("lecture de menu (def_boco)","condition aux limites inconnue")
   endif
 
-  ! Traitement des conditions aux limites communes aux solveurs
+  ! -- Traitement du couplage
 
-  select case(defsolver%boco(ib)%typ_boco)
+  if (samestring(str, "COUPLING")) then
 
-  case(bc_geo_sym) 
-    call erreur("Développement","'bc_geo_sym' : Cas non implémenté")
-    
-  case(bc_geo_period)
-    call erreur("Développement","'bc_geo_period' : Cas non implémenté")
-    
-  case(bc_geo_extrapol)
-    call rpmgetkeyvalstr(pcour, "ORDER", str, "QUANTITY")
-    defsolver%boco(ib)%order_extrap = inull
-    if (samestring(str, "QUANTITY" )) defsolver%boco(ib)%order_extrap = extrap_quantity
-    if (samestring(str, "GRADIENT" )) defsolver%boco(ib)%order_extrap = extrap_gradient
-    if (defsolver%boco(ib)%order_extrap == inull) &
-      call erreur("lecture de menu (def_boco)","ordre d'extrapolation inconnu")
+    ! -- Condition aux limites nécessairement non uniforme 
+    defsolver%boco(ib)%boco_unif = nonuniform
 
-  case(bc_coupling)
-    ! -- Détermination de la méthode de calcul du raccord
-    
+    ! -- Allocation mémoire pour les tableaux de conditions limites
+    defsolver%boco(ib)%boco_kdif%alloctemp = .true.
+    defsolver%boco(ib)%boco_kdif%allocflux = .true.
+
+    ! -- Incrémentation : numéro du raccord
     izr = izr + 1
 
+    ! -- Détermination de la zone connectée par le raccord
     call rpmgetkeyvalstr(pcour, "CONNZONE", str)
     zcoupling(izr)%connzone = str
     
+    ! -- Détermination du nom de la famille connectée par le raccord
     call rpmgetkeyvalstr(pcour, "CONNFAM", str)
     zcoupling(izr)%connfam = str
     
+    ! -- Nom de la famille du raccord
     zcoupling(izr)%family = defsolver%boco(ib)%family
     
+    ! -- Détermination de la méthode de calcul du raccord
     call rpmgetkeyvalstr(pcour, "METHOD", str)
   
     if (samestring(str, "FLUX" ))      defsolver%boco(ib)%typ_calc = bc_calc_flux
@@ -121,27 +126,51 @@ do ib = 1, nboco
     case default
       call erreur("lecture de menu","méthode de calcul du raccord inconnue") 
     endselect
-                
-  case default    
-    select case(isolver)
-    case(solKDIF)
-        call def_boco_kdif(pcour, defsolver%boco(ib)%typ_boco, defsolver%boco(ib)%boco_kdif)
-     case default
-       call erreur("incohérence interne (def_boco)","solveur inconnu")
+
+  ! -- Traitement des conditions aux limites non attachées à un couplage
+  else 
+    
+    ! -- Détermination de l'uniformité de la CL (par défaut : uniforme)
+    call rpmgetkeyvalstr(pcour, "UNIFORMITY", str, "UNIFORM")
+    defsolver%boco(ib)%boco_unif = inull
+    if (samestring(str, "UNIFORM" )) defsolver%boco(ib)%boco_unif = uniform
+    if (samestring(str, "NON_UNIFORM" )) defsolver%boco(ib)%boco_unif = nonuniform
+    if (defsolver%boco(ib)%boco_unif == inull) &
+    call erreur("lecture de menu (def_boco)","Uniformité de la CL mal définie")
+
+    ! Traitement des conditions aux limites communes aux solveurs
+
+    select case(defsolver%boco(ib)%typ_boco)
+
+    case(bc_geo_sym) 
+      call erreur("Développement","'bc_geo_sym' : Cas non implémenté")
+    
+    case(bc_geo_period)
+      call erreur("Développement","'bc_geo_period' : Cas non implémenté")
+    
+    case(bc_geo_extrapol)
+      call rpmgetkeyvalstr(pcour, "ORDER", str, "QUANTITY")
+      defsolver%boco(ib)%order_extrap = inull
+      if (samestring(str, "QUANTITY" )) defsolver%boco(ib)%order_extrap = extrap_quantity
+      if (samestring(str, "GRADIENT" )) defsolver%boco(ib)%order_extrap = extrap_gradient
+      if (defsolver%boco(ib)%order_extrap == inull) &
+        call erreur("lecture de menu (def_boco)","ordre d'extrapolation inconnu")
+   
+    case default    
+      select case(isolver)
+      case(solKDIF)
+        call def_boco_kdif(pcour, defsolver%boco(ib)%typ_boco, &
+                           defsolver%boco(ib)%boco_kdif, &
+                           defsolver%boco(ib)%boco_unif)
+       case default
+         call erreur("incohérence interne (def_boco)","solveur inconnu")
+      endselect
+
     endselect
 
-  endselect
-
-  ! initialisation de l'implémentation de la condition aux limites
-
-select case(defsolver%boco(ib)%typ_boco)
-
-case(bc_coupling)
-  
-case default
-  defsolver%boco(ib)%typ_calc = bctype_of_boco(isolver, defsolver%boco(ib)%typ_boco)
-
-endselect
+    ! Initialisation de l'implémentation de la condition aux limites
+    defsolver%boco(ib)%typ_calc = bctype_of_boco(isolver, defsolver%boco(ib)%typ_boco)
+  endif
 
 enddo
 

@@ -8,12 +8,13 @@
 !
 !------------------------------------------------------------------------------!
 subroutine echange_kdif(echdata1, echdata2, normale, vecinter, d1, d2, nfacelim, &
-			typecalcul, typemethode, condcoupling1, condcoupling2)
+			typecalcul, typemethode, bocokdif1, bocokdif2)
 
 use TYPHMAKE
 use OUTPUT
 use GEO3D
 use DEFFIELD
+use MENU_KDIF
 
 implicit none
 
@@ -30,7 +31,7 @@ real(krp), dimension(nfacelim) &
 integer                    :: typecalcul, typemethode
 
 ! -- Declaration des entrées/sorties --
-type(st_genericfield)         :: condcoupling1, condcoupling2
+type(st_boco_kdif)         :: bocokdif1, bocokdif2
 
 ! -- Declaration des variables internes --
 integer                  :: if
@@ -67,8 +68,8 @@ do if = 1, nfacelim
   					temp_inter)
 
   !Conditions aux limites des deux zones
-  call stock_kdif_cond_coupling(condcoupling1, temp_inter, flux_inter, if)
-  call stock_kdif_cond_coupling(condcoupling2, temp_inter, flux_inter, if) 
+  call stock_kdif_cond_coupling(bocokdif1, temp_inter, flux_inter, if)
+  call stock_kdif_cond_coupling(bocokdif2, temp_inter, flux_inter, if) 
 
 enddo
 

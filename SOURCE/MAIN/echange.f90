@@ -8,14 +8,14 @@
 !
 !------------------------------------------------------------------------------!
 subroutine echange(echdata1, echdata2, normale, vecinter, d1, d2, nfacelim, &
-			typecalcul, typemethode, condrac1, condrac2, &
-                        solvercoupling)
+			typecalcul, typemethode, solvercoupling, boco1, boco2)
 
 use TYPHMAKE
 use OUTPUT
 use GEO3D
 use DEFFIELD
 use VARCOM
+use MENU_BOCO
 
 implicit none
 
@@ -33,8 +33,8 @@ real(krp), dimension(nfacelim) &
 integer                    :: typecalcul, typemethode
 integer                    :: solvercoupling
 
-! -- Declaration des entrées/sorties --
-type(st_genericfield)      :: condrac1, condrac2
+! -- Declaration des entrées/sorties --2
+type(mnu_boco)             :: boco1, boco2
 
 ! -- Declaration des variables internes --
 
@@ -44,7 +44,8 @@ select case(solvercoupling)
 
 case(kdif_kdif)
 call echange_kdif(echdata1, echdata2, normale, vecinter, d1, d2, nfacelim, &
- 			typecalcul, typemethode, condrac1, condrac2)
+ 			typecalcul, typemethode, boco1%boco_kdif, &
+                        boco2%boco_kdif)
 case(kdif_ns)
 call erreur("incohérence interne (echange)", "non implémenté")
 
