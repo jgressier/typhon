@@ -96,7 +96,7 @@ endselect
 ! Calcul du flux
 !--------------------------------------------------------------
 ! COMPACT : F1 = - k(H) * (T(R) - T(L))            ! L et R centres de cellules
-! AVERAGE : F2 = - k(H) * (a.gT(L) + b.g(T)).n     ! H centre de face
+! AVERAGE : F2 = - k(H) * (a.gT(L) + b.gT(R)).n    ! H centre de face
 ! FULL    : F3 = 
 ! a = HR/RL et b = HL/RL
 ! k(H) = k(T(H)) avec T(H) = a.T(L) + b.T(R)
@@ -119,6 +119,7 @@ case(dis_full)
     Fcomp = pscal * (cell_r(if)%temperature - cell_l(if)%temperature)
     vi    = face(if)%normale - (theta*pscal)*vLR(if)
     Favg  = (dHL(if)*grad_r(if) + dHR(if)*grad_l(if)).scal.vi
+    !!write(*,"(a,4e12.4)") "DEBUG: ",Favg, Fcomp, abs(grad_l(if)), abs(grad_r(if))
     flux(if,1)  = - kH(if) * (theta*Fcomp + Favg)
   enddo
 

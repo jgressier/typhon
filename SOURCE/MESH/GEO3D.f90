@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! MODULE : GEO3D                          Auteur : J. Gressier
 !                                         Date   : Mai 2002
-! Fonction                                Modif  : Juillet 2003 (cf historique)
+! Fonction                                Modif  : (cf historique)
 !   Bibliotheque de procedures et fonctions pour le calcul géométrique 3D
 !
 ! Defauts/Limitations/Divers :
@@ -26,6 +26,10 @@ endinterface
 
 interface abs
   module procedure v3d_norme
+endinterface
+
+interface sqrabs
+  module procedure v3d_sqrnorme
 endinterface
 
 interface operator(+)
@@ -156,7 +160,7 @@ implicit none
 real(4),   intent(in) :: x
 type(v3d), intent(in) :: v
 
-  v3d_divisionsp%x = v%x / x 
+  v3d_divisionsp%x = v%x / x   ! DEV / à optimiser
   v3d_divisionsp%y = v%y / x
   v3d_divisionsp%z = v%z / x 
 
@@ -170,7 +174,7 @@ implicit none
 real(8),   intent(in) :: x
 type(v3d), intent(in) :: v
 
-  v3d_divisiondp%x = v%x / x 
+  v3d_divisiondp%x = v%x / x    ! DEV / à optimiser
   v3d_divisiondp%y = v%y / x
   v3d_divisiondp%z = v%z / x 
 
@@ -186,6 +190,18 @@ type(v3d), intent(in) :: v
   v3d_norme = sqrt(v%x*v%x + v%y*v%y + v%z*v%z)
 
 endfunction v3d_norme
+
+
+!------------------------------------------------------------------------------!
+! Fonction : carré de la norme de vecteur
+!------------------------------------------------------------------------------!
+real(krp) function v3d_sqrnorme(v)
+implicit none
+type(v3d), intent(in) :: v
+
+  v3d_sqrnorme = v%x*v%x + v%y*v%y + v%z*v%z
+
+endfunction v3d_sqrnorme
 
 !------------------------------------------------------------------------------!
 ! Fonction : calcul de produit scalaire
@@ -219,7 +235,7 @@ endmodule GEO3D
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mai  2002 (v0.0.1b): création du module
-! Juil 2003          : compatibilité des opérateurs toute précision
+! mai  2002 : création du module
+! juil 2003 : compatibilité des opérateurs toute précision
 !------------------------------------------------------------------------------!
 

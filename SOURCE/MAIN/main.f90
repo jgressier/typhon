@@ -5,8 +5,7 @@
 ! Plateforme de résolution de systèmes d'équations 
 ! par discrétisation Volumes Finis
 !   
-! Historique des versions (cf fichier VERSIONS)
-!   0.0.1b Novembre 2002
+! Historique des versions (cf fichier VERSIONS-changes)
 !
 !------------------------------------------------------------------------------!
 

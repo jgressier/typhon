@@ -99,7 +99,7 @@ do while (.not.fin)
    ! endif
   enddo
 
-  ! écriture d'informations
+  ! écriture d'informations et test de fin de cycle
 
   select case(lzone%info%typ_temps)
 

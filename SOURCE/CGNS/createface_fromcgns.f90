@@ -30,7 +30,7 @@ type(st_connect)      :: face_cell, &    ! conn. Typhon       : face -> cellules
 
 ! -- type connectivité locale sommets -> faces --
 type stloc_vtex_face
-  integer             :: nvtex
+  integer             :: nvtex           ! nombre de sommets (dim. de la connectivité)
   integer, dimension(:,:), pointer &
                       :: vtex_face       ! connectivité intermédiaire sommets -> faces
   integer, dimension(:), pointer &
@@ -49,11 +49,15 @@ integer               :: ns              ! nombre de sommets de la face courante
 
 ! -- Début de procédure
 
+! allocation de la connectivité intermédiaire VTEX -> FACE
+
 vtex_face%nvtex = nvtex                         ! nombre total de sommets
 allocate(vtex_face%vtex_face(nvtex, nmax_face)) ! allocation de la connectivité intermédiaire
 vtex_face%vtex_face(:,:) = 0                    !   sommet->faces
 allocate(vtex_face%nface(nvtex))                ! allocation du nombre de faces par sommet
 vtex_face%nface(:) = 0
+
+! allocation de structures de travail
 
 allocate(face(face_vtex%nbfils))      ! allocation d'une face au nb max de sommets
 allocate(element(cell_vtex%nbfils))   ! allocation d'un élément
@@ -162,7 +166,7 @@ contains      ! SOUS-PROCEDURES
   ! -- Entrées/Sorties --
   type(st_connect)        :: face_vtex ! connectivité face->sommets  à créer
   type(st_connect)        :: face_cell ! connectivité face->cellules à créer
-  type(stloc_vtex_face)      :: vtex_face ! connectivité sommets->(faces créées)
+  type(stloc_vtex_face)   :: vtex_face ! connectivité sommets->(faces créées)
   ! Variables internes
   integer :: iface, newf   ! index de face si déjà créée, ou index de nouvelle face 
   integer :: i, is         ! indice, indice de sommet
@@ -181,10 +185,8 @@ contains      ! SOUS-PROCEDURES
       face_cell%nbnodes = newf
       face_cell%fils(newf, 1) = icell   ! première cellule
       ! on ajoute la face dans la connectivité sommets->faces
-      !print*,"!! DEBUG : nouvelle face",newf,": (",face,")"
       do i = 1, nsom
         is = face(i)
-        !print*,"  !! DEBUG : marquage du sommet ",is," par face", newf
         vtex_face%nface(is)                          = vtex_face%nface(is) + 1
         vtex_face%vtex_face(is, vtex_face%nface(is)) = newf
       enddo
@@ -214,10 +216,10 @@ contains      ! SOUS-PROCEDURES
   ! -- Entrées --
   integer, dimension(:)   :: face      ! face
   integer                 :: nsom      ! nombre de sommets de la face
-  type(st_connect)     :: face_vtex ! connectivité face->sommets  à créer
+  type(st_connect)        :: face_vtex ! connectivité face->sommets  à créer
   type(stloc_vtex_face)   :: vtex_face ! connectivité sommets->(faces créées)
   ! -- Variables internes --
-  integer :: iface, isom   
+  integer :: iface, isom  
   logical :: find_face
 
   ! -- Début de procédure
@@ -228,16 +230,11 @@ contains      ! SOUS-PROCEDURES
   isom      = face(1)
   find_face = .false.
   
-  !print*  !! DEBUG
-  !print*,"!! DEBUG :",vtex_face%nface(isom)," face(s) du sommet",isom," : ", vtex_face%vtex_face(isom,:)
   do iface = 1, vtex_face%nface(isom)    ! boucle sur les faces connectées au sommet isom
-    !print*,"!! DEBUG : (", face, ") ?=? ", face_vtex%fils(vtex_face%vtex_face(isom,iface), 1:nsom)
     find_face = same_face(nsom, face, face_vtex%fils(vtex_face%vtex_face(isom,iface), 1:nsom))
     if (find_face) exit                  ! boucle avortée si face trouvée
   enddo 
 
-  !if (find_face) print*,"!! DEBUG : same face : (",face,") =", &
-  !face_vtex%fils(vtex_face%vtex_face(isom,iface), 1:nsom)
   if (find_face) face_exist = vtex_face%vtex_face(isom,iface)
 
   !-------------------------

@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : def_model_ns                Auteur : J. Gressier
 !                                         Date   : Septembre 2003
-! Fonction                                Modif  : (cd historique)
+! Fonction                                Modif  : (cf historique)
 !   Traitement des paramètres du fichier menu principal
 !   Paramètres de définition du modèle de conduction de la chaleur
 !
@@ -71,10 +71,32 @@ case default
 endselect
 
 
+! -- lecture des propriétés du gaz
+
+call rpmgetkeyvalstr(pcour, "GAS", str, "AIR")
+
+if (samestring(str, "AIR"))    defsolver%defns%typ_gas = gas_AIR
+
+select case(defsolver%defns%typ_gas)
+case(gas_AIR)
+  call print_info(10,"    gaz idéal 'AIR'")
+  defsolver%defns%nb_species = 1
+  allocate(defsolver%defns%properties(defsolver%defns%nb_species))
+  ! -- définition d'espèce 1
+  defsolver%defns%properties(1)%gamma    = 1.40_krp
+  defsolver%defns%properties(1)%prandtl  = 0.72_krp
+  defsolver%defns%properties(1)%visc_dyn = 0.00_krp
+
+case default
+  call erreur("lecture de menu", "modélisation du gas inconnue (GAS)")
+endselect
+
+
 endsubroutine def_model_ns
 
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
 ! sept 2003 : création de la procédure
+! nov  2003 : définition du fluide (Euler) et du gaz (AIR mono espèce)
 !------------------------------------------------------------------------------!

@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! MODULE : MENU_BOCO                      Auteur : J. Gressier
 !                                         Date   : Novembre 2002
-! Fonction                                Modif  : Mars 2003 (cf Historique)
+! Fonction                                Modif  : (cf Historique)
 !   Définition des structures pour les entrées du programme TYPHON
 !   Structures pour la définition des conditions aux limites
 !
@@ -13,7 +13,7 @@ module MENU_BOCO
 use STRING
 use TYPHMAKE   ! Definition de la precision
 use VARCOM     ! Définition des constantes
-!use MENU_NS   ! Définition des solveurs type NS
+use MENU_NS   ! Définition des solveurs type NS
 use MENU_KDIF ! Définition des solveurs type Equation de diffusion
 
 implicit none

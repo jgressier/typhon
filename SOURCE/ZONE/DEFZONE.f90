@@ -16,11 +16,12 @@ use MODINFO       ! Information pour la gestion de l'intégration
 use MENU_SOLVER   ! Définition des solveurs
 use MENU_NUM      ! Définition des paramètres numériques d'intégration
 use MENU_MESH     ! Définition du maillage
-use STRMESH       ! Définition des maillages structurés
-use USTMESH       ! Définition des maillages non structurés
+use STRMESH       ! Données des maillages structurés
+use USTMESH       ! Données des maillages non structurés
 !use BOUND        ! Librairie de définition des conditions aux limites
 use MENU_ZONECOUPLING ! Définition des structures d'échange entre zones
-use DEFFIELD      ! Définition des champs physiques
+use DEFFIELD      ! Données des champs physiques
+use DEFCAPTEURS   ! Données des capteurs 
 
 implicit none
 
@@ -39,6 +40,8 @@ type st_zone
   integer               :: ndom       ! nombre de domaine total (cas hybride)
   integer               :: nmesh_str  ! nombre de domaines     structurés
   integer               :: nmesh_ust  ! nombre de domaines non structurés
+  integer               :: nprobe     ! nombre de capteurs
+  integer               :: ncoupling  ! nombre d'échanges avec d'autres zones
   type(st_infozone)     :: info       ! information sur l'intégration
   type(mnu_solver)      :: defsolver  ! type de solveur à utiliser 
   type(mnu_time)        :: deftime    ! paramètres d'intégration temporelle
@@ -56,8 +59,8 @@ type st_zone
   type(st_ustmesh)      :: ust_mesh   ! maillage non structuré
   type(st_field), dimension(:), pointer &
                         :: field      ! tableau des champs
-
-  integer               :: ncoupling  ! nombre d'échanges avec d'autres zones
+  type(st_capteur), dimension(:), pointer &
+                        :: probe      ! tableau des capteurs
   type(mnu_zonecoupling), dimension(:), pointer &
                         :: coupling   !definition des raccords avec d'autres zones
 endtype st_zone
