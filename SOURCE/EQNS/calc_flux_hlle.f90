@@ -27,9 +27,9 @@ type(mnu_solver)      :: defsolver        ! paramètres de définition du solveur
 type(mnu_spat)        :: defspat          ! paramètres d'intégration spatiale
 integer               :: nflux            ! nombre de flux (face) à calculer
 integer               :: ideb             ! indice du premier flux à remplir
-type(st_face),     dimension(1:nflux) & 
+type(st_face), dimension(1:nflux) & 
                       :: face             ! données géométriques des faces
-type(v3d),         dimension(1:nflux) &
+type(v3d), dimension(1:nflux) &
                       :: cg_l, cg_r       ! centres des cellules
 type(st_nsetat), dimension(1:nflux) &
                       :: cell_l, cell_r   ! champs des valeurs primitives
@@ -59,7 +59,7 @@ ig1 = 1._krp/(g - 1._krp)
 allocate(roe(1:nflux))
 
 call calc_roe_states(defsolver%defns%properties(1), nflux, cell_l, cell_r, roe)
-
+!print*,"roe",roe
 ! -- Calcul du flux --
 
 do if = 1, nflux
@@ -87,11 +87,11 @@ do if = 1, nflux
   flux%tabscal(1)%scal(ideb-1+if) = (kl*vnl-ku)*cell_l(if)%density + (kr*vnr+ku)*cell_r(if)%density
   ! energy flux
   flux%tabscal(2)%scal(ideb-1+if) = (kl*vnl-ku)*rel + (kr*vnr+ku)*rer &
-                                  + (kl*cell_l(if)%pressure - kr*cell_r(if)%pressure)
+                                  + (kl*vnl*cell_l(if)%pressure + kr*vnr*cell_r(if)%pressure)
   ! momentum flux
   flux%tabvect(1)%vect(ideb-1+if) = ((kl*vnl-ku)*cell_l(if)%density)*cell_l(if)%velocity &
                                   + ((kr*vnr+ku)*cell_r(if)%density)*cell_r(if)%velocity &
-                                  + (kl*cell_l(if)%pressure - kr*cell_r(if)%pressure)*fn
+                                  + (kl*cell_l(if)%pressure + kr*cell_r(if)%pressure)*fn
 enddo
 
 deallocate(roe)

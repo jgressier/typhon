@@ -33,7 +33,7 @@ type(v3d) :: vel
 ! -- Debut de la procedure --
 
 ncell = field%ncell
-ig1   = defns%properties(1)%gamma - 1._krp
+ig1   = 1._krp/(defns%properties(1)%gamma - 1._krp)
 
 do i = 1, ncell
   rho = field%etatprim%tabscal(1)%scal(i)

@@ -352,3 +352,14 @@ Task 0052 (Emmanuel) : KDIF : Bug : non uniform convection boundary condition
 modified file : setboco_kdif_hconv 
 corrected error : inversion of h and T
 
+---------------------------------------------------------------------------------
+Task 0053 (Jérémie) : Out : Generalization of VTK outputs (scalars & vectors)
+---------------------------------------------------------------------------------
+- VTK scalars and vectors writers
+- KDIF & NS solvers outputs
+
+---------------------------------------------------------------------------------
+Task 0054 (Jérémie) : NS : Validation on uniform test case
+---------------------------------------------------------------------------------
+- NRG/EULER/UNI
+- Bug HLLE flux

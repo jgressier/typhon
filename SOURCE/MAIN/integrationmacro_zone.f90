@@ -134,7 +134,7 @@ do while (.not.fin)
   !do if = 1, lzone%ndom  ! DEV: à remplacer par une boucle sur les grilles
                           ! après homogénéisation des solveurs dans MGRID
     select case(lzone%defsolver%typ_solver)
-    case(solKDIF)
+    case(solKDIF, solNS)
       call update_champ(lzone%info, lzone%grid%field, &
                         lzone%grid%umesh%ncell_int)  ! màj  des var. conservatives
     case(solVORTEX)
@@ -144,6 +144,8 @@ do while (.not.fin)
       lzone%info%residumax  = 2._krp      ! astuce pour n'imposer qu'une itération 
       lzone%info%cur_res    = 1.e-8_krp   ! dans le cycle
       lzone%info%residu_ref = 1.e+8_krp   ! astuce pour n'avoir qu'un cycle
+    case default
+      call erreur("incohérence interne","solveur inattendu")
     endselect
   !enddo
 

@@ -5,6 +5,7 @@
 !   Calcul du pas de temps local et global par zone selon solveur
 !
 ! Defauts/Limitations/Divers :
+!   ATTENTION : à ce moment, les variables primitives ne sont pas calculées
 !
 !------------------------------------------------------------------------------!
 
@@ -40,7 +41,7 @@ select case(lzone%defsolver%typ_solver)
 !--------------------------------------------------------
 ! méthode VOLUMES FINIS
 !--------------------------------------------------------
-case(solKDIF)
+case(solKDIF, solNS)
 
   pgrid => lzone%grid
   dt    =  1.e20        ! DEV (max de real)
@@ -57,6 +58,9 @@ case(solKDIF)
 
     case(stab_cond)  ! -- Calcul par condition de stabilité (deftim%stabnb) --
       select case(lzone%defsolver%typ_solver)
+      case(solNS)
+        call calc_ns_timestep(lzone%deftime, lzone%defsolver%defns%properties(1), &
+                              pgrid%umesh, pgrid%field, dtloc, ncell)
       case(solKDIF)
         call calc_kdif_timestep(lzone%deftime, lzone%defsolver%defkdif%materiau, &
                                 pgrid%umesh, pgrid%field, dtloc, ncell)
@@ -89,6 +93,10 @@ case(solVORTEX)
     call erreur("incohérence interne (calc_zonetimestep)", "condition incompatible")
   endselect  
 
+!--------------------------------------------------------
+case default
+  call erreur("Développement","solveur inattendu (calc_zonetimestep)")
+
 endselect
 
 
@@ -100,4 +108,5 @@ endsubroutine calc_zonetimestep
 ! sept 2003 : création, appel des procédures spécifiques aux solveurs
 ! mars 2003 : calcul de pas de temps pour méthodes lagrangiennes
 ! avr  2004 : calcul KDIF sur liste chaînée de grilles
+! july 2004 : NS solver call
 !------------------------------------------------------------------------------!

@@ -51,7 +51,6 @@ call new(flux, umesh%nface, field%nscal, field%nvect, 0)
 !print*,'FLUX!'
 select case(defsolver%typ_solver)
 case(solNS)
-  print*,'boum explicit-tstep'
   call integration_ns_ust(dt, defsolver, defspat, umesh, field, flux, .false., jacL, jacR)
 case(solKDIF)
   call integration_kdif_ust(dt, defsolver, defspat, umesh, field, flux, .false., jacL, jacR)
@@ -92,4 +91,5 @@ endsubroutine explicit_step
 ! oct  2003 : corrections de flux seulement en instationnaire
 ! avr  2004 : changement de nom  integration_ustdomaine -> integration_grid
 ! avr  2004 : decoupage integration_grid -> explicit_step
+! july 2004 : call Navier-Stokes solver integration
 !------------------------------------------------------------------------------!
