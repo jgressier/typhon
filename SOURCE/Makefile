@@ -67,7 +67,7 @@ MAIN = Obj/main.o # dépendances dans MAIN/depends.make
 all: $(PRGNAME)
 
 
-$(PRGNAME) : $(D_LIBRARIES) $(MAKEFILE)
+$(PRGNAME) : $(MAIN) $(D_LIBRARIES) $(MAKEFILE)
 	@echo ---------------------------------------------------------------
 	@echo EDITION DE LIEN DE $(PRGNAME) ---
 	@echo Librairies externes : $(EXTLIBS)
