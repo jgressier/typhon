@@ -58,10 +58,10 @@ endif
 
 pgrid => zone%grid
 do while (associated(pgrid))
-  call integration_ustdomaine(dt, zone%defsolver, zone%defspat, &
-                              pgrid%umesh, pgrid%field,         &
-                              zone%coupling, zone%ncoupling,    &
-                              zone%info%typ_temps)
+  ! DEV : changer les structures de couplages dans MGRID
+  call integration_grid(dt, zone%info%typ_temps,                    &
+                        zone%defsolver, zone%defspat, zone%deftime, &
+                        pgrid, zone%coupling, zone%ncoupling)
   pgrid => pgrid%next
 enddo
 
@@ -80,4 +80,5 @@ endsubroutine integration_zone
 !             (calcul des conditions aux limites avant calcul de gradients)
 !             ajout du calcul des gradients aux limites (set_gradient_limite)
 ! avr  2004 : traitement des listes chaînées de structures MGRID
+!             changement d'appel integration_ustdomaine -> integration_grid
 !------------------------------------------------------------------------------!

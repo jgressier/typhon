@@ -25,6 +25,9 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            echange.o                \
            echange_zonedata.o       \
            echange_zonematch.o      \
+           explicit_step.o          \
+           flux_to_res.o            \
+           implicit_step.o          \
            init_boco.o              \
            init_capteurs.o          \
            init_champ.o             \
@@ -34,7 +37,7 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            init_world.o             \
            integration.o            \
            integration_cycle.o      \
-           integration_ustdomaine.o \
+           integration_grid.o       \
            integration_zone.o       \
            integration_zone_lag.o   \
            integrationmacro_zone.o  \
