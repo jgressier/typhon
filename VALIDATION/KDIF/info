@@ -1,0 +1,39 @@
+--------------------------------
+TESTS DE VALIDATION, CONDUCTION.
+Présentation des cas tests.
+--------------------------------
+_______________________________________
+* VALIDATION A CONDUCTIVITE CONSTANTE *
+---------------------------------------
+
+STABILITE_TUBE : validation en stabilité, maillage 1D.
+                 Limite de stabilité en nombre de Fourier (théorie : 0,5) : 
+                  évaluée en jouant sur la valeur de la conductivité
+                  (apparition d'oscillations non amorties au nombre de Fourier
+                  limite).
+
+CYL1D : évolution cylindrique 1D. Validation sur les champs de température.
+        Comparaison avec la solution théorique analytique.
+
+_________________________________________
+* VALIDATION A CONDUCTIVITE POLYNOMIALE *
+-----------------------------------------
+
+KNL_COMP : validation de la procédure. Comparaison entre les résultats pour
+            une conductivité polynomiale de degré 0 et une conductivité
+            constante.
+
+KNL1 : validation champ de température.
+       Comparaison avec la solution analytique.
+       Coefficients de la conductivité choisis pour avoir une évolution 
+        appréciable de la conductivité avec la température (coef de T pas
+        trop petit).
+
+KNL2 : idem avec un coef de T petit (la solution analytique a ce coef au 
+        dénominateur)
+
+STABILITE_KNL : validation en stabilité (toujours en maillage 1D).
+                Limite de stabilité en nombre de Fourier (théorie : 0,5) : 
+                  évaluée en jouant sur la valeur de la conductivité 
+                  (apparition d'oscillations non amorties au nombre de Fourier
+                  limite).

@@ -1,0 +1,23 @@
+---------------------------------
+TESTS DE NON REGRESSION, COUPLAGE
+Présentation des cas tests.
+---------------------------------
+_________________________________________
+* NON REGRESSION CONDUCTIVITE CONSTANTE *
+-----------------------------------------
+
+COND_CTE : Les valeurs flux interface et champ de température doivent rester
+            inchangées.
+           Maillage 1D.
+           Cas : CONTACT (températures initiales différentes ds zones couplées)
+                 MMTI    (     "           "     identiques   "   "       "   )
+                 Kgd     : conductivités plus grandes (0.4 et 0.2 contre 0.2 et
+                           0.1)
+
+___________________________________________
+* NON REGRESSION CONDUCTIVITE POLYNOMIALE *
+-------------------------------------------
+
+COND_POL : idem COND_CTE avec des conductivités polynomiales et sans le cas 
+            Kgd.
+
