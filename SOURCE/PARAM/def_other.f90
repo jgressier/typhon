@@ -8,19 +8,23 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine def_other(block )!  , defdivers)
+subroutine def_other(block, isolver, defsolver )!  , defdivers)
 
 use RPM
 use TYPHMAKE
 use OUTPUT
 use VARCOM
+!DVT
+use MENU_SOLVER
 !use MENU_
 
 implicit none
 
 ! -- Declaration des entrées --
 type(rpmblock), target :: block
-
+!DVT
+integer                :: isolver
+type(mnu_solver) :: defsolver
 ! -- Declaration des sorties --
 !type(mnu_divers) :: prj
 
