@@ -112,11 +112,16 @@ enddo
 
 ! -- Correction de la matrice dans les cas 2D (vecteur supplementaire selon z) --
 
-do ic = 1, nc
-  mat(ic)%mat(3,3) = mat(ic)%mat(3,3) + 1._krp
-enddo
-
-
+select case(mesh%mesh%info%geom)
+case(msh_2Dplan)
+  do ic = 1, nc
+    mat(ic)%mat(3,3) = mat(ic)%mat(3,3) + 1._krp
+  enddo
+case(msh_3D)
+  ! nothing to do 
+case default
+  call erreur("computing gradients","unknown type of mesh")
+endselect
 
 ! l'inversion peut se faire des façon suivantes selon A symetrique (PO) ou non (GE)
 ! * calcul de l'inverse Ai (GETRI/POTRI) et multiplication Ai.B
@@ -142,13 +147,14 @@ if (xinfo /= 0) call erreur("Routine LAPACK","Probleme POTRF")
 
 !nv = nbvar()
 allocate(rhs(3,nc))    ! allocation
-rhs(:,:) = 0._krp      ! initialisation
 
 !-----------------------------------------------------------------------------
 ! calcul des gradients de scalaires
 !-----------------------------------------------------------------------------
 
 do is = 1, gfield%nscal
+
+  rhs(:,:) = 0._krp      ! initialisation
 
   ! Calcul des seconds membres (cellules internes et limites)
   do if = 1, nfi
@@ -187,6 +193,8 @@ do iv = 1, gfield%nvect
 
   ! Calcul des seconds membres (cellules internes et limites)
 
+  rhs(:,:) = 0._krp      ! initialisation
+
   do if = 1, nfi
     ic1  = mesh%facecell%fils(if,1)
     ic2  = mesh%facecell%fils(if,2)
@@ -217,6 +225,8 @@ do iv = 1, gfield%nvect
 
   ! Calcul des seconds membres (cellules internes et limites)
 
+  rhs(:,:) = 0._krp      ! initialisation
+
   do if = 1, nfi
     ic1  = mesh%facecell%fils(if,1)
     ic2  = mesh%facecell%fils(if,2)
@@ -246,6 +256,8 @@ do iv = 1, gfield%nvect
   ! Z component
 
   ! Calcul des seconds membres (cellules internes et limites)
+ 
+  rhs(:,:) = 0._krp      ! initialisation
 
   do if = 1, nfi
     ic1  = mesh%facecell%fils(if,1)
