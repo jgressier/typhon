@@ -5,7 +5,7 @@
 !   Resolution d'un systeme linéaire mat.sol = rhs
 !     mat sous forme type(st_dlu)
 !     méthode itérative JACOBI : mat = D + L + U
-!       sol(n+1) = D^(-1).(L+U).sol(n) + D^(-1).rhs
+!       sol(n+1) = D^(-1).-(L+U).sol(n) + D^(-1).rhs
 !
 ! Defauts/Limitations/Divers :
 !   - le tableau sol(*) est censé être déjà alloué
@@ -48,6 +48,8 @@ allocate(soln(mat%dim))
 soln(1:mat%dim) = rhs(1:mat%dim) / mat%diag(1:mat%dim)
 ref = sum(abs(soln(:)))
 
+!call sort_dlu(mat)
+
 do while ((erreur >= ref*def_impli%maxres).and.(nit <= def_impli%max_it))
 
   vec(1:mat%dim) = rhs(1:mat%dim)
@@ -55,8 +57,8 @@ do while ((erreur >= ref*def_impli%maxres).and.(nit <= def_impli%max_it))
   ! multiplication par (L + U)
 
   do if = 1, mat%ncouple
-    imin = minval(mat%couple%fils(if,1:2))
-    imax = maxval(mat%couple%fils(if,1:2))
+    imin = mat%couple%fils(if,1) ! ic1 cell is supposed to the lowest index
+    imax = mat%couple%fils(if,2) ! ic2 cell is supposed to the highest index
     if (imax <= mat%dim) then
       vec(imax) = vec(imax) - mat%lower(if)*soln(imin)
       vec(imin) = vec(imin) - mat%upper(if)*soln(imax)

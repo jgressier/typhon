@@ -76,6 +76,7 @@ type st_ustmesh
   type(st_mesh)         :: mesh            ! maillage associé (géométrie)
   type(st_connect)      :: facevtex, &     ! connectivité face   -> sommets   par type
                            facecell        ! connectivité face   -> cellules  par type
+                                           ! SUPPOSED TO INDEX LOWER INDEX CELL BEFORE
   type(st_cellvtex)     :: cellvtex        ! connectivité cellule-> vtex      par type
   integer               :: nboco          ! nombre de conditions aux limites
   type(st_ustboco), dimension(:), pointer &

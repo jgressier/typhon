@@ -1,9 +1,10 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_ust_checkface          Auteur : J. Gressier
 !                                         Date   : Janvier 2003
-! Fonction                                Modif  : Mai 2003
-!   Vérification de l'orientation des normales des faces selon la connectivité
-!   faces->cellules : la normale est orientée de la cellule 1 vers la cellule 2
+! Fonction                                Modif  : see history
+!   1. Face->cell connectivity is changed so that cell 1 index is lower than cell 2
+!   2. Check face normals direction accordingg to the connectivity face->cell
+!     (normal vector is oriented from cell 1 to cell 2)
 !
 ! Defauts/Limitations/Divers :
 !
@@ -32,6 +33,18 @@ type(v3d) :: v12      ! vecteur du centre de cellule 1 à centre de cellule 2
 
 ! -- Debut de la procedure --
 
+! -- change of connectivity indexes (except boundary faces where ic2 = 0) --
+
+do if = 1, facecell%nbnodes
+  if ((facecell%fils(if,2) /= 0).and.(facecell%fils(if,1) > facecell%fils(if,2))) then
+    ic1                 = facecell%fils(if,1)
+    facecell%fils(if,1) = facecell%fils(if,2)
+    facecell%fils(if,2) = ic1
+  endif
+enddo
+
+! -- check normal vector direction --
+
 do if = 1, facecell%nbnodes     ! boucle sur les faces
 
   ic1 = facecell%fils(if,1)     ! index de cellules voisines à la face
@@ -58,8 +71,9 @@ enddo
 endsubroutine calc_ust_checkface
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Change history
 !
 ! jan  2003 : création de la procédure
 ! mai  2003 : correction de l'orientation des normales de faces limites
+! july 2004 : change of connectivity indexes (from lower to upper)
 !------------------------------------------------------------------------------!

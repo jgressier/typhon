@@ -270,6 +270,13 @@ Task 0037 (Jérémie) : Val : maillage TETRA/PRISM
 - cas de validation sur SPHERE/HYB : PROBLEME DE CONVERGENCE
 
 ---------------------------------------------------------------------------------
+Task 0039 (Jérémie) : Solv : Optimisation de la structure DLU (SPARSE_MAT)
+---------------------------------------------------------------------------------
+- MESH : swap of indexes in face->cell connectivity so that ic1 < ic2
+- MATH : optimization thanks to the previous convention
+: decrease of 27% global cpu time, 31% of dlu_jacobi cpu time
+
+---------------------------------------------------------------------------------
 Task 0040 (Jérémie) : Make : procédures de base pour solveur EQNS
 ---------------------------------------------------------------------------------
 - définition des structures de conditions limites (MENU_NS)

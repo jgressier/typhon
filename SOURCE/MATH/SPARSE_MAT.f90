@@ -25,6 +25,7 @@ implicit none
 ! structure DLU : matrice à REMPLISSAGE symétrique
 !------------------------------------------------------------------------------!
 type st_dlu
+  logical                          :: sort
   integer(kip)                     :: dim
   integer(kip)                     :: ncouple
   real(krp), dimension(:), pointer :: diag     ! coefficient de la diagonale
@@ -50,7 +51,7 @@ endinterface
 contains
 
 !------------------------------------------------------------------------------!
-! new_dlu : allocation d'une structure LDU
+! new_dlu : allocate DLU structure
 !------------------------------------------------------------------------------!
 subroutine new_dlu(mat, dim, ncouple)
 implicit none
@@ -58,6 +59,7 @@ implicit none
 type(st_dlu) :: mat
 integer(kip) :: dim, ncouple
 
+  mat%sort    = .false.
   mat%dim     = dim
   mat%ncouple = ncouple
   allocate(mat%diag(dim))      ;   mat%diag(:)  = 0._krp
@@ -68,7 +70,7 @@ integer(kip) :: dim, ncouple
 endsubroutine new_dlu
 
 !------------------------------------------------------------------------------!
-! structure DLU : matrice à REMPLISSAGE symétrique
+! delete_dlu : remove DLU structure
 !------------------------------------------------------------------------------!
 subroutine delete_dlu(mat)
 implicit none
@@ -82,6 +84,32 @@ type(st_dlu) :: mat
 
 endsubroutine delete_dlu
 
+
+!------------------------------------------------------------------------------!
+! sort_dlu : sort elements in DLU structure so that index1 < index2
+!------------------------------------------------------------------------------!
+subroutine sort_dlu(mat)
+implicit none
+! - paramètres
+type(st_dlu) :: mat
+! - internal
+real(krp)    :: x, i, if
+
+  if (.not.mat%sort) then
+    do if = 1, mat%ncouple
+      if (mat%couple%fils(if,1) > mat%couple%fils(if,2)) then
+        x             = mat%lower(if) 
+        mat%lower(if) = mat%upper(if)
+        mat%upper(if) = x
+        i                     = mat%couple%fils(if,2)
+        mat%couple%fils(if,2) = mat%couple%fils(if,1)
+        mat%couple%fils(if,1) = i
+      endif
+    enddo
+    mat%sort = .true.
+  endif
+
+endsubroutine sort_dlu
 
 
 

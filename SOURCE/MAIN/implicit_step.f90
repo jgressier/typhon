@@ -92,19 +92,11 @@ do if = 1, mat%ncouple
   ic2 = mat%couple%fils(if,2)    
   ! bilan cellule à gauche de la face
   mat%diag(ic1) = mat%diag(ic1) + jacL(if)
-  if (ic1 < ic2) then
-    mat%upper(if) = + jacR(if)
-  else
-    mat%lower(if) = + jacR(if)
-  endif
+  mat%upper(if) = + jacR(if)    ! ic1 cell is supposed to the lowest index
   ! bilan cellule à droite de la face
   if (ic2 <= mat%dim) then
     mat%diag(ic2) = mat%diag(ic2) - jacR(if)
-    if (ic1 < ic2) then
-      mat%lower(if) = - jacL(if)
-    else
-      mat%upper(if) = - jacL(if)
-    endif
+    mat%lower(if) = - jacL(if)  ! ic2 cell is supposed to the highest index
   endif
 enddo
 
