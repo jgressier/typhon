@@ -11,12 +11,12 @@ FB = -implicitnone -I$(PRJINC)
 # Optimisation classique
 # -tpp7 (optimisation P4)    -xW (instructions P4)
 # -ipo  (optimisation interprocédure entre fichiers)
-#FO = -O3 -tpp7 -xW 
 # Profiling
 # -pg (informations pour gprof)
+FO = -O3 -tpp7 -xW 
 #FO = -O3 -tpp7 -xW -pg
 # Extensive runtime error checking
-FO = -C
+#FO = -C
 
 ####### Definition de l'éditeur de lien et des options
 

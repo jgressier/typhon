@@ -97,6 +97,10 @@ interface delete
                    delete_scafield, delete_vecfield, delete_tenfield
 endinterface
 
+interface insert
+  module procedure insert_newgfield
+endinterface
+
 
 ! -- Fonctions et Operateurs ------------------------------------------------
 
@@ -466,6 +470,7 @@ type(st_field) :: field             ! champ à créer
 
 endsubroutine delete_field
 
+
 !------------------------------------------------------------------------------!
 ! Procédure : création et lien chaîné d'une structure GENERICFIELD
 !------------------------------------------------------------------------------!
@@ -480,6 +485,7 @@ integer                        :: dim,nscal,nvect,ntens
   pgfield%next => gfield  
 
 endfunction insert_newgfield
+
 
 !------------------------------------------------------------------------------!
 ! Procédure : desallocation d'une liste chaînée de structure GENERICFIELD

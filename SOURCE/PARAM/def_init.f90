@@ -82,6 +82,8 @@ do i = 1, n_init
 
 enddo
 
+ print*,'sortie init'
+
 endsubroutine def_init
 
 

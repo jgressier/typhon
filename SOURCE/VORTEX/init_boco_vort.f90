@@ -26,7 +26,8 @@ type(st_grid)  :: grid
 type(mnu_solver)  :: defsolver
 
 ! -- Declaration des variables internes --
-integer :: iboco, idef
+integer                        :: iboco, idef
+type(st_genericfield), pointer :: bcfield
 
 ! -- Debut de la procedure --
 
@@ -36,7 +37,7 @@ do iboco = 1, grid%umesh%nboco
 
   idef = grid%umesh%boco(iboco)%idefboco
   if (defsolver%boco(idef)%typ_calc == bc_calc_singpanel) then 
-    call new(grid%bocofield, grid%umesh%boco(iboco)%nface+1, 1, 0, 0)
+    bcfield => newbocofield(grid, grid%umesh%boco(iboco)%nface+1, 1, 0, 0)
   endif
 
 enddo
