@@ -114,4 +114,5 @@ endsubroutine def_model_kdif
 !
 ! avril 2003 (v0.0.1b): création de la procédure
 !                       définition interne de matériau à propriétés constantes
+! juillet 2003        : conductivité polynomiale
 !------------------------------------------------------------------------------!

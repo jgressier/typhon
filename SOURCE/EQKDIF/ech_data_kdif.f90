@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : ech_data_kdif               Auteur : E. Radenac
 !                                         Date   : Juin 2003
-! Fonction                                Modif  :
+! Fonction                                Modif  : Juillet 2003
 !   Ecrire les données variables dans le temps dans une structure 
 !   donnees_echange_inst, pour la diffusion de la chaleur
 ! Defauts/Limitations/Divers :
@@ -15,6 +15,7 @@ use OUTPUT
 use GEO3D
 use DEFZONE
 use DEFFIELD
+use MATER_LOI
 
 implicit none
 
@@ -60,3 +61,10 @@ endselect
 enddo
 
 endsubroutine ech_data_kdif
+
+!------------------------------------------------------------------------------!
+! Historique des modifications
+!
+! juin 2003 (v0.0.1b): création de la procédure
+! juillet 2003       : conductivité non constante
+!------------------------------------------------------------------------------!

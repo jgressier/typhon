@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! MODULE : ZONE_COUPLING                  Auteur : E. Radenac / J. Gressier
 !                                         Date   : Juin 2003
-! Fonction                                Modif  :
+! Fonction                                Modif  : Juillet 2003
 !   Définition des méthodes de couplage entre zones
 !
 ! Defauts/Limitations/Divers :
@@ -24,6 +24,7 @@ type st_zonecoupling
   integer                    :: nface_ext      ! nb de faces côté externe
   type(st_genericfield)      :: echdata        ! données d'échange (champ de zone externe)
   type(st_genericfield)      :: cond_coupling  ! stockage des données calculées
+  type(st_genericfield)      :: etatcons       ! énergie à l'interface
   integer, dimension(:), pointer &
                              :: connface       ! connectivité de face (dim = nface_int)
                                                !   connface(i) = j
@@ -69,6 +70,8 @@ call delete(zc%cond_coupling)
 
 call delete(zc%echdata)
 
+call delete(zc%etatcons)
+
 !deallocate(zc%connface)
 
 endsubroutine delete_zcoupling
@@ -81,6 +84,7 @@ endmodule ZONE_COUPLING
 !
 ! juin 2003 (v0.0.1b): création du module
 !                      création de new et delete
+! juillet 2003       : ajout de etatcons
 !------------------------------------------------------------------------------!
 
 

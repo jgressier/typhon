@@ -28,7 +28,7 @@ type(st_world) :: lworld
 real(krp)      :: macro_dt
 real(krp), dimension(:), allocatable &
                :: excht ! instants d'échange pour les différents couplages de zones
-integer        :: ir, izone
+integer        :: ir, izone, if
 integer        :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
 
 ! -- Debut de la procedure --
@@ -47,6 +47,12 @@ lworld%info%fin_integration = .false.
   excht(:) = 0._krp
 !endif
 
+! allocation des champs de résidus
+do izone = 1, lworld%prj%nzone
+  do if = 1, lworld%zone(izone)%ndom
+    call alloc_res(lworld%zone(izone)%field(if))
+  enddo
+enddo
 
 !-----------------------------------------------------------------------------------------------------------------------
 ! DVT : Ouverture du fichier de comparaison des flux à l'interface
@@ -93,6 +99,13 @@ enddo
   close(uf_compflux)
 !endif
 !-----------------------------------------------------------------------------------------------------------------------
+
+do izone = 1, lworld%prj%nzone
+ do if = 1, lworld%zone(izone)%ndom
+   call dealloc_res(lworld%zone(izone)%field(if))
+ enddo
+enddo
+
 endsubroutine integration
 
 !------------------------------------------------------------------------------!

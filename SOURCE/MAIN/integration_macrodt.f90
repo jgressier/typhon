@@ -29,10 +29,17 @@ type(st_world) :: lworld
 ! -- Declaration des sorties --
 
 ! -- Declaration des variables internes --
-integer   :: izone, ir
+integer   :: izone, ir, ifield, if
 integer   :: iz1, iz2, ic, ncoupl1, ncoupl2, ib, nbc1, nbc2
 
 ! -- Debut de la procedure --
+
+! allocation des champs de résidus
+!do izone = 1, lworld%prj%nzone
+!  do if = 1, lworld%zone(izone)%ndom
+!    call alloc_res(lworld%zone(izone)%field(if))
+!  enddo
+!enddo
 
 if (ncoupling > 0) then
 
@@ -48,8 +55,10 @@ do ir = 1, ncoupling
 
     ! réinitialisation à 0 des tableaux de cumul de flux pour la correction de flux
     lworld%zone(iz1)%coupling(ncoupl1)%zcoupling%etatcons%tabscal(1)%scal(:) = 0._krp
-    lworld%zone(iz2)%coupling(ncoupl2)%zcoupling%etatcons%tabscal(2)%scal(:) = 0._krp
+    lworld%zone(iz2)%coupling(ncoupl2)%zcoupling%etatcons%tabscal(1)%scal(:) = 0._krp
 
+! DVT : implémenter un choix de correction après (ou avt) l'echange 
+!       ou supprimer ce cas.
     ! Calcul des variables primitives avec correction de flux
 !    do ifield = 1, lworld%zone(iz1)%ndom
 !      call corr_varprim(lworld%zone(iz1)%field(ifield), &
@@ -127,6 +136,9 @@ endif
 
 do izone = 1, lworld%prj%nzone
  call integrationmacro_zone(mdt, lworld%zone(izone))
+! do if = 1, lworld%zone(izone)%ndom
+!   call dealloc_res(lworld%zone(izone)%field(if))
+! enddo
 enddo
 
 endsubroutine integration_macrodt
@@ -137,5 +149,6 @@ endsubroutine integration_macrodt
 !
 ! juillet 2002 (v0.0.1b): création de la procédure
 ! mai 2003              : procédures d'échange
-! jullet 2003           : ajout pour corrections de flux
+! juillet 2003           : ajout pour corrections de flux et déplacement de
+!                          l'allocation des residus
 !------------------------------------------------------------------------------!

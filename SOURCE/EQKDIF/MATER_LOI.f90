@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! MODULE : MATER_LOI                          Auteur : J. Gressier
 !                                             Date   : Aout 2002
-! Fonction                                    Modif  :
+! Fonction                                    Modif  : Jullet 2003
 !   Structures pour la définition de loi
 !     - constante
 !     - polynomiale
@@ -126,3 +126,9 @@ endfunction valeur_loi
 !------------------------------------------------------------------------------!
 endmodule MATER_LOI
 
+!------------------------------------------------------------------------------!
+! Historique des modifications
+!
+! aout 2002 (v0.0.1b): création de la procédure
+! juillet 2003       : conductivité polynomiale
+!------------------------------------------------------------------------------!

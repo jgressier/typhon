@@ -35,11 +35,7 @@ real(krp)   :: fourier
 ! -- Debut de la procedure --
 local_t = 0._krp
 
-! allocation des champs de résidus
 !print*, "DEBUG INTEGRATIONMACRO_ZONE"
-do if = 1, lzone%ndom
-  call alloc_res(lzone%field(if))
-enddo
 
 do while (local_t < mdt)
   
@@ -73,10 +69,6 @@ enddo
 
 call capteurs(lzone)
 
-do if = 1, lzone%ndom
-  call dealloc_res(lzone%field(if))
-enddo
-!print*, "DEBUG : fin dealloc"
 endsubroutine integrationmacro_zone
 
 !------------------------------------------------------------------------------!
@@ -84,5 +76,6 @@ endsubroutine integrationmacro_zone
 !
 ! juil  2002 (v0.0.1b) : création de la procédure
 ! juin  2003           : champs multiples
-! juillet 2003         : calcul du nombre de Fourier de la zone
+! juillet 2003         : calcul du nombre de Fourier de la zone et deplacement
+!                         de l'allocation des residus vers integration_macrodt
 !------------------------------------------------------------------------------!

@@ -11,9 +11,9 @@ FB = -I$(PRJINC)
 # Optimisation classique
 # -tpp7 (optimisation P4)    -xW (instructions P4)
 # -ipo  (optimisation interprocédure entre fichiers)
-FO = -O3 -tpp7 -xW 
+#FO = -O3 -tpp7 -xW 
 # Débuggage
-#FO = -C
+FO = -C
 
 ####### Definition de l'éditeur de lien et des options
 

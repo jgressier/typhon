@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_kdif_flux              Auteur : J. Gressier
 !                                         Date   : Avril 2003
-! Fonction                                Modif  :
+! Fonction                                Modif  : Juillet 2003
 !   Calcul des flux de conduction de la chaleur  Fn = - conduc * (grad T . n)
 !
 ! Defauts/Limitations/Divers :
@@ -17,6 +17,7 @@ use MESHBASE
 use DEFFIELD
 use EQKDIF
 use GEO3D
+use MATER_LOI
 
 implicit none
 
@@ -114,4 +115,5 @@ endsubroutine calc_kdif_flux
 ! Historique des modifications
 !
 ! avril 2003 (v0.0.1b): création de la procédure
+! juillet 2003         : conductivité non constante
 !------------------------------------------------------------------------------!

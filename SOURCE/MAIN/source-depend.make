@@ -11,13 +11,16 @@ MAIN_MOD = MODINFO.$(MOD)      \
            MODWORLD.$(MOD)
 
 MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
+           accumulfluxcorr.o        \
            calc_bilan.o             \
+           calcdifflux.o            \
            calc_flux_euler.o        \
            calc_volum.o             \
            calcul_raccord.o         \
            capteurs.o               \
            comp_flux.o              \
            conditions_limites.o     \
+           corr_varprim.o           \
            echange.o                \
            echange_zonedata.o       \
            echange_zonematch.o      \

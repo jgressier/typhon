@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : echange_zonematch           Auteur : E. Radenac
 !                                         Date   : Mai 2003
-! Fonction                                Modif  : Juin 2003
+! Fonction                                Modif  : Juillet 2003
 !   Echange des donnees entre deux zones
 !
 ! Defauts/Limitations/Divers : pour l'instant, une methode de calcul commune 
@@ -31,16 +31,46 @@ integer                    :: ncoupl1, ncoupl2    ! numéro (identité) du raccord
 ! -- Declaration des sorties --
 
 ! -- Declaration des variables internes --
-integer                        :: i, if, ic, if2
+integer                        :: i, if, ic, if2, ifield
 type(v3d), dimension(nfacelim) :: normale ! normales à l'interface
 type(v3d), dimension(nfacelim) :: vecinter ! vecteurs inter-cellule
-real(krp), dimension(nfacelim) :: d1, d2  ! distance centre de cellule - centre de face
+    real(krp), dimension(nfacelim) :: d1, d2  ! distance centre de cellule - centre de face
   				                 ! (gauche, droite)  
 integer                        :: typmethod
 type(v3d)                      :: cg1, cg2, cgface ! centres des cellules des zones 1 et 2, et des faces
 integer                        :: typsolver1, typsolver2
+real(krp)                      :: a
+real(krp)                      :: dif_enflux     ! différence des énergies d'interface dans les deuxzones
 
 ! -- Debut de la procedure --
+
+! Supplément de flux pour les échanges espacés : calcul de la différence à appliquer
+
+call calcdifflux(zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal, &
+                 zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal, &
+                 nfacelim, zone1%coupling(ncoupl1)%zcoupling%solvercoupling )
+!print*, "DEBUG : dif_enflux = ", &
+!        zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal(1)%scal(1), &
+!        zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal(1)%scal(1), &
+!        zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal(2)%scal(1), &
+!        zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal(2)%scal(1)
+
+! DVT : implémenter un choix de correction avt (ou après) l'echange
+! Calcul des variables primitives avec correction de flux
+do ifield = 1, zone1%ndom
+  call corr_varprim(zone1%field(ifield), &
+                    zone1%ust_mesh, &
+                    zone1%defsolver, &
+                    zone1%coupling(ncoupl1)%zcoupling%etatcons, nbc1)
+enddo
+
+do ifield = 1, zone2%ndom
+  call corr_varprim(zone2%field(ifield), &
+                    zone2%ust_mesh, &
+                    zone2%defsolver, &
+                    zone2%coupling(ncoupl2)%zcoupling%etatcons, nbc2)
+enddo
+
 
 typsolver1 = zone1%defsolver%typ_solver
 typsolver2 = zone2%defsolver%typ_solver
@@ -95,3 +125,10 @@ call echange(zone1%coupling(ncoupl1)%zcoupling%echdata, &
 !endif
 
 endsubroutine echange_zonematch
+
+!------------------------------------------------------------------------------!
+! Historique des modifications
+!
+! mai 2003 (v0.0.1b): création de la procédure
+! juillet 2003      : ajouts pour corrections de  flux
+!------------------------------------------------------------------------------!

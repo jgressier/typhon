@@ -1,13 +1,13 @@
 !------------------------------------------------------------------------------!
 ! Procedure : integration_ustdomaine      Auteur : J. Gressier
 !                                         Date   : Avril 2003
-! Fonction                                Modif  :
+! Fonction                                Modif  : Juillet 2003
 !   Integration domaine par domaine
 !
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine integration_ustdomaine(dt, defsolver, domaine, field)
+subroutine integration_ustdomaine(dt, defsolver, domaine, field, coupling, ncoupling)
 
 use TYPHMAKE
 use OUTPUT
@@ -15,6 +15,7 @@ use VARCOM
 use MENU_SOLVER
 use USTMESH
 use DEFFIELD
+use MENU_ZONECOUPLING
 
 implicit none
 
@@ -22,9 +23,12 @@ implicit none
 real(krp)        :: dt               ! pas de temps CFL
 type(mnu_solver) :: defsolver        ! type d'équation à résoudre
 type(st_ustmesh) :: domaine          ! domaine non structuré à intégrer
+integer          :: ncoupling        ! nombre de couplages de la zone
 
 ! -- Declaration des entrées/sorties --
 type(st_field)   :: field            ! champ des valeurs et résidus
+type(mnu_zonecoupling), dimension(1:ncoupling) &
+                 :: coupling ! données de couplage
 
 ! -- Declaration des variables internes --
 type(st_genericfield) :: flux             ! tableaux des flux
@@ -32,6 +36,10 @@ real(krp)             :: surf             ! surface intermédiaire
 integer               :: if               ! index de face
 integer               :: ic1, ic2         ! index de cellules
 integer               :: ip               ! index de variables
+integer               :: ib               ! index de conditions aux limites
+integer               :: i                ! index de face
+integer               :: ic               ! index de couplage
+real(krp)             :: rajoutflux, rflux, etatcons       
 
 ! -- Debut de la procedure --
 
@@ -72,6 +80,7 @@ call init_genericfield(field%residu, 0._krp, v3d(0._krp, 0._krp, 0._krp))
 do if = 1, domaine%nface
   ic1 = domaine%facecell%fils(if,1)
   ic2 = domaine%facecell%fils(if,2)
+
   do ip = 1, field%nscal
     field%residu%tabscal(ip)%scal(ic1) = field%residu%tabscal(ip)%scal(ic1) - flux%tabscal(ip)%scal(if)
     field%residu%tabscal(ip)%scal(ic2) = field%residu%tabscal(ip)%scal(ic2) + flux%tabscal(ip)%scal(if)
@@ -97,6 +106,15 @@ enddo
 
 !!print*,"!! DEBUG-residu :", field%residu%tabscal(1)%scal(1:10)
 
+! Calcul de l'"énergie" à l'interface, en vue de la correction de flux, pour 
+! le couplage avec échanges espacés
+!DVT : flux%tabscal(1) !
+if (ncoupling>0) then
+  call accumulfluxcorr(dt, defsolver, domaine%nboco, domaine%boco, &
+                       domaine%nface, flux%tabscal(1)%scal, ncoupling, &
+                       coupling)
+endif
+
 call delete(flux)
 
 endsubroutine integration_ustdomaine
@@ -105,4 +123,5 @@ endsubroutine integration_ustdomaine
 ! Historique des modifications
 !
 ! avril 2003 (v0.0.1b): création de la procédure
+! juillet 2003        : ajout corrections de  flux
 !------------------------------------------------------------------------------!
