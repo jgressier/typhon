@@ -93,7 +93,8 @@ implicit none
 ! - paramètres
 type(st_dlu) :: mat
 ! - internal
-real(krp)    :: x, i, if
+real(krp)    :: x
+integer      :: i, if
 
   if (.not.mat%sort) then
     do if = 1, mat%ncouple
