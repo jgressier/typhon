@@ -1,18 +1,19 @@
 !------------------------------------------------------------------------------!
 ! Procedure : integration_ustdomaine      Auteur : J. Gressier
 !                                         Date   : Avril 2003
-! Fonction                                Modif  : Juillet 2003
+! Fonction                                Modif  : (cf historique)
 !   Integration domaine par domaine
 !
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine integration_ustdomaine(dt, defsolver, domaine, field, coupling, ncoupling)
+subroutine integration_ustdomaine(dt, defsolver, defspat, domaine, field, coupling, ncoupling)
 
 use TYPHMAKE
 use OUTPUT
 use VARCOM
 use MENU_SOLVER
+use MENU_NUM
 use USTMESH
 use DEFFIELD
 use MENU_ZONECOUPLING
@@ -22,6 +23,7 @@ implicit none
 ! -- Declaration des entrées --
 real(krp)        :: dt               ! pas de temps CFL
 type(mnu_solver) :: defsolver        ! type d'équation à résoudre
+type(mnu_spat)   :: defspat          ! paramètres d'intégration spatiale
 type(st_ustmesh) :: domaine          ! domaine non structuré à intégrer
 integer          :: ncoupling        ! nombre de couplages de la zone
 
@@ -54,7 +56,7 @@ call new(flux, domaine%nface, field%nscal, field%nvect, 0)
 
 select case(defsolver%typ_solver)
 case(solKDIF)
-  call integration_kdif_ust(dt, defsolver, domaine, field, flux)
+  call integration_kdif_ust(dt, defsolver, defspat, domaine, field, flux)
 case default
   call erreur("incohérence interne (integration_ustdomaine)", "solveur inconnu")
 endselect
@@ -122,6 +124,6 @@ endsubroutine integration_ustdomaine
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! avril 2003 (v0.0.1b): création de la procédure
-! juillet 2003        : ajout corrections de  flux
+! avr  2003 : création de la procédure
+! juil 2003 : ajout corrections de  flux
 !------------------------------------------------------------------------------!

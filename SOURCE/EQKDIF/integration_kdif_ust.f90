@@ -1,18 +1,21 @@
 !------------------------------------------------------------------------------!
 ! Procedure : integration_kdif_ust        Auteur : J. Gressier
 !                                         Date   : Avril 2003
-! Fonction                                Modif  : juin 2003
+! Fonction                                Modif  : (cf historique)
 !   Integration d'un domaine non structuré
+!   Le corps de la routine consiste à distribuer les états et les gradients
+!   sur chaque face.
 !
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine integration_kdif_ust(dt, defsolver, domaine, field, flux)
+subroutine integration_kdif_ust(dt, defsolver, defspat, domaine, field, flux)
 
 use TYPHMAKE
 use OUTPUT
 use VARCOM
 use MENU_SOLVER
+use MENU_NUM
 use USTMESH
 use DEFFIELD
 use EQKDIF
@@ -22,6 +25,7 @@ implicit none
 ! -- Declaration des entrées --
 real(krp)        :: dt               ! pas de temps CFL
 type(mnu_solver) :: defsolver        ! type d'équation à résoudre
+type(mnu_spat)   :: defspat          ! paramètres d'intégration spatiale
 type(st_ustmesh) :: domaine          ! domaine non structuré à intégrer
 
 ! -- Declaration des entrées/sorties --
@@ -38,14 +42,14 @@ integer :: ideb                 ! index de début de bloc
 integer :: it                   ! index de tableau
 integer :: icl, icr             ! index de cellule à gauche et à droite
 type(st_kdifetat), dimension(:), allocatable & 
-        :: cell_l, cell_r       ! tableau de cellules à gauche et à droite   
+        :: cell_l, cell_r       ! tableau de cellules à gauche et à droite
+type(v3d), dimension(:), allocatable &
+        :: grad_l, grad_r       ! tableau des gradients
 type(v3d), dimension(:), allocatable &
         :: cg_l, cg_r           ! tableau des centres de cellules à gauche et à droite   
 
 ! -- Debut de la procedure --
 
-! A ce niveau, on est censé appeler une routine qui intègre aussi bien les flux
-! dans un domaine structuré que dans un domaine non structuré
 ! On peut ici découper la maillage complet en blocs de taille fixé pour optimiser
 ! l'encombrement mémoire et la vectorisation
 
@@ -59,6 +63,7 @@ nfb   = 1 + mod(domaine%nface-1, nbuf)         ! taille de 1er bloc peut être <>
 ! il sera à tester l'utilisation de tableaux de champs génériques plutôt que
 ! des définitions type d'état spécifiques (st_kdifetat)
 
+allocate(grad_l(nbuf), grad_r(nbuf))
 allocate(cell_l(nbuf), cell_r(nbuf))
 allocate(  cg_l(nbuf),   cg_r(nbuf))
 
@@ -67,13 +72,13 @@ ideb = 1
 do ib = 1, nbloc
 
   !print*,"!!! DEBUG integration bloc,",ib," de",ideb," à",ideb+nfb-1
-
+  !! DEV : optimisation ? 13% du temps de calcul !!!
   do it = 1, nfb
     if  = ideb+it-1
     icl = domaine%facecell%fils(if,1)
     icr = domaine%facecell%fils(if,2)
-    !cell_l(it) = cons2kdif(defsolver%defkdif, field%etat(icl, 1, 1, 1:field%dim_etat))
-    !cell_r(it) = cons2kdif(defsolver%defkdif, field%etat(icr, 1, 1, 1:field%dim_etat))
+    grad_l(it) = field%gradient%tabvect(1)%vect(icl)
+    grad_r(it) = field%gradient%tabvect(1)%vect(icr)
     cell_l(it)%temperature = field%etatprim%tabscal(1)%scal(icl)
     cell_r(it)%temperature = field%etatprim%tabscal(1)%scal(icr)
     cg_l(it)   = domaine%mesh%centre(icl, 1, 1)
@@ -85,8 +90,9 @@ do ib = 1, nbloc
 
   ! ATTENTION : le flux n'est passé ici que pour UN SEUL scalaire
 
-  call calc_kdif_flux(defsolver, nfb, domaine%mesh%iface(ideb:ideb+nfb-1, 1, 1), &
-                      cg_l, cell_l, cg_r, cell_r,                                &
+  call calc_kdif_flux(defsolver, defspat,                             &
+                      nfb, domaine%mesh%iface(ideb:ideb+nfb-1, 1, 1), &
+                      cg_l, cell_l, grad_l, cg_r, cell_r, grad_r,     &
                       flux%tabscal(1)%scal(ideb:ideb+nfb-1))
 
   ideb = ideb + nfb
@@ -94,13 +100,14 @@ do ib = 1, nbloc
   
 enddo
 
-deallocate(cell_l, cell_r, cg_l, cg_r)
+deallocate(grad_l, grad_r, cell_l, cell_r, cg_l, cg_r)
 
 endsubroutine integration_kdif_ust
 
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! avril 2003 (v0.0.1b) : création de la procédure
-! juin  2003           : màj gestion variables conservatives et primitives
+! avr  2003 : création de la procédure
+! juin 2003 : màj gestion variables conservatives et primitives
+! oct  2003 : ajout des gradients dans la distribution des états gauche et droit
 !------------------------------------------------------------------------------!

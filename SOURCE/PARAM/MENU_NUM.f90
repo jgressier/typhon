@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! MODULE : MENU_NUM                       Auteur : J. Gressier
 !                                         Date   : Mai 2002
-! Fonction                                Modif  : Novembre 2002
+! Fonction                                Modif  : (cf historique)
 !   Définition des structures pour les entrées du programme TYPHON
 !   Structures pour les options numériques
 !
@@ -37,7 +37,7 @@ integer, parameter :: efm      = 40
 ! -- Constantes pour schéma de calcul des flux dissipatifs (sch_dis)
 integer, parameter :: dis_dif2 = 1     ! différence des 2 états/face (NON CONSISTANT)
 integer, parameter :: dis_avg2 = 5     ! moyenne des 2 gradients/face
-integer, parameter :: dis_opt  = 10    ! évaluation complète (pondérée de 1 et 5)
+integer, parameter :: dis_full = 10    ! évaluation complète (pondérée de 1 et 5)
 
 ! -- Constantes pour le calcul des gradients (gradmeth)
 integer, parameter :: lsm1 = 10     ! moindres carrés basée sur les centres voisins
@@ -95,6 +95,7 @@ type mnu_spat
   integer         :: sch_dis      ! type de schéma pour les flux dissipatifs
   character       :: methode      ! méthode d'ordre élevé (M)USCL, (E)NO
   integer         :: gradmeth     ! méthode de calcul des gradients
+  logical         :: calc_grad    ! nécessite le calcul des gradients
   type(mnu_muscl) :: muscl        ! paramètres de la méthode MUSCL
 endtype mnu_spat
 

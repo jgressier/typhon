@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : integration_zone            Auteur : J. Gressier
 !                                         Date   : Aout 2002
-! Fonction                                Modif  : Juillet 2003
+! Fonction                                Modif  : (cf historique)
 !   Intégration d'une zone sur un pas de temps correspondant 
 !   à une itération
 !
@@ -47,7 +47,8 @@ case(mshUST)
   !call erreur("Développement (integration_zone)", &
   !            "maillage non structuré non implémenté")
   do ifield = 1, zone%ndom
-    call integration_ustdomaine(dt, zone%defsolver, zone%ust_mesh, zone%field(ifield),&
+    call integration_ustdomaine(dt, zone%defsolver, zone%defspat,  &
+                                zone%ust_mesh, zone%field(ifield), &
                                 zone%coupling, zone%ncoupling)
   enddo
 
@@ -63,6 +64,6 @@ endsubroutine integration_zone
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! août 2002 (v0.0.1b): création de la procédure
-! juillet 2003       : modification arguments integration_ustdomaine
+! août 2002 : création de la procédure
+! juil 2003 : modification arguments integration_ustdomaine
 !------------------------------------------------------------------------------!

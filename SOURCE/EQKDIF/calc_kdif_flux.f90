@@ -1,18 +1,23 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_kdif_flux              Auteur : J. Gressier
 !                                         Date   : Avril 2003
-! Fonction                                Modif  : cf historique
-!   Calcul des flux de conduction de la chaleur  Fn = - conduc * (grad T . n)
+! Fonction                                Modif  : (cf historique)
+!   Calcul des flux de conduction de la chaleur : trois méthodes
 !
 ! Defauts/Limitations/Divers :
+!   Les gradients sont censés être ceux des variables primitives qui
+!   sont aussi passées en argument
 !
 !------------------------------------------------------------------------------!
-subroutine calc_kdif_flux(defsolver, nflux, face, cg_l, cell_l, cg_r, cell_r, flux)
+subroutine calc_kdif_flux(defsolver, defspat, nflux, face,   &
+                          cg_l, cell_l, grad_l,              &
+                          cg_r, cell_r, grad_r, flux)
 
 use TYPHMAKE
 use OUTPUT
 use VARCOM
 use MENU_SOLVER
+use MENU_NUM
 use MESHBASE
 use DEFFIELD
 use EQKDIF
@@ -22,7 +27,8 @@ use MATER_LOI
 implicit none
 
 ! -- Declaration des entrées --
-type(mnu_solver)      :: defsolver        ! type d'équation à résoudre
+type(mnu_solver)      :: defsolver        ! paramètres de définition du solveur
+type(mnu_spat)        :: defspat          ! paramètres d'intégration spatiale
 integer               :: nflux            ! nombre de flux (face) à calculer
 type(st_face),     dimension(1:nflux) & 
                       :: face             ! données géométriques des faces
@@ -30,37 +36,55 @@ type(v3d),         dimension(1:nflux) &
                       :: cg_l, cg_r       ! centres des cellules
 type(st_kdifetat), dimension(1:nflux) &
                       :: cell_l, cell_r   ! champs des valeurs primitives
+type(v3d),         dimension(1:nflux) &
+                      :: grad_l, grad_r   ! gradients aux centres des cellules
 
 ! -- Declaration des sorties --
 real(krp), dimension(nflux, defsolver%nequat) :: flux
 
 ! -- Declaration des variables internes --
+real(krp), parameter :: theta = 1._krp
 integer   :: if
-real(krp), dimension(:), allocatable :: conduct
-real(krp) :: dist
-type(v3d) :: dcg
-real(krp) :: tempf   ! température estimée entre deux cellules
-real(krp) :: dl, dr  ! distance centre de cellule - face
+real(krp), dimension(:), allocatable :: kH, dHR, dHL, dLR  ! voir allocation
+type(v3d), dimension(:), allocatable :: vLR                ! vecteur entre centres de cellules
+real(krp) :: TH                                            ! température en H
+real(krp) :: Fcomp, Favg                                   ! flux compacts et moyens
+real(krp) :: id, pscal                                     ! reéls temporaires
+type(v3d) :: vi                                            ! vecteur intermédiaire
 
 ! -- Debut de la procedure --
 
-allocate(conduct(nflux))
+allocate( kH(nflux))    ! conductivité en H, centre de face
+allocate(dHR(nflux))    ! distance HR, rapportée à HL+HR
+allocate(dHL(nflux))    ! distance HL, rapportée à HL+HR
+allocate(dLR(nflux))    ! distance LR (différence de HR+HL)
+allocate(vLR(nflux))    ! vecteur  LR
 
-! -- Calcul de la conductivité selon le matériau --
+! -- Calculs préliminaires --
+
+do if = 1, nflux
+  dHL(if) = abs(face(if)%centre - cg_l(if))
+  dHR(if) = abs(face(if)%centre - cg_r(if))
+  id      = 1._krp/(dHL(if) + dHR(if))
+  dHL(if) = id*dHL(if) 
+  dHR(if) = id*dHR(if) 
+  vLR(if) = cg_r(if) - cg_l(if)
+  ! DEV / OPT : calcul de la distance au carrée si c'est la seule utilisée
+  ! pour éviter sqrt()**2
+  dLR(if) = abs(vLR(if))
+enddo
+
+! -- Calcul de la conductivité en H (centre de face) selon le matériau --
 
 select case(defsolver%defkdif%materiau%type)
 
 case(mat_LIN)
-  conduct(:) = defsolver%defkdif%materiau%Kd%valeur
+  kH(:) = defsolver%defkdif%materiau%Kd%valeur
 
 case(mat_KNL)
   do if = 1, nflux
-    !dl = abs(face(if)%centre - cg_l(if)).scal.(dcg / dist) )
-    !dr = abs(face(if)%centre - cg_r(if)).scal.(dcg / dist) )
-    dl    = abs(face(if)%centre - cg_l(if))
-    dr    = abs(face(if)%centre - cg_r(if))
-    tempf = (dr*cell_l(if)%temperature + dl*cell_r(if)%temperature)/(dl + dr)
-    conduct(if) = valeur_loi(defsolver%defkdif%materiau%Kd, tempf)
+    TH     = dHR(if)*cell_l(if)%temperature + dHL(if)*cell_r(if)%temperature
+    kH(if) = valeur_loi(defsolver%defkdif%materiau%Kd, TH)
   enddo
 
 case(mat_XMAT)
@@ -68,16 +92,39 @@ case(mat_XMAT)
 
 endselect
 
-! -- Calcul du flux --
+!--------------------------------------------------------------
+! Calcul du flux
+!--------------------------------------------------------------
+! COMPACT : F1 = - k(H) * (T(R) - T(L))            ! L et R centres de cellules
+! AVERAGE : F2 = - k(H) * (a.gT(L) + b.g(T)).n     ! H centre de face
+! FULL    : F3 = 
+! a = HR/RL et b = HL/RL
+! k(H) = k(T(H)) avec T(H) = a.T(L) + b.T(R)
 
-do if = 1, nflux
-  dcg         = cg_r(if) - cg_l(if)
-  dist        = abs(dcg)
-  flux(if,1)  = - conduct(if) * (cell_r(if)%temperature - cell_l(if)%temperature) &
-                              * (dcg.scal.face(if)%normale) / (dist**2)
-enddo
+select case(defspat%sch_dis)
+case(dis_dif2) ! formulation compacte, non consistance si vLR et n non alignés
+  do if = 1, nflux
+    flux(if,1)  = - kH(if) * (cell_r(if)%temperature - cell_l(if)%temperature) &
+                           * (vLR(if).scal.face(if)%normale) / (dLR(if)**2)
+  enddo
 
-deallocate(conduct)
+case(dis_avg2) ! formulation consistante, moyenne pondérée des gradients
+  do if = 1, nflux
+    flux(if,1)  = - kH(if) * ((dHL(if)*grad_r(if) + dHR(if)*grad_l(if)).scal.face(if)%normale)
+  enddo
+
+case(dis_full)
+  do if = 1, nflux
+    pscal = (vLR(if).scal.face(if)%normale) / (dLR(if)**2)
+    Fcomp = pscal * (cell_r(if)%temperature - cell_l(if)%temperature)
+    vi    = face(if)%normale - (theta*pscal)*vLR(if)
+    Favg  = (dHL(if)*grad_r(if) + dHR(if)*grad_l(if)).scal.vi
+    flux(if,1)  = - kH(if) * (theta*Fcomp + Favg)
+  enddo
+
+endselect
+
+deallocate(kH, dHR, dHL, dLR, vLR)
 
 
 endsubroutine calc_kdif_flux
@@ -85,7 +132,8 @@ endsubroutine calc_kdif_flux
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! avril 2003  : création de la procédure
-! juil  2003  : conductivité non constante
-! sept  2003  : optimisation de la procédure pour récupérer les temps CPU initiaux
+! avr  2003  : création de la procédure : méthode COMPACTE
+! juil 2003  : conductivité non constante
+! sept 2003  : optimisation de la procédure pour récupérer les temps CPU initiaux
+! oct  2003  : implémentation des trois méthodes de calcul COMPACT, AVERAGE, FULL
 !------------------------------------------------------------------------------!
