@@ -46,9 +46,19 @@ endtype mnu_ns
 !------------------------------------------------------------------------------!
 type st_boco_ns
   ! définir un état
-  real(krp) :: p, pi, ti, mach
+  real(krp) :: pstat, ptot, ttot, mach
+  real(krp) :: temp_wall
   type(v3d) :: direction
 endtype st_boco_ns
+
+!------------------------------------------------------------------------------!
+! structure ST_INIT_NS : Définition de l'initialisation
+!------------------------------------------------------------------------------!
+type st_init_ns
+  ! définir un état
+  real(krp) :: pstat, ptot, ttot, mach
+  type(v3d) :: direction
+endtype st_init_ns
 
 
 ! -- INTERFACES -------------------------------------------------------------

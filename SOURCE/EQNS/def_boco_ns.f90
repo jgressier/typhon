@@ -29,6 +29,7 @@ type(st_boco_ns) :: boco
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: ib, nkey
 character(len=dimrpmlig) :: str            ! chaîne RPM intermédiaire
+integer                  :: info
 
 ! -- Debut de la procedure --
 
@@ -37,23 +38,39 @@ pblock => block
 select case(type)
 
 case(bc_wall_adiab)
-  call erreur("Développement","'bc_wall_adiab' : Cas non implémenté")
+  !call erreur("Développement","'bc_wall_adiab' : Cas non implémenté")
 
 case(bc_wall_isoth)
-  !call rpmgetkeyvalreal(pblock, "WALL_TEMP", boco%temp_wall)
-  call erreur("Développement","'bc_wall_isoth' : Cas non implémenté")
+  call rpmgetkeyvalreal(pblock, "WALL_TEMP", boco%temp_wall)
+  !call erreur("Développement","'bc_wall_isoth' : Cas non implémenté")
 
 case(bc_wall_flux)
   call erreur("Développement","'bc_wall_isoth' : Cas non implémenté")
 
 case(bc_inlet_sub)
-  call erreur("Développement","'bc_inlet_sub' : Cas non implémenté")
+   call rpmgetkeyvalreal(pblock, "PI",        boco%ptot)
+   call rpmgetkeyvalreal(pblock, "TI",        boco%ttot)
+   call rpmgetkeyvalstr (pblock, "DIRECTION", str)
+   boco%direction = v3d_of(str, info)
+   if (info /= 0) &
+     call erreur("lecture de menu","problème à la lecture du vecteur DIRECTION") 
+   boco%direction = boco%direction / abs(boco%direction)
+   !call erreur("Développement","'bc_inlet_sub' : Cas non implémenté")
 
 case(bc_inlet_sup)
-  call erreur("Développement","'bc_inlet_sup' : Cas non implémenté")
+   call rpmgetkeyvalreal(pblock, "PI",        boco%ptot)
+   call rpmgetkeyvalreal(pblock, "TI",        boco%ttot)
+   call rpmgetkeyvalreal(pblock, "MACH",      boco%mach)
+   call rpmgetkeyvalstr (pblock, "DIRECTION", str)
+   boco%direction = v3d_of(str, info)
+   if (info /= 0) &
+     call erreur("lecture de menu","problème à la lecture du vecteur DIRECTION") 
+   boco%direction = boco%direction / abs(boco%direction)
+   !call erreur("Développement","'bc_inlet_sup' : Cas non implémenté")
 
 case(bc_outlet_sub)
-  call erreur("Développement","'bc_outlet_sub' : Cas non implémenté")
+  call rpmgetkeyvalreal(pblock, "P",         boco%pstat)
+  !call erreur("Développement","'bc_outlet_sub' : Cas non implémenté")
 
 case(bc_outlet_sup)
   !call erreur("Développement","'bc_outlet_sup' : Cas non implémenté")

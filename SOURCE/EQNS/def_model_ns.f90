@@ -83,9 +83,10 @@ case(gas_AIR)
   defsolver%defns%nb_species = 1
   allocate(defsolver%defns%properties(defsolver%defns%nb_species))
   ! -- définition d'espèce 1
-  defsolver%defns%properties(1)%gamma    = 1.40_krp
-  defsolver%defns%properties(1)%prandtl  = 0.72_krp
-  defsolver%defns%properties(1)%visc_dyn = 0.00_krp
+  defsolver%defns%properties(1)%gamma    =   1.40_krp
+  defsolver%defns%properties(1)%r_const  = 287.14_krp
+  defsolver%defns%properties(1)%prandtl  =   0.72_krp
+  defsolver%defns%properties(1)%visc_dyn =   0.00_krp
 
 case default
   call erreur("lecture de menu", "modélisation du gas inconnue (GAS)")

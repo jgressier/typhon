@@ -14,6 +14,8 @@ Task Dévlp.  R. cible début fin   Type  Développement
                0.1.4              Make  calcul des index de conditions limites connectées à la lecture
      Jérémie   0.1.4              Opt   explosion temps de calcul VALIDATION/KDIF/KNL2
 0038           0.1.5              Val   maillage 3D HEXA 
+0041 Jérémie   0.1.5  30/06 01/07 NS    reading et set-up of boundary conditions
+0042 Jérémie   0.1.5  01/07       NS    initialization parameters et actual initialization
      Jérémie   0.1.5              Solv  Optimisation de la structure DLU (SPARSE_MAT) (faces limites)
      Jérémie   0.1.5              Solv  Inversion Gauss-Seidel
      Jérémie   0.1.5              Solv  Surrelaxation Jacobi, SOR, SSOR

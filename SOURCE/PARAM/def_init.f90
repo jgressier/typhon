@@ -76,21 +76,22 @@ do i = 1, n_init
     call def_init_kdif(pcour, defsolver%init(i)%kdif, defsolver%init(i)%unif)
   case(solVORTEX)
     call def_init_vortex(pcour, defsolver%init(i)%vortex)
+  case(solNS)
+    call def_init_ns(pcour, defsolver%init(i)%ns)
   case default
     call erreur("incohérence interne (def_init)","solveur inconnu")
   endselect
 
 enddo
 
- print*,'sortie init'
 
 endsubroutine def_init
-
 
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! mars 2003 (v0.0.1b): création de la routine
+! mars 2003 : création de la routine
+! juil 2004 : cas EQNS
 !------------------------------------------------------------------------------!
 
 

@@ -43,9 +43,9 @@ ENDBLOCK
 
 BLOCK:INIT
   PI      = 1.E5
-  TI      = 300
+  TI      = 300.
   MACH    = 1.5
-  ANGLE   = 0.
+  DIRECTION = (1., 0., 0.)
 ENDBLOCK
 
 BLOCK:BOCO
@@ -59,11 +59,11 @@ BLOCK:BOCO
 ENDBLOCK
 
 BLOCK:BOCO
-  FAMILY  = WALL
-  TYPE    = SUPERSONIC_INLET
-  PI      = 1.E5
-  TI      = 300
-  MACH    = 1.5
-  ANGLE   = 0.
+  FAMILY    = WALL
+  TYPE      = SUPERSONIC_INLET
+  PI        = 1.E5
+  TI        = 300.
+  MACH      = 1.5
+  DIRECTION = (1., 0., 0.)
 ENDBLOCK
 

@@ -283,3 +283,8 @@ Task 0041 (Emmanuel) : Make : liste chainée de bocofield (grid)
 - lien chainé de structure de champ générique et désallocation de liste chainée
   de champ générique (DEFFIELD)
 
+---------------------------------------------------------------------------------
+Task 0043 (Jérémie) : NS : reading et set-up of boundary conditions
+---------------------------------------------------------------------------------
+- sub/supersonic inlet & outlet
+- uniform initialization

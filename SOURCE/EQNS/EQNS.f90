@@ -32,6 +32,7 @@ endtype st_nsetat
 !------------------------------------------------------------------------------!
 type st_espece
   real(krp)    :: gamma         ! rapport de chaleurs spécifiques
+  real(krp)    :: r_const       ! constante du gaz
   real(krp)    :: prandtl       ! nombre de Prandtl
   real(krp)    :: visc_dyn      ! viscosité dynamique (faire évoluer en loi)
 endtype st_espece
@@ -51,19 +52,17 @@ endtype st_espece
 
 
 ! -- IMPLEMENTATION ---------------------------------------------------------
-!contains
-
-
+contains
 
 !------------------------------------------------------------------------------!
 ! Fonction : conversion de variables conservatives en variables primitives
 !------------------------------------------------------------------------------!
-!type(st_nsetat) function cons2ns(defns, etat)
-!implicit none!
-!
+!type(st_nsetat) function cons2nspri(fluid, etat)
+!implicit none
+
 ! -- déclaration des entrées
-!type(mnu_kdif)          :: defns
-!real(krp), dimension(*) :: etat
+!type(st_espece)          :: fluid
+!type(st_ :: etat
 
 !  cons2kdif%density  = etat(1)
 !  cons2kdif%pressure = etat(1)/defkdif%materiau%Cp
@@ -72,12 +71,36 @@ endtype st_espece
 
 !endfunction cons2kdif
 
+!------------------------------------------------------------------------------!
+! Fonction : conversion de paramètres en variables primitives
+!------------------------------------------------------------------------------!
+type(st_nsetat) function pi_ti_mach_dir2nspri(fluid, pi, ti, mach, dir) result(nspri)
+implicit none
+
+! -- déclaration des entrées
+type(st_espece) :: fluid
+type(v3d)       :: dir
+real(krp)       :: pi, ti, mach
+! -- internal variables 
+real(krp)       :: g1, fm, ts, a
+
+  g1 = fluid%gamma -1._krp
+  fm = 1._krp / (1._krp + .5_krp*g1*mach**2)
+  ts = ti *fm
+  a  = sqrt(fluid%gamma*fluid%r_const*ts)
+  nspri%pressure = pi *(fm**(fluid%gamma/g1))
+  nspri%density  = nspri%pressure / (fluid%r_const * ts)
+  nspri%velocity = (mach*a)*dir       ! product of scalars before
+
+endfunction pi_ti_mach_dir2nspri
+
 
 endmodule EQNS
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Modification history
 !
 ! mai  2002 : création du module
 ! sept 2003 : adaptation du module pour premiers développements
+! july 2004 : primitive variables calculation
 !------------------------------------------------------------------------------!
