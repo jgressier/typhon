@@ -27,11 +27,11 @@ TEST DE NON REGRESSION
 -------------------------------------------------
 - lecture de maillage CGNS 2D en QUAD
 - solveur KDIF, lois constantes, conditions adiabatique et isothermes
-- integration explicite 1er ordre
+- integration implicite 
 - convergence monozone avec critère de résidu
 
 -------------------------------------------------
 COMMENTAIRES 
 -------------------------------------------------
-A cause de la taille très réduite du maillage, on peut effectuer
-le calcul de façon stable en explicite pour des Fouriers de l'ordre de 8 !
+Problème de convergence avec FOURIER > 0.2
+(certainement dû à la non-implicitation des conditions limites)
