@@ -42,17 +42,25 @@ interface operator(+)
   module procedure v3d_add, v3d_add_t
 endinterface
 
+interface shiftval
+  module procedure v3d_shift, v3d_shift_t, v3d_shift_tt
+endinterface
+
 interface operator(-)
   module procedure v3d_sub, v3d_opp, v3d_sub_t, v3d_opp_t
+endinterface
+
+interface shiftopp
+  module procedure v3d_shiftopp, v3d_shiftopp_t, v3d_shiftopp_tt
 endinterface
 
 interface operator(*)
   module procedure v3d_mult, v3d_mult_t, v3d_mult_tt
 endinterface
 
-!interface assignment(*=)
-!  module procedure v3d_eq_mult, v3d_eq_mult_t, v3d_eq_mult_tt
-!endinterface
+interface scaleval
+  module procedure v3d_scale, v3d_scale_t, v3d_scale_tt
+endinterface
 
 interface operator(/)
   module procedure v3d_div, v3d_div_t, v3d_div_tt
@@ -158,6 +166,55 @@ integer :: i, n
 endfunction v3d_add_t
 
 !------------------------------------------------------------------------------!
+! Assignment : vector v = v + w
+!------------------------------------------------------------------------------!
+subroutine v3d_shift(v, a)
+implicit none
+type(v3d), intent(in)    :: a
+type(v3d), intent(inout) :: v
+
+  v%x = v%x + a%x
+  v%y = v%y + a%y
+  v%z = v%z + a%z
+
+end subroutine v3d_shift
+
+!------------------------------------------------------------------------------!
+! Assignment : v(:) = v(:) + w
+!------------------------------------------------------------------------------!
+subroutine v3d_shift_t(v, a)
+implicit none
+type(v3d), intent(in)    :: a
+type(v3d), intent(inout) :: v(:)
+integer :: i
+
+  do i = 1, size(v)
+    v(i)%x = v(i)%x + a%x
+    v(i)%y = v(i)%y + a%y
+    v(i)%z = v(i)%z + a%z
+  enddo
+
+end subroutine v3d_shift_t
+
+!------------------------------------------------------------------------------!
+! Assignment : v(:) = a(:) . v(:)
+!------------------------------------------------------------------------------!
+subroutine v3d_shift_tt(v, a)
+implicit none
+type(v3d), intent(in)    :: a(:)
+type(v3d), intent(inout) :: v(:)
+integer :: i
+
+  do i = 1, size(v)
+    v(i)%x = v(i)%x + a(i)%x
+    v(i)%y = v(i)%y + a(i)%y
+    v(i)%z = v(i)%z + a(i)%z
+  enddo
+
+end subroutine v3d_shift_tt
+
+
+!------------------------------------------------------------------------------!
 ! Fonction : vector sub
 !------------------------------------------------------------------------------!
 type(v3d) function v3d_sub(v1, v2)
@@ -188,6 +245,55 @@ integer :: i, n
   enddo
 
 endfunction v3d_sub_t
+
+!------------------------------------------------------------------------------!
+! Assignment : vector v = v - w
+!------------------------------------------------------------------------------!
+subroutine v3d_shiftopp(v, a)
+implicit none
+type(v3d), intent(in)    :: a
+type(v3d), intent(inout) :: v
+
+  v%x = v%x - a%x
+  v%y = v%y - a%y
+  v%z = v%z - a%z
+
+end subroutine v3d_shiftopp
+
+!------------------------------------------------------------------------------!
+! Assignment : v(:) = v(:) - w
+!------------------------------------------------------------------------------!
+subroutine v3d_shiftopp_t(v, a)
+implicit none
+type(v3d), intent(in)    :: a
+type(v3d), intent(inout) :: v(:)
+integer :: i
+
+  do i = 1, size(v)
+    v(i)%x = v(i)%x - a%x
+    v(i)%y = v(i)%y - a%y
+    v(i)%z = v(i)%z - a%z
+  enddo
+
+end subroutine v3d_shiftopp_t
+
+!------------------------------------------------------------------------------!
+! Assignment : v(:) = a(:) - v(:)
+!------------------------------------------------------------------------------!
+subroutine v3d_shiftopp_tt(v, a)
+implicit none
+type(v3d), intent(in)    :: a(:)
+type(v3d), intent(inout) :: v(:)
+integer :: i
+
+  do i = 1, size(v)
+    v(i)%x = v(i)%x - a(i)%x
+    v(i)%y = v(i)%y - a(i)%x
+    v(i)%z = v(i)%z - a(i)%x
+  enddo
+
+end subroutine v3d_shiftopp_tt
+
 
 !------------------------------------------------------------------------------!
 ! Fonction : vector opposite
@@ -234,20 +340,6 @@ type(v3d), intent(in) :: v
 endfunction v3d_mult
 
 !------------------------------------------------------------------------------!
-! Assignment : vector v = a . v
-!------------------------------------------------------------------------------!
-subroutine v3d_eq_mult(v, a)
-implicit none
-real(krp), intent(in)    :: a
-type(v3d), intent(inout) :: v
-
-  v%x = a * v%x 
-  v%y = a * v%y 
-  v%z = a * v%z 
-
-end subroutine v3d_eq_mult
-
-!------------------------------------------------------------------------------!
 ! Fonction : vector multiplied par real (array)
 !------------------------------------------------------------------------------!
 function v3d_mult_t(x, v) result(tv)
@@ -264,23 +356,6 @@ integer :: i
   enddo
 
 endfunction v3d_mult_t
-
-!------------------------------------------------------------------------------!
-! Assignment : v(:) = a . v(:)
-!------------------------------------------------------------------------------!
-subroutine v3d_eq_mult_t(v, a)
-implicit none
-real(krp), intent(in)    :: a
-type(v3d), intent(inout) :: v(:)
-integer :: i
-
-  do i = 1, size(v)
-    v(i)%x = a * v(i)%x 
-    v(i)%y = a * v(i)%y 
-    v(i)%z = a * v(i)%z 
-  enddo
-
-end subroutine v3d_eq_mult_t
 
 !------------------------------------------------------------------------------!
 ! Fonction : vector multiplied par real (array*array)
@@ -301,9 +376,40 @@ integer :: i
 endfunction v3d_mult_tt
 
 !------------------------------------------------------------------------------!
+! Assignment : vector v = a . v
+!------------------------------------------------------------------------------!
+subroutine v3d_scale(v, a)
+implicit none
+real(krp), intent(in)    :: a
+type(v3d), intent(inout) :: v
+
+  v%x = a * v%x 
+  v%y = a * v%y 
+  v%z = a * v%z 
+
+end subroutine v3d_scale
+
+!------------------------------------------------------------------------------!
+! Assignment : v(:) = a . v(:)
+!------------------------------------------------------------------------------!
+subroutine v3d_scale_t(v, a)
+implicit none
+real(krp), intent(in)    :: a
+type(v3d), intent(inout) :: v(:)
+integer :: i
+
+  do i = 1, size(v)
+    v(i)%x = a * v(i)%x 
+    v(i)%y = a * v(i)%y 
+    v(i)%z = a * v(i)%z 
+  enddo
+
+end subroutine v3d_scale_t
+
+!------------------------------------------------------------------------------!
 ! Assignment : v(:) = a(:) . v(:)
 !------------------------------------------------------------------------------!
-subroutine v3d_eq_mult_tt(v, a)
+subroutine v3d_scale_tt(v, a)
 implicit none
 real(krp), intent(in)    :: a(:)
 type(v3d), intent(inout) :: v(:)
@@ -315,7 +421,7 @@ integer :: i
     v(i)%z = a(i) * v(i)%z 
   enddo
 
-end subroutine v3d_eq_mult_tt
+end subroutine v3d_scale_tt
 
 
 !------------------------------------------------------------------------------!
