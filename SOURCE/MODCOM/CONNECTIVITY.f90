@@ -181,7 +181,7 @@ subroutine new_genconnect2(conn, nbnodes, nbfils)
     allocate(conn%noeud(i)%fils(nbfils(i)))
   enddo
 
-endsubroutine new_genconnect
+endsubroutine new_genconnect2
 
 
 !------------------------------------------------------------------------------!
@@ -196,7 +196,7 @@ subroutine delete_genconnect(conn)
   do i = 1, nbnodes
     if (conn%noeud(i)%nbfils /= 0) deallocate(conn%noeud(i)%fils)
   enddo
-  deallocate(conn%noeud(nbnodes))
+  deallocate(conn%noeud)
   conn%nbnodes = 0
 
 endsubroutine delete_genconnect

@@ -18,7 +18,7 @@ use MESHBASE
 implicit none
 
 ! -- Declaration des entrées --
-type(st_ustconnect)  :: facecell   ! connectivité face->cellules
+type(st_connect)  :: facecell   ! connectivité face->cellules
 
 ! -- Declaration des entrées/sorties --
 type(st_mesh)        :: mesh       ! maillages

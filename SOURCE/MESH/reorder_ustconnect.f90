@@ -24,7 +24,7 @@ integer             :: iaction
 type(st_ustmesh)    :: mesh            ! maillage non structuré et connectivité
 
 ! -- Variables internes --
-type(st_ustconnect) :: f_vtex, f_cell  ! conn. Typhon intermédiaire : face -> sommets
+type(st_connect) :: f_vtex, f_cell  ! conn. Typhon intermédiaire : face -> sommets
 integer, dimension(:), allocatable &
                     :: trans_index     ! nouvelle renumérotation
 integer             :: nface_int       ! nombre de faces internes

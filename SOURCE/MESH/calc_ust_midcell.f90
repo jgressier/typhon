@@ -18,7 +18,7 @@ implicit none
 
 ! -- Declaration des entrées --
 integer                 :: ncell      ! nombre de cellules
-type(st_ustconnect)     :: facecell   ! connectivité face->cellules
+type(st_connect)     :: facecell   ! connectivité face->cellules
 type(v3d), dimension(*) :: cgface     ! barycentre de face
 
 ! -- Declaration des sorties --

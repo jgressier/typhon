@@ -28,7 +28,7 @@ type(st_ustmesh)   :: mesh           ! structure USTMESH des données TYPHON
 integer, parameter  :: nmax_cell = 20   ! nb max de cellules dans la connectivité vtex->cell
 !integer, dimension(:,:), allocatable &
 !                    :: vtex_cell,     & ! connectivité intermédiaire sommets -> faces
-type(st_ustconnect) :: face_vtex, &     ! connectivité intermédiaire faces   -> sommets
+type(st_connect) :: face_vtex, &     ! connectivité intermédiaire faces   -> sommets
                        face_cell        ! connectivité intermédiaire faces   -> cellules
 !integer, dimension(:), allocatable &
 !                    :: ncell            ! nombre de cellules par sommet
