@@ -20,6 +20,7 @@ ZONE_OBJ := $(ZONE_MOD:.$(MOD)=.o)       \
             calcboco_ust_extrapol.o      \
             calcboco_ust_nunif.o         \
             calcboco_ust_unif.o          \
+            calcboco_ust_sym.o           \
             donnees_echange.o            \
             init_champ_ust.o             \
             init_connect_grid.o          \

@@ -122,10 +122,12 @@ do while (.not.fin)
 
   ! ---
   select case(lzone%defsolver%typ_solver)
-  case(solKDIF)
+  case(solKDIF, solNS)
     call integration_zone(dt, lzone)
   case(solVORTEX)
     call integration_zone_lag(dt, lzone)
+  case default
+    call erreur("incohérence interne","solveur inattendu")
   endselect
   ! ---
 

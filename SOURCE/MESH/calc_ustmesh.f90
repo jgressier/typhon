@@ -114,6 +114,10 @@ case(msh_1dcurv, msh_2dcurv)
 
 ! DEV ! VERIFIER L'ORIENTATION DES NORMALES A L'EXTERIEUR DES CORPS (INTERIEUR FLUIDE)
 
+case default
+
+  call erreur("Développement","cas inattendu (calc_ustmesh)")
+
 endselect
 
 

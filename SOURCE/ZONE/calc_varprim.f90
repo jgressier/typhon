@@ -31,6 +31,8 @@ type(st_field)   :: field            ! champ primitives->conservatives
 
 
 select case(def_solver%typ_solver)
+case(solNS)
+  call calc_varprim_ns(def_solver%defns, field)
 case(solKDIF)
   call calc_varprim_kdif(def_solver%defkdif, field)
 case(solVORTEX)
@@ -46,5 +48,6 @@ endsubroutine calc_varprim
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juin 2003 (v0.0.1b): création de la procédure
+! juin 2003 : création de la procédure
+! july 2004 : NS solver (calc_varprim_ns)
 !------------------------------------------------------------------------------!

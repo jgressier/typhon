@@ -42,7 +42,6 @@ integer :: nrac                      ! numéro de raccord
 do ib = 1, ustdom%nboco
 
   idef = ustdom%boco(ib)%idefboco
-  !print*,"!! DEBUG boco(",ib,") défini dans defboco(",idef,")"
 
   ! Traitement des conditions aux limites communes aux solveurs
 

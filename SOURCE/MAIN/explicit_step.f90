@@ -48,8 +48,11 @@ call new(flux, umesh%nface, field%nscal, field%nvect, 0)
 
 ! On peut ici découper le maillage complet en blocs de taille fixé pour optimiser
 ! l'encombrement mémoire et la vectorisation
-
+!print*,'FLUX!'
 select case(defsolver%typ_solver)
+case(solNS)
+  print*,'boum explicit-tstep'
+  call integration_ns_ust(dt, defsolver, defspat, umesh, field, flux, .false., jacL, jacR)
 case(solKDIF)
   call integration_kdif_ust(dt, defsolver, defspat, umesh, field, flux, .false., jacL, jacR)
 case default

@@ -1,7 +1,7 @@
-!------------------------------------------------------------------------------!
+ !------------------------------------------------------------------------------!
 ! Procedure : calc_varcons                Auteur : J. Gressier
 !                                         Date   : Juin 2003
-! Fonction                                Modif  : Juin 2003 (cf historique)
+! Fonction                                Modif  : (cf historique)
 !   Calcul des variables conservatives à partir des variables primitives
 !   Reroutage vers des procédures spécifiques aux solveurs
 !
@@ -31,6 +31,8 @@ type(st_field)   :: field            ! champ primitives->conservatives
 
 
 select case(def_solver%typ_solver)
+case(solNS)
+  call calc_varcons_ns(def_solver%defns, field)
 case(solKDIF)
   call calc_varcons_kdif(def_solver%defkdif, field)
 case default
@@ -44,5 +46,6 @@ endsubroutine calc_varcons
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juin 2003 (v0.0.1b): création de la procédure
+! juin 2003 : création de la procédure
+! july 2004 : NS solver (call calv_varcons_ns)
 !------------------------------------------------------------------------------!

@@ -12,14 +12,17 @@ EQNS_MOD = EQNS.$(MOD)      \
 
 
 EQNS_OBJ := $(EQNS_MOD:.$(MOD)=.o)    \
-            def_boco_ns.o             \
-            def_init_ns.o             \
-            def_model_ns.o            \
+            calc_flux_hlle.o          \
             calc_ns_flux.o            \
             calc_ns_timestep.o        \
             calc_varcons_ns.o         \
             calc_varprim_ns.o         \
-            init_ns_ust.o 
+            def_boco_ns.o             \
+            def_init_ns.o             \
+            def_model_ns.o            \
+            init_boco_ns.o            \
+            init_ns_ust.o             \
+            integration_ns_ust.o
 
 D_EQNS_OBJ := $(EQNS_OBJ:%=$(PRJOBJ)/%)
 
