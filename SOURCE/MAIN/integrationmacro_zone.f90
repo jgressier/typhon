@@ -31,13 +31,16 @@ real(krp)   :: local_t            ! temps local (0 à mdt)
 real(krp)   :: dt                 ! pas de temps de la zone
 integer     :: if                 ! index de champ
 real(krp)   :: fourier
+logical     :: fin
 
 ! -- Debut de la procedure --
+
 local_t = 0._krp
+fin     = .false.
 
 !print*, "DEBUG INTEGRATIONMACRO_ZONE"
 
-do while (local_t < mdt)
+do while (.not.fin)
   
   ! On peut ici coder différentes méthodes d'intégration (RK, temps dual...)
 
@@ -52,13 +55,18 @@ do while (local_t < mdt)
   !                lzone%field(1)%etatprim%tabscal(1) )
   !write(str_w,'(a,i,a,g10.4)') "* FOURIER zone ", lzone%id, " : ", fourier
   !call print_info(6, str_w)
+
+  if (dt >= (mdt-local_t)) then
+    fin = .true.
+    dt  = mdt-local_t
+  endif
    
   call integration_zone(dt, lzone)
 
   local_t = local_t + dt
 
   do if = 1, lzone%ndom
-    call update_champ(lzone%field(if))                   ! màj    des var. conservatives
+    call update_champ(lzone%field(if))                    ! màj    des var. conservatives
     call calc_varprim(lzone%defsolver, lzone%field(if))   ! calcul des var. primitives
   enddo
 

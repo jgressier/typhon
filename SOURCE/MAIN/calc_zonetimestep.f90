@@ -39,6 +39,7 @@ allocate(dtloc(ncell))
 select case(lzone%deftime%stab_meth)
 
 case(given_dt)   ! -- Pas de temps imposé --
+  dtloc(1:ncell) = lzone%deftime%dt
 
 case(stab_cond)  ! -- Calcul par condition de stabilité (deftim%stabnb) --
   select case(lzone%defsolver%typ_solver)
