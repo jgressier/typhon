@@ -44,7 +44,7 @@ type mnu_OUTPUT
   character       :: format     ! format de la sortie
   character(len=strlen) &
                   :: fichier    ! nom du fichier de sortie
-  character       :: type       ! type de sortie (cf. VARCOM)
+  integer         :: type       ! type de sortie (cf. VARCOM)
 endtype mnu_OUTPUT
 
 ! -- INTERFACES -------------------------------------------------------------
@@ -59,10 +59,13 @@ endtype mnu_OUTPUT
 
 endmodule MENU_GEN
 
+
+
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
 ! nov  2002 : création du module
 !------------------------------------------------------------------------------!
+
 
 

@@ -12,8 +12,10 @@ XIO_MOD = REPRISE.$(MOD)
 XIO_OBJ = $(XIO_MOD:.$(MOD)=.o)  \
           output_tec_str.o  \
           output_tec_ust.o  \
-          output_tecplot.o
-
+          output_tecplot.o \
+          output_tec_ust_ctr.o \
+          output_tec_ust_node.o
+ 
 D_XIO_OBJ = $(XIO_OBJ:%=$(PRJOBJ)/%)
 
 

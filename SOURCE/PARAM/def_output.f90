@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : def_output                  Auteur : J. Gressier
 !                                         Date   : Novembre 2002
-! Fonction                                Modif  : 
+! Fonction                                Modif  : Octobre 2003
 !   Traitement des paramètres du fichier menu principal
 !   Paramètres principaux du projet
 !
@@ -60,6 +60,13 @@ if (world%output(1)%format == cnull) call erreur("lecture de menu","format de fi
 call rpmgetkeyvalstr(pcour, "FILE", str)
 world%output(1)%fichier = str
 
+! -- Détermination du type de sortie : aux noeuds du maillage 
+!    ou au centre des cellules (par défaut au centre)
+
+call rpmgetkeyvalstr(pcour, "TYPE", str, "CENTER")
+
+if (samestring(str,"NODE")) world%output(1)%type = outp_NODE
+if (samestring(str,"CENTER"))   world%output(1)%type = outp_CENTER
 
 
 endsubroutine def_output

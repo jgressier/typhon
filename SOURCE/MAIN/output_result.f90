@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : output_result               Auteur : J. Gressier
 !                                         Date   : Décembre 2002
-! Fonction                                Modif  : 
+! Fonction                                Modif  :
 !   Ecriture fichier des champs de chaque zone
 !
 ! Defauts/Limitations/Divers :
@@ -33,8 +33,8 @@ do i = 1, world%noutput
 
     call print_info(2,"* sauvegarde au format TECPLOT : " &
                       // trim(world%output(i)%fichier))
-    call output_tecplot(world%output(i)%fichier, world)
- 
+    call output_tecplot(world%output(i)%fichier, world, world%output(i)%type)
+
   case(fmt_VIGIE)
     call erreur("Développement","format VIGIE non implémenté")
 

@@ -1,14 +1,14 @@
 !------------------------------------------------------------------------------!
 ! Procedure : output_tecplot              Auteur : J. Gressier
 !                                         Date   : Décembre 2002
-! Fonction                                Modif  : 
+! Fonction                                Modif  :
 !   Ecriture fichier des champs de chaque zone au format TECPLOT
 !
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
 
-subroutine output_tecplot(nom, world)
+subroutine output_tecplot(nom, world, outp_typ)
 
 use TYPHMAKE
 use OUTPUT
@@ -20,6 +20,7 @@ implicit none
 ! -- Declaration des entrées --
 character(len=strlen) :: nom       ! nom du fichier
 type(st_world)        :: world
+integer               :: outp_typ
 
 ! -- Declaration des sorties --
 
@@ -44,7 +45,7 @@ do izone = 1, world%prj%nzone
   do i = 1, world%zone(izone)%nmesh_ust
     ! attention : ustmesh n'est pas un tableau
     call output_tec_ust(uf_chpresu, world%zone(izone)%ust_mesh, &
-                        world%zone(izone)%field)
+                        world%zone(izone)%field, outp_typ)
   enddo
 
 enddo

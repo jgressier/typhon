@@ -15,7 +15,7 @@ use TYPHMAKE   ! Définition de la précision machine
 
 ! -- Variables globales du module -------------------------------------------
 
-character(len=6), parameter :: version = "0.1.1"
+character(len=6), parameter :: version = "0.0.1b"
 
 logical        :: mpi_run              ! calcul parallèle MPI ou non
 character      :: memory_mode          ! mode d'économie mémoire
@@ -70,6 +70,11 @@ character, parameter :: c3dgen   = 'G'
 character, parameter   :: fmt_CGNS    = 'C'   ! format CGNS
 character, parameter   :: fmt_TECPLOT = 'T'   ! format TECPLOT (ascii)
 character, parameter   :: fmt_VIGIE   = 'V'   ! format VIGIE
+
+! -- Constantes pour le choix du type de sortie des données (centres ou noeuds)
+
+integer, parameter :: outp_NODE         = 01
+integer, parameter :: outp_CENTER       = 02
 
 ! -- Constantes de définition des conditions aux limites (physique) --
 
