@@ -14,7 +14,7 @@ proc gui:initcolor {} {
 
   # Affichage du menu
   set guicolor(menubg)       \#E0E0E0
-  set guicolor(menufg)       red
+  #set guicolor(menufg)       red
 
   # Affichage des boutons
   set guicolor(mbuttbg)      \#EEEEEE
@@ -25,12 +25,10 @@ proc gui:initcolor {} {
   #set guicolor(obuttfg)      \#F0F0F0
 
   # Affichage des "entry"
-  set guicolor(treelines)    \#888888
-  set guicolor(treecross)    \#AAAABB
-
-  # Affichage des "entry"
   set guicolor(entryfg)      black
   set guicolor(entrybg)      white
+  set guicolor(selectfg)     white
+  set guicolor(selectbg)     \#B02020
 
   # Affichage des flèches et ascensceurs
   set guicolor(scrollfg)     black
@@ -93,9 +91,9 @@ proc guib:menu { f } {
 
   # -- Mise en place du menu boutons GAUCHE (de gauche à droite)
   foreach {mb type nom aide} [ list \
-      settings text  "Settings"             "" \
-      addtab   image $guivar(image:addtab)  ""              \
-      compile  image $guivar(image:process) ""] {
+      settings text  "Settings"             "Set TYMON GUI parameters"    \
+      addtab   image $guivar(image:addtab)  "Add a new plot inside a tab" \
+      update   image $guivar(image:process) "Process monitor files"] {
     set b [button $fm.$mb -$type $nom -relief raised -command tymon:$mb      \
       -bg $guicolor(mbuttbg) -fg $guicolor(mbuttfg) -font $guivar(font) \
       -activebackground $guicolor(mbuttabg) -activeforeground $guicolor(mbuttafg) \

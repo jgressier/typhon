@@ -19,12 +19,14 @@ proc tymon:settings {} {
 
 
 #----------------------------------------------------------------------
-# tymon:compile
+# tymon:update
 #----------------------------------------------------------------------
-proc tymon:compile {} {
-  global projet
+proc tymon:update {} {
+  global projet 
 
-  puts stdout "Compile: Action non implémentée"
+  puts stdout "Update:"
+  tymon:getfiles
+  tymon:parseallfiles_loop
 
 } ;# Fin proc tymon:compile
 

@@ -21,7 +21,7 @@ proc guib:plot { f } {
   $pf1 configure -bg $guicolor(projetwg)
 
   # frame gauche : plot
-  blt::graph $pf0.graph  -title "test"
+  set guivar(plot) [blt::graph $pf0.graph  -title "test"]
   pack configure $pf0.graph -fill both -expand y
   lappend guivar(wlist4font) $pf0.graph
 
@@ -35,8 +35,8 @@ proc guib:plot { f } {
     -font $guivar(font)
   lappend guivar(wlist4font) $fd.opt $fd.var
 
-  guib:options   plotid [$fd.opt getframe]
-  guib:variables plotid [$fd.var getframe]
+  guib:options       plotid [$fd.opt getframe]
+  guib:listvariables plotid [$fd.var getframe]
 
   # pack
 
@@ -49,7 +49,7 @@ proc guib:plot { f } {
 } ;# fin proc guib:plot
 
 #----------------------------------------------------------------------
-# guib:options : Initilisation des options
+# guib:options : Initialisation des options
 #----------------------------------------------------------------------
 proc guib:options { plot f } {
   global guicolor guivar
@@ -65,16 +65,33 @@ proc guib:options { plot f } {
 } ;# fin proc guib:options
 
 #----------------------------------------------------------------------
-# guib:var : Initilisation des varions
+# guib:listvariables : Initialisation des variables
 #----------------------------------------------------------------------
-proc guib:variables { plot f } {
+proc guib:listvariables { plot f } {
   global guicolor guivar gplot
-  
-  foreach { var } $gplot(variables) {
-    checkbutton $f.$var -text $var -variable $gplot($plot:$var) \
-                -onvalue show -offvalue hide -command "plot:toggle_var $plot $var"
-    pack $f.$var -side top -anchor w -padx 5 }
-  #pack $f.list  
+ 
+  set guivar(varlist) [listbox $f.list -selectmode multiple \
+	-selectforeground $guicolor(selectfg) -selectbackground $guicolor(selectbg) \
+	-selectborderwidth 2]
+  bind $guivar(varlist) <<ListboxSelect>> plot:change_var
+#   foreach { var } $gplot(variables) {
+#     checkbutton $f.$var -text $var -variable $gplot($plot:$var) \
+#                 -onvalue show -offvalue hide -command "plot:toggle_var $plot $var"
+#     pack $f.$var -side top -anchor w -padx 5 }
+  pack $guivar(varlist)  
 
-} ;# fin proc guib:variables
+} ;# fin proc guib:listvariables
+
+
+#----------------------------------------------------------------------
+# guib:addvariables : Initialisation des variables
+#----------------------------------------------------------------------
+proc guib:addvariables { varlist } {
+  global guicolor guivar gplot mondata
+ 
+  foreach var $varlist {
+    $guivar(varlist) insert end $var
+  }
+
+} ;# fin proc guib:addvariables
 

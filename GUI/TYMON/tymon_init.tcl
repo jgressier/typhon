@@ -99,7 +99,7 @@ proc tymon:loadlib {} {
   # Lecture des fichiers sources TCL
   foreach source {gui_init gui_plot_init gui_update \
                   tymon_files tymon_command tymon_process \
-                  tymon_settings tymon_plot} {
+                  tymon_settings tymon_plot tymon_data} {
     gui:splash_statut "reading tymon source $source.tcl..."
     source [file join $guivar(HOME) $source.tcl]
   }

@@ -10,8 +10,16 @@
 #----------------------------------------------------------------------
 # plot:change_var : 
 #----------------------------------------------------------------------
-proc plot:change_var {  } {
+proc plot:change_var {} {
   global guicolor guivar
+
+  puts "change:[$guivar(varlist) curselection]"
+  foreach index [$guivar(varlist) curselection] {
+    set var [$guivar(varlist) get $index]
+    $guivar(plot) element create $var -xdata vec.it -ydata vec.$var -symbol none
+    puts "[vec.it range 1 10]"
+    puts "[vec.$var range 1 10]"
+  }
 
 } ;# fin proc plot:change_var
 

@@ -1,0 +1,5 @@
+#!/bin/sh
+#
+export GUI_HOME=$HOME/CODES/TYPHON/GUI/TYMON
+#
+wish $GUI_HOME/tymon.tcl
