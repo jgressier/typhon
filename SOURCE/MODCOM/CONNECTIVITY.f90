@@ -71,6 +71,9 @@ interface realloc
   module procedure realloc_connect
 endinterface
 
+interface index
+  module procedure index_int
+endinterface
 
 
 ! -- Fonctions et Operateurs ------------------------------------------------
@@ -202,8 +205,27 @@ subroutine delete_genconnect(conn)
 endsubroutine delete_genconnect
 
 
+!------------------------------------------------------------------------------!
+! Fonction : index d'un entier dans une liste d'entiers
+!------------------------------------------------------------------------------!
+integer function index_int(int, tab)
+  implicit none
+  integer :: int      ! entier à rechercher
+  integer :: tab(:)   ! liste d'entier pour la recherche
 
+  integer :: i, dim
 
+  dim       = size(tab) 
+  index_int = 0          ! valeur par défaut si index introuvable
+
+  do i = 1, dim
+    if (tab(i)==int) then
+      index_int = i
+      exit
+    endif
+  enddo 
+
+endfunction index_int
 
 
 

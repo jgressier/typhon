@@ -15,6 +15,7 @@ MESH_MOD = GEO3D.$(MOD)     \
 
 MESH_OBJ = $(MESH_MOD:.$(MOD)=.o)  \
            calc_connface.o         \
+           calc_cellvtex.o         \
            calc_ust_cell.o         \
            calc_ust_elemvol.o      \
            calc_ust_midcell.o      \

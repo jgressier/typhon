@@ -75,7 +75,10 @@ type st_cellvtex
   integer          :: nbar, ntri, nquad, &     ! nombre d'éléments par famille
                       ntetra, npyra, npenta, nhexa  
   type(st_connect) :: bar, tri, quad,    &     ! définition des éléments
-                      tetra, pyra, penta, hexa  
+                      tetra, pyra, penta, hexa
+  integer, dimension(:), pointer &
+                   :: ibar, itri, iquad, &     ! redirection d'index vers "icell" de ustmesh
+                      itetra, ipyra, ipenta, ihexa 
 endtype st_cellvtex
 
 
@@ -83,7 +86,11 @@ endtype st_cellvtex
 ! -- INTERFACES -------------------------------------------------------------
 
 interface new
-  module procedure new_ustmesh
+  module procedure new_ustmesh, new_cellvtex
+endinterface
+
+interface init
+  module procedure init_cellvtex
 endinterface
 
 interface delete
@@ -149,19 +156,97 @@ endsubroutine delete_ustmesh
 
 
 !------------------------------------------------------------------------------!
-! Procédure : desallocation d'une structure CELLVTEX
+! Procédure : allocation des tableaux d'une structure CELLVTEX
+!------------------------------------------------------------------------------!
+subroutine new_cellvtex(conn)
+implicit none
+type(st_cellvtex) :: conn
+
+  if (conn%nbar   /= 0) then
+    call new(conn%bar, conn%nbar, 2)
+    allocate(conn%ibar(conn%nbar))
+  endif
+  if (conn%ntri   /= 0) then
+    call new(conn%tri, conn%ntri, 3)
+    allocate(conn%itri(conn%ntri))
+  endif
+  if (conn%nquad  /= 0) then
+    call new(conn%quad, conn%nquad, 4)
+    allocate(conn%iquad(conn%nquad))
+  endif
+  if (conn%ntetra /= 0) then
+    call new(conn%tetra, conn%ntetra, 4)
+    allocate(conn%itetra(conn%ntetra))
+  endif
+  if (conn%npyra  /= 0) then
+    call new(conn%pyra, conn%npyra, 5)
+    allocate(conn%ipyra(conn%npyra))
+  endif
+  if (conn%npenta /= 0) then
+    call new(conn%penta, conn%npenta, 6)
+    allocate(conn%ipenta(conn%npenta))
+  endif
+  if (conn%nhexa  /= 0) then
+    call new(conn%hexa, conn%nhexa, 8)
+    allocate(conn%ihexa(conn%nhexa))
+  endif
+
+endsubroutine new_cellvtex
+
+
+!------------------------------------------------------------------------------!
+! Procédure : Intialisation des tableaux d'une structure CELLVTEX
+!------------------------------------------------------------------------------!
+subroutine init_cellvtex(conn)
+implicit none
+type(st_cellvtex) :: conn
+
+  conn%nbar   = 0
+  conn%ntri   = 0
+  conn%nquad  = 0
+  conn%ntetra = 0
+  conn%npyra  = 0
+  conn%npenta = 0
+  conn%nhexa  = 0
+
+endsubroutine init_cellvtex
+
+
+!------------------------------------------------------------------------------!
+! Procédure :desallocation d'une structure CELLVTEX
 !------------------------------------------------------------------------------!
 subroutine delete_cellvtex(conn)
 implicit none
 type(st_cellvtex) :: conn
 
-  if (conn%nbar   /= 0) call delete(conn%bar)
-  if (conn%ntri   /= 0) call delete(conn%tri)
-  if (conn%nquad  /= 0) call delete(conn%quad)
-  if (conn%ntetra /= 0) call delete(conn%tetra)
-  if (conn%npyra  /= 0) call delete(conn%pyra)
-  if (conn%npenta /= 0) call delete(conn%penta)
-  if (conn%nhexa  /= 0) call delete(conn%hexa)
+  if (conn%nbar   /= 0) then
+    call delete(conn%bar)
+    deallocate(conn%ibar)
+  endif
+  if (conn%ntri   /= 0) then
+    call delete(conn%tri)
+    deallocate(conn%itri)
+  endif
+  if (conn%nquad  /= 0) then
+    call delete(conn%quad)
+    deallocate(conn%iquad)
+  endif
+  if (conn%ntetra /= 0) then
+    call delete(conn%tetra)
+    deallocate(conn%itetra)
+  endif
+  if (conn%npyra  /= 0) then
+    call delete(conn%pyra)
+    deallocate(conn%ipyra)
+  endif
+  if (conn%npenta /= 0) then
+    call delete(conn%penta)
+    deallocate(conn%ipenta)
+  endif
+  if (conn%nhexa  /= 0) then
+    call delete(conn%hexa)
+    deallocate(conn%ihexa)
+  endif
 
 endsubroutine delete_cellvtex
 
