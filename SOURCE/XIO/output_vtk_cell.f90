@@ -49,6 +49,11 @@ enddo
 
 ! connectivité 
 
+ust_mesh%ncell = ust_mesh%cellvtex%nbar   + &
+                 ust_mesh%cellvtex%ntri   + ust_mesh%cellvtex%nquad + &
+                 ust_mesh%cellvtex%ntetra + ust_mesh%cellvtex%npyra + &
+                 ust_mesh%cellvtex%npenta + ust_mesh%cellvtex%nhexa
+
 ntot =        3*ust_mesh%cellvtex%nbar
 ntot = ntot + 4*ust_mesh%cellvtex%ntri
 ntot = ntot + 5*ust_mesh%cellvtex%nquad
@@ -57,26 +62,28 @@ ntot = ntot + 6*ust_mesh%cellvtex%npyra
 ntot = ntot + 7*ust_mesh%cellvtex%npenta
 ntot = ntot + 9*ust_mesh%cellvtex%nhexa
 write(uf_chpresu,'(a,2i10)') 'CELLS ',ust_mesh%ncell, ntot
+print*,'nbar:',ust_mesh%cellvtex%nbar
 do i = 1, ust_mesh%cellvtex%nbar
-  write(uf_chpresu,'(i3,2i9)') 2, ust_mesh%cellvtex%bar%fils(i,:)
+  write(uf_chpresu,'(i3,2i9)') 2, ust_mesh%cellvtex%bar%fils(i,:)-1
 enddo
 do i = 1, ust_mesh%cellvtex%ntri
-  write(uf_chpresu,'(i3,3i9)') 3, ust_mesh%cellvtex%tri%fils(i,:)
+  write(uf_chpresu,'(i3,3i9)') 3, ust_mesh%cellvtex%tri%fils(i,:)-1
 enddo
+print*,'nquad:',ust_mesh%cellvtex%nquad
 do i = 1, ust_mesh%cellvtex%nquad
-  write(uf_chpresu,'(i3,4i9)') 4, ust_mesh%cellvtex%quad%fils(i,:)
+  write(uf_chpresu,'(i3,4i9)') 4, ust_mesh%cellvtex%quad%fils(i,:)-1
 enddo
 do i = 1, ust_mesh%cellvtex%ntetra
-  write(uf_chpresu,'(i3,4i9)') 4, ust_mesh%cellvtex%tetra%fils(i,:)
+  write(uf_chpresu,'(i3,4i9)') 4, ust_mesh%cellvtex%tetra%fils(i,:)-1
 enddo
 do i = 1, ust_mesh%cellvtex%npyra
-  write(uf_chpresu,'(i3,5i9)') 5, ust_mesh%cellvtex%pyra%fils(i,:)
+  write(uf_chpresu,'(i3,5i9)') 5, ust_mesh%cellvtex%pyra%fils(i,:)-1
 enddo
 do i = 1, ust_mesh%cellvtex%npenta
-  write(uf_chpresu,'(i3,6i9)') 6, ust_mesh%cellvtex%penta%fils(i,:)
+  write(uf_chpresu,'(i3,6i9)') 6, ust_mesh%cellvtex%penta%fils(i,:)-1
 enddo
 do i = 1, ust_mesh%cellvtex%nhexa
-  write(uf_chpresu,'(i3,8i9)') 8, ust_mesh%cellvtex%hexa%fils(i,:)
+  write(uf_chpresu,'(i3,8i9)') 8, ust_mesh%cellvtex%hexa%fils(i,:)-1
 enddo
 
 ! type de cellules
@@ -117,7 +124,6 @@ do i = 1, ust_mesh%cellvtex%ntri
   write(uf_chpresu,'(e18.8)') field%etatprim%tabscal(1)%scal(ust_mesh%cellvtex%itri(i))
 enddo
 do i = 1, ust_mesh%cellvtex%nquad
-  print*,ust_mesh%cellvtex%iquad(i)
   write(uf_chpresu,'(e18.8)') field%etatprim%tabscal(1)%scal(ust_mesh%cellvtex%iquad(i))
 enddo
 do i = 1, ust_mesh%cellvtex%ntetra
