@@ -401,6 +401,11 @@ Task 0062 (Jérémie) : Out : Residual monitors
 - automatic initialization of residual history for steady cases
 
 ---------------------------------------------------------------------------------
+Task 0069 (Jérémie) : NS : Gradients computation
+---------------------------------------------------------------------------------
+- computation of vector gradients (calc_gradient)
+
+---------------------------------------------------------------------------------
 Task 0073 (Emmanuel) : KDIF : convection boundary condition
 ---------------------------------------------------------------------------------
 - bug : bad assignment of the convection parameter h
@@ -416,4 +421,19 @@ Task 0074 (Emmanuel) : Make : restructuration of fields : chained list
 Task 0075 (Emmanuel) : Make : local convergence on cycle
 ---------------------------------------------------------------------------------
 - local convergence : iterations on cycle until the right field is obtained
+
+---------------------------------------------------------------------------------
+Task 0076 (Jérémie) : NS : MUSCL interpolation
+---------------------------------------------------------------------------------
+- read parameters (defspat)
+- array computation of vectors & tensors (GEO3D, TENSOR)
+- limiter definition (LIMITER)
+- MUSCL interpolation (hres_ns_muscl)
+
+---------------------------------------------------------------------------------
+Task 0077 (Jérémie) : Make : DEFFIELD restructuration
+---------------------------------------------------------------------------------
+- split into DEFFIELD  (FIELD         structure)
+             GENFIELD  (GENERICFIELD  structure)
+             BASEFIELD (SCA/VEC/TEN FIELD structures)
 

@@ -34,8 +34,7 @@ interface operator(-)
 endinterface
 
 interface operator(*)
-  module procedure t3d_multiply, t3d_multiply_t, t3d_multiply_tt, t3d_multvect, t3d_multvect_tt, &
-                   t3d_tensorial_product, t3d_tensorial_product_t
+  module procedure t3d_multiply, t3d_multiply_t, t3d_multiply_tt, t3d_multvect, t3d_multvect_tt
 endinterface
 
 interface operator(/)
@@ -46,9 +45,9 @@ interface operator(.scal.)
   module procedure t3d_scalar_product, t3d_scalar_product_t
 endinterface
 
-!interface operator(.vect.)
-!  module procedure v3d_vectorial_product
-!endinterface
+interface operator(.tens.)
+  module procedure t3d_tensorial_product, t3d_tensorial_product_t
+endinterface
 
 ! -- Fonctions et Operateurs ------------------------------------------------
 
