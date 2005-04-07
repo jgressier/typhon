@@ -26,9 +26,9 @@ dnl -------------------------------------------------------------
 sectionlr([release 0.1.5], [05/08/2004])
 beginlist
 writefunc([NS], [Inviscid solver released, HLLE first order upwind scheme])
-writefunc([NS], [boundary conditions: subsonic ans supersonic inlet and oulet])
+writefunc([NS], [boundary conditions: subsonic and supersonic inlet and oulet])
 writefunc([NS], [boundary conditions: symmetry])
-writedev([OUTPUT], [VTK format for scalars ans vectors (NS only)])
+writedev([OUTPUT], [VTK format for scalars and vectors (NS only)])
 endlist
 
 dnl -------------------------------------------------------------
@@ -38,7 +38,7 @@ writebug([known bug], [computation of 3D meshes with QUAD face cells])
 writefunc([MESH],  [CGNS files: TRI/QUAD 2D meshes, TETRA/PRISM 3D meshes])
 writefunc([KDIF],  [boundary conditions: convection h(T-Tref)])
 writefunc([KDIF],  [Implicit time integration (direct LU or Iterative Jacobi) ])
-writedev([OUTPUT], [VTK format for scalars ans vectors (NS only)])
+writedev([OUTPUT], [VTK format for scalars and vectors (NS only)])
 endlist
 
 dnl -------------------------------------------------------------

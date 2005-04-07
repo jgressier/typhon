@@ -11,7 +11,7 @@ dnl  <tr bgcolor=d7e6ef><td valign=middle>
 dnl  skip_row
 dnl ========== main frame - 2 columns ========================================
 
-  <tr><td width=120>
+  <tr><td width=100%>
 dnl <table width="100%" background=img_dir([bg-menu2.png]) border=0 cellspacing="0" cellpadding="4">
   <table width="100%" bgcolor="d7e6ef" border=0 cellspacing="0" cellpadding="4">
     <tr valign="top">

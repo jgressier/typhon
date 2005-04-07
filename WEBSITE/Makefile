@@ -4,7 +4,7 @@
 PRE = m4
 
 # Le grep pour récupérer les bonnes infos
-GREP = egrep -v "^$$"
+GREP = egrep -v "^ *$$"
 
 # Les noms des fichiers a generer sans extension
 SRC  = ./SRC
@@ -18,6 +18,16 @@ FIC  = index.html         \
        feat_input.html    \
        feat_output.html   \
        case.html          \
+       doc.html           \
+       doc_input.html     \
+       doc_output.html    \
+       doc_mesh.html      \
+       doc_ns.html        \
+       doc_kdif.html      \
+       doc_scheme.html    \
+       doc_coupling.html  \
+       doc_amr.html       \
+       doc_mpi.html       \
        dev.html           \
        dev_team.html      \
        dev_chlog.html     \

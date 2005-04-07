@@ -17,7 +17,7 @@ item([inviscid])
 <br>
 
 section([Numerical Schemes])
-item([HHLE upwind scheme])
+item([HLLE upwind scheme])
 item([MUSCL second order extension])
 <br>
 
