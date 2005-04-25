@@ -1,12 +1,10 @@
 !------------------------------------------------------------------------------!
-! Procedure : integration_kdif_ust        Auteur : J. Gressier
-!                                         Date   : Avril 2003
-! Fonction                                Modif  : (cf historique)
-!   Integration d'un domaine non structure
-!   Le corps de la routine consiste a distribuer les etats et les gradients
-!   sur chaque face.
-!
-! Defauts/Limitations/Divers :
+! Procedure : integration_kdif_ust              Authors : J. Gressier
+!                                               Created : April 2003
+! Fonction                                      Modif  : (cf history)
+!   Given field and boundary conditions, Computation of
+!   - explicit fluxes
+!   - jacobian matrices (if needed)
 !
 !------------------------------------------------------------------------------!
 subroutine integration_kdif_ust(dt, defsolver, defspat, domaine, field, flux, &
@@ -76,6 +74,7 @@ do ib = 1, nbloc
 
   !print*,"!!! DEBUG integration bloc,",ib," de",ideb," a",ideb+nfb-1
   !! DEV : optimisation ? 13% du temps de calcul en explicite !!!
+
   do it = 1, nfb
     if  = ideb+it-1
     icl = domaine%facecell%fils(if,1)
@@ -106,17 +105,21 @@ do ib = 1, nbloc
   
 enddo
 
-deallocate(grad_l, grad_r, cell_l, cell_r, cg_l, cg_r)
+!-------------------------------------------------------------
+! flux assignment or modification on boundary conditions
 
-call fluxlimite(defsolver, domaine, flux)
+call kdif_bocoflux(defsolver, domaine, flux, field)
+
+!-------------------------------------------------------------
+deallocate(grad_l, grad_r, cell_l, cell_r, cg_l, cg_r)
 
 endsubroutine integration_kdif_ust
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Change history
 !
-! avr  2003 : creation de la procedure
-! juin 2003 : maj gestion variables conservatives et primitives
-! oct  2003 : ajout des gradients dans la distribution des etats gauche et droit
-! avr  2004 : calcul des jacobiennes pour implicitation
+! apr  2003 : created
+! june 2003 : update management of conservative and primitive variables
+! oct  2003 : gradients added in left and right distribution
+! apr  2004 : jacobian matrices computation for implicit solver
 !------------------------------------------------------------------------------!

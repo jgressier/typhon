@@ -40,7 +40,7 @@ EQKDIF_OBJ := $(EQKDIF_MOD:.$(MOD)=.o)        \
               calcboco_kdif.o                 \
               echange_kdif.o                  \
               ech_data_kdif.o                 \
-              fluxlimite.o                    \
+              kdif_bocoflux.o                 \
               init_boco_kdif.o                \
               init_kdif_ust.o                 \
               integration_kdif_ust.o          \
@@ -78,7 +78,7 @@ EQKDIF_clean:
 
 
 EQKDIF/depends.make: $(D_EQKDIF_SRC)
-	(cd EQKDIF ; $(SHELL) ../$(MAKEDEPENDS))
+	(cd EQKDIF ; ../$(MAKEDEPENDS))
 
 include EQKDIF/depends.make
 
