@@ -42,7 +42,7 @@ MATH_clean:
 
 
 MATH/depends.make: $(D_MATH_SRC)
-	(cd MATH ; $(SHELL) ../$(MAKEDEPENDS))
+	(cd MATH ; ../$(MAKEDEPENDS))
 
 include MATH/depends.make
 

@@ -137,7 +137,9 @@ type(st_fct_node) :: node
 
   select case(node%type_node)
   case(node_cst)
+    call delete(node%container)
   case(node_var)
+    call delete(node%container)
   case(node_opunit)
     call delete(node%left)
     deallocate(node%left)

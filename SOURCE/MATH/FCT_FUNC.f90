@@ -19,21 +19,18 @@ implicit none
 !------------------------------------------------------------------------------!
 ! structure ST_FCT_FUNC : 
 !------------------------------------------------------------------------------!
-type st_fct_node
-  integer(ipar)                 :: type_node
-  integer(ipar)                 :: type_oper
-  integer(ipar)                 :: size
-  type(st_fct_node), pointer :: left, right
-endtype st_fct_node
+type st_fct_func
+
+endtype st_fct_func
 
 
 ! -- INTERFACES -------------------------------------------------------------
 interface new
-  module procedure new_fct_node
+  module procedure new_fct_func
 endinterface
 
 interface delete
-  module procedure delete_fct_node
+  module procedure delete_fct_func
 endinterface
 
 ! -- Fonctions et Operateurs ------------------------------------------------
@@ -43,26 +40,26 @@ endinterface
 contains
 
 !------------------------------------------------------------------------------!
-! new_fct_node : allocate FCT_FUNC structure
+! new_fct_func : allocate FCT_FUNC structure
 !------------------------------------------------------------------------------!
-subroutine new_fct_node(mat, dim, ncouple)
+subroutine new_fct_func(mat, dim, ncouple)
 implicit none
 ! - paramètres
-type(st_fct_node) :: mat
+type(st_fct_func) :: mat
 integer(ipar) :: dim, ncouple
 
 
-endsubroutine new_fct_node
+endsubroutine new_fct_func
 
 !------------------------------------------------------------------------------!
-! delete_fct_node : remove FCT_FUNC structure
+! delete_fct_func : remove FCT_FUNC structure
 !------------------------------------------------------------------------------!
-subroutine delete_fct_node(mat)
+subroutine delete_fct_func(mat)
 implicit none
 ! - paramètres
-type(st_fct_node) :: mat
+type(st_fct_func) :: mat
 
-endsubroutine delete_fct_node
+endsubroutine delete_fct_func
 
 
 endmodule FCT_FUNC
