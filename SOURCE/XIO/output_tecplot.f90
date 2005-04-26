@@ -35,8 +35,6 @@ type(st_genericfield) :: vfield
 ! -- Debut de la procedure --
 if (position == end_calc) then  !DEV2602
 
-  call print_info(2,"* sauvegarde au format TECPLOT : " // trim(nom))
-
   if ((outp_typ == outp_NODE).or.(outp_typ == outp_CENTER)) then !DEV2602
 
     ! DEVELOPPEMENT PROVISOIRE
@@ -50,7 +48,7 @@ if (position == end_calc) then  !DEV2602
 
         write(uf_chpresu,'(a)') 'VARIABLES="X","Y","Z","T"'
         call output_tec_ust(uf_chpresu, world%zone(izone)%grid%umesh, &
-                            world%zone(izone)%grid%info%field_loc, outp_typ)
+                            world%zone(izone)%grid%field_loc, outp_typ)
 
       case(solVORTEX)
 

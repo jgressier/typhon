@@ -35,8 +35,6 @@ type(st_genericfield) :: vfield
 
 if (position == end_calc) then 
 
-  call print_info(2,"* sauvegarde au format VTK : " // trim(nom))
-
   if ((outp_typ == outp_NODE).or.(outp_typ == outp_CENTER)) then !DEV2602
 
     ! DEVELOPPEMENT PROVISOIRE
@@ -51,7 +49,7 @@ if (position == end_calc) then
         write(uf_chpresu,'(a)') 'TYPHON-NS'
         write(uf_chpresu,'(a)') 'ASCII'
         call output_vtk_cell(uf_chpresu, world%zone(izone)%defsolver, &
-                             world%zone(izone)%grid%umesh, world%zone(izone)%grid%info%field_loc)
+                             world%zone(izone)%grid%umesh, world%zone(izone)%grid%field_loc)
 
       case(solKDIF)
 
@@ -59,7 +57,7 @@ if (position == end_calc) then
         write(uf_chpresu,'(a)') 'TYPHON-KDIF'
         write(uf_chpresu,'(a)') 'ASCII'
         call output_vtk_cell(uf_chpresu, world%zone(izone)%defsolver, &
-                             world%zone(izone)%grid%umesh, world%zone(izone)%grid%info%field_loc)
+                             world%zone(izone)%grid%umesh, world%zone(izone)%grid%field_loc)
 
       case(solVORTEX)
 

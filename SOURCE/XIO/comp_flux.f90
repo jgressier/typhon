@@ -63,9 +63,9 @@ do i=1, nfacelim
 
   ! Temperatures
 
-  temp1(i) = zone1%grid%info%field_loc%etatprim%tabscal(1)%scal(ic1)
-  temp2(i) = zone2%grid%info%field_loc%etatprim%tabscal(1)%scal(ic2)
-  tempinter(i) = zone1%grid%info%field_loc%etatprim%tabscal(1)%scal(icg1)
+  temp1(i) = zone1%grid%field_loc%etatprim%tabscal(1)%scal(ic1)
+  temp2(i) = zone2%grid%field_loc%etatprim%tabscal(1)%scal(ic2)
+  tempinter(i) = zone1%grid%field_loc%etatprim%tabscal(1)%scal(icg1)
   
 enddo 
 
