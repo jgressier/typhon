@@ -30,5 +30,5 @@ LINKFB  = $(FO) -L$(PRJEXT)
 
 MPILIB     = -lmpich
 CGNSLIB    = -LLIBEXT -lcgns #-lcgns
-LAPACKLIBS = -L/opt/aero/lib -lflapack8 -lfblas8 # installation locale
+LAPACKLIBS = -L/opt/aero/lib -llapack -lfblas8 # installation locale
 
