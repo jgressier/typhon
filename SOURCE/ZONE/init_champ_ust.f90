@@ -7,6 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
+!subroutine init_champ_ust(defsolver, ust_mesh, champ, grid)
 subroutine init_champ_ust(defsolver, ust_mesh, grid)
 
 use TYPHMAKE
@@ -62,7 +63,7 @@ do i = 1, defsolver%ninit
   case(solNS)
     call init_ns_ust(defsolver%defns, defsolver%init(i)%ns, champ, ust_mesh%mesh)
   case(solKDIF)
-    call init_kdif_ust(defsolver%init(i)%kdif, champ, defsolver%init(i)%unif, ust_mesh%mesh, defsolver%init(i)%profil)
+    call init_kdif_ust(defsolver%init(i)%kdif, champ, defsolver%init(i)%unif, ust_mesh%mesh)
   case(solVORTEX)
     call init_vort_ust(defsolver%init(i)%vortex, champ)
   case default
@@ -74,11 +75,11 @@ enddo
 select case(defsolver%typ_solver)
 case(solNS, solKDIF)
   call calc_varcons(defsolver, champ)
-case(solVORTEX)
-  ! nothing to do
 case default
   call erreur("Incoherence interne (init_champ_ust)","type de solveur inconnu")
 endselect
+
+grid%field => champ
 
 endsubroutine init_champ_ust
 

@@ -37,8 +37,8 @@ integer :: icell, iface                  ! index de cellule et de face
 ! allocation du champ
 
 !print*,'debug : init_singpanel : ',grid%umesh%nface,' faces'
-!call new(grid%info%field_loc, 1, 0, grid%umesh%nface+1, 0)
-!print*,'debug field scalaires : ',grid%info%field_loc%nscal,'x',grid%field_loc%ncell
+!call new(grid%field, 1, 0, grid%umesh%nface+1, 0)
+!print*,'debug field scalaires : ',grid%field%nscal,'x',grid%field%ncell
 
 ! lien de la condition limite (defsolver) vers grid
 
