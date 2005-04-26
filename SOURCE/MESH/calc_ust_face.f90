@@ -56,8 +56,7 @@ do if = 1, nface
 
   ! calcul du nombre de sommet de la face
   ns = 2
-  do while (ns <= facevtex%nbfils)
-    if (facevtex%fils(if,ns) == 0) exit   ! if not a vertex: exit loop
+  do while ((ns <= facevtex%nbfils).and.(facevtex%fils(if,ns) /= 0))
     ns = ns + 1
   enddo
   ns = ns - 1  ! le dernier sommet ne satisfait pas les conditions
