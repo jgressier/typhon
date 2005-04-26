@@ -41,7 +41,7 @@ PIO_clean:
 
 
 PIO/depends.make: $(D_PIO_SRC)
-	(cd PIO ; $(SHELL) ../$(MAKEDEPENDS))
+	(cd PIO ; ../$(MAKEDEPENDS))
 
 include PIO/depends.make
 
