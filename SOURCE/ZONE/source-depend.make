@@ -57,7 +57,7 @@ ZONE_clean:
 ####### Dependencies
 
 ZONE/depends.make: $(D_ZONE_SRC)
-	(cd ZONE ; $(SHELL) ../$(MAKEDEPENDS))
+	(cd ZONE ; ../$(MAKEDEPENDS))
 
 include ZONE/depends.make
 
