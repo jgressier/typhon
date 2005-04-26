@@ -42,7 +42,7 @@ MODCOM_clean:
 ####### Dependencies
 
 MODCOM/depends.make: $(D_MODCOM_SRC)
-	(cd MODCOM ; $(SHELL) ../$(MAKEDEPENDS))
+	(cd MODCOM ; ../$(MAKEDEPENDS))
 
 include MODCOM/depends.make
 

@@ -48,7 +48,7 @@ VORTEX_clean:
 ####### Dependencies
 
 VORTEX/depends.make: $(D_VORTEX_SRC) $(LDIR)/source-depend.make
-	(cd VORTEX ; $(SHELL) ../$(MAKEDEPENDS))
+	(cd VORTEX ; ../$(MAKEDEPENDS))
 
 include VORTEX/depends.make
 
