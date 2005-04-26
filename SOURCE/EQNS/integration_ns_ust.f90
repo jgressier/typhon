@@ -47,8 +47,8 @@ integer :: it                   ! index de tableau
 integer :: icl, icr             ! index de cellule a gauche et a droite
 type(st_nsetat), dimension(:), allocatable & 
         :: cell_l, cell_r       ! tableau de cellules a gauche et a droite
-type(v3d), dimension(:), allocatable &
-        :: grad_l, grad_r       ! tableau des gradients
+type(st_genericfield) &
+        :: gradL, gradR         ! block size arrays of gradients
 type(v3d), dimension(:), allocatable &
         :: cg_l, cg_r           ! tableau des centres de cellules a gauche et a droite   
 
@@ -65,9 +65,10 @@ nfb   = 1 + mod(domaine%nface-1, nbuf)         ! taille de 1er bloc peut etre <>
 ! il sera a tester l'utilisation de tableaux de champs generiques plutôt que
 ! des definitions type d'etat specifiques (st_nsetat)
 
-allocate(grad_l(nbuf), grad_r(nbuf))
 allocate(cell_l(nbuf), cell_r(nbuf))
 allocate(  cg_l(nbuf),   cg_r(nbuf))
+call new(gradL, nbuf, field%gradient%nscal, field%gradient%nvect, field%gradient%ntens)
+call new(gradR, nbuf, field%gradient%nscal, field%gradient%nvect, field%gradient%ntens)
 
 ideb = 1
 
@@ -120,19 +121,43 @@ do ib = 1, nbloc
     call erreur("error","numerical scheme not implemented (flux computation)")
   endselect
 
+  !----------------------------------------------------------------------
+  ! computation of VISCOUS fluxes
+  !----------------------------------------------------------------------
+  select case(defsolver%defns%typ_fluid)
+  case(eqEULER)
+    ! nothing to do
+  case(eqNSLAM)
+    call distrib_field(field%gradient, domaine%facecell, ideb, ifin, &
+                       gradL, gradR, 1)
+    call calc_flux_viscous(defsolver, defspat,                        &
+                           nfb, ideb, domaine%mesh%iface,             &
+                           cell_l, cell_r, gradL, gradR, flux,        &
+                           calc_jac, jacL(ideb:ifin), jacR(ideb:ifin))
+  case(eqRANS)
+    call erreur("development", "turbulence modeling not implemented")   
+  case default
+    call erreur("viscous flux computation", "unknown model")
+  endselect
+
+  !----------------------------------------------------------------------
+  ! end of block
+
   ideb = ideb + nfb
   nfb  = nbuf         ! tous les blocs suivants sont de taille nbuf
   
 enddo
 
-deallocate(grad_l, grad_r, cell_l, cell_r, cg_l, cg_r)
-
+deallocate(cell_l, cell_r, cg_l, cg_r)
+call delete(gradL)
+call delete(gradR)
 
 endsubroutine integration_ns_ust
 
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! july 2004 : creation de la procedure
+! july 2004 : created, basic calls
 ! nov  2004 : high order interpolation
+! feb  2005 : call to viscous flux computation
 !------------------------------------------------------------------------------!

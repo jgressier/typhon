@@ -13,9 +13,14 @@ MGRID_MOD = BASEFIELD.$(MOD)    \
             MGRID.$(MOD)
 
 
-MGRID_OBJ = $(MGRID_MOD:.$(MOD)=.o)  \
-            calc_gradient.o          \
-            calc_gradient_limite.o   \
+MGRID_OBJ = $(MGRID_MOD:.$(MOD)=.o)    \
+            calc_gradient.o            \
+            calc_gradient_limite.o     \
+            distrib_field.o            \
+            interpface_gradient_scal.o \
+            interpface_gradient_vect.o \
+            interpface_gradn_scal.o    \
+            interpface_gradn_vect.o    \
             precalc_grad_lsq.o 
 
 D_MGRID_OBJ = $(MGRID_OBJ:%=$(PRJOBJ)/%)

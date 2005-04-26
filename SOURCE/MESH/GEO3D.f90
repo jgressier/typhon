@@ -31,11 +31,11 @@ interface tab
 endinterface
 
 interface abs
-  module procedure v3d_norme
+  module procedure v3d_norme, v3d_norme_t
 endinterface
 
 interface sqrabs
-  module procedure v3d_sqrnorme
+  module procedure v3d_sqrnorme, v3d_sqrnorme_t
 endinterface
 
 interface operator(+)
@@ -486,6 +486,21 @@ type(v3d), intent(in) :: v
 endfunction v3d_norme
 
 !------------------------------------------------------------------------------!
+! Fonction : vector magnitude (array)
+!------------------------------------------------------------------------------!
+function v3d_norme_t(v) result(t)
+implicit none
+type(v3d), dimension(:), intent(in) :: v
+real(krp), dimension(size(v))       :: t
+integer :: i
+
+  do i = 1, size(v)
+    t(i) = sqrt(v(i)%x*v(i)%x + v(i)%y*v(i)%y + v(i)%z*v(i)%z)
+  enddo
+
+endfunction v3d_norme_t
+
+!------------------------------------------------------------------------------!
 ! Fonction : square of norme magnitude
 !------------------------------------------------------------------------------!
 real(krp) function v3d_sqrnorme(v)
@@ -495,6 +510,21 @@ type(v3d), intent(in) :: v
   v3d_sqrnorme = v%x*v%x + v%y*v%y + v%z*v%z
 
 endfunction v3d_sqrnorme
+
+!------------------------------------------------------------------------------!
+! Fonction : square of vector magnitude (array)
+!------------------------------------------------------------------------------!
+function v3d_sqrnorme_t(v) result(t)
+implicit none
+type(v3d), dimension(:), intent(in) :: v
+real(krp), dimension(size(v))       :: t
+integer :: i
+
+  do i = 1, size(v)
+    t(i) = v(i)%x*v(i)%x + v(i)%y*v(i)%y + v(i)%z*v(i)%z
+  enddo
+
+endfunction v3d_sqrnorme_t
 
 !------------------------------------------------------------------------------!
 ! Fonction : dot product
