@@ -73,8 +73,7 @@ do i = 1, n_init
 
   select case(isolver)
   case(solKDIF)
-    call def_init_kdif(pcour, defsolver%init(i)%kdif, defsolver%init(i)%unif, &
-                       defsolver%init(i)%profil)
+    call def_init_kdif(pcour, defsolver%init(i)%kdif, defsolver%init(i)%unif)
   case(solVORTEX)
     call def_init_vortex(pcour, defsolver%init(i)%vortex)
   case(solNS)

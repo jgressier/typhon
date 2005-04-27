@@ -33,13 +33,13 @@ all: $(MGRID_LIB)
 
 $(MGRID_LIB): $(D_MGRID_OBJ)
 	@echo ---------------------------------------------------------------
-	@echo \* Creating library $(MGRID_LIB)
+	@echo \* Création de la librairie $(MGRID_LIB)
 	@touch $(MGRID_LIB) ; rm $(MGRID_LIB)
 	@$(AR) ruv $(MGRID_LIB) $(D_MGRID_OBJ)
-	@echo \* Creating library index
+	@echo \* Création de l\'index de la librairie
 	@$(RAN)    $(MGRID_LIB)
 	@echo ---------------------------------------------------------------
-	@echo \* $(MGRID_LIB) LIBRARY created
+	@echo \* LIBRAIRIE $(MGRID_LIB) créée
 	@echo ---------------------------------------------------------------
 
 MGRID_clean:
@@ -48,7 +48,7 @@ MGRID_clean:
 ####### Dependencies
 
 MGRID/depends.make: $(D_MGRID_SRC)
-	(cd MGRID ; $(SHELL) ../$(MAKEDEPENDS))
+	(cd MGRID ; ../$(MAKEDEPENDS))
 
 include MGRID/depends.make
 

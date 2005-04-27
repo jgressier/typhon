@@ -57,6 +57,6 @@ CGNS_clean:
 
 
 CGNS/depends.make: $(D_CGNS_SRC)
-	(cd CGNS ; $(SHELL) ../$(MAKEDEPENDS))
+	(cd CGNS ; ../$(MAKEDEPENDS))
 
 include CGNS/depends.make

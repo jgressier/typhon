@@ -21,7 +21,6 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            conditions_limites.o     \
            correction.o             \
            corr_varprim.o           \
-           crit_calc_cycle.o        \
            echange.o                \
            echange_zonedata.o       \
            echange_zonematch.o      \
@@ -75,7 +74,7 @@ MAIN_clean:
 
 
 MAIN/depends.make: $(D_MAIN_SRC)
-	(cd MAIN ; $(SHELL) ../$(MAKEDEPENDS))
+	(cd MAIN ; ../$(MAKEDEPENDS))
 
 include MAIN/depends.make
 

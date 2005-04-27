@@ -116,22 +116,7 @@ case default
   call erreur("lecture de menu","type d'integration temporelle inconnu")
 endselect
 
-! -- Convergence locale - 18/10/04
-call rpmgetkeyvalstr(pcour, "LOCAL_CVGCE", str, "NO")
 
-if ( samestring(str,"YES")) prj%it_cycle = iterate
-if ( samestring(str,"NO"))  prj%it_cycle = noiterate
-
-select case(prj%it_cycle)
-
-case(iterate)
-  call print_info(10,"Convergence locale utilisée")
-  call rpmgetkeyvalreal(pcour,"CVGCE_CRIT",prj%eps_cvloc,0.000000001_krp)
-case(noiterate)
-
-case default
-  call erreur("lecture de menu","type de convergence inconnu")
-endselect
 
 endsubroutine def_project
 
@@ -141,7 +126,6 @@ endsubroutine def_project
 ! nov  2002 : creation de la procedure
 ! juin 2003 : ajout de la definition des couplages
 ! sept 2003 : parametres pour le calcul stationnaire
-! oct  2004 : local convergence parameters
 !------------------------------------------------------------------------------!
 
 

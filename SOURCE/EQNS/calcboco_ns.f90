@@ -39,23 +39,23 @@ select case(defboco%typ_boco)
 
 case(bc_inlet_sup)
   call setboco_ns_inlet_sup(defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
-                            ustboco, grid%umesh, grid%info%field_loc)
+                            ustboco, grid%umesh, grid%field_loc)
 
 case(bc_inlet_sub)
   call setboco_ns_inlet_sub(defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
-                            ustboco, grid%umesh, grid%info%field_loc)
+                            ustboco, grid%umesh, grid%field_loc)
 
 case(bc_outlet_sup)
   call setboco_ns_outlet_sup(defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
-                             ustboco, grid%umesh, grid%info%field_loc)
+                             ustboco, grid%umesh, grid%field_loc)
 
 case(bc_outlet_sub)
   call setboco_ns_outlet_sub(defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
-                             ustboco, grid%umesh, grid%info%field_loc)
+                             ustboco, grid%umesh, grid%field_loc)
 
 case(bc_wall_isoth)
   call erreur("Developpement","Condition limite inconnue non implementee (calcboco_ns)")
-  !call setboco_ns_isoth(defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, defboco%boco_ns)
+  !call setboco_ns_isoth(defboco%boco_unif, ustboco, grid%umesh, grid%field, defboco%boco_ns)
 
 case(bc_wall_flux)
   call erreur("Developpement","Condition limite inconnue non implementee (calcboco_ns)")

@@ -37,7 +37,8 @@ do while (associated(pgrid))
   !allocate(pgrid%field)
   !call init_champ_ust(zone%defsolver, pgrid%umesh, pgrid%field, pgrid)
   call init_champ_ust(zone%defsolver, pgrid%umesh, pgrid)
-  pgrid%info%field_loc => pgrid%field
+  allocate(pgrid%field_loc)
+  pgrid%field_loc => pgrid%field
   pgrid => pgrid%next
 enddo
 

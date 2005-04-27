@@ -12,7 +12,6 @@
 subroutine flux_to_res(dt, umesh, flux, residu, trait_jac, jacL, jacR)
 
 use TYPHMAKE
-!use GEO3D
 use OUTPUT
 use VARCOM
 use USTMESH
@@ -33,7 +32,6 @@ real(krp), dimension(1:umesh%nface) :: jacL, jacR
 ! -- Declaration des variables internes --
 real(krp), allocatable :: surf(:)         ! intermediate surface
 real(krp), allocatable :: vol(:)          ! intermediate volume
-integer,   allocatable :: tic1(:), tic2(:)  ! intermediate index connectivity
 integer               :: if               ! index de face
 integer               :: ic1, ic2         ! index de cellules
 integer               :: ip               ! index de variables
@@ -55,7 +53,7 @@ do ip = 1, flux%nscal
   flux%tabscal(ip)%scal(:) = surf(:) * flux%tabscal(ip)%scal(:)
 enddo
 do ip = 1, flux%nvect
-  call scaleval(flux%tabvect(ip)%vect, surf(:))
+  flux%tabvect(ip)%vect(:) = surf(:) * flux%tabvect(ip)%vect(:)
 enddo
 
 ! -- idem traitement des jacobiennes
@@ -71,31 +69,20 @@ deallocate(surf)
 
 call init_genericfield(residu, 0._krp, v3d(0._krp, 0._krp, 0._krp))
 
-!allocate(tic1(umesh%nface))
-!allocate(tic2(umesh%nface))
+do if = 1, umesh%nface
+  ic1 = umesh%facecell%fils(if,1)
+  ic2 = umesh%facecell%fils(if,2)
 
-!tic1 = umesh%facecell%fils(1:umesh%nface,1)
-!tic2 = umesh%facecell%fils(1:umesh%nface,2)
-
-do ip = 1, residu%nscal
-  do if = 1, umesh%nface
-    ic1 = umesh%facecell%fils(if,1)
-    ic2 = umesh%facecell%fils(if,2)
+  do ip = 1, residu%nscal
     residu%tabscal(ip)%scal(ic1) = residu%tabscal(ip)%scal(ic1) - flux%tabscal(ip)%scal(if)
     residu%tabscal(ip)%scal(ic2) = residu%tabscal(ip)%scal(ic2) + flux%tabscal(ip)%scal(if)
   enddo
-enddo
-
-do ip = 1, residu%nvect
-  do if = 1, umesh%nface
-    ic1 = umesh%facecell%fils(if,1)
-    ic2 = umesh%facecell%fils(if,2)
-    call shiftopp(residu%tabvect(ip)%vect(ic1), flux%tabvect(ip)%vect(if))
-    call shiftval(residu%tabvect(ip)%vect(ic2), flux%tabvect(ip)%vect(if))
+  do ip = 1, residu%nvect
+    residu%tabvect(ip)%vect(ic1) = residu%tabvect(ip)%vect(ic1) - flux%tabvect(ip)%vect(if)
+    residu%tabvect(ip)%vect(ic2) = residu%tabvect(ip)%vect(ic2) + flux%tabvect(ip)%vect(if)
   enddo
 enddo
 
-!deallocate(tic1, tic2)
 ! ??? creation de procedure intrinseques ? // optimisation
 
 if (.not.trait_jac) then

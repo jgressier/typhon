@@ -64,7 +64,9 @@ enddo
 
 ! -- Calcul de V / somme_i S_i et prise en compte du nombre de CFL --
 
-dtloc(1:ncell) =  (deftime%stabnb * 2._krp) * umesh%mesh%volume(1:ncell,1,1) / dtloc(1:ncell)
+do ic = 1, ncell
+  dtloc(ic) =  deftime%stabnb * 2._krp * umesh%mesh%volume(ic,1,1) / dtloc(ic)
+enddo
 
 gg1 = fluid%gamma*(fluid%gamma -1._krp)
 do ic = 1, ncell
@@ -80,9 +82,8 @@ enddo
 endsubroutine calc_ns_timestep
 
 !------------------------------------------------------------------------------!
-! Changes history
-!
+! Historique des modifications
+
 ! July 2004 : creation, calcul par CFL
-! Opt: computation with primitive values
 !------------------------------------------------------------------------------!
 

@@ -8,7 +8,7 @@
 !
 !------------------------------------------------------------------------------!
 subroutine integration_grid(dt, typtemps, defsolver, defspat, deftime, grid, &
-                            coupling, ncoupling, nitdual, cvg_dual)
+                            coupling, ncoupling)
 
 use TYPHMAKE
 use OUTPUT
@@ -27,15 +27,11 @@ type(mnu_solver) :: defsolver        ! type d'equation a resoudre
 type(mnu_spat)   :: defspat          ! parametres d'integration spatiale
 type(mnu_time)   :: deftime          ! parametres d'integration spatiale
 integer          :: ncoupling        ! nombre de couplages de la zone
-integer(kip)     :: nitdual          ! nombre d'iterations pas de temps dual
 
 ! -- Declaration des entrees/sorties --
 type(st_grid)    :: grid             ! domaine non structure a integrer
 type(mnu_zonecoupling), dimension(1:ncoupling) &
                  :: coupling ! donnees de couplage
-
-! -- Declaration des sorties --
-logical          :: cvg_dual         ! etat de convergence pas de temps dual
 
 ! -- Declaration des variables internes --
 
@@ -46,16 +42,15 @@ logical          :: cvg_dual         ! etat de convergence pas de temps dual
 select case(deftime%tps_meth)
 
 case(tps_expl)
-  call explicit_step(dt, typtemps, defsolver, defspat, deftime, grid%umesh, grid%info%field_loc, &
+  call explicit_step(dt, typtemps, defsolver, defspat, deftime, grid%umesh, grid%field_loc, &
                      coupling, ncoupling)
-  cvg_dual = .true.
 
 case(tps_rk)
   call erreur("developpement","methode RUNGE KUTTA non implementee")
 
 case(tps_impl)
-  call implicit_step(dt, typtemps, defsolver, defspat, deftime, grid%umesh, grid%info%field_loc, &
-                     coupling, ncoupling, nitdual, cvg_dual)
+  call implicit_step(dt, typtemps, defsolver, defspat, deftime, grid%umesh, grid%field_loc, &
+                     coupling, ncoupling)
 
 case(tps_dualt)
   call erreur("developpement","methode DUAL TIME non implementee")

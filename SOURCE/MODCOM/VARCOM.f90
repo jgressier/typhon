@@ -182,9 +182,6 @@ integer, parameter  :: bocoT2     = 09 !DEV1603
 !integer, parameter  :: fluxcomp = 1
 !integer, parameter  :: tempevol = 2
 
-! -- Convergence locale
-integer, parameter  :: iterate   = 01
-integer, parameter  :: noiterate = 02
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
