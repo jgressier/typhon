@@ -65,11 +65,10 @@ do if = 1, nfacelim
   !flux_inter = 0
   call calc_fluxinter_kdif(temp1, temp2, gradtemp1, gradtemp2, conduct1, conduct2,& 
   			   d1(if), d2(if), vecinter(if), flux1, flux2, normale(if), &
-                           flux_inter, typecalcul, typemethode)
-
+                           flux_inter, typecalcul, typemethode)  
   call calc_tempinter_kdif(temp1, temp2, conduct1, conduct2, d1(if), d2(if), &
   					temp_inter)
-print*, "BOG TEMP INTER", temp_inter
+
   !Conditions aux limites des deux zones
   call stock_kdif_cond_coupling(bocokdif1, temp_inter, flux_inter, if, temp2)
 

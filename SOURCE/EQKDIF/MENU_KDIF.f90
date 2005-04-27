@@ -1,11 +1,8 @@
 !------------------------------------------------------------------------------!
-! MODULE : MENU_KDIF                      Auteur : J. Gressier
-!                                         Date   : Novembre 2002
-! Fonction                                Modif  : (cf Historique)
-!   Definition des structures pour les entrees du programme TYPHON
-!   Structures pour les options du solveur KDIF
-!
-! Defauts/Limitations/Divers :
+! MODULE : MENU_KDIF                                 Author  : J. Gressier
+!                                                    Created : November 2002
+! Fonction                                           Modif   : (cf History)
+!   Structure definition for parameter input (Diffusion solver)
 !
 !------------------------------------------------------------------------------!
 module MENU_KDIF
@@ -19,6 +16,9 @@ implicit none
 
 ! -- Variables globales du module -------------------------------------------
 
+integer(kpp), parameter :: rad_none    = 0  ! no radiation emmission
+integer(kpp), parameter :: rad_direct  = 1  ! simple emmission local T^4 and reception Tinf^4
+integer(kpp), parameter :: rad_coupled = 2  ! reception Tinf^4 + integration of all emmitting faces
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
@@ -60,6 +60,9 @@ type st_boco_kdif
   character (len=strlen) &
             :: tconvfile       ! nom de fichier de definition de la temperature de 
                                ! convection non uniforme  
+  integer(kpp) :: radiating    ! parameter for radiating boundary condition
+  real(krp)    :: emmissivity  ! emmissivity of the surface
+  real(krp)    :: rad_Tinf     ! far field temperature
 endtype st_boco_kdif
 
 

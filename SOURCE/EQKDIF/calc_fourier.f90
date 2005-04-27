@@ -44,7 +44,7 @@ case(given_dt)  ! -- Calcul par condition de stabilite (deftim%stabnb) --
   select case(lzone%defsolver%typ_solver)
   case(solKDIF)
     call calc_kdif_fourier(lzone%deftime%dt, lzone%defsolver%defkdif%materiau,&
-                            lzone%grid%umesh, lzone%grid%info%field_loc, fourierloc, ncell)
+                            lzone%grid%umesh, lzone%grid%field, fourierloc, ncell)
   case default
     call erreur("incoherence interne (calc_fourier)", "solveur inconnu")
   endselect

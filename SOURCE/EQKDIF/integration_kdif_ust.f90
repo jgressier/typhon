@@ -108,7 +108,7 @@ enddo
 !-------------------------------------------------------------
 ! flux assignment or modification on boundary conditions
 
-call kdif_bocoflux(defsolver, domaine, flux, field)
+call kdif_bocoflux(defsolver, domaine, flux, field%etatprim)
 
 !-------------------------------------------------------------
 deallocate(grad_l, grad_r, cell_l, cell_r, cg_l, cg_r)

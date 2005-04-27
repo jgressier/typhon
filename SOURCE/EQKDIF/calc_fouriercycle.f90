@@ -47,7 +47,7 @@ case(stab_cond)  ! -- Calcul par condition de stabilite (deftim%stabnb) --
     allocate(fourierloc(ncell))
 
     call calc_kdif_fourier(dtcycle, lzone%defsolver%defkdif%materiau, &
-                            lzone%grid%umesh, lzone%grid%info%field_loc, fourierloc, ncell)
+                            lzone%grid%umesh, lzone%grid%field, fourierloc, ncell)
     ! -- DEV -- choix du nombre de Fourier global encore a faire
 
     ! valeur maximale des cellules de la zone

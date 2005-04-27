@@ -1,5 +1,5 @@
 !------------------------------------------------------------------------------!
-! Procedure : def_boco_kdif                    Auteur : J. Gressier
+! Procedure : def_boco_kdif               Auteur : J. Gressier
 !                                         Date   : Mars 2003
 ! Fonction                                Modif  : 
 !   Traitement des parametres du fichier menu principal
@@ -39,7 +39,7 @@ pblock => block
 select case(type)
 
 case(bc_wall_adiab)
-  boco%flux=0._krp
+  boco%flux = 0._krp
 
 case(bc_wall_isoth)
   
@@ -95,15 +95,31 @@ case default
               & pour le solveur de conduction")
 endselect
 
+! -- read radiating parameters --
+
+boco%radiating = -1_kpp
+call rpmgetkeyvalstr(pblock, "RADIATING", str, "NONE")
+if (samestring(str, "NONE"))    boco%radiating = rad_none
+if (samestring(str, "SIMPLE"))  boco%radiating = rad_direct
+if (samestring(str, "DIRECT"))  boco%radiating = rad_direct
+if (samestring(str, "COUPLED")) boco%radiating = rad_coupled
+if (boco%radiating == -1_kpp) then
+  call erreur("parameter reading", "unknown option for RADIATING keyword")
+endif
+
+call rpmgetkeyvalreal(pblock, "EMMISSIVITY", boco%emmissivity, 1._krp)
+call rpmgetkeyvalreal(pblock, "RAD_TINF",    boco%rad_Tinf,    0._krp)
+
 
 endsubroutine def_boco_kdif
 
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
-! mars 2003 (v0.0.1b): creation de la routine
-! juin 2004 : conditions de Neumann et de convection
+! mars 2003 : creation
+! june 2004 : Flux, and Convection (mixed) boundary conditions
+! apr  2005 : radiating boundary conditions
 !------------------------------------------------------------------------------!
 
 

@@ -1,20 +1,22 @@
 !------------------------------------------------------------------------------!
-! MODULE : MATERIAU                       Auteur : J. Gressier
-!                                         Date   : Mai 2002
-! Fonction                                Modif  :
-!   Structures pour les parametres MATERIAU du solveur de thermique
-!
-! Defauts/Limitations/Divers :
+! MODULE : MATERIAU                                 Authors : J. Gressier
+!                                                   Created : May 2002
+! Fonction                                          Modif   : (see history)
+!   Heat Transfer solver, Physical Model Definitions
 !
 !------------------------------------------------------------------------------!
 module MATERIAU
 
-use TYPHMAKE      ! definition de la precision des reels
+use TYPHMAKE     ! definition de la precision des reels
 use MATER_LOI    ! definition generale d'une loi de variation des parametres
 
 implicit none
 
-! -- Variables globales du module -------------------------------------------
+! -- Constants  -------------------------------------------
+
+real(krp), parameter :: stefan_cst = 5.6703E-8_krp
+
+! -- Parameters -------------------------------------------
 
 character, parameter :: mat_LIN  = 'L'   ! materiau a proprietes constantes
 character, parameter :: mat_KNL  = 'K'   ! materiau a cp constant et conductivite non lineaire
