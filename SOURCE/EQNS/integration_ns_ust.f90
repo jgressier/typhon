@@ -125,17 +125,27 @@ do ib = 1, nbloc
   ! computation of VISCOUS fluxes
   !----------------------------------------------------------------------
   select case(defsolver%defns%typ_fluid)
+
   case(eqEULER)
     ! nothing to do
+
   case(eqNSLAM)
+
+    ! -- redirection of cell centers 
+    cg_l(1:nfb) = domaine%mesh%centre(domaine%facecell%fils(ideb:ifin,1), 1, 1)
+    cg_r(1:nfb) = domaine%mesh%centre(domaine%facecell%fils(ideb:ifin,2), 1, 1)
+
+    ! -- redirection of gradients
     call distrib_field(field%gradient, domaine%facecell, ideb, ifin, &
                        gradL, gradR, 1)
     call calc_flux_viscous(defsolver, defspat,                        &
                            nfb, ideb, domaine%mesh%iface,             &
+                           cg_l, cg_r,                                &
                            cell_l, cell_r, gradL, gradR, flux,        &
                            calc_jac, jacL(ideb:ifin), jacR(ideb:ifin))
   case(eqRANS)
     call erreur("development", "turbulence modeling not implemented")   
+
   case default
     call erreur("viscous flux computation", "unknown model")
   endselect

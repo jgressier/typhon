@@ -74,7 +74,7 @@ case(dis_full) ! full consistent formulation, averaged between compact and avera
 
   do if = 1, nf
     Favg  = ndHL(if)*dqR(if) + ndHR(if)*dqL(if)
-    Fcomp = ((qR(if) - qL(if) - Favg.scal.vLF(if)).tens.((theta/dLR2(if))*vLR(if))
+    Fcomp = (qR(if) - qL(if) - (Favg.scal.vLR(if))).tens.((theta/dLR2(if))*vLR(if))
     dqH(if) = Fcomp + Favg
   enddo
 

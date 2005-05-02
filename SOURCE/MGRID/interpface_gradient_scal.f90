@@ -37,7 +37,7 @@ type(v3d), dimension(nf) :: dqH        ! interpolated face gradients
 
 ! -- Declaration des variables internes --
 real(krp) :: dLR2(taille_buffer)
-type(t3d) :: Favg, Fcomp
+type(v3d) :: Favg, Fcomp
 integer   :: if, k, icl, icr
 
 real(krp) :: theta = 1._krp
@@ -74,7 +74,7 @@ case(dis_full) ! full consistent formulation, averaged between compact and avera
 
   do if = 1, nf
     Favg  = ndHL(if)*dqR(if) + ndHR(if)*dqL(if)
-    Fcomp = ((qR(if) - qL(if) - Favg.scal.vLF(if))*((theta/dLR2(if))*vLR(if))
+    Fcomp = ((qR(if) - qL(if) - (Favg.scal.vLR(if)))*theta/dLR2(if))*vLR(if)
     dqH(if) = Fcomp + Favg
   enddo
 
