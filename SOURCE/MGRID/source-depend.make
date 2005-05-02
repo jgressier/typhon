@@ -12,7 +12,6 @@ MGRID_MOD = BASEFIELD.$(MOD)    \
             GENFIELD.$(MOD)     \
             MGRID.$(MOD)
 
-
 MGRID_OBJ = $(MGRID_MOD:.$(MOD)=.o)    \
             calc_gradient.o            \
             calc_gradient_limite.o     \
