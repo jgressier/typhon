@@ -41,14 +41,14 @@ do ir = 1, lworld%prj%ncoupling
     open(unit = ufc, file = trim(lworld%output(io)%fichier)//trim(adjustl(strof(ir,3)))//'_'//&
                             trim(adjustl(strof(1,3)))//'.dat', form = 'formatted')
     write(ufc, '(a)') 'VARIABLES="t","CORRECTION"'
-    write(ufc,*) 'ZONE T="'//trim(lworld%zone(iz1)%nom)//' / '//trim(lworld%zone(iz2)%nom)//'"'
+    write(ufc,*) 'ZONE T="'//trim(lworld%zone(iz1)%name)//' / '//trim(lworld%zone(iz2)%name)//'"'
     ufc1 = ufc
     ufc = ufc+1
 
     open(unit = ufc, file = trim(lworld%output(io)%fichier)//trim(adjustl(strof(ir,3)))//'_'//&
                             trim(adjustl(strof(2,3)))//'.dat', form = 'formatted')
     write(ufc, '(a)') 'VARIABLES="t","CORRECTION"'
-    write(ufc,*) 'ZONE T="'//trim(lworld%zone(iz2)%nom)//' / '//trim(lworld%zone(iz1)%nom)//'"'
+    write(ufc,*) 'ZONE T="'//trim(lworld%zone(iz2)%name)//' / '//trim(lworld%zone(iz1)%name)//'"'
     ufc2 = ufc
     ufc = ufc+1
   else

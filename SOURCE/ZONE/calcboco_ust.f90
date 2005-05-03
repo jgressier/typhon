@@ -43,14 +43,14 @@ do ib = 1, grid%umesh%nboco
   select case(defsolver%boco(idef)%typ_boco)
 
   case(bc_geo_sym)
-    call calcboco_ust_sym(defsolver%boco(idef), grid%umesh%boco(ib), grid%umesh, grid%field_loc)
+    call calcboco_ust_sym(defsolver%boco(idef), grid%umesh%boco(ib), grid%umesh, grid%info%field_loc)
     !call erreur("Developpement","'bc_geo_sym' : Cas non implemente")
     
   case(bc_geo_period)
     call erreur("Developpement","'bc_geo_period' : Cas non implemente")
     
   case(bc_geo_extrapol)
-    call calcboco_ust_extrapol(defsolver%boco(idef), grid%umesh%boco(ib), grid%umesh, grid%field_loc)
+    call calcboco_ust_extrapol(defsolver%boco(idef), grid%umesh%boco(ib), grid%umesh, grid%info%field_loc)
 
 ! PROVISOIRE : a retirer
   case(bc_connection)

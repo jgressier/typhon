@@ -34,7 +34,7 @@ integer                :: if
 
 pgrid => zone%grid
 do while (associated(pgrid))
-  call calc_varprim(zone%defsolver, pgrid%field_loc)     ! calcul des var. primitives
+  call calc_varprim(zone%defsolver, pgrid%info%field_loc)     ! calcul des var. primitives
   pgrid => pgrid%next
 enddo
 
@@ -48,8 +48,8 @@ if (zone%defspat%calc_grad) then
   pgrid => zone%grid
   do while (associated(pgrid))
     call calc_gradient(zone%defsolver, pgrid%umesh,                 &
-                       pgrid%field_loc%etatprim, pgrid%field_loc%gradient)
-    call calc_gradient_limite(zone%defsolver, pgrid%umesh, pgrid%field_loc%gradient)
+                       pgrid%info%field_loc%etatprim, pgrid%info%field_loc%gradient)
+    call calc_gradient_limite(zone%defsolver, pgrid%umesh, pgrid%info%field_loc%gradient)
     pgrid => pgrid%next
   enddo
 endif

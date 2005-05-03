@@ -60,10 +60,10 @@ case(solKDIF, solNS)
       select case(lzone%defsolver%typ_solver)
       case(solNS)
         call calc_ns_timestep(lzone%deftime, lzone%defsolver%defns%properties(1), &
-                              pgrid%umesh, pgrid%field_loc, dtloc, ncell)
+                              pgrid%umesh, pgrid%info%field_loc, dtloc, ncell)
       case(solKDIF)
         call calc_kdif_timestep(lzone%deftime, lzone%defsolver%defkdif%materiau, &
-                                pgrid%umesh, pgrid%field_loc, dtloc, ncell)
+                                pgrid%umesh, pgrid%info%field_loc, dtloc, ncell)
       case default
         call erreur("incoherence interne (calc_zonetimestep)", "solveur inconnu")
       endselect

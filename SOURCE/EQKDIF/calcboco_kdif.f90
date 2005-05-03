@@ -37,17 +37,17 @@ type(st_genericfield), pointer :: pbcf
 select case(defboco%typ_boco) 
 
 case(bc_wall_isoth)
-  call setboco_kdif_isoth(defboco%boco_unif, ustboco, grid%umesh, grid%field_loc, defboco%boco_kdif)
+  call setboco_kdif_isoth(defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, defboco%boco_kdif)
 
 case(bc_wall_flux)
   pbcf => newbocofield(grid,ustboco%nface,1,0,0)  
-  call setboco_kdif_flux(defboco%boco_unif, ustboco, grid%umesh, grid%field_loc, pbcf%tabscal(1)%scal, &
+  call setboco_kdif_flux(defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, pbcf%tabscal(1)%scal, &
                          defsolver, defboco%boco_kdif)
   ustboco%bocofield => pbcf
 
 case(bc_wall_hconv)
   pbcf => newbocofield(grid,ustboco%nface,1,0,0) 
-  call setboco_kdif_hconv(defboco%boco_unif, ustboco, grid%umesh, grid%field_loc, pbcf%tabscal(1)%scal, &
+  call setboco_kdif_hconv(defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, pbcf%tabscal(1)%scal, &
                           defsolver, defboco%boco_kdif)
   ustboco%bocofield => pbcf
 

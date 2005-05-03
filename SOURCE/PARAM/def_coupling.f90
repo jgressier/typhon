@@ -46,14 +46,14 @@ call seekrpmblock(pblock, "COUPLING", icoupl, pcour, nkey)
 
 call rpmgetkeyvalstr(pcour, "ZONE1", str)
 do iz = 1, nzone
-  if (samestring(str, zone(iz)%nom)) then 
+  if (samestring(str, zone(iz)%name)) then 
     coupling%zone1 = zone(iz)%id
   endif
 enddo  
 
 call rpmgetkeyvalstr(pcour, "ZONE2", str)
 do iz = 1, nzone
-  if (samestring(str, zone(iz)%nom)) then 
+  if (samestring(str, zone(iz)%name)) then 
     coupling%zone2 = zone(iz)%id
   endif
 enddo  

@@ -1,10 +1,8 @@
 !------------------------------------------------------------------------------!
-! Procedure : trait_param                 Auteur : J. Gressier
-!                                         Date   : Juillet 2002
-! Fonction                                Modif  : (cf historique)
-!   Traitement des parametres du fichier menu principal
-!
-! Defauts/Limitations/Divers :
+! Procedure : trait_param                             Authors : J. Gressier
+!                                                     Created : July 2002
+! Fonction                                            Modif   : (cf history)
+!   Parse main file parameters / 
 !
 !------------------------------------------------------------------------------!
 subroutine trait_param(block, world)
@@ -39,6 +37,7 @@ character(len=dimrpmlig) :: str, fic       ! chaines RPM intermediaire
 ! -- Recherche du BLOCK:PROJECT et traitement
 
 call def_project(block, world%prj)
+
 ! -- Recherche des BLOCK:ZONE 
 
 pblock => block
@@ -62,7 +61,7 @@ do izone = 1, world%prj%nzone
   call new(world%zone(izone), izone)   ! intialisation de la zone
 
   call rpmgetkeyvalstr(pcour, "NAME", str, "NONAME")
-  world%zone(izone)%nom = str
+  world%zone(izone)%name = str
 
   call rpmgetkeyvalstr(pcour, "SOLVER", str)
 

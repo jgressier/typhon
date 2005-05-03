@@ -14,7 +14,7 @@ Roadmap
 0.4 : AMR development
 0.5 : AMR/MPI
 1b.0 : Inputs/Outputs/Validation
-	- CGNS inputs/outputs
+	- CGNS inputs/outputs (multiple output, boundaries output)
 	- restart files
 --------------------------------------------------------------------
 To improve
@@ -23,21 +23,17 @@ To improve
 
 Task Dévlp.  R. cible début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
-               0.1.4              Coupl structures de cumul de flux dans MGRID
-     Jérémie   0.1.4              Make  Sauvegarde de capteurs BOCO_FIELD
-               0.1.4              Make  calcul des index de conditions limites connectées à la lecture
 0038           0.1.5              Val   maillage 3D HEXA 
 0041 Jérémie   0.1.5  01/07       Solv  Inversion Gauss-Seidel
 0051 Jérémie   0.1.5              KDIF  Bug: timestep computation for non linear material
 0063 Jérémie   0.1.5              Out   Tecplot outputs : FEBLOCK format and output of scalars & vectors
 0064 Jérémie   0.1.5              Out   CGNS outputs
-0065 Jérémie   0.1.5  31/01 31/01 Make  Compilation with intel fortran 8.1
-     Jérémie   0.1.5              Solv  Surrelaxation Jacobi, SOR, SSOR
-     Jérémie   0.1.5              Solv  Gel des matrices d'implicitation en fonction du résidu
-               0.1.5              KDIF  condition limite de rayonnement
-               0.1.5              KDIF  condition limite de rayonnement
-0110 Emmanuel  0.1.7        08/02 KDIF  initial condition : temperature step
-0071 Jérémie   0.1.6              Mesh  Split of an internal mesh into two or many grids
+0065 Jérémie   0.1.7  31/01 31/01 Make  Compilation with intel fortran 8.1
+     Jérémie   0.1.8              Solv  Surrelaxation Jacobi, SOR, SSOR
+     Jérémie   0.1.8              Solv  Gel des matrices d'implicitation en fonction du résidu
+0066 Jeremie   0.1.7  18/04 27/04 KDIF  radiating boundary conditions
+0067 Jeremie   0.1.7              KDIF  coupled radiation boundary conditions
+0068 Jeremie   0.1.7  02/05 02/05 IHM   output of boco index and face center
 0072 Jérémie   0.1.6              Exch  Sequential message passing between zones (coupling)
      Jérémie   0.1.6              KDIF  Implicitation des conditions limites
 0075 Emmanuel  0.1.6  20/10       Make  Local convergence on cycle
@@ -45,24 +41,14 @@ Task Dévlp.  R. cible début fin   Type  Développement
 0081 Jérémie   0.1.6              NS    Viscous fluxes
 0090 Jérémie   0.2.0  03/12       Opt   GEO3D optimization (array calls)
 0091           0.2.0              Opt   Memory (pre-allocate scalar, v3d, tensor arrays, dim block)
-0092 Jérémie   0.1.7  04/02 07/02 Opt   gradients optimization (memorize inversion)
 0100           0.2.0  01/02       IHM   Symbolic functions module
 0101           0.2.0              IHM   Symbolic functions for initialisation
 0102           0.2.0              IHM   Symbolic functions for boundary condtitions
                0.2.0              Make  Restructuration des sorties (get_data/calc_data/output)
-               0.2.0              Out   Sorties multiples (block:output)
-     Jérémie   0.2.0              Opt   Remplacement par boucles FORALL
                0.2.0              Make  Restructuration de MAIN/integration_cycle (split)
                0.2.0              Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
-               0.2.0              Make  Split de DEFFIELD (BASEFIELD / GENERICFIELD / DEFFIELD)
-               0.2.0              IHM   Test des mots-clefs RPM non lus
-               0.2.0              Mesh  Vérification de maillage
-               0.3.0              Mesh  Raffinement de maillage complet
-               1.0.0              Opt   Optimisation du calcul KDIF/flux COMPACT
+               1.0.0              Opt   Optimisation du calcul gradients (pré-inversion et rhs)
                1.0.0              Opt   Optimisation du calcul de loi polynomiale
-               1.0.0              Make  Restructuration des bibliothèques RPM
-               1.0.0              IHM   Imbrication des blocs RPM
-               1.0.0              Opt   Optimisation des structures de données pour l'accès mémoire
 --------------------------------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------

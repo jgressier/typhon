@@ -1,6 +1,7 @@
 !------------------------------------------------------------------------------!
-! PROGRAM : TYPHON                        Auteur : J. Gressier
-!                                         Date   : Juillet 2002
+! PROGRAM : TYPHON                              Authors : J. Gressier (admin)
+!                                               see http://typhon.sf.net
+!                                               Created : July 2002
 ! 
 ! Plateforme de resolution de systemes d'equations 
 ! par discretisation Volumes Finis / Singularites
@@ -11,10 +12,11 @@
  
 program main
 
-use TYPHMAKE    ! definition de la precision par defaut
-use VARCOM      ! definition des types internes et variables globales
+use TYPHMAKE    ! default accuracy
+use VARCOM      ! common variables and types
 use OUTPUT      ! definition des procedures et unites pour les sorties
-use MODWORLD    ! Definition des structures pour le maillage
+use MODWORLD    ! global data & structure for the computation
+use MENU_GEN    ! general parameters for the project
 
 implicit none
 
@@ -42,7 +44,7 @@ call def_param(loc_world)
 
 !###### LECTURE MAILLAGE et Generation des structures de donnees
 
-call print_etape("> LECTURE : maillages et condition aux limites")
+call print_etape("> INPUTS : mesh and boundary conditions")
 call lecture_maillage(loc_world)
 
 !###### INITIALISATION
@@ -52,19 +54,34 @@ call init_world(loc_world)
 
 !###### INTEGRATION ET RESOLUTION
 
-call print_etape("> INTEGRATION")
-call integration(loc_world)
+select case(loc_world%prj%action)
+case(act_compute)
+  call print_etape("> INTEGRATION")
+  call integration(loc_world)
+case(act_analyse)
+  call print_etape("> ANALYSIS & REPORT")
+  call analyse(loc_world)
+case default
+  call erreur("Developement", "Unexpected ACTION parameter")
+endselect
 
 !###### FIN D'EXECUTION
 
-call output_result(loc_world,end_calc) !DEV2602 call output_result(loc_world)
+call output_result(loc_world, end_calc) 
 
 call delete(loc_world)
 
 !###### Desallocation
 
-call print_etape("> Fin du calcul")
+call print_etape("> End of process")
 call finalize_exch(loc_world%info)
 
 !#########
 endprogram
+
+!------------------------------------------------------------------------------!
+! Change history
+!
+! july  2002 : creation
+! may   2005 : add switch option to "analyse" instead of "integration"
+!------------------------------------------------------------------------------!

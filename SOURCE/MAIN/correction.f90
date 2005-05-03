@@ -51,13 +51,13 @@ call calcdifflux(zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal, &
 if ( (typ_cor1.ne.bocoT) .and. (typ_cor1.ne.repart_reg) .and. &
      (typ_cor1.ne.repart_geo) )then
 
-  call corr_varprim(zone1%grid%field_loc, &
+  call corr_varprim(zone1%grid%info%field_loc, &
                     zone1%grid%umesh, &
                     zone1%defsolver, &
                     zone1%coupling(ncoupl1)%zcoupling%etatcons, nbc1, &
                     part_cor1, typ_cor1, fincycle)
 
-  call corr_varprim(zone2%grid%field_loc, &
+  call corr_varprim(zone2%grid%info%field_loc, &
                     zone2%grid%umesh, &
                     zone2%defsolver, &
                     zone2%coupling(ncoupl2)%zcoupling%etatcons, nbc2, &

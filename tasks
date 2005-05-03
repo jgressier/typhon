@@ -407,9 +407,31 @@ Task 0065 (Jérémie) : Make : Compilation with intel fortran 8.1
 - some fixes on output format
 
 ---------------------------------------------------------------------------------
-Task 0069 (Jérémie) : NS : Gradients computation
+Task 0065 (Jérémie) : Make : Compilation with intel fortran 8.1
 ---------------------------------------------------------------------------------
-- computation of vector gradients (calc_gradient)
+- handle low-case module names
+- some fixes on output format
+
+---------------------------------------------------------------------------------
+Task 0066 (Jérémie) : KDIF : radiating boundary conditions
+---------------------------------------------------------------------------------
+- parameters structure (EQKDIF/MENU_KDIF.f90)
+- flux computation (EQKDIF/add_kdif_radiativeflux.f90)
+! explicit model (no reflection or view coefficients)
+
+---------------------------------------------------------------------------------
+Task 0067 (Jérémie) : KDIF : coupled radiation boundary conditions
+--------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------------
+Task 0068 (Jérémie) : IHM : output of boco index and face centers
+--------------------------------------------------------------------------------
+- define ACTION parameter in BLOCK:PROJECT (default: COMPUTE) 
+  > MENU_GEN.f90, def_project.f90
+- if ACTION=ANALYSE, switch to "analyse.f90" routine
+  write "family_name".fam files with local face index and center coordinates
+  > main.f90, analyse.f90, analyse_zone.f90
 
 ---------------------------------------------------------------------------------
 Task 0073 (Emmanuel) : KDIF : convection boundary condition
@@ -450,22 +472,7 @@ Task 0090 (Jérémie) : Opt : GEO3D optimization (array calls)
 - flux_to_res : array computation of surf(:) * flux(:)
 
 ---------------------------------------------------------------------------------
-Task 0092 (Jérémie) : Opt : gradients optimization (memorize inversion)
----------------------------------------------------------------------------------
-- memorize gradient matrix computation : precalc_grad_lsq, MGRID
-
----------------------------------------------------------------------------------
 Task 0100 (Jérémie) : IHM : Symbolic functions module
 ---------------------------------------------------------------------------------
 - FCT_* modules in MATH
-
----------------------------------------------------------------------------------
-Task 0110 (Emmanuel) : KDIF : non-uniform initial condition step
----------------------------------------------------------------------------------
-- temperature step in a zone : T= T0 for x<x0, y<y0 and z<z0 ; T = T1 else
-- -> BLOCK:INIT : UNIFORMITY = NO, PROFILE = STEP (default LIN -> linear 
-  temperature distribution), TEMPC_FILE = file containing T0 T1 x0 y0 z0
-- modified files : MENU_INIT, def_init, def_init_kdif, init_kdif_ust, init_champ_ust
-- useful for validation cases
-
 

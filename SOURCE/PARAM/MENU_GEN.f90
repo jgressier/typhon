@@ -15,8 +15,10 @@ use TYPHMAKE   ! Definition de la precision
 
 implicit none
 
-! -- Variables globales du module -------------------------------------------
+! -- Module constant -------------------------------------------
 
+integer(kpp), parameter :: act_compute = 1
+integer(kpp), parameter :: act_analyse = 2
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
@@ -25,17 +27,17 @@ implicit none
 ! structure MNU_PROJECT : Parametres du projet
 !------------------------------------------------------------------------------!
 type mnu_project
-  integer         :: nzone      ! nombre de zones
-  integer         :: ncoupling  ! nombre de couplages entre zones
+  integer(kip)    :: nzone      ! nombre de zones
+  integer(kip)    :: ncoupling  ! nombre de couplages entre zones
   character       :: typ_coord  ! type de repere
   character       :: typ_temps  ! (S)tationnaire, (I)nstationnaire, (P)eriodique
   real(krp)       :: duree      ! duree de l'integration ou de la periode
   real(krp)       :: tpsbase    ! pas de temps de base du couplage
-  integer         :: ncycle     ! nombre de cycle (en stationnaire ou periodique)
+  integer(kip)    :: ncycle     ! nombre de cycle (en stationnaire ou periodique)
   real(krp)       :: residumax  ! valeur maximale du residu admise (stationnaire)
-  real(krp)       :: dtbase     ! pas de temps de base d'un cycle 
+  real(krp)       :: dtbase     ! pas de temps de base d'un cycle
+  integer(kpp)    :: action     ! give main action to do
 endtype mnu_project
-
 
 !------------------------------------------------------------------------------!
 ! structure MNU_OUTPUT : Parametres du projet

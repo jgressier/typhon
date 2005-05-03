@@ -37,13 +37,13 @@ iz2 = lworld%coupling(ir)%zone2
 
 ! Determination des numeros du raccord pour les zones 1 et 2
 do ic = 1, lworld%zone(iz1)%ncoupling
-  if (samestring(lworld%zone(iz1)%coupling(ic)%connzone, lworld%zone(iz2)%nom)) then
+  if (samestring(lworld%zone(iz1)%coupling(ic)%connzone, lworld%zone(iz2)%name)) then
     ncoupl1 = ic
   endif
 enddo
 
 do ic = 1, lworld%zone(iz2)%ncoupling
-  if (samestring(lworld%zone(iz2)%coupling(ic)%connzone, lworld%zone(iz1)%nom)) then
+  if (samestring(lworld%zone(iz2)%coupling(ic)%connzone, lworld%zone(iz1)%name)) then
     ncoupl2 = ic
   endif
 enddo

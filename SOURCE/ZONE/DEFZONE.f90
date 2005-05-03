@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
-! MODULE : DEFZONE                        Auteur : J. Gressier
-!                                         Date   : Juillet 2002
-! Fonction                                Modif  : (cf historique)
+! MODULE : DEFZONE                                   Authors : J. Gressier
+!                                                    Created : July 2002
+! Fonction                                           Modif  : (cf history)
 !   Definition des structures de donnees des zones (contient
 !   maillage, type de solveur et info)
 !
@@ -36,12 +36,9 @@ implicit none
 ! Definition de la structure ST_ZONE : zone maillage general et champ
 !------------------------------------------------------------------------------!
 type st_zone
-  integer               :: id         ! numero de zone
-  character(len=strlen) :: nom        ! nom de la zone
-  !integer               :: ndom       ! nombre de domaine total (cas hybride)
-  !integer               :: nmesh_str  ! nombre de domaines     structures
-  !integer               :: nmesh_ust  ! nombre de domaines non structures
-  integer               :: nprobe     ! nombre de capteurs
+  integer               :: id         ! index of zone
+  character(len=strlen) :: name       ! zone name
+  integer               :: nprobe     ! probe number
   integer               :: ncoupling  ! nombre d'echanges avec d'autres zones
   type(st_infozone)     :: info       ! information sur l'integration
   type(mnu_solver)      :: defsolver  ! type de solveur a utiliser 
@@ -55,18 +52,8 @@ type st_zone
                                       !   H : hybride
   integer               :: mpi_cpu    ! numero de CPU charge du calcul
 
-  !type(st_strmesh), dimension(:), pointer &
-  !                      :: str_mesh   ! maillage multibloc structure
   integer                :: ngrid      ! nombre de grilles (mesh + field)
   type(st_grid), pointer :: grid       ! liste chainee de grilles
-  !integer               :: nmesh      ! nombre champs (liste chainee)  
-  !integer               :: nfield     ! nombre champs (liste chainee)  
-  !type(st_ustmesh), pointer &
-  !type(st_ustmesh) & !, dimension(:), pointer &
-  !                      :: ust_mesh   ! liste chainee de maillage non structure
-  !type(st_field), pointer &
-  !type(st_field), dimension(:), pointer &
-  !                      :: field      ! tableau des champs
   type(st_capteur), dimension(:), pointer &
                         :: probe      ! tableau des capteurs
   type(mnu_zonecoupling), dimension(:), pointer &

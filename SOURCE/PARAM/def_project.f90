@@ -1,11 +1,8 @@
 !------------------------------------------------------------------------------!
-! Procedure : def_project                 Auteur : J. Gressier
-!                                         Date   : Novembre 2002
-! Fonction                                Modif  : cf historique
-!   Traitement des parametres du fichier menu principal
-!   Parametres principaux du projet
-!
-! Defauts/Limitations/Divers :
+! Procedure : def_project                              Authors : J. Gressier
+!                                                      Created : November 2002
+! Fonction                                             Modif  : cf history
+!   Parse main file parameters / main parameters for the project
 !
 !------------------------------------------------------------------------------!
 subroutine def_project(block, prj)
@@ -32,29 +29,31 @@ character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- Debut de la procedure --
 
-call print_info(2,"* Definition du projet")
+call print_info(2,"* Project definition")
 
 ! -- Recherche du BLOCK:PROJECT 
 
 pblock => block
 call seekrpmblock(pblock, "PROJECT", 0, pcour, nkey)
 
-if (nkey /= 1) call erreur("lecture de menu", &
+if (nkey /= 1) call erreur("parameter parsing", &
                            "bloc PROJECT inexistant ou surnumeraire")
 
 ! -- Determination du nombre de zone (1 par defaut)
 
 call rpmgetkeyvalint(pcour, "NZONE", prj%nzone, 1)
-write(str_w,*) ". nombre de zones du projet : ",prj%nzone
+write(str_w,'(a,i3)') ". number of project zones      :",prj%nzone
 call print_info(8,adjustl(str_w))
 
-! -- Determination du nombre de couplages entre zones (0 par defaut)
+! ----------------------------------------------------------------------------
+! Read number of coupling relations between zones (0 by default)
 
 call rpmgetkeyvalint(pcour, "NCOUPLING", prj%ncoupling, 0)
-write(str_w,*) ". nombre de couplages dans le projet : ",prj%ncoupling
+write(str_w,'(a,i3)') ". number of coupling relations :",prj%ncoupling
 call print_info(8,adjustl(str_w))
 
-! -- Determination du type de repere
+! ----------------------------------------------------------------------------
+! Framework type (needed)
 
 call rpmgetkeyvalstr(pcour, "COORD", str)
 
@@ -73,10 +72,11 @@ case(c2daxi)
 case(c3dgen) 
   call print_info(10,"repere 3d general")
 case default
-  call erreur("lecture de menu","type de repere inconnu")
+  call erreur("parameter parsing","type de repere inconnu")
 endselect
 
-! -- Determination du type d'evolution temporelle
+! ----------------------------------------------------------------------------
+! Read time integration process (needed)
 
 call rpmgetkeyvalstr(pcour, "TIME", str)
 
@@ -90,7 +90,7 @@ select case(prj%typ_temps)
 case(stationnaire) ! Evolution pseudo-instationnaire
   call print_info(10,"calcul stationnaire (convergence pseudo-instationnaire)")
   if (.not.(rpm_existkey(pcour,"RESIDUALS").or.rpm_existkey(pcour,"NCYCLE"))) then
-    call erreur("lecture de menu","parametre RESIDUALS ou NCYCLE manquant")
+    call erreur("parameter parsing","parametre RESIDUALS ou NCYCLE manquant")
   endif
   call rpmgetkeyvalreal(pcour, "RESIDUALS", prj%residumax)
   call rpmgetkeyvalint (pcour, "NCYCLE",    prj%ncycle, 1)
@@ -113,7 +113,23 @@ case(periodique) ! Evolution periodique
   call erreur("Developpement","calcul periodique non implemente")
 
 case default
-  call erreur("lecture de menu","type d'integration temporelle inconnu")
+  call erreur("parameter parsing","type d'integration temporelle inconnu")
+endselect
+
+! ----------------------------------------------------------------------------
+! Read time integration process (default: ACTION = COMPUTE)
+
+call rpmgetkeyvalstr(pcour, "ACTION", str, "COMPUTE")
+
+prj%action = inull
+if (samestring(str, "COMPUTE" ))   prj%action = act_compute
+if (samestring(str, "ANALYSE" ))   prj%action = act_analyse
+
+select case(prj%action)
+case(act_compute)
+case(act_analyse)
+case default
+  call erreur("parameters parsing","unknown action")
 endselect
 
 
@@ -121,11 +137,12 @@ endselect
 endsubroutine def_project
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
-! nov  2002 : creation de la procedure
-! juin 2003 : ajout de la definition des couplages
-! sept 2003 : parametres pour le calcul stationnaire
+! nov  2002 : created
+! juin 2003 : coupling and exchanges definition
+! sept 2003 : parameters for steady computation
+! may  2005 : get main action parameter (COMPUTE/ANALYSE)
 !------------------------------------------------------------------------------!
 
 

@@ -1,11 +1,8 @@
 !------------------------------------------------------------------------------!
-! Procedure : def_mesh                    Auteur : J. Gressier
-!                                         Date   : Novembre 2002
-! Fonction                                Modif  : (cf historique)
-!   Traitement des parametres du fichier menu principal
-!   Definition du maillage
-!
-! Defauts/Limitations/Divers :
+! Procedure : def_mesh                              Authors : J. Gressier
+!                                                   Created : November 2002
+! Fonction                                          Modif  : (see history)
+!   Parse main file parameters / Mesh definition
 !
 !------------------------------------------------------------------------------!
 subroutine def_mesh(block, defmesh)

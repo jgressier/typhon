@@ -72,7 +72,7 @@ include     MAIN/source-depend.make
 
 ####### Build main
 
-MAIN = Obj/main.o # dépendances dans MAIN/depends.make
+MAIN = Obj/main.o # dependencies in MAIN/depends.make
 
 ####### Build rules
 
