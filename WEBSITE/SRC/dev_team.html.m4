@@ -10,7 +10,7 @@ dnl -------------------------------------------------------------
 
 section([Project Administrators])
 
-item([J. Gressier])
+item([J. Gressier (Supaero/ONERA)])
 <br>
 
 section([Main Developers])
