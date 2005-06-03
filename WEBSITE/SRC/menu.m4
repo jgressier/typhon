@@ -38,19 +38,19 @@ define([item_m2], [<img src=img_dir(tri-3d-blue.gif)>])
 
 define([print_t1], [
   ifelse(id1, $1, 
-    [<tr><td bgcolor=c7d6df>hyperlink(m_$1, $1.html)</td></tr>],
+    [<tr><td class=menu1act>hyperlink(m_$1, $1.html)</td></tr>],
     [<tr><td>hyperlink(m_$1, $1.html)</td></tr>] )
 ])
 define([print_t2], [
   ifelse(id2, $1, 
-    [<td width=1* bgcolor=c7d6df>hyperlink([m_]id1[_]$1, id1[_]$1.html)</td>], 
-    [<td width=1*>hyperlink([m_]id1[_]$1, id1[_]$1.html)</td>] )
+    [<td width="1*" class=menu2act>hyperlink([m_]id1[_]$1, id1[_]$1.html)</td>], 
+    [<td width="1*" class=menu2>   hyperlink([m_]id1[_]$1, id1[_]$1.html)</td>] )
 ])
 
 dnl =========== write menu left ================================================
 
 define([write_menu_left], [
-<table width=100  border=0 cellspacing=4 cellpadding=2 class="menu1">
+<table width=110  bgcolor="d7e6ef" border=0 cellpadding=4 cellspacing=0 class=menu1>
 print_t1([index])
 print_t1([feat])
 print_t1([case])
@@ -65,10 +65,9 @@ skip_row
 dnl =========== write menu head ================================================
 
 define([write_menu_head], [
-  <table width="100%" bgcolor="d7e6ef" border=0 cellspacing="0" cellpadding="4" class=menu1>
-  dnl<table width="100%" background=img_dir([bg-menu-head.png]) border=0 cellspacing="0" cellpadding="4">
+  <table width="100%" bgcolor="d7e6ef" border=0 cellspacing="0" cellpadding="4" class=menu2>
   <tr valign="middle">
-  <td width=1* class=menu1></td>
+  <td width="1*" class=menu1></td>
   ifelse(id1, [index], [
     print_t2([pres])
     print_t2([news])

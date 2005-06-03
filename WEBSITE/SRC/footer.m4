@@ -14,7 +14,7 @@ dnl ========== end main frame ================================================
 
   <tr><td colspan=2><img src=img_dir([line.blue.gif]) height="4" width="100%"></td></tr>
 
-  <tr><td align="left" class="notes">
+  <tr style="margin-bottom:3px"><td align="left" class="notes">
   hyperlink([webmaster], [mailto:jeremie.gressier at supaero.fr])</td>
 
  <td align="right" class="notes">

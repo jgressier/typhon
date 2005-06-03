@@ -1,12 +1,26 @@
 .notes { font-family: Arial, Helvetica, sans-serif; font-size: 10px}
 .menu  { font-family: Arial, Helvetica, sans-serif; font-size: 11px}
-.menu1 { font-family: Arial, Helvetica, sans-serif; font-size: 12px; text-align: center}
+.menu1 { font-family: Arial, Helvetica, sans-serif; font-size: 12px; text-align: center; text-decoration: none}
+.menu1 a:link    { text-decoration: none}
+.menu1 a:visited { text-decoration: none}
+.menu1act { font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: bold; text-align: center; background-color: #e7f6d5;
+            border-top: solid 1px #000080; border-bottom: solid 1px #000080}
+.menu2 { font-family: Arial, Helvetica, sans-serif; font-size: 12px; text-align: center}
+.menu2act { font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: bold; text-align: center; background-color: #e7f6d5;
+            border-left: solid 1px #000080; border-right: solid 1px #000080 }
+.menu2act a:link    { text-decoration: none}
+.menu2act a:visited { text-decoration: none}
+##.menu2:hover { font-family: Arial, Helvetica, sans-serif; font-size: 12px; text-align: center}
 .banner { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: bold; padding: 3em; vertical-align: middle}
 .titre { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: bold; color: #000080; text-align: center}
-.defaut { font-family: Arial, Helvetica, sans-serif; font-size: 11px}
+.defaut { font-family: Arial, Helvetica, sans-serif; font-size: 12px}
 .blue   { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #000080; margin-left: 2em; margin-right: 2em}
 .orange { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #C87F1F}
 .red    { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #AA0000; margin-left: 2em; margin-right: 2em}
 .activebar { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #FFFF66}
 .soustitre { font-family: Arial, Helvetica, sans-serif; font-size: 16px; font-weight: bold; color: #FFFFCC ; font-style: italic}
-.quickmenu { font-family: Arial, Helvetica, sans-serif; font-size: 10px ; font-weight: bold}
+.quickmenu { font-family: Arial, Helvetica, sans-serif; font-size: 10px ; font-weight: bold; margin-bottom:5px}
+.quickmenu a:link { text-decoration: none}
+.quickmenu a:visited { text-decoration: none}
+##a:hover { font-family: Arial, Helvetica, sans-serif; font-size: 13px; text-align: center; margin-bottom:5px}
+##.menu1:hover { font-family: Arial, Helvetica, sans-serif; font-size: 12px; text-align: center}
