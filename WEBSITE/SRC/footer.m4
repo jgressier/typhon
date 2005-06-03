@@ -12,7 +12,7 @@ dnl ========== end main frame ================================================
   </span></td><td align=right class="notes">
   hyperlink([typhon@sourceforge], [http://sourceforge.net/projects/typhon])</td></tr>
 
-  <tr><td colspan=2><img src="img_dir([line.blue.gif])" height="4" width="100%"></td></tr>
+  <tr><td colspan=2>include_image([-], [line.blue.gif], [height="4" width="100%"])</td></tr>
 
   <tr style="margin-bottom:3px"><td align="left" class="notes">
   hyperlink([webmaster], [mailto:jeremie.gressier at supaero.fr])</td>

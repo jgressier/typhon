@@ -6,8 +6,8 @@ dnl ========== BANNER ========================================================
   <tr><td valign=middle>
   <span class=banner>imglink([TYPHON], [typhon.png], [http://typhon.sf.net])</span></td></tr>
 
-  <tr>
-    <td><img src=img_dir([line.blue.gif]) height="4" width="100%" style="margin-bottom:5px"></td></tr>
+  <tr><td>include_image([-], [line.blue.gif], [height="4" width="100%" style="margin-bottom:5px"])
+  </td></tr>
 
 dnl ========== main frame - 2 columns ========================================
 
@@ -22,7 +22,7 @@ dnl ========== menu ==========================================================
     </td>
     <td style="background-color: FFFFFF; width: 5px">&nbsp;</td> 
 dnl ========== contents frame ================================================
-    <td bgcolor=FFFFFF width=100% class="defaut">
+    <td bgcolor=FFFFFF width="100%" class="defaut">
     write_menu_head
    <br>
    <table width="100%" border=0 cellspacing=2 cellpadding=0>

@@ -16,7 +16,9 @@ define([html_header], [
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="description" content="Open source CFD solver, TYPHON" >
+<meta name="keywords" content="CFD, solver, fluid, navier stokes, amr, mpi, heat transfer" >
 <link rel="stylesheet" href="styles.css" type="text/css">
 <title>page_title - site_title</title>
 </head>
@@ -59,15 +61,15 @@ define([hyperlink], [<a href="$2">$1</a>])
 define([imglink], [hyperlink([include_image([$1], [$2], [$4])], [$3])])
 
 define([section], [
-  <table width=100% border=0 cellspacing=0 cellpadding=1 bgcolor=004b9b><tr><td>
-  <table width=100% border=0 cellspacing=0 cellpadding=2 bgcolor=d7e6ef><tr><td>
+  <table width="100%" border=0 cellspacing=0 cellpadding=1 bgcolor=004b9b><tr><td>
+  <table width="100%" border=0 cellspacing=0 cellpadding=2 bgcolor=d7e6ef><tr><td>
   <b><span class='defaut'>[$1]</span></b>
   </td></tr></table> </td></tr></table>
 ])
 
 define([sectionlr], [
-  <table width=100% border=0 cellspacing=0 cellpadding=1 bgcolor=004b9b><tr><td>
-  <table width=100% border=0 cellspacing=0 cellpadding=2 bgcolor=d7e6ef><tr class="defaut">
+  <table width="100%" border=0 cellspacing=0 cellpadding=1 bgcolor=004b9b><tr><td>
+  <table width="100%" border=0 cellspacing=0 cellpadding=2 bgcolor=d7e6ef><tr class="defaut">
   <td><b>[$1]</b></td><td align=right>[$2]</td></tr></table> </td></tr></table>
 ])
 

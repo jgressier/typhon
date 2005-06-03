@@ -46,7 +46,7 @@ DINC = $(INC:%=$(SRC)/%)
 # Options obligatoires
 OPT = -Dtimestamp="date +%d/%m/%Y" -I$(SRC)
 
-# default target: both fr and eng sites
+# default target
 all: site
 
 site: $(DIR) $(DEST)
@@ -54,7 +54,8 @@ site: $(DIR) $(DEST)
 	@echo "Build Web Site"
 	@echo "---------------------------"
 	@mkdir -p $(DIR)
-	@cp -r FILES/* ./HTML
+	cp -r FILES/* $(DIR)
+	-find $(DIR) -type d -name CVS -exec rm -r {} \;
 
 img:
 

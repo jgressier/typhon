@@ -103,7 +103,7 @@ define([write_menu_head], [
     print_t2([download])
     print_t2([install])
     print_t2([faq]) ])
-  <td width=1* class=menu1></td>
+  <td width="1*" class=menu1></td>
   </tr>
   </table>
 ])
