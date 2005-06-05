@@ -18,6 +18,10 @@ FIC  = index.html         \
        feat_input.html    \
        feat_output.html   \
        case.html          \
+       case_shock.html    \
+       case_viscous.html  \
+       case_amr.html      \
+       case_heat.html     \
        doc.html           \
        doc_input.html     \
        doc_output.html    \
@@ -33,6 +37,11 @@ FIC  = index.html         \
        dev_chlog.html     \
        dev_rmap.html      \
        dev_sf.html        \
+       devdoc.html        \
+       devdoc_core.html   \
+       devdoc_zone.html   \
+       devdoc_grid.html   \
+       devdoc_ustmesh.html\
        get.html           \
        get_download.html  \
        get_install.html   \
