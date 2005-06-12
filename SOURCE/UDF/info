@@ -1,0 +1,7 @@
+Here are User Defined Functions (UDF)
+
+1. Files are examples which can be changed by users. The only constraints is to keep declarations
+   arguments is the same order and the same type.
+
+2. Functions in UDF acronym is a general term. For sake of performance, some functions can be
+   subroutines
