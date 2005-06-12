@@ -62,8 +62,8 @@ endselect
 endsubroutine calcboco_ust_extrapol
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Chnge History
 !
-! avril 2003 (v0.0.1b) : creation de la procedure
-! juin  2003           : mise a jour des types de champs
+! apr  2003 : creation
+! june 2003 : update of type of fields
 !------------------------------------------------------------------------------!

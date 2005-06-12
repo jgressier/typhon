@@ -7,7 +7,7 @@
 !------------------------------------------------------------------------------!
 module MATERIAU
 
-use TYPHMAKE     ! definition de la precision des reels
+use TYPHMAKE     ! variable accuracy
 use MATER_LOI    ! definition generale d'une loi de variation des parametres
 
 implicit none
@@ -30,11 +30,12 @@ character, parameter :: mat_XMAT = 'X'   ! materiau a proprietes specifiques
 ! ST_MATERIAU : structure pour la definition des equations
 !------------------------------------------------------------------------------!
 type st_materiau
-  character(len=30) :: nom       ! nom du materiau
-  character         :: type      ! cf constantes
-  real(krp)         :: Cp        ! Capacite calorifique
-  type(st_loi)      :: Energie   ! Energie (fct de temperature)
-  type(st_loi)      :: Kd        ! conductivite thermique 
+  character(len=30) :: nom         ! material name
+  character         :: type        ! cf constants
+  real(krp)         :: Cp          ! Calorific capacity
+  type(st_loi)      :: Energie     ! Energy (fct of temperature)
+  type(st_loi)      :: Kd          ! thermal conductivity
+  logical           :: isotropic   ! if isotropic or not
 endtype st_materiau
 
 
@@ -52,8 +53,9 @@ endtype st_materiau
 endmodule MATERIAU
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Change history
 !
-! mai   2002 (v0.0.1b): creation du module
-! avril 2003          : specification des types de materiaux (LIN, KNL, XMAT)
+! may  2002 : creation
+! apr  2003 : specification of material type (LIN, KNL, XMAT)
+! june 2005 : non isotropic material 
 !------------------------------------------------------------------------------!

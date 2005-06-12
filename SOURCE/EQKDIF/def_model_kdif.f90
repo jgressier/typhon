@@ -75,7 +75,7 @@ if (samestring(str,"DEFINITION")) then
       call rpmgetkeyvalreal(pcour, "CONDUCT",  defsolver%defkdif%materiau%Kd%valeur)
 
     case(LOI_POLY)
-      call print_info(10,"    conductivite definie sous forme polynomiale")
+      call print_info(10,"    polynomial conductivity")
       call rpmgetkeyvalint(pcour, "POLY_ORDER",  defsolver%defkdif%materiau%Kd%poly%ordre)
       allocate(defsolver%defkdif%materiau%Kd%poly%coef(defsolver%defkdif%materiau%Kd%poly%ordre+1))
       call rpmgetkeyvalstr(pcour, "COEFFILE", str)
@@ -85,34 +85,40 @@ if (samestring(str,"DEFINITION")) then
       close(1001)
 
     case(LOI_PTS)
-      call print_info(10,"    conductivite definie pt par pt")
+      call print_info(10,"    point definition conductivity")
 
     case default
-      call erreur("lecture de menu", "type de conductivite inconnu")
+      call erreur("parameter reading", "unknown type of conductivity")
 
     endselect
 
     call rpmgetkeyvalreal(pcour, "HEATCAPA", defsolver%defkdif%materiau%Cp)
   
   case(mat_XMAT)
-    call print_info(10,"    materiau non lineaire")
+    call print_info(10,"    non linear material")
+    call erreur("development", "not implemented function")
 
   case default
-  call erreur("lecture de menu", "type de materiau inconnu")
+    call erreur("parameter reading", "unknown material")
   endselect
 
+  !-- anisotropic definition --
+  call rpmgetkeyvalstr(pcour, "OPTION", str, "ISOTROPIC")
+  if (samestring(str, "ISOTROPIC"))    defsolver%defkdif%materiau%isotropic = .true.
+  if (samestring(str, "ANISOTROPIC"))  defsolver%defkdif%materiau%isotropic = .false.
 
 else
-  call erreur("lecture de menu","Definition de MATERIAL inconnue")
+  call erreur("parameter reading","unknown definition of MATERIAL")
 endif
 
 
 endsubroutine def_model_kdif
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Change history
 !
-! avril 2003 (v0.0.1b): creation de la procedure
-!                       definition interne de materiau a proprietes constantes
-! juillet 2003        : conductivite polynomiale
+! apr  2003 : creation
+!             definition interne de materiau a proprietes constantes
+! july 2003 : conductivite polynomiale
+! june 2005 : anisotropic tensor
 !------------------------------------------------------------------------------!

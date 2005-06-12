@@ -41,7 +41,7 @@ select case(defsolver%typ_solver)
 case(solNS)
   champ=>newfield(grid, 2, 1, ust_mesh%ncell, ust_mesh%nface)
 case(solKDIF)
-  champ=>newfield(grid, 1, 0, ust_mesh%ncell, ust_mesh%nface)  ! A MODIFIER SELON GAZ
+  champ=>newfield(grid, 1, 0, ust_mesh%ncell, ust_mesh%nface) 
 case(solVORTEX)
   champ=>newfield(grid, 1, 0, ust_mesh%ncell, ust_mesh%nface)
 case default
