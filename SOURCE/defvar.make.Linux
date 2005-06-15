@@ -15,7 +15,8 @@ FB = -implicitnone -I$(PRJINC)
 FO_debug = -CB -check all
 FO_opt   = -O3 #-fast
 FO_prof  = $(FO_opt) -pg
-FO_      = $(FO_debug)
+FO_      = 
+#FO_      = $(FO_OPT)
 FO = $(FO_$(OPT))
 
 ####### Definition de l'éditeur de lien et des options

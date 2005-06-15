@@ -34,6 +34,7 @@ Task Dévlp.  R. cible début fin   Type  Développement
 0066 Jeremie   0.1.7  18/04 27/04 KDIF  radiating boundary conditions
 0067 Jeremie   0.1.7              KDIF  coupled radiation boundary conditions
 0068 Jeremie   0.1.7  02/05 02/05 IHM   output of boco index and face center
+0070 Jérémie   0.1.7  04/06       Solv  
 0072 Jérémie   0.1.6              Exch  Sequential message passing between zones (coupling)
      Jérémie   0.1.6              KDIF  Implicitation des conditions limites
 0075 Emmanuel  0.1.6  20/10       Make  Local convergence on cycle

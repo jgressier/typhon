@@ -407,12 +407,6 @@ Task 0065 (Jérémie) : Make : Compilation with intel fortran 8.1
 - some fixes on output format
 
 ---------------------------------------------------------------------------------
-Task 0065 (Jérémie) : Make : Compilation with intel fortran 8.1
----------------------------------------------------------------------------------
-- handle low-case module names
-- some fixes on output format
-
----------------------------------------------------------------------------------
 Task 0066 (Jérémie) : KDIF : radiating boundary conditions
 ---------------------------------------------------------------------------------
 - parameters structure (EQKDIF/MENU_KDIF.f90)
@@ -424,7 +418,8 @@ Task 0067 (Jérémie) : KDIF : coupled radiation boundary conditions
 --------------------------------------------------------------------------------
 
 
----------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
 Task 0068 (Jérémie) : IHM : output of boco index and face centers
 --------------------------------------------------------------------------------
 - define ACTION parameter in BLOCK:PROJECT (default: COMPUTE) 
@@ -432,6 +427,10 @@ Task 0068 (Jérémie) : IHM : output of boco index and face centers
 - if ACTION=ANALYSE, switch to "analyse.f90" routine
   write "family_name".fam files with local face index and center coordinates
   > main.f90, analyse.f90, analyse_zone.f90
+
+---------------------------------------------------------------------------------
+Task 0069 (Jérémie) :  : gradient computation
+---------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------
 Task 0073 (Emmanuel) : KDIF : convection boundary condition
@@ -465,6 +464,12 @@ Task 0077 (Jérémie) : Make : DEFFIELD restructuration
 - split into DEFFIELD  (FIELD         structure)
              GENFIELD  (GENERICFIELD  structure)
              BASEFIELD (SCA/VEC/TEN FIELD structures)
+
+-------------------------------------------------------------------------------
+Task 0082 (Jérémie) : KDIF : Anisotropic material
+---------------------------------------------------------------------------------
+- Defintion of tensor in MATERIAU.f90
+- UDF function udf_kdif_aniso.f90
 
 ---------------------------------------------------------------------------------
 Task 0090 (Jérémie) : Opt : GEO3D optimization (array calls)

@@ -103,9 +103,22 @@ if (samestring(str,"DEFINITION")) then
   endselect
 
   !-- anisotropic definition --
+
   call rpmgetkeyvalstr(pcour, "OPTION", str, "ISOTROPIC")
-  if (samestring(str, "ISOTROPIC"))    defsolver%defkdif%materiau%isotropic = .true.
-  if (samestring(str, "ANISOTROPIC"))  defsolver%defkdif%materiau%isotropic = .false.
+  defsolver%defkdif%materiau%isotropic = ' '
+  if (samestring(str, "ISOTROPIC"))    defsolver%defkdif%materiau%isotropic = matiso_ISO
+  if (samestring(str, "ANISOTROPIC"))  defsolver%defkdif%materiau%isotropic = matiso_ANISO
+  if (samestring(str, "UDF"))          defsolver%defkdif%materiau%isotropic = matiso_UDF
+  select case(defsolver%defkdif%materiau%isotropic)
+  case(matiso_ISO)
+    call print_info(10,"    isotropic conductivity")
+  case(matiso_ANISO)
+    call print_info(10,"    uniform anisotropic conductivity")
+  case(matiso_UDF)
+    call print_info(10,"    user defined direction of anisotropic conductivity")
+  case default
+    call erreur("parameter reading", "unknown type of anisotropic definition")
+  endselect
 
 else
   call erreur("parameter reading","unknown definition of MATERIAL")

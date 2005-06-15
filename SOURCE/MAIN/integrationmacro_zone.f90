@@ -165,15 +165,15 @@ do while (.not.fin)
 
   case(instationnaire)
     local_t = local_t + dt
-!   if (mod(lzone%info%iter_loc,10) == 0) &
-    if (fin) &
+    if (mod(lzone%info%iter_loc,10) == 0) &
+!    if (fin) &
      write(str_w,'(a,i5,a,g10.4)') "    integration",lzone%info%iter_loc," a t local =",local_t
   
   case(periodique)
 
   endselect
 
-!  if (mod(lzone%info%iter_loc,10) == 0) call print_info(9,str_w)
+   if (mod(lzone%info%iter_loc,10) == 0) call print_info(9,str_w)
 !  if (fin) call print_info(9,str_w)
 
   call capteurs(lzone)

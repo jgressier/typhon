@@ -42,8 +42,8 @@ integer :: ib, nbloc            ! index de bloc et nombre de blocs
 integer :: ideb, ifin           ! index de debut et fin de bloc
 integer :: it                   ! index de tableau
 integer :: icl, icr             ! index de cellule a gauche et a droite
-type(st_kdifetat), dimension(:), allocatable & 
-        :: cell_l, cell_r       ! tableau de cellules a gauche et a droite
+real(krp), dimension(:), allocatable & 
+        :: cell_l, cell_r       ! temperature arrays (left & right cells)
 type(v3d), dimension(:), allocatable &
         :: grad_l, grad_r       ! tableau des gradients
 type(v3d), dimension(:), allocatable &
@@ -72,17 +72,14 @@ ideb = 1
 
 do ib = 1, nbloc
 
-  !print*,"!!! DEBUG integration bloc,",ib," de",ideb," a",ideb+nfb-1
-  !! DEV : optimisation ? 13% du temps de calcul en explicite !!!
-
   do it = 1, nfb
     if  = ideb+it-1
     icl = domaine%facecell%fils(if,1)
     icr = domaine%facecell%fils(if,2)
     grad_l(it) = field%gradient%tabvect(1)%vect(icl)
     grad_r(it) = field%gradient%tabvect(1)%vect(icr)
-    cell_l(it)%temperature = field%etatprim%tabscal(1)%scal(icl)
-    cell_r(it)%temperature = field%etatprim%tabscal(1)%scal(icr)
+    cell_l(it) = field%etatprim%tabscal(1)%scal(icl)
+    cell_r(it) = field%etatprim%tabscal(1)%scal(icr)
     cg_l(it)   = domaine%mesh%centre(icl, 1, 1)
     cg_r(it)   = domaine%mesh%centre(icr, 1, 1)
   enddo

@@ -22,6 +22,10 @@ character, parameter :: mat_LIN  = 'L'   ! materiau a proprietes constantes
 character, parameter :: mat_KNL  = 'K'   ! materiau a cp constant et conductivite non lineaire
 character, parameter :: mat_XMAT = 'X'   ! materiau a proprietes specifiques
 
+character, parameter :: matiso_ISO   = 'I'    !   isotropic material
+character, parameter :: matiso_ANISO = 'A'    ! anisotropic material - uniform directions
+character, parameter :: matiso_UDF   = 'U'    ! anisotropic material - user defined
+
 !------------------------------------------------------------------------------!
 !    DECLARATIONS
 !------------------------------------------------------------------------------!
@@ -35,7 +39,7 @@ type st_materiau
   real(krp)         :: Cp          ! Calorific capacity
   type(st_loi)      :: Energie     ! Energy (fct of temperature)
   type(st_loi)      :: Kd          ! thermal conductivity
-  logical           :: isotropic   ! if isotropic or not
+  character         :: isotropic   ! if isotropic or not
 endtype st_materiau
 
 

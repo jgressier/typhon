@@ -22,6 +22,7 @@ use GENFIELD
 implicit none
 
 ! -- Declaration des entrees --
+
 integer                      :: nf         ! number of parsed faces
 integer(kpp)                 :: meth       ! method for gradient interpolation
 real(krp),     dimension(nf) :: ndHL       ! face center to left  center distance / (HL + HR)
