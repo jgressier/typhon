@@ -132,6 +132,7 @@ integer             :: min_nbnodes, min_nbfils   ! ancienne taille
   min_nbnodes = min(nbnodes, prov%nbnodes)
   min_nbfils  = min(nbfils,  prov%nbfils)  ! copie des connectivites
   conn%fils(1:min_nbnodes, 1:min_nbfils) = prov%fils(1:min_nbnodes, 1:min_nbfils) 
+  call delete(prov)
 
 endsubroutine realloc_connect
 

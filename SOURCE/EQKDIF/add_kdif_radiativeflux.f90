@@ -1,13 +1,13 @@
 !------------------------------------------------------------------------------!
-! Procedure : add_kdif_radiativeflux                    Authors : J. Gressier
-!                                              Created : April 2005
-! Fonction                                     Modif   : (cf History)
-!  Flux aux faces limites quand necessaire
+! Procedure : add_kdif_radiativeflux                   Authors : J. Gressier
+!                                                      Created : April 2005
+! Fonction                                        
+!  Add radiative flux to boundary fluxes
 !
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine add_kdif_radiativeflux(defsolver, ib, domain, flux, stprim)
+subroutine add_kdif_radiativeflux(defsolver, idef, domain, ib, flux, stprim)
 
 use TYPHMAKE
 use OUTPUT
@@ -23,7 +23,8 @@ implicit none
 
 ! -- Inputs --
 type(mnu_solver)        :: defsolver        ! solver parameters
-integer                 :: ib               ! boundary condition parameters
+integer                 :: idef             ! boco defintion (defsolver%boco)
+integer                 :: ib               ! domain boco definition
 type(st_ustmesh)        :: domain           ! unstructured domain (cell, face, connectivity)
 type(st_genericfield)   :: stprim           ! primitive state
 
@@ -36,8 +37,8 @@ real(krp)               :: cst, Tfar4
 
 ! -- Debut de la procedure --
 
-cst   = stefan_cst * defsolver%boco(ib)%boco_kdif%emmissivity
-Tfar4 = defsolver%boco(ib)%boco_kdif%rad_Tinf**4
+cst   = stefan_cst * defsolver%boco(idef)%boco_kdif%emmissivity
+Tfar4 = defsolver%boco(idef)%boco_kdif%rad_Tinf**4
 
 !---------------------------------------------------------------------
 ! add radiative term to flux (should eventually be initialized)

@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
-! MODULE : MENU_SOLVER                    Auteur : J. Gressier
-!                                         Date   : Aout 2002
-! Fonction                                Modif  : (cf Historique)
+! MODULE : MENU_SOLVER                               Authors : J. Gressier
+!                                                    Created : Aout 2002
+! Fonction                                           
 !   Definition des structures pour les entrees du programme TYPHON
 !   Structures pour les options des solveurs 
 !   - Definition du probleme (solveur, conditions limites, initiales)

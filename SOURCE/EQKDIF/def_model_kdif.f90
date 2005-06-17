@@ -120,6 +120,10 @@ if (samestring(str,"DEFINITION")) then
     call erreur("parameter reading", "unknown type of anisotropic definition")
   endselect
 
+  !-- radiation definition --
+
+  call rpmgetkeyvalreal(pcour, "TOLERANCE", defsolver%defkdif%tolerance, 1.E-4_krp)
+
 else
   call erreur("parameter reading","unknown definition of MATERIAL")
 endif

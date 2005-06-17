@@ -16,6 +16,7 @@ EQKDIF_MOD = EQKDIF.$(MOD)      \
 EQKDIF_OBJ := $(EQKDIF_MOD:.$(MOD)=.o)        \
               accumulfluxcorr_kdif.o          \
               add_kdif_radiativeflux.o        \
+              add_kdif_coupled_radflux.o      \
               corr_varprim_kdif.o             \
               def_boco_kdif.o                 \
               def_init_kdif.o                 \
@@ -44,6 +45,7 @@ EQKDIF_OBJ := $(EQKDIF_MOD:.$(MOD)=.o)        \
               kdif_bocoflux.o                 \
               init_boco_kdif.o                \
               init_kdif_ust.o                 \
+              init_viewfactor.o               \
               integration_kdif_ust.o          \
               setboco_kdif_flux.o             \
               setboco_kdif_hconv.o            \

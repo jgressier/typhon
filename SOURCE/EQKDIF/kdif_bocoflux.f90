@@ -31,7 +31,8 @@ type(st_genericfield)   :: stprim           ! primitive state field
 type(st_genericfield)   :: flux             ! flux physiques
 
 ! -- Internal variables --
-integer                 :: ifb, if, ib, idef ! index de liste, index de face limite et parametres
+integer    :: ifb, if, ib, idef ! index de liste, index de face limite et parametres
+logical    :: coupled
 
 ! -- Debut de la procedure --
 
@@ -50,23 +51,34 @@ do ib = 1, domaine%nboco
     enddo
   endselect
 
-  !---------------------------------------------------------------------
-  ! external radiative flux 
+enddo
+
+!---------------------------------------------------------------------
+! external radiative flux 
+
+coupled = .false.
+
+do ib = 1, domaine%nboco
+  idef = domaine%boco(ib)%idefboco
 
   select case(defsolver%boco(idef)%typ_boco)
   case(bc_wall_adiab, bc_wall_flux, bc_wall_hconv) 
+
     select case(defsolver%boco(idef)%boco_kdif%radiating)
     case(rad_none)
-    case(rad_direct)
-      call add_kdif_radiativeflux(defsolver, idef, domaine, flux, stprim)
-    case(rad_coupled)
-      call erreur("Development", "(coupled radiation) Feature not yet implemented")
+      ! nothing to do
+    case(rad_direct, rad_coupled)
+      call add_kdif_radiativeflux(defsolver, idef, domaine, ib, flux, stprim)
+      if (defsolver%boco(idef)%boco_kdif%radiating == rad_coupled) coupled = .true.
     case default
       call erreur("Parameter bug", "unexpected parameter for radiating feature")
     endselect
   endselect
-
 enddo
+
+if (coupled) call add_kdif_coupled_radflux(defsolver, domaine, flux, stprim)
+
+
 
 endsubroutine kdif_bocoflux
 

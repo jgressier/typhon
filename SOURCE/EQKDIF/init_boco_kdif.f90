@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
-! Procedure : init_boco_kdif              Auteur : J. Gressier/E. Radenac
-!                                         Date   : Nov 2003
-! Fonction                                Modif  : 
+! Procedure : init_boco_kdif                   Authors : J. Gressier/E. Radenac
+!                                              Created : Nov 2003
+! Fonction                                   
 !   Traitement des parametres du fichier menu principal
 !   Initialisation des conditions limites
 !
@@ -31,9 +31,12 @@ integer :: iboco,i
 ! -- Debut de la procedure --
 
 ! On parcourt toutes les conditions limites du domaine
+
 do iboco = 1, ustdom%nboco 
 
-  ! Condition de Dirichlet !
+  !-------------------------------------------------
+  ! Condition de Dirichlet 
+  !-------------------------------------------------
   ! Cas d'existence d'un tableau de temperatures
   if(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%alloctemp) then
     allocate(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%temp(ustdom%boco(iboco)%nface))
@@ -47,7 +50,9 @@ do iboco = 1, ustdom%nboco
 
   endif
 
+  !-------------------------------------------------
   ! Condition de Von Neumann
+  !-------------------------------------------------
   ! Cas d'existence d'un tableau de flux
   if(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%allocflux) then
     allocate(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%flux_nunif(ustdom%boco(iboco)%nface))
@@ -63,7 +68,9 @@ do iboco = 1, ustdom%nboco
     endif
   endif
 
+  !-------------------------------------------------
   ! Condition de convection
+  !-------------------------------------------------
   ! Cas d'existence de tableaux de coefficients et temperatures de convection
   if(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%allochconv) then
     allocate(defsolver%boco(ustdom%boco(iboco)%idefboco)%boco_kdif%h_nunif(ustdom%boco(iboco)%nface))
@@ -89,17 +96,24 @@ do iboco = 1, ustdom%nboco
 
   endif
 
-
-
 enddo
+
+!-------------------------------------------------
+! computation of radiating coefficients
+!-------------------------------------------------
+
+call print_info(10,"* Initialization of view factors (radiating exchange)")
+call init_viewfactor(defsolver, ustdom)
+
+!-------------------------------------------------
 
 endsubroutine init_boco_kdif
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Change history
 !
-! nov 2003 (v0.1.2) : creation de la routine
-! juin 2004 : conditions limites non uniformes de Neumann et convection
+! nov  2003 : creation de la routine
+! june 2004 : conditions limites non uniformes de Neumann et convection
 !------------------------------------------------------------------------------!
 
 

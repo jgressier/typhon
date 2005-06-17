@@ -22,7 +22,7 @@ implicit none
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! structure DLU : matrice a REMPLISSAGE symetrique
+! structure DLU : symmetrically filled matrix
 !------------------------------------------------------------------------------!
 type st_dlu
   logical                          :: sort
@@ -35,13 +35,29 @@ type st_dlu
 endtype st_dlu
 
 
+!------------------------------------------------------------------------------!
+! structure SDLU : symmetric matrix
+!------------------------------------------------------------------------------!
+type st_sdlu
+  logical                          :: sort
+  integer(kip)                     :: dim       ! maximal used index
+  integer(kip)                     :: ncouple
+  real(krp), dimension(:), pointer :: value     ! coefficient de la diagonale
+  type(st_connect)                 :: couple    ! liste (dim) des couples
+endtype st_sdlu
+
+
 ! -- INTERFACES -------------------------------------------------------------
 interface new
-  module procedure new_dlu
+  module procedure new_dlu, new_sdlu
 endinterface
 
 interface delete
-  module procedure delete_dlu
+  module procedure delete_dlu, delete_sdlu
+endinterface
+
+interface realloc
+  module procedure realloc_sdlu
 endinterface
 
 ! -- Fonctions et Operateurs ------------------------------------------------
@@ -70,6 +86,23 @@ integer(kip) :: dim, ncouple
 endsubroutine new_dlu
 
 !------------------------------------------------------------------------------!
+! new_dlu : allocate SDLU structure
+!------------------------------------------------------------------------------!
+subroutine new_sdlu(mat, dim, ncouple)
+implicit none
+! - parametres
+type(st_sdlu) :: mat
+integer(kip) :: dim, ncouple
+
+  mat%sort    = .false.
+  mat%dim     = dim
+  mat%ncouple = ncouple
+  allocate(mat%value(ncouple)) ;   mat%value(:) = 0._krp
+  call new(mat%couple, ncouple, 2)
+
+endsubroutine new_sdlu
+
+!------------------------------------------------------------------------------!
 ! delete_dlu : remove DLU structure
 !------------------------------------------------------------------------------!
 subroutine delete_dlu(mat)
@@ -77,12 +110,51 @@ implicit none
 ! - parametres
 type(st_dlu) :: mat
 
-  deallocate(mat%diag)
-  deallocate(mat%lower)
-  deallocate(mat%upper)
-  call delete(mat%couple)
+  if (associated(mat%diag)) then
+    deallocate(mat%diag)
+    deallocate(mat%lower)
+    deallocate(mat%upper)
+    call delete(mat%couple)
+  endif
 
 endsubroutine delete_dlu
+
+
+!------------------------------------------------------------------------------!
+! delete_sdlu : remove SDLU structure
+!------------------------------------------------------------------------------!
+subroutine delete_sdlu(mat)
+implicit none
+! - parametres
+type(st_sdlu) :: mat
+
+  if (associated(mat%value)) deallocate(mat%value)
+  call delete(mat%couple)
+
+endsubroutine delete_sdlu
+
+
+!------------------------------------------------------------------------------!
+! realloc_sdlu : reallocate SDLU structure
+!------------------------------------------------------------------------------!
+subroutine realloc_sdlu(mat, dim, ncouple)
+implicit none
+! - parametres
+type(st_sdlu)      :: mat
+integer(kip)       :: dim, ncouple
+real(krp), pointer :: prov(:)
+
+  call realloc(mat%couple, ncouple, 2)
+  allocate(prov(ncouple))
+  prov(:)             = 0._krp
+  prov(1:mat%ncouple) = mat%value(1:mat%ncouple)
+  deallocate(mat%value)
+  mat%value => prov
+  mat%sort    = .false.
+  mat%dim     = dim
+  mat%ncouple = ncouple
+
+endsubroutine realloc_sdlu
 
 
 !------------------------------------------------------------------------------!

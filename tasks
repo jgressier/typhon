@@ -416,8 +416,11 @@ Task 0066 (Jérémie) : KDIF : radiating boundary conditions
 ---------------------------------------------------------------------------------
 Task 0067 (Jérémie) : KDIF : coupled radiation boundary conditions
 --------------------------------------------------------------------------------
-
-
+- computation of view factors (EQKDIF/init_viewfactor.f90)
+- computation of exchanged fluxes (EQKDIF/add_kdif_coupled_radflux.f90)
+- debug EQKDIF/add_kdif_radiativeflux.f90
+- new structure (MATH/SPARSE_MAT.f90)
+Rq: needs very important amount of memory
 
 --------------------------------------------------------------------------------
 Task 0068 (Jérémie) : IHM : output of boco index and face centers

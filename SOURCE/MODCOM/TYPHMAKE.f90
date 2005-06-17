@@ -11,7 +11,7 @@
 
 module TYPHMAKE
 
-  integer, parameter :: krp = 8  ! simple (4) ou double (8) precision
+  integer, parameter :: krp = 4  ! simple (4) ou double (8) precision
   integer, parameter :: kip = 4  ! simple (2) ou double (4) precision
   integer, parameter :: kpp = 4  ! taille des variables parametres (2 devrait suffire)
 

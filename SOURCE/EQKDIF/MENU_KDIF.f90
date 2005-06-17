@@ -7,9 +7,10 @@
 !------------------------------------------------------------------------------!
 module MENU_KDIF
 
-use TYPHMAKE   ! Definition de la precision
+use TYPHMAKE     ! Definition de la precision
 use VARCOM
-use MATERIAU  ! Definition du materiau
+use MATERIAU     ! Definition du materiau
+use SPARSE_MAT
 !use EQKDIF    ! Definition des proprietes temperatures et materiau
 
 implicit none
@@ -28,6 +29,8 @@ integer(kpp), parameter :: rad_coupled = 2  ! reception Tinf^4 + integration of 
 !------------------------------------------------------------------------------!
 type mnu_kdif
   type(st_materiau)   :: materiau      ! type de materiau
+  real(krp)           :: tolerance     ! tolerance to ignore view factor
+  type(st_sdlu)       :: viewfactor    ! normalized view factor (symmetric sparse matrix shape)
 endtype mnu_kdif
 
 
@@ -80,6 +83,9 @@ endtype st_init_kdif
 
 ! -- INTERFACES -------------------------------------------------------------
 
+interface delete
+  module procedure delete_mnu_kdif
+endinterface
 
 ! -- Fonctions et Operateurs ------------------------------------------------
 
@@ -114,13 +120,26 @@ integer bocotype
 endfunction bctype_of_kdifboco
 
 
+!------------------------------------------------------------------------------!
+! Procedure : desallocation d'une structure MNU_KDIF
+!------------------------------------------------------------------------------!
+subroutine delete_mnu_kdif(defkdif)
+implicit none
+type(mnu_kdif)  :: defkdif
+
+  call delete(defkdif%materiau%Kd)
+  call delete(defkdif%viewfactor)
+
+endsubroutine delete_mnu_kdif
+
+
 endmodule MENU_KDIF
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Change history
 !
-! nov  2002 (v0.0.1b): creation du module
-! nov 2003           : ajout de la temperature non uniforme de paroi 
-!                      (CL Dirichlet)
-! juin 2004          : conditions de Neumann et Fourier non uniformes
+! nov  2002 : creation du module
+! nov  2003 : ajout de la temperature non uniforme de paroi (CL Dirichlet)
+! june 2004 : conditions de Neumann et Fourier non uniformes
+! june 2005 : radiating parameters & view factors
 !------------------------------------------------------------------------------!
