@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
-! Procedure : integration_ns_ust          Auteur : J. Gressier
-!                                         Date   : July 2004
-! Fonction                                Modif  : (see history)
+! Procedure : integration_ns_ust                     Authors : J. Gressier
+!                                                    Created : July 2004
+! Fonction  
 !   Integration d'un domaine non structure
 !   Le corps de la routine consiste a distribuer les etats et les gradients
 !   sur chaque face.
@@ -114,6 +114,11 @@ do ib = 1, nbloc
   select case(defspat%sch_hyp)
   case(sch_hlle)
     call calc_flux_hlle(defsolver, defspat,                             &
+                        nfb, domaine%mesh%iface(ideb:ifin, 1, 1),       &
+                        cell_l, cell_r, flux, ideb,                     &
+                        calc_jac, jacL(ideb:ifin), jacR(ideb:ifin))
+  case(sch_hllc)
+    call calc_flux_hllc(defsolver, defspat,                             &
                         nfb, domaine%mesh%iface(ideb:ifin, 1, 1),       &
                         cell_l, cell_r, flux, ideb,                     &
                         calc_jac, jacL(ideb:ifin), jacR(ideb:ifin))
