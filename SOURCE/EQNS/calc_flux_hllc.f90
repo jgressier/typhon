@@ -95,13 +95,13 @@ do if = 1, nflux
   else
     rqL = cell_l(if)%density*(sl - vnl)
     rqR = cell_r(if)%density*(sr - vnr)
-    Sst = (rqR*vnr - rqL*vnl + cell_l(if)%pressure - cell_r(if)%pressure)/(rqR - rqL)
+    Sst = (rqR*vnr - rqL*vnl - cell_r(if)%pressure + cell_l(if)%pressure)/(rqR - rqL)
     
     if (Sst >= 0._krp) then
       iks  = 1._krp/(sl - Sst)
       rst  = rqL*iks
       pst  = cell_l(if)%pressure - rqL*(vnl-Sst)
-      vst  = iks*( (rqL*cell_l(if)%velocity) + (pst-cell_l(if)%pressure)*fn )
+      rvst = iks*( (rqL*cell_l(if)%velocity) + (pst-cell_l(if)%pressure)*fn )
       rest = iks*(rel*(sl-vnl) - cell_l(if)%pressure*vnl + pst*Sst)
     else
       iks  = 1._krp/(sr - Sst)

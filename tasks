@@ -474,6 +474,11 @@ Task 0082 (Jérémie) : KDIF : Anisotropic material
 - Defintion of tensor in MATERIAU.f90
 - UDF function udf_kdif_aniso.f90
 
+-------------------------------------------------------------------------------
+Task 0085 (Jérémie) : NS : HLLC scheme
+---------------------------------------------------------------------------------
+- HLLC scheme (Batten version) in EQNS
+
 ---------------------------------------------------------------------------------
 Task 0090 (Jérémie) : Opt : GEO3D optimization (array calls)
 ---------------------------------------------------------------------------------
