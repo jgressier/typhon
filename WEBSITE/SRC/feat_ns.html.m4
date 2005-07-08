@@ -10,14 +10,17 @@ dnl -------------------------------------------------------------
 
 section([Gas model])
 item([perfect gaz])
+item([viscosity: Sutherland law, constant Prandtl number])
 <br>
 
 section([Dynamics])
 item([inviscid])
+item([laminar viscosity])
 <br>
 
 section([Numerical Schemes])
 item([HLLE upwind scheme])
+item([HLLC upwind scheme])
 item([MUSCL second order extension])
 <br>
 

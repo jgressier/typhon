@@ -13,6 +13,18 @@ define([writedev],  [<tr class=orange><td align=center>$1</td><td width=10><td>$
 define([writebug],  [<tr class=red><td align=center>$1</td><td width=10><td>$2</td></tr>])
 
 dnl -------------------------------------------------------------
+sectionlr([release 0.1.7], [10/07/2005])
+beginlist
+writedev ([core]    [introduces User Defined Functions (UDF) through user-made fortran functions])
+writefunc([KDIF]    [features radiating boundary condition])
+writedev ([KDIF]    [features radiative coupling with view factors (simplified)])
+writedev ([KDIF]    [features anisotropic material (only UDF)])
+writedev ([KDIF]    [features boundary parameters temporal interpolation (via UDF)])
+writefunc([NS],     [features HLLC upwind scheme (ability for viscous flows)])
+writedev ([NS],     [features Viscous stress tensor (laminar flows)])
+writedev ([OUTPUT]  [can write boundary condition face centers])
+writedev ([OUTPUT]  [can write unsteady results on boundaring family])
+endlist
 
 dnl -------------------------------------------------------------
 sectionlr([release 0.1.6], [10/12/2004])

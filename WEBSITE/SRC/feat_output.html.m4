@@ -11,8 +11,8 @@ dnl -------------------------------------------------------------
 section([Output files])
 item([VTK])
 item([Tecplot])
+<br>
 
-skip_line
 section([Monitoring])
 
 skip_line
