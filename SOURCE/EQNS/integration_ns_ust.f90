@@ -144,7 +144,7 @@ do ib = 1, nbloc
     call distrib_field(field%gradient, domaine%facecell, ideb, ifin, &
                        gradL, gradR, 1)
     call calc_flux_viscous(defsolver, defspat,                        &
-                           nfb, ideb, domaine%mesh%iface,             &
+                           nfb, ideb, domaine%mesh%iface(ideb:ifin, 1, 1), &
                            cg_l, cg_r,                                &
                            cell_l, cell_r, gradL, gradR, flux,        &
                            calc_jac, jacL(ideb:ifin), jacR(ideb:ifin))

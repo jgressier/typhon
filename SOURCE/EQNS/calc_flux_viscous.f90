@@ -43,9 +43,16 @@ real(krp), dimension(nflux)  :: jacL, jacR  ! jac associees
 real(krp), parameter      :: theta = 1._krp
 real(krp), dimension(taille_buffer) :: dHR, dHL   ! cell to face distance
 type(v3d), dimension(taille_buffer) :: vLR        ! cell to cell vector
-type(v3d), dimension(taille_buffer) :: vectH      ! face (H) vector (velocity or temperature gradient)
-type(t3d), dimension(taille_buffer) :: velH       ! face (H) velocity
-real(krp), dimension(taille_buffer) :: TH, mu     ! temperature en H
+type(t3d), dimension(taille_buffer) :: gradvH     ! face (H) vector (velocity 
+                                                  ! gradient)
+type(v3d), dimension(taille_buffer) :: velH       ! face (H) velocity
+type(v3d), dimension(taille_buffer) :: vL, vR     ! left, right velocities
+type(v3d), dimension(taille_buffer) :: gradTL, gradTR  ! left, right temp grad
+real(krp), dimension(taille_buffer) :: TL, TR     ! left, right temperatures
+real(krp), dimension(taille_buffer) :: TH, mu, gradTH ! temperature en H
+type(v3d)  :: sigmav , gvv                        ! viscous tensor * velocity
+real(krp)  :: sigmavn
+real(krp)  :: r_PG, cp, conduct
 real(krp)  :: id
 integer    :: if
 
@@ -58,6 +65,9 @@ integer    :: if
 !allocate(vLR(nflux))    ! vecteur  LR
 
 ! -- Calculs preliminaires --
+r_PG = defsolver%defns%properties(1)%r_const        ! perfect gas constant
+cp = defsolver%defns%properties(1)%gamma * r_PG / &
+     (defsolver%defns%properties(1)%gamma - 1)      ! heat capacity
 
 do if = 1, nflux
   dHL(if) = abs(face(if)%centre - cg_l(if))
@@ -66,67 +76,67 @@ do if = 1, nflux
   dHL(if) = id*dHL(if) 
   dHR(if) = id*dHR(if) 
   vLR(if) = cg_r(if) - cg_l(if)
-  ! DEV / OPT : calcul de la distance au carree si c'est la seule utilisee
+  ! DEV / OPT : calcul de la distance au carre si c'est la seule utilisee
   ! pour eviter sqrt()**2
   !dLR(if) = abs(vLR(if))
+
+  vL(if) = cell_l(if)%velocity
+  vR(if) = cell_r(if)%velocity
+  velH(if) = dHR(if)*vL(if) + dHL(if)*vR(if)
+
+  TL(if) = cell_l(if)%pressure / (cell_l(if)%density * r_PG)
+  TR(if) = cell_r(if)%pressure / (cell_r(if)%density * r_PG)
+  TH(if) = dHR(if)*TL(if) + dHL(if)*TR(if)
+
+  ! computation of temperature gradient : 
+  ! grad(T) = 1 / (density * r) * grad(P) - P/(r * density**2) * grad(density)
+  gradTL(if) = 1/(cell_l(if)%density * r_PG) * gradL%tabvect(2)%vect(if) - &
+               cell_l(if)%pressure / (cell_l(if)%density**2 * r_PG) * &
+               gradL%tabvect(1)%vect(if)
+  gradTR(if) = 1/(cell_r(if)%density * r_PG) * gradR%tabvect(2)%vect(if) - &
+               cell_r(if)%pressure / (cell_r(if)%density**2 * r_PG) * &
+               gradR%tabvect(1)%vect(if)
+
 enddo
 
-!!$! -- Calcul de la conductivite en H (centre de face) selon le materiau --
-!!$
-!!$select case(defsolver%defkdif%materiau%type)
-!!$
-!!$case(mat_LIN)
-!!$  kH(:) = defsolver%defkdif%materiau%Kd%valeur
-!!$
-!!$case(mat_KNL)
-!!$  do if = 1, nflux
-!!$    TH     = dHR(if)*cell_l(if)%temperature + dHL(if)*cell_r(if)%temperature
-!!$    kH(if) = valeur_loi(defsolver%defkdif%materiau%Kd, TH)
-!!$  enddo
-!!$
-!!$case(mat_XMAT)
-!!$  call erreur("Calcul de materiau","Materiau non lineaire complet interdit")
-!!$
-!!$endselect
-!!$
-!!$!--------------------------------------------------------------
-!!$! Calcul du flux
-!!$!--------------------------------------------------------------
-!!$! COMPACT : F1 = - k(H) * (T(R) - T(L))            ! L et R centres de cellules
-!!$! AVERAGE : F2 = - k(H) * (a.gT(L) + b.gT(R)).n    ! H centre de face
-!!$! FULL    : F3 = 
-!!$! a = HR/RL et b = HL/RL
-!!$! k(H) = k(T(H)) avec T(H) = a.T(L) + b.T(R)
-!!$
-!!$select case(defspat%sch_dis)
-!!$case(dis_dif2) ! formulation compacte, non consistance si vLR et n non alignes
-!!$  do if = 1, nflux
-!!$    flux(if,1)  = - kH(if) * (cell_r(if)%temperature - cell_l(if)%temperature) &
-!!$                           * (vLR(if).scal.face(if)%normale) / (dLR(if)**2)
-!!$  enddo
-!!$
-!!$case(dis_avg2) ! formulation consistante, moyenne ponderee des gradients
-!!$  do if = 1, nflux
-!!$    flux(if,1)  = - kH(if) * ((dHL(if)*grad_r(if) + dHR(if)*grad_l(if)).scal.face(if)%normale)
-!!$  enddo
-!!$
-!!$case(dis_full)
-!!$  do if = 1, nflux
-!!$    pscal = (vLR(if).scal.face(if)%normale) / (dLR(if)**2)
-!!$    Fcomp = pscal * (cell_r(if)%temperature - cell_l(if)%temperature)
-!!$    vi    = face(if)%normale - (theta*pscal)*vLR(if)
-!!$    Favg  = (dHL(if)*grad_r(if) + dHR(if)*grad_l(if)).scal.vi
-!!$    flux(if,1)  = - kH(if) * (theta*Fcomp + Favg)
-!!$  enddo
-!!$
-!!$endselect
-!!$
-!!$! -- Calculs preliminaires --
-!!$
-!!$do i = 1, nflux
-!!$
-!!$enddo
-!!$
+select case(defsolver%defns%typ_visc)
+case(visc_suth)
+  call calc_visc_suther(defsolver%defns, nflux, TH, mu, 1)
+case default
+  call erreur("viscosity computation","unknown kind of computation")
+endselect
+
+! velocity gradient at the face
+call interp_facegradient_vect(nflux,defspat%sch_dis,dHL,dHR,vLR,vL,vR,&
+     gradL%tabtens(1)%tens,gradR%tabtens(1)%tens,gradvH)
+
+! temperature gradient at the face
+call interp_facegradn_scal(nflux,defspat%sch_dis,dHL,dHR,vLR,face,TL,TR,&
+     gradTL,gradTR,gradTH)
+
+! viscous, heat flux
+! Flux = (sigma . V) . normal + conductivity . grad (T) . normal
+! sigma : viscous stress tensor
+do if = 1, nflux
+
+  ! viscous stress tensor 
+  sigmav = -2/3*mu(if)* t3d_trace(gradvH(if))* velH(if) ! cubic dilatation term
+  gvv = ( gradvH(if) + t3d_transp(gradvH(if)) ) .scal. velH(if)
+  sigmav = sigmav + mu(if) *  gvv            ! local deformation term
+  sigmavn = sigmav .scal. face(if)%normale
+
+  ! energy flux
+  flux%tabscal(2)%scal(ideb-1+if) = flux%tabscal(2)%scal(ideb-1+if) + &
+                                     - sigmavn
+
+  ! heat conduction term
+  ! thermal conductivity
+  conduct = mu(if) * cp / defsolver%defns%properties(1)%prandtl
+  flux%tabscal(2)%scal(ideb-1+if) = flux%tabscal(2)%scal(ideb-1+if) + &
+                                     - conduct * gradTH(if)
+
+enddo
+
 !!$!--------------------------------------------------------------
 !!$! Calcul des jacobiennes
 !!$!--------------------------------------------------------------

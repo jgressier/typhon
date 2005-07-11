@@ -288,6 +288,16 @@ integer :: i
 
 endfunction t3d_tensorial_product_t
 
+!------------------------------------------------------------------------------!
+! Fonction : trace
+!------------------------------------------------------------------------------!
+real(krp) function t3d_trace(v)
+implicit none
+type(t3d), intent(in) :: v
+
+  t3d_trace = v%mat(1,1) + v%mat(2,2) + v%mat(3,3)
+
+endfunction t3d_trace
 
 endmodule TENSOR3
 !------------------------------------------------------------------------------!
@@ -295,5 +305,6 @@ endmodule TENSOR3
 !
 ! july 2003 : created, structure definition
 ! nov  2004 : basic operators
+! jun 2005  : trace operator
 !------------------------------------------------------------------------------!
 

@@ -489,3 +489,18 @@ Task 0100 (Jérémie) : IHM : Symbolic functions module
 ---------------------------------------------------------------------------------
 - FCT_* modules in MATH
 
+---------------------------------------------------------------------------------
+Task 0103 (Emmanuel): NS : Viscous fluxes
+---------------------------------------------------------------------------------
+- Viscous fluxes computation, Sutherland viscosity
+
+---------------------------------------------------------------------------------
+Task 0104 (Emmanuel): NS : Wall boundary conditions
+---------------------------------------------------------------------------------
+- wall boundary conditions : isothermal or flux
+
+Task 0105 (Emmanuel): NS : TECPLOT output
+---------------------------------------------------------------------------------
+- TECPLOT output for NS : cell center
+
+

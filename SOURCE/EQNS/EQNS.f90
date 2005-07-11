@@ -35,6 +35,8 @@ type st_espece
   real(krp)    :: r_const       ! constante du gaz
   real(krp)    :: prandtl       ! nombre de Prandtl
   real(krp)    :: visc_dyn      ! viscosite dynamique (faire evoluer en loi)
+  real(krp)    :: tref          ! Sutherland's formula : reference temperature
+  real(krp)    :: tsuth         ! Sutherland's formula : Sutherland's constant
 endtype st_espece
 
 ! -- INTERFACES -------------------------------------------------------------

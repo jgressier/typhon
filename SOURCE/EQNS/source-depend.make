@@ -20,6 +20,7 @@ EQNS_OBJ := $(EQNS_MOD:.$(MOD)=.o)    \
             calc_roe_states.o         \
             calc_varcons_ns.o         \
             calc_varprim_ns.o         \
+	    calc_visc_suther.o        \
             calcboco_ns.o             \
             def_boco_ns.o             \
             def_init_ns.o             \
@@ -28,8 +29,10 @@ EQNS_OBJ := $(EQNS_MOD:.$(MOD)=.o)    \
             init_boco_ns.o            \
             init_ns_ust.o             \
             integration_ns_ust.o      \
+            setboco_ns_flux.o         \
             setboco_ns_inlet_sub.o    \
             setboco_ns_inlet_sup.o    \
+            setboco_ns_isoth.o        \
             setboco_ns_outlet_sub.o   \
             setboco_ns_outlet_sup.o
 

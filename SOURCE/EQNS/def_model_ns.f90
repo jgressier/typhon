@@ -57,11 +57,18 @@ if (samestring(str, "RANS"))     defsolver%defns%typ_fluid = eqRANS
 select case(defsolver%defns%typ_fluid)
 case(eqEULER)
   call print_info(10,"    equations de fluide parfait (Euler)")
+  
+  ! no viscosity
+  defsolver%defns%typ_visc = visc_no
 
 case(eqNSLAM)
   call print_info(10,"    equations de Navier-Stokes laminaires")
-  call erreur("Developpement", "Pas d'implementation des termes visqueux")
 
+  ! -- Reading of viscosity properties
+  call rpmgetkeyvalstr(pcour, "VISCOSITY", str,"SUTHERLAND")
+
+  if (samestring(str, "SUTHERLAND"))    defsolver%defns%typ_visc = visc_suth
+  
 case(eqRANS)
   call print_info(10,"    equations de Navier-Stokes moyennees (RANS)")
   call erreur("Developpement", "Pas d'implementation de la turbulence")
@@ -69,7 +76,6 @@ case(eqRANS)
 case default
   call erreur("lecture de menu", "modelisation de la dynamique inconnue (DYNAMICS)")
 endselect
-
 
 ! -- lecture des proprietes du gaz
 
@@ -86,8 +92,13 @@ case(gas_AIR)
   defsolver%defns%properties(1)%gamma    =   1.40_krp
   defsolver%defns%properties(1)%r_const  = 287.14_krp
   defsolver%defns%properties(1)%prandtl  =   0.72_krp
-  defsolver%defns%properties(1)%visc_dyn =   0.00_krp
-
+  if (defsolver%defns%typ_visc == visc_suth) then
+    defsolver%defns%properties(1)%visc_dyn =   0.0000168_krp
+    defsolver%defns%properties(1)%tref     =   273.00_krp
+    defsolver%defns%properties(1)%tsuth    =   110.50_krp    
+  else
+    defsolver%defns%properties(1)%visc_dyn =   0.00_krp
+  endif
 case default
   call erreur("lecture de menu", "modelisation du gas inconnue (GAS)")
 endselect

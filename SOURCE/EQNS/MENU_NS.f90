@@ -26,6 +26,10 @@ integer, parameter :: eqRANS  = 12
 ! -- Type de gaz (menu_ns%typ_gaz) --
 integer, parameter :: gas_AIR = 10
 
+! -- Viscosity : computation
+integer, parameter :: visc_no = 10
+integer, parameter :: visc_suth = 11
+
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
@@ -35,7 +39,8 @@ integer, parameter :: gas_AIR = 10
 !------------------------------------------------------------------------------!
 type mnu_ns
   integer         :: typ_fluid         ! type de fluide (cf definitions parameter) 
-  integer         :: typ_gas           ! type de gaz    (cf definitions parameter) 
+  integer         :: typ_gas           ! type de gaz    (cf definitions parameter)
+  integer         :: typ_visc          ! kind of computation of viscosity
   integer         :: nb_species        ! nombre d'especes resolues
   type(st_espece), dimension(:), pointer &
                   :: properties        ! proprietes des differentes especes
@@ -49,6 +54,16 @@ type st_boco_ns
   real(krp) :: pstat, ptot, ttot, mach
   real(krp) :: temp_wall
   type(v3d) :: direction
+  real(krp), dimension(:), pointer  &
+            :: temp           ! not uniform wall temperature
+  logical   :: alloctemp      ! allocation of table "temp"
+  character (len=strlen) &
+            :: tempfile       ! file name for definition of not uniform temperature  
+  real(krp) :: flux
+  real(krp), dimension(:), pointer  &
+            :: flux_nunif     ! not uniform wall heat flux
+  character (len=strlen) &
+            :: fluxfile       ! file name for definition of not uniform flux 
 endtype st_boco_ns
 
 !------------------------------------------------------------------------------!
