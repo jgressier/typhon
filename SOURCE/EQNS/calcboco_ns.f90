@@ -54,11 +54,15 @@ case(bc_outlet_sub)
                              ustboco, grid%umesh, grid%info%field_loc)
 
 case(bc_wall_isoth)
-  call erreur("Developpement","Condition limite inconnue non implementee (calcboco_ns)")
-  !call setboco_ns_isoth(defboco%boco_unif, ustboco, grid%umesh, grid%field, defboco%boco_ns)
+  call setboco_ns_isoth(defsolver%defns,defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, defboco%boco_ns)
 
 case(bc_wall_flux)
-  call erreur("Developpement","Condition limite inconnue non implementee (calcboco_ns)")
+  pbcf => newbocofield(grid,ustboco%nface,1,0,0)  
+  call setboco_ns_flux(defsolver%defns, defboco%boco_unif, ustboco, &
+      grid%umesh, grid%info%field_loc, pbcf%tabscal(1)%scal, defboco%boco_ns)
+  ustboco%bocofield => pbcf
+  !call setboco_ns_flux(defsolver%defns, defboco%boco_unif, ustboco, &
+  !    grid%umesh, grid%info%field_loc, defboco%boco_ns)
 
 
 case default

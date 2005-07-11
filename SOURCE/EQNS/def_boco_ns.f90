@@ -45,7 +45,8 @@ case(bc_wall_isoth)
   !call erreur("Developpement","'bc_wall_isoth' : Cas non implemente")
 
 case(bc_wall_flux)
-  call erreur("Developpement","'bc_wall_isoth' : Cas non implemente")
+  call rpmgetkeyvalreal(pblock, "WALL_FLUX", boco%flux)
+  !call erreur("Developpement","'bc_wall_isoth' : Cas non implemente")
 
 case(bc_inlet_sub)
    call rpmgetkeyvalreal(pblock, "PI",        boco%ptot)
