@@ -48,7 +48,8 @@ if (position == end_calc) then  !DEV2602
 
         write(uf_chpresu,'(a)') 'VARIABLES="X","Y","Z","T"'
         call output_tec_ust(uf_chpresu, world%zone(izone)%grid%umesh, &
-                            world%zone(izone)%grid%info%field_loc, outp_typ)
+                            world%zone(izone)%grid%info%field_loc, outp_typ, &
+                            world%zone(izone)%defsolver%typ_solver)
 
       case(solVORTEX)
 
@@ -82,6 +83,15 @@ if (position == end_calc) then  !DEV2602
         enddo
 
         call delete(vfield)
+
+      case(solNS)
+
+        write(uf_chpresu,'(a)') 'VARIABLES="X","Y","Z","u","v","w","P","T"'
+        call output_tec_ust(uf_chpresu, world%zone(izone)%grid%umesh, &
+                            world%zone(izone)%grid%info%field_loc, outp_typ, &
+                            world%zone(izone)%defsolver%typ_solver, &
+                            world%zone(izone)%defsolver%defns)
+
 
       endselect
 
