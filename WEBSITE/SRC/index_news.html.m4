@@ -8,9 +8,7 @@ include_header
 
 dnl -------------------------------------------------------------
 
-dnl section([Web site news])
-
-dnl  item([March 2005, 11th : News and Change log])
+item([July 2005, 10th : version 0.1.7 released])
 
 skip_line
 

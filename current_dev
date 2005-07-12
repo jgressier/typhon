@@ -27,21 +27,12 @@ Task Dévlp.  R. cible début fin   Type  Développement
 0051 Jérémie   0.1.5              KDIF  Bug: timestep computation for non linear material
 0063 Jérémie   0.1.5              Out   Tecplot outputs : FEBLOCK format and output of scalars & vectors
 0064 Jérémie   0.1.5              Out   CGNS outputs
-0065 Jérémie   0.1.7  31/01 31/01 Make  Compilation with intel fortran 8.1
      Jérémie   0.1.8              Solv  Surrelaxation Jacobi, SOR, SSOR
      Jérémie   0.1.8              Solv  Gel des matrices d'implicitation en fonction du résidu
-0066 Jeremie   0.1.7  18/04 27/04 KDIF  radiating boundary conditions
-0067 Jeremie   0.1.7              KDIF  coupled radiation boundary conditions
-0068 Jeremie   0.1.7  02/05 02/05 IHM   output of boco index and face center
-0070 Jérémie   0.1.7  04/06       Solv  
 0072 Jérémie   0.1.6              Exch  Sequential message passing between zones (coupling)
      Jérémie   0.1.6              KDIF  Implicitation des conditions limites
 0075 Emmanuel  0.1.6  20/10       Make  Local convergence on cycle
 0080 Jérémie   0.1.6              NS    Convective fluxes implicitation
-0081 Jérémie   0.1.6  05/02       NS    Viscous fluxes
-0082 Jérémie   0.1.6  01/06 15/06 KDIF  Anisotropic material (udf)
-0085 Jérémie   0.1.6  05/07 05/07 NS    HLLC scheme
-0090 Jérémie   0.2.0  03/12       Opt   GEO3D optimization (array calls)
 0091           0.2.0              Opt   Memory (pre-allocate scalar, v3d, tensor arrays, dim block)
 0100           0.2.0  01/02       IHM   Symbolic functions module
 0101           0.2.0              IHM   Symbolic functions for initialisation
@@ -51,6 +42,23 @@ Task Dévlp.  R. cible début fin   Type  Développement
                0.2.0              Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
                1.0.0              Opt   Optimisation du calcul gradients (pré-inversion et rhs)
                1.0.0              Opt   Optimisation du calcul de loi polynomiale
+--------------------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+release 0.1.7 - 10 july 2005
+------------------------------------------------------------------------
+
+Task Dévlp.  R. cible début fin   Type  Development
+--------------------------------------------------------------------------------------------------------
+0065 Jérémie   0.1.7  31/01 31/01 Make  Compilation with intel fortran 8.1
+0066 Jeremie   0.1.7  18/04 27/04 KDIF  radiating boundary conditions
+0067 Jeremie   0.1.7              KDIF  coupled radiation boundary conditions
+0068 Jeremie   0.1.7  02/05 02/05 IHM   output of boco index and face center
+0075 Emmanuel  0.1.6  20/10       Make  Local convergence on cycle
+0080 Jérémie   0.1.6              NS    Convective fluxes implicitation
+0081 Jérémie   0.1.6  05/02       NS    Viscous fluxes
+0082 Jérémie   0.1.6  01/06 15/06 KDIF  Anisotropic material (udf)
+0085 Jérémie   0.1.6  05/07 05/07 NS    HLLC scheme
 --------------------------------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------
