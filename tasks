@@ -459,7 +459,6 @@ Task 0076 (Jérémie) : NS : MUSCL interpolation
 - array computation of vectors & tensors (GEO3D, TENSOR)
 - limiter definition (LIMITER)
 - MUSCL interpolation (hres_ns_muscl)
-- debug calc_gradient (3D) (vector computation) (multiple scalar computation)
 
 ---------------------------------------------------------------------------------
 Task 0077 (Jérémie) : Make : DEFFIELD restructuration
@@ -499,8 +498,8 @@ Task 0104 (Emmanuel): NS : Wall boundary conditions
 ---------------------------------------------------------------------------------
 - wall boundary conditions : isothermal or flux
 
+---------------------------------------------------------------------------------
 Task 0105 (Emmanuel): NS : TECPLOT output
 ---------------------------------------------------------------------------------
 - TECPLOT output for NS : cell center
-
 
