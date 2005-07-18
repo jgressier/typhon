@@ -8,7 +8,10 @@ include_header
 
 dnl -------------------------------------------------------------
 
-item([July 2005, 10th : version 0.1.7 released])
+section([July 2005, 10th : version 0.1.7 released])
+<br>
+
+section([April 2005, 20th : mailing lists available])
 
 skip_line
 

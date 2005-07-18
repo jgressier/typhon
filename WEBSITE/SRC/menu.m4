@@ -52,14 +52,14 @@ define([print_t1], [
 ])
 define([print_t2], [
   ifelse(id2, $1, 
-    [<td width="1*" class=menu2act>hyperlink([m_]id1[_]$1, id1[_]$1.html)</td>], 
-    [<td width="1*" class=menu2>   hyperlink([m_]id1[_]$1, id1[_]$1.html)</td>] )
+    [<td class=menu2act>hyperlink([m_]id1[_]$1, id1[_]$1.html)</td>], 
+    [<td class=menu2>   hyperlink([m_]id1[_]$1, id1[_]$1.html)</td>] )
 ])
 
 dnl =========== write menu left ================================================
 
 define([write_menu_left], [
-<table width=110  bgcolor="d7e6ef" border=0 cellpadding=4 cellspacing=0 class=menu1>
+<table width=110  border=0 cellpadding=4 cellspacing=0 class=menu1>
 skip_row
 print_t1([index])
 print_t1([feat])
@@ -77,9 +77,12 @@ skip_row
 dnl =========== write menu head ================================================
 
 define([write_menu_head], [
-  <table width="100%" bgcolor="d7e6ef" border=0 cellspacing="0" cellpadding="4" class=menu2>
+  <table width="100%" height=25 bgcolor="d7e6ef" background="img_dir([hbar-bluegrad.png])" border=0 cellspacing="0" cellpadding="0" class=menu2>
+  <tr>
+  <td> imglink([back], [back-arrow.png], id1.html)</td>
+  <td align=center>
+  <table border=0 cellspacing="0" cellpadding="4" height=25 class=menu2>
   <tr valign="middle">
-  <td width="1*" class=menu1></td>
   ifelse(id1, [index], [
     print_t2([pres])
     print_t2([news])
@@ -126,5 +129,8 @@ define([write_menu_head], [
     print_t2([faq]) ])
   <td width="1*" class=menu1></td>
   </tr>
+  </table>
+
+  </td></tr>
   </table>
 ])
