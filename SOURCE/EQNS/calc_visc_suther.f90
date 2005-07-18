@@ -42,7 +42,7 @@ T0 = defns%properties(specie)%tref      ! reference temperature
 S = defns%properties(specie)%tsuth      ! Sutherland's constant
 
 do if = 1, nf
-  mu(if) = mu0 * (temp(if)/T0)**(3/2)*(T0+S)/(temp(if)+S)
+  mu(if) = mu0 * (temp(if)/T0)**(1.5_krp)*(T0+S)/(temp(if)+S)
 enddo
 
 endsubroutine calc_visc_suther
