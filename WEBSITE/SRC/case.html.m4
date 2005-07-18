@@ -3,6 +3,7 @@ dnl -------------------------------------------------------------
 set_page_title([Examples])
 define([id1], [case])
 define([id2], [])
+define([id3], [])
 
 include_header
 

@@ -77,11 +77,11 @@ skip_row
 dnl =========== write menu head ================================================
 
 define([write_menu_head], [
-  <table width="100%" height=25 bgcolor="d7e6ef" background="img_dir([hbar-bluegrad.png])" border=0 cellspacing="0" cellpadding="0" class=menu2>
+  <table width="100%" cellspacing="0" cellpadding="0" class=menuhead>
   <tr>
   <td> imglink([back], [back-arrow.png], id1.html)</td>
   <td align=center>
-  <table border=0 cellspacing="0" cellpadding="4" height=25 class=menu2>
+  <table cellspacing="0" cellpadding="4" class=menuhead>
   <tr valign="middle">
   ifelse(id1, [index], [
     print_t2([pres])
@@ -101,15 +101,9 @@ define([write_menu_head], [
     print_t2([heat])
     ])
   ifelse(id1, [doc], [
-    print_t2([input])
-    print_t2([output])
-    print_t2([mesh])
-    print_t2([ns])
-    print_t2([kdif])
-    print_t2([scheme])
-    print_t2([coupling])
-    print_t2([amr])
-    print_t2([mpi])
+    print_t2([input])  print_t2([mesh])    print_t2([ns])   print_t2([amr]) print_t2([coupling])
+    </tr><tr valign="middle" style="border-top:1px">
+    print_t2([output]) print_t2([scheme])  print_t2([kdif]) print_t2([mpi])
     ])
   ifelse(id1, [dev], [
     print_t2([team])
@@ -127,7 +121,6 @@ define([write_menu_head], [
     print_t2([download])
     print_t2([install])
     print_t2([faq]) ])
-  <td width="1*" class=menu1></td>
   </tr>
   </table>
 

@@ -3,6 +3,7 @@ dnl -------------------------------------------------------------
 set_page_title([Installation])
 define([id1], [get])
 define([id2], [install])
+define([id3], [])
 
 include_header
 

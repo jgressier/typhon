@@ -3,6 +3,7 @@ dnl -------------------------------------------------------------
 set_page_title([Development Team])
 define([id1], [dev])
 define([id2], [team])
+define([id3], [])
 
 include_header
 

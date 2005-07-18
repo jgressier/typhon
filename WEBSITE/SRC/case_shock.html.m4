@@ -3,6 +3,7 @@ dnl -------------------------------------------------------------
 set_page_title([Examples of Shock Waves in Inviscid Flows])
 define([id1], [case])
 define([id2], [shock])
+define([id3], [])
 
 include_header
 

@@ -3,6 +3,7 @@ dnl -------------------------------------------------------------
 set_page_title([Solver features - Navier-Stokes model])
 define([id1], [feat])
 define([id2], [ns])
+define([id3], [])
 
 include_header
 

@@ -1,5 +1,5 @@
 <div align="center">
-<table width="90%" border="0" cellspacing=3 cellpadding=0>
+<table width="94%" border="0" cellspacing=3 cellpadding=0>
 
 dnl ========== BANNER ========================================================
 
@@ -24,11 +24,6 @@ dnl ========== menu ==========================================================
     <td style="background-color: FFFFFF; width: 5px">&nbsp;</td> 
 dnl ========== contents frame ================================================
     <td bgcolor=FFFFFF width="100%" class="defaut">
-      write_menu_head
-      <br>
-      <table width="100%" border=0 cellspacing=2 cellpadding=0>
-      <tr><td class=titre>page_title</td></tr></table><br>
-
-
-
-
+      write_menu_head  <br>
+      <p class=titre> page_title </p>
+      <div class=body>

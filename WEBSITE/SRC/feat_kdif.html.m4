@@ -3,6 +3,7 @@ dnl -------------------------------------------------------------
 set_page_title([Solver features - Heat Transfer model])
 define([id1], [feat])
 define([id2], [kdif])
+define([id3], [])
 
 include_header
 

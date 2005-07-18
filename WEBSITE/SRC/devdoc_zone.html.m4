@@ -3,6 +3,7 @@ dnl -------------------------------------------------------------
 set_page_title([Developer Guide - Zone structure])
 define([id1], [devdoc])
 define([id2], [zone])
+define([id3], [])
 
 include_header
 

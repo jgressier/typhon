@@ -3,6 +3,7 @@ dnl -------------------------------------------------------------
 set_page_title([Developer Guide -  data structures])
 define([id1], [devdoc])
 define([id2], [core])
+define([id3], [])
 
 include_header
 

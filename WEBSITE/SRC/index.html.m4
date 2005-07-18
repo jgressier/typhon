@@ -3,6 +3,7 @@ dnl -------------------------------------------------------------
 set_page_title([Welcome to TYPHON Solver website])
 define([id1], [index])
 define([id2], [])
+define([id3], [])
 
 include_header
 

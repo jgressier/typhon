@@ -3,6 +3,7 @@ dnl -------------------------------------------------------------
 set_page_title([Project Presentation])
 define([id1], [index])
 define([id2], [pres])
+define([id3], [])
 
 include_header
 

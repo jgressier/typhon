@@ -3,6 +3,7 @@ dnl -------------------------------------------------------------
 set_page_title([Change Log])
 define([id1], [dev])
 define([id2], [chlog])
+define([id3], [])
 
 include_header
 

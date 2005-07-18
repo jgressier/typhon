@@ -3,6 +3,7 @@ dnl -------------------------------------------------------------
 set_page_title([Solver features - Input files])
 define([id1], [feat])
 define([id2], [input])
+define([id3], [])
 
 include_header
 

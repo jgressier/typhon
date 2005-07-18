@@ -3,6 +3,7 @@ dnl -------------------------------------------------------------
 set_page_title([Examples of AMR Computations])
 define([id1], [doc])
 define([id2], [input])
+define([id3], [])
 
 include_header
 

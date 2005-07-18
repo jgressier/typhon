@@ -3,6 +3,7 @@ dnl -------------------------------------------------------------
 set_page_title([Documentation])
 define([id1], [doc])
 define([id2], [coupling])
+define([id3], [])
 
 include_header
 

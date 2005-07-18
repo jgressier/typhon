@@ -3,6 +3,7 @@ dnl -------------------------------------------------------------
 set_page_title([Project at Sourceforge.net])
 define([id1], [dev])
 define([id2], [sf])
+define([id3], [])
 
 include_header
 

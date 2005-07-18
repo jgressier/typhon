@@ -1,3 +1,4 @@
+</div> 
 </td></tr>
 </table>
 
@@ -9,6 +10,7 @@ dnl ========== end main frame ================================================
   <tr><td><span class="quickmenu">
   hyperlink([m_]id1,     id1.html)
   ifelse(id2, [], [], [&raquo; hyperlink([m_]id1[_]id2, id1[_]id2.html)])
+  ifelse(id3, [], [], [&raquo; hyperlink([m_]id1[_]id2[_]id3, id1[_]id2[_]id3.html)])
   </span></td><td align=right class="notes">
   hyperlink([typhon@sourceforge], [http://sourceforge.net/projects/typhon])</td></tr>
 
