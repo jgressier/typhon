@@ -26,24 +26,19 @@ type(st_mesh)    :: mesh
 type(st_field) :: champ
 
 ! -- Declaration des variables internes --
-real(krp)       :: x
 integer         :: ip, ic
 type(st_nsetat) :: nspri
 
 ! -- Debut de la procedure --
 
-!print*,'init ns',initns%ptot,  initns%ttot, initns%mach, initns%direction
+print*,'init ns',initns%ptot,  initns%ttot, initns%mach, initns%direction
 nspri = pi_ti_mach_dir2nspri(defns%properties(1), initns%ptot,  initns%ttot, &
                                                   initns%mach, initns%direction) 
-!print*,'init pri',nspri
-do ic = 1, champ%etatprim%dim
-!  x = mesh%centre(ic,1,1)%x
-!  print*,'ic,x',ic,x
-  champ%etatprim%tabscal(1)%scal(ic) = nspri%density  !*.01*x
-  champ%etatprim%tabscal(2)%scal(ic) = nspri%pressure !*.01*x
-  champ%etatprim%tabvect(1)%vect(ic) = nspri%velocity !+ v3d(x, 10*x, 0._krp)
-enddo
-!print*,'init_ns',nspri
+print*,'init pri',nspri
+champ%etatprim%tabscal(1)%scal(:) = nspri%density
+champ%etatprim%tabscal(2)%scal(:) = nspri%pressure
+champ%etatprim%tabvect(1)%vect(:) = nspri%velocity
+print*,'init_ns',nspri
 
 !!if (champ%allocgrad) champ%gradient(:,:,:,:,:) = 0._krp
 

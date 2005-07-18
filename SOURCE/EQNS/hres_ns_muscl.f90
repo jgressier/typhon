@@ -1,8 +1,8 @@
 !------------------------------------------------------------------------------!
-! Procedure : hres_ns_muscl               Auteur : J. Gressier
-!                                         Date   : Nov 2004
+! Procedure : hres_ns_muscl              Auteur : J. Gressier
+!                                         Date   : July 2004
 ! Fonction                                Modif  : (cf historique)
-!   MUSCL interpolation of states
+!   Computation of HLLE flux for Euler equations
 !
 ! Defauts/Limitations/Divers :
 !
@@ -102,12 +102,12 @@ do isca = 1, fprim%nscal
   case(lim_minmod)
     ! -- left --
     scellgrad(:) = vgradL(:).scal.uLR(:)
-    scellgrad(:) = minmod(2._krp*scellgrad(:)-LRsca(:), LRsca(:)) - scellgrad(:)
+    scellgrad(:) = minmod(scellgrad(:), LRsca(:)) - scellgrad(:)
     vgradL   (:) = vgradL(:) + scellgrad(:)*uLR(:)
     gprimL%tabscal(isca)%scal(:) = vgradL(:).scal.LF(:)
     ! -- right --
     scellgrad(:) = vgradR(:).scal.uLR(:)
-    scellgrad(:) = minmod(2._krp*scellgrad(:)-LRsca(:), LRsca(:)) - scellgrad(:)
+    scellgrad(:) = minmod(scellgrad(:), LRsca(:)) - scellgrad(:)
     vgradR   (:) = vgradR(:) + scellgrad(:)*uLR(:)
     gprimR%tabscal(isca)%scal(:) = vgradR(:).scal.RF(:)
   case(lim_albada)
@@ -237,17 +237,15 @@ deallocate(LRvec, tgradL, tgradR, vcellgrad)
 !------------------------------------------
 !------------------------------------------
 do i = 1, nf
-  !print*, 'dens', gprimL%tabscal(1)%scal(i), gprimR%tabscal(1)%scal(i)
-  !print*, 'pres', gprimL%tabscal(2)%scal(i), gprimR%tabscal(2)%scal(i)
   if  = ideb+i-1
   icl = umesh%facecell%fils(if,1)
   icr = umesh%facecell%fils(if,2)
   cell_l(i)%density  = fprim%tabscal(1)%scal(icl) + gprimL%tabscal(1)%scal(i)
   cell_r(i)%density  = fprim%tabscal(1)%scal(icr) + gprimR%tabscal(1)%scal(i)
-  cell_l(i)%pressure = fprim%tabscal(2)%scal(icl) + gprimL%tabscal(2)%scal(i)
-  cell_r(i)%pressure = fprim%tabscal(2)%scal(icr) + gprimR%tabscal(2)%scal(i)
-  cell_l(i)%velocity = fprim%tabvect(1)%vect(icl) + gprimL%tabvect(1)%vect(i)
-  cell_r(i)%velocity = fprim%tabvect(1)%vect(icr) + gprimR%tabvect(1)%vect(i)
+  cell_l(i)%pressure = fprim%tabscal(2)%scal(icl) !+ gprimL%tabscal(2)%scal(i)
+  cell_r(i)%pressure = fprim%tabscal(2)%scal(icr) !+ gprimR%tabscal(2)%scal(i)
+  cell_l(i)%velocity = fprim%tabvect(1)%vect(icl) !+ gprimL%tabvect(1)%vect(i)
+  cell_r(i)%velocity = fprim%tabvect(1)%vect(icr) !+ gprimR%tabvect(1)%vect(i)
 enddo
 
 !------------------------------------------

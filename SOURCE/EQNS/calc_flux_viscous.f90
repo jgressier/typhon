@@ -17,6 +17,7 @@ use MESHBASE
 use DEFFIELD
 use EQNS
 use GEO3D
+use TENSOR3
 
 implicit none
 
@@ -50,8 +51,9 @@ type(v3d), dimension(taille_buffer) :: vL, vR     ! left, right velocities
 type(v3d), dimension(taille_buffer) :: gradTL, gradTR  ! left, right temp grad
 real(krp), dimension(taille_buffer) :: TL, TR     ! left, right temperatures
 real(krp), dimension(taille_buffer) :: TH, mu, gradTH ! temperature en H
-type(v3d)  :: sigmav , gvv                        ! viscous tensor * velocity
-real(krp)  :: sigmavn
+type(t3d)  :: sigma                               ! viscous tensor
+type(v3d)  :: sigma_n
+real(krp)  :: sigma_vn, addvisc
 real(krp)  :: r_PG, cp, conduct
 real(krp)  :: id
 integer    :: if
@@ -90,10 +92,10 @@ do if = 1, nflux
 
   ! computation of temperature gradient : 
   ! grad(T) = 1 / (density * r) * grad(P) - P/(r * density**2) * grad(density)
-  gradTL(if) = 1/(cell_l(if)%density * r_PG) * gradL%tabvect(2)%vect(if) - &
+  gradTL(if) = 1._krp/(cell_l(if)%density * r_PG) * gradL%tabvect(2)%vect(if) - &
                cell_l(if)%pressure / (cell_l(if)%density**2 * r_PG) * &
                gradL%tabvect(1)%vect(if)
-  gradTR(if) = 1/(cell_r(if)%density * r_PG) * gradR%tabvect(2)%vect(if) - &
+  gradTR(if) = 1._krp/(cell_r(if)%density * r_PG) * gradR%tabvect(2)%vect(if) - &
                cell_r(if)%pressure / (cell_r(if)%density**2 * r_PG) * &
                gradR%tabvect(1)%vect(if)
 
@@ -117,17 +119,23 @@ call interp_facegradn_scal(nflux,defspat%sch_dis,dHL,dHR,vLR,face,TL,TR,&
 ! viscous, heat flux
 ! Flux = (sigma . V) . normal + conductivity . grad (T) . normal
 ! sigma : viscous stress tensor
+
 do if = 1, nflux
 
   ! viscous stress tensor 
-  sigmav = -2/3*mu(if)* t3d_trace(gradvH(if))* velH(if) ! cubic dilatation term
-  gvv = ( gradvH(if) + t3d_transp(gradvH(if)) ) .scal. velH(if)
-  sigmav = sigmav + mu(if) *  gvv            ! local deformation term
-  sigmavn = sigmav .scal. face(if)%normale
+  sigma = gradvH(if) + t3d_transp(gradvH(if))
+  addvisc = - (2._krp/3._krp)*t3d_trace(gradvH(if))
+  call t3d_adddiag(sigma, addvisc)
+  sigma    = mu(if)*sigma
+  sigma_n  = sigma.scal.face(if)%normale
+  sigma_vn = sigma_n.scal.velH(if)
+
+  ! momentum flux
+  flux%tabvect(1)%vect(ideb-1+if) = flux%tabvect(1)%vect(ideb-1+if) - (sigma_n)
 
   ! energy flux
   flux%tabscal(2)%scal(ideb-1+if) = flux%tabscal(2)%scal(ideb-1+if) + &
-                                     - sigmavn
+                                     - sigma_vn
 
   ! heat conduction term
   ! thermal conductivity

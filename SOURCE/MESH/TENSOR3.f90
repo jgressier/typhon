@@ -299,6 +299,20 @@ type(t3d), intent(in) :: v
 
 endfunction t3d_trace
 
+!------------------------------------------------------------------------------!
+! routine : adddiag
+!------------------------------------------------------------------------------!
+subroutine t3d_adddiag(v, x)
+implicit none
+type(t3d), intent(inout) :: v
+real(krp), intent(in)    :: x
+
+  v%mat(1,1) = v%mat(1,1) + x
+  v%mat(2,2) = v%mat(2,2) + x
+  v%mat(3,3) = v%mat(3,3) + x
+
+endsubroutine t3d_adddiag
+
 endmodule TENSOR3
 !------------------------------------------------------------------------------!
 ! Changes history
