@@ -1,10 +1,8 @@
-!!------------------------------------------------------------------------------!
-! Procedure : implicit_step               Auteur : J. Gressier
-!                                         Date   : Avril 2004
-! Fonction                                Modif  : (cf historique)
-!   Integration implicit de domaine
-!
-! Defauts/Limitations/Divers :
+!------------------------------------------------------------------------------!
+! Procedure : implicit_step                            Auteur : J. Gressier
+!                                                      Date   : Avril 2004
+! Fonction
+!   Implicit Integration of the domain
 !
 !------------------------------------------------------------------------------!
 subroutine implicit_step(dt, typtemps, defsolver, defspat, deftime, &
@@ -17,12 +15,13 @@ use MENU_SOLVER
 use MENU_NUM
 use USTMESH
 use DEFFIELD
+use MATRIX_ARRAY
 use SPARSE_MAT
 use MENU_ZONECOUPLING
 
 implicit none
 
-! -- Declaration des entrees --
+! -- Inputs --
 real(krp)        :: dt         ! pas de temps CFL
 character        :: typtemps   ! type d'integration (stat, instat, period)
 type(mnu_solver) :: defsolver  ! type d'equation a resoudre
@@ -31,25 +30,24 @@ type(mnu_time)   :: deftime    ! parametres d'integration spatiale
 type(st_ustmesh) :: umesh      ! domaine non structure a integrer
 integer          :: ncp        ! nombre de couplages de la zone
 
-! -- Declaration des entrees/sorties --
+! -- Input/output --
 type(st_field)   :: field            ! champ des valeurs et residus
 type(mnu_zonecoupling), dimension(1:ncp) &
                  :: coupling ! donnees de couplage
 
-! -- Declaration des variables internes --
-type(st_dlu)          :: mat
+! -- Internal variables --
+type(st_spmat)        :: mat
 type(st_genericfield) :: flux             ! tableaux des flux
-real(krp), dimension(:), allocatable &
-                      :: jacL, jacR       ! tableaux de jacobiennes des flux
-integer(kip)          :: if, ic1, ic2, ic, info
+type(st_mattab)       :: jacL, jacR       ! tableaux de jacobiennes des flux
+integer(kip)          :: if, ic1, ic2, ic, info, dim
 
-! -- Debut de la procedure --
+! -- BODY --
 
-allocate(jacL(umesh%nface))
-allocate(jacR(umesh%nface))
+call new(jacL, umesh%nface, defsolver%nequat)
+call new(jacR, umesh%nface, defsolver%nequat)
 
 !--------------------------------------------------
-! phase explicite : calcul du second membre
+! phase explicite : right hand side computation
 !--------------------------------------------------
 
 ! -- allocation des flux et termes sources --
@@ -59,54 +57,30 @@ call new(flux, umesh%nface, field%nscal, field%nvect, 0)
 select case(defsolver%typ_solver)
 case(solKDIF)
   call integration_kdif_ust(dt, defsolver, defspat, umesh, field, flux, .true., jacL, jacR)
+case(solNS)
+  call integration_ns_ust(dt, defsolver, defspat, umesh, field, flux, .true., jacL, jacR)
 case default
-  call erreur("incoherence interne (implicit_step)", "solveur inconnu")
+  call erreur("internal error (implicit_step)", "unknown or unexpected solver")
 endselect
 
 ! -- flux surfaciques -> flux de surfaces et calcul des residus  --
 
 call flux_to_res(dt, umesh, flux, field%residu, .true., jacL, jacR)
 
+!--------------------------------------------------
+! build implicit system
+!--------------------------------------------------
+
+call build_implicit(dt, deftime, umesh, jacL, jacR, mat)
+
+call delete(jacL)
+call delete(jacR)
 
 !--------------------------------------------------
-! phase implicite 
+! solve implicit system
 !--------------------------------------------------
 
-! DEV : on ne devrait allouer que les faces internes
-
-call new(mat, umesh%ncell_int, umesh%nface)  ! allocation et initialisation
-mat%couple%fils(1:mat%ncouple, 1:2) = umesh%facecell%fils(1:mat%ncouple, 1:2) 
-
-! -- suppression de l'influence des cellules limites --
-! l'eventuelle dependance de la cellule gauche via la cellule limite
-! doit deja etre dans jacL
-
-do if = 1, mat%ncouple
-  if (mat%couple%fils(if,2) > mat%dim) jacR(if) = 0._krp
-enddo
-
-! construction de la matrice
-
-do if = 1, mat%ncouple
-  ic1 = mat%couple%fils(if,1)    
-  ic2 = mat%couple%fils(if,2)    
-  ! bilan cellule a gauche de la face
-  mat%diag(ic1) = mat%diag(ic1) + jacL(if)
-  mat%upper(if) = + jacR(if)    ! ic1 cell is supposed to the lowest index
-  ! bilan cellule a droite de la face
-  if (ic2 <= mat%dim) then
-    mat%diag(ic2) = mat%diag(ic2) - jacR(if)
-    mat%lower(if) = - jacL(if)  ! ic2 cell is supposed to the highest index
-  endif
-enddo
-
-do ic = 1, mat%dim
-  mat%diag(ic) = mat%diag(ic) + umesh%mesh%volume(ic,1,1) / dt
-  !mat%diag(ic) = umesh%mesh%volume(ic,1,1) / dt
-enddo
-
-deallocate(jacL, jacR)
-
+! CALL SOLVE IMPLICIT SYSTEM
 ! resolution
 
 select case(deftime%implicite%methode)
@@ -114,7 +88,7 @@ case(alg_lu)
   call dlu_lu(mat, field%residu%tabscal(1)%scal, field%residu%tabscal(1)%scal)
 
 case(alg_jac)
-  call dlu_jacobi(deftime%implicite, mat, field%residu%tabscal(1)%scal, &
+  call dlu_jacobi(deftime%implicite, mat%dlu, field%residu%tabscal(1)%scal, &
                   field%residu%tabscal(1)%scal, info)
   if (info < 0) call print_warning("methode d'inversion JACOBI non convergee")
 
@@ -152,9 +126,9 @@ call delete(flux)
 
 
 endsubroutine implicit_step
-
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Change History
 !
-! avr  2004 : creation de la procedure
+! Apr  2004 : creation
+! Aug  2005 : split / call build_system to handle different structures
 !------------------------------------------------------------------------------!

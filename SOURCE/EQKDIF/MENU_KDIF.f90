@@ -10,7 +10,7 @@ module MENU_KDIF
 use TYPHMAKE     ! Definition de la precision
 use VARCOM
 use MATERIAU     ! Definition du materiau
-use SPARSE_MAT
+use SPMAT_SDLU
 !use EQKDIF    ! Definition des proprietes temperatures et materiau
 
 implicit none

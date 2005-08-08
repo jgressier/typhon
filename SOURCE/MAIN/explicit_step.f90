@@ -18,6 +18,7 @@ use MENU_NUM
 use USTMESH
 use DEFFIELD
 use MENU_ZONECOUPLING
+use MATRIX_ARRAY
 
 implicit none
 
@@ -37,7 +38,7 @@ type(mnu_zonecoupling), dimension(1:ncp) &
 
 ! -- Declaration des variables internes --
 type(st_genericfield) :: flux             ! tableaux des flux
-real(krp), dimension(1) :: jacL, jacR     ! tableaux FICTIFS de jacobiennes des flux
+type(st_mattab)       :: jacL, jacR       ! tableaux FICTIFS de jacobiennes des flux
 
 ! -- Debut de la procedure --
 
@@ -48,7 +49,7 @@ call new(flux, umesh%nface, field%nscal, field%nvect, 0)
 
 ! On peut ici decouper le maillage complet en blocs de taille fixe pour optimiser
 ! l'encombrement memoire et la vectorisation
-!print*,'FLUX!'
+
 select case(defsolver%typ_solver)
 case(solNS)
   call integration_ns_ust(dt, defsolver, defspat, umesh, field, flux, .false., jacL, jacR)

@@ -18,6 +18,7 @@ use DEFFIELD
 use EQNS
 use GEO3D
 use TENSOR3
+use MATRIX_ARRAY
 
 implicit none
 
@@ -37,8 +38,8 @@ logical               :: calc_jac         ! should compute jacobian matrices or 
 
 
 ! -- Declaration des sorties --
-type(st_genericfield)        :: flux
-real(krp), dimension(nflux)  :: jacL, jacR  ! jac associees
+type(st_genericfield) :: flux
+type(st_mattab)       :: jacL, jacR       ! jac associees
 
 ! -- Declaration des variables internes --
 real(krp), parameter      :: theta = 1._krp

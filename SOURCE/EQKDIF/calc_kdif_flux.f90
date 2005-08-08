@@ -45,6 +45,7 @@ logical               :: calc_jac         ! choix de calcul de la jacobienne
 ! -- Declaration des sorties --
 real(krp), dimension(nflux, defsolver%nequat) :: flux
 real(krp), dimension(nflux)                   :: jacL, jacR  ! jac associees
+                                !!! DEV !!! should receive MATRIX_ARRAY full structure
 
 ! -- Declaration des variables internes --
 real(krp), parameter      :: theta = 1._krp

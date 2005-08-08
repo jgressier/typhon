@@ -18,6 +18,7 @@ use MENU_NUM
 use USTMESH
 use DEFFIELD
 use EQKDIF
+use MATRIX_ARRAY
 
 implicit none
 
@@ -33,7 +34,7 @@ type(st_field)   :: field            ! champ des valeurs et residus
 
 ! -- Declaration des sorties --
 type(st_genericfield)   :: flux        ! flux physiques
-real(krp), dimension(*) :: jacL, jacR  ! jacobiennes associees (gauche et droite)
+type(st_mattab)         :: jacL, jacR  ! jacobiennes associees (gauche et droite)
 
 ! -- Declaration des variables internes --
 integer :: if, nfb              ! index de face et taille de bloc courant
@@ -95,7 +96,9 @@ do ib = 1, nbloc
                       nfb, domaine%mesh%iface(ideb:ifin, 1, 1),       &
                       cg_l, cell_l, grad_l, cg_r, cell_r, grad_r,     &
                       flux%tabscal(1)%scal(ideb:ifin),                &
-                      calc_jac, jacL(ideb:ifin), jacR(ideb:ifin))
+                      calc_jac, jacL%mat(1,1,ideb:ifin), jacR%mat(1,1,ideb:ifin))
+  !!! DEV !!! should pass ideb index
+  !!! DEV !!! and only pass jacL & jacR dummy arguments
 
   ideb = ideb + nfb
   nfb  = nbuf         ! tous les blocs suivants sont de taille nbuf

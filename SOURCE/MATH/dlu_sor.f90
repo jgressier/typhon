@@ -1,18 +1,17 @@
 !------------------------------------------------------------------------------!
-! Procedure : dlu_jacobi                  Auteur : J. Gressier
-!                                         Date   : Avril 2004
-! Fonction                                Modif  : (cf historique)
-!   Resolution d'un systeme lineaire mat.sol = rhs
-!     mat sous forme type(st_dlu)
-!     methode iterative JACOBI : mat = D + L + U
-!       sol(n+1) = D^(-1).-(L+U).sol(n) + D^(-1).rhs
+! Procedure : dlu_sor                                Authors : J. Gressier
+!                                                    Created : July 2005
+! Fonction                                
+!   Solve linear system : mat.sol = rhs
+!     mat type(st_dlu)
+!     iterative method Successive Over-Relaxation (SOR) : mat = D + L + U
+!       (D+L).sol(n+1) = -U.sol(n) + rhs
 !
 ! Defauts/Limitations/Divers :
-!   - le tableau sol(*) est cense etre deja alloue
-!   - la resolution passe par l'allocation d'une matrice pleine (dim*dim)
+!   - sol(*) array is supposed to be allocated
 !
 !------------------------------------------------------------------------------!
-subroutine dlu_jacobi(def_impli, mat, rhs, sol, info)
+subroutine dlu_sor(def_impli, mat, rhs, sol, info)
 
 use TYPHMAKE
 use SPARSE_MAT
@@ -37,6 +36,7 @@ real(krp)                            :: erreur, ref
 
 ! -- Debut de la procedure --
 
+call erreur("Development", "SOR not yet implemented for DLU structures")
 ! initialisation
 
 nit    = 0
@@ -45,10 +45,15 @@ erreur = huge(erreur)    ! maximal real number in machine representation (to ens
 allocate( vec(mat%dim))
 allocate(soln(mat%dim))
 
+! -- first estimate of the solution --
+! (equivalent to a first step with nul 'soln' vector)
+
 soln(1:mat%dim) = rhs(1:mat%dim) / mat%diag(1:mat%dim)
 ref = sum(abs(soln(:)))
 
 !call sort_dlu(mat)
+
+! -- iterative process --
 
 do while ((erreur >= ref*def_impli%maxres).and.(nit <= def_impli%max_it))
 
@@ -72,7 +77,7 @@ do while ((erreur >= ref*def_impli%maxres).and.(nit <= def_impli%max_it))
   ! calcul de l'erreur
 
   erreur  = sum(abs(soln(:)-vec(:)))
-  !print*,'conv jacobi',nit,log10(erreur/ref)
+  !print*,'conv sor',nit,log10(erreur/ref)
   soln(:) = vec(:)   
   nit     = nit + 1
 
@@ -87,10 +92,10 @@ endif
 
 deallocate(vec, soln)
 
-endsubroutine dlu_jacobi
+endsubroutine dlu_sor
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Change History
 !
-! avr  2004 : creation de la procedure
+! July  2005 : created
 !------------------------------------------------------------------------------!

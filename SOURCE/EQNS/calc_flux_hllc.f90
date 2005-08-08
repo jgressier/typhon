@@ -19,10 +19,11 @@ use MESHBASE
 use DEFFIELD
 use EQNS
 use GEO3D
+use MATRIX_ARRAY
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(mnu_solver)      :: defsolver        ! parametres de definition du solveur
 type(mnu_spat)        :: defspat          ! parametres d'integration spatiale
 integer               :: nflux            ! nombre de flux (face) a calculer
@@ -34,11 +35,11 @@ type(st_nsetat), dimension(1:nflux) &
 logical               :: calc_jac         ! choix de calcul de la jacobienne
 
 
-! -- Declaration des sorties --
-type(st_genericfield)        :: flux
-real(krp), dimension(nflux)  :: jacL, jacR  ! jac associees
+! -- OUTPUTS --
+type(st_genericfield) :: flux
+type(st_mattab)       :: jacL, jacR  ! jac associees
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 integer                   :: if
 type(st_nsetat), dimension(:), allocatable &
                           :: roe

@@ -17,6 +17,7 @@ use OUTPUT
 use VARCOM
 use MENU_GEN
 use MENU_NUM
+use SPARSE_MAT
 
 implicit none
 
@@ -36,7 +37,7 @@ character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- Debut de la procedure --
 
-call print_info(5,"- Definition des parametres d'integration temporelle")
+call print_info(5,"- Definition of time integration parameters")
 
 ! -- Recherche du BLOCK:TIME_PARAM
 
@@ -59,8 +60,10 @@ if (deftime%stab_meth == inull) &
 
 select case(deftime%stab_meth)
 case(given_dt)
+  call print_info(7,"  . user defined time step")
   call rpmgetkeyvalreal(pcour, "DT", deftime%dt)
 case(stab_cond)
+  call print_info(7,"  . time step defined by stability condition")
   select case(solver)
   case(solKDIF)
     call rpmgetkeyvalreal(pcour, "FOURIER", deftime%stabnb)
@@ -93,51 +96,96 @@ if (deftime%tps_meth == inull) &
   call erreur("lecture de menu","type d'integration temporelle inconnu")
 
 select case(deftime%tps_meth)
+!------------------------------------------------------
+! EXPLICIT METHOD
+!-------------------------------------------------------
 case(tps_expl)
+  call print_info(7,"  . EXPLICIT integration")
   
+!------------------------------------------------------
+! RUNGE-KUTTA METHOD
+!-------------------------------------------------------
 case(tps_rk)
+  call print_info(7,"  . RUNGE-KUTTA integration")
   call rpmgetkeyvalint(pcour, "ORDER", deftime%rk%order, 2_kpp)
 
+!------------------------------------------------------
+! IMPLICIT METHOD
+!-------------------------------------------------------
 case(tps_impl)
-  call rpmgetkeyvalstr(pcour, "INVERSION", str, "SOR")
 
-  if (samestring(str,"LU"))           deftime%implicite%methode = alg_lu
-  if (samestring(str,"JACOBI"))       deftime%implicite%methode = alg_jac
-  if (samestring(str,"GAUSS-SEIDEL")) deftime%implicite%methode = alg_gs
-  if (samestring(str,"GS"))           deftime%implicite%methode = alg_gs
-  if (samestring(str,"SOR"))          deftime%implicite%methode = alg_sor
+  call print_info(7,"  . IMPLICIT integration")
+
+  ! -- set default parameters according to solver --
+
+  select case(solver)
+  case(solKDIF)
+    deftime%implicite%methode = alg_jac
+    deftime%implicite%storage = mat_dlu
+  case(solNS)
+    deftime%implicite%methode = alg_jac
+    deftime%implicite%storage = mat_bdlu
+  case default
+    call erreur("internal error","unexpected solver for implicit method")
+  endselect
+
+  if (rpm_existkey(pcour, "INVERSION")) then
+    call rpmgetkeyvalstr(pcour, "INVERSION", str)
+    if (samestring(str,"LU"))           deftime%implicite%methode = alg_lu
+    if (samestring(str,"JACOBI"))       deftime%implicite%methode = alg_jac
+    if (samestring(str,"GAUSS-SEIDEL")) deftime%implicite%methode = alg_gs
+    if (samestring(str,"GS"))           deftime%implicite%methode = alg_gs
+    if (samestring(str,"SOR"))          deftime%implicite%methode = alg_sor
+  endif
 
   select case(deftime%implicite%methode)
   case(alg_lu)
-    ! pas de parametre supplementaire
+    ! no additional parameter
+    call print_info(9,"    LU direct inversion")
 
   case(alg_jac)
+    call print_info(9,"    Jacobi iterative inversion")
     call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 10_kpp)
     call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-4_krp)
 
   case(alg_gs)
+    call print_info(9,"    Gauss-Seidel iterative inversion")
     call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 10_kpp)
     call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-4_krp)
 
   case(alg_sor)
+    call print_info(9,"    Successive Over Relaxation iterative inversion (SOR)")
     call rpmgetkeyvalint (pcour, "MAX_IT",    deftime%implicite%max_it, 10_kpp)
     call rpmgetkeyvalreal(pcour, "INV_RES",   deftime%implicite%maxres, 1.e-4_krp)
     call rpmgetkeyvalreal(pcour, "OVERRELAX", deftime%implicite%maxres, 1.e-4_krp)
 
   case default
-    call erreur("algebre","methode d'inversion inconnue")
+    call erreur("algebra","unknown inversion method")
   endselect
 
-case(tps_dualt)
+  if (rpm_existkey(pcour, "STORAGE")) then
+    call rpmgetkeyvalstr(pcour, "STORAGE", str)
+    if (samestring(str,"DLU"))   deftime%implicite%storage = mat_dlu
+    if (samestring(str,"BDLU"))  deftime%implicite%storage = mat_bdlu
+    if (samestring(str,"CRS"))   deftime%implicite%storage = mat_crs
+    if (samestring(str,"BCRS"))  deftime%implicite%storage = mat_bcrs
+  endif
 
+!------------------------------------------------------
+! DUAL TIME METHOD
+!-------------------------------------------------------
+case(tps_dualt)
+  call print_info(7,"  . DUAL TIME integration")
+
+case default
+  call erreur("parameter parsing","unknown parameter for time integration (METHOD)")
 endselect
 
 
 
 endsubroutine def_time
-
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Change History
 ! nov  2002 : creation (vide) pour lien avec l'arborescence
 ! sept 2003 : lecture des parametres de calcul du pas de temps
 ! avr  2004 : lecture des parametres d'integration (implicitation)

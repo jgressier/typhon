@@ -40,6 +40,7 @@ Task Dévlp.    début fin   Type  Développement
 0041 Jérémie   01/07       Solv  Inversion Gauss-Seidel
 0063 Jérémie               Out   Tecplot outputs : FEBLOCK format and output of scalars & vectors
 0064 Jérémie               Out   CGNS outputs
+0071 Jérémie   20/07 08/08 Core  Implicitation structure reorganisation
      Jérémie               Solv  Surrelaxation Jacobi, SOR, SSOR
      Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
                            Make  Restructuration de MAIN/integration_cycle (split)

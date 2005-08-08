@@ -17,6 +17,8 @@ implicit none
 
 ! -- Variables globales du module -------------------------------------------
 
+logical :: debug_mode
+
 ! niveaux d'ecritures
 
 integer  std_maxlevel ! profondeur d'affichage maximale en sortie standard
@@ -102,6 +104,7 @@ implicit none
   ! unites de entrees/sorties 
   uf_reprise = 60   ! fichier reprise
 
+  debug_mode= .false.
 
 endsubroutine init_output
 
@@ -218,5 +221,35 @@ implicit none
 endsubroutine print_log
   
 
+!------------------------------------------------------------------------------!
+! Procedure : print_debug                   Auteur : J. Gressier
+!                                         Date   : Juillet 2002
+! Fonction                                Modif  :
+!   Ecriture en sortie standart et dans le fichier debug
+!
+!------------------------------------------------------------------------------!
+subroutine print_debug(str)
+implicit none
+
+! -- Declaration des entrees/sorties --
+  character(len=*) str
+
+! -- Debut de la procedure --
+
+  if (debug_mode) then
+    write(uf_stdout,'(a,a)') "[DEBUG] ",trim(str)
+    write(uf_log,   '(a,a)') "[DEBUG] ",trim(str)
+  endif
+
+endsubroutine print_debug
+  
+
 
 endmodule OUTPUT
+!------------------------------------------------------------------------------!
+! Change history
+!
+! July 2002 : creation
+! Nov  2002 : print_info
+! Aug  2005 : debug output 
+!------------------------------------------------------------------------------!

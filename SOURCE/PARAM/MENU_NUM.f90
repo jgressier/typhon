@@ -93,11 +93,12 @@ endtype mnu_rk
 ! structure MNU_IMP : options numeriques pour l'implicitation
 !------------------------------------------------------------------------------!
 type mnu_imp
-  integer(kpp)    :: methode      ! methode d'inversion matricielle
-  integer(kpp)    :: max_it       ! nombre d'iteration maximal
+  integer(kpp)    :: methode      ! inversion method
+  integer(kpp)    :: storage      ! storage method for sparse matrix (see SPARSE_MAT)
+  integer(kpp)    :: max_it       ! maximal number of iterations
   real(krp)       :: ponderation  ! ponderation implicite/explicite
-  real(krp)       :: maxres       ! residu maximal pour convergence de l'inversion
-  real(krp)       :: overrelax    ! parametre de surrelaxation
+  real(krp)       :: maxres       ! max residual for convergence (if iterating method)
+  real(krp)       :: overrelax    ! overrrelaxation parameter (SOR)
 endtype mnu_imp
 
 !------------------------------------------------------------------------------!

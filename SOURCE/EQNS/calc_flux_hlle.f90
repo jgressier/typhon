@@ -19,6 +19,7 @@ use MESHBASE
 use DEFFIELD
 use EQNS
 use GEO3D
+use MATRIX_ARRAY
 
 implicit none
 
@@ -35,8 +36,8 @@ logical               :: calc_jac         ! choix de calcul de la jacobienne
 
 
 ! -- Declaration des sorties --
-type(st_genericfield)        :: flux
-real(krp), dimension(nflux)  :: jacL, jacR  ! jac associees
+type(st_genericfield) :: flux
+type(st_mattab)       :: jacL, jacR  ! jac associees
 
 ! -- Declaration des variables internes --
 integer                   :: if

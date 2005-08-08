@@ -10,7 +10,12 @@ MATH_LIB = $(PRJLIB)/libt_math.a
 MATH_MOD = INTEGRATION.$(MOD) \
            INTERPOL.$(MOD)    \
            MATH.$(MOD)        \
-           SPARSE_MAT.$(MOD)
+           MATRIX_ARRAY.$(MOD)\
+           SPARSE_MAT.$(MOD)  \
+           SPMAT_BDLU.$(MOD)  \
+           SPMAT_DLU.$(MOD)   \
+           SPMAT_CRS.$(MOD)   \
+           SPMAT_SDLU.$(MOD)  \
 
 MATH_OBJ = $(MATH_MOD:.$(MOD)=.o)  \
            dlu_jacobi.o     \
@@ -26,13 +31,13 @@ all: $(MATH_LIB)
 
 $(MATH_LIB): $(D_MATH_OBJ)
 	@echo ---------------------------------------------------------------
-	@echo \* Création de la librairie $(MATH_LIB)
+	@echo \* Creating library $(MATH_LIB)
 	@touch $(MATH_LIB) ; rm $(MATH_LIB)
 	@$(AR) ruv $(MATH_LIB) $(D_MATH_OBJ)
-	@echo \* Création de l\'index de la librairie
+	@echo \* Creating library index
 	@$(RAN)    $(MATH_LIB)
 	@echo ---------------------------------------------------------------
-	@echo \* LIBRAIRIE $(MATH_LIB) créée
+	@echo \* LIBRARY $(MATH_LIB) created
 	@echo ---------------------------------------------------------------
 
 MATH_clean:

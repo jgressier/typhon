@@ -20,6 +20,7 @@ use MENU_NUM
 use USTMESH
 use DEFFIELD
 use EQNS
+use MATRIX_ARRAY
 
 implicit none
 
@@ -35,7 +36,7 @@ type(st_field)   :: field            ! champ des valeurs et residus
 
 ! -- Declaration des sorties --
 type(st_genericfield)   :: flux        ! flux physiques
-real(krp), dimension(*) :: jacL, jacR  ! jacobiennes associees (gauche et droite)
+type(st_mattab)         :: jacL, jacR  ! jacobiennes associees (gauche et droite)
 
 ! -- Declaration des variables internes --
 logical :: gradneeded           ! use gradients or not
@@ -116,12 +117,12 @@ do ib = 1, nbloc
     call calc_flux_hlle(defsolver, defspat,                             &
                         nfb, domaine%mesh%iface(ideb:ifin, 1, 1),       &
                         cell_l, cell_r, flux, ideb,                     &
-                        calc_jac, jacL(ideb:ifin), jacR(ideb:ifin))
+                        calc_jac, jacL, jacR)
   case(sch_hllc)
     call calc_flux_hllc(defsolver, defspat,                             &
                         nfb, domaine%mesh%iface(ideb:ifin, 1, 1),       &
                         cell_l, cell_r, flux, ideb,                     &
-                        calc_jac, jacL(ideb:ifin), jacR(ideb:ifin))
+                        calc_jac, jacL, jacR)
   case default
     call erreur("error","numerical scheme not implemented (flux computation)")
   endselect
@@ -147,7 +148,7 @@ do ib = 1, nbloc
                            nfb, ideb, domaine%mesh%iface(ideb:ifin, 1, 1), &
                            cg_l, cg_r,                                &
                            cell_l, cell_r, gradL, gradR, flux,        &
-                           calc_jac, jacL(ideb:ifin), jacR(ideb:ifin))
+                           calc_jac, jacL, jacR)
   case(eqRANS)
     call erreur("development", "turbulence modeling not implemented")   
 

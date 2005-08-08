@@ -432,8 +432,20 @@ Task 0068 (Jérémie) : IHM : output of boco index and face centers
   > main.f90, analyse.f90, analyse_zone.f90
 
 ---------------------------------------------------------------------------------
-Task 0069 (Jérémie) :  : gradient computation
+Task 0069 (Jérémie) : Core : gradient computation
 ---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+Task 0070 (JG/ER) : NS : Viscous Fluxes
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+Task 0071 (JG) : Core : Implicitation structure reorganisation
+---------------------------------------------------------------------------------
+- new structure : BDLU (block DLU)
+- new structure : st_mattab in MATRIX_ARRAY (can contain many matrix structures)
+  effects on implicit_step, explicit_step, integration_*_ust and calc_flux_*
+- split implicit_step, with call to build_implicit and build_implicit_dlu
 
 ---------------------------------------------------------------------------------
 Task 0073 (Emmanuel) : KDIF : convection boundary condition

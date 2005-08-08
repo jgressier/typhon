@@ -14,6 +14,7 @@ PRJOBJ  = $(PRJDIR)/Obj
 AR          = ar
 RAN         = touch
 MAKE        = make
+MAKEDEPENDS = Util/make_depends_low
 
 ####### Définitions des règles de compilation
 

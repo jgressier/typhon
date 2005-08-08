@@ -83,23 +83,23 @@ mpi: $(PRGNAME)-mpi
 
 $(PRGNAME)-seq : $(MAIN) $(D_LIBSEQ) $(MAKEFILE)
 	@echo ---------------------------------------------------------------
-	@echo LINKING $(PRGNAME)-seq ---
-	@echo External libraries : $(EXTLIBS)
-	@echo TYPHON   libraries : $(LIBSEQ)
+	@echo EDITION DE LIEN DE $(PRGNAME)-seq ---
+	@echo Librairies externes : $(EXTLIBS)
+	@echo Librairies TYPHON   : $(LIBSEQ)
 	@$(LINKER) $(LINKFB) $(MAIN) $(D_LIBSEQ) $(EXTLIBS) -o $(PRGNAME)-seq
-	@echo --- $(PRGNAME)-seq created ---
+	@echo --- Création de $(PRGNAME)-seq terminée ---
 
 $(PRGNAME)-mpi : $(MAIN) $(D_LIBMPI) $(MAKEFILE)
 	@echo ---------------------------------------------------------------
-	@echo LINKING $(PRGNAME)-mpi ---
-	@echo External libraries : $(EXTLIBS) $(MPILIB)
-	@echo TYPHON   libraries : $(LIBMPI)
+	@echo EDITION DE LIEN DE $(PRGNAME)-mpi ---
+	@echo Librairies externes : $(EXTLIBS) $(MPILIB)
+	@echo Librairies TYPHON   : $(LIBMPI)
 	@$(LINKER) $(LINKFB) $(MAIN) $(D_LIBMPI) $(EXTLIBS) $(MPILIB) -o $(PRGNAME)-mpi
-	@echo --- $(PRGNAME)-mpi created ---
+	@echo --- Création de $(PRGNAME)-mpi terminée ---
 
 clean:
 	-rm $(PRGNAME)-seq $(PRGNAME)-mpi 
-	-rm $(OBJECTS) 
+	-rm $(PRJOBJ)/*.o 
 	-rm $(D_LIBMPI) $(D_LIBSEQ) 
 	-rm $(PRJINC)/*.$(MOD)
 	-rm *.$(MOD)

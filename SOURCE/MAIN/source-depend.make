@@ -13,6 +13,7 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            accumulfluxcorr.o        \
            analyse.o                \
            analyse_zone.o           \
+           build_implicit.o         \
            calc_bilan.o             \
            calcdifflux.o            \
            calc_volum.o             \

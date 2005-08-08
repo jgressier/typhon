@@ -16,27 +16,28 @@ use OUTPUT
 use VARCOM
 use USTMESH
 use DEFFIELD
+use MATRIX_ARRAY
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 real(krp)             :: dt         ! pas de temps CFL
 type(st_ustmesh)      :: umesh      ! domaine non structure a integrer
 type(st_genericfield) :: flux       ! tableaux des flux
 logical               :: trait_jac  ! choix de traitement des jacobiennes
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 type(st_genericfield)   :: residu            ! champ de residus
-real(krp), dimension(1:umesh%nface) :: jacL, jacR 
+type(st_mattab)         :: jacL, jacR 
 
 ! -- Declaration des variables internes --
 real(krp), allocatable :: surf(:)         ! intermediate surface
 real(krp), allocatable :: vol(:)          ! intermediate volume
-integer               :: if               ! index de face
+integer               :: if, i            ! index de face
 integer               :: ic1, ic2         ! index de cellules
 integer               :: ip               ! index de variables
 integer               :: ib               ! index de conditions aux limites
-integer               :: i                ! index de face
+integer               :: dim              ! dimension
 integer               :: ic               ! index de couplage
 
 ! -- Debut de la procedure --
@@ -59,12 +60,13 @@ enddo
 ! -- idem traitement des jacobiennes
 
 if (trait_jac) then
-  jacL(1:umesh%nface) = surf(:) * jacL(1:umesh%nface)
-  jacR(1:umesh%nface) = surf(:) * jacR(1:umesh%nface)
+  dim = jacL%dim
+  do if = 1, umesh%nface
+    jacL%mat(1:dim,1:dim,if) = surf(if) * jacL%mat(1:dim,1:dim,if)
+    jacR%mat(1:dim,1:dim,if) = surf(if) * jacR%mat(1:dim,1:dim,if)
+  enddo
 endif
-
-deallocate(surf)
-
+ 
 ! -- calcul des residus --
 
 call init_genericfield(residu, 0._krp, v3d(0._krp, 0._krp, 0._krp))
@@ -86,7 +88,6 @@ enddo
 ! ??? creation de procedure intrinseques ? // optimisation
 
 if (.not.trait_jac) then
- 
   do ic1 = 1, umesh%ncell_int
     do ip = 1, residu%nscal
       residu%tabscal(ip)%scal(ic1) = dt * residu%tabscal(ip)%scal(ic1) &
@@ -103,8 +104,7 @@ endif
 endsubroutine flux_to_res
 
 !------------------------------------------------------------------------------!
-! Changes history
+! Historique des modifications
 !
-! avr  2004 : created
-! dec  2004 : optimization (surface multiplication)
+! avr  2004 : creation de la procedure
 !------------------------------------------------------------------------------!
