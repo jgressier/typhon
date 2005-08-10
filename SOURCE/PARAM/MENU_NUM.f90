@@ -71,12 +71,15 @@ integer(kpp), parameter :: dis_full = 10    ! evaluation complete (ponderee de 1
 integer(kpp), parameter :: lsm1 = 10     ! moindres carres basee sur les centres voisins
 
 ! -- Constantes pour la methode de resolution matricielle
-integer(kpp), parameter :: alg_lu    = 10  ! resolution directe LU
-integer(kpp), parameter :: alg_cho   = 15  ! resolution directe (decomposition Choleski) (SYM)
-integer(kpp), parameter :: alg_jac   = 20  ! resolution iterative Jacobi
-integer(kpp), parameter :: alg_gs    = 25  ! resolution iterative Gauss-Seidel
-integer(kpp), parameter :: alg_sor   = 26  ! resolution iterative Gauss-Seidel avec OverRelaxation
-integer(kpp), parameter :: alg_gmres = 40  ! resol. par proj. : GMRES
+integer(kpp), parameter :: alg_lu       = 10  ! resolution directe LU
+integer(kpp), parameter :: alg_cho      = 15  ! resolution directe (decomposition Choleski) (SYM)
+integer(kpp), parameter :: alg_jac      = 20  ! resolution iterative Jacobi
+integer(kpp), parameter :: alg_gs       = 25  ! resolution iterative Gauss-Seidel
+integer(kpp), parameter :: alg_sor      = 26  ! resolution iterative Gauss-Seidel avec OverRelaxation
+integer(kpp), parameter :: alg_gmres    = 40  ! resol. par proj. : GMRES
+integer(kpp), parameter :: alg_bicg     = 60  ! Bi-Conjugate Gradient 
+integer(kpp), parameter :: alg_bicgpjac = 61  ! Bi-Conjugate Gradient (Jacobi Preconditioned)
+integer(kpp), parameter :: alg_cgs      = 62  ! Conjugate Gradient Squared
 
 
 ! -- DECLARATIONS -----------------------------------------------------------

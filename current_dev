@@ -40,8 +40,9 @@ Task Dévlp.    début fin   Type  Développement
 0041 Jérémie   01/07       Solv  Inversion Gauss-Seidel
 0063 Jérémie               Out   Tecplot outputs : FEBLOCK format and output of scalars & vectors
 0064 Jérémie               Out   CGNS outputs
-0071 Jérémie   20/07 08/08 Core  Implicitation structure reorganisation
-     Jérémie               Solv  Surrelaxation Jacobi, SOR, SSOR
+0071 Jérémie   20/07 08/08 Core  Implicitation structure reorganisation (sparse matrix)
+0072 Jérémie   09/08 09/08 Core  Implicitation reorganisation (include ghost cells)
+0080 Jérémie               Solv  BICG, BICG-JACOBI, CGS for DLU sparse matrix
      Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
                            Make  Restructuration de MAIN/integration_cycle (split)
                            Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
@@ -53,8 +54,8 @@ release 0.1.7 - 10 july 2005
 
 Task Dévlp.  R. cible début fin   Type  Development
 --------------------------------------------------------------------------------------------------------
-0057 Jérémie   10/07 18/08 GUI   TYMON user interface (Typhon monitor)
-0062 Jérémie   19/07 17/08 Out   Residuals monitors (with file outputs)
+0057 Jérémie          10/07 18/08 GUI   TYMON user interface (Typhon monitor)
+0062 Jérémie          19/07 17/08 Out   Residuals monitors (with file outputs)
 0065 Jérémie   0.1.7  31/01 31/01 Make  Compilation with intel fortran 8.1
 0066 Jeremie   0.1.7  18/04 27/04 KDIF  radiating boundary conditions
 0067 Jeremie   0.1.7              KDIF  coupled radiation boundary conditions

@@ -136,9 +136,9 @@ endsubroutine invertdiag_dlu
 
 
 !------------------------------------------------------------------------------!
-! dlu_xqaxpy : x = A.x + y
+! dlu_yeqax : y = A.x
 !------------------------------------------------------------------------------!
-subroutine dlu_xqaxpy(mat, x, y)
+subroutine dlu_yeqax(y, mat, x)
 implicit none
 ! - parameters
 type(st_dlu)                  :: mat
@@ -146,15 +146,65 @@ real(krp), dimension(mat%dim) :: x, y
 ! - internal
 integer      :: if, imin, imax
 
+y(1:mat%dim) = mat%diag(1:mat%dim)*x(1:mat%dim)
+
 do if = 1, mat%ncouple
   imin = mat%couple%fils(if,1)    ! ic1 cell is supposed to be the lowest index
   imax = mat%couple%fils(if,2)    ! ic2 cell is supposed to be the highest index
   !!! no test that the index is lower than dim !!!
-  x(imax) = y(imax) + mat%lower(if)*x(imin)
-  x(imin) = y(imin) + mat%upper(if)*x(imax)
+  y(imax) = y(imax) + mat%lower(if)*x(imin)
+  y(imin) = y(imin) + mat%upper(if)*x(imax)
 enddo
 
-endsubroutine dlu_xqaxpy
+endsubroutine dlu_yeqax
+
+
+!------------------------------------------------------------------------------!
+! dlu_yeqatx : y = At.x
+!------------------------------------------------------------------------------!
+subroutine dlu_yeqatx(y, mat, x)
+implicit none
+! - parameters
+type(st_dlu)                  :: mat
+real(krp), dimension(mat%dim) :: x, y
+! - internal
+integer      :: if, imin, imax
+
+y(1:mat%dim) = mat%diag(1:mat%dim)*x(1:mat%dim)
+
+do if = 1, mat%ncouple
+  imin = mat%couple%fils(if,1)    ! ic1 cell is supposed to be the lowest index
+  imax = mat%couple%fils(if,2)    ! ic2 cell is supposed to be the highest index
+  !!! no test that the index is lower than dim !!!
+  y(imax) = y(imax) + mat%upper(if)*x(imin)
+  y(imin) = y(imin) + mat%lower(if)*x(imax)
+enddo
+
+endsubroutine dlu_yeqatx
+
+
+!------------------------------------------------------------------------------!
+! dlu_xeqaxpy : x = A.x + y
+!------------------------------------------------------------------------------!
+subroutine dlu_xeqaxpy(x, mat, y, p)
+implicit none
+! - parameters
+type(st_dlu)                  :: mat
+real(krp), dimension(mat%dim) :: x, y, p  ! p is a transient variable
+! - internal
+integer      :: if, imin, imax
+
+p(1:mat%dim) = x(1:mat%dim)
+x(1:mat%dim) = y(1:mat%dim) + mat%diag(1:mat%dim)*p(1:mat%dim) 
+do if = 1, mat%ncouple
+  imin = mat%couple%fils(if,1)    ! ic1 cell is supposed to be the lowest index
+  imax = mat%couple%fils(if,2)    ! ic2 cell is supposed to be the highest index
+  !!! no test that the index is lower than dim !!!
+  x(imax) = x(imax) + mat%lower(if)*p(imin)
+  x(imin) = x(imin) + mat%upper(if)*p(imax)
+enddo
+
+endsubroutine dlu_xeqaxpy
 
 
 endmodule SPMAT_DLU

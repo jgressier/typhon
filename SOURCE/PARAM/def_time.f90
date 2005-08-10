@@ -136,6 +136,9 @@ case(tps_impl)
     if (samestring(str,"GAUSS-SEIDEL")) deftime%implicite%methode = alg_gs
     if (samestring(str,"GS"))           deftime%implicite%methode = alg_gs
     if (samestring(str,"SOR"))          deftime%implicite%methode = alg_sor
+    if (samestring(str,"BICG"))         deftime%implicite%methode = alg_bicg
+    if (samestring(str,"BICG-JACOBI"))  deftime%implicite%methode = alg_bicgpjac
+    if (samestring(str,"CGS"))          deftime%implicite%methode = alg_cgs
   endif
 
   select case(deftime%implicite%methode)
@@ -158,6 +161,21 @@ case(tps_impl)
     call rpmgetkeyvalint (pcour, "MAX_IT",    deftime%implicite%max_it, 10_kpp)
     call rpmgetkeyvalreal(pcour, "INV_RES",   deftime%implicite%maxres, 1.e-4_krp)
     call rpmgetkeyvalreal(pcour, "OVERRELAX", deftime%implicite%maxres, 1.e-4_krp)
+
+  case(alg_bicg)
+    call print_info(9,"    Bi-Conjugate Gradient iterative inversion (BiCG)")
+    call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 10_kpp)
+    call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-4_krp)
+
+  case(alg_bicgpjac)
+    call print_info(9,"    Bi-Conjugate Gradient iterative inversion (BiCG) - Jacobi preconditioning")
+    call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 10_kpp)
+    call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-4_krp)
+
+  case(alg_cgs)
+    call print_info(9,"    Conjugate Gradient Squared iterative inversion (CGS)")
+    call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 10_kpp)
+    call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-4_krp)
 
   case default
     call erreur("algebra","unknown inversion method")

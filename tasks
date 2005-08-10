@@ -448,6 +448,15 @@ Task 0071 (JG) : Core : Implicitation structure reorganisation
 - split implicit_step, with call to build_implicit and build_implicit_dlu
 
 ---------------------------------------------------------------------------------
+Task 0072 (JG) : Core : Implicitation reorganisation (include ghost cells)
+---------------------------------------------------------------------------------
+All ghost cells are included in the implicit system with (for a start) each
+an genuine equation dU = 0 (1 in the coefficient matrix, 0 for rhs) : there is
+no actual implicitation of boundary conditions
+- for now, DLU sparse matrix connectivity is related to an existing element.
+- ghost cells are overwritten in the boundary conditions explicit procedure
+
+---------------------------------------------------------------------------------
 Task 0073 (Emmanuel) : KDIF : convection boundary condition
 ---------------------------------------------------------------------------------
 - bug : bad assignment of the convection parameter h
@@ -478,6 +487,16 @@ Task 0077 (Jérémie) : Make : DEFFIELD restructuration
 - split into DEFFIELD  (FIELD         structure)
              GENFIELD  (GENERICFIELD  structure)
              BASEFIELD (SCA/VEC/TEN FIELD structures)
+
+-------------------------------------------------------------------------------
+Task 0080 (Jérémie) : Solve : BICG, BICG-JACOBI, CGS for DLU sparse matrix
+---------------------------------------------------------------------------------
+- dlu_bicg : BICG method, convergence twice faster than Jacobi
+- dlu_bicg : BICG method with Jacobi preconditionning, same efficiency as BICG
+             (converges faster bust more costly)
+- dlu_cgs : CGS method (CG squared), 3 times faster than Jacobi
+- implement matrix-vector multiplication in SPMAT_DLU
+!!! should correct use of same dummy argument in implicit_step
 
 -------------------------------------------------------------------------------
 Task 0082 (Jérémie) : KDIF : Anisotropic material

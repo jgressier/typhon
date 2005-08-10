@@ -71,7 +71,7 @@ call flux_to_res(dt, umesh, flux, field%residu, .true., jacL, jacR)
 ! build implicit system
 !--------------------------------------------------
 
-call build_implicit(dt, deftime, umesh, jacL, jacR, mat)
+call build_implicit(dt, deftime, umesh, jacL, jacR, mat, field%residu)
 
 call delete(jacL)
 call delete(jacR)
@@ -90,14 +90,29 @@ case(alg_lu)
 case(alg_jac)
   call dlu_jacobi(deftime%implicite, mat%dlu, field%residu%tabscal(1)%scal, &
                   field%residu%tabscal(1)%scal, info)
-  if (info < 0) call print_warning("methode d'inversion JACOBI non convergee")
+  if (info < 0) call print_warning("JACOBI iterative method not converged")
 
 case(alg_gs)
-  call erreur("developpement","Methode Gauss-Seidel non implementee")
+  call erreur("development","Gauss-Seidel method not implemented")
 
 case(alg_sor)
-  call erreur("developpement","Methode SOR non implementee")
+  call erreur("development","SOR method not implemented")
   
+case(alg_bicg)
+  call dlu_bicg(deftime%implicite, mat%dlu, field%residu%tabscal(1)%scal, &
+                field%residu%tabscal(1)%scal, info)
+  if (info < 0) call print_warning("BICG iterative method not converged")
+
+case(alg_bicgpjac)
+  call dlu_bicg_pjacobi(deftime%implicite, mat%dlu, field%residu%tabscal(1)%scal, &
+                       field%residu%tabscal(1)%scal, info)
+  if (info < 0) call print_warning("BICG-Jacobi iterative method not converged")
+
+case(alg_cgs)
+  call dlu_cgs(deftime%implicite, mat%dlu, field%residu%tabscal(1)%scal, &
+                field%residu%tabscal(1)%scal, info)
+  if (info < 0) call print_warning("CGS iterative method not converged")
+
 case default
   call erreur("incoherence","methode d'inversion inconnue")
 endselect

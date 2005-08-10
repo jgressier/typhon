@@ -18,7 +18,10 @@ MATH_MOD = INTEGRATION.$(MOD) \
            SPMAT_SDLU.$(MOD)  \
 
 MATH_OBJ = $(MATH_MOD:.$(MOD)=.o)  \
-           dlu_jacobi.o     \
+           dlu_bicg.o              \
+           dlu_bicg_pjacobi.o      \
+           dlu_cgs.o               \
+           dlu_jacobi.o            \
            dlu_lu.o
 
 D_MATH_OBJ = $(MATH_OBJ:%=$(PRJOBJ)/%)

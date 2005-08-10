@@ -21,26 +21,30 @@ implicit none
 
 ! -- Inputs --
 real(krp)        :: dt
-type(mnu_time)   :: deftime      ! parametres d'integration spatiale
-type(st_ustmesh) :: umesh        ! domaine non structure a integrer
-type(st_mattab)  :: jacL, jacR   ! tableaux de jacobiennes des flux
+type(mnu_time)   :: deftime      ! time integration parameters
+type(st_ustmesh) :: umesh        ! unstructured mesh
+type(st_mattab)  :: jacL, jacR   ! jacobian matrices related to faces
+
+
+! -- Inputs/Outputs --
+type(st_genericfield) :: residu  ! residuals
 
 ! -- Outputs --
 type(st_spmat)   :: mat
 
 ! -- Internal variables --
-integer(kip)          :: if, ic1, ic2, ic, info, dim
+integer(kip)     :: iv, ic, info, dim
 
 ! -- Body --
 
-!-----------------------------------------------------
-! suppression de l'influence des cellules limites 
-! l'eventuelle dependance de la cellule gauche via la cellule limite
-! doit deja etre dans jacL
-
-do if = 1, umesh%nface
-  if (umesh%facecell%fils(if,2) > umesh%ncell_int) jacR%mat(:,:,if) = 0._krp
-enddo
+!!!-----------------------------------------------------
+!!! suppression de l'influence des cellules limites 
+!!! l'eventuelle dependance de la cellule gauche via la cellule limite
+!!! doit deja etre dans jacL
+!!
+!!do if = 1, umesh%nface
+!!  if (umesh%facecell%fils(if,2) > umesh%ncell_int) jacR%mat(:,:,if) = 0._krp
+!!enddo
 
 !-----------------------------------------------------
 ! build SPARSE MATRIX
@@ -59,6 +63,19 @@ case(mat_bdlu, mat_crs, mat_bcrs)
 case default
   call erreur("internal error","unknown matrix structure to build implicit system")
 endselect
+
+!-----------------------------------------------------
+! RHS correction
+!-----------------------------------------------------
+
+do iv = 1, residu%nscal
+  residu%tabscal(iv)%scal(umesh%ncell_int+1:umesh%ncell) = 0._krp
+enddo
+do iv = 1, residu%nvect
+  do ic = umesh%ncell_int+1, umesh%ncell
+    residu%tabvect(iv)%vect(ic) = v3d(0._krp, 0._krp, 0._krp)
+  enddo
+enddo
 
 endsubroutine build_implicit
 !------------------------------------------------------------------------------!

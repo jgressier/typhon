@@ -40,28 +40,51 @@ if (jacL%dim > 1) call erreur("internal error", "impossible to use DLU storage f
 
 !-----------------------
 
-! DEV : on ne devrait allouer que les faces internes
-
-call new(matdlu, umesh%ncell_int, umesh%nface)  ! alloc & init of sparse matrix
+call new(matdlu, umesh%ncell, umesh%nface)  ! alloc & init of sparse matrix
 
 matdlu%couple%fils(1:matdlu%ncouple, 1:2) = umesh%facecell%fils(1:matdlu%ncouple, 1:2) 
 
-! construction de la matrice
+!-------------------------------------------------------
+! matrix construction - internal faces only
 
-do if = 1, matdlu%ncouple
-  ic1 = matdlu%couple%fils(if,1)    
-  ic2 = matdlu%couple%fils(if,2)    
-  ! bilan cellule a gauche de la face
+do if = 1, umesh%nface_int
+
+  ic1 = matdlu%couple%fils(if,1)     ! ic1 cell is supposed to the lowest index
+  ic2 = matdlu%couple%fils(if,2)     ! ic2 cell is supposed to the highest index
+
+  ! contribution of the face to left cell
+
   matdlu%diag(ic1) = matdlu%diag(ic1) + jacL%mat(1,1,if)
-  matdlu%upper(if) = + jacR%mat(1,1,if)    ! ic1 cell is supposed to the lowest index
-  ! bilan cellule a droite de la face
-  if (ic2 <= matdlu%dim) then
-    matdlu%diag(ic2) = matdlu%diag(ic2) - jacR%mat(1,1,if)
-    matdlu%lower(if) = - jacL%mat(1,1,if)  ! ic2 cell is supposed to the highest index
-  endif
+  matdlu%upper(if) = + jacR%mat(1,1,if)  
+
+  ! contribution of the face to right cell
+
+  matdlu%diag(ic2) = matdlu%diag(ic2) - jacR%mat(1,1,if)
+  matdlu%lower(if) = - jacL%mat(1,1,if)  
+
 enddo
 
-do ic = 1, matdlu%dim
+!-------------------------------------------------------
+! matrix construction - boundary faces only
+
+do if = umesh%nface_int+1, umesh%nface
+
+  ic1 = matdlu%couple%fils(if,1)     ! ic1 cell is supposed to the lowest index  (internal cell)
+  ic2 = matdlu%couple%fils(if,2)     ! ic2 cell is supposed to the highest index (ghost    cell)
+
+  ! contribution of the face to left cell (internal cell)
+
+  matdlu%diag(ic1) = matdlu%diag(ic1) + jacL%mat(1,1,if)
+  matdlu%upper(if) = + jacR%mat(1,1,if) 
+
+  ! contribution of the face to right cell
+
+  matdlu%diag(ic2) = 1._krp
+  matdlu%lower(if) = 0._krp
+
+enddo
+
+do ic = 1, umesh%ncell_int
   matdlu%diag(ic) = matdlu%diag(ic) + umesh%mesh%volume(ic,1,1) / dt
   !matdlu%diag(ic) = umesh%mesh%volume(ic,1,1) / dt
 enddo
@@ -73,4 +96,5 @@ endsubroutine build_implicit_dlu
 ! Change history
 !
 ! Aug  2005 : creation
+! Aug  2005 : ghost cells have been added to the DLU system
 !------------------------------------------------------------------------------!
