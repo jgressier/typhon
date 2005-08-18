@@ -13,7 +13,7 @@ proc tymon:getfiles { } {
 
   set monfiles(list:res) [ glob -nocomplain monres.* ]
   set monfiles(list:phy) [ glob -nocomplain monphy.* ]
-  puts ">$monfiles(list:res):$monfiles(list:phy)<"
+  #puts ">$monfiles(list:res):$monfiles(list:phy)<"
   foreach file [concat $monfiles(list:res) $monfiles(list:phy)] {
     puts "init $file"
     set monfiles($file:pos)   0
@@ -32,7 +32,7 @@ proc tymon:parseallfiles_loop { } {
   foreach file [concat $monfiles(list:res) $monfiles(list:phy)] {
     tymon:parsefile $file
   }
-  after 500 tymon:parseallfiles_loop
+  after 1000 tymon:parseallfiles_loop
 
 } ;# Fin proc tymon:parseallfiles_loop
 
@@ -79,14 +79,14 @@ proc tymon:parsefile { file } {
   global monfiles mondata 
 
   set unit [tymon:openfile $file]
-  puts "lecture $file"
+  #puts "lecture $file"
   while {[eof $unit] == 0} {
     gets $unit line
     if {[string length $line] > 0} {
       if [regexp -nocase "^@variables *:" $line] {
         tymon:newvariables $file [regsub -nocase  "^@variables *:" $line ""]
       } else {
-        puts "index:[incr monfiles($file:index)]"
+        #puts "index:[incr monfiles($file:index)]"
         foreach var $mondata($file:cur_var) value [scan "$line" $mondata($file:scan)] {
           vec.$var variable vec
           set vec(++end) $value
