@@ -2,7 +2,7 @@ changequote([, ])
 
 define([mode_all], [divert(0)])
 
-define([site_title], [TYPHON solver site])
+define([site_title], [TYPHON open source solver for CFD])
 define([home_dir], [./$1])
 define([img_dir], [img/[$1]])
 
@@ -18,7 +18,7 @@ define([html_header], [
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="description" content="Open source CFD solver, TYPHON" >
-<meta name="keywords" content="CFD, solver, fluid, navier stokes, amr, mpi, heat transfer" >
+<meta name="keywords" content="open source, CFD, solver, fluid, navier stokes, amr, mpi, heat transfer" >
 <link rel="stylesheet" href="styles.css" type="text/css">
 <title>page_title - site_title</title>
 </head>
