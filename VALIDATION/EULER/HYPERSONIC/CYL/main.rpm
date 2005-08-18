@@ -1,0 +1,69 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON 
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+  NZONE     = 1       
+  COORD     = 2D      
+  TIME      = STEADY 
+  RESIDUALS = 1.e-10
+ENDBLOCK               
+
+BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+  FORMAT = VTK         
+  FILE   = "typhon.vtk" 
+ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "flat" 
+  SOLVER = EULER  
+ENDBLOCK
+
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = CGNS
+  FILE   = "cyl-uni.cgns"
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS = EULER
+  GAS      = AIR
+ENDBLOCK
+
+BLOCK:TIME_PARAM 
+  CFL = 1.
+ENDBLOCK
+
+BLOCK:SPAT_PARAM  
+  SCHEME = HLL
+ENDBLOCK
+
+BLOCK:INIT
+  PI      = 1.E5
+  TI      = 300.
+  MACH    = 10.
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = DOWNSTREAM
+  TYPE   = SUPERSONIC_OUTLET 
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY    = UPSTREAM
+  TYPE      = SUPERSONIC_INLET
+  PI        = 1.E5
+  TI        = 300.
+  MACH      = 10.
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO  
+  FAMILY    = CYL
+  TYPE      = SYMMETRY
+ENDBLOCK
+
