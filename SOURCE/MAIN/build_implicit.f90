@@ -57,7 +57,10 @@ select case(mat%type)
 case(mat_dlu)
   call build_implicit_dlu(dt, umesh, jacL, jacR, mat%dlu)
 
-case(mat_bdlu, mat_crs, mat_bcrs)
+case(mat_bdlu)
+  call build_implicit_bdlu(dt, umesh, jacL, jacR, mat%bdlu)
+
+case(mat_crs, mat_bcrs)
   call erreur("development","unexpected matrix structure (not yet implemented)")
 
 case default
@@ -81,5 +84,5 @@ endsubroutine build_implicit
 !------------------------------------------------------------------------------!
 ! Change history
 !
-! Aug  2005 : creation
+! Aug  2005 : creation / add bdlu construction
 !------------------------------------------------------------------------------!

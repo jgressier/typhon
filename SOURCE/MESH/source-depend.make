@@ -14,6 +14,7 @@ MESH_MOD = GEO3D.$(MOD)     \
            USTMESH.$(MOD) 
 
 MESH_OBJ = $(MESH_MOD:.$(MOD)=.o)  \
+           build_implicit_bdlu.o   \
            build_implicit_dlu.o    \
            calc_connface.o         \
            calc_cellvtex.o         \

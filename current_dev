@@ -42,7 +42,9 @@ Task Dévlp.    début fin   Type  Développement
 0064 Jérémie               Out   CGNS outputs
 0071 Jérémie   20/07 08/08 Core  Implicitation structure reorganisation (sparse matrix)
 0072 Jérémie   09/08 09/08 Core  Implicitation reorganisation (include ghost cells)
-0080 Jérémie               Solv  BICG, BICG-JACOBI, CGS for DLU sparse matrix
+0080 Jérémie   09/08 10/08 Solv  BICG, BICG-JACOBI, CGS for DLU sparse matrix
+0081 Jérémie   20/08 22/08 Solv  Implicit resolution of blocked sparse matrices
+0086 Jérémie   22/08   /08 NS    Implicit jacobian matrices for HLL/EFM fluxes
      Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
                            Make  Restructuration de MAIN/integration_cycle (split)
                            Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)

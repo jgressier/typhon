@@ -1,9 +1,9 @@
 !------------------------------------------------------------------------------!
-! Procedure : dlu_bicg                               Authors : J. Gressier
+! Procedure : bdlu_bicg                              Authors : J. Gressier
 !                                                    Created : August 2005
 ! Fonction
 !   Resolution of linear system : mat.sol = rhs
-!     mat type(st_dlu)
+!     mat type(st_bdlu)
 !     non stationnary iterative method BICG 
 !
 ! Defauts/Limitations/Divers :
@@ -11,7 +11,7 @@
 !   - la resolution passe par l'allocation d'une matrice pleine (dim*dim)
 !
 !------------------------------------------------------------------------------!
-subroutine dlu_bicg(def_impli, mat, sol, info)
+subroutine bdlu_bicg(def_impli, mat, sol, info)
 
 use TYPHMAKE
 use SPARSE_MAT
@@ -22,24 +22,23 @@ implicit none
 
 ! -- Inputs --
 type(mnu_imp) :: def_impli
-type(st_dlu)  :: mat
-real(krp)     :: rhs(1:mat%dim)
+type(st_bdlu) :: mat
 
-! -- Inputs/outputs --
-real(krp)     :: sol(1:mat%dim)  ! RHS as input, SOLUTION as output
+! -- Inputs/Outputs --
+real(krp)     :: sol(1:mat%dim*mat%dimblock) ! contains RHS as INPUT, SOLUTION as OUTPUT
 
 ! -- Outputs --
 integer(kip)  :: info
 
 ! -- Internal variables --
 real(krp), dimension(:), allocatable :: r1, r2, p1, p2, q1, q2
-integer(kip)                         :: nit, ic, if, imin, imax, dim
+integer(kip)                         :: nit, i, ib, is, dim
 real(krp)                            :: erreur, ref
 real(krp)                            :: rho0, rho1, beta, alpha
 
 ! -- Debut de la procedure --
 
-dim = mat%dim
+dim = mat%dim*mat%dimblock
 
 ! initialisation
 
@@ -49,19 +48,26 @@ erreur = huge(erreur)    ! maximal real number in machine representation (to ens
 allocate(r1(dim)) ;     allocate(r2(dim))
 allocate(p1(dim)) ;     allocate(p2(dim))
 allocate(q1(dim)) ;     allocate(q2(dim))
-!allocate(soln(dim))
 
 ! -- initialization --
 
 p1 (1:dim) = sol(1:dim)  ! save RHS
-sol(1:dim) = p1(1:dim) / mat%diag(1:dim)  ! initial guess
+
+! -- initial guess --
+
+do i = 1, mat%dim
+  is = (i-1)*ib
+  do ib = 1, mat%dimblock
+    sol(is+ib) = p1(is+ib) / mat%diag(ib,ib,i)  ! initial guess
+  enddo
+enddo
 ref = sum(abs(sol(1:dim)))
 
-!call sort_dlu(mat)
+!call sort_bdlu(mat)
 
 r1(1:dim) = - sol(1:dim)
-call dlu_xeqaxpy(r1(1:dim), mat, p1(1:dim), r2(1:dim))    ! R1 = RHS - MAT.SOL
-r2(1:dim) = r1(1:dim)                                     ! R2 = R1
+call bdlu_xeqaxpy(r1(1:dim), mat, p1(1:dim), r2(1:dim))    ! R1 = RHS - MAT.SOL
+r2(1:dim) = r1(1:dim)                                      ! R2 = R1
 
 do while ((erreur >= ref*def_impli%maxres).and.(nit <= def_impli%max_it))
 
@@ -76,8 +82,8 @@ do while ((erreur >= ref*def_impli%maxres).and.(nit <= def_impli%max_it))
     p2(1:dim) = r2(1:dim) + beta*p2(1:dim) 
   endif
  
-  call dlu_yeqax (q1(1:dim), mat, p1(1:dim))
-  call dlu_yeqatx(q2(1:dim), mat, p2(1:dim))
+  call bdlu_yeqax (q1(1:dim), mat, p1(1:dim))
+  call bdlu_yeqatx(q2(1:dim), mat, p2(1:dim))
   
   alpha = rho1 / dot_product(p2(1:dim), q1(1:dim))
 
@@ -103,7 +109,7 @@ endif
 
 deallocate(r1, r2, p1, p2, q1, q2)
 
-endsubroutine dlu_bicg
+endsubroutine bdlu_bicg
 
 !------------------------------------------------------------------------------!
 ! Changes history

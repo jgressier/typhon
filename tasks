@@ -493,10 +493,21 @@ Task 0080 (Jérémie) : Solve : BICG, BICG-JACOBI, CGS for DLU sparse matrix
 ---------------------------------------------------------------------------------
 - dlu_bicg : BICG method, convergence twice faster than Jacobi
 - dlu_bicg : BICG method with Jacobi preconditionning, same efficiency as BICG
-             (converges faster bust more costly)
+             (converges faster but more costly)
 - dlu_cgs : CGS method (CG squared), 3 times faster than Jacobi
 - implement matrix-vector multiplication in SPMAT_DLU
 !!! should correct use of same dummy argument in implicit_step
+
+---------------------------------------------------------------------------------
+Task 0081 (Jérémie) : Solve : Implicit resolution of blocked sparse matrices
+---------------------------------------------------------------------------------
+- build_implicit
+- implicit_step : split solve part into implicit_solve
+- GENFIELD : pack & unpack functions
+- call to solve_jacobi/bicg/cgs to select right sparse structure
+- SPMAT_BDLU : new internal operations to provide stationary iterative methods
+- bdlu_bicg  : BICG iterative method for blocked DLU sparse structure
+!!! no validation : see task 86
 
 -------------------------------------------------------------------------------
 Task 0082 (Jérémie) : KDIF : Anisotropic material

@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
-! MODULE : MENU_NUM                       Auteur : J. Gressier
-!                                         Date   : Mai 2002
-! Fonction                                Modif  : (cf historique)
+! MODULE : MENU_NUM                                 Authors : J. Gressier
+!                                                   Created : May 2002
+! Fonction
 !   Definition des structures pour les entrees du programme TYPHON
 !   Structures pour les options numeriques
 !
@@ -47,6 +47,11 @@ integer(kpp), parameter :: sch_vanleerh = 32
 integer(kpp), parameter :: sch_efm      = 40
 integer(kpp), parameter :: sch_efmo     = 50
 integer(kpp), parameter :: sch_ausmm    = 50
+
+! -- Constants for jacobian expression of flux (jac_hyp) --
+integer(kpp), parameter :: jac_hll    = 10
+integer(kpp), parameter :: jac_efm    = 20
+
 
 ! -- Constantes pour schema de calcul HIGH RESOLUTION
 character, parameter :: hres_none       = 'N'
@@ -136,6 +141,7 @@ endtype mnu_muscl
 type mnu_spat
   integer(kpp)    :: order        ! ordre d'integration spatiale
   integer(kpp)    :: sch_hyp      ! type de schema pour les flux hyperboliques
+  integer(kpp)    :: jac_hyp      ! type of jacobian for hyperbolic fluxes
   integer(kpp)    :: sch_dis      ! type de schema pour les flux dissipatifs
   character       :: method       ! methode d'ordre eleve (M)USCL, (E)NO
   integer(kpp)    :: gradmeth     ! methode de calcul des gradients

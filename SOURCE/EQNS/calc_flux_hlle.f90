@@ -95,23 +95,16 @@ do if = 1, nflux
                                   + (kl*cell_l(if)%pressure + kr*cell_r(if)%pressure)*fn
 enddo
 
-deallocate(roe)
-
 !--------------------------------------------------------------
 ! Calcul des jacobiennes
 !--------------------------------------------------------------
 if (calc_jac) then
-  call erreur("Developpement","Calcul de jacobiennes du flux HLLE non implemente")
+  !select case()
+  !call calc_jac_eqns(defsolver, defspat, nflux, face,        &
+  !                   cell_l, cell_r, flux, ideb, jacL, jacR))
 endif
-!  do if = 1, nflux
-!    jacR(if) =  - kH(if) * (vLR(if).scal.face(if)%normale) &
-!                  / (defsolver%defkdif%materiau%Cp * dLR(if)**2)
-!    jacL(if) = -jacR(if)
-!  enddo
-!endif
 
-
-!deallocate()
+deallocate(roe)
 
 
 endsubroutine calc_flux_hlle

@@ -1,9 +1,9 @@
 !------------------------------------------------------------------------------!
-! MODULE : DEFFIELD                       Auteur : J. Gressier
-!                                         Date   : Octobre 2002
-! Fonction                                Modif  : (cf historique)
-!   Bibliotheque de procedures et fonctions pour la gestion des champs
-!   des differents solveurs
+! MODULE : DEFFIELD                                 Authors : J. Gressier
+!                                                   Created : Octobre 2002
+! Fonction   
+!   Library for managing scalar, vector, tensor fields and the derivatives
+!   of variables type (conservative, primitive, residuals, gradients)
 !
 ! Defauts/Limitations/Divers :
 ! Historique :
@@ -16,7 +16,7 @@ use TYPHMAKE     ! Definition de la precision
 use OUTPUT
 use GEO3D        ! 
 use TENSOR3      ! 
-USE GENFIELD
+use GENFIELD
 
 implicit none
 

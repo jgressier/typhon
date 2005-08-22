@@ -36,10 +36,11 @@ type(mnu_zonecoupling), dimension(1:ncp) &
                  :: coupling ! donnees de couplage
 
 ! -- Internal variables --
-type(st_spmat)        :: mat
-type(st_genericfield) :: flux             ! tableaux des flux
-type(st_mattab)       :: jacL, jacR       ! tableaux de jacobiennes des flux
-integer(kip)          :: if, ic1, ic2, ic, info, dim
+type(st_spmat)         :: mat
+type(st_genericfield)  :: flux             ! tableaux des flux
+type(st_mattab)        :: jacL, jacR       ! tableaux de jacobiennes des flux
+real(krp), allocatable :: tabres(:)        ! collect residuals
+integer(kip)           :: if, ic1, ic2, ic, info, dim
 
 ! -- BODY --
 
@@ -80,42 +81,7 @@ call delete(jacR)
 ! solve implicit system
 !--------------------------------------------------
 
-! CALL SOLVE IMPLICIT SYSTEM
-! resolution
-
-select case(deftime%implicite%methode)
-case(alg_lu)
-  call dlu_lu(mat, field%residu%tabscal(1)%scal, field%residu%tabscal(1)%scal)
-
-case(alg_jac)
-  call dlu_jacobi(deftime%implicite, mat%dlu, field%residu%tabscal(1)%scal, &
-                  field%residu%tabscal(1)%scal, info)
-  if (info < 0) call print_warning("JACOBI iterative method not converged")
-
-case(alg_gs)
-  call erreur("development","Gauss-Seidel method not implemented")
-
-case(alg_sor)
-  call erreur("development","SOR method not implemented")
-  
-case(alg_bicg)
-  call dlu_bicg(deftime%implicite, mat%dlu, field%residu%tabscal(1)%scal, &
-                field%residu%tabscal(1)%scal, info)
-  if (info < 0) call print_warning("BICG iterative method not converged")
-
-case(alg_bicgpjac)
-  call dlu_bicg_pjacobi(deftime%implicite, mat%dlu, field%residu%tabscal(1)%scal, &
-                       field%residu%tabscal(1)%scal, info)
-  if (info < 0) call print_warning("BICG-Jacobi iterative method not converged")
-
-case(alg_cgs)
-  call dlu_cgs(deftime%implicite, mat%dlu, field%residu%tabscal(1)%scal, &
-                field%residu%tabscal(1)%scal, info)
-  if (info < 0) call print_warning("CGS iterative method not converged")
-
-case default
-  call erreur("incoherence","methode d'inversion inconnue")
-endselect
+call implicit_solve(deftime, mat, field%residu)
 
 call delete(mat)
 
@@ -145,5 +111,6 @@ endsubroutine implicit_step
 ! Change History
 !
 ! Apr  2004 : creation
-! Aug  2005 : split / call build_system to handle different structures
+! Aug  2005 : split / call build_implicit to handle different structures
+!           : split / call implicit_solve 
 !------------------------------------------------------------------------------!

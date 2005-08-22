@@ -30,6 +30,7 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            explicit_step.o          \
            flux_to_res.o            \
            implicit_step.o          \
+           implicit_solve.o         \
            init_boco.o              \
            init_capteurs.o          \
            init_champ.o             \

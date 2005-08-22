@@ -1,8 +1,8 @@
 !------------------------------------------------------------------------------!
-! MODULE : GENFIELD                       Auteur : J. Gressier
-!                                         Date   : Octobre 2002
-! Fonction                                Modif  : (cf historique)
-!   Bibliotheque de procedures et fonctions pour la gestion des champs
+! MODULE : GENFIELD                                  Authors : J. Gressier
+!                                                    Created : Octobre 2002
+! Fonction  
+!   Library to manage scalar, vector, tensor fields
 !   des differents solveurs
 !
 ! Defauts/Limitations/Divers :
@@ -13,7 +13,7 @@
 module GENFIELD
 
 use TYPHMAKE     ! Definition de la precision
-!use OUTPUT
+use OUTPUT
 use GEO3D        ! 
 use TENSOR3      ! 
 use BASEFIELD
@@ -53,9 +53,23 @@ interface insert
   module procedure insert_newgfield
 endinterface
 
+interface size_elem
+  module procedure size_elem_gfield
+endinterface
+
+interface size_tot
+  module procedure size_tot_gfield
+endinterface
+
+interface pack
+  module procedure pack_gfield
+endinterface
+
+interface unpack
+  module procedure unpack_gfield
+endinterface
 
 ! -- Fonctions et Operateurs ------------------------------------------------
-
 
 
 ! -- IMPLEMENTATION ---------------------------------------------------------
@@ -72,7 +86,6 @@ integer               :: dim                     ! nombre de cellules des champs
 integer               :: n_scal, n_vect, n_tens  ! nombre de scalaires, vecteurs et tenseurs
 integer               :: i
 
-!print*, "DEBUG NEW GENERIC FIELD"
   gfield%dim       = dim
   gfield%nscal     = n_scal
   gfield%nvect     = n_vect
@@ -147,15 +160,13 @@ subroutine delete_genericfield(gfield)
 implicit none
 type(st_genericfield) :: gfield
 integer               :: i
-!print*, "DEBUG DELETE GFIELD", gfield%nscal, gfield%nvect, gfield%ntens 
+
   if (gfield%nscal > 0) then
     do i = 1, gfield%nscal
-      !!print*, "delete scalaire ",i
       call delete(gfield%tabscal(i))
     enddo
     deallocate(gfield%tabscal)
   endif
-  !! print*, "fin delete scalaire "
 
   if (gfield%nvect > 0) then
     do i = 1, gfield%nvect
@@ -208,16 +219,105 @@ type(st_genericfield), pointer :: pgfield, dgfield
 endsubroutine delete_chainedgfield
 
 
+!------------------------------------------------------------------------------!
+! Procedure : convert generic field into real array
+!------------------------------------------------------------------------------!
+subroutine pack_gfield(gfield, tab)
+implicit none
+type(st_genericfield) :: gfield
+real(krp)             :: tab(:)
+integer(kip) :: iv, i, sze, dim, tot, ideb
+
+  sze = size_elem(gfield)
+  dim = gfield%dim
+  tot = sze*dim
+
+  if (sze /= size(tab)) &
+    call erreur("Development", "non consistent sizes of generic field of real array")
+
+  do iv = 1, gfield%nscal
+    tab(iv:tot:sze) = gfield%tabscal(iv)%scal(1:dim)
+  enddo
+  do iv = 1, gfield%nvect
+    ideb = gfield%nscal+3*iv
+    do i = 1, dim
+      tab(ideb  +(i-1)*sze) = gfield%tabvect(iv)%vect(i)%x
+      tab(ideb+1+(i-1)*sze) = gfield%tabvect(iv)%vect(i)%y
+      tab(ideb+2+(i-1)*sze) = gfield%tabvect(iv)%vect(i)%z
+    enddo
+  enddo
+
+  if (gfield%ntens /= 0) &
+    call erreur("Development", "non yet supposed to pack generic fields with tensor fields")
+
+endsubroutine pack_gfield
+
+
+!------------------------------------------------------------------------------!
+! Procedure : convert generic field into real array
+!------------------------------------------------------------------------------!
+subroutine unpack_gfield(tab, gfield)
+implicit none
+type(st_genericfield) :: gfield
+real(krp)             :: tab(:)
+integer(kip) :: iv, i, sze, dim, tot, ideb
+
+  sze = size_elem(gfield)
+  dim = gfield%dim
+  tot = sze*dim
+
+  if (sze /= size(tab)) &
+    call erreur("Development", "non consistent sizes of generic field of real array")
+
+  do iv = 1, gfield%nscal
+    gfield%tabscal(iv)%scal(1:dim) = tab(iv:tot:sze) 
+  enddo
+  do iv = 1, gfield%nvect
+    do i = 1, dim
+      gfield%tabvect(iv)%vect(i)%x = tab(ideb  +(i-1)*sze)
+      gfield%tabvect(iv)%vect(i)%y = tab(ideb+1+(i-1)*sze)
+      gfield%tabvect(iv)%vect(i)%z = tab(ideb+2+(i-1)*sze) 
+    enddo
+  enddo
+
+  if (gfield%ntens /= 0) &
+    call erreur("Development", "non yet supposed to unpack generic fields with tensor fields")
+
+endsubroutine unpack_gfield
+
+
+!------------------------------------------------------------------------------!
+! Function : compute size of an element of generic field
+!------------------------------------------------------------------------------!
+integer(kip) function size_elem_gfield(gfield)
+implicit none
+type(st_genericfield) :: gfield
+
+  size_elem_gfield = gfield%nscal + 3*gfield%nvect + 9*gfield%ntens
+
+end function size_elem_gfield
+
+!------------------------------------------------------------------------------!
+! Function : compute size of the full generic field
+!------------------------------------------------------------------------------!
+integer(kip) function size_tot_gfield(gfield)
+implicit none
+type(st_genericfield) :: gfield
+
+  size_tot_gfield = (gfield%nscal + 3*gfield%nvect + 9*gfield%ntens)*gfield%dim
+
+end function size_tot_gfield
+
+
 endmodule GENFIELD
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! oct  2002 : creation du module
 ! juin 2003 : structuration des champs par type (scalaire, vecteur...)
-! DEV: interface champ/tableau
-! DEV: decoupage en MGFIELD et MZFIELD pour fonctions haut et bas niveau
 ! juin 2004 : procedures insert_newgfield et delete_chainedgfield
 ! nov  2004 : split DEFFIELD -> DEFFIELD / GENFIELD / BASEFIELD
+! aug  2005 : size of field, 
 !------------------------------------------------------------------------------!
 

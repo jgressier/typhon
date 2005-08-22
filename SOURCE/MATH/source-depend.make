@@ -18,11 +18,16 @@ MATH_MOD = INTEGRATION.$(MOD) \
            SPMAT_SDLU.$(MOD)  \
 
 MATH_OBJ = $(MATH_MOD:.$(MOD)=.o)  \
+           bdlu_bicg.o             \
            dlu_bicg.o              \
            dlu_bicg_pjacobi.o      \
            dlu_cgs.o               \
            dlu_jacobi.o            \
-           dlu_lu.o
+           dlu_lu.o                \
+           solve_bicg.o            \
+           solve_bicg_pjacobi.o    \
+           solve_cgs.o             \
+           solve_jacobi.o          \
 
 D_MATH_OBJ = $(MATH_OBJ:%=$(PRJOBJ)/%)
 
