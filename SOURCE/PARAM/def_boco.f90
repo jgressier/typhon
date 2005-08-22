@@ -179,6 +179,21 @@ do ib = 1, nboco
       call erreur("lecture de menu","type de correction inconnu") 
     endselect
 
+    ! -- read radiating parameters --
+
+    defsolver%boco(ib)%boco_kdif%radiating = -1_kpp
+    call rpmgetkeyvalstr(pcour, "RADIATING", str, "NONE")
+    if (samestring(str, "NONE"))    defsolver%boco(ib)%boco_kdif%radiating = rad_none
+    if (samestring(str, "SIMPLE"))  defsolver%boco(ib)%boco_kdif%radiating = rad_direct
+    if (samestring(str, "DIRECT"))  defsolver%boco(ib)%boco_kdif%radiating = rad_direct
+    if (samestring(str, "COUPLED")) defsolver%boco(ib)%boco_kdif%radiating = rad_coupled
+    if (defsolver%boco(ib)%boco_kdif%radiating == -1_kpp) then
+      call erreur("parameter reading", "unknown option for RADIATING keyword")
+    endif
+
+    call rpmgetkeyvalreal(pcour, "EMMISSIVITY", defsolver%boco(ib)%boco_kdif%emmissivity, 1._krp)
+    call rpmgetkeyvalreal(pcour, "RAD_TINF",    defsolver%boco(ib)%boco_kdif%rad_Tinf,    0._krp)
+
   ! -- Traitement des conditions aux limites non attachees a un couplage
   else 
     
