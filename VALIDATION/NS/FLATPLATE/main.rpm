@@ -1,0 +1,44 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON 
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+ !MEMMODE = NORMAL      ! optimisation mémoire : NORMAL / SAVECPU / SAVEMEMORY !
+                        !   (faculatif, defaut = NORMAL)
+  NZONE   = 1           ! nombre de zones (facultatif, défaut = 1) 
+  COORD   = 2D          ! type de repère  : 2D=2DPLAN / 2DAXI / 3D
+  TIME    = STEADY      ! type d'intégration temporelle : STEADY / UNSTEADY / PERIODIC
+  !TIME    = UNSTEADY      
+  !DURATION = 0.00001
+  !BASETIME = 0.000000001
+  RESIDUALS = 1.E-3     ! STEADY : résidu maximal dans le champ
+ENDBLOCK               
+
+BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+  FORMAT = TECPLOT      ! format du fichier de sortie : RAW / TECPLOT / VIGIE
+  FILE   = "typhon.dat" ! nom du fichier de sortie
+ENDBLOCK
+
+BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+  FORMAT = VTK      ! format du fichier de sortie : RAW / TECPLOT / VIGIE
+  FILE   = "typhon.vtk" ! nom du fichier de sortie
+ENDBLOCK
+
+!BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+!  NAME   = "AIR"        ! nom de la zone (facultatif)
+!  SOLVER = NS         ! type de solveur : HEAT / EULER / NS
+!  FILE = "airsup.rpm"
+!ENDBLOCK
+
+!BLOCK:ZONE
+!  NAME = "AIR"
+!  SOLVER = NS
+!  FILE = "air.rpm"
+!ENDBLOCK
+
+BLOCK:ZONE
+  NAME = "AIR"
+  SOLVER = NS
+  FILE = "air_tsu.rpm"
+ENDBLOCK
+

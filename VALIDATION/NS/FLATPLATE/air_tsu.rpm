@@ -1,0 +1,60 @@
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE 1
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = CGNS
+  FILE   = "cas_tsu.cgns"
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS = LAMINAR
+ENDBLOCK
+
+BLOCK:TIME_PARAM
+  CFL = 0.2   ! STABILITY_CONDITION
+ENDBLOCK
+
+BLOCK:SPAT_PARAM
+  SCHEME = HLLC
+  !SCHEME = HLL
+  !HIGHRES = MUSCL
+ENDBLOCK
+
+BLOCK:INIT
+  PI = 792812.3017
+  TI = 398.88
+  MACH = 2
+  DIRECTION = (1.,0.,0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = ENTREE
+  TYPE   = SUPERSONIC_INLET
+  PI = 792812.3017
+  TI = 398.88
+  MACH = 2
+  DIRECTION = (1.,0.,0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = MUR
+  TYPE = ISOTHERMAL_WALL
+  WALL_TEMP = 221.6
+  !TYPE   = FLUXSET_WALL
+  !WALL_FLUX = 0
+  !TYPE = SYMMETRY
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY      = SORTIE
+  TYPE        = SUPERSONIC_OUTLET
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY      = INFINI
+  TYPE        = EXTRAPOLATE
+  ORDER       = QUANTITY
+ENDBLOCK
+
+
