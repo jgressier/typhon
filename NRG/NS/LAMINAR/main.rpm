@@ -1,0 +1,72 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON 
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+  NZONE     = 1       
+  COORD     = 2D      
+  TIME      = UNSTEADY 
+  BASETIME  = 0.0001
+  DURATION  = 0.01
+  !TIME       = STEADY
+  !RESIDUALS = 1.e-02
+ENDBLOCK               
+
+BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+  FORMAT = VTK         
+  FILE   = "typhon.vtk" 
+ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "petit test" 
+  SOLVER = EULER  
+ENDBLOCK
+
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = CGNS
+  FILE   = "tube.cgns"
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS = LAMINAR
+  GAS      = AIR
+ENDBLOCK
+
+BLOCK:TIME_PARAM 
+  CFL = 0.5
+ENDBLOCK
+
+BLOCK:SPAT_PARAM  
+  SCHEME = HLLC
+  !HIGHRES = MUSCL
+  !DISSIPATIVE_FLUX = AVERAGE
+ENDBLOCK
+
+BLOCK:INIT
+  PI      = 101300
+  TI      = 30000000.
+  MACH    = 0.00000005
+  DIRECTION = (0., 1., 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = SYM
+  TYPE   = EXTRAPOLATE
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = INFINI
+  TYPE   = EXTRAPOLATE 
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY    = WALL
+  TYPE      = FLUXSET_WALL
+  WALL_FLUX = 0
+ENDBLOCK
+
+
