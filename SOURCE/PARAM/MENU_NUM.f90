@@ -49,8 +49,9 @@ integer(kpp), parameter :: sch_efmo     = 50
 integer(kpp), parameter :: sch_ausmm    = 50
 
 ! -- Constants for jacobian expression of flux (jac_hyp) --
-integer(kpp), parameter :: jac_hll    = 10
-integer(kpp), parameter :: jac_efm    = 20
+integer(kpp), parameter :: jac_hll     = 10
+integer(kpp), parameter :: jac_hlldiag = 15
+integer(kpp), parameter :: jac_efm     = 20
 
 
 ! -- Constantes pour schema de calcul HIGH RESOLUTION
@@ -85,6 +86,7 @@ integer(kpp), parameter :: alg_gmres    = 40  ! resol. par proj. : GMRES
 integer(kpp), parameter :: alg_bicg     = 60  ! Bi-Conjugate Gradient 
 integer(kpp), parameter :: alg_bicgpjac = 61  ! Bi-Conjugate Gradient (Jacobi Preconditioned)
 integer(kpp), parameter :: alg_cgs      = 62  ! Conjugate Gradient Squared
+integer(kpp), parameter :: alg_bicgstab = 70  ! Bi-Conjugate Gradient Stabilized
 
 
 ! -- DECLARATIONS -----------------------------------------------------------

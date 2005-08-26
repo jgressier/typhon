@@ -55,6 +55,9 @@ select case(defsolver%typ_solver)
 
 case(solNS)
 
+  !-----------------------------------------
+  ! Euler numerical Scheme
+
   call rpmgetkeyvalstr(pcour, "SCHEME", str, "HLLC")
   defspat%sch_hyp = inull
 
@@ -78,7 +81,22 @@ case(solNS)
   if (defspat%sch_hyp == inull) &
     call erreur("parameters parsing","unknown numerical scheme")
 
-  ! -- Methode de calcul des flux dissipatifs --
+  !-----------------------------------------
+  ! Jacobian matrix (if needed)
+
+  call rpmgetkeyvalstr(pcour, "JACOBIAN", str, "HLL")
+  defspat%jac_hyp = inull
+
+  if (samestring(str,"HLL"))        defspat%jac_hyp = jac_hll
+  if (samestring(str,"HLL-DIAG"))   defspat%jac_hyp = jac_hlldiag
+  if (samestring(str,"EFM"))        defspat%jac_hyp = jac_efm
+
+  if (defspat%jac_hyp == inull) &
+    call erreur("parameters parsing","unknown numerical scheme for jacobian matrices")
+
+  !-----------------------------------------
+  ! Dissipative flux method
+
   select case(defsolver%defns%typ_fluid)
   case(eqEULER)
   case(eqNSLAM, eqRANS)
@@ -87,7 +105,9 @@ case(solNS)
     call erreur("parameters parsing","unexpected fluid dynamical model")
   endselect
 
-  ! -- High resolution method
+  !-----------------------------------------
+  ! High resolution method
+
   defspat%method = cnull
   call rpmgetkeyvalstr(pcour, "HIGHRES", str, "NONE")
   if (samestring(str,"NONE"))      defspat%method = hres_none

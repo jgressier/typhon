@@ -66,6 +66,8 @@ if (trait_jac) then
     jacR%mat(1:dim,1:dim,if) = surf(if) * jacR%mat(1:dim,1:dim,if)
   enddo
 endif
+
+deallocate(surf)
  
 ! -- calcul des residus --
 

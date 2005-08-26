@@ -123,7 +123,7 @@ case(tps_impl)
     deftime%implicite%methode = alg_jac
     deftime%implicite%storage = mat_dlu
   case(solNS)
-    deftime%implicite%methode = alg_jac
+    deftime%implicite%methode = alg_bicg
     deftime%implicite%storage = mat_bdlu
   case default
     call erreur("internal error","unexpected solver for implicit method")
@@ -139,6 +139,7 @@ case(tps_impl)
     if (samestring(str,"BICG"))         deftime%implicite%methode = alg_bicg
     if (samestring(str,"BICG-JACOBI"))  deftime%implicite%methode = alg_bicgpjac
     if (samestring(str,"CGS"))          deftime%implicite%methode = alg_cgs
+    if (samestring(str,"BICGSTAB"))     deftime%implicite%methode = alg_bicgstab
   endif
 
   select case(deftime%implicite%methode)
@@ -174,6 +175,11 @@ case(tps_impl)
 
   case(alg_cgs)
     call print_info(9,"    Conjugate Gradient Squared iterative inversion (CGS)")
+    call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 10_kpp)
+    call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-4_krp)
+
+  case(alg_bicgstab)
+    call print_info(9,"    Bi-Conjugate Gradient Stabilized iterative inversion (BiCG-Stab)")
     call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 10_kpp)
     call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-4_krp)
 

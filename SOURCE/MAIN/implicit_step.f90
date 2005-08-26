@@ -68,6 +68,8 @@ endselect
 
 call flux_to_res(dt, umesh, flux, field%residu, .true., jacL, jacR)
 
+call delete(flux)
+
 !--------------------------------------------------
 ! build implicit system
 !--------------------------------------------------
@@ -102,8 +104,6 @@ call delete(mat)
 !endselect
 
 if (ncp > 0) call erreur("Developpement","couplage interdit en implicite")
-
-call delete(flux)
 
 
 endsubroutine implicit_step

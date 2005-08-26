@@ -19,6 +19,7 @@ MATH_MOD = INTEGRATION.$(MOD) \
 
 MATH_OBJ = $(MATH_MOD:.$(MOD)=.o)  \
            bdlu_bicg.o             \
+           bdlu_bicgstab.o         \
            dlu_bicg.o              \
            dlu_bicg_pjacobi.o      \
            dlu_cgs.o               \
@@ -26,6 +27,7 @@ MATH_OBJ = $(MATH_MOD:.$(MOD)=.o)  \
            dlu_lu.o                \
            solve_bicg.o            \
            solve_bicg_pjacobi.o    \
+           solve_bicgstab.o        \
            solve_cgs.o             \
            solve_jacobi.o          \
 

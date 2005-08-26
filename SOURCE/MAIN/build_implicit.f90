@@ -5,7 +5,7 @@
 !   Build implicit system with jacobian matrices to different structures
 !
 !------------------------------------------------------------------------------!
-subroutine build_implicit(dt, deftime, umesh, jacL, jacR, mat)
+subroutine build_implicit(dt, deftime, umesh, jacL, jacR, mat, residu)
 
 use TYPHMAKE
 use OUTPUT

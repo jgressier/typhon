@@ -18,14 +18,14 @@ use SPARSE_MAT
 implicit none
 
 ! -- Inputs --
-type(mnu_time)        :: deftime       ! time integration parameter
+type(mnu_time)         :: deftime       ! time integration parameter
 type(st_spmat)         :: mat
 
 ! -- Input/output --
-type(st_genericfield) :: rhsfield      ! rhs generic field
+type(st_genericfield)  :: rhsfield      ! rhs generic field
 
 ! -- Internal variables --
-real(krp), allocatable :: tabres(:)    ! collect residuals
+real(krp), allocatable :: tabres(:)     ! collect residuals
 integer(kip)           :: if, ic1, ic2, ic, info, dim
 
 ! -- BODY --
@@ -36,7 +36,7 @@ integer(kip)           :: if, ic1, ic2, ic, info, dim
 
 allocate(tabres(size_tot(rhsfield)))
 
-call pack(rhsfield, tabres)
+call pack(rhsfield, tabres, size_tot(rhsfield))
 
 ! CALL SOLVE IMPLICIT SYSTEM
 ! resolution
@@ -67,12 +67,20 @@ case(alg_cgs)
   call solve_cgs(deftime, mat, tabres, info)
   if (info < 0) call print_warning("CGS iterative method not converged")
 
+case(alg_bicgstab)
+  call solve_bicgstab(deftime, mat, tabres, info)
+  if (info < 0) call print_warning("BICG-Stabilized iterative method not converged")
+
 case default
-  call erreur("incoherence","methode d'inversion inconnue")
+  call erreur("Internal error","Unknown algebraic inversion method")
 endselect
 
-call delete(mat)
+!print*,'deallocate sparse mat'
+!call delete(mat)
 
+call unpack(tabres, rhsfield, size_tot(rhsfield))
+
+deallocate(tabres)
 
 
 endsubroutine implicit_solve

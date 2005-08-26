@@ -222,24 +222,25 @@ endsubroutine delete_chainedgfield
 !------------------------------------------------------------------------------!
 ! Procedure : convert generic field into real array
 !------------------------------------------------------------------------------!
-subroutine pack_gfield(gfield, tab)
+subroutine pack_gfield(gfield, tab, n)
 implicit none
 type(st_genericfield) :: gfield
-real(krp)             :: tab(:)
+real(krp)             :: tab(n)
+integer(kip)          :: n
 integer(kip) :: iv, i, sze, dim, tot, ideb
 
   sze = size_elem(gfield)
   dim = gfield%dim
   tot = sze*dim
 
-  if (sze /= size(tab)) &
+  if (tot /= size(tab)) &
     call erreur("Development", "non consistent sizes of generic field of real array")
 
   do iv = 1, gfield%nscal
     tab(iv:tot:sze) = gfield%tabscal(iv)%scal(1:dim)
   enddo
   do iv = 1, gfield%nvect
-    ideb = gfield%nscal+3*iv
+    ideb = gfield%nscal+3*(iv-1)+1
     do i = 1, dim
       tab(ideb  +(i-1)*sze) = gfield%tabvect(iv)%vect(i)%x
       tab(ideb+1+(i-1)*sze) = gfield%tabvect(iv)%vect(i)%y
@@ -248,7 +249,7 @@ integer(kip) :: iv, i, sze, dim, tot, ideb
   enddo
 
   if (gfield%ntens /= 0) &
-    call erreur("Development", "non yet supposed to pack generic fields with tensor fields")
+    call erreur("Development", "not yet supposed to pack generic fields with tensor fields")
 
 endsubroutine pack_gfield
 
@@ -256,23 +257,25 @@ endsubroutine pack_gfield
 !------------------------------------------------------------------------------!
 ! Procedure : convert generic field into real array
 !------------------------------------------------------------------------------!
-subroutine unpack_gfield(tab, gfield)
+subroutine unpack_gfield(tab, gfield, n)
 implicit none
 type(st_genericfield) :: gfield
-real(krp)             :: tab(:)
+real(krp)             :: tab(n)
+integer(kip)          :: n
 integer(kip) :: iv, i, sze, dim, tot, ideb
 
   sze = size_elem(gfield)
   dim = gfield%dim
   tot = sze*dim
 
-  if (sze /= size(tab)) &
+  if (tot /= size(tab)) &
     call erreur("Development", "non consistent sizes of generic field of real array")
 
   do iv = 1, gfield%nscal
     gfield%tabscal(iv)%scal(1:dim) = tab(iv:tot:sze) 
   enddo
   do iv = 1, gfield%nvect
+    ideb = gfield%nscal+3*(iv-1)+1
     do i = 1, dim
       gfield%tabvect(iv)%vect(i)%x = tab(ideb  +(i-1)*sze)
       gfield%tabvect(iv)%vect(i)%y = tab(ideb+1+(i-1)*sze)
@@ -281,7 +284,7 @@ integer(kip) :: iv, i, sze, dim, tot, ideb
   enddo
 
   if (gfield%ntens /= 0) &
-    call erreur("Development", "non yet supposed to unpack generic fields with tensor fields")
+    call erreur("Development", "not yet supposed to unpack generic fields with tensor fields")
 
 endsubroutine unpack_gfield
 

@@ -75,7 +75,7 @@ type(st_spmat) :: mat
   case(mat_crs)
     call delete(mat%crs)
   case default
-    call erreur("Development", "unexpected internal parameter (delete_spmat)")
+    call erreur("Internal error", "unexpected internal parameter (delete_spmat)")
   endselect
 
 endsubroutine delete_spmat
@@ -83,7 +83,7 @@ endsubroutine delete_spmat
 
 endmodule SPARSE_MAT
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! avr  2004 : created, scalar terms
 ! dec  2004 : extension to block terms

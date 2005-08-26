@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
-! MODULE : TENSOR3                        Auteur : J. Gressier
-!                                         Date   : July 2003
-! Fonction                                Modif  :
+! MODULE : TENSOR3                                   Authors : J. Gressier
+!                                                    Created : July 2003
+! Fonction
 !   Bibliotheque de procedures et fonctions pour le calcul geometrique 3D
 !
 ! Defauts/Limitations/Divers :
@@ -24,6 +24,10 @@ endtype
 !interface abs
 !  module procedure v3d_norme
 !endinterface
+
+interface tab
+  module procedure t3d_tab
+endinterface
 
 interface operator(+)
   module procedure t3d_addition, t3d_addition_t
@@ -54,6 +58,18 @@ endinterface
 
 ! -- IMPLEMENTATION ---------------------------------------------------------
 contains
+
+!------------------------------------------------------------------------------!
+! Fonction : tensor tab
+!------------------------------------------------------------------------------!
+function t3d_tab(v1)
+implicit none
+type(t3d), intent(in)     :: v1
+real(krp), dimension(3,3) :: t3d_tab
+
+  t3d_tab = v1%mat(:,:)
+
+endfunction t3d_tab
 
 !------------------------------------------------------------------------------!
 ! Fonction : tensor addition

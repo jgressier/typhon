@@ -143,7 +143,7 @@ type(st_bdlu)                 :: mat
 real(krp), dimension(mat%dim*mat%dimblock) &
                               :: x, y
 ! -- internal --
-integer(kip)   :: is, if, imin, imax, db
+integer(kip)   :: if, imin, imax, db
 
 db  = mat%dimblock
 

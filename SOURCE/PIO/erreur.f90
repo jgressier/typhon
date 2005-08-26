@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
-! Procedure : erreur                      Auteur : J. Gressier
-!                                         Date   : Juillet 2002
-! Fonction                                Modif  : 
+! Procedure : erreur                                   Authors : J. Gressier
+!                                                      Created : July 2002
+! Fonction
 !   Affichage d'une erreur et arret du programme
 !   Ecriture sur unite iout et fichier log 
 !
@@ -17,9 +17,9 @@ character(len=*) str2            ! chaine 2
 
 ! -- Debut de la procedure --
 
-write(uf_stdout,'(a,a,a,a,a)') "!!! Erreur ",trim(str1)," : ",trim(str2)," !!!"
+write(uf_stdout,'(a,a,a,a,a)') "!!! ",trim(str1)," : ",trim(str2)," !!!"
 write(uf_log,'(a)')    "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-write(uf_log,'(a,a,a,a)')    "[STOP] Erreur ",trim(str1)," : ",trim(str2)
+write(uf_log,'(a,a,a,a)')    "[STOP] ",trim(str1)," : ",trim(str2)
 
 stop
 

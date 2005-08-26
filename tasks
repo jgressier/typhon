@@ -520,6 +520,15 @@ Task 0085 (Jérémie) : NS : HLLC scheme
 ---------------------------------------------------------------------------------
 - HLLC scheme (Batten version) in EQNS
 
+-------------------------------------------------------------------------------
+Task 0086 (Jérémie) : NS : Implicit jacobian matrices for HLL fluxes
+---------------------------------------------------------------------------------
+- add call to jacobian matrix in EQNS/calc_flux_hlle and EQNS/calc_flux_hllc
+- HLLE jacobian matrix compted by EQNS/calc_jac_hll and EQNS/calc_jacflux (true jacobian)
+- diagonal jacobian matrix based on spectral radius in EQNS/calc_jac_hlldiag
+- new BICG-Stab iterative method MATH/bdlu_bicgstab and MATH/solve_bicgstab (only BDLU)
+- associated paramters in PARAM/MENU_NUM, PARAM/def_spat and PARAM/def_time
+
 ---------------------------------------------------------------------------------
 Task 0090 (Jérémie) : Opt : GEO3D optimization (array calls)
 ---------------------------------------------------------------------------------

@@ -44,8 +44,9 @@ integer                   :: if
 type(st_nsetat), dimension(:), allocatable &
                           :: roe
 type(v3d)                 :: fn, rvst
-real(krp)                 :: g, ig1, sl, sr, iks
-real(krp)                 :: am, al, ar, vm, vnl, vnr, rel, rer, rqL, rqR
+real(krp), dimension(taille_buffer) :: sl, sr, vnl, vnr
+real(krp)                 :: g, ig1, iks
+real(krp)                 :: am, al, ar, vm, rel, rer, rqL, rqR
 real(krp)                 :: Sst, rst, pst, rest
 
 ! -- Body --
@@ -63,8 +64,8 @@ call calc_roe_states(defsolver%defns%properties(1), nflux, cell_l, cell_r, roe)
 do if = 1, nflux
 
   fn  = face(if)%normale 
-  vnl = cell_l(if)%velocity.scal.fn                    ! face normal velocity (left  state)
-  vnr = cell_r(if)%velocity.scal.fn                    !                      (right state)
+  vnl(if) = cell_l(if)%velocity.scal.fn                    ! face normal velocity (left  state)
+  vnr(if) = cell_r(if)%velocity.scal.fn                    !                      (right state)
   vm  =    roe(if)%velocity.scal.fn                    !                      (roe average state)
   al  = sqrt(g*cell_l(if)%pressure/cell_l(if)%density) ! sound speed          (left state)
   ar  = sqrt(g*cell_r(if)%pressure/cell_r(if)%density) !                      (right state)
@@ -74,42 +75,42 @@ do if = 1, nflux
   rel = ig1*cell_l(if)%pressure + .5_krp*cell_l(if)%density*sqrabs(cell_l(if)%velocity)
   rer = ig1*cell_r(if)%pressure + .5_krp*cell_r(if)%density*sqrabs(cell_r(if)%velocity)
 
-  sl  = min(vnl-al, vm-am)                  ! left  highest wave speed
-  sr  = max(vnr+ar, vm+am)                  ! right highest wave speed
+  sl(if)  = min(vnl(if)-al, vm-am)                  ! left  highest wave speed
+  sr(if)  = max(vnr(if)+ar, vm+am)                  ! right highest wave speed
 
   !-----------------------------
   ! FULLY UPWIND
-  if (sl >= 0._krp) then 
-    flux%tabscal(1)%scal(ideb-1+if) = vnl*cell_l(if)%density             ! mass flux
-    flux%tabscal(2)%scal(ideb-1+if) = vnl*(rel + cell_l(if)%pressure)    ! energy flux
-    flux%tabvect(1)%vect(ideb-1+if) = (vnl*cell_l(if)%density)*cell_l(if)%velocity &
+  if (sl(if) >= 0._krp) then 
+    flux%tabscal(1)%scal(ideb-1+if) = vnl(if)*cell_l(if)%density             ! mass flux
+    flux%tabscal(2)%scal(ideb-1+if) = vnl(if)*(rel + cell_l(if)%pressure)    ! energy flux
+    flux%tabvect(1)%vect(ideb-1+if) = (vnl(if)*cell_l(if)%density)*cell_l(if)%velocity &
                                     + cell_l(if)%pressure*fn             ! momentum flux
   !-----------------------------
   ! FULLY UPWIND
-  elseif (sr <= 0._krp) then
-    flux%tabscal(1)%scal(ideb-1+if) = vnr*cell_r(if)%density             ! mass flux
-    flux%tabscal(2)%scal(ideb-1+if) = vnr*(rer + cell_r(if)%pressure)    ! energy flux
-    flux%tabvect(1)%vect(ideb-1+if) = (vnr*cell_r(if)%density)*cell_r(if)%velocity &
+  elseif (sr(if) <= 0._krp) then
+    flux%tabscal(1)%scal(ideb-1+if) = vnr(if)*cell_r(if)%density             ! mass flux
+    flux%tabscal(2)%scal(ideb-1+if) = vnr(if)*(rer + cell_r(if)%pressure)    ! energy flux
+    flux%tabvect(1)%vect(ideb-1+if) = (vnr(if)*cell_r(if)%density)*cell_r(if)%velocity &
                                     + cell_r(if)%pressure*fn             ! momentum flux
   !-----------------------------
   ! COMPUTATION OF CONTACT WAVE
   else
-    rqL = cell_l(if)%density*(sl - vnl)
-    rqR = cell_r(if)%density*(sr - vnr)
-    Sst = (rqR*vnr - rqL*vnl - cell_r(if)%pressure + cell_l(if)%pressure)/(rqR - rqL)
+    rqL = cell_l(if)%density*(sl(if) - vnl(if))
+    rqR = cell_r(if)%density*(sr(if) - vnr(if))
+    Sst = (rqR*vnr(if) - rqL*vnl(if) - cell_r(if)%pressure + cell_l(if)%pressure)/(rqR - rqL)
     
     if (Sst >= 0._krp) then
-      iks  = 1._krp/(sl - Sst)
+      iks  = 1._krp/(sl(if) - Sst)
       rst  = rqL*iks
-      pst  = cell_l(if)%pressure - rqL*(vnl-Sst)
+      pst  = cell_l(if)%pressure - rqL*(vnl(if)-Sst)
       rvst = iks*( (rqL*cell_l(if)%velocity) + (pst-cell_l(if)%pressure)*fn )
-      rest = iks*(rel*(sl-vnl) - cell_l(if)%pressure*vnl + pst*Sst)
+      rest = iks*(rel*(sl(if)-vnl(if)) - cell_l(if)%pressure*vnl(if) + pst*Sst)
     else
-      iks  = 1._krp/(sr - Sst)
+      iks  = 1._krp/(sr(if) - Sst)
       rst  = rqR*iks
-      pst  = cell_r(if)%pressure - rqR*(vnr-Sst)
+      pst  = cell_r(if)%pressure - rqR*(vnr(if)-Sst)
       rvst = iks*( (rqR*cell_r(if)%velocity) + (pst-cell_r(if)%pressure)*fn )
-      rest = iks*(rer*(sr-vnr) - cell_r(if)%pressure*vnr + pst*Sst)
+      rest = iks*(rer*(sr(if)-vnr(if)) - cell_r(if)%pressure*vnr(if) + pst*Sst)
     endif
 
     flux%tabscal(1)%scal(ideb-1+if) = Sst*rst                ! mass flux
@@ -125,18 +126,26 @@ deallocate(roe)
 ! Calcul des jacobiennes
 !--------------------------------------------------------------
 if (calc_jac) then
-  call erreur("Developpement","Calcul de jacobiennes du flux HLLC non implemente")
+
+  sl(1:nflux) = min(sl(1:nflux), 0._krp)
+  sr(1:nflux) = max(sr(1:nflux), 0._krp)
+
+  select case(defspat%jac_hyp)
+  case(jac_efm)
+    call erreur("Development", "EFM jacobian matrices not available with HLLC flux")
+    !call calc_jac_eqns(defsolver, defspat, nflux, face,        &
+    !                   cell_l, cell_r, ideb, jacL, jacR))
+  case(jac_hll)
+    call calc_jac_hll(defsolver, defspat, nflux, face,          &
+                      cell_l, cell_r, sl, sr, vnl, vnr, ideb, jacL, jacR)
+  case(jac_hlldiag)
+    call calc_jac_hlldiag(defsolver, defspat, nflux, face,          &
+                          cell_l, cell_r, sl, sr, vnl, vnr, ideb, jacL, jacR)
+  case default
+    call erreur("Internal error", "unknown jacobian expression for Euler hyperbolic fluxes")
+  endselect
+
 endif
-!  do if = 1, nflux
-!    jacR(if) =  - kH(if) * (vLR(if).scal.face(if)%normale) &
-!                  / (defsolver%defkdif%materiau%Cp * dLR(if)**2)
-!    jacL(if) = -jacR(if)
-!  enddo
-!endif
-
-
-!deallocate()
-
 
 endsubroutine calc_flux_hllc
 
@@ -144,4 +153,5 @@ endsubroutine calc_flux_hllc
 ! Changes history
 !
 ! July 2005 : creation, HLLC flux
+! Aug  2005 : call to jacobian matrices
 !------------------------------------------------------------------------------!

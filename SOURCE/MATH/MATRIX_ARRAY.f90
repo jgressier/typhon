@@ -39,7 +39,7 @@ contains
 subroutine new_mattab(mattab, n, dim)
 implicit none
 type(st_mattab) :: mattab
-integer         :: n, dim
+integer(kip)    :: n, dim
 
   mattab%dim = dim
   mattab%nb  = n
