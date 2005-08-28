@@ -42,6 +42,7 @@ non = 2
 cumulreste = oui
 
 lzone%info%iter_loc    = 0
+lzone%info%cur_res     = lzone%info%residu_ref   ! defined or initialized in integration_cycle
 local_t = 0._krp
 fin     = .false.
 
@@ -161,7 +162,7 @@ do while (.not.fin)
       write(str_w,'(a,i5,a,g10.4)') "    iteration",lzone%info%iter_loc," | residu = ", log10(lzone%info%cur_res)
 !                                    log10(lzone%info%cur_res/lzone%info%residu_ref)
 
-    if (mod(lzone%info%iter_loc,10) == 0) call print_info(9,str_w)
+    !if (mod(lzone%info%iter_loc,10) == 0) call print_info(9,str_w)
 
   case(instationnaire)
     local_t = local_t + dt

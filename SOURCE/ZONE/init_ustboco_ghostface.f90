@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
-! Procedure : init_ustboco_ghostface      Auteur : J. Gressier
-!                                         Date   : Mars 2003
-! Fonction                                Modif  :
+! Procedure : init_ustboco_ghostface                 Authors : J. Gressier
+!                                                    Created : March 2003
+! Fonction                                           Modif  :
 !   Affectation des connectivites entre faces limites et cellules limites
 !   pour le type "ghostface" (point fictif sur la face) : cela revient a
 !   avoir une cellule fictive de volume nul.

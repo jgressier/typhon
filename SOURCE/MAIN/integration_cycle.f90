@@ -112,7 +112,7 @@ endif
 ! --------------------------------------------
 
 ! -- Initialisation du residu courant de world a 0 :
-lworld%info%cur_res = 0
+lworld%info%cur_res = tiny(lworld%info%cur_res)
 
 do izone = 1, lworld%prj%nzone
  
@@ -125,7 +125,7 @@ do izone = 1, lworld%prj%nzone
 
   case(stationnaire)
     lworld%zone(izone)%info%residumax  = lworld%zone(izone)%deftime%maxres
-    lworld%zone(izone)%info%residu_ref = 0._krp
+    lworld%zone(izone)%info%residu_ref = lworld%info%cur_res
 
   case(instationnaire)
     lworld%zone(izone)%info%cycle_dt = lworld%prj%dtbase

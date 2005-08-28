@@ -113,8 +113,7 @@ integer isolver, itype
 
   select case(itype)
   case(bc_geo_sym)
-    !call erreur("Developpement","'bc_geo_sym' : Cas non implemente")
-    bctype_of_boco = bc_calc_ghostface
+    bctype_of_boco = bc_calc_ghostcell
   case(bc_geo_period)
     call erreur("Developpement","'bc_geo_period' : Cas non implemente")
   case(bc_geo_extrapol)

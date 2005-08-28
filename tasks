@@ -529,6 +529,21 @@ Task 0086 (Jérémie) : NS : Implicit jacobian matrices for HLL fluxes
 - new BICG-Stab iterative method MATH/bdlu_bicgstab and MATH/solve_bicgstab (only BDLU)
 - associated paramters in PARAM/MENU_NUM, PARAM/def_spat and PARAM/def_time
 
+-------------------------------------------------------------------------------
+Task 0087 (Jérémie) : NS : Symmetric point for wall boundary conditions (Euler computations)
+---------------------------------------------------------------------------------
+- changed symmetric boco from ghostface to ghostcell (PARAM/MENU_BOCO)
+- actual symmetric vector in ZONE/calcboco_ust_sym.f90
+- updated ZONE/init_connect_grid / removed ZONE/init_connect_ust
+- new file ZONE/init_ustboco_ghostcell.f90 (symmetric point from face)
+
+-------------------------------------------------------------------------------
+Task 0088 (Jérémie) : NS : increasing CFL number with convergence (bounded by CFL_MAX)
+---------------------------------------------------------------------------------
+- CFL computation in MAIN/calc_zonetimestep, used in EQNS/calc_ns_timestep
+- reading CFL_MAX (default assigned to CFL value) in PARAM/def_time
+- !!! to be tested with unsteady computations !!!
+
 ---------------------------------------------------------------------------------
 Task 0090 (Jérémie) : Opt : GEO3D optimization (array calls)
 ---------------------------------------------------------------------------------

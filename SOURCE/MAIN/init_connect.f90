@@ -34,10 +34,8 @@ pgrid => zone%grid
 do while (associated(pgrid))
 
   select case(zone%defsolver%typ_solver)
-  case(solKDIF)
-    call  init_connect_ust(zone%defsolver, pgrid%umesh)
 
-  case(solVORTEX, solNS)
+  case(solVORTEX, solNS, solKDIF)
     call init_connect_grid(zone%defsolver, pgrid)
     
   case default
@@ -50,8 +48,9 @@ enddo
 endsubroutine init_connect
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
-! mars 2003 : creation de la procedure
-! mars 2004 : ajout du traitement GRID (solveur VORTEX)
+! mar  2003 : creation de la procedure
+! mar  2004 : ajout du traitement GRID (solveur VORTEX)
+! Aug  2005 : remove call to init_connect_ust (KDIF), changed to init_connect_grid
 !------------------------------------------------------------------------------!
