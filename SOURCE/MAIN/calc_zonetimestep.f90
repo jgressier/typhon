@@ -28,6 +28,7 @@ real(krp)      :: dt
 ! -- Declaration des variables internes --
 type(st_grid), pointer               :: pgrid    ! pointeur sur grille
 real(krp), dimension(:), allocatable :: dtloc    ! tableau de pas de temps local
+real(krp)                            :: cfl
 integer                              :: ncell    ! nombre de cellules pour le calcul
 
 
@@ -59,7 +60,9 @@ case(solKDIF, solNS)
     case(stab_cond)  ! -- Calcul par condition de stabilite (deftim%stabnb) --
       select case(lzone%defsolver%typ_solver)
       case(solNS)
-        call calc_ns_timestep(lzone%deftime, lzone%defsolver%defns%properties(1), &
+        cfl = lzone%deftime%stabnb*(1._krp-log10(lzone%info%cur_res/lzone%info%residu_ref))
+        cfl = min(cfl, lzone%deftime%stabnb_max)
+        call calc_ns_timestep(cfl, lzone%defsolver%defns%properties(1), &
                               pgrid%umesh, pgrid%info%field_loc, dtloc, ncell)
       case(solKDIF)
         call calc_kdif_timestep(lzone%deftime, lzone%defsolver%defkdif%materiau, &

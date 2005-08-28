@@ -8,7 +8,7 @@
 !
 !------------------------------------------------------------------------------!
 
-subroutine calc_ns_timestep(deftime, fluid, umesh, field, dtloc, ncell)
+subroutine calc_ns_timestep(cfl, fluid, umesh, field, dtloc, ncell)
 
 use TYPHMAKE
 use OUTPUT
@@ -21,7 +21,7 @@ use EQNS
 implicit none
 
 ! -- Declaration des entrees --
-type(mnu_time)    :: deftime       ! parametres pour le calcul du pas de temps
+real(krp)         :: cfl           ! CFL number
 type(st_espece)   :: fluid         ! donnees du fluide
 type(st_ustmesh)  :: umesh         ! donnees geometriques
 type(st_field)    :: field         ! donnees champs
@@ -65,7 +65,7 @@ enddo
 ! -- Calcul de V / somme_i S_i et prise en compte du nombre de CFL --
 
 do ic = 1, ncell
-  dtloc(ic) =  deftime%stabnb * 2._krp * umesh%mesh%volume(ic,1,1) / dtloc(ic)
+  dtloc(ic) =  cfl * 2._krp * umesh%mesh%volume(ic,1,1) / dtloc(ic)
 enddo
 
 gg1 = fluid%gamma*(fluid%gamma -1._krp)
@@ -82,8 +82,9 @@ enddo
 endsubroutine calc_ns_timestep
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
-
+! Changes history
+!
 ! July 2004 : creation, calcul par CFL
+! Aug  2005 : use direct CFL number (computed before)
 !------------------------------------------------------------------------------!
 

@@ -68,7 +68,8 @@ case(stab_cond)
   case(solKDIF)
     call rpmgetkeyvalreal(pcour, "FOURIER", deftime%stabnb)
   case(solNS)
-    call rpmgetkeyvalreal(pcour, "CFL", deftime%stabnb)
+    call rpmgetkeyvalreal(pcour, "CFL",     deftime%stabnb)
+    call rpmgetkeyvalreal(pcour, "CFL_MAX", deftime%stabnb_max, deftime%stabnb)
   case default
     call erreur("lecture de menu","solveur inconnu (definition temporelle)")
   endselect

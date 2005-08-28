@@ -119,8 +119,8 @@ type mnu_time
   integer(kpp)    :: tps_meth   ! methode d'integration temporelle
   logical         :: local_dt   ! methode de calcul du pas de temps (global/local)
   integer(kpp)    :: stab_meth  ! methode de calcul de la stabilite
-  real(krp)       :: dt, stabnb ! pas de temps fixe ou nombre de stabilite associe
-                                !                      (CFL/Fourier)
+  real(krp)       :: dt         ! constant time step (if selected)
+  real(krp)       :: stabnb, stabnb_max ! Stability number (CFL/Fourier) and max
   real(krp)       :: maxres     ! residu maximal pour convergence de la zone
   type(mnu_rk)    :: rk         ! parametres de la methode Runge Kutta
   type(mnu_imp)   :: implicite  ! parametres pour la methode d'implicitation
