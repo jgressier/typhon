@@ -1,0 +1,57 @@
+-------------------------------------------------
+CAS DE COUPLAGE FLUIDE - SOLIDE 
+
+-------------------------------------------------
+CAS 2D, CONDUCTIVITE CONSTANTE, AIR, EXPLICITE,
+COUPLAGE SANS CORRECTION
+INSTATIONNAIRE
+-------------------------------------------------
+main.rpm      : fichier de parametres du calcul couple
+cpl_solid.rpm : fichier de parametres de la zone couplee solide
+cpl_air.rpm   : fichier de parametres de la zone couplee air
+
+-------------------------------------------------
+
+* MAILLAGE
+ - cpl_air.cgns et cpl_solid.cgns : dossier VALIDATION/mesh
+ - air : maillage 40 cellules transversalement, 5 longitudinalement
+         couche limite : 1re maille 5e-5 m, geometrique raison 1,13
+ - solide : maillage 5 * 5 cellules, uniforme
+
+* MODELE
+ - conduction de la chaleur, modele lineaire (lambda et capacite thermique
+   constants)
+ - conductivite solide : 20
+ - Nombre de Fourier integration solide : 0,4
+ - CFL = 0,6, schema HLLC air
+
+* CONDITIONS AUX LIMITES
+ - isotherme en face arriere materiau (DOWN) : 1500 K
+ - extrapolate sur les bords (SIDE)
+ - coupling a l'interface (WALL)
+ - entree supersonique (IN) : meme valeurs que conditions initiales, ecoulement 
+   parallele a la plaque
+ - sortie supersonique (OUT)
+
+* CONDITIONS INITIALES
+ - T = 800K dans le solide
+ - PI = 792812,3017 Pa, TI = 398,88 K et M = 2 dans l'air, comme la 
+   condition limite d'entree : on observe la formation de la couche limite et
+   le role du materiau
+
+* PARAMETRES DE SIMULATION
+ - temps total 0.001s 
+ - pas de temps 0.00002s pour l'integration explicite
+
+* COUPLAGE
+ - cellule fictive
+ - interpolation compacte
+ - maillages coincidents
+ - sans correction
+
+-------------------------------------------------
+COMMENTAIRES SUR LA SOLUTION
+-------------------------------------------------
+- typhon_1.dat : solide
+- typhon_2.dat : air
+

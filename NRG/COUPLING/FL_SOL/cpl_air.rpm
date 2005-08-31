@@ -1,0 +1,59 @@
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = CGNS
+  FILE   = "cpl_air.cgns"
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS = LAMINAR
+ENDBLOCK
+
+BLOCK:TIME_PARAM
+  CFL = 0.6   ! STABILITY_CONDITION
+ENDBLOCK
+
+BLOCK:SPAT_PARAM
+  SCHEME = HLLC
+ENDBLOCK
+
+BLOCK:INIT
+  PI = 792812.3017
+  TI = 398.88
+  MACH = 2
+  DIRECTION = (1.,0.,0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = IN
+  TYPE   = SUPERSONIC_INLET
+  PI = 792812.3017
+  TI = 398.88
+  MACH = 2
+  DIRECTION = (1.,0.,0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = OUT
+  TYPE        = SUPERSONIC_OUTLET
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY      = UP
+  TYPE        = EXTRAPOLATE
+  ORDER       = QUANTITY
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY      = WALL
+  TYPE        = COUPLING
+  CONNZONE    = "solide"
+  CONNFAM     = WALL
+  METHOD      = GHOSTFACE
+  CORRECTION  = NO
+  !TYPE = ISOTHERMAL_WALL
+  !WALL_TEMP = 1000
+ENDBLOCK
+
