@@ -37,7 +37,7 @@ select case(zone%defsolver%typ_solver)
 case(solNS)
   pgrid => zone%grid
   do ig = 1, zone%ngrid
-    call init_boco_ns(zone%defsolver, pgrid)
+    call init_boco_ns(zone%defsolver, pgrid%umesh)
     pgrid => pgrid%next
   enddo
 
