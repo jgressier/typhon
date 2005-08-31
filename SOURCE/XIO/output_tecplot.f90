@@ -37,23 +37,25 @@ if (position == end_calc) then  !DEV2602
 
   if ((outp_typ == outp_NODE).or.(outp_typ == outp_CENTER)) then !DEV2602
 
-    ! DEVELOPPEMENT PROVISOIRE
-    open(unit=uf_chpresu, file=trim(nom), form='formatted', iostat = info)
-
     do izone = 1, world%prj%nzone
+
+      ! DEVELOPPEMENT PROVISOIRE
+      open(unit=uf_chpresu+izone, &
+           file=trim(nom)//'_'//trim(adjustl(strof(izone,3))) &
+           //'.dat', form='formatted', iostat = info)
 
       select case(world%zone(izone)%defsolver%typ_solver)
 
       case(solKDIF)
 
-        write(uf_chpresu,'(a)') 'VARIABLES="X","Y","Z","T"'
-        call output_tec_ust(uf_chpresu, world%zone(izone)%grid%umesh, &
+        write(uf_chpresu+izone,'(a)') 'VARIABLES="X","Y","Z","T"'
+        call output_tec_ust(uf_chpresu+izone, world%zone(izone)%grid%umesh, &
                             world%zone(izone)%grid%info%field_loc, outp_typ, &
                             world%zone(izone)%defsolver%typ_solver)
 
       case(solVORTEX)
 
-        write(uf_chpresu,'(a)') 'VARIABLES="X","Y","Z","V","P"'
+        write(uf_chpresu+izone,'(a)') 'VARIABLES="X","Y","Z","V","P"'
 
         !! DEV: allocation
         dim = world%zone(izone)%grid%umesh%nface
@@ -77,7 +79,7 @@ if (position == end_calc) then  !DEV2602
         enddo
 
         do i = 1, vfield%dim
-          write(uf_chpresu, '(5(g16.8))') vfield%tabvect(1)%vect(i), &
+          write(uf_chpresu+izone, '(5(g16.8))') vfield%tabvect(1)%vect(i), &
                                           abs(vfield%tabvect(2)%vect(i)),&
                                           vfield%tabscal(1)%scal(i)
         enddo
@@ -86,8 +88,8 @@ if (position == end_calc) then  !DEV2602
 
       case(solNS)
 
-        write(uf_chpresu,'(a)') 'VARIABLES="X","Y","Z","u","v","w","P","T"'
-        call output_tec_ust(uf_chpresu, world%zone(izone)%grid%umesh, &
+        write(uf_chpresu+izone,'(a)') 'VARIABLES="X","Y","Z","u","v","w","P","T"'
+        call output_tec_ust(uf_chpresu+izone, world%zone(izone)%grid%umesh, &
                             world%zone(izone)%grid%info%field_loc, outp_typ, &
                             world%zone(izone)%defsolver%typ_solver, &
                             world%zone(izone)%defsolver%defns)
@@ -95,9 +97,9 @@ if (position == end_calc) then  !DEV2602
 
       endselect
 
-    enddo ! fin boucle : zone
+      close(uf_chpresu+izone)
 
-    close(uf_chpresu)
+    enddo ! fin boucle : zone
 
   endif !DEV2602
 

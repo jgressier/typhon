@@ -94,7 +94,7 @@ implicit none
   uf_monphy  = 32   ! monphy file : physical value monitor
   uf_residu  = 40   ! residus
   uf_mesure  = 50   ! mesures diverses
-  uf_chpresu = 55   ! champs resultats
+  uf_chpresu = 1055   ! champs resultats
   uf_compflux= 56   ! comparaison de flux a l'interface
   uf_tempinter=57   ! DEV1404
   uf_correction = 1000 !DEV2602

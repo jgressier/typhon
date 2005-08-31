@@ -38,7 +38,7 @@ real(krp) :: temperature
 
 ! -- Debut de la procedure --
 
-write(uf_chpresu,*) 'ZONE T="USTMESH"' !, F=FEPOINT, N=',ust_mesh%nvtex,',E=',ncell
+write(uf,*) 'ZONE T="USTMESH"' !, F=FEPOINT, N=',ust_mesh%nvtex,',E=',ncell
 
 ! attention : il faut recalculer les points au sommets ou
 ! ecrire le maillage des centres de cellule
@@ -49,18 +49,18 @@ do i = 1, ust_mesh%ncell
   select case(typ_solver)
 
     case(solKDIF)
-    write(uf_chpresu,'(4e18.8)') vtex%x, vtex%y, vtex%z, field%etatprim%tabscal(1)%scal(i)
+    write(uf,'(4e18.8)') vtex%x, vtex%y, vtex%z, field%etatprim%tabscal(1)%scal(i)
 
     case(solNS)
     temperature = field%etatprim%tabscal(2)%scal(i) / &
                   ( field%etatprim%tabscal(1)%scal(i) * &
                   defns%properties(1)%r_const )
-    write(uf_chpresu,'(4e18.8)') vtex%x, vtex%y, vtex%z, &
-                                 field%etatprim%tabvect(1)%vect(i)%x, &
-                                 field%etatprim%tabvect(1)%vect(i)%y, &
-                                 field%etatprim%tabvect(1)%vect(i)%z, &
-                                 field%etatprim%tabscal(2)%scal(i), &
-                                 temperature
+    write(uf,'(4e18.8)') vtex%x, vtex%y, vtex%z, &
+                         field%etatprim%tabvect(1)%vect(i)%x, &
+                         field%etatprim%tabvect(1)%vect(i)%y, &
+                         field%etatprim%tabvect(1)%vect(i)%z, &
+                         field%etatprim%tabscal(2)%scal(i), &
+                         temperature
 
   endselect
 
