@@ -95,11 +95,8 @@ do ib = 1, nbloc
   call calc_kdif_flux(defsolver, defspat,                             &
                       nfb, domaine%mesh%iface(ideb:ifin, 1, 1),       &
                       cg_l, cell_l, grad_l, cg_r, cell_r, grad_r,     &
-                      flux%tabscal(1)%scal(ideb:ifin),                &
-                      calc_jac, jacL%mat(1,1,ideb:ifin), jacR%mat(1,1,ideb:ifin))
-  !!! DEV !!! should pass ideb index
-  !!! DEV !!! and only pass jacL & jacR dummy arguments
-
+                      flux%tabscal(1)%scal(ideb:ifin), ideb,          &
+                      calc_jac, jacL, jacR)
   ideb = ideb + nfb
   nfb  = nbuf         ! tous les blocs suivants sont de taille nbuf
   
@@ -109,7 +106,6 @@ enddo
 ! flux assignment or modification on boundary conditions
 
 call kdif_bocoflux(defsolver, domaine, flux, field%etatprim)
-
 !-------------------------------------------------------------
 deallocate(grad_l, grad_r, cell_l, cell_r, cg_l, cg_r)
 

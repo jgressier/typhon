@@ -43,7 +43,7 @@ call pack(rhsfield, tabres, size_tot(rhsfield))
 
 select case(deftime%implicite%methode)
 case(alg_lu)
-  call dlu_lu(mat, tabres, tabres)
+  call dlu_lu(mat%dlu, tabres, tabres)
 
 case(alg_jac)
   call solve_jacobi(deftime, mat, tabres, info)

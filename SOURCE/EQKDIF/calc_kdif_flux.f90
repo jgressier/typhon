@@ -11,7 +11,7 @@
 !------------------------------------------------------------------------------!
 subroutine calc_kdif_flux(defsolver, defspat, nflux, face,   &
                           cg_l, cell_l, grad_l,              &
-                          cg_r, cell_r, grad_r, flux,        &
+                          cg_r, cell_r, grad_r, flux, ideb,  &
                           calc_jac, jacL, jacR)
 use TYPHMAKE
 use OUTPUT
@@ -24,6 +24,7 @@ use EQKDIF
 use GEO3D
 use MATERIAU
 use MATER_LOI
+use MATRIX_ARRAY
 
 implicit none
 
@@ -39,13 +40,13 @@ real(krp),         dimension(1:nflux) &
                       :: cell_l, cell_r   ! champs des valeurs primitives
 type(v3d),         dimension(1:nflux) &
                       :: grad_l, grad_r   ! gradients aux centres des cellules
+integer(kip)          :: ideb
 logical               :: calc_jac         ! choix de calcul de la jacobienne
 
 
 ! -- Declaration des sorties --
 real(krp), dimension(nflux, defsolver%nequat) :: flux
-real(krp), dimension(nflux)                   :: jacL, jacR  ! jac associees
-                                !!! DEV !!! should receive MATRIX_ARRAY full structure
+type(st_mattab)         :: jacL, jacR  ! jacobiennes associees (gauche et droite)
 
 ! -- Declaration des variables internes --
 real(krp), parameter      :: theta = 1._krp
@@ -64,7 +65,6 @@ type(v3d)                 :: vi                 ! vecteur intermediaire
 integer                   :: if
 
 ! -- Debut de la procedure --
-
 allocate( kH(nflux))    ! conductivite en H, centre de face
 allocate(dHR(nflux))    ! distance HR, rapportee a HL+HR
 allocate(dHL(nflux))    ! distance HL, rapportee a HL+HR
@@ -170,9 +170,9 @@ endselect
 !--------------------------------------------------------------
 if (calc_jac) then
   do if = 1, nflux
-    jacR(if) =  - kH(if) * (vLR(if).scal.face(if)%normale) &
-                  / (defsolver%defkdif%materiau%Cp * dLR(if)**2)
-    jacL(if) = -jacR(if)
+    jacR%mat(1,1,ideb-1+if) =  - kH(if) * (vLR(if).scal.face(if)%normale) &
+                              / (defsolver%defkdif%materiau%Cp * dLR(if)**2)
+    jacL%mat(1,1,ideb-1+if) = -jacR%mat(1,1,ideb-1+if)
   enddo
 endif
 
