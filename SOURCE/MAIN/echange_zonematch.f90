@@ -159,7 +159,7 @@ call donnees_echange(zone1%coupling(ncoupl1)%zcoupling%solvercoupling, &
 call echange(zone1%coupling(ncoupl1)%zcoupling%echdata, &
              zone2%coupling(ncoupl2)%zcoupling%echdata, &
              normale, vecinter, d1, d2, nfacelim, typcalc, typmethod,&
-             zone1%coupling(ncoupl1)%zcoupling%solvercoupling, &
+             typsolver1, typsolver2, &
              zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco), &
              zone2%defsolver%boco(zone2%grid%umesh%boco(nbc2)%idefboco), &
              zone2%coupling(ncoupl2)%zcoupling%connface)

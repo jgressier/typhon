@@ -565,7 +565,21 @@ Task 0104 (Emmanuel): NS : Wall boundary conditions
 - wall boundary conditions : isothermal or flux
 
 ---------------------------------------------------------------------------------
-Task 0105 (Emmanuel): NS : TECPLOT output
+Task 0105 (Emmanuel): Out : TECPLOT output
 ---------------------------------------------------------------------------------
 - TECPLOT output for NS : cell center
+
+---------------------------------------------------------------------------------
+Task 0106 (Emmanuel): Coupl : couplage KDIF - NS
+---------------------------------------------------------------------------------
+- Modification des procedures d'echange, creation de condition limite pour
+  realiser le couplage KDIF - NS
+
+---------------------------------------------------------------------------------
+Task 0107 (Emmanuel): Out : modification de sortie Tecplot
+---------------------------------------------------------------------------------
+- 1 fichier par zone : "nom"_"numero de zone".dat
+- indispensable pour les cas ou toutes les zones n'ont pas les memes sorties
+  (ex : une zone solide, une zone fluide)
+
 

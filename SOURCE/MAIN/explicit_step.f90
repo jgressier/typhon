@@ -74,7 +74,7 @@ select case(typtemps)
  if (ncp>0) then
    call accumulfluxcorr(dt, defsolver, umesh%nboco, umesh%boco, &
                         umesh%nface, flux%tabscal(1)%scal, ncp, &
-                        coupling)
+                        coupling, field, umesh, defspat)
  endif
 
 endselect

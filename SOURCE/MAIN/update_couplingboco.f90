@@ -2,7 +2,7 @@
 ! Procedure : update_couplingboco         Auteur : J. Gressier/ E. Radenac
 !                                         Date   : Juin 2004
 ! Fonction                                Modif  : (cf historique)
-!   Mise jour des conditions limites de raccord
+!   Update of coupling boundary conditions
 !
 ! Defauts/Limitations/Divers :
 !
@@ -30,16 +30,43 @@ integer       :: nbc1, nbc2, ncoupl1, raccord
 
 ! -- Debut de la procedure --
 
-select case(zone1%coupling(ncoupl1)%zcoupling%solvercoupling)
+!select case(zone1%coupling(ncoupl1)%zcoupling%solvercoupling)
 
-case(kdif_kdif)
-  call update_couplingboco_kdif(raccord, zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%typ_boco, &
-                  zone2%defsolver%boco(zone2%grid%umesh%boco(nbc2)%idefboco)%typ_boco)
+!case(kdif_kdif)
 
-  case default
-  call erreur("update_couplingboco","cas non implemente")
+select case(raccord)
+case(couplingboco_TT)
+  zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%typ_boco = &
+                                                                  bc_wall_isoth
+  zone2%defsolver%boco(zone2%grid%umesh%boco(nbc2)%idefboco)%typ_boco = &
+                                                                  bc_wall_isoth
 
+case(couplingboco_CC)
+  zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%typ_boco = &
+                                                                  bc_wall_hconv
+  zone2%defsolver%boco(zone2%grid%umesh%boco(nbc2)%idefboco)%typ_boco = &
+                                                                  bc_wall_hconv
+
+case(couplingboco_CT)
+  zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%typ_boco = &
+                                                                  bc_wall_hconv
+  zone2%defsolver%boco(zone2%grid%umesh%boco(nbc2)%idefboco)%typ_boco = &
+                                                                  bc_wall_isoth
+
+case(couplingboco_TC)
+  zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%typ_boco = &
+                                                                  bc_wall_isoth
+  zone2%defsolver%boco(zone2%grid%umesh%boco(nbc2)%idefboco)%typ_boco = &
+                                                                  bc_wall_hconv
+
+case default
+  call erreur("update_couplingboco_kdif","Conditions limites de raccord inconnues")
 endselect
+
+!  case default
+!  call erreur("update_couplingboco","cas non implemente")
+
+!endselect
 
 
 endsubroutine update_couplingboco
@@ -47,5 +74,6 @@ endsubroutine update_couplingboco
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juin  2004 : creation de la procedure
+! june 2004 : creation of procedure 
+! june 2005 : generalization to KDIF - NS couplings
 !------------------------------------------------------------------------------!

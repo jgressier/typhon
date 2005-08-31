@@ -14,7 +14,6 @@ EQKDIF_MOD = EQKDIF.$(MOD)      \
 
 
 EQKDIF_OBJ := $(EQKDIF_MOD:.$(MOD)=.o)        \
-              accumulfluxcorr_kdif.o          \
               add_kdif_radiativeflux.o        \
               add_kdif_coupled_radflux.o      \
               corr_varprim_kdif.o             \
@@ -25,7 +24,6 @@ EQKDIF_OBJ := $(EQKDIF_MOD:.$(MOD)=.o)        \
               calc_kdif_flux.o                \
               calc_kdif_fourier.o             \
               calc_kdif_timestep.o            \
-              calc_fluxinter_kdif.o           \
               calc_flux_fluxface.o            \
               calc_flux_fluxface_3D.o         \
               calc_flux_fluxface_consistant.o \
@@ -36,12 +34,9 @@ EQKDIF_OBJ := $(EQKDIF_MOD:.$(MOD)=.o)        \
               calc_flux_fluxspe_compact.o     \
               calc_fourier.o                  \
               calc_fouriercycle.o             \
-              calc_tempinter_kdif.o           \
               calc_varcons_kdif.o             \
               calc_varprim_kdif.o             \
               calcboco_kdif.o                 \
-              echange_kdif.o                  \
-              ech_data_kdif.o                 \
               kdif_bocoflux.o                 \
               init_boco_kdif.o                \
               init_kdif_ust.o                 \
@@ -51,7 +46,6 @@ EQKDIF_OBJ := $(EQKDIF_MOD:.$(MOD)=.o)        \
               setboco_kdif_hconv.o            \
               setboco_kdif_isoth.o            \
               stock_kdif_cond_coupling.o      \
-              update_couplingboco_kdif.o
 
 D_EQKDIF_OBJ := $(EQKDIF_OBJ:%=$(PRJOBJ)/%)
 

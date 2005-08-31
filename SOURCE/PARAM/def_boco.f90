@@ -55,17 +55,31 @@ allocate(defsolver%boco(nboco))
 izr = 0 !initialisation
 
 do ib = 1, nboco
+  
+  ! -- Initializations dependant on the solver
+  select case(isolver)
+  case(solKDIF)
+    ! -- Initialization of boco table allocations :  FALSE
+    defsolver%boco(ib)%boco_kdif%alloctemp = .false.
+    defsolver%boco(ib)%boco_kdif%allocflux = .false.
+    defsolver%boco(ib)%boco_kdif%allochconv = .false.
 
-  ! -- Initialisation des allocations de tableaux de CL a FALSE
-  defsolver%boco(ib)%boco_kdif%alloctemp = .false.
-  defsolver%boco(ib)%boco_kdif%allocflux = .false.
-  defsolver%boco(ib)%boco_kdif%allochconv = .false.
-
-  ! -- Initialisation des noms de fichier de temperature, flux
-  defsolver%boco(ib)%boco_kdif%tempfile = cnull
-  defsolver%boco(ib)%boco_kdif%fluxfile = cnull
-  defsolver%boco(ib)%boco_kdif%hfile = cnull
-  defsolver%boco(ib)%boco_kdif%tconvfile = cnull
+    ! -- Initialization of file names for temperature, flux
+    defsolver%boco(ib)%boco_kdif%tempfile = cnull
+    defsolver%boco(ib)%boco_kdif%fluxfile = cnull
+    defsolver%boco(ib)%boco_kdif%hfile = cnull
+    defsolver%boco(ib)%boco_kdif%tconvfile = cnull 
+   
+  case(solNS)
+    ! -- Initialization of boco table allocations :  FALSE
+    defsolver%boco(ib)%boco_ns%alloctemp = .false.
+    defsolver%boco(ib)%boco_ns%allocflux = .false.
+    defsolver%boco(ib)%boco_ns%allochconv = .false.
+    
+  case(solVORTEX)
+  case default
+     call erreur("incoherence interne (def_boco)","solveur inconnu")
+  endselect
 
   call seekrpmblock(pblock, "BOCO", ib, pcour, nkey)
 
@@ -93,10 +107,22 @@ do ib = 1, nboco
     ! -- Condition aux limites necessairement non uniforme 
     defsolver%boco(ib)%boco_unif = nonuniform
 
-    ! -- Allocation memoire pour les tableaux de conditions limites
-    defsolver%boco(ib)%boco_kdif%alloctemp = .true.
-    defsolver%boco(ib)%boco_kdif%allocflux = .true.
-    defsolver%boco(ib)%boco_kdif%allochconv = .true.
+    ! -- Resource allocation for boundary condition tables
+    select case(isolver)
+    case(solKDIF)
+      defsolver%boco(ib)%boco_kdif%alloctemp = .true.
+      defsolver%boco(ib)%boco_kdif%allocflux = .true.
+      defsolver%boco(ib)%boco_kdif%allochconv = .true.    
+   
+    case(solNS)
+      defsolver%boco(ib)%boco_ns%alloctemp = .true.
+      defsolver%boco(ib)%boco_ns%allocflux = .true.
+      defsolver%boco(ib)%boco_ns%allochconv = .true.    
+    
+    case(solVORTEX)
+    case default
+      call erreur("incoherence interne (def_boco)","solveur inconnu")
+    endselect
 
     ! -- Incrementation : numero du raccord
     izr = izr + 1

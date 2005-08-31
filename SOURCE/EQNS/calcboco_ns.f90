@@ -64,6 +64,11 @@ case(bc_wall_flux)
   !call setboco_ns_flux(defsolver%defns, defboco%boco_unif, ustboco, &
   !    grid%umesh, grid%info%field_loc, defboco%boco_ns)
 
+case(bc_wall_hconv)
+  pbcf => newbocofield(grid,ustboco%nface,1,0,0) 
+  call setboco_ns_hconv(defsolver%defns, defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, pbcf%tabscal(1)%scal, &
+                          defsolver, defboco%boco_ns)
+  ustboco%bocofield => pbcf
 
 case default
   call erreur("Developpement","Condition limite inconnu a ce niveau (calcboco_ns)")
