@@ -32,7 +32,7 @@ pgrid => lzone%grid
 
 do while(associated(pgrid))
 
-  call calcboco_ust(lzone%defsolver, pgrid)
+  call calcboco_ust(lzone%defsolver, pgrid, lzone%defspat)
   pgrid => pgrid%next
 
 enddo

@@ -37,8 +37,9 @@ Details:
 
 Task Dévlp.    début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
-0106 Emmanuel    24/06 31/08 Coupl Couplage fluide - solide + cas de non regression
-0107 Emmanuel    30/08 31/08 Out   Modification sortie Tecplot : une par zone
+0108 Emmanuel    01/09 01/09 KDIF  Change in convection and flux boundary condition
+0106 Emmanuel    24/06 31/08 Coupl Fluid - solid coupling + NRG case
+0107 Emmanuel    30/08 31/08 Out   Change in tecplot output : 1 file per zone
 0041 Jérémie   01/07       Solv  Inversion Gauss-Seidel
 0063 Jérémie               Out   Tecplot outputs : FEBLOCK format and output of scalars & vectors
 0064 Jérémie               Out   CGNS outputs

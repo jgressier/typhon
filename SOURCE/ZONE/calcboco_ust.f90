@@ -8,7 +8,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine calcboco_ust(defsolver, grid)
+subroutine calcboco_ust(defsolver, grid, defspat)
 
 use TYPHMAKE
 use OUTPUT
@@ -23,6 +23,7 @@ implicit none
 
 ! -- Declaration des entrees --
 type(mnu_solver)       :: defsolver        ! type d'equation a resoudre
+type(mnu_spat)         :: defspat
 
 ! -- Declaration des entree/sorties --
 type(st_grid)          :: grid             ! maillage en entree, champ en sortie
@@ -62,7 +63,7 @@ do ib = 1, grid%umesh%nboco
       case(solNS)
         call calcboco_ns(defsolver, defsolver%boco(idef), grid%umesh%boco(ib), grid)
       case(solKDIF)
-        call calcboco_kdif(defsolver, defsolver%boco(idef), grid%umesh%boco(ib), grid)
+        call calcboco_kdif(defsolver, defsolver%boco(idef), grid%umesh%boco(ib), grid, defspat)
       case(solVORTEX)
         ! rien a faire
       case default

@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine calcboco_kdif(defsolver, defboco, ustboco, grid)
+subroutine calcboco_kdif(defsolver, defboco, ustboco, grid, defspat)
 
 use TYPHMAKE
 use OUTPUT
@@ -15,7 +15,8 @@ use VARCOM
 use MENU_SOLVER
 use MENU_BOCO
 use USTMESH
-use DEFFIELD 
+use DEFFIELD
+use MENU_NUM 
 
 implicit none
 
@@ -23,6 +24,7 @@ implicit none
 type(mnu_boco)   :: defboco          ! parametres de conditions aux limites
 type(st_ustboco) :: ustboco          ! lieu d'application des conditions aux limites
 type(mnu_solver) :: defsolver        ! type d'equation a resoudre
+type(mnu_spat)   :: defspat
 
 ! -- Declaration des sorties --
 type(st_grid)    :: grid             ! mise a jour du champ (maillage en entree)
@@ -42,13 +44,13 @@ case(bc_wall_isoth)
 case(bc_wall_flux)
   pbcf => newbocofield(grid,ustboco%nface,1,0,0)  
   call setboco_kdif_flux(defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, pbcf%tabscal(1)%scal, &
-                         defsolver, defboco%boco_kdif)
+                         defsolver, defboco%boco_kdif, defspat)
   ustboco%bocofield => pbcf
 
 case(bc_wall_hconv)
   pbcf => newbocofield(grid,ustboco%nface,1,0,0) 
   call setboco_kdif_hconv(defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, pbcf%tabscal(1)%scal, &
-                          defsolver, defboco%boco_kdif)
+                          defsolver, defboco%boco_kdif, defspat)
   ustboco%bocofield => pbcf
 
 case default
