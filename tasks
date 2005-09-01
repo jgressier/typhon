@@ -587,3 +587,9 @@ Task 0108 (Emmanuel): KDIF :change in approximation of temperature for flux
 ---------------------------------------------------------------------------------
 - Use of gradients for the approximate temperature (used for the estimation 
   of gradients) in convection and flux boundary condition
+
+---------------------------------------------------------------------------------
+Task 0109 (Emmanuel): KDIF/NS : adiabatic boundary condition
+---------------------------------------------------------------------------------
+- Use of flux boundary condition structure, with flux automatically set to zero
+

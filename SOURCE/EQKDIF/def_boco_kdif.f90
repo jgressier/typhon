@@ -1,11 +1,11 @@
 !------------------------------------------------------------------------------!
-! Procedure : def_boco_kdif               Auteur : J. Gressier
+! Procedure : def_boco_kdif               Author : J. Gressier
 !                                         Date   : Mars 2003
-! Fonction                                Modif  : 
-!   Traitement des parametres du fichier menu principal
-!   Parametres principaux du projet
+! Function                                Modif  : 
+!   Processing of main menu file parameters 
+!   Main project parameters
 !
-! Defauts/Limitations/Divers :
+! Faults/Limitations/Varia :
 !
 !------------------------------------------------------------------------------!
 subroutine def_boco_kdif(block, type, boco, unif)
@@ -19,30 +19,34 @@ use MENU_BOCO
 
 implicit none
 
-! -- Declaration des entrees --
-type(rpmblock), target :: block    ! bloc RPM contenant les definitions
-integer                :: type     ! type de condition aux limites
-integer                :: unif     ! uniformite de la condition limite
+! -- Inputs --
+type(rpmblock), target :: block    ! RPM block with all definitions
+integer(kip)           :: unif     ! uniformity of boundary condition
 
-! -- Declaration des sorties --
+! -- Outputs --
 type(st_boco_kdif) :: boco
 
-! -- Declaration des variables internes --
-type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
-integer                  :: ib, nkey,i
-character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
+! -- Inputs / Outputs --
+integer(kip)           :: type     ! kind of boundary condition
 
-! -- Debut de la procedure --
+! -- Internal variables --
+type(rpmblock), pointer  :: pblock, pcour  ! RPM block pointer
+integer(kip)             :: ib, nkey,i
+character(len=dimrpmlig) :: str            ! intermediate RPM string 
+integer(kip)             :: typ
+
+! -- BODY --
 
 pblock => block
 
 select case(type)
 
 case(bc_wall_adiab)
+  typ = bc_wall_flux
   boco%flux = 0._krp
 
 case(bc_wall_isoth)
-  
+  typ = bc_wall_isoth
   select case(unif)
   
   case(uniform)
@@ -56,7 +60,7 @@ case(bc_wall_isoth)
   endselect
 
 case(bc_wall_flux)
-  
+  typ = bc_wall_flux  
   select case(unif)
   
   case(uniform)
@@ -72,13 +76,13 @@ case(bc_wall_flux)
   endselect
 
 case(bc_wall_hconv)
-  
+  typ = bc_wall_hconv  
   select case(unif)
   
   case(uniform)
     call rpmgetkeyvalreal(pblock, "H", boco%h_conv)
-    !boco%h_conv = - boco%h_conv ! convention flux sortant dans le code
-                                ! CL : convention flux entrant pour utilisateur
+    !boco%h_conv = - boco%h_conv ! convention : flux out in the algorithm
+                                 ! BOCO : convention flux in for user
     call rpmgetkeyvalreal(pblock, "T_CONV", boco%temp_conv)
 
   case(nonuniform)
@@ -94,6 +98,8 @@ case default
   call erreur("Lecture de menu","type de conditions aux limites non reconnu&
               & pour le solveur de conduction")
 endselect
+
+type = typ
 
 ! -- read radiating parameters --
 
