@@ -164,6 +164,11 @@ do ib = 1, nbloc
   
 enddo
 
+!-------------------------------------------------------------
+! flux assignment or modification on boundary conditions
+
+call ns_bocoflux(defsolver, domaine, flux, field, defspat)
+
 deallocate(cell_l, cell_r, cg_l, cg_r)
 call delete(gradL)
 call delete(gradR)
