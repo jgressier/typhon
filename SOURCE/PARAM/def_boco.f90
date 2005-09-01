@@ -257,7 +257,8 @@ do ib = 1, nboco
                            defsolver%boco(ib)%boco_unif)
       case(solNS)
         call def_boco_ns(pcour, defsolver%boco(ib)%typ_boco, &
-                           defsolver%boco(ib)%boco_ns)
+                           defsolver%boco(ib)%boco_ns, &
+                           defsolver%boco(ib)%boco_unif)
       case(solVORTEX)
         call def_boco_vortex(pcour, defsolver%boco(ib)%typ_boco, &
                            defsolver%boco(ib)%boco_vortex, &

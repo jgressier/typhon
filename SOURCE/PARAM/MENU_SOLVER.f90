@@ -130,29 +130,50 @@ integer           :: ib
     deallocate(defsolver%probe)
   endif
   
-  ! -- destruction des parametres de conditions limites --
+  ! -- destruction of boundary condition paramters --
 
   if (defsolver%nboco >= 1) then
     ! DEV : definition d'un delete_mnu_boco
     do ib = 1, defsolver%nboco
       select case(defsolver%boco(ib)%boco_unif)
       case(nonuniform)
-        ! condition de Dirichlet non uniforme
-        if (defsolver%boco(ib)%boco_kdif%alloctemp) then
-          deallocate(defsolver%boco(ib)%boco_kdif%temp)
-          defsolver%boco(ib)%boco_kdif%alloctemp = .false.
-        endif
-        ! condition de Von Neumann non uniforme
-        if (defsolver%boco(ib)%boco_kdif%allocflux) then
-          deallocate(defsolver%boco(ib)%boco_kdif%flux_nunif)
-          defsolver%boco(ib)%boco_kdif%allocflux = .false.
-        endif
-        ! condition de Fourier non uniforme
-        if (defsolver%boco(ib)%boco_kdif%allochconv) then
-          deallocate(defsolver%boco(ib)%boco_kdif%h_nunif)
-          deallocate(defsolver%boco(ib)%boco_kdif%tconv_nunif)
-          defsolver%boco(ib)%boco_kdif%allochconv = .false.
-        endif
+
+        select case(defsolver%typ_solver)
+        case(solKDIF)
+          ! non uniform Dirichlet condition
+          if (defsolver%boco(ib)%boco_kdif%alloctemp) then
+            deallocate(defsolver%boco(ib)%boco_kdif%temp)
+            defsolver%boco(ib)%boco_kdif%alloctemp = .false.
+          endif
+          !  non uniform Neuman condition
+          if (defsolver%boco(ib)%boco_kdif%allocflux) then
+            deallocate(defsolver%boco(ib)%boco_kdif%flux_nunif)
+            defsolver%boco(ib)%boco_kdif%allocflux = .false.
+          endif
+          !  non uniform Fourier condition
+          if (defsolver%boco(ib)%boco_kdif%allochconv) then
+            deallocate(defsolver%boco(ib)%boco_kdif%h_nunif)
+            deallocate(defsolver%boco(ib)%boco_kdif%tconv_nunif)
+            defsolver%boco(ib)%boco_kdif%allochconv = .false.
+          endif
+        case(solNS)
+          !  non uniform Dirichlet condition
+          if (defsolver%boco(ib)%boco_ns%alloctemp) then
+            deallocate(defsolver%boco(ib)%boco_ns%temp)
+            defsolver%boco(ib)%boco_ns%alloctemp = .false.
+          endif
+          !  non uniform Neuman condition
+          if (defsolver%boco(ib)%boco_ns%allocflux) then
+            deallocate(defsolver%boco(ib)%boco_ns%flux_nunif)
+            defsolver%boco(ib)%boco_ns%allocflux = .false.
+          endif
+          !  non uniform Fourier condition
+          if (defsolver%boco(ib)%boco_ns%allochconv) then
+            deallocate(defsolver%boco(ib)%boco_ns%h_nunif)
+            deallocate(defsolver%boco(ib)%boco_ns%tconv_nunif)
+            defsolver%boco(ib)%boco_ns%allochconv = .false.
+          endif
+        endselect
       endselect
     enddo
 

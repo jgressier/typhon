@@ -593,3 +593,16 @@ Task 0109 (Emmanuel): KDIF/NS : adiabatic boundary condition
 ---------------------------------------------------------------------------------
 - Use of flux boundary condition structure, with flux automatically set to zero
 
+---------------------------------------------------------------------------------
+Task 0110 (Emmanuel): NS : thermal boundary condition defined in files
+---------------------------------------------------------------------------------
+- like in KDIF, temperature and heat flux at the boundaries can be defined in a
+  file (TEMP_FILE or FLUX_FILE =) for non uniform boundary conditions
+  (UNIFORMITY = NON_UNIFORM)
+
+---------------------------------------------------------------------------------
+Task 0111 (Emmanuel): NS : change in the boundary heat flux
+---------------------------------------------------------------------------------
+- like in KDIF, boundary heat flux is changed thanks to a special routine that
+  applies a given flux
+

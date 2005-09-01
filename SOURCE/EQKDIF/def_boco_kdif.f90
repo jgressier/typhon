@@ -65,8 +65,8 @@ case(bc_wall_flux)
   
   case(uniform)
     call rpmgetkeyvalreal(pblock, "WALL_FLUX", boco%flux)
-    boco%flux = - boco%flux ! convention flux sortant dans le code
-                            ! CL : convention flux entrant pour utilisateur
+    boco%flux = - boco%flux ! convention : flux out in the algorithm
+                            ! BOCO : convention flux in for user
 
   case(nonuniform)
     boco%allocflux = .true.

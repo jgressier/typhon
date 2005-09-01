@@ -37,6 +37,8 @@ Details:
 
 Task Dévlp.    début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
+0111 Emmanuel    01/09 01/09 NS    "Real" heat flux applied at boundaries
+0110 Emmanuel    01/09 01/09 NS    Non uniform thermal boundary conditions
 0109 Emmanuel    01/09 01/09 KDIF  Adiabatic boundary condition
 0108 Emmanuel    01/09 01/09 KDIF  Change in convection and flux boundary condition
 0106 Emmanuel    24/06 31/08 Coupl Fluid - solid coupling + NRG case

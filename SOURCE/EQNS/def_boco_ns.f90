@@ -8,18 +8,20 @@
 ! Faults/Limitations/Varia :
 !
 !------------------------------------------------------------------------------!
-subroutine def_boco_ns(block, type, boco)
+subroutine def_boco_ns(block, type, boco, unif)
 
 use RPM
 use TYPHMAKE
 use VARCOM
 use OUTPUT
 use MENU_NS
+use MENU_BOCO
 
 implicit none
 
 ! -- Inputs --
 type(rpmblock), target :: block    ! RPM block with all definitions
+integer(kip)           :: unif     ! uniformity of boundary condition
 
 ! -- Outputs --
 type(st_boco_ns) :: boco
@@ -46,11 +48,33 @@ case(bc_wall_adiab)
 
 case(bc_wall_isoth)
   typ = bc_wall_isoth
-  call rpmgetkeyvalreal(pblock, "WALL_TEMP", boco%temp_wall)
+  select case(unif)
+
+  case(uniform)
+    call rpmgetkeyvalreal(pblock, "WALL_TEMP", boco%temp_wall)
+
+  case(nonuniform)
+    boco%alloctemp = .true.
+    call rpmgetkeyvalstr(pblock, "TEMP_FILE", str)
+    boco%tempfile = str
+
+  endselect
 
 case(bc_wall_flux)
   typ = bc_wall_flux
-  call rpmgetkeyvalreal(pblock, "WALL_FLUX", boco%flux)
+  select case(unif)
+  
+  case(uniform)
+    call rpmgetkeyvalreal(pblock, "WALL_FLUX", boco%flux)
+    boco%flux = - boco%flux ! convention : flux out in the algorithm
+                            ! BOCO convention : flux in for user
+
+  case(nonuniform)
+    boco%allocflux = .true.
+    call rpmgetkeyvalstr(pblock, "FLUX_FILE", str)
+    boco%fluxfile = str
+
+  endselect
 
 case(bc_inlet_sub)
   typ = bc_inlet_sub
