@@ -61,15 +61,17 @@ implicit none
 type(st_bdlu) :: mat
 integer(kip) :: dimblock, dim, ncouple
 
+  !print*,"allocation bdlu", dimblock, dim, ncouple
   mat%sort       = .false.
   mat%diaginvert = .false.
   mat%dimblock = dimblock
   mat%dim      = dim
   mat%ncouple = ncouple
-  allocate(mat% diag(dimblock, dimblock, dim    )) ;   mat% diag(:,:,:) = 0._krp
-  allocate(mat%lower(dimblock, dimblock, ncouple)) ;   mat%lower(:,:,:) = 0._krp
-  allocate(mat%upper(dimblock, dimblock, ncouple)) ;   mat%upper(:,:,:) = 0._krp
+  allocate(mat% diag(dimblock, dimblock, dim    ))! ;   mat% diag(:,:,:) = 0._krp
+  allocate(mat%lower(dimblock, dimblock, ncouple))! ;   mat%lower(:,:,:) = 0._krp
+  allocate(mat%upper(dimblock, dimblock, ncouple))! ;   mat%upper(:,:,:) = 0._krp
   call new(mat%couple, ncouple, 2)
+  !print*,"  fin allocation"
 
 endsubroutine new_bdlu
 

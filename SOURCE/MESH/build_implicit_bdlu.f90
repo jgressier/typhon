@@ -40,6 +40,16 @@ call new(matbdlu, dimb, umesh%ncell, umesh%nface)  ! alloc & init of sparse matr
 matbdlu%couple%fils(1:matbdlu%ncouple, 1:2) = umesh%facecell%fils(1:matbdlu%ncouple, 1:2) 
 
 !-------------------------------------------------------
+! Init diagonal
+
+do ic = 1, umesh%ncell_int
+  matbdlu%diag (1:dimb, 1:dimb, ic) = 0._krp
+  do i = 1, dimb
+    matbdlu%diag(i, i, ic) = umesh%mesh%volume(ic,1,1) / dt
+  enddo
+enddo
+
+!-------------------------------------------------------
 ! matrix construction - internal faces only
 
 do if = 1, umesh%nface_int
@@ -80,12 +90,6 @@ do if = umesh%nface_int+1, umesh%nface
   enddo
   matbdlu%lower(1:dimb, 1:dimb, if)  = 0._krp
 
-enddo
-
-do ic = 1, umesh%ncell_int
-  do i = 1, dimb
-    matbdlu%diag(i, i, ic) = matbdlu%diag(i, i, ic) + umesh%mesh%volume(ic,1,1) / dt
-  enddo
 enddo
 
 

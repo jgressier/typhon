@@ -64,14 +64,13 @@ ntot = ntot + 6*ust_mesh%cellvtex%npyra
 ntot = ntot + 7*ust_mesh%cellvtex%npenta
 ntot = ntot + 9*ust_mesh%cellvtex%nhexa
 write(uf,'(a,2i10)') 'CELLS ',ust_mesh%ncell, ntot
-print*,'nbar:',ust_mesh%cellvtex%nbar
+
 do i = 1, ust_mesh%cellvtex%nbar
   write(uf,'(i3,2i9)') 2, ust_mesh%cellvtex%bar%fils(i,:)-1
 enddo
 do i = 1, ust_mesh%cellvtex%ntri
   write(uf,'(i3,3i9)') 3, ust_mesh%cellvtex%tri%fils(i,:)-1
 enddo
-print*,'nquad:',ust_mesh%cellvtex%nquad
 do i = 1, ust_mesh%cellvtex%nquad
   write(uf,'(i3,4i9)') 4, ust_mesh%cellvtex%quad%fils(i,:)-1
 enddo
