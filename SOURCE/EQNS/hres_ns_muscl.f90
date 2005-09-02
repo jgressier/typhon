@@ -1,10 +1,8 @@
 !------------------------------------------------------------------------------!
-! Procedure : hres_ns_muscl              Auteur : J. Gressier
-!                                         Date   : July 2004
-! Fonction                                Modif  : (cf historique)
-!   Computation of HLLE flux for Euler equations
-!
-! Defauts/Limitations/Divers :
+! Procedure : hres_ns_muscl                          Authors : J. Gressier
+!                                                    Created : July 2004
+! Fonction
+!   MUSCL interpolation of primitive quantities
 !
 !------------------------------------------------------------------------------!
 subroutine hres_ns_muscl(defspat, nf, ideb, umesh, fprim, fgrad, cell_l, cell_r)
@@ -242,10 +240,10 @@ do i = 1, nf
   icr = umesh%facecell%fils(if,2)
   cell_l(i)%density  = fprim%tabscal(1)%scal(icl) + gprimL%tabscal(1)%scal(i)
   cell_r(i)%density  = fprim%tabscal(1)%scal(icr) + gprimR%tabscal(1)%scal(i)
-  cell_l(i)%pressure = fprim%tabscal(2)%scal(icl) !+ gprimL%tabscal(2)%scal(i)
-  cell_r(i)%pressure = fprim%tabscal(2)%scal(icr) !+ gprimR%tabscal(2)%scal(i)
-  cell_l(i)%velocity = fprim%tabvect(1)%vect(icl) !+ gprimL%tabvect(1)%vect(i)
-  cell_r(i)%velocity = fprim%tabvect(1)%vect(icr) !+ gprimR%tabvect(1)%vect(i)
+  cell_l(i)%pressure = fprim%tabscal(2)%scal(icl) + gprimL%tabscal(2)%scal(i)
+  cell_r(i)%pressure = fprim%tabscal(2)%scal(icr) + gprimR%tabscal(2)%scal(i)
+  cell_l(i)%velocity = fprim%tabvect(1)%vect(icl) + gprimL%tabvect(1)%vect(i)
+  cell_r(i)%velocity = fprim%tabvect(1)%vect(icr) + gprimR%tabvect(1)%vect(i)
 enddo
 
 !------------------------------------------
