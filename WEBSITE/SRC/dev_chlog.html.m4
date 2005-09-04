@@ -19,7 +19,7 @@ beginlist
 writedev([core],   [Implicitation program structure reorganised (include ghost cells)])
 writefunc([core],  [features iterative storage and inversion of block DLU structure])
 writefunc([KDIF],  [features BiCG, BiCG-Jacobi, CGS iterative inversion methods (DLU structure)])
-writefunc([KDIF],  [improved adiabatic boundary condition)])
+writefunc([KDIF],  [improved adiabatic boundary condition])
 writefunc([NS],    [features Implicit jacobian matrices for HLL fluxes (diagonal equivalent)])
 writefunc([NS],    [features BiCG-Stab iterative inversion method (block-DLU structure)])
 writefunc([NS],    [changed symmetry boundary condition (ghost cell is now really symmetric: improved hypersonic flows)])
