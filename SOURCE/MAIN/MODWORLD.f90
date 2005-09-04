@@ -97,11 +97,7 @@ type(st_world)   :: world
 integer          :: i     
 
   do i = 1, world%prj%nzone
-
-    print*,"destruction de zone ",i !! DEBUG
-    
     call delete(world%zone(i))
-  
   enddo
 
   deallocate(world%zone)
