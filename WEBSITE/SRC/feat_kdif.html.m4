@@ -18,6 +18,7 @@ item([anisotropic conductivity (UDF)])
 section([Numerical Schemes])
 item([second order diffusive flux: stabilized (FULL) or average (AVERAGE) gradients])
 item([second order diffusive flux for aligned mesh (COMPACT)])
+item([Linear Implicit resolution (Jacobi, BiCG, BiCG Jacobi preconditioned, CGS)])
 <br>
 
 section([Boundary Conditions])

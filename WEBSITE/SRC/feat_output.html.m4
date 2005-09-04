@@ -11,7 +11,10 @@ dnl -------------------------------------------------------------
 
 section([Output files])
 item([VTK])
+Cell centered unstructured data, save primitive variables <br>
 item([Tecplot])
+Cell vertex interpolation & unstructured mesh
+<br>
 <br>
 
 section([Monitoring])

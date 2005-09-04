@@ -23,9 +23,11 @@ section([Numerical Schemes])
 item([HLLE upwind scheme])
 item([HLLC upwind scheme])
 item([MUSCL second order extension])
+item([Linear Implicit resolution (BiCG-Stab)])
 <br>
 
 section([Boundary Conditions])
+item([wall (isothermal, adiabatic, coupled)])
 item([symmetry])
 item([subsonic or supersonic inlet])
 item([subsonic or supersonic outlet])

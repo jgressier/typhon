@@ -14,6 +14,24 @@ define([writedev],  [<tr class=orange><td align=center>$1</td><td width=10><td>$
 define([writebug],  [<tr class=red><td align=center>$1</td><td width=10><td>$2</td></tr>])
 
 dnl -------------------------------------------------------------
+sectionlr([release 0.2.0], [04/09/2005])
+beginlist
+writedev([core],   [Implicitation program structure reorganised (include ghost cells)])
+writefunc([core],  [features iterative storage and inversion of block DLU structure])
+writefunc([KDIF],  [features BiCG, BiCG-Jacobi, CGS iterative inversion methods (DLU structure)])
+writefunc([KDIF],  [improved adiabatic boundary condition)])
+writefunc([NS],    [features Implicit jacobian matrices for HLL fluxes (diagonal equivalent)])
+writefunc([NS],    [features BiCG-Stab iterative inversion method (block-DLU structure)])
+writefunc([NS],    [changed symmetry boundary condition (ghost cell is now really symmetric: improved hypersonic flows)])
+writefunc([NS],    [features (validation) Viscous stress tensor (laminar flows), Sutherland law ])
+writefunc([NS],    [features increasing CFL number with convergence (bounded by CFL_MAX parameter)])
+writebug([NS],     [MUSCL interpolation for second order accuracy])
+writedev([NS],     [features non-uniform thermal boundary conditions])
+writedev([NS],     [improved heat flux boundary condition at wall])
+writedev([core],   [Navier-Stokes/Heat transfer coupling])
+endlist
+
+dnl -------------------------------------------------------------
 sectionlr([release 0.1.7], [08/07/2005])
 beginlist
 writedev([core],   [introduces User Defined Functions (UDF) through user-made fortran functions])
