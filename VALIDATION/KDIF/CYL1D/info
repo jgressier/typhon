@@ -18,8 +18,8 @@ cyl.cgns      : maillage au format CGNS
  - adiabatique sur les sections (SYM)
 
 * PARAMETRES DE SIMULATION
- - convergence à 1.6e-4 (pour garder le même nombre d'itérations qu'auparavant (1432))
- - Fourier à 0.48
+ - convergence up to 1.e-10
+ - Fourier number depending on time integration
 
 
 -------------------------------------------------
@@ -42,15 +42,3 @@ COMMENTAIRES SUR LA SOLUTION
   simplifiée alors que la corde entre les centres de gravité ne
   passent pas par les centres de faces.
 
--------------------------------------------------
-Benchmark
--------------------------------------------------
-Harfang: Pentium 4 - 1.7GHz - 512 Mo
-Akira  :
-Blasius:
-
-Version    Harfang         Akira
-0.1.0       X  (2.0Ko)                 pas de test de convergence
-0.1.1       X  (2.2Ko)                 pas de test de convergence
-0.1.2     4.3s (2.3Ko)
-0.1.2     4.5s (2.3Ko)
