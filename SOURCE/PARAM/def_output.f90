@@ -73,6 +73,13 @@ do io = 1, world%noutput !DEV2602
   if (samestring(str,"FLUX"))   world%output(io)%type = outp_FLUX !DEV2602
   if (samestring(str,"WALLTEMP")) world%output(io)%type = outp_TEMPINTER !DEV1404
 
+  select case(world%output(io)%type)
+  case(outp_TEMPINTER)
+    call rpmgetkeyvalint(pcour, "PERIOD",  world%output(io)%period,1)
+  case default
+    world%output(io)%period = 1
+  endselect
+
 enddo
 
 !-----------------------------

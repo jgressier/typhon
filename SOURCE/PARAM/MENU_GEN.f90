@@ -47,6 +47,7 @@ type mnu_OUTPUT
   character(len=strlen) &
                   :: fichier    ! nom du fichier de sortie
   integer         :: type       ! type de sortie (cf. VARCOM)
+  integer         :: period     ! writing period
 endtype mnu_OUTPUT
 
 ! -- INTERFACES -------------------------------------------------------------

@@ -33,26 +33,30 @@ if (lworld%info%curtps == 0) then
   write(uf_tempinter, '(a)') 'VARIABLES="t","Tw"'
 endif
 
-! Calcul des conditions aux limites pour le calcul des flux a l'interface
+if ( (mod(lworld%info%icycle,lworld%output(io)%period) == 0).or.&
+   (lworld%info%curtps == 0) ) then
+  ! Calcul des conditions aux limites pour le calcul des flux a l'interface
 
-do izone = 1, lworld%prj%nzone
- call conditions_limites(lworld%zone(izone))
-enddo
+  do izone = 1, lworld%prj%nzone
+   call conditions_limites(lworld%zone(izone))
+  enddo
 
-if (lworld%prj%ncoupling > 0) then
+  if (lworld%prj%ncoupling > 0) then
 
-ir =1 ! DVT : provisoire
+    ir =1 ! DVT : provisoire
     
-! calcul des donnees de raccord : indices de raccord, de CL pour les 
-! deux zones couplees
-call calcul_raccord(lworld, ir, iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2)
+    ! calcul des donnees de raccord : indices de raccord, de CL pour les 
+    ! deux zones couplees
+    call calcul_raccord(lworld, ir, iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2)
 
-do i = 1, lworld%zone(iz1)%grid%umesh%boco(nbc1)%nface
+    do i = 1, lworld%zone(iz1)%grid%umesh%boco(nbc1)%nface
 
-  write(uf_tempinter,'(2e18.8)') lworld%info%curtps, &
-    lworld%zone(iz1)%defsolver%boco(lworld%zone(iz1)%grid%umesh%boco(nbc1)%idefboco)%boco_kdif%temp(i)
+      write(uf_tempinter,'(2e18.8)') lworld%info%curtps, &
+        lworld%zone(iz1)%defsolver%boco(lworld%zone(iz1)%grid%umesh%boco(nbc1)%idefboco)%boco_kdif%temp(i)
                   
-enddo
+    enddo
+
+  endif
 
 endif
 
