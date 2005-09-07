@@ -95,6 +95,8 @@ do i=1, zone1%grid%umesh%boco(nbc1)%nface
     select case(zone1%defsolver%defns%typ_visc)
     case(visc_suth)
       call calc_visc_suther(zone1%defsolver%defns, 1, TH, mu, 1)
+    case(visc_cst)
+      mu(1)=zone1%defsolver%defns%properties(1)%visc_dyn
     case default
       call erreur("viscosity computation","unknown kind of computation")
     endselect
@@ -164,6 +166,8 @@ do i=1, zone1%grid%umesh%boco(nbc1)%nface
     select case(zone2%defsolver%defns%typ_visc)
     case(visc_suth)
       call calc_visc_suther(zone2%defsolver%defns, 1, TH, mu, 1)
+    case(visc_cst)
+      mu(1)=zone2%defsolver%defns%properties(1)%visc_dyn
     case default
       call erreur("viscosity computation","unknown kind of computation")
     endselect

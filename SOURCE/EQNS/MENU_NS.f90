@@ -29,6 +29,7 @@ integer, parameter :: gas_AIR = 10
 ! -- Viscosity : computation
 integer, parameter :: visc_no = 10
 integer, parameter :: visc_suth = 11
+integer, parameter :: visc_cst =12
 
 
 ! -- DECLARATIONS -----------------------------------------------------------

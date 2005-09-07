@@ -606,3 +606,21 @@ Task 0111 (Emmanuel): NS : change in the boundary heat flux
 - like in KDIF, boundary heat flux is changed thanks to a special routine that
   applies a given flux
 
+---------------------------------------------------------------------------------
+Task 0112 (Emmanuel): NS : constant viscosity
+---------------------------------------------------------------------------------
+- constant viscosity, called with VISCOSITY = CONSTANT, DYN_VISC = ...
+  (BLOCK:MODEL)
+- changed files : MENU_NS.f90, def_model_ns.f90,calc_flux_viscous.f90, 
+  ns_bocoflux.f90, setboco_ns_flux.f90, accumulfluxcorr.f90, 
+  setboco_ns_hconv.f90, donnees_echange.f90
+
+---------------------------------------------------------------------------------
+Task 0113 (Emmanuel): Out : periodical writing of interface temperature
+---------------------------------------------------------------------------------
+- interface temperature written every N cycle.
+- N given by : PERIOD = N (BLOCK:OUTPUT)
+- changed files : def_output.f90, output_tec_temp.f90, MENU_GEN.f90
+
+
+

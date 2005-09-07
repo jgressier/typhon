@@ -37,6 +37,8 @@ Details:
 
 Task Dévlp.    début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
+0113 Emmanuel    07/09 07/09 Out   Periodical writing of interface temperature
+0112 Emmanuel    07/09 07/09 NS    Constant viscosity
 0111 Emmanuel    01/09 01/09 NS    "Real" heat flux applied at boundaries
 0110 Emmanuel    01/09 01/09 NS    Non uniform thermal boundary conditions
 0109 Emmanuel    01/09 01/09 KDIF  Adiabatic boundary condition

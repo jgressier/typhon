@@ -68,6 +68,7 @@ case(eqNSLAM)
   call rpmgetkeyvalstr(pcour, "VISCOSITY", str,"SUTHERLAND")
 
   if (samestring(str, "SUTHERLAND"))    defsolver%defns%typ_visc = visc_suth
+  if (samestring(str, "CONSTANT"))      defsolver%defns%typ_visc = visc_cst
   
 case(eqRANS)
   call print_info(10,"    equations de Navier-Stokes moyennees (RANS)")
@@ -92,13 +93,18 @@ case(gas_AIR)
   defsolver%defns%properties(1)%gamma    =   1.40_krp
   defsolver%defns%properties(1)%r_const  = 287.14_krp
   defsolver%defns%properties(1)%prandtl  =   0.72_krp
-  if (defsolver%defns%typ_visc == visc_suth) then
+  select case(defsolver%defns%typ_visc)
+  case(visc_suth)
     defsolver%defns%properties(1)%visc_dyn =   0.0000168_krp
     defsolver%defns%properties(1)%tref     =   273.00_krp
-    defsolver%defns%properties(1)%tsuth    =   110.50_krp    
-  else
+    defsolver%defns%properties(1)%tsuth    =   110.50_krp
+  case(visc_cst)
+    call rpmgetkeyvalreal(pcour, "DYN_VISC",  defsolver%defns%properties(1)%visc_dyn)
+  case(visc_no)
     defsolver%defns%properties(1)%visc_dyn =   0.00_krp
-  endif
+  case default
+    call erreur("viscosity computation", "unknown kind of computation")
+  endselect
 case default
   call erreur("lecture de menu", "modelisation du gas inconnue (GAS)")
 endselect
