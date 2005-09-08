@@ -37,6 +37,8 @@ Details:
 
 Task Dévlp.    début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
+0115 Emmanuel    08/09       NS/KD Initialization with a file
+0114 Emmanuel    08/09 08/09 NS    Linear viscosity
 0113 Emmanuel    07/09 07/09 Out   Periodical writing of interface temperature
 0112 Emmanuel    07/09 07/09 NS    Constant viscosity
 0111 Emmanuel    01/09 01/09 NS    "Real" heat flux applied at boundaries

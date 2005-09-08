@@ -74,6 +74,10 @@ do ifb = 1, ustboco%nface
     call calc_visc_suther(defns, 1, TH, mu, 1)
   case(visc_cst)
     mu(1) = defns%properties(1)%visc_dyn
+  case(visc_lin)
+    TH(1) = fld%etatprim%tabscal(2)%scal(ic) / (r_PG * &
+            fld%etatprim%tabscal(1)%scal(ic) )
+    mu(1) = defns%properties(1)%visc_dyn*TH(1)
   case default
     call erreur("viscosity computation","unknown kind of computation")
   endselect

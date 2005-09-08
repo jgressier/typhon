@@ -30,6 +30,7 @@ integer, parameter :: gas_AIR = 10
 integer, parameter :: visc_no = 10
 integer, parameter :: visc_suth = 11
 integer, parameter :: visc_cst =12
+integer, parameter :: visc_lin = 13
 
 
 ! -- DECLARATIONS -----------------------------------------------------------

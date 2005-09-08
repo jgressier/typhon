@@ -97,6 +97,8 @@ do ib = 1, domaine%nboco
         call calc_visc_suther(defsolver%defns, 1, TH, mu, 1)
       case(visc_cst)
         mu(1)=defsolver%defns%properties(1)%visc_dyn
+      case(visc_lin)
+        mu(1) = defsolver%defns%properties(1)%visc_dyn*TH(1)
       case default
         call erreur("viscosity computation","unknown kind of computation")
       endselect

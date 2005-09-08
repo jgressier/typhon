@@ -69,6 +69,7 @@ case(eqNSLAM)
 
   if (samestring(str, "SUTHERLAND"))    defsolver%defns%typ_visc = visc_suth
   if (samestring(str, "CONSTANT"))      defsolver%defns%typ_visc = visc_cst
+  if (samestring(str, "LINEAR"))        defsolver%defns%typ_visc = visc_lin
   
 case(eqRANS)
   call print_info(10,"    equations de Navier-Stokes moyennees (RANS)")
@@ -100,6 +101,8 @@ case(gas_AIR)
     defsolver%defns%properties(1)%tsuth    =   110.50_krp
   case(visc_cst)
     call rpmgetkeyvalreal(pcour, "DYN_VISC",  defsolver%defns%properties(1)%visc_dyn)
+  case(visc_lin)
+    call rpmgetkeyvalreal(pcour, "COEF",  defsolver%defns%properties(1)%visc_dyn)
   case(visc_no)
     defsolver%defns%properties(1)%visc_dyn =   0.00_krp
   case default

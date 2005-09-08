@@ -107,6 +107,8 @@ case(visc_suth)
   call calc_visc_suther(defsolver%defns, nflux, TH, mu, 1)
 case(visc_cst)
   mu(1:nflux) = defsolver%defns%properties(1)%visc_dyn
+case(visc_lin)
+  mu(1:nflux) = defsolver%defns%properties(1)%visc_dyn*TH(1:nflux)
 case default
   call erreur("viscosity computation","unknown kind of computation")
 endselect

@@ -39,6 +39,7 @@ real(krp), dimension(1) &
           :: mu, TH  
 
 ! -- Debut de la procedure --
+
 do i=1, zone1%grid%umesh%boco(nbc1)%nface
   
   if1 = zone1%grid%umesh%boco(nbc1)%iface(i)
@@ -97,6 +98,8 @@ do i=1, zone1%grid%umesh%boco(nbc1)%nface
       call calc_visc_suther(zone1%defsolver%defns, 1, TH, mu, 1)
     case(visc_cst)
       mu(1)=zone1%defsolver%defns%properties(1)%visc_dyn
+    case(visc_lin)
+      mu(1)=zone1%defsolver%defns%properties(1)%visc_dyn*TH(1)
     case default
       call erreur("viscosity computation","unknown kind of computation")
     endselect
@@ -168,6 +171,8 @@ do i=1, zone1%grid%umesh%boco(nbc1)%nface
       call calc_visc_suther(zone2%defsolver%defns, 1, TH, mu, 1)
     case(visc_cst)
       mu(1)=zone2%defsolver%defns%properties(1)%visc_dyn
+    case(visc_lin)
+      mu(1)=zone2%defsolver%defns%properties(1)%visc_dyn*TH(1)
     case default
       call erreur("viscosity computation","unknown kind of computation")
     endselect

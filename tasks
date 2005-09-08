@@ -622,5 +622,20 @@ Task 0113 (Emmanuel): Out : periodical writing of interface temperature
 - N given by : PERIOD = N (BLOCK:OUTPUT)
 - changed files : def_output.f90, output_tec_temp.f90, MENU_GEN.f90
 
+---------------------------------------------------------------------------------
+Task 0114 (Emmanuel): NS : linear viscosity
+---------------------------------------------------------------------------------
+- viscosity proportional to temperature, called with VISCOSITY = LINEAR, 
+  COEF=...
+  (BLOCK:MODEL)
+- changed files : MENU_NS.f90, def_model_ns.f90,calc_flux_viscous.f90,
+  ns_bocoflux.f90, setboco_ns_flux.f90, accumulfluxcorr.f90,
+  setboco_ns_hconv.f90, donnees_echange.f90
 
+---------------------------------------------------------------------------------
+Task 0115 (Emmanuel): NS / KDIF : initialization with a file
+---------------------------------------------------------------------------------
+- initialization with a file in TECPLOT format, with values given to
+  cell centers : x y z density pressure velocity for NS ; x y z temperature for
+  KDIF
 
