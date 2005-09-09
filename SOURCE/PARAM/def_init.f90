@@ -56,6 +56,10 @@ do i = 1, n_init
   if (samestring(str, "YES"))  defsolver%init(i)%unif = init_unif
   if (samestring(str, "NO"))   defsolver%init(i)%unif = init_nonunif
 
+  call rpmgetkeyvalstr(pcour, "TYPE", str, "DEFINITION")
+  if (samestring(str, "DEFINITION"))  defsolver%init(i)%type = init_def
+  if (samestring(str, "FILE"))        defsolver%init(i)%type = init_file
+
   ! -- Determination du type de repere
 
   !call rpmgetkeyvalstr(pcour, "TYPE", str)
@@ -67,20 +71,28 @@ do i = 1, n_init
   !  call erreur("lecture de menu (def_init)","condition aux limites inconnue")
   !endif
 
-  ! Traitement selon solveurs
+  if (defsolver%init(i)%type == init_def) then
 
-  call print_info(10,"  Directive d'initialisation par champs uniformes")
+    ! Traitement selon solveurs
+    call print_info(10,"  Directive d'initialisation par champs uniformes")
+    select case(isolver)
+    case(solKDIF)
+      call def_init_kdif(pcour, defsolver%init(i)%kdif, defsolver%init(i)%unif)
+    case(solVORTEX)
+      call def_init_vortex(pcour, defsolver%init(i)%vortex)
+    case(solNS)
+      call def_init_ns(pcour, defsolver%init(i)%ns)
+    case default
+      call erreur("incoherence interne (def_init)","solveur inconnu")
+    endselect
 
-  select case(isolver)
-  case(solKDIF)
-    call def_init_kdif(pcour, defsolver%init(i)%kdif, defsolver%init(i)%unif)
-  case(solVORTEX)
-    call def_init_vortex(pcour, defsolver%init(i)%vortex)
-  case(solNS)
-    call def_init_ns(pcour, defsolver%init(i)%ns)
-  case default
-    call erreur("incoherence interne (def_init)","solveur inconnu")
-  endselect
+    ! PROVISOIRE
+    defsolver%init(i)%file = "bidon"
+
+  else if (defsolver%init(i)%type == init_file) then
+    call rpmgetkeyvalstr(pcour, "INIT_FILE", str) 
+    defsolver%init(i)%file = trim(str)
+  endif
 
 enddo
 

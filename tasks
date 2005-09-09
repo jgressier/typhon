@@ -636,6 +636,7 @@ Task 0114 (Emmanuel): NS : linear viscosity
 Task 0115 (Emmanuel): NS / KDIF : initialization with a file
 ---------------------------------------------------------------------------------
 - initialization with a file in TECPLOT format, with values given to
-  cell centers : x y z density pressure velocity for NS ; x y z temperature for
-  KDIF
-
+  cell centers : x y z velocity pressure temperature for NS ; x y z temperature
+  for KDIF
+- changed files : def_init.f90, MENU_INIT.f90, init_ns_ust.f90, 
+  init_champ_ust.f90, init_kdif_ust.f90, output_tec_ust_ctr.f90

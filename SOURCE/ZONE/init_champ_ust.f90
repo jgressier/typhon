@@ -61,9 +61,13 @@ do i = 1, defsolver%ninit
 
   select case(defsolver%typ_solver)
   case(solNS)
-    call init_ns_ust(defsolver%defns, defsolver%init(i)%ns, champ, ust_mesh%mesh)
+    call init_ns_ust(defsolver%defns, defsolver%init(i)%ns, champ, &
+                     ust_mesh%mesh, defsolver%init(i)%type, &
+                     defsolver%init(i)%file, ust_mesh%ncell)
   case(solKDIF)
-    call init_kdif_ust(defsolver%init(i)%kdif, champ, defsolver%init(i)%unif, ust_mesh%mesh)
+    call init_kdif_ust(defsolver%init(i)%kdif, champ, defsolver%init(i)%unif, &
+                       ust_mesh%mesh, defsolver%init(i)%type, &
+                       defsolver%init(i)%file, ust_mesh%ncell)
   case(solVORTEX)
     call init_vort_ust(defsolver%init(i)%vortex, champ)
   case default

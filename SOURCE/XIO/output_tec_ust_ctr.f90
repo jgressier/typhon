@@ -55,7 +55,7 @@ do i = 1, ust_mesh%ncell
     temperature = field%etatprim%tabscal(2)%scal(i) / &
                   ( field%etatprim%tabscal(1)%scal(i) * &
                   defns%properties(1)%r_const )
-    write(uf,'(4e18.8)') vtex%x, vtex%y, vtex%z, &
+    write(uf,'(8e18.8)') vtex%x, vtex%y, vtex%z, &
                          field%etatprim%tabvect(1)%vect(i)%x, &
                          field%etatprim%tabvect(1)%vect(i)%y, &
                          field%etatprim%tabvect(1)%vect(i)%z, &
