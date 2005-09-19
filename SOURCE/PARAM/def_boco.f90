@@ -75,6 +75,10 @@ do ib = 1, nboco
     defsolver%boco(ib)%boco_ns%alloctemp = .false.
     defsolver%boco(ib)%boco_ns%allocflux = .false.
     defsolver%boco(ib)%boco_ns%allochconv = .false.
+
+    ! -- Initialization of file names for temperature, flux
+    defsolver%boco(ib)%boco_ns%tempfile = cnull
+    defsolver%boco(ib)%boco_ns%fluxfile = cnull
     
   case(solVORTEX)
   case default
