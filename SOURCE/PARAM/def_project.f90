@@ -93,7 +93,7 @@ case(stationnaire) ! Evolution pseudo-instationnaire
     call erreur("parameter parsing","parametre RESIDUALS ou NCYCLE manquant")
   endif
   call rpmgetkeyvalreal(pcour, "RESIDUALS", prj%residumax)
-  call rpmgetkeyvalint (pcour, "NCYCLE",    prj%ncycle, 1)
+  call rpmgetkeyvalint (pcour, "NCYCLE",    prj%ncycle, huge(prj%ncycle))
   ! DEV : TRAITER LES MOTS CLEFS INTERDITS
 
   

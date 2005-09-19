@@ -640,3 +640,10 @@ Task 0115 (Emmanuel): NS / KDIF : initialization with a file
   for KDIF
 - changed files : def_init.f90, MENU_INIT.f90, init_ns_ust.f90, 
   init_champ_ust.f90, init_kdif_ust.f90, output_tec_ust_ctr.f90
+
+---------------------------------------------------------------------------------
+Task 0116 (Emmanuel): Coupl : steady computation with set maximum number of cycles
+---------------------------------------------------------------------------------
+- PROJECT -> NCYCLE gives the maximum number of cycles (default : larger integer)
+- changed files : integration.f90, def_project.f90
+

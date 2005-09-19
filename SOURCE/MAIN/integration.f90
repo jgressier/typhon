@@ -114,6 +114,12 @@ do while (.not. lworld%info%fin_integration)
     if (lworld%info%cur_res/lworld%info%residu_ref <= lworld%prj%residumax) then
       lworld%info%fin_integration = .true.
     endif
+    if (lworld%info%icycle == lworld%prj%ncycle) then
+      lworld%info%fin_integration = .true.
+      write(uf_stdout,'(a)') " Nombre de cycles maximal atteint"
+      write(uf_log,'(a,g10.4)') "Nombre de cycles maximal atteint, RESIDU = ",&
+                           log10(lworld%info%cur_res/lworld%info%residu_ref)
+    endif
 
   case(instationnaire)
     lworld%info%curtps = lworld%info%curtps + lworld%prj%dtbase
