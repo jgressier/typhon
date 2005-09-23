@@ -30,6 +30,7 @@ type(st_world) :: lworld
 ! -- Declaration des variables internes --
 integer   :: izone, ir, ifield, if
 integer   :: iz1, iz2, ic, ncoupl1, ncoupl2, ib, nbc1, nbc2
+real(krp) :: wcur_res
 
 ! -- Debut de la procedure --
 
@@ -112,6 +113,7 @@ endif
 ! --------------------------------------------
 
 ! -- Initialisation du residu courant de world a 0 :
+wcur_res = lworld%info%cur_res
 lworld%info%cur_res = tiny(lworld%info%cur_res)
 
 do izone = 1, lworld%prj%nzone
@@ -136,7 +138,7 @@ do izone = 1, lworld%prj%nzone
 
   !-------------------------------------
   ! changement de nom en integration_cycle_zone ?
-  call integrationmacro_zone(lworld%zone(izone))
+  call integrationmacro_zone(lworld%zone(izone), lworld%info%residu_ref, wcur_res)
   !-------------------------------------
 
   ! -- Initialisation de residu_reforigine : valeur du residu de reference 

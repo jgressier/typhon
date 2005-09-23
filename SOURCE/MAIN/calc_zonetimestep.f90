@@ -9,7 +9,7 @@
 !
 !------------------------------------------------------------------------------!
 
-subroutine calc_zonetimestep(lzone, dt)
+subroutine calc_zonetimestep(lzone, dt, wres_ref, wcur_res)
 
 use TYPHMAKE
 use OUTPUT
@@ -30,7 +30,8 @@ type(st_grid), pointer               :: pgrid    ! pointeur sur grille
 real(krp), dimension(:), allocatable :: dtloc    ! tableau de pas de temps local
 real(krp)                            :: cfl
 integer                              :: ncell    ! nombre de cellules pour le calcul
-
+real(krp)                            :: wres_ref ! world reference residual
+real(krp)                            :: wcur_res ! world current residual
 
 ! -- Debut de la procedure --
 
@@ -60,7 +61,9 @@ case(solKDIF, solNS)
     case(stab_cond)  ! -- Calcul par condition de stabilite (deftim%stabnb) --
       select case(lzone%defsolver%typ_solver)
       case(solNS)
-        cfl = lzone%deftime%stabnb*(1._krp-log10(lzone%info%cur_res/lzone%info%residu_ref))
+        cfl = lzone%deftime%stabnb*(1._krp-log10(lzone%info%cur_res/ &
+                                    lzone%info%residu_ref)- &
+                                    log10(wcur_res/ wres_ref) )
         cfl = min(cfl, lzone%deftime%stabnb_max)
         call calc_ns_timestep(cfl, lzone%defsolver%defns%properties(1), &
                               pgrid%umesh, pgrid%info%field_loc, dtloc, ncell)

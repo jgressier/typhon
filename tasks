@@ -574,7 +574,7 @@ Task 0106 (Emmanuel): Coupl : KDIF - NS coupling
 ---------------------------------------------------------------------------------
 - Change in exchange routines, creation of boundary conditions
 
----------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 Task 0107 (Emmanuel): Out : change in Tecplot output
 ---------------------------------------------------------------------------------
 - 1 file per zone : "name"_"zone index".dat
@@ -646,4 +646,29 @@ Task 0116 (Emmanuel): Coupl : steady computation with set maximum number of cycl
 ---------------------------------------------------------------------------------
 - PROJECT -> NCYCLE gives the maximum number of cycles (default : larger integer)
 - changed files : integration.f90, def_project.f90
+
+---------------------------------------------------------------------------------
+Task 0117 (Emmanuel): NS : change in computation of CFL as a function of residual
+---------------------------------------------------------------------------------
+- CFL is no longer a function of the local residual of cycle but of the global residual 
+- changed files : integration.f90, integration_cycle.f90, integrationmacro_zone.f90,
+   calc_zonetimestep.f90
+
+---------------------------------------------------------------------------------
+Task 0118 (Emmanuel): Debug : change in calls for Warning in implicit inversions
+---------------------------------------------------------------------------------
+- changed files : bdlu_bicgstab.f90, dlu_jacobi.f90, dlu_bicg_pjacobi.f90, dlu_cgs.f90,
+   dlu_bicg.f90
+
+---------------------------------------------------------------------------------
+Task 0119 (Emmanuel): Coupl : Coupling in implicit
+---------------------------------------------------------------------------------
+- changed files : implicit_step.f90
+
+---------------------------------------------------------------------------------
+Task 0120 (Emmanuel): Debug : Pi/P truncated to 1 if Pi<P
+---------------------------------------------------------------------------------
+- changed files : EQNS.f90
+
+
 

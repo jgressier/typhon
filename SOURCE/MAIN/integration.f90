@@ -42,6 +42,7 @@ integer                :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
 lworld%info%icycle          = 0
 lworld%info%curtps          = 0._krp
 lworld%info%residu_ref      = 1._krp
+lworld%info%cur_res         = lworld%info%residu_ref
 lworld%info%fin_integration = .false.
 
 ! Allocation du tableau des indices de cycle d'echange pour les calculs couples

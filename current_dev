@@ -37,6 +37,10 @@ Details:
 
 Task Dévlp.    début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
+0120 Emmanuel    21/09 23/09 Debug Truncation of Pi/P to 1
+0119 Emmanuel    20/09 23/09 Coupl Implicit coupling
+0118 Emmanuel    20/09 23/09 Debug Implicit warnings
+0117 Emmanuel    22/09 23/09 NS    Change in CFL computation
 0116 Emmanuel    16/09 19/09 Coupl Maximum number of cycles
 0115 Emmanuel    08/09       NS/KD Initialization with a file
 0114 Emmanuel    08/09 08/09 NS    Linear viscosity

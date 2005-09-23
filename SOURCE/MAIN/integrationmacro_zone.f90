@@ -8,7 +8,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine integrationmacro_zone(lzone)
+subroutine integrationmacro_zone(lzone, wres_ref, wcur_res)
  
 use TYPHMAKE
 use OUTPUT
@@ -31,6 +31,8 @@ integer     :: if, ic, ib, nbc    ! index de champ, couplage et boco
 real(krp)   :: part_cor           ! part de correction a appliquer
 integer     :: typ_cor            ! type de correction
 logical     :: fin
+real(krp)   :: wres_ref           ! world reference residual 
+real(krp)   :: wcur_res           ! world current residual
 
 !DEV
 integer :: cumulreste, oui, non
@@ -73,7 +75,7 @@ do while (.not.fin)
   lzone%info%iter_tot = lzone%info%iter_tot + 1
   
   ! ---
-  call calc_zonetimestep(lzone, dt)
+  call calc_zonetimestep(lzone, dt, wres_ref, wcur_res)
   ! ---
 
   ! ecriture d'informations et gestion
