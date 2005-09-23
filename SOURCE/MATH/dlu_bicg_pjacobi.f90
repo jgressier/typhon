@@ -97,7 +97,7 @@ do while ((erreur >= ref*def_impli%maxres).and.(nit <= def_impli%max_it))
 
 enddo
 
-if (nit > def_impli%max_it) then
+if (nit <= def_impli%max_it) then
   info = nit - 1
 else
   info = -1
