@@ -681,5 +681,16 @@ Task 0120 (Emmanuel): Debug : Pi/P truncated to 1 if Pi<P
 ---------------------------------------------------------------------------------
 - changed files : EQNS.f90
 
+---------------------------------------------------------------------------------
+Task 0121 (Jeremie): NS : Change wall conditions to ghostcells
+---------------------------------------------------------------------------------
+Due to problems in computing boundary layers (mass flux is certified to be nul
+with a zero velocity on the face)
+- MENU_BOCO.f90
+- EQNS.f90 : change boundary conditions implementation
+- init_ustboco_ghostcell.f90 : specific symmetrical point for these bocos
+- setboco_ns_*.f90 : change computed velocities and temperatures
+
+
 
 

@@ -102,11 +102,11 @@ integer bocotype
 
   select case(bocotype)
   case(bc_wall_adiab)
-    bctype_of_nsboco = bc_calc_ghostface
+    bctype_of_nsboco = bc_calc_ghostcell
   case(bc_wall_isoth)
-    bctype_of_nsboco = bc_calc_ghostface
+    bctype_of_nsboco = bc_calc_ghostcell
   case(bc_wall_flux)
-    bctype_of_nsboco = bc_calc_ghostface
+    bctype_of_nsboco = bc_calc_ghostcell
   case(bc_inlet_sup)
     bctype_of_nsboco = bc_calc_ghostface
   case(bc_inlet_sub)

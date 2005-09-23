@@ -68,11 +68,15 @@ do if = 1, ust_mesh%boco(ib)%nface
     ust_mesh%mesh%volume(ic2,1,1) = ust_mesh%mesh%volume(ic1,1,1)
     ust_mesh%mesh%centre(ic2,1,1) = gc + (2._krp*((ust_mesh%mesh%iface(iface,1,1)%centre-gc).scal.fn))*fn
 
+  case(bc_wall_isoth, bc_wall_flux, bc_wall_adiab)
+    ust_mesh%mesh%volume(ic2,1,1) = ust_mesh%mesh%volume(ic1,1,1)
+    ust_mesh%mesh%centre(ic2,1,1) = 2._krp*ust_mesh%mesh%iface(iface,1,1)%centre - ust_mesh%mesh%centre(ic1,1,1)
+
   case(bc_geo_period)
     call erreur("Development", "Initialization of periodic boundary conditions not yet implemented")
 
   case default
-    call erreur("Internal error", "unknown type of boundary conditions (init_ustboco_ghostcell)")
+    call erreur("Internal error", "unknown type of boundary conditions with ghostcell implementation)")
   endselect
 
 enddo

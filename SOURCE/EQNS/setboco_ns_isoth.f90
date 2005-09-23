@@ -32,7 +32,7 @@ type(st_field)   :: fld            ! fields
 integer    :: ifb, if, ip  ! index de liste, index de face limite et parametres
 integer    :: ic, ighost   ! index de cellule interieure, et de cellule fictive
 real(krp)  :: r_PG         ! perfect gas constant
-real(krp)  :: gPdc
+real(krp)  :: gPdc, temp
 type(v3d)  :: cgface, cg, normale ! face, cell center, face normale
 type(v3d)  :: dc           ! vector cell center - its projection 
                            ! on the face normale
@@ -51,6 +51,10 @@ if (unif == uniform) then
     cg     = ustdom%mesh%centre(ic,1,1)
     normale= ustdom%mesh%iface(if,1,1)%normale
 
+    ! extrapolated temperature on ghost cell (supposed symmetrical)
+    temp = 2._krp*bcns%temp_wall - fld%etatprim%tabscal(2)%scal(ic) / &
+           ( fld%etatprim%tabscal(1)%scal(ic) * r_PG )
+
     ! pressure
     !fld%etatprim%tabscal(2)%scal(ighost) = fld%etatprim%tabscal(2)%scal(ic)
     dc = (cgface - cg) - ( (cgface - cg).scal.normale ) * normale
@@ -59,9 +63,10 @@ if (unif == uniform) then
                                            gPdc
     ! density
     fld%etatprim%tabscal(1)%scal(ighost) = &
-                fld%etatprim%tabscal(2)%scal(ighost)/(r_PG*bcns%temp_wall) 
+                fld%etatprim%tabscal(2)%scal(ighost)/(r_PG*temp) 
     ! velocity
-    fld%etatprim%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)
+    !fld%etatprim%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)
+    fld%etatprim%tabvect(1)%vect(ighost) = - fld%etatprim%tabvect(1)%vect(ic)
 
   enddo
 
@@ -79,6 +84,10 @@ else
     cg     = ustdom%mesh%centre(ic,1,1)
     normale= ustdom%mesh%iface(if,1,1)%normale
 
+    ! extrapolated temperature on ghost cell (supposed symmetrical)
+    temp = 2._krp*bcns%temp(ifb) - fld%etatprim%tabscal(2)%scal(ic) / &
+           ( fld%etatprim%tabscal(1)%scal(ic) * r_PG )
+
     ! pressure
     !fld%etatprim%tabscal(2)%scal(ighost) = fld%etatprim%tabscal(2)%scal(ic)
     dc = (cgface - cg) - ( (cgface - cg).scal.normale ) * normale
@@ -87,9 +96,10 @@ else
                                            gPdc
     ! density
     fld%etatprim%tabscal(1)%scal(ighost) = &
-                fld%etatprim%tabscal(2)%scal(ighost)/(r_PG*bcns%temp(ifb))
+                fld%etatprim%tabscal(2)%scal(ighost)/(r_PG*temp)
     ! velocity
-    fld%etatprim%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)  
+    !fld%etatprim%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)  
+    fld%etatprim%tabvect(1)%vect(ighost) = - fld%etatprim%tabvect(1)%vect(ic)
 
   enddo
 
@@ -98,7 +108,8 @@ endif
 endsubroutine setboco_ns_isoth
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! jun 2005: creation
+! sept 2005: changed to ghost cell (velocity is symmetrical)
 !------------------------------------------------------------------------------!

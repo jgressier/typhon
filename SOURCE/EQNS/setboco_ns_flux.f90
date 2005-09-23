@@ -89,7 +89,7 @@ if (unif == uniform) then
     gTdc = gradT .scal. dc
     temp = fld%etatprim%tabscal(2)%scal(ic) / &
            ( fld%etatprim%tabscal(1)%scal(ic) * r_PG ) + gTdc - &
-           bcns%flux*abs( (cgface - cg).scal.normale )/conduct
+           2._krp*bcns%flux*abs( (cgface - cg).scal.normale )/conduct
     ! heat flux
     flux(ifb) = bcns%flux
 
@@ -103,7 +103,8 @@ if (unif == uniform) then
     fld%etatprim%tabscal(1)%scal(ighost) = &
                 fld%etatprim%tabscal(2)%scal(ighost)/(r_PG*temp) 
     ! velocity
-    fld%etatprim%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)
+    !fld%etatprim%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)
+    fld%etatprim%tabvect(1)%vect(ighost) = - fld%etatprim%tabvect(1)%vect(ic)
 
   enddo
 
@@ -149,7 +150,7 @@ else
     gTdc = gradT .scal. dc
     temp = fld%etatprim%tabscal(2)%scal(ic) / &
            ( fld%etatprim%tabscal(1)%scal(ic) * r_PG ) + gTdc - &
-           bcns%flux_nunif(ifb)*abs( (cgface - cg).scal.normale )/conduct
+           2._krp*bcns%flux_nunif(ifb)*abs( (cgface - cg).scal.normale )/conduct
 
     ! heat flux
     flux(ifb) = bcns%flux_nunif(ifb)
@@ -163,7 +164,8 @@ else
     fld%etatprim%tabscal(1)%scal(ighost) = &
                 fld%etatprim%tabscal(2)%scal(ighost)/(r_PG*temp)
     ! velocity
-    fld%etatprim%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)  
+    !fld%etatprim%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)  
+    fld%etatprim%tabvect(1)%vect(ighost) = - fld%etatprim%tabvect(1)%vect(ic)
 
   enddo
 
@@ -172,7 +174,8 @@ endif
 endsubroutine setboco_ns_flux
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
-! jun 2005: creation
+! jun  2005: creation
+! sept 2005: changed to ghost cell (velocity is symmetrical)
 !------------------------------------------------------------------------------!

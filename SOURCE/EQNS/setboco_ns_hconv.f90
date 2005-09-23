@@ -108,7 +108,8 @@ do ifb = 1, ustboco%nface
               fld%etatprim%tabscal(2)%scal(ighost)/(r_PG*temp)
 
   ! velocity
-  fld%etatprim%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)  
+  !fld%etatprim%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)  
+  fld%etatprim%tabvect(1)%vect(ighost) = - fld%etatprim%tabvect(1)%vect(ic)
 
 enddo
 
