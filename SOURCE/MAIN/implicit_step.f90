@@ -103,7 +103,7 @@ call delete(mat)
 
 !endselect
 
-if (ncp > 0) call erreur("Developpement","couplage interdit en implicite")
+!if (ncp > 0) call erreur("Developpement","couplage interdit en implicite")
 
 
 endsubroutine implicit_step
