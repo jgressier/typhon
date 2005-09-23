@@ -9,7 +9,7 @@
 !               ou non
 !
 !------------------------------------------------------------------------------!
-subroutine flux_to_res(dt, umesh, flux, residu, trait_jac, jacL, jacR)
+subroutine flux_to_res(dtloc, umesh, flux, residu, trait_jac, jacL, jacR)
 
 use TYPHMAKE
 use OUTPUT
@@ -21,10 +21,10 @@ use MATRIX_ARRAY
 implicit none
 
 ! -- INPUTS --
-real(krp)             :: dt         ! pas de temps CFL
-type(st_ustmesh)      :: umesh      ! domaine non structure a integrer
-type(st_genericfield) :: flux       ! tableaux des flux
-logical               :: trait_jac  ! choix de traitement des jacobiennes
+type(st_ustmesh)      :: umesh                   ! mesh properties
+real(krp)             :: dtloc(1:umesh%ncell)    ! local ou global time step
+type(st_genericfield) :: flux                    ! face flux
+logical               :: trait_jac               ! need to parse jacobians or not
 
 ! -- OUTPUTS --
 type(st_genericfield)   :: residu            ! champ de residus
@@ -92,12 +92,11 @@ enddo
 if (.not.trait_jac) then
   do ic1 = 1, umesh%ncell_int
     do ip = 1, residu%nscal
-      residu%tabscal(ip)%scal(ic1) = dt * residu%tabscal(ip)%scal(ic1) &
+      residu%tabscal(ip)%scal(ic1) = dtloc(ic1) * residu%tabscal(ip)%scal(ic1) &
                                      / umesh%mesh%volume(ic1,1,1)
     enddo
     do ip = 1, residu%nvect
-      residu%tabvect(ip)%vect(ic1) = dt * residu%tabvect(ip)%vect(ic1)  &
-                                     / umesh%mesh%volume(ic1,1,1)
+      residu%tabvect(ip)%vect(ic1) = (dtloc(ic1)/ umesh%mesh%volume(ic1,1,1)) * residu%tabvect(ip)%vect(ic1)  
     enddo
   enddo
 endif
@@ -106,7 +105,8 @@ endif
 endsubroutine flux_to_res
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! avr  2004 : creation de la procedure
+! sept 2005 : local time stepping
 !------------------------------------------------------------------------------!

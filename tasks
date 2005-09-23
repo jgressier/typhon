@@ -537,7 +537,7 @@ Task 0087 (Jérémie) : NS : Symmetric point for wall boundary conditions (Euler c
 - updated ZONE/init_connect_grid / removed ZONE/init_connect_ust
 - new file ZONE/init_ustboco_ghostcell.f90 (symmetric point from face)
 
--------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
 Task 0088 (Jérémie) : NS : increasing CFL number with convergence (bounded by CFL_MAX)
 ---------------------------------------------------------------------------------
 - CFL computation in MAIN/calc_zonetimestep, used in EQNS/calc_ns_timestep
@@ -548,6 +548,17 @@ Task 0088 (Jérémie) : NS : increasing CFL number with convergence (bounded by CF
 Task 0090 (Jérémie) : Opt : GEO3D optimization (array calls)
 ---------------------------------------------------------------------------------
 - flux_to_res : array computation of surf(:) * flux(:)
+
+---------------------------------------------------------------------------------
+Task 0095 (Jérémie) : Core : local time step
+---------------------------------------------------------------------------------
+- keep local time step in memory (MGRID)
+- new option for DTCALC : DTCALC = LOCAL_STABILITY_CONDITION
+
+---------------------------------------------------------------------------------
+Task 0096 (Jérémie) : NS : change default implicit method to BICGSTAB
+---------------------------------------------------------------------------------
+- BICGSTAB method, 50 iteration max, residual to reach: 1.e-1
 
 ---------------------------------------------------------------------------------
 Task 0100 (Jérémie) : IHM : Symbolic functions module

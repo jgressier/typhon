@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine explicit_step(dt, typtemps, defsolver, defspat, deftime, &
+subroutine explicit_step(dtloc, typtemps, defsolver, defspat, deftime, &
                          umesh, field, coupling, ncp)
 
 use TYPHMAKE
@@ -23,12 +23,12 @@ use MATRIX_ARRAY
 implicit none
 
 ! -- Declaration des entrees --
-real(krp)        :: dt         ! pas de temps CFL
 character        :: typtemps   ! type d'integration (stat, instat, period)
 type(mnu_solver) :: defsolver  ! type d'equation a resoudre
 type(mnu_spat)   :: defspat    ! parametres d'integration spatiale
 type(mnu_time)   :: deftime    ! parametres d'integration spatiale
 type(st_ustmesh) :: umesh      ! domaine non structure a integrer
+real(krp)        :: dtloc(1:umesh%ncell)         ! pas de temps CFL
 integer          :: ncp        ! nombre de couplages de la zone
 
 ! -- Declaration des entrees/sorties --
@@ -52,16 +52,16 @@ call new(flux, umesh%nface, field%nscal, field%nvect, 0)
 
 select case(defsolver%typ_solver)
 case(solNS)
-  call integration_ns_ust(dt, defsolver, defspat, umesh, field, flux, .false., jacL, jacR)
+  call integration_ns_ust(defsolver, defspat, umesh, field, flux, .false., jacL, jacR)
 case(solKDIF)
-  call integration_kdif_ust(dt, defsolver, defspat, umesh, field, flux, .false., jacL, jacR)
+  call integration_kdif_ust(defsolver, defspat, umesh, field, flux, .false., jacL, jacR)
 case default
   call erreur("incoherence interne (explicit_step)", "solveur inconnu")
 endselect
 
 ! -- flux surfaciques -> flux de surfaces et calcul des residus  --
 
-call flux_to_res(dt, umesh, flux, field%residu, .false., jacL, jacR)
+call flux_to_res(dtloc, umesh, flux, field%residu, .false., jacL, jacR)
 
 ! -- calcul pour correction en couplage --
 
@@ -72,7 +72,7 @@ select case(typtemps)
  ! le couplage avec echanges espaces
  !DVT : flux%tabscal(1) !
  if (ncp>0) then
-   call accumulfluxcorr(dt, defsolver, umesh%nboco, umesh%boco, &
+   call accumulfluxcorr(dtloc, defsolver, umesh%nboco, umesh%boco, &
                         umesh%nface, flux%tabscal(1)%scal, ncp, &
                         coupling, field, umesh, defspat)
  endif
@@ -83,9 +83,8 @@ call delete(flux)
 
 
 endsubroutine explicit_step
-
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! changes history
 !
 ! avr  2003 : creation de la procedure
 ! juil 2003 : ajout corrections de  flux
@@ -93,4 +92,5 @@ endsubroutine explicit_step
 ! avr  2004 : changement de nom  integration_ustdomaine -> integration_grid
 ! avr  2004 : decoupage integration_grid -> explicit_step
 ! july 2004 : call Navier-Stokes solver integration
+! sept 2005 : local time stepping
 !------------------------------------------------------------------------------!

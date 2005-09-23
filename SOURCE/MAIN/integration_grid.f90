@@ -42,14 +42,14 @@ type(mnu_zonecoupling), dimension(1:ncoupling) &
 select case(deftime%tps_meth)
 
 case(tps_expl)
-  call explicit_step(dt, typtemps, defsolver, defspat, deftime, grid%umesh, grid%info%field_loc, &
+  call explicit_step(grid%dtloc, typtemps, defsolver, defspat, deftime, grid%umesh, grid%info%field_loc, &
                      coupling, ncoupling)
 
 case(tps_rk)
   call erreur("developpement","methode RUNGE KUTTA non implementee")
 
 case(tps_impl)
-  call implicit_step(dt, typtemps, defsolver, defspat, deftime, grid%umesh, grid%info%field_loc, &
+  call implicit_step(grid%dtloc, typtemps, defsolver, defspat, deftime, grid%umesh, grid%info%field_loc, &
                      coupling, ncoupling)
 
 case(tps_dualt)
@@ -62,9 +62,8 @@ endselect
 
 
 endsubroutine integration_grid
-
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! changes history
 !
 ! avr  2003 : creation de la procedure
 ! juil 2003 : ajout corrections de  flux
@@ -72,4 +71,5 @@ endsubroutine integration_grid
 ! avr  2004 : changement de nom  integration_ustdomaine -> integration_grid
 !             appel des routines d'integration temporelle
 ! oct  2004 : field chained list
+! sept 2005 : local time stepping
 !------------------------------------------------------------------------------!

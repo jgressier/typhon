@@ -5,7 +5,7 @@
 !   Build implicit system with jacobian matrices to BDLU structure (SPARSE MAT)
 !
 !------------------------------------------------------------------------------!
-subroutine build_implicit_bdlu(dt, umesh, jacL, jacR, matbdlu)
+subroutine build_implicit_bdlu(dtloc, umesh, jacL, jacR, matbdlu)
 
 use TYPHMAKE
 use OUTPUT
@@ -20,9 +20,9 @@ use SPARSE_MAT
 implicit none
 
 ! -- Inputs --
-real(krp)        :: dt
-type(mnu_time)   :: deftime      ! parametres d'integration spatiale
 type(st_ustmesh) :: umesh        ! domaine non structure a integrer
+real(krp)        :: dtloc(1:umesh%ncell)
+type(mnu_time)   :: deftime      ! parametres d'integration spatiale
 type(st_mattab)  :: jacL, jacR   ! tableaux de jacobiennes des flux
 
 ! -- Outputs --
@@ -45,7 +45,7 @@ matbdlu%couple%fils(1:matbdlu%ncouple, 1:2) = umesh%facecell%fils(1:matbdlu%ncou
 do ic = 1, umesh%ncell_int
   matbdlu%diag (1:dimb, 1:dimb, ic) = 0._krp
   do i = 1, dimb
-    matbdlu%diag(i, i, ic) = umesh%mesh%volume(ic,1,1) / dt
+    matbdlu%diag(i, i, ic) = umesh%mesh%volume(ic,1,1) / dtloc(ic)
   enddo
 enddo
 

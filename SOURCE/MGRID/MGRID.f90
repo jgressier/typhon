@@ -59,6 +59,7 @@ type st_grid
                           :: bocofield  ! chained list of generic fields (sca, vec, tens)
                                         !   for boundary conditions
   type(st_grd_optmem)     :: optmem     ! 
+  real(krp), pointer      :: dtloc(:)   ! array of local timestep
 endtype st_grid
 
 
@@ -98,6 +99,7 @@ integer        :: id
 
   nullify(grid%next)
   nullify(grid%subgrid)
+  nullify(grid%dtloc)
 
 endsubroutine new_grid
 
@@ -160,6 +162,7 @@ type(st_grid)  :: grid
   call grid_dealloc_gradcond(grid) 
   call delete(grid%umesh)
   call delete_chainedfield(grid%field)
+  if (associated(grid%dtloc)) deallocate(grid%dtloc)
 
   ! destruction des sous-grilles
   call delete_chainedgrid(grid%subgrid)

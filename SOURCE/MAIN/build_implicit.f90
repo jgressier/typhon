@@ -5,7 +5,7 @@
 !   Build implicit system with jacobian matrices to different structures
 !
 !------------------------------------------------------------------------------!
-subroutine build_implicit(dt, deftime, umesh, jacL, jacR, mat, residu)
+subroutine build_implicit(dtloc, deftime, umesh, jacL, jacR, mat, residu)
 
 use TYPHMAKE
 use OUTPUT
@@ -20,9 +20,9 @@ use SPARSE_MAT
 implicit none
 
 ! -- Inputs --
-real(krp)        :: dt
-type(mnu_time)   :: deftime      ! time integration parameters
 type(st_ustmesh) :: umesh        ! unstructured mesh
+real(krp)        :: dtloc(1:umesh%ncell)
+type(mnu_time)   :: deftime      ! time integration parameters
 type(st_mattab)  :: jacL, jacR   ! jacobian matrices related to faces
 
 
@@ -55,10 +55,10 @@ mat%type = deftime%implicite%storage
 select case(mat%type)
 
 case(mat_dlu)
-  call build_implicit_dlu(dt, umesh, jacL, jacR, mat%dlu)
+  call build_implicit_dlu(dtloc, umesh, jacL, jacR, mat%dlu)
 
 case(mat_bdlu)
-  call build_implicit_bdlu(dt, umesh, jacL, jacR, mat%bdlu)
+  call build_implicit_bdlu(dtloc, umesh, jacL, jacR, mat%bdlu)
 
 case(mat_crs, mat_bcrs)
   call erreur("development","unexpected matrix structure (not yet implemented)")

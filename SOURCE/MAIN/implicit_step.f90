@@ -5,7 +5,7 @@
 !   Implicit Integration of the domain
 !
 !------------------------------------------------------------------------------!
-subroutine implicit_step(dt, typtemps, defsolver, defspat, deftime, &
+subroutine implicit_step(dtloc, typtemps, defsolver, defspat, deftime, &
                          umesh, field, coupling, ncp)
 
 use TYPHMAKE
@@ -22,12 +22,12 @@ use MENU_ZONECOUPLING
 implicit none
 
 ! -- Inputs --
-real(krp)        :: dt         ! pas de temps CFL
 character        :: typtemps   ! type d'integration (stat, instat, period)
 type(mnu_solver) :: defsolver  ! type d'equation a resoudre
 type(mnu_spat)   :: defspat    ! parametres d'integration spatiale
 type(mnu_time)   :: deftime    ! parametres d'integration spatiale
 type(st_ustmesh) :: umesh      ! domaine non structure a integrer
+real(krp)        :: dtloc(1:umesh%ncell)         ! pas de temps CFL
 integer          :: ncp        ! nombre de couplages de la zone
 
 ! -- Input/output --
@@ -57,16 +57,16 @@ call new(flux, umesh%nface, field%nscal, field%nvect, 0)
 
 select case(defsolver%typ_solver)
 case(solKDIF)
-  call integration_kdif_ust(dt, defsolver, defspat, umesh, field, flux, .true., jacL, jacR)
+  call integration_kdif_ust(defsolver, defspat, umesh, field, flux, .true., jacL, jacR)
 case(solNS)
-  call integration_ns_ust(dt, defsolver, defspat, umesh, field, flux, .true., jacL, jacR)
+  call integration_ns_ust(defsolver, defspat, umesh, field, flux, .true., jacL, jacR)
 case default
   call erreur("internal error (implicit_step)", "unknown or unexpected solver")
 endselect
 
 ! -- flux surfaciques -> flux de surfaces et calcul des residus  --
 
-call flux_to_res(dt, umesh, flux, field%residu, .true., jacL, jacR)
+call flux_to_res(dtloc, umesh, flux, field%residu, .true., jacL, jacR)
 
 call delete(flux)
 
@@ -74,7 +74,7 @@ call delete(flux)
 ! build implicit system
 !--------------------------------------------------
 
-call build_implicit(dt, deftime, umesh, jacL, jacR, mat, field%residu)
+call build_implicit(dtloc, deftime, umesh, jacL, jacR, mat, field%residu)
 
 call delete(jacL)
 call delete(jacR)
@@ -113,4 +113,5 @@ endsubroutine implicit_step
 ! Apr  2004 : creation
 ! Aug  2005 : split / call build_implicit to handle different structures
 !           : split / call implicit_solve 
+! sept 2005 : local time stepping
 !------------------------------------------------------------------------------!

@@ -37,21 +37,19 @@ Details:
 
 Task Dévlp.    début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
-0120 Emmanuel    21/09 23/09 Debug Truncation of Pi/P to 1
-0119 Emmanuel    20/09 23/09 Coupl Implicit coupling
-0118 Emmanuel    20/09 23/09 Debug Implicit warnings
-0117 Emmanuel    22/09 23/09 NS    Change in CFL computation
-0116 Emmanuel    16/09 19/09 Coupl Maximum number of cycles
-0115 Emmanuel    08/09       NS/KD Initialization with a file
-0114 Emmanuel    08/09 08/09 NS    Linear viscosity
-0113 Emmanuel    07/09 07/09 Out   Periodical writing of interface temperature
-0112 Emmanuel    07/09 07/09 NS    Constant viscosity
-0111 Emmanuel    01/09 01/09 NS    "Real" heat flux applied at boundaries
-0110 Emmanuel    01/09 01/09 NS    Non uniform thermal boundary conditions
-0109 Emmanuel    01/09 01/09 KDIF  Adiabatic boundary condition
-0108 Emmanuel    01/09 01/09 KDIF  Change in convection and flux boundary condition
-0106 Emmanuel    24/06 31/08 Coupl Fluid - solid coupling + NRG case
-0107 Emmanuel    30/08 31/08 Out   Change in tecplot output : 1 file per zone
+0120 Emmanuel  21/09 23/09 Debug Truncation of Pi/P to 1
+0119 Emmanuel  20/09 23/09 Coupl Implicit coupling
+0118 Emmanuel  20/09 23/09 Debug Implicit warnings
+0117 Emmanuel  22/09 23/09 NS    Change in CFL computation
+0116 Emmanuel  16/09 19/09 Coupl Maximum number of cycles
+0115 Emmanuel  08/09       NS/KD Initialization with a file
+0114 Emmanuel  08/09 08/09 NS    Linear viscosity
+0113 Emmanuel  07/09 07/09 Out   Periodical writing of interface temperature
+0112 Emmanuel  07/09 07/09 NS    Constant viscosity
+0111 Emmanuel  01/09 01/09 NS    "Real" heat flux applied at boundaries
+0110 Emmanuel  01/09 01/09 NS    Non uniform thermal boundary conditions
+0109 Emmanuel  01/09 01/09 KDIF  Adiabatic boundary condition
+0108 Emmanuel  01/09 01/09 KDIF  Change in convection and flux boundary condition
 0041 Jérémie   01/07       Solv  Inversion Gauss-Seidel
 0063 Jérémie               Out   Tecplot outputs : FEBLOCK format and output of scalars & vectors
 0064 Jérémie               Out   CGNS outputs
@@ -62,6 +60,10 @@ Task Dévlp.    début fin   Type  Développement
 0086 Jérémie   22/08 26/08 NS    Implicit jacobian matrices for HLL fluxes & BICGSTAB
 0087 Jérémie   26/08 28/08 NS    Symmetric point for wall boundary conditions (Euler computations)
 0088 Jérémie   29/08 29/08 NS    increasing CFL number with convergence (bounded by CFL_MAX)
+0095 Jérémie   23/09 23/09 Core  local time stepping
+0096 Jérémie   23/09 23/09 NS    change default implicit method to BICGSTAB, 50 it, conv 1e-1
+0106 Emmanuel  24/06 31/08 Coupl Fluid - solid coupling + NRG case
+0107 Emmanuel  30/08 31/08 Out   Change in tecplot output : 1 file per zone
      Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
                            Make  Restructuration de MAIN/integration_cycle (split)
                            Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)

@@ -7,7 +7,7 @@
 !   - jacobian matrices (if needed)
 !
 !------------------------------------------------------------------------------!
-subroutine integration_kdif_ust(dt, defsolver, defspat, domaine, field, flux, &
+subroutine integration_kdif_ust(defsolver, defspat, domaine, field, flux, &
                                 calc_jac, jacL, jacR)
 
 use TYPHMAKE
@@ -23,7 +23,6 @@ use MATRIX_ARRAY
 implicit none
 
 ! -- Declaration des entrees --
-real(krp)        :: dt               ! pas de temps CFL
 type(mnu_solver) :: defsolver        ! type d'equation a resoudre
 type(mnu_spat)   :: defspat          ! parametres d'integration spatiale
 type(st_ustmesh) :: domaine          ! domaine non structure a integrer

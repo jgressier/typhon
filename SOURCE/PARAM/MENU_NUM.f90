@@ -23,8 +23,9 @@ implicit none
 !character, parameter :: periodique     = 'P'
 
 ! -- Constantes pour le calcul du pas de temps
-integer(kpp), parameter :: given_dt  = 1
-integer(kpp), parameter :: stab_cond = 2
+integer(kpp), parameter :: given_dt      = 1
+integer(kpp), parameter :: stab_cond     = 2
+integer(kpp), parameter :: loc_stab_cond = 3
 
 ! -- Constantes pour la methode d'integration temporelle
 integer(kpp), parameter :: tps_expl  = 10   ! integration explicite basique
@@ -117,7 +118,6 @@ endtype mnu_imp
 type mnu_time
   integer(kpp)    :: temps      ! (S)tationnaire, (I)nstationnaire, (P)eriodique
   integer(kpp)    :: tps_meth   ! methode d'integration temporelle
-  logical         :: local_dt   ! methode de calcul du pas de temps (global/local)
   integer(kpp)    :: stab_meth  ! methode de calcul de la stabilite
   real(krp)       :: dt         ! constant time step (if selected)
   real(krp)       :: stabnb, stabnb_max ! Stability number (CFL/Fourier) and max

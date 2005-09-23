@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine accumulfluxcorr(dt, def_solver, domainenboco, domaineboco, &
+subroutine accumulfluxcorr(dtloc, def_solver, domainenboco, domaineboco, &
                            nface, flux, ncoupling, coupling, field, umesh, &
                            defspat)
                            
@@ -23,7 +23,8 @@ use MENU_NUM
 implicit none
 
 ! -- Declaration des entrees --
-real(krp)        :: dt               ! CFL time step
+type(st_ustmesh) :: umesh            ! unstructured domain
+real(krp)        :: dtloc(1:umesh%ncell)        ! CFL time step
 type(mnu_solver) :: def_solver       ! solver properties
 integer          :: domainenboco     ! number of domain boundary conditions
 type(st_ustboco), dimension(1:domainenboco) &
@@ -32,7 +33,6 @@ integer          :: nface            ! number of faces in domain
 real(krp), dimension(1:nface) &
                  :: flux
 integer          :: ncoupling        ! number of couplings in zone
-type(st_ustmesh) :: umesh            ! unstructured domain
 type(mnu_spat)   :: defspat          ! spatial integration parameters
 type(st_field)   :: field            ! field
 
@@ -68,7 +68,7 @@ do ic =1, ncoupling
           rflux = flux(if)
           etatcons = coupling(ic)%zcoupling%etatcons%tabscal(1)%scal(i)
           coupling(ic)%zcoupling%etatcons%tabscal(1)%scal(i) = etatcons + &
-                                                               rflux * dt
+                                                               rflux * dtloc(i)
 
         case(solNS)
           ! the heat diffusion flux is re-computed
@@ -134,7 +134,7 @@ do ic =1, ncoupling
                   umesh%mesh%iface(if,1,1)%surface
         etatcons = coupling(ic)%zcoupling%etatcons%tabscal(1)%scal(i)
         coupling(ic)%zcoupling%etatcons%tabscal(1)%scal(i) = etatcons + &
-                                                             rflux * dt
+                                                             rflux * dtloc(i)
 
       case default
         call erreur("Incoherence interne (accumulfluxcorr)", &

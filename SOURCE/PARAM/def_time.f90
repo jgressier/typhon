@@ -44,7 +44,7 @@ call print_info(5,"- Definition of time integration parameters")
 pblock => block
 call seekrpmblock(pblock, "TIME_PARAM", 0, pcour, nkey)
 
-if (nkey /= 1) call erreur("lecture de menu", &
+if (nkey /= 1) call erreur("parameters parsing", &
                            "bloc TIME_PARAM inexistant ou surnumeraire")
 
 ! -- type de calcul du pas de temps, et parametre associes
@@ -52,17 +52,18 @@ if (nkey /= 1) call erreur("lecture de menu", &
 call rpmgetkeyvalstr(pcour, "DTCALC", str, "STABILITY_CONDITION")
 deftime%stab_meth = inull
 
-if (samestring(str,"STABILITY_CONDITION")) deftime%stab_meth = stab_cond
-if (samestring(str,"GIVEN"))               deftime%stab_meth = given_dt
+if (samestring(str,"LOCAL_STABILITY_CONDITION")) deftime%stab_meth = loc_stab_cond
+if (samestring(str,"STABILITY_CONDITION"))       deftime%stab_meth = stab_cond
+if (samestring(str,"GIVEN"))                     deftime%stab_meth = given_dt
 
 if (deftime%stab_meth == inull) &
-  call erreur("lecture de menu","methode de calcul DTCALC inconnue")
+  call erreur("parameters parsing","methode de calcul DTCALC inconnue")
 
 select case(deftime%stab_meth)
 case(given_dt)
   call print_info(7,"  . user defined time step")
   call rpmgetkeyvalreal(pcour, "DT", deftime%dt)
-case(stab_cond)
+case(stab_cond, loc_stab_cond)
   call print_info(7,"  . time step defined by stability condition")
   select case(solver)
   case(solKDIF)
@@ -71,17 +72,13 @@ case(stab_cond)
     call rpmgetkeyvalreal(pcour, "CFL",     deftime%stabnb)
     call rpmgetkeyvalreal(pcour, "CFL_MAX", deftime%stabnb_max, deftime%stabnb)
   case default
-    call erreur("lecture de menu","solveur inconnu (definition temporelle)")
+    call erreur("parameters parsing","solveur inconnu (definition temporelle)")
   endselect
 endselect
 
 ! -- si stationnaire, critere d'arret --
 
 call  rpmgetkeyvalreal(pcour, "RESIDUALS", deftime%maxres, prj%residumax)
-
-! -- type d'integration temporelle --
-
-deftime%local_dt = .false.
 
 ! -- type de schema temporel --
 
@@ -94,7 +91,7 @@ if (samestring(str,"IMPLICIT"))    deftime%tps_meth = tps_impl
 if (samestring(str,"DUAL-TIME"))   deftime%tps_meth = tps_dualt
 
 if (deftime%tps_meth == inull) &
-  call erreur("lecture de menu","type d'integration temporelle inconnu")
+  call erreur("parameters parsing","type d'integration temporelle inconnu")
 
 select case(deftime%tps_meth)
 !------------------------------------------------------
@@ -121,10 +118,10 @@ case(tps_impl)
 
   select case(solver)
   case(solKDIF)
-    deftime%implicite%methode = alg_jac
+    deftime%implicite%methode = alg_cgs
     deftime%implicite%storage = mat_dlu
   case(solNS)
-    deftime%implicite%methode = alg_bicg
+    deftime%implicite%methode = alg_bicgstab
     deftime%implicite%storage = mat_bdlu
   case default
     call erreur("internal error","unexpected solver for implicit method")
@@ -181,8 +178,8 @@ case(tps_impl)
 
   case(alg_bicgstab)
     call print_info(9,"    Bi-Conjugate Gradient Stabilized iterative inversion (BiCG-Stab)")
-    call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 10_kpp)
-    call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-4_krp)
+    call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 50_kpp)
+    call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-1_krp)
 
   case default
     call erreur("algebra","unknown inversion method")

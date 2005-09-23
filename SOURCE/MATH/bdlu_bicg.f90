@@ -88,7 +88,7 @@ do while ((erreur >= ref*def_impli%maxres).and.(nit <= def_impli%max_it))
   ! error computation
   erreur  = abs(alpha)*sum(abs(p1(1:dim)))
   sol(1:dim) = sol(1:dim) + alpha*p1(1:dim)
-  print*,'conv bicg',nit,log10(erreur/ref), rho1
+  !print*,'conv bicg',nit,log10(erreur/ref), rho1
 
   ! prepare next iteration
   r1(1:dim) = r1(1:dim) - alpha*q1(1:dim) 
