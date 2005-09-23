@@ -13,6 +13,7 @@ module EQNS
 
 use TYPHMAKE   ! Definition de la precision
 use GEO3D      ! Compilation conditionnelle ? avec GEO3D_dp
+use OUTPUT 
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
@@ -129,6 +130,10 @@ real(krp)       :: g1, fm, ts, a, mach, m2
 
   g1   = fluid%gamma -1._krp
   fm   = (pi/ps)**(g1/fluid%gamma)
+  if (fm < 1._krp) then
+    call print_warning("Bad ratio Pi/P : truncated to 1.")
+    fm = 1._krp
+  endif
   mach = sqrt((fm-1._krp)*2._krp/g1)
   ts   = ti/fm
   a    = sqrt(fluid%gamma*fluid%r_const*ts)
