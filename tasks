@@ -494,6 +494,12 @@ Task 0078 (Jérémie) : Mesh : Scale function
 - implemented in MESH/calc_ust_mesh
 - SCALE parameter in MESH block
 
+---------------------------------------------------------------------------------
+Task 0079 (Jérémie) : NS : AUSM-M scheme
+---------------------------------------------------------------------------------
+- AUSM-M
+- no jacobian matrix
+
 -------------------------------------------------------------------------------
 Task 0080 (Jérémie) : Solve : BICG, BICG-JACOBI, CGS for DLU sparse matrix
 ---------------------------------------------------------------------------------

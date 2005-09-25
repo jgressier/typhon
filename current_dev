@@ -54,6 +54,7 @@ Task Dévlp.    début fin   Type  Développement
 0063 Jérémie               Out   Tecplot outputs : FEBLOCK format and output of scalars & vectors
 0064 Jérémie               Out   CGNS outputs
 0078 Jérémie   24/09 25/09 Mesh  Scale function (SCALE parameter)
+0079 Jérémie   25/09 25/09 NS    AUSM-M numerical scheme
      Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
                            Make  Restructuration de MAIN/integration_cycle (split)
                            Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)

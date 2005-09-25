@@ -13,6 +13,7 @@ EQNS_MOD = EQNS.$(MOD)      \
 
 
 EQNS_OBJ := $(EQNS_MOD:.$(MOD)=.o)    \
+            calc_flux_ausmm.o         \
             calc_flux_hlle.o          \
             calc_flux_hllc.o          \
             calc_flux_viscous.o       \
