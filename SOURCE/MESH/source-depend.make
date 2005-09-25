@@ -26,6 +26,7 @@ MESH_OBJ = $(MESH_MOD:.$(MOD)=.o)  \
            calc_ustmesh.o          \
            extract_centre.o        \
            reorder_ustconnect.o    \
+           scale_mesh.o            \
            test_ustmesh.o          \
            verify_cellvtex.o
 

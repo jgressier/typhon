@@ -29,14 +29,14 @@ character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- Debut de la procedure --
 
-call print_info(5,"- Definition du maillage")
+call print_info(5,"- mesh definition")
 
 ! -- Recherche du BLOCK:MESH
 
 pblock => block
 call seekrpmblock(pblock, "MESH", 0, pcour, nkey)
 
-if (nkey /= 1) call erreur("lecture de menu", &
+if (nkey /= 1) call erreur("parameter parsing", &
                            "bloc MESH inexistant ou surnumeraire")
 
 ! -- lecture du format
@@ -53,12 +53,17 @@ if (defmesh%format == cnull) call erreur("lecture de menu","format de maillage i
 call rpmgetkeyvalstr(pcour, "FILE", str)
 defmesh%fichier = str
 
+! -- read scale factor (default 1.)
+
+call rpmgetkeyvalreal(pcour, "SCALE", defmesh%scale, 1._krp)
+
 
 endsubroutine def_mesh
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! nov  2002 : creation de la procedure
 ! fev  2004 : lecture de format TYPHMSH (format interne)
+! sept 2005 : add scale factor
 !------------------------------------------------------------------------------!

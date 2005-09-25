@@ -1,11 +1,9 @@
 !------------------------------------------------------------------------------!
-! MODULE : MENU_MESH                      Auteur : J. Gressier
-!                                         Date   : Novembre 2002
-! Fonction                                Modif  : 
+! MODULE : MENU_MESH                      Authors : J. Gressier
+!                                         Created : November 2002
+! Fonction
 !   Definition des structures pour les entrees du programme TYPHON
 !   Structures pour la lecture de maillage
-!
-! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
 
@@ -27,6 +25,7 @@ implicit none
 type mnu_mesh
   character             :: format      ! cf VARCOM
   character(len=strlen) :: fichier     ! nom de fichier
+  real(krp)             :: scale       ! scale factor
 endtype mnu_mesh
 
 
@@ -42,7 +41,12 @@ endtype mnu_mesh
 
 
 endmodule MENU_MESH
-
+!------------------------------------------------------------------------------!
+! Changes history
+!
+! nov  2002 : created
+! sept 2005 : add scale factor
+!------------------------------------------------------------------------------!
 
 
 

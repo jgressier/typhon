@@ -488,6 +488,12 @@ Task 0077 (Jérémie) : Make : DEFFIELD restructuration
              GENFIELD  (GENERICFIELD  structure)
              BASEFIELD (SCA/VEC/TEN FIELD structures)
 
+---------------------------------------------------------------------------------
+Task 0078 (Jérémie) : Mesh : Scale function
+---------------------------------------------------------------------------------
+- implemented in MESH/calc_ust_mesh
+- SCALE parameter in MESH block
+
 -------------------------------------------------------------------------------
 Task 0080 (Jérémie) : Solve : BICG, BICG-JACOBI, CGS for DLU sparse matrix
 ---------------------------------------------------------------------------------
@@ -521,7 +527,7 @@ Task 0085 (Jérémie) : NS : HLLC scheme
 - HLLC scheme (Batten version) in EQNS
 
 -------------------------------------------------------------------------------
-Task 0086 (Jérémie) : NS : Implicit jacobian matrices for HLL fluxes
+Task 0086 (Jérémie) : NS : Implicit jacobian matrices for HLL fluxes & BICGSTAB
 ---------------------------------------------------------------------------------
 - add call to jacobian matrix in EQNS/calc_flux_hlle and EQNS/calc_flux_hllc
 - HLLE jacobian matrix compted by EQNS/calc_jac_hll and EQNS/calc_jacflux (true jacobian)
@@ -543,6 +549,11 @@ Task 0088 (Jérémie) : NS : increasing CFL number with convergence (bounded by CF
 - CFL computation in MAIN/calc_zonetimestep, used in EQNS/calc_ns_timestep
 - reading CFL_MAX (default assigned to CFL value) in PARAM/def_time
 - !!! to be tested with unsteady computations !!!
+
+-------------------------------------------------------------------------------
+Task 0089 (Jérémie) : NS : MUSCL correction
+---------------------------------------------------------------------------------
+- addition of gradients were commented !
 
 ---------------------------------------------------------------------------------
 Task 0090 (Jérémie) : Opt : GEO3D optimization (array calls)

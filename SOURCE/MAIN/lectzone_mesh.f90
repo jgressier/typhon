@@ -49,11 +49,6 @@ case(fmt_CGNS) ! Format de fichier CGNS
 case(fmt_TYPHMSH) ! Format de fichier CGNS
 
   call readtyphmshfile(15, zone%defmesh%fichier, zone)
-  !call print_info(2, "* C TYPHON")
-  !if (cgnsworld%nbase /= 1) call erreur("CGNS -> TYPHON",&
-  !                                      "trop de bases dans la structure CGNS")
-
-  !call cgns2typhon_zone(cgnsworld%base(1), zone)
 
 case default
   call erreur("Lecture de maillage","format de maillage inconnu")

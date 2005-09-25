@@ -10,11 +10,10 @@ Liste des développement courants
 Roadmap
 --------------------------------------------------------------------
 0.2 : NS  development
-   - implicitation of Euler fluxes
-   - viscous fluxes + simplified implicitation (needs block spmat inversion)
    - boundary condition implicitation (needs data structure reorganization)
    + output restructuration (1)
-   + optimizationgradient computation
+   + optimization gradient computation 
+   + external managing (file typhon_stop)
 0.3 : MPI development / multigrid acceleration
    - multigrid aggregation process
    - splitting of a mesh & computation
@@ -54,6 +53,17 @@ Task Dévlp.    début fin   Type  Développement
 0041 Jérémie   01/07       Solv  Inversion Gauss-Seidel
 0063 Jérémie               Out   Tecplot outputs : FEBLOCK format and output of scalars & vectors
 0064 Jérémie               Out   CGNS outputs
+0078 Jérémie   24/09 25/09 Mesh  Scale function (SCALE parameter)
+     Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
+                           Make  Restructuration de MAIN/integration_cycle (split)
+                           Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
+
+------------------------------------------------------------------------
+release 0.2.0 - 4th Septembre 2005
+------------------------------------------------------------------------
+
+Task Dévlp.    début fin   Type  Développement
+--------------------------------------------------------------------------------------------------------
 0071 Jérémie   20/07 08/08 Core  Implicitation structure reorganisation (sparse matrix)
 0072 Jérémie   09/08 09/08 Core  Implicitation reorganisation (include ghost cells)
 0080 Jérémie   09/08 10/08 Solv  BICG, BICG-JACOBI, CGS for DLU sparse matrix
@@ -61,6 +71,13 @@ Task Dévlp.    début fin   Type  Développement
 0086 Jérémie   22/08 26/08 NS    Implicit jacobian matrices for HLL fluxes & BICGSTAB
 0087 Jérémie   26/08 28/08 NS    Symmetric point for wall boundary conditions (Euler computations)
 0088 Jérémie   29/08 29/08 NS    increasing CFL number with convergence (bounded by CFL_MAX)
+0089 Jérémie   29/08 29/08 NS    MUSCL correction
+0106 Emmanuel  24/06 31/08 Coupl Fluid - solid coupling + NRG case
+0107 Emmanuel  30/08 31/08 Out   Change in tecplot output : 1 file per zone
+0108 Emmanuel  01/09 01/09 KDIF  Change in convection and flux boundary condition
+0109 Emmanuel  01/09 01/09 KDIF  Adiabatic boundary condition
+0110 Emmanuel  01/09 01/09 NS    Non uniform thermal boundary conditions
+0111 Emmanuel  01/09 01/09 NS    "Real" heat flux applied at boundaries
 0095 Jérémie   23/09 23/09 Core  local time stepping
 0096 Jérémie   23/09 23/09 NS    change default implicit method to BICGSTAB, 50 it, conv 1e-1
 0106 Emmanuel  24/06 31/08 Coupl Fluid - solid coupling + NRG case

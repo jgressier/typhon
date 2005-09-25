@@ -28,7 +28,7 @@ type(st_face), dimension(1:nflux) &
                       :: face             ! donnees geometriques des faces
 type(st_nsetat), dimension(1:nflux) &
                       :: cell             ! champs des valeurs primitives
-real(krp), dimension(nflux) &
+real(krp), dimension(1:nflux) &
                       :: vn
 
 ! -- Outputs --

@@ -31,12 +31,12 @@ type(st_grid), pointer :: pgrid
 select case(zone%defsolver%typ_solver)
 
 case(solKDIF)
-  call calc_ustmesh(zone%grid%umesh)
+  call calc_ustmesh(zone%grid%umesh, zone%defmesh)
 
 case(solVORTEX, solNS)
   pgrid => zone%grid
   do while (associated(pgrid))
-    call calc_ustmesh(pgrid%umesh)
+    call calc_ustmesh(pgrid%umesh, zone%defmesh)
     pgrid => pgrid%next
   enddo
     

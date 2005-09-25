@@ -17,29 +17,33 @@
 !   changent).
 !
 !------------------------------------------------------------------------------!
-subroutine calc_ustmesh(ust_mesh)
+subroutine calc_ustmesh(ust_mesh, defmesh)
 
 use TYPHMAKE
 use OUTPUT
 use USTMESH
+use MENU_MESH
 
 implicit none
 
-! -- Declaration des entrees --
+! -- Inputs --
+type(mnu_mesh) :: defmesh
 
-! -- Declaration des entrees/sorties --
+! -- Inputs/Outputs --
 type(st_ustmesh) :: ust_mesh
 
-! -- Declaration des sorties --
+! -- Ouputs --
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 integer                                :: i
 type(v3d), dimension(:),   allocatable :: cgface
 type(v3d), dimension(:),   allocatable :: midcell   ! centres approches de cellule
 type(v3d), dimension(:,:), allocatable :: cg_elem   ! centres de volume elementaire
 real(krp), dimension(:,:), allocatable :: vol_elem  ! volumes elementaires
 
-! -- Debut de la procedure --
+! -- BODY --
+
+call scale_mesh(ust_mesh%mesh, defmesh%scale)
 
 call test_ustmesh(ust_mesh)
 
