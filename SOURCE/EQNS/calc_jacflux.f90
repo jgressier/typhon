@@ -61,7 +61,7 @@ do if = 1, nflux
 
   ! -- energy jacobian --
 
-  jac%mat(2, 1,   ideb-1+if) = vn(if)*(g*en - g1*v2)
+  jac%mat(2, 1,   ideb-1+if) = vn(if)*(g1*v2 - g*en)
   jac%mat(2, 2,   ideb-1+if) = vn(if)*g
   jac%mat(2, 3:5, ideb-1+if) = (g*en - .5_krp*g1*v2)*tab(fn) - g1*vn(if)*tab(cell(if)%velocity)
 
