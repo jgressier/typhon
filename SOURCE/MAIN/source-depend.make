@@ -49,6 +49,8 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            integrationmacro_zone.o  \
            lecture_maillage.o       \
            lectzone_mesh.o          \
+           mpi_strategy_pre.o       \
+           mpi_strategy_post.o      \
            output_result.o          \
            update_couplingboco.o      
 

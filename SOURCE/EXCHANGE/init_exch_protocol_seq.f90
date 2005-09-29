@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : init_exch_protocol                  Auteur : J. Gressier
 !                                                 Date   : July 2004
-! Fonction                                        Modif  : see history
+! Fonction
 !   Initialization of exchange protocol
 !
 ! Defauts/Limitations/Divers :
@@ -13,6 +13,7 @@ subroutine init_exch_protocol(winfo)
 use TYPHMAKE
 use OUTPUT
 use MODINFO
+use VARCOM
 
 implicit none
 
@@ -29,8 +30,9 @@ type(st_info) :: winfo
 call print_info(5,"initialization sequential exchanges")
 
 winfo%nbproc = 1
-winfo%my_id  = 1
+myprocid     = 0
 
+mpi_run = .false.
 
 endsubroutine init_exch_protocol
 

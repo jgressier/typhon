@@ -16,6 +16,7 @@ MGRID_OBJ = $(MGRID_MOD:.$(MOD)=.o)    \
             calc_gradient.o            \
             calc_gradient_limite.o     \
             distrib_field.o            \
+            getpart_grid.o             \
             interpface_gradient_scal.o \
             interpface_gradient_vect.o \
             interpface_gradn_scal.o    \
@@ -32,10 +33,10 @@ all: $(MGRID_LIB)
 
 $(MGRID_LIB): $(D_MGRID_OBJ)
 	@echo ---------------------------------------------------------------
-	@echo \* Création de la librairie $(MGRID_LIB)
+	@echo \* Creating $(MGRID_LIB) library
 	@touch $(MGRID_LIB) ; rm $(MGRID_LIB)
 	@$(AR) ruv $(MGRID_LIB) $(D_MGRID_OBJ)
-	@echo \* Création de l\'index de la librairie
+	@echo \* Creating library index
 	@$(RAN)    $(MGRID_LIB)
 	@echo ---------------------------------------------------------------
 	@echo \* LIBRAIRIE $(MGRID_LIB) créée

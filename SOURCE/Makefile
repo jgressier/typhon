@@ -24,7 +24,7 @@ MAKEFILE= Makefile
 
 PRGNAME = Typhon
 
-EXTLIBS   = $(CGNSLIB) $(LAPACKLIBS)
+EXTLIBS   = $(CGNSLIB) $(LAPACKLIBS) $(METISLIB)
 
 include librairies.make
 
@@ -83,19 +83,19 @@ mpi: $(PRGNAME)-mpi
 
 $(PRGNAME)-seq : $(MAIN) $(D_LIBSEQ) $(MAKEFILE)
 	@echo ---------------------------------------------------------------
-	@echo EDITION DE LIEN DE $(PRGNAME)-seq ---
-	@echo Librairies externes : $(EXTLIBS)
-	@echo Librairies TYPHON   : $(LIBSEQ)
+	@echo LINKING $(PRGNAME)-seq ---
+	@echo external Libraries: $(EXTLIBS)
+	@echo TYPHON   Libraries: $(LIBSEQ)
 	@$(LINKER) $(LINKFB) $(MAIN) $(D_LIBSEQ) $(EXTLIBS) -o $(PRGNAME)-seq
-	@echo --- Création de $(PRGNAME)-seq terminée ---
+	@echo --- Creation of $(PRGNAME)-seq done ---
 
 $(PRGNAME)-mpi : $(MAIN) $(D_LIBMPI) $(MAKEFILE)
 	@echo ---------------------------------------------------------------
-	@echo EDITION DE LIEN DE $(PRGNAME)-mpi ---
-	@echo Librairies externes : $(EXTLIBS) $(MPILIB)
-	@echo Librairies TYPHON   : $(LIBMPI)
+	@echo  LINKING $(PRGNAME)-mpi ---
+	@echo external Libraries: $(EXTLIBS) $(MPILIB)
+	@echo TYPHON   Libraries: $(LIBMPI)
 	@$(LINKER) $(LINKFB) $(MAIN) $(D_LIBMPI) $(EXTLIBS) $(MPILIB) -o $(PRGNAME)-mpi
-	@echo --- Création de $(PRGNAME)-mpi terminée ---
+	@echo --- Creation of $(PRGNAME)-mpi done ---
 
 clean:
 	-rm $(PRGNAME)-seq $(PRGNAME)-mpi 

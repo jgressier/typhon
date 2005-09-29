@@ -31,9 +31,8 @@ type st_info
   real(krp) :: curtps               ! temps physique courant
   real(krp) :: residu_ref, cur_res  ! residu de reference et courant
   integer   :: nbproc               ! total number of communicating processors
-  integer   :: my_id                ! id of the current process
-  integer, dimension(:), pointer &
-            :: head_proc            ! id of heading proc for each zone
+  integer, pointer &
+            :: headproc(:)          ! id of heading proc for each zone
 endtype st_info
 
 
@@ -51,7 +50,9 @@ type st_infozone
   real(krp) :: residu_ref, cur_res  ! residu de reference (world) et courant (cycle)
   real(krp) :: residu_reforigine    ! residu de reference du premier cycle
   integer   :: nbproc               ! total number of communicating processors in the zone
-  integer   :: my_id                ! id of the current process
+  integer   :: headproc
+  integer, pointer &
+            :: proc(:)              ! list of proc. which are computing this zone
 endtype st_infozone
 
 
@@ -75,7 +76,7 @@ endtype st_infozone
 endmodule MODINFO
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Change history
 !
 ! mars 2003 : creation du module
 ! sept 2003 : informations specifiques pour l'integration d'un cycle

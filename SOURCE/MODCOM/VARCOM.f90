@@ -21,7 +21,7 @@ logical        :: mpi_run              ! calcul parallele MPI ou non
 character      :: memory_mode          ! mode d'economie memoire
 character      :: model_mode           ! mode de modelisation physique
 integer        :: taille_buffer        ! taille de buffer pour la distribution des calculs
-
+integer        :: myprocid             ! id of current proc
 
 ! -- CONSTANTES globales du module -------------------------------------------
 

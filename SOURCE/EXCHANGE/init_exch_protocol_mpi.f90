@@ -1,10 +1,8 @@
 !------------------------------------------------------------------------------!
-! Procedure : init_exch_protocol                  Auteur : J. Gressier
-!                                                 Date   : July 2004
-! Fonction                                        Modif  : see history
+! Procedure : init_exch_protocol                  Authors : J. Gressier
+!                                                 Created : July 2004
+! Fonction  
 !   Initialization of exchange protocol
-!
-! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
 
@@ -13,6 +11,7 @@ subroutine init_exch_protocol(winfo)
 use TYPHMAKE
 use OUTPUT
 use MODINFO
+use VARCOM
 
 implicit none
 
@@ -28,14 +27,15 @@ integer :: ierr
 
 ! -- Debut de la procedure --
 
-
 call print_info(5,"initialization MPI exchanges")
 
 call MPI_Init(ierr)
-call MPI_Comm_rank(MPI_COMM_WORLD, winfo%my_id,  ierr)
+call MPI_Comm_rank(MPI_COMM_WORLD, myprocid,     ierr)
 call MPI_Comm_size(MPI_COMM_WORLD, winfo%nbproc, ierr)
 
-print*,'I am ',winfo%my_id,'among',winfo%nbproc
+mpi_run = .true.
+
+print*,'I am ',myprocid,'among',winfo%nbproc,' procs'
 
 endsubroutine init_exch_protocol
 

@@ -25,10 +25,11 @@ FO = $(FO_$(OPT))
 LINKER = $(CF)
 
 # Options de base
-LINKFB  = $(FO) -L$(PRJEXT)
+LINKFB  = $(FO) -L$(PRJEXT) -i_dynamic
 
 ####### Librairies systèmes
 
+METISLIB   = -lmetis
 MPILIB     = -lmpich
 CGNSLIB    = -LLIBEXT -lcgns #-lcgns
 LAPACKLIBS = -L/opt/aero/lib -llapack -lfblas8 # installation locale

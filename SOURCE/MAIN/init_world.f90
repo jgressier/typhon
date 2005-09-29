@@ -31,7 +31,7 @@ integer :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
 !--------------------------------------------------------------------
 ! Initialization of zone parameters
 
-call print_info(5,"* Initialisation des zones")
+call print_info(5,"* Initializing zones")
 do izone = 1, world%prj%nzone
   call init_zone(world%zone(izone), world%prj)
 enddo
@@ -40,7 +40,7 @@ enddo
 !--------------------------------------------------------------------
 ! Lecture, transformation des maillages, calcul des parametres geometriques et connectivites
 
-call print_info(5,"* Calcul et Initialisation des maillages")
+call print_info(5,"* Computing mesh properties")
 do izone = 1, world%prj%nzone
   call init_maillage(world%zone(izone))
 enddo
@@ -55,15 +55,19 @@ do izone = 1, world%prj%nzone
 enddo
 
 !--------------------------------------------------------------------
-! Initialisation des connectivites entres zones
+! Split grids
 
-!! DEV
-
+if (world%info%nbproc > 1) then
+  call print_info(5,"* Splitting grids")
+  do izone = 1, world%prj%nzone
+    call split_zone(world%zone(izone))
+  enddo
+endif
 
 !--------------------------------------------------------------------
 ! Initialisation des champs
 
-call print_info(5,"Calcul et Initialisation des champs initiaux")
+call print_info(5,"* Computing initial conditions")
 do izone = 1, world%prj%nzone
   call init_champ(world%zone(izone))
 enddo
@@ -71,7 +75,7 @@ enddo
 !--------------------------------------------------------------------
 ! Initialisation des conditions limites
 
-call print_info(5,"* Initialisation des conditions aux limites")
+call print_info(5,"* Initializing boundary conditions")
 do izone = 1, world%prj%nzone
   call init_boco(world%zone(izone))
 enddo
@@ -90,7 +94,7 @@ enddo
 !--------------------------------------------------------------------
 ! Initialisation des capteurs
 
-call print_info(5,"Initialisation des capteurs")
+call print_info(5,"* Initializing probes & monitors")
 do izone = 1, world%prj%nzone
   call init_capteurs(world%zone(izone))
 enddo

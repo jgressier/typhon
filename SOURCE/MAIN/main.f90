@@ -42,6 +42,13 @@ call init_varcom()
 
 call def_param(loc_world)
 
+!###### MPI STRATEGY: distribute procs
+
+if (mpi_run) then
+  call print_etape("> MPI STRATEGY: preprocessing")
+  call mpi_strategy_pre(loc_world)
+endif
+
 !###### LECTURE MAILLAGE et Generation des structures de donnees
 
 call print_etape("> INPUTS : mesh and boundary conditions")
@@ -49,8 +56,15 @@ call lecture_maillage(loc_world)
 
 !###### INITIALISATION
 
-call print_etape("> INITIALISATION")
+call print_etape("> INITIALIZATION")
 call init_world(loc_world)
+
+!###### MPI STRATEGY: distribute procs
+
+if (mpi_run) then
+  call print_etape("> MPI STRATEGY: postprocessing")
+  call mpi_strategy_post(loc_world)
+endif
 
 !###### INTEGRATION ET RESOLUTION
 
@@ -62,7 +76,7 @@ case(act_analyse)
   call print_etape("> ANALYSIS & REPORT")
   call analyse(loc_world)
 case default
-  call erreur("Developement", "Unexpected ACTION parameter")
+  call erreur("Development", "Unexpected ACTION parameter")
 endselect
 
 !###### FIN D'EXECUTION

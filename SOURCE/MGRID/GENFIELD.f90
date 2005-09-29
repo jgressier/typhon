@@ -90,6 +90,8 @@ integer               :: i
   gfield%nscal     = n_scal
   gfield%nvect     = n_vect
   gfield%ntens     = n_tens
+
+  nullify(gfield%next)
   
   if (gfield%nscal > 0) then
     allocate(gfield%tabscal(n_scal))          ! allocation du tableau de champs scalaires
