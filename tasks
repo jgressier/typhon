@@ -583,6 +583,14 @@ Task 0096 (Jérémie) : NS : change default implicit method to BICGSTAB
 - BICGSTAB method, 50 iteration max, residual to reach: 1.e-1
 
 ---------------------------------------------------------------------------------
+Task 0097 (Jérémie) : NS : MUSCL method improvement
+---------------------------------------------------------------------------------
+The limiting process is done between a centered gradient and the face gradient.
+The centered gradient contains a part of the face gradient: the MUSCL extrapolation
+is then not as limited as for a genuine 1D case. Darwish (JCP ??) proposed an
+improvement of the limiting process
+
+---------------------------------------------------------------------------------
 Task 0100 (Jérémie) : IHM : Symbolic functions module
 ---------------------------------------------------------------------------------
 - FCT_* modules in MATH

@@ -56,6 +56,7 @@ Task Dévlp.    début fin   Type  Développement
 0078 Jérémie   24/09 25/09 Mesh  Scale function (SCALE parameter)
 0079 Jérémie   25/09 25/09 NS    AUSM-M numerical scheme
 086b Jérémie   27/09 27/09 NS    Bug correction: Implicit jacobian matrices for HLL fluxes
+0097 Jérémie   28/09 29/09 NS    MUSCL method improvement
      Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
                            Make  Restructuration de MAIN/integration_cycle (split)
                            Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)

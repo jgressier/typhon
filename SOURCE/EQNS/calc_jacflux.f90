@@ -57,6 +57,7 @@ do if = 1, nflux
 
   ! -- mass jacobian --
 
+  jac%mat(1, 1:2, ideb-1+if) = 0._krp
   jac%mat(1, 3:5, ideb-1+if) = tab(fn)
 
   ! -- energy jacobian --

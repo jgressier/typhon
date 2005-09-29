@@ -42,8 +42,7 @@ type(st_genericfield)     :: gprimL, gprimR
 real(krp)                 :: g, ig1, sl, sr, iks, kl, kr, ku
 real(krp)                 :: am, al, ar, vm, vnl, vnr, rel, rer
 
-
-! -- Debut de la procedure --
+! -- BODY --
 
 allocate(  uLR(nf))
 allocate(   LF(nf))
@@ -65,6 +64,12 @@ enddo
 
 call new(gprimL, nf, fprim%nscal, fprim%nvect, 0)
 call new(gprimR, nf, fprim%nscal, fprim%nvect, 0)
+
+!------------------------------------------------------------------------------
+! for each side of a face
+! 1. computation of cell gradient along LR
+! 2. computation of "face" gradient between L & R centers
+!------------------------------------------------------------------------------
 
 !------------------------------------------------------------------------------
 ! SCALAR computations
@@ -100,45 +105,45 @@ do isca = 1, fprim%nscal
   case(lim_minmod)
     ! -- left --
     scellgrad(:) = vgradL(:).scal.uLR(:)
-    scellgrad(:) = minmod(scellgrad(:), LRsca(:)) - scellgrad(:)
+    scellgrad(:) = minmod(2._krp*scellgrad(:)-LRsca(:), LRsca(:)) - scellgrad(:)
     vgradL   (:) = vgradL(:) + scellgrad(:)*uLR(:)
     gprimL%tabscal(isca)%scal(:) = vgradL(:).scal.LF(:)
     ! -- right --
     scellgrad(:) = vgradR(:).scal.uLR(:)
-    scellgrad(:) = minmod(scellgrad(:), LRsca(:)) - scellgrad(:)
+    scellgrad(:) = minmod(2._krp*scellgrad(:)-LRsca(:), LRsca(:)) - scellgrad(:)
     vgradR   (:) = vgradR(:) + scellgrad(:)*uLR(:)
     gprimR%tabscal(isca)%scal(:) = vgradR(:).scal.RF(:)
   case(lim_albada)
     ! -- left --
     scellgrad(:) = vgradL(:).scal.uLR(:)
-    scellgrad(:) = albada(scellgrad(:), LRsca(:)) - scellgrad(:)
+    scellgrad(:) = albada(2._krp*scellgrad(:)-LRsca(:), LRsca(:)) - scellgrad(:)
     vgradL   (:) = vgradL(:) + scellgrad(:)*uLR(:)
     gprimL%tabscal(isca)%scal(:) = vgradL(:).scal.LF(:)
     ! -- right --
     scellgrad(:) = vgradR(:).scal.uLR(:)
-    scellgrad(:) = albada(scellgrad(:), LRsca(:)) - scellgrad(:)
+    scellgrad(:) = albada(2._krp*scellgrad(:)-LRsca(:), LRsca(:)) - scellgrad(:)
     vgradR   (:) = vgradR(:) + scellgrad(:)*uLR(:)
     gprimR%tabscal(isca)%scal(:) = vgradR(:).scal.RF(:)
   case(lim_vleer)
     ! -- left --
     scellgrad(:) = vgradL(:).scal.uLR(:)
-    scellgrad(:) = vleer(scellgrad(:), LRsca(:)) - scellgrad(:)
+    scellgrad(:) = vleer(2._krp*scellgrad(:)-LRsca(:), LRsca(:)) - scellgrad(:)
     vgradL   (:) = vgradL(:) + scellgrad(:)*uLR(:)
     gprimL%tabscal(isca)%scal(:) = vgradL(:).scal.LF(:)
     ! -- right --
     scellgrad(:) = vgradR(:).scal.uLR(:)
-    scellgrad(:) = vleer(scellgrad(:), LRsca(:)) - scellgrad(:)
+    scellgrad(:) = vleer(2._krp*scellgrad(:)-LRsca(:), LRsca(:)) - scellgrad(:)
     vgradR   (:) = vgradR(:) + scellgrad(:)*uLR(:)
     gprimR%tabscal(isca)%scal(:) = vgradR(:).scal.RF(:)
   case(lim_sbee)
     ! -- left --
     scellgrad(:) = vgradL(:).scal.uLR(:)
-    scellgrad(:) = superbee(scellgrad(:), LRsca(:)) - scellgrad(:)
+    scellgrad(:) = superbee(2._krp*scellgrad(:)-LRsca(:), LRsca(:)) - scellgrad(:)
     vgradL   (:) = vgradL(:) + scellgrad(:)*uLR(:)
     gprimL%tabscal(isca)%scal(:) = vgradL(:).scal.LF(:)
     ! -- right --
     scellgrad(:) = vgradR(:).scal.uLR(:)
-    scellgrad(:) = superbee(scellgrad(:), LRsca(:)) - scellgrad(:)
+    scellgrad(:) = superbee(2._krp*scellgrad(:)-LRsca(:), LRsca(:)) - scellgrad(:)
     vgradR   (:) = vgradR(:) + scellgrad(:)*uLR(:)
     gprimR%tabscal(isca)%scal(:) = vgradR(:).scal.RF(:)
   case default
@@ -183,45 +188,45 @@ do ivec = 1, fprim%nvect
   case(lim_minmod)
     ! -- left --
     vcellgrad(:) = tgradL(:).scal.uLR(:)
-    vcellgrad(:) = minmod(vcellgrad(:), LRvec(:)) - vcellgrad(:) 
+    vcellgrad(:) = minmod(2._krp*vcellgrad(:)-LRvec(:), LRvec(:)) - vcellgrad(:) 
     tgradL   (:) = tgradL(:) + (vcellgrad(:).tens.uLR(:))
     gprimL%tabvect(ivec)%vect(:) = tgradL(:).scal.LF(:)
     ! -- right --
     vcellgrad(:) = tgradR(:).scal.uLR(:)
-    vcellgrad(:) = minmod(vcellgrad(:), LRvec(:)) - vcellgrad(:) 
+    vcellgrad(:) = minmod(2._krp*vcellgrad(:)-LRvec(:), LRvec(:)) - vcellgrad(:) 
     tgradR   (:) = tgradR(:) + (vcellgrad(:).tens.uLR(:))
     gprimR%tabvect(ivec)%vect(:) = tgradR(:).scal.RF(:)
   case(lim_albada)
     ! -- left --
     vcellgrad(:) = tgradL(:).scal.uLR(:)
-    vcellgrad(:) = albada(vcellgrad(:), LRvec(:)) - vcellgrad(:) 
+    vcellgrad(:) = albada(2._krp*vcellgrad(:)-LRvec(:), LRvec(:)) - vcellgrad(:) 
     tgradL   (:) = tgradL(:) + (vcellgrad(:).tens.uLR(:))
     gprimL%tabvect(ivec)%vect(:) = tgradL(:).scal.LF(:)
     ! -- right --
     vcellgrad(:) = tgradR(:).scal.uLR(:)
-    vcellgrad(:) = albada(vcellgrad(:), LRvec(:)) - vcellgrad(:) 
+    vcellgrad(:) = albada(2._krp*vcellgrad(:)-LRvec(:), LRvec(:)) - vcellgrad(:) 
     tgradR   (:) = tgradR(:) + (vcellgrad(:).tens.uLR(:))
     gprimR%tabvect(ivec)%vect(:) = tgradR(:).scal.RF(:)
   case(lim_vleer)
     ! -- left --
     vcellgrad(:) = tgradL(:).scal.uLR(:)
-    vcellgrad(:) = vleer(vcellgrad(:), LRvec(:)) - vcellgrad(:) 
+    vcellgrad(:) = vleer(2._krp*vcellgrad(:)-LRvec(:), LRvec(:)) - vcellgrad(:) 
     tgradL   (:) = tgradL(:) + (vcellgrad(:).tens.uLR(:))
     gprimL%tabvect(ivec)%vect(:) = tgradL(:).scal.LF(:)
     ! -- right --
     vcellgrad(:) = tgradR(:).scal.uLR(:)
-    vcellgrad(:) = vleer(vcellgrad(:), LRvec(:)) - vcellgrad(:) 
+    vcellgrad(:) = vleer(2._krp*vcellgrad(:)-LRvec(:), LRvec(:)) - vcellgrad(:) 
     tgradR   (:) = tgradR(:) + (vcellgrad(:).tens.uLR(:))
     gprimR%tabvect(ivec)%vect(:) = tgradR(:).scal.RF(:)
   case(lim_sbee)
     ! -- left --
     vcellgrad(:) = tgradL(:).scal.uLR(:)
-    vcellgrad(:) = superbee(vcellgrad(:), LRvec(:)) - vcellgrad(:) 
+    vcellgrad(:) = superbee(2._krp*vcellgrad(:)-LRvec(:), LRvec(:)) - vcellgrad(:) 
     tgradL   (:) = tgradL(:) + (vcellgrad(:).tens.uLR(:))
     gprimL%tabvect(ivec)%vect(:) = tgradL(:).scal.LF(:)
     ! -- right --
     vcellgrad(:) = tgradR(:).scal.uLR(:)
-    vcellgrad(:) = superbee(vcellgrad(:), LRvec(:)) - vcellgrad(:) 
+    vcellgrad(:) = superbee(2._krp*vcellgrad(:)-LRvec(:), LRvec(:)) - vcellgrad(:) 
     tgradR   (:) = tgradR(:) + (vcellgrad(:).tens.uLR(:))
     gprimR%tabvect(ivec)%vect(:) = tgradR(:).scal.RF(:)
   case default
