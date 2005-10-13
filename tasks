@@ -591,6 +591,18 @@ is then not as limited as for a genuine 1D case. Darwish (JCP ??) proposed an
 improvement of the limiting process
 
 ---------------------------------------------------------------------------------
+Task 0098 (Jérémie) : NS : UDF initialization
+---------------------------------------------------------------------------------
+- new BLOCK:INIT parameter (TYPE = UDF)
+- call to udf_ns_init
+
+---------------------------------------------------------------------------------
+Task 0099 (Jérémie) : NS : bug correction in CFL computation (cf task 88 & 117)
+---------------------------------------------------------------------------------
+- bad cfl computation for unsteady flows
+- added a test in cfl computation
+
+---------------------------------------------------------------------------------
 Task 0100 (Jérémie) : IHM : Symbolic functions module
 ---------------------------------------------------------------------------------
 - FCT_* modules in MATH

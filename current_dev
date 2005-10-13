@@ -40,7 +40,7 @@ Task Dévlp.    début fin   Type  Développement
 0120 Emmanuel  21/09 23/09 Debug Truncation of Pi/P to 1
 0119 Emmanuel  20/09 23/09 Coupl Implicit coupling
 0118 Emmanuel  20/09 23/09 Debug Implicit warnings
-0117 Emmanuel  22/09 23/09 NS    Change in CFL computation
+0117 Emmanuel  22/09 23/09 NS    Change in CFL computation (as a function of GLOBAL residual)
 0116 Emmanuel  16/09 19/09 Coupl Maximum number of cycles
 0115 Emmanuel  08/09       NS/KD Initialization with a file
 0114 Emmanuel  08/09 08/09 NS    Linear viscosity
@@ -57,6 +57,8 @@ Task Dévlp.    début fin   Type  Développement
 0079 Jérémie   25/09 25/09 NS    AUSM-M numerical scheme
 086b Jérémie   27/09 27/09 NS    Bug correction: Implicit jacobian matrices for HLL fluxes
 0097 Jérémie   28/09 29/09 NS    MUSCL method improvement
+0098 Jérémie   11/10 12/10 NS    UDF initialization
+0099 Jérémie   13/10 13/10 NS    bug correction in CFL computation (cf task 88 & 117)
      Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
                            Make  Restructuration de MAIN/integration_cycle (split)
                            Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
@@ -85,9 +87,6 @@ Task Dévlp.    début fin   Type  Développement
 0096 Jérémie   23/09 23/09 NS    change default implicit method to BICGSTAB, 50 it, conv 1e-1
 0106 Emmanuel  24/06 31/08 Coupl Fluid - solid coupling + NRG case
 0107 Emmanuel  30/08 31/08 Out   Change in tecplot output : 1 file per zone
-     Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
-                           Make  Restructuration de MAIN/integration_cycle (split)
-                           Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
 --------------------------------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------
