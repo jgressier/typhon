@@ -10,7 +10,8 @@ UDF_LIB = $(PRJLIB)/libt_udf.a
 UDF_MOD = 
 
 UDF_OBJ := $(UDF_MOD:.$(MOD)=.o)  \
-           udf_kdif_aniso.o
+           udf_kdif_aniso.o       \
+           udf_ns_init.o          \
 
 D_UDF_OBJ := $(UDF_OBJ:%=$(PRJOBJ)/%)
 

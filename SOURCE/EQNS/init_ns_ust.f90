@@ -21,7 +21,7 @@ implicit none
 type(mnu_ns)     :: defns
 type(st_init_ns) :: initns
 type(st_mesh)    :: mesh
-integer(kip)     :: init_type
+integer(kpp)     :: init_type
 character(len=strlen) :: initfile
 integer(kip)     :: ncell
 
@@ -47,6 +47,13 @@ case(init_def)
 
   !!if (champ%allocgrad) champ%gradient(:,:,:,:,:) = 0._krp
 
+case(init_udf)
+  print*,"   UDF initialization"
+  call udf_ns_init(defns, ncell, mesh%centre(1:ncell, 1, 1), champ%etatprim)
+  print*,champ%etatprim%tabscal(1)%scal(10)
+  print*,champ%etatprim%tabscal(2)%scal(10)
+  print*,champ%etatprim%tabvect(1)%vect(10)
+
 case(init_file)
   print*, initfile
   open(unit=1004, file = initfile, form="formatted")
@@ -61,6 +68,9 @@ case(init_file)
                   ( temp * defns%properties(1)%r_const )
   enddo
   close(1004)
+
+case default
+  call erreur("internal error", "unknown initialization method (init_ns_ust)")
 
 endselect
 
