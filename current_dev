@@ -36,6 +36,20 @@ Details:
 
 Task Dévlp.    début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
+0041 Jérémie   01/07       Solv  Inversion Gauss-Seidel
+0063 Jérémie               Out   Tecplot outputs : FEBLOCK format and output of scalars & vectors
+0064 Jérémie               Out   CGNS outputs
+0101 Jérémie   13/09 13/09 Opt   Gradient computation optimization
+     Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
+                           Make  Restructuration de MAIN/integration_cycle (split)
+                           Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
+
+------------------------------------------------------------------------
+release 0.2.1 - 13th October 2005
+------------------------------------------------------------------------
+
+Task Dévlp.    début fin   Type  Développement
+--------------------------------------------------------------------------------------------------------
 0121 Jeremie   23/09 23/09 NS    Change wall conditions to ghostcells
 0120 Emmanuel  21/09 23/09 Debug Truncation of Pi/P to 1
 0119 Emmanuel  20/09 23/09 Coupl Implicit coupling
@@ -50,18 +64,12 @@ Task Dévlp.    début fin   Type  Développement
 0110 Emmanuel  01/09 01/09 NS    Non uniform thermal boundary conditions
 0109 Emmanuel  01/09 01/09 KDIF  Adiabatic boundary condition
 0108 Emmanuel  01/09 01/09 KDIF  Change in convection and flux boundary condition
-0041 Jérémie   01/07       Solv  Inversion Gauss-Seidel
-0063 Jérémie               Out   Tecplot outputs : FEBLOCK format and output of scalars & vectors
-0064 Jérémie               Out   CGNS outputs
 0078 Jérémie   24/09 25/09 Mesh  Scale function (SCALE parameter)
 0079 Jérémie   25/09 25/09 NS    AUSM-M numerical scheme
 086b Jérémie   27/09 27/09 NS    Bug correction: Implicit jacobian matrices for HLL fluxes
 0097 Jérémie   28/09 29/09 NS    MUSCL method improvement
 0098 Jérémie   11/10 12/10 NS    UDF initialization
 0099 Jérémie   13/10 13/10 NS    bug correction in CFL computation (cf task 88 & 117)
-     Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
-                           Make  Restructuration de MAIN/integration_cycle (split)
-                           Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
 
 ------------------------------------------------------------------------
 release 0.2.0 - 4th Septembre 2005

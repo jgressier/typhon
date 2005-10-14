@@ -608,6 +608,12 @@ Task 0100 (Jérémie) : IHM : Symbolic functions module
 - FCT_* modules in MATH
 
 ---------------------------------------------------------------------------------
+Task 0101 (Jérémie) : Opt : Gradient computation optimization
+---------------------------------------------------------------------------------
+- calc_gradient : pack scalars and vectors for only one LSQ solver per cell
+- save 50% LSQ solve & 20% calc_gradient internal computations
+
+---------------------------------------------------------------------------------
 Task 0103 (Emmanuel): NS : Viscous fluxes
 ---------------------------------------------------------------------------------
 - Viscous fluxes computation, Sutherland viscosity

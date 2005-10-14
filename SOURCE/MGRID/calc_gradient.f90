@@ -28,13 +28,13 @@ type(st_genericfield) :: gfield      ! champ des valeurs
 type(st_genericfield) :: grad        ! champ des gradients
 
 ! -- Declaration des variables internes --
-type(v3d), allocatable :: dcg(:)      ! delta cg
+real(krp), allocatable :: dcg(:,:)    ! delta cg
 real(krp), allocatable :: rhs(:,:)    ! second membre
-!type(t3d), allocatable :: mat(:)      ! matrice AT.A
-real(krp)              :: imat(3,3)   ! matrice locale
 real(krp)              :: dsca        ! variation de variable scalaire
 type(v3d)              :: dvec        ! variation de variable vectorielle
 integer                :: ic, nc      ! indice et nombre de cellules internes
+integer                :: dec         ! index shifting (pack & unpack)
+integer                :: dim         ! full state size
 integer                :: if, nf, nfi ! indice et nombre de faces totales et internes
 integer                :: nv          ! nombre de variables
 integer                :: is, iv      ! indice de variable scalaire et vectorielle
@@ -60,152 +60,84 @@ endif
 nc  = grid%umesh%ncell_int   ! nombre de cellules internes
 nfi = grid%umesh%nface_int   ! nb de faces internes (connectees avec 2 cellules)
 nf  = grid%umesh%nface       ! nb de faces totales 
-allocate(dcg(nf))
-allocate(rhs(3,nc))    ! allocation
+dim = gfield%nscal+3*gfield%nvect
+
+allocate(dcg(3,nf))
+allocate(rhs(3,nc*dim))    ! allocation
 
 do if = 1, nf
   ic1 = grid%umesh%facecell%fils(if,1)
   ic2 = grid%umesh%facecell%fils(if,2)
-  dcg(if) = grid%umesh%mesh%centre(ic2,1,1) - grid%umesh%mesh%centre(ic1,1,1) 
+  dcg(1:3,if) = tab(grid%umesh%mesh%centre(ic2,1,1) - grid%umesh%mesh%centre(ic1,1,1))
 enddo
 
 !-----------------------------------------------------------------------------
-! calcul des gradients de scalaires
+! Fill RHS and pack scalars and vectors
 !-----------------------------------------------------------------------------
 
-do is = 1, gfield%nscal
+rhs(:,:) = 0._krp      ! initialisation
 
-  rhs(:,:) = 0._krp      ! initialisation
+! Calcul des seconds membres (cellules internes et limites)
 
-  ! Calcul des seconds membres (cellules internes et limites)
-  do if = 1, nfi
-    ic1  = grid%umesh%facecell%fils(if,1)
-    ic2  = grid%umesh%facecell%fils(if,2)
+do if = 1, nf
+
+  ic1  = grid%umesh%facecell%fils(if,1)
+  ic2  = grid%umesh%facecell%fils(if,2)
+
+  do is = 1, gfield%nscal
+    dec = is-dim
     dsca = gfield%tabscal(is)%scal(ic2) - gfield%tabscal(is)%scal(ic1) 
-    rhs(1:3, ic1) = rhs(1:3, ic1) + dsca*tab(dcg(if))
-    rhs(1:3, ic2) = rhs(1:3, ic2) + dsca*tab(dcg(if))
-  enddo
-  do if = nfi+1, nf
-    ic1  = grid%umesh%facecell%fils(if,1)
-    ic2  = grid%umesh%facecell%fils(if,2)
-    dsca = gfield%tabscal(is)%scal(ic2) - gfield%tabscal(is)%scal(ic1) 
-    rhs(1:3, ic1) = rhs(1:3, ic1) + dsca*tab(dcg(if))
+    rhs(1:3, ic1*dim+dec) = rhs(1:3, ic1*dim+dec) + dsca*dcg(1:3,if)
+    if (if <= nfi) rhs(1:3, ic2*dim+dec) = rhs(1:3, ic2*dim+dec) + dsca*dcg(1:3,if)
   enddo
 
-  ! Resolution ! (OPT) resolution of one packet of variables
-  xinfo = 0
-  do ic = 1, nc
-    call lapack_potrs('U', 3, 1, grid%optmem%gradcond(ic)%mat, 3, rhs(1:3,ic:ic), 3, info)
-    if (info /= 0) xinfo = ic
-  enddo
-  if (xinfo /= 0) call erreur("Routine LAPACK","Probleme POTRS")
-  do ic = 1, nc
-    grad%tabvect(is)%vect(ic) = v3d_of(rhs(1:3,ic))
-  enddo
-enddo
-
-!-----------------------------------------------------------------------------
-! calcul des gradients de vecteurs
-!-----------------------------------------------------------------------------
-do iv = 1, gfield%nvect
-
-  !---------------------
-  ! X component
-
-  ! Calcul des seconds membres (cellules internes et limites)
-
-  rhs(:,:) = 0._krp      ! initialisation
-
-  do if = 1, nfi
-    ic1  = grid%umesh%facecell%fils(if,1)
-    ic2  = grid%umesh%facecell%fils(if,2)
+  do iv = 1, gfield%nvect
+    ! -- X component --
+    dec = gfield%nscal-dim + 3*(iv-1) +1
     dsca = gfield%tabvect(iv)%vect(ic2)%x - gfield%tabvect(iv)%vect(ic1)%x
-    rhs(1:3, ic1) = rhs(1:3, ic1) + dsca*tab(dcg(if))
-    rhs(1:3, ic2) = rhs(1:3, ic2) + dsca*tab(dcg(if))
-  enddo
-  do if = nfi+1, nf
-    ic1  = grid%umesh%facecell%fils(if,1)
-    ic2  = grid%umesh%facecell%fils(if,2)
-    dsca = gfield%tabvect(iv)%vect(ic2)%x - gfield%tabvect(iv)%vect(ic1)%x 
-    rhs(1:3, ic1) = rhs(1:3, ic1) + dsca*tab(dcg(if))
-  enddo
-
-  ! Resolution ! (OPT) resolution of one packet of variables
-  xinfo = 0
-  do ic = 1, nc
-    call lapack_potrs('U', 3, 1, grid%optmem%gradcond(ic)%mat, 3, rhs(1:3,ic:ic), 3, info)
-    if (info /= 0) xinfo = ic
-  enddo
-  if (xinfo /= 0) call erreur("Routine LAPACK","Probleme POTRS")
-  do ic = 1, nc
-    grad%tabtens(iv)%tens(ic)%mat(1,1:3) = rhs(1:3,ic)
-  enddo
-
-  !---------------------
-  ! Y component
-
-  ! Calcul des seconds membres (cellules internes et limites)
-
-  rhs(:,:) = 0._krp      ! initialisation
-
-  do if = 1, nfi
-    ic1  = grid%umesh%facecell%fils(if,1)
-    ic2  = grid%umesh%facecell%fils(if,2)
+    rhs(1:3, ic1*dim+dec) = rhs(1:3, ic1*dim+dec) + dsca*dcg(1:3,if)
+    if (if <= nfi) rhs(1:3, ic2*dim+dec) = rhs(1:3, ic2*dim+dec) + dsca*dcg(1:3,if)
+    ! -- Y component --
+    dec = gfield%nscal-dim + 3*(iv-1) +2
     dsca = gfield%tabvect(iv)%vect(ic2)%y - gfield%tabvect(iv)%vect(ic1)%y
-    rhs(1:3, ic1) = rhs(1:3, ic1) + dsca*tab(dcg(if))
-    rhs(1:3, ic2) = rhs(1:3, ic2) + dsca*tab(dcg(if))
-  enddo
-  do if = nfi+1, nf
-    ic1  = grid%umesh%facecell%fils(if,1)
-    ic2  = grid%umesh%facecell%fils(if,2)
-    dsca = gfield%tabvect(iv)%vect(ic2)%y - gfield%tabvect(iv)%vect(ic1)%y 
-    rhs(1:3, ic1) = rhs(1:3, ic1) + dsca*tab(dcg(if))
-  enddo
-
-  ! Resolution ! (OPT) resolution of one packet of variables
-  xinfo = 0
-  do ic = 1, nc
-    call lapack_potrs('U', 3, 1, grid%optmem%gradcond(ic)%mat, 3, rhs(1:3,ic:ic), 3, info)
-    if (info /= 0) xinfo = ic
-  enddo
-  if (xinfo /= 0) call erreur("Routine LAPACK","Probleme POTRS")
-  do ic = 1, nc
-    grad%tabtens(iv)%tens(ic)%mat(2,1:3) = rhs(1:3,ic)
-  enddo
-
-  !---------------------
-  ! Z component
-
-  ! Calcul des seconds membres (cellules internes et limites)
- 
-  rhs(:,:) = 0._krp      ! initialisation
-
-  do if = 1, nfi
-    ic1  = grid%umesh%facecell%fils(if,1)
-    ic2  = grid%umesh%facecell%fils(if,2)
+    rhs(1:3, ic1*dim+dec) = rhs(1:3, ic1*dim+dec) + dsca*dcg(1:3,if)
+    if (if <= nfi) rhs(1:3, ic2*dim+dec) = rhs(1:3, ic2*dim+dec) + dsca*dcg(1:3,if)
+    ! -- Z component --
+    dec = gfield%nscal-dim + 3*(iv-1) +3
     dsca = gfield%tabvect(iv)%vect(ic2)%z - gfield%tabvect(iv)%vect(ic1)%z
-    rhs(1:3, ic1) = rhs(1:3, ic1) + dsca*tab(dcg(if))
-    rhs(1:3, ic2) = rhs(1:3, ic2) + dsca*tab(dcg(if))
-  enddo
-  do if = nfi+1, nf
-    ic1  = grid%umesh%facecell%fils(if,1)
-    ic2  = grid%umesh%facecell%fils(if,2)
-    dsca = gfield%tabvect(iv)%vect(ic2)%z - gfield%tabvect(iv)%vect(ic1)%z 
-    rhs(1:3, ic1) = rhs(1:3, ic1) + dsca*tab(dcg(if))
+    rhs(1:3, ic1*dim+dec) = rhs(1:3, ic1*dim+dec) + dsca*dcg(1:3,if)
+    if (if <= nfi) rhs(1:3, ic2*dim+dec) = rhs(1:3, ic2*dim+dec) + dsca*dcg(1:3,if)
   enddo
 
-  ! Resolution ! (OPT) resolution of one packet of variables
-  xinfo = 0
-  do ic = 1, nc
-    call lapack_potrs('U', 3, 1, grid%optmem%gradcond(ic)%mat, 3, rhs(1:3,ic:ic), 3, info)
-    if (info /= 0) xinfo = ic
-  enddo
-  if (xinfo /= 0) call erreur("Routine LAPACK","Probleme POTRS")
-  do ic = 1, nc
-    grad%tabtens(iv)%tens(ic)%mat(3,1:3) = rhs(1:3,ic)
-  enddo
+enddo
 
+!-----------------------------------------------------------------------------
+! Solve LSQ
+!-----------------------------------------------------------------------------
 
+xinfo = 0
+do ic = 1, nc
+  call lapack_potrs('U', 3, dim, &
+                    grid%optmem%gradcond(ic)%mat, 3, &
+                    rhs(1:3, (ic-1)*dim+1:ic*dim), 3, info)
+  if (info /= 0) xinfo = ic
+enddo
+if (xinfo /= 0) call erreur("Routine LAPACK","Probleme POTRS")
+
+!-----------------------------------------------------------------------------
+! Unpack solution
+!-----------------------------------------------------------------------------
+
+do ic = 1, nc
+  dec = (ic-1)*dim
+  do is = 1, gfield%nscal
+    grad%tabvect(is)%vect(ic) = v3d_of(rhs(1:3,dec+is))
+  enddo
+  do iv = 1, gfield%nvect
+    grad%tabtens(iv)%tens(ic)%mat(1,1:3) = rhs(1:3,dec+gfield%nscal+(iv-1)*3+1)
+    grad%tabtens(iv)%tens(ic)%mat(2,1:3) = rhs(1:3,dec+gfield%nscal+(iv-1)*3+2)
+    grad%tabtens(iv)%tens(ic)%mat(3,1:3) = rhs(1:3,dec+gfield%nscal+(iv-1)*3+3)
+  enddo
 enddo
 
 
@@ -223,6 +155,5 @@ endsubroutine calc_gradient
 !
 ! sept 2003 : creation de la procedure
 ! nov  2004 : computation of vector gradients
-! DEV: optimiser le calcul de gradient
-! DEV: creation de procedures intrinseques dans les modules 
+! oct  2005 : restructuration (pack scalar & vectors for a single LSQ solve)
 !------------------------------------------------------------------------------!
