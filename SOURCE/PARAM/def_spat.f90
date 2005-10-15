@@ -110,11 +110,12 @@ case(solNS)
 
   defspat%method = cnull
   call rpmgetkeyvalstr(pcour, "HIGHRES", str, "NONE")
-  if (samestring(str,"NONE"))      defspat%method = hres_none
-  if (samestring(str,"MUSCL"))     defspat%method = hres_muscl
-  if (samestring(str,"ENO"))       defspat%method = hres_eno
-  if (samestring(str,"WENO"))      defspat%method = hres_weno
-  if (samestring(str,"SPECTRAL"))  defspat%method = hres_spect
+  if (samestring(str,"NONE"))       defspat%method = hres_none
+  if (samestring(str,"MUSCL"))      defspat%method = hres_muscl
+  if (samestring(str,"MUSCL-FAST")) defspat%method = hres_musclfast
+  if (samestring(str,"ENO"))        defspat%method = hres_eno
+  if (samestring(str,"WENO"))       defspat%method = hres_weno
+  if (samestring(str,"SPECTRAL"))   defspat%method = hres_spect
   
   if (defspat%method == cnull) &
     call erreur("parameters parsing","unexpected high resolution method")
@@ -122,7 +123,7 @@ case(solNS)
   select case(defspat%method)
   case(hres_none)
 
-  case(hres_muscl)
+  case(hres_muscl, hres_musclfast)
 
     ! -- High resolution order
     call rpmgetkeyvalint(pcour, "ORDER", defspat%order, 2_kpp)

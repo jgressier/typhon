@@ -614,6 +614,14 @@ Task 0101 (Jérémie) : Opt : Gradient computation optimization
 - save 50% LSQ solve & 20% calc_gradient internal computations
 
 ---------------------------------------------------------------------------------
+Task 0102 (Jeremie): NS : Fast MUSCL method
+---------------------------------------------------------------------------------
+- new high-resolution methods : HIGHRES=MUSCL-FAST
+- faster computations which use alignment of cell/face centers assumption
+  (approximatly 25% faster than original MUSCL (full interpolation))
+- implemented in hres_ns_musclfast (update of MENU_NUM & def_spat)
+
+---------------------------------------------------------------------------------
 Task 0103 (Emmanuel): NS : Viscous fluxes
 ---------------------------------------------------------------------------------
 - Viscous fluxes computation, Sutherland viscosity
