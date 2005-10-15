@@ -12,6 +12,7 @@ dnl -------------------------------------------------------------
 section([Gas model])
 item([perfect gaz])
 item([viscosity: Sutherland law, constant Prandtl number])
+item([viscosity: Constant dynamic viscosity, constant Prandtl number])
 <br>
 
 section([Dynamics])
@@ -21,7 +22,8 @@ item([laminar viscosity])
 
 section([Numerical Schemes])
 item([HLLE upwind scheme])
-item([HLLC upwind scheme])
+item([HLLC upwind scheme (cf Toro, Batten)])
+item([AUSM-M upwind scheme (cf Liou)])
 item([MUSCL second order extension])
 item([Linear Implicit resolution (BiCG-Stab)])
 <br>

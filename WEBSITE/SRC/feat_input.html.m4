@@ -18,6 +18,7 @@ item([CGNS])
 
 skip_line
 section([Mesh description])
+item([scaling function])
 
 skip_line
 section([Initialization fields])
@@ -25,7 +26,8 @@ not featured
 
 skip_line
 section([User Defined Functions])
-not featured
+item([Conductivity definition (KDIF solver)])
+item([Flow initialization (NS solver)])
 
 skip_line
 section([Stop & resume])

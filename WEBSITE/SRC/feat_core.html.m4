@@ -9,6 +9,8 @@ include_header
 
 dnl -------------------------------------------------------------
 
+dnl section([Gas model])
+dnl item([perfect gaz])
 
 skip_line
 
