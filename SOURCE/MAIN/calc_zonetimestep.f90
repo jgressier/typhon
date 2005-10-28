@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_zonetimestep           Auteur : J. Gressier
 !                                         Date   : Septembre 2003
-! Fonction                                Modif  : (cf historique)
+! Fonction 
 !   Calcul du pas de temps local et global par zone selon solveur
 !
 ! Defauts/Limitations/Divers :
@@ -9,7 +9,7 @@
 !
 !------------------------------------------------------------------------------!
 
-subroutine calc_zonetimestep(lzone, dt, wres_ref, wcur_res)
+subroutine calc_zonetimestep(lzone, dt, wres_ref, wcur_res, dtmax)
 
 use TYPHMAKE
 use OUTPUT
@@ -22,6 +22,9 @@ implicit none
 
 ! -- Declaration des entrees --
 type(st_zone) :: lzone
+real(krp)     :: wres_ref ! world reference residual
+real(krp)     :: wcur_res ! world current residual
+real(krp)     :: dtmax
 
 ! -- Declaration des sorties --
 real(krp)      :: dt
@@ -31,8 +34,6 @@ type(st_grid), pointer               :: pgrid    ! pointeur sur grille
 real(krp), dimension(:), allocatable :: dtloc    ! tableau de pas de temps local
 real(krp)                            :: cfl
 integer                              :: ncell    ! nombre de cellules pour le calcul
-real(krp)                            :: wres_ref ! world reference residual
-real(krp)                            :: wcur_res ! world current residual
 
 ! -- BODY --
 
@@ -97,6 +98,8 @@ case(solKDIF, solNS)
 
   enddo
 
+  dt = min(dt, dtmax)
+
   ! -- if global time stepping: reset dtloc to minimum time step --
 
   if (lzone%deftime%stab_meth == stab_cond) then
@@ -114,7 +117,7 @@ case(solVORTEX)
 
   select case(lzone%deftime%stab_meth)
   case(given_dt)   ! -- Pas de temps impose --
-    dt = lzone%deftime%dt
+    dt = min(lzone%deftime%dt, dtmax)
   case default
     call erreur("internal error (calc_zonetimestep)", "condition incompatible")
   endselect  
@@ -137,4 +140,5 @@ endsubroutine calc_zonetimestep
 ! july 2004 : NS solver call
 ! oct  2004 : field chained list
 ! sept 2005 : local time stepping
+! oct  2005 : bound local time step to dtmax only if global time step
 !------------------------------------------------------------------------------!

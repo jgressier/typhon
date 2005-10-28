@@ -41,6 +41,7 @@ Task Dévlp.    début fin   Type  Développement
 0064 Jérémie               Out   CGNS outputs
 0101 Jérémie   13/10 13/10 Opt   Gradient computation optimization
 0102 Jérémie   15/10 15/10 NS    Fast MUSCL method
+095b Jérémie   28/10 28/10 BUG   Correct local time stepping (bounded to cycle time step)
      Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
                            Make  Restructuration de MAIN/integration_cycle (split)
                            Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)

@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : integrationmacro_zone       Auteur : J. Gressier
 !                                         Date   : Juillet 2002
-! Fonction                                Modif  : (cf Historique)
+! Fonction 
 !   Integration d'une zone sur un ecart de temps donne,
 !   d'une representation physique uniquement
 !
@@ -21,6 +21,8 @@ implicit none
 
 ! -- Declaration des entrees --
 type(st_zone) :: lzone            ! zone a integrer
+real(krp)   :: wres_ref           ! world reference residual 
+real(krp)   :: wcur_res           ! world current residual
 
 ! -- Declaration des sorties --
 
@@ -29,10 +31,9 @@ real(krp)   :: local_t            ! temps local (0 a mdt)
 real(krp)   :: dt                 ! pas de temps de la zone
 integer     :: if, ic, ib, nbc    ! index de champ, couplage et boco
 real(krp)   :: part_cor           ! part de correction a appliquer
+real(krp)   :: dtmax
 integer     :: typ_cor            ! type de correction
 logical     :: fin
-real(krp)   :: wres_ref           ! world reference residual 
-real(krp)   :: wcur_res           ! world current residual
 
 !DEV
 integer :: cumulreste, oui, non
@@ -74,25 +75,30 @@ do while (.not.fin)
   lzone%info%iter_loc = lzone%info%iter_loc + 1
   lzone%info%iter_tot = lzone%info%iter_tot + 1
   
+  select case(lzone%info%typ_temps)
+  case(stationnaire)
+    dtmax = huge(dtmax)
+  case(instationnaire)
+    dtmax = lzone%info%cycle_dt - local_t
+  case(periodique)
+    call erreur("Developpement","cas non implemente")
+  endselect
+
   ! ---
-  call calc_zonetimestep(lzone, dt, wres_ref, wcur_res)
+  call calc_zonetimestep(lzone, dt, wres_ref, wcur_res, dtmax)
   ! ---
 
   ! ecriture d'informations et gestion
 
   select case(lzone%info%typ_temps)
-
   case(stationnaire)
-
   case(instationnaire)
     if (dt >= (lzone%info%cycle_dt - local_t)) then
       fin = .true.
       dt  = lzone%info%cycle_dt - local_t
     endif  
-  
   case(periodique)
     call erreur("Developpement","cas non implemente")
-
   endselect
 
   ! Correction de flux quand necessaire
