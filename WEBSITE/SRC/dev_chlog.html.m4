@@ -1,4 +1,4 @@
-Sinclude(`general.m4')
+include(`general.m4')
 dnl -------------------------------------------------------------
 set_page_title([Change Log])
 define([id1], [dev])

@@ -19,6 +19,7 @@ a finite volume solver for heat transfer.] (see hyperlink([Presentation], [index
 dnl -------------------------------------------------------------
 section([Web site news])
 
+  item([13/10/2005 : version 0.2.1 released])
   item([04/09/2005 : version 0.2.0 released (implicit second order compressible Navier-Stokes)])
   item([12/07/2005 : version 0.1.7 released])
   item([11/03/2005 : News and Change log tabs])
@@ -33,7 +34,9 @@ section([TYPHON solver])
 dnl -------------------------------------------------------------
 section([Users])
 [<p align=justify>
-The current release is 0.2.0 and will be available as a package soon.
+The current release is 0.2.0 and is available as a package. Release 0.2.1 contains some
+improvements and is available on the CVS server. Release 0.2.2 will come soon with some 
+CPU optimizations.
 See] hyperlink([Presentation], [index_pres.html]) [to find a description of this
 release or] hyperlink([[Features section]], [feat.html]) [to get more details.]
 

@@ -9,6 +9,11 @@ include_header
 
 dnl -------------------------------------------------------------
 
+section([October 2005, 13th : version 0.2.1 released])
+item([Navier-Stokes solver: new viscosity definitions, MUSCL improvement, AUSM-M scheme, CFL evolution])
+See hyperlink([Change log], [dev_chlog.html]) for details <br>
+<br>
+
 section([September 2005, 4th : version 0.2.0 released])
 item([Navier-Stokes solver: laminar viscous fluxes, MUSCL interpolation, HLLC scheme, implicit integration])
 item([Heat Transfer solver: new efficient implicit inversion methods (BiCG, CGS)])
