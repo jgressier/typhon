@@ -8,6 +8,7 @@ LDIR := MESH
 MESH_LIB = $(PRJLIB)/libt_mesh.a
 
 MESH_MOD = GEO3D.$(MOD)     \
+           GRID_CONNECT.$(MOD) \
            MESHBASE.$(MOD)  \
            STRMESH.$(MOD)   \
            TENSOR3.$(MOD)   \

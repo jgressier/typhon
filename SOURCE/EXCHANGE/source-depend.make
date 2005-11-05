@@ -12,12 +12,20 @@ EXCHSEQ_MOD = #.$(MOD)      \
 EXCHMPI_MOD = #.$(MOD)      \
 
 EXCHSEQ_OBJ := $(EXCHANGE_MOD:.$(MOD)=.o)  \
+               exchange_zonal_residual_seq.o \
+               exchange_zonal_timestep_seq.o \
                finalize_exch_seq.o         \
-               init_exch_protocol_seq.o
+               init_exch_protocol_seq.o    \
+               receivefromgrid_seq.o       \
+               sendtogrid_seq.o            \
 
 EXCHMPI_OBJ := $(EXCHANGE_MOD:.$(MOD)=.o)  \
+               exchange_zonal_residual_mpi.o \
+               exchange_zonal_timestep_mpi.o \
                finalize_exch_mpi.o         \
-               init_exch_protocol_mpi.o
+               init_exch_protocol_mpi.o    \
+               receivefromgrid_mpi.o       \
+               sendtogrid_mpi.o            \
 
 D_EXCHSEQ_OBJ := $(EXCHSEQ_OBJ:%=$(PRJOBJ)/%)
 D_EXCHMPI_OBJ := $(EXCHMPI_OBJ:%=$(PRJOBJ)/%)

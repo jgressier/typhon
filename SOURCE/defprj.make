@@ -14,7 +14,6 @@ PRJOBJ  = $(PRJDIR)/Obj
 AR          = ar
 RAN         = touch
 MAKE        = make
-MAKEDEPENDS = Util/make_depends_low
 
 ####### Définitions des règles de compilation
 
@@ -37,7 +36,7 @@ MAKEDEPENDS = Util/make_depends_low
 	@echo Il est anormal de passer par cette directive de compilation !!!
 	$(CF) $(FF) -c $<
 
-$(PRJINC)/%.$(MOD): 
+$(PRJINC)/%.$(MOD):
 	@echo - MODULE : compiling file $*
 	$(CF) $(FF) -c ${$*.source} -o $(PRJOBJ)/${$*.objet}
 	@echo - transfert du module $*

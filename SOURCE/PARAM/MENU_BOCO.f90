@@ -80,7 +80,7 @@ character(len=*) str
 
   bocotype = inull
 
-  if (samestring(str, "CONNECTION" ))          bocotype = bc_connection
+  if (samestring(str, "CONNECTION" ))          bocotype = bc_connect_match
   if (samestring(str, "COUPLING" ))            bocotype = bc_wall_isoth
 
   if (samestring(str, "SYMMETRY" ))            bocotype = bc_geo_sym   

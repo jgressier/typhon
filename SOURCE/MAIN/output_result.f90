@@ -32,22 +32,25 @@ do i = 1, world%noutput
   select case(world%output(i)%format)
   case(fmt_VTK)
 
-    call print_info(2,"* sauvegarde au format VTK : " &
+    call print_info(2,"* save VTK file : " &
                       // trim(world%output(i)%fichier))
     call output_vtk(world%output(i)%fichier, world, world%output(i)%type, position, i) 
 
   case(fmt_TECPLOT)
 
-    call print_info(2,"* sauvegarde au format TECPLOT : " &
+    call print_info(2,"* save TECPLOT file : " &
                       // trim(world%output(i)%fichier))
     call output_tecplot(world%output(i)%fichier, world, world%output(i)%type, position, i) 
     !DEV2602 call output_tecplot(world%output(i)%fichier, world, world%output(i)%type)
 
   case(fmt_VIGIE)
-    call erreur("Developpement","format VIGIE non implemente")
+    call erreur("Development","VIGIE format not implemented")
+
+  case(fmt_CGNS)
+    call erreur("Development","CGNS format not implemented")
 
   case default
-    call erreur("Sauvegarde de resultats","format de fichier inconnu")
+    call erreur("Internal error","unknown output parameter")
 
   endselect
 

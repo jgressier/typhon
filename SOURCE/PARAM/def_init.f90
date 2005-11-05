@@ -1,11 +1,9 @@
 !------------------------------------------------------------------------------!
-! Procedure : def_init                    Auteur : J. Gressier
-!                                         Date   : Mars 2003
-! Fonction                                Modif  : 
+! Procedure : def_init                                Authors : J. Gressier
+!                                                     Created : March 2003
+! Fonction 
 !   Traitement des parametres du fichier menu principal
 !   Parametres principaux du projet
-!
-! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
 subroutine def_init(block, isolver, defsolver)
@@ -18,14 +16,14 @@ use MENU_SOLVER
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(rpmblock), target :: block
 integer                :: isolver
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 type(mnu_solver) :: defsolver
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: n_init         ! nombre de definition d'initialisation
 integer                  :: i, nkey
@@ -59,6 +57,7 @@ do i = 1, n_init
   call rpmgetkeyvalstr(pcour, "TYPE", str, "DEFINITION")
   if (samestring(str, "DEFINITION"))  defsolver%init(i)%type = init_def
   if (samestring(str, "FILE"))        defsolver%init(i)%type = init_file
+  if (samestring(str, "UDF"))         defsolver%init(i)%type = init_udf
 
   ! -- Determination du type de repere
 
@@ -71,10 +70,10 @@ do i = 1, n_init
   !  call erreur("lecture de menu (def_init)","condition aux limites inconnue")
   !endif
 
-  if (defsolver%init(i)%type == init_def) then
+  select case(defsolver%init(i)%type)
 
-    ! Traitement selon solveurs
-    call print_info(10,"  Directive d'initialisation par champs uniformes")
+  case(init_def)    ! USUAL DEFINITION : parsing parameters according to solver
+    call print_info(10,"  Parsing parameters for uniform initial conditions")
     select case(isolver)
     case(solKDIF)
       call def_init_kdif(pcour, defsolver%init(i)%kdif, defsolver%init(i)%unif)
@@ -83,16 +82,22 @@ do i = 1, n_init
     case(solNS)
       call def_init_ns(pcour, defsolver%init(i)%ns)
     case default
-      call erreur("incoherence interne (def_init)","solveur inconnu")
+      call erreur("internal error (def_init)","unknown solver")
     endselect
 
     ! PROVISOIRE
     defsolver%init(i)%file = "bidon"
 
-  else if (defsolver%init(i)%type == init_file) then
+  case(init_file)
     call rpmgetkeyvalstr(pcour, "INIT_FILE", str) 
     defsolver%init(i)%file = trim(str)
-  endif
+
+  case(init_udf)
+    ! nothing to do
+
+  case default
+    call erreur("parameter reading (def_init)","unknown parameter (TYPE)")
+  endselect
 
 enddo
 
@@ -100,10 +105,11 @@ enddo
 endsubroutine def_init
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! mars 2003 : creation de la routine
 ! juil 2004 : cas EQNS
+! oct  2005 : udf initialization
 !------------------------------------------------------------------------------!
 
 

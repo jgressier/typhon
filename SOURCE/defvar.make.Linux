@@ -12,7 +12,7 @@ CF = ifort
 FB = -implicitnone -I$(PRJINC)
 
 # Optimisation classique
-FO_debug = -CB -check all
+FO_debug = -O0 -traceback
 FO_opt   = -O3 #-fast
 FO_prof  = $(FO_opt) -pg
 FO_      = 

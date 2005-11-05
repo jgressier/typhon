@@ -139,13 +139,12 @@ do if = 1, nflux
   flux%tabvect(1)%vect(ideb-1+if) = flux%tabvect(1)%vect(ideb-1+if) - (sigma_n)
 
   ! energy flux
-  flux%tabscal(2)%scal(ideb-1+if) = flux%tabscal(2)%scal(ideb-1+if) + &
-                                     - sigma_vn
+  flux%tabscal(2)%scal(ideb-1+if) = flux%tabscal(2)%scal(ideb-1+if) - sigma_vn
 
   ! heat conduction term
   ! thermal conductivity
   conduct = mu(if) * cp / defsolver%defns%properties(1)%prandtl
-  flux%tabscal(2)%scal(ideb-1+if) = flux%tabscal(2)%scal(ideb-1+if) + &
+  flux%tabscal(2)%scal(ideb-1+if) = flux%tabscal(2)%scal(ideb-1+if)  &
                                      - conduct * gradTH(if)
 
 enddo

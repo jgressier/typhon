@@ -28,11 +28,32 @@ Roadmap
 --------------------------------------------------------------------
 To improve
 - KDIF  Bug: timestep computation for non linear material
+- OUTPUT Bug : incomplete velocity field (seen with VTK / core 0.3 RC1)
 --------------------------------------------------------------------
 Details:
 (1) Restructuration des sorties (get_data/calc_data/output) pour formats multiples
 
 --------------------------------------------------------------------
+
+------------------------------------------------------------------------
+core 0.3 RC 1
+------------------------------------------------------------------------
+
+Task Dévlp.    début fin   Type  Développement
+--------------------------------------------------------------------------------------------------------
+0150 Jeremie   01/10 25/10 Core  MPI development & split grids
+0151 Jeremie   25/10 25/10 Out   Splitted files for each grid (VTK)
+0152 Jeremie   01/11 01/11 MPI   Merge residuals between grids (same criterion)
+0153 Jeremie   24/10 26/10 Opt   Optimize CSR connectivity computation      
+0154 Jeremie   30/10 31/10 MPI   Merge global time step
+0155 Jeremie   02/11 02/11 MPI   Validation with second order NS computation (without gradient communication)
+0156 Jeremie               MPI   Validation with second order NS computation (with gradient communication)
+0157 Jeremie   02/11 02/11 Make  SGI portage
+
+
+------------------------------------------------------------------------
+core 0.2
+------------------------------------------------------------------------
 
 Task Dévlp.    début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------

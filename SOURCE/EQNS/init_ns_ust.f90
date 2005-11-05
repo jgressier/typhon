@@ -21,7 +21,7 @@ implicit none
 type(mnu_ns)     :: defns
 type(st_init_ns) :: initns
 type(st_mesh)    :: mesh
-integer(kip)     :: init_type
+integer(kpp)     :: init_type
 character(len=strlen) :: initfile
 integer(kip)     :: ncell
 
@@ -39,19 +39,27 @@ real(krp)       :: x,y,z, temp
 select case(init_type)
 
 case(init_def)
+  !print*,'init ns ',ncell
   nspri = pi_ti_mach_dir2nspri(defns%properties(1),initns%ptot, initns%ttot, &
                                                  initns%mach, initns%direction) 
-  champ%etatprim%tabscal(1)%scal(:) = nspri%density
-  champ%etatprim%tabscal(2)%scal(:) = nspri%pressure
-  champ%etatprim%tabvect(1)%vect(:) = nspri%velocity
+  champ%etatprim%tabscal(1)%scal(1:ncell) = nspri%density
+  champ%etatprim%tabscal(2)%scal(1:ncell) = nspri%pressure
+  champ%etatprim%tabvect(1)%vect(1:ncell) = nspri%velocity
 
   !!if (champ%allocgrad) champ%gradient(:,:,:,:,:) = 0._krp
+
+case(init_udf)
+  print*,"   UDF initialization"
+  call udf_ns_init(defns, ncell, mesh%centre(1:ncell, 1, 1), champ%etatprim)
+  !print*,champ%etatprim%tabscal(1)%scal(10)
+  !print*,champ%etatprim%tabscal(2)%scal(10)
+  !print*,champ%etatprim%tabvect(1)%vect(10)
 
 case(init_file)
   print*, initfile
   open(unit=1004, file = initfile, form="formatted")
-  read(1004,'(a)'), charac
-  read(1004,'(a)'), charac
+  read(1004,'(a)') charac
+  read(1004,'(a)') charac
   do ic=1, ncell
     read(1004,'(8e18.8)') x, y, z, champ%etatprim%tabvect(1)%vect(ic)%x, &
                  champ%etatprim%tabvect(1)%vect(ic)%y, &
@@ -61,6 +69,9 @@ case(init_file)
                   ( temp * defns%properties(1)%r_const )
   enddo
   close(1004)
+
+case default
+  call erreur("internal error", "unknown initialization method (init_ns_ust)")
 
 endselect
 

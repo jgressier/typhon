@@ -1,10 +1,8 @@
 !------------------------------------------------------------------------------!
-! Procedure : output_vtk                  Auteur : J. Gressier
-!                                         Date   : Avril 2004
-! Fonction                                Modif  : (cf historique)
+! Procedure : output_vtk                      Authors : J. Gressier
+!                                             Created : April 2004
+! Fonction
 !   Ecriture fichier des champs de chaque zone au format VTK
-!
-! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
  
@@ -30,15 +28,22 @@ integer               :: io       !DEV2602
 integer               :: izone, i, dim, ufc, ir
 integer               :: info
 type(st_genericfield) :: vfield
+character(len=10)     :: suffix
 
 ! -- Debut de la procedure --
+
+if (mpi_run) then
+  suffix = "_p"//strof_full_int(myprocid,3)//".vtk"
+else
+  suffix = ".vtk"
+endif
 
 if (position == end_calc) then 
 
   if ((outp_typ == outp_NODE).or.(outp_typ == outp_CENTER)) then !DEV2602
 
     ! DEVELOPPEMENT PROVISOIRE
-    open(unit=uf_chpresu, file=trim(nom), form='formatted', iostat = info)
+    open(unit=uf_chpresu, file=trim(nom)//trim(suffix), form='formatted', iostat = info)
 
     do izone = 1, world%prj%nzone
 
@@ -79,8 +84,9 @@ endif ! position = end_calc
 endsubroutine output_vtk
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! avr  2004 : creation de la procedure
 ! oct  2004 : field chained list
+! Oct  2005 : add suffix with proc number
 !------------------------------------------------------------------------------!

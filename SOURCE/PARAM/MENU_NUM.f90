@@ -116,7 +116,7 @@ endtype mnu_imp
 ! structure MNU_TIME : options numeriques pour l'integration temporelle
 !------------------------------------------------------------------------------!
 type mnu_time
-  integer(kpp)    :: temps      ! (S)tationnaire, (I)nstationnaire, (P)eriodique
+  character       :: temps      ! (S)tationnaire, (I)nstationnaire, (P)eriodique
   integer(kpp)    :: tps_meth   ! methode d'integration temporelle
   integer(kpp)    :: stab_meth  ! methode de calcul de la stabilite
   real(krp)       :: dt         ! constant time step (if selected)

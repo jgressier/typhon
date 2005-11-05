@@ -721,6 +721,49 @@ with a zero velocity on the face)
 - init_ustboco_ghostcell.f90 : specific symmetrical point for these bocos
 - setboco_ns_*.f90 : change computed velocities and temperatures
 
+---------------------------------------------------------------------------------
+Task 0150 (Jeremie): Core : MPI development & split grids (branch core-0-3)
+---------------------------------------------------------------------------------
+* merge from pamr branch
+  MODCOM: GENLIB.f90
+  MGRID : getpart_grid.f90, GRID_CONNECT.f90, extractpart_grid.f90, send & recv structures in MGRID
+  ZONE  : split_zone.f90, calcboco_connect.f90, calcboco_connect_match.f90
+  MAIN  : mpi_strategy_pre.f90, mpi_strategy_post.f90
+  EXCHANGE: sendto/receivefrom grid_seq/mpi functions
+! only works with same number of iterations
 
+---------------------------------------------------------------------------------
+Task 0151 (Jeremie): Out : Splitted files for each grid (VTK)
+---------------------------------------------------------------------------------
+- output_vtk : add suffix to file (with proc id)
+- extractpart_grid : compute partition of cellvtex connectivity
+                     DEBUG vertex renumbering
+* validation on SHOCK-REFX/FLAT (2 to 4 procs)
 
+---------------------------------------------------------------------------------
+Task 0152 (Jeremie): MPI : Merge residuals between grids (same criterion)
+---------------------------------------------------------------------------------
+- zone%info%cur_res is summed over all grids
+- (EXCHANGE/exchange_zonal_residual_mpi)
+
+---------------------------------------------------------------------------------
+Task 0153 (Jeremie): Opt : Optimize CSR connectivity computation
+---------------------------------------------------------------------------------
+- LIBSORT : library of sorting routines
+- CONNECT_CSR : definition and computation of CSR connectity (from facecell)
+- getpart
+* extremely faster computation (ex: SHOCK-REFX/DIFFRACTION)
+
+---------------------------------------------------------------------------------
+Task 0154 (Jeremie): MPI : Merge global time step
+---------------------------------------------------------------------------------
+- global time step is set to minimum of all grids for all procs
+- (EXCHANGE/exchange_zonal_timestep_mpi)
+
+---------------------------------------------------------------------------------
+Task 0155 (Jeremie): MPI :  Validation with 2nd NS computation (without gradient communication)
+---------------------------------------------------------------------------------
+- debug cell centers in extractpart_grid
+- copy mesh%info
+! computation of DIFFRACTION (MUSCL/CFL 0.5)
 
