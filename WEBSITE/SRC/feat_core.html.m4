@@ -9,8 +9,12 @@ include_header
 
 dnl -------------------------------------------------------------
 
-dnl section([Gas model])
-dnl item([perfect gaz])
+section([Time integration])
+<br>
+
+section([Parallel computation])
+<br>
+
 
 skip_line
 

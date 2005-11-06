@@ -14,8 +14,12 @@ define([writedev],  [<tr class=orange><td align=center>$1</td><td width=10><td>$
 define([writebug],  [<tr class=red><td align=center>$1</td><td width=10><td>$2</td></tr>])
 
 dnl -------------------------------------------------------------
-sectionlr([release 0.2.1], [13/10/2005])
+sectionlr([release 0.3 RC 1], [06/11/2005])
 beginlist
+endlist
+
+dnl -------------------------------------------------------------
+sectionlr([release 0.2.1], [13/10/2005])
 beginlist
 writefunc([MESH],  [scaling function])
 writefunc([NS],    [features constant dynamic viscosity])

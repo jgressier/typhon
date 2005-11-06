@@ -9,9 +9,32 @@ include_header
 
 dnl -------------------------------------------------------------
 
-dnl section([Web site news])
+section([Case description])
 
-dnl   item([11/03/2005 : News and Change log tabs])
+twocols([
+  include_image([bi-cylinder density], [comput/hypers-bicyl-mesh-small.png], [width=400])
+], [
+  <center><b>Two staggered cylinders in a Mach 10 hypersonic flow</b></center><br>
+  item([Mesh: 2D hybrid quads and tri])
+  item([Model: inviscid flow])
+  item([Numerics: first order HLLC])
+])
+
+dnl -------------------------------------------------------------
+
+section([Results])
+twocols([
+  item([Density contours and mesh: two shock waves and interaction])
+], [
+  include_image([bi-cylinder density], [comput/hypers-bicyl-density-small.png],[width=400])
+])
+<br>
+twocols([
+  item([Streamlines colored by pressure:])<br> 
+  streamlines are severely deviated through the shock waves
+], [
+  include_image([bi-cylinder density], [comput/hypers-bicyl-streamlines-pressure.png], [width=400])
+])
 
 skip_line
 

@@ -30,5 +30,4 @@
 
 table.menuhead { height: 25px; border: 0; background-color:d7e6ef; background-image:url(img/hbar-bluegrad.png);
                  background-repeat: repeat-x }
-
-; background-position:bottom}
+.ghostitem { display: none  }

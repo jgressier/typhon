@@ -21,6 +21,9 @@ define([html_header], [
 <meta name="keywords" content="open source, CFD, solver, fluid, navier stokes, amr, mpi, heat transfer" >
 <link rel="stylesheet" href="styles.css" type="text/css">
 <title>page_title - site_title</title>
+<link rel="icon" href="tornado-32.png" type="image/png">
+<link rel="shortcut icon" href="tornado-32.png" type="image/png">
+
 </head>
 <body text="#000000" link="#000080" vlink="#000080" alink="#800000"
 background="img_dir([bgray.gif])">
@@ -71,6 +74,12 @@ define([sectionlr], [
   <table width="100%" border=0 cellspacing=0 cellpadding=1 bgcolor=004b9b><tr><td>
   <table width="100%" border=0 cellspacing=0 cellpadding=2 bgcolor=d7e6ef><tr class="defaut">
   <td><b>[$1]</b></td><td align=right>[$2]</td></tr></table> </td></tr></table>
+])
+
+define([twocols], [
+  <table width="100%" border=0 cellspacing=0 cellpadding=1 class="defaut">
+  <tr valign=top><td>$1</td><td>$2</td></tr>
+  </table> 
 ])
 
 define([google], [

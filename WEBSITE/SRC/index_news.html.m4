@@ -9,6 +9,12 @@ include_header
 
 dnl -------------------------------------------------------------
 
+section([November 2005, 6th : core 0.3 release candidate 1 released])
+item([based on released 0.2.1 version])
+item([Parallel computation: automatic splitting (METIS library) of grids])
+See hyperlink([Change log], [dev_chlog.html]) for details <br>
+<br>
+
 section([October 2005, 13th : version 0.2.1 released])
 item([Navier-Stokes solver: new viscosity definitions, MUSCL improvement, AUSM-M scheme, CFL evolution])
 See hyperlink([Change log], [dev_chlog.html]) for details <br>
