@@ -9,7 +9,7 @@ include_header
 
 dnl -------------------------------------------------------------
 
-section([])
+section([How to build TYPHON])
 
 
 skip_line

@@ -9,7 +9,7 @@ include_header
 
 dnl -------------------------------------------------------------
 
-section([])
+dnl section([])
 
 
 skip_line

@@ -19,7 +19,8 @@ a finite volume solver for heat transfer.] (see hyperlink([Presentation], [index
 dnl -------------------------------------------------------------
 section([Web site news])
 
-  item([06/11/2005 : Added documentation about numerical schemes in hyperlink([User guide], [doc_scheme.html]) [section]])
+  item([06/11/2005 : Added documentation about numerical schemes in 
+                     hyperlink([User guide], [doc_scheme.html]) [section]])
   item([06/11/2005 : Release Candadidate 1 of core 0.3 released (based on release 0.2.1)])
   item([13/10/2005 : version 0.2.1 released])
   item([04/09/2005 : version 0.2.0 released (implicit second order compressible Navier-Stokes)])
