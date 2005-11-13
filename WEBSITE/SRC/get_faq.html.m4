@@ -9,7 +9,13 @@ include_header
 
 dnl -------------------------------------------------------------
 
-section([])
+section([Fortran Compilers])
+skip_line
+
+section([External libraries])
+skip_line
+
+section([MPI])
 
 
 skip_line

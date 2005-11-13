@@ -48,7 +48,7 @@ FIC  = index.html         \
        get_faq.html       \
 
 INC  = general.m4 header.m4 footer.m4 menu.m4
-DIR  = ./HTML
+DIR  = HTML
 DEST = $(FIC:%=$(DIR)/%)
 DINC = $(INC:%=$(SRC)/%)
 

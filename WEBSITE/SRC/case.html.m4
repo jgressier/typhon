@@ -9,9 +9,10 @@ include_header
 
 dnl -------------------------------------------------------------
 
-section([Web site news])
+section([Examples and application news])
 
-  item([11/03/2005 : News and Change log tabs])
+item([11/2005 : new two-cylinder case in inviscid hypersonic flow 
+                (hyperlink([shock-waves], [case_shock]) section)])
 
 skip_line
 
