@@ -18,7 +18,7 @@ for fic in *.f90 ; do
     module=$(echo ${fic%.f90} | tr a-z A-Z)
     echo $module.source:=${PWD##*/}/$fic >> $TARGET
     echo $module.objet:=${fic%.f90}.o >> $TARGET
-    echo '$(PRJINC)/'${fic%.f90}.'$(MOD)': \\ >> $TARGET
+    echo '$(PRJINC)/'${fic%.f90}.'$(MOD)': ${PWD##*/}/$fic \\ >> $TARGET
     grep -i '^ *use ' $fic       | 
       sed 's/!.*$//'             | 
       sed 's/ *$/.$(MOD)    \\/' | 
