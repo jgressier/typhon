@@ -20,6 +20,10 @@ type v3d
   real(krp) :: x, y, z
 endtype
 
+! -- Constants    -----------------------------------------------------------
+
+type(v3d), parameter :: v3d_zero = v3d(0._krp, 0._krp, 0._krp)
+
 ! -- INTERFACES -------------------------------------------------------------
 
 interface v3d_of
