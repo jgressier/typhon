@@ -95,8 +95,9 @@ integer, parameter :: outp_FLUX         = 04 !DEV2602
 integer, parameter :: outp_TEMPINTER    = 05 !DEV1404
 
 ! -- Constantes pour l'etat d'avancement du calcul
-integer, parameter :: end_calc          = 01 !DEV2602
-integer, parameter :: in_cycle          = 02 !DEV2602
+integer, parameter :: end_calc          = 01
+integer, parameter :: in_cycle          = 02
+integer, parameter :: end_cycle         = 03
 
 ! -- Constantes de definition des conditions aux limites (physique) --
 

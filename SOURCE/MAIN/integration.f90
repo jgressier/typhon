@@ -27,15 +27,13 @@ type(st_world) :: lworld
 
 ! -- Declaration des variables internes --
 type(st_grid), pointer :: pgrid
-!real(krp)             :: macro_dt
+real(krp)              :: cpu_start, cpu_end
 integer, dimension(:), allocatable &
                        :: exchcycle ! indices des cycles d'echange pour les differents couplages de zones
 integer                :: ir, izone, if, ib, ic
 integer                :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
 
-! -- Debut de la procedure --
-
-!macro_dt        = lworld%prj%dtbase
+! -- BODY --
 
 ! initialisation
 
@@ -49,7 +47,6 @@ lworld%info%fin_integration = .false.
 allocate(exchcycle(lworld%prj%ncoupling))
 exchcycle(:) = 1 ! initialisation a 1 : 1er echange au 1er cycle, a partir des conditions initiales
 
-
 ! allocation des champs de residus et gradients
 
 do izone = 1, lworld%prj%nzone
@@ -62,15 +59,7 @@ do izone = 1, lworld%prj%nzone
   enddo
 enddo
 
-! Faire appel a une subroutine contenant l'ecriture
-!------------------------------------------------------------------------------------------------
-! DVT : Ouverture du fichier de comparaison des flux a l'interface
-!------------------------------------------------------------------------------------------------
-!if (lworld%prj%ncoupling > 0) then
-!  open(unit = uf_compflux, file = "compflux.dat", form = 'formatted')
-!  write(uf_compflux, '(a)') 'VARIABLES="t","F1","F2", "ERREUR", "Fcalcule", "ERRCALC"'
-!endif
-
+call cpu_time(cpu_start)
 
 !--------------------------------------------------------
 ! INTEGRATION
@@ -134,7 +123,16 @@ do while (.not. lworld%info%fin_integration)
 
   call print_info(6,str_w)
 
+  call output_result(lworld, end_cycle)
+
 enddo
+
+call cpu_time(cpu_end)
+
+write(str_w, "(a,e13.4)") "CPU   integration time: ", cpu_end-cpu_start 
+call print_info(10, str_w)
+write(str_w, "(a,e13.4)") "CPU average cycle time: ", (cpu_end-cpu_start)/lworld%info%icycle
+call print_info(10, str_w)
 
 ! Mise a jour des variables primitives
 do izone = 1, lworld%prj%nzone
@@ -177,7 +175,7 @@ enddo
 endsubroutine integration
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! juil 2002 : creation de la procedure
 ! juin 2003 : instant d'echange excht
@@ -187,4 +185,5 @@ endsubroutine integration
 !              exchcycle
 ! avr  2004 : integration des structures MGRID pour tous les solveurs
 ! oct  2004 : field chained list
+! Nov  2005 : add ending cycle output
 !------------------------------------------------------------------------------!

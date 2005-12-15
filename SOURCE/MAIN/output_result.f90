@@ -7,41 +7,53 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine output_result(world, position) !DEV2602 subroutine output_result(world)
+subroutine output_result(world, position)
  
 use TYPHMAKE
 use OUTPUT
 use VARCOM
 use MODWORLD
+use MODINFO
+use MENU_GEN
+use STRING
 
 implicit none
 
-! -- Declaration des entrees --
+! -- Inputs --
 type(st_world) :: world
-integer        :: position !DEV2602
+integer        :: position
 
-! -- Declaration des sorties --
+! -- Ouputs --
 
-! -- Declaration des variables internes --
-integer :: i
+! -- Internal variables --
+integer               :: i
+character(len=strlen) :: nom       ! file name
 
-! -- Debut de la procedure --
+! -- BODY --
 
 do i = 1, world%noutput
+
+  select case(position)
+  case(end_calc)
+    nom = trim(world%output(i)%fichier)
+  case(end_cycle)
+    nom = trim(world%output(i)%fichier)//"_cyc"//strof_full_int(world%info%icycle, 4)
+  case(in_cycle)
+  case default
+  endselect  
 
   select case(world%output(i)%format)
   case(fmt_VTK)
 
-    call print_info(2,"* sauvegarde au format VTK : " &
-                      // trim(world%output(i)%fichier))
-    call output_vtk(world%output(i)%fichier, world, world%output(i)%type, position, i) 
+    nom = trim(nom)//".vtk"
+    call print_info(2,"* write VTK file: " // trim(nom))
+    call output_vtk(nom, world, world%output(i)%type, position, i) 
 
   case(fmt_TECPLOT)
 
-    call print_info(2,"* sauvegarde au format TECPLOT : " &
-                      // trim(world%output(i)%fichier))
-    call output_tecplot(world%output(i)%fichier, world, world%output(i)%type, position, i) 
-    !DEV2602 call output_tecplot(world%output(i)%fichier, world, world%output(i)%type)
+    nom = trim(nom)//".dat"
+    call print_info(2,"* write TECPLOT file: " // trim(nom))
+    call output_tecplot(nom, world, world%output(i)%type, position, i) 
 
   case(fmt_VIGIE)
     call erreur("Developpement","format VIGIE non implemente")

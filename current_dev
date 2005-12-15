@@ -37,11 +37,11 @@ Details:
 Task Dévlp.    début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
 0041 Jérémie   01/07       Solv  Inversion Gauss-Seidel
-0063 Jérémie               Out   Tecplot outputs : FEBLOCK format and output of scalars & vectors
-0064 Jérémie               Out   CGNS outputs
 0101 Jérémie   13/10 13/10 Opt   Gradient computation optimization
 0102 Jérémie   15/10 15/10 NS    Fast MUSCL method
 095b Jérémie   28/10 28/10 BUG   Correct local time stepping (bounded to cycle time step)
+0122 Jeremie   20/11 05/12 Out   Cycle Output
+0123 Jeremie   14/12 15/12 Out   Mesh computation report
      Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
                            Make  Restructuration de MAIN/integration_cycle (split)
                            Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)

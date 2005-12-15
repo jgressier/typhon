@@ -17,25 +17,26 @@ use MODWORLD
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 character(len=strlen) :: nom       ! nom du fichier
 type(st_world)        :: world
 integer               :: outp_typ
 integer               :: position 
 integer               :: io       !DEV2602
 
-! -- Declaration des sorties --
+! -- OUPUTS --
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 integer               :: izone, i, dim, ufc, ir
 integer               :: info
 type(st_genericfield) :: vfield
 
-! -- Debut de la procedure --
+! -- BODY --
 
-if (position == end_calc) then 
+select case(position)
+case(end_calc, end_cycle)
 
-  if ((outp_typ == outp_NODE).or.(outp_typ == outp_CENTER)) then !DEV2602
+  if ((outp_typ == outp_NODE).or.(outp_typ == outp_CENTER)) then
 
     ! DEVELOPPEMENT PROVISOIRE
     open(unit=uf_chpresu, file=trim(nom), form='formatted', iostat = info)
@@ -74,12 +75,13 @@ if (position == end_calc) then
 
   endif
 
-endif ! position = end_calc
+case default
+  print*,"!DEV! blanked output_vtk"
+endselect
 
 endsubroutine output_vtk
-
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! avr  2004 : creation de la procedure
 ! oct  2004 : field chained list

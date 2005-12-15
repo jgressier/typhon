@@ -15,10 +15,13 @@ use TYPHMAKE   ! Definition de la precision
 
 implicit none
 
-! -- Module constant -------------------------------------------
+! -- Module constants -------------------------------------------
 
 integer(kpp), parameter :: act_compute = 1
 integer(kpp), parameter :: act_analyse = 2
+
+integer(kpp), parameter :: write_end   = 10
+integer(kpp), parameter :: write_cycle = 20
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
@@ -47,6 +50,7 @@ type mnu_OUTPUT
   character(len=strlen) &
                   :: fichier    ! nom du fichier de sortie
   integer         :: type       ! type de sortie (cf. VARCOM)
+  integer(kpp)    :: write      ! writing moment
   integer         :: period     ! writing period
 endtype mnu_OUTPUT
 
@@ -65,7 +69,7 @@ endmodule MENU_GEN
 
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! nov  2002 : creation du module
 !------------------------------------------------------------------------------!
