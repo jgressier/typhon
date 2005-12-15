@@ -16,3 +16,9 @@ Pour créer une release, il est nécessaire de :
 - mettre à jour le numéro de version dans SOURCE/MODCOM/VARCOM.f90
 - mettre à jour les fichiers SOURCE/_DOC/VERSION et SOURCE/_DOC/VERSION-changes
 - "cvs tag rel-i-j-k" au niveau de TYPHON (ou "rtag" si working copy à jour)
+- update WEBSITE (index, index_news, dev_chlog, feat_*)
+- mail typhon-devel typhon-users@list.sourceforge.net
+- create packages (tar cvfz)
+    typhon-solver-x.x.x-sources.tar.gz 
+  ftp to upload.sourceforge.net / incoming and create release in sf.net/projects/typhon
+- post news on sf.net/projects/typhon
