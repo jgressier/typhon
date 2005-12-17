@@ -133,6 +133,15 @@ do isca = 1, fprim%nscal
     scellgrad(:) = vgradR(:).scal.uLR(:)
     scellgrad(:) = superbee(2._krp*scellgrad(:)-LRsca(:), LRsca(:))
     gprimR%tabscal(isca)%scal(:) = scellgrad(:)*kRF(:)
+  case(lim_kim3)
+    ! -- left --
+    scellgrad(:) = vgradL(:).scal.uLR(:)
+    scellgrad(:) = kim3(LRsca(:), 2._krp*scellgrad(:)-LRsca(:))  ! param order !
+    gprimL%tabscal(isca)%scal(:) = scellgrad(:)*kLF(:)
+    ! -- right --
+    scellgrad(:) = vgradR(:).scal.uLR(:)
+    scellgrad(:) = kim3(LRsca(:), 2._krp*scellgrad(:)-LRsca(:))  ! param order !
+    gprimR%tabscal(isca)%scal(:) = scellgrad(:)*kRF(:)
   case default
     call erreur("high resolution","unknown limiter")
   endselect
@@ -196,11 +205,20 @@ do ivec = 1, fprim%nvect
   case(lim_sbee)
     ! -- left --
     vcellgrad(:) = tgradL(:).scal.uLR(:)
-    vcellgrad(:) = superbee(2._krp*vcellgrad(:)-LRvec(:), LRvec(:)) - vcellgrad(:) 
+    vcellgrad(:) = superbee(2._krp*vcellgrad(:)-LRvec(:), LRvec(:))
     gprimL%tabvect(ivec)%vect(:) = kLF(:)*vcellgrad(:)
     ! -- right --
     vcellgrad(:) = tgradR(:).scal.uLR(:)
-    vcellgrad(:) = superbee(2._krp*vcellgrad(:)-LRvec(:), LRvec(:)) - vcellgrad(:) 
+    vcellgrad(:) = superbee(2._krp*vcellgrad(:)-LRvec(:), LRvec(:))
+    gprimR%tabvect(ivec)%vect(:) = kRF(:)*vcellgrad(:)
+  case(lim_kim3)
+    ! -- left --
+    vcellgrad(:) = tgradL(:).scal.uLR(:)
+    vcellgrad(:) = kim3(LRvec(:), 2._krp*vcellgrad(:)-LRvec(:))  ! param order !
+    gprimL%tabvect(ivec)%vect(:) = kLF(:)*vcellgrad(:)
+    ! -- right --
+    vcellgrad(:) = tgradR(:).scal.uLR(:)
+    vcellgrad(:) = kim3(LRvec(:), 2._krp*vcellgrad(:)-LRvec(:))  ! param order !
     gprimR%tabvect(ivec)%vect(:) = kRF(:)*vcellgrad(:)
   case default
     call erreur("high resolution","unknown limiter")

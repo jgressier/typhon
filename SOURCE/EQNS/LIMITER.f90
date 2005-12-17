@@ -35,6 +35,10 @@ interface superbee
   module procedure superbee, superbee_t, superbee_v, superbee_vt
 endinterface
 
+interface kim3
+  module procedure kim3, kim3_t, kim3_v, kim3_vt
+endinterface
+
 
 
 ! -- Fonctions et Operateurs ------------------------------------------------
@@ -254,6 +258,68 @@ integer :: i
 
 end function superbee_vt
 
+!-----------------------------------------------------------------------
+function kim3(x1, x2)
+implicit none
+integer   :: ilim
+real(krp) :: x1, x2, ad1, ad2, s, kim3
+
+  kim3 = 0._krp
+  if ((x1 > 0._krp).and.(x2 > 0._krp)) then
+    kim3 = (2._krp*x1 + x2) / 3._krp
+    kim3 = min(min(2._krp*x1, 2._krp*x2), kim3)
+  endif
+  if ((x1 < 0._krp).and.(x2 < 0._krp)) then
+    kim3 = (2._krp*x1 + x2) / 3._krp
+    kim3 = max(max(2._krp*x1, 2._krp*x2), kim3)
+  endif
+
+end function kim3
+
+!-----------------------------------------------------------------------
+function kim3_t(x1, x2)
+implicit none
+real(krp), dimension(:)        :: x1, x2
+real(krp), dimension(size(x1)) :: kim3_t
+
+  kim3_t = 0._krp
+  where ((x1 > 0._krp).and.(x2 > 0._krp)) 
+    kim3_t = (2._krp*x1 + x2) / 3._krp
+    kim3_t = min(min(2._krp*x1, 2._krp*x2), kim3_t)
+  endwhere
+  where ((x1 < 0._krp).and.(x2 < 0._krp)) 
+    kim3_t = (2._krp*x1 + x2) / 3._krp
+    kim3_t = max(max(2._krp*x1, 2._krp*x2), kim3_t)
+  endwhere
+
+end function kim3_t
+
+!-----------------------------------------------------------------------
+function kim3_v(v1, v2)
+implicit none
+type(v3d) :: v1, v2, kim3_v
+
+  kim3_v%x = kim3(v1%x, v2%x)
+  kim3_v%y = kim3(v1%y, v2%y)
+  kim3_v%z = kim3(v1%z, v2%z)
+
+end function kim3_v
+
+!-----------------------------------------------------------------------
+function kim3_vt(v1, v2)
+implicit none
+type(v3d), dimension(:) :: v1, v2
+type(v3d), dimension(size(v1)) :: kim3_vt
+integer :: i
+
+  do i = 1, size(v1)
+    kim3_vt(i)%x = kim3(v1(i)%x, v2(i)%x)
+    kim3_vt(i)%y = kim3(v1(i)%y, v2(i)%y)
+    kim3_vt(i)%z = kim3(v1(i)%z, v2(i)%z)
+  enddo
+
+end function kim3_vt
+
 
 
 
@@ -264,4 +330,5 @@ endmodule LIMITER
 !
 ! nov  2004 : created, limiters
 ! nov  2004 : limiters for vectors & arrays
+! dec  2005 : new kim3 limiter (Kim & Kim, JCP 208, 2005)
 !------------------------------------------------------------------------------!

@@ -69,6 +69,7 @@ character, parameter :: lim_minmod    = 'M'
 character, parameter :: lim_albada    = 'A'
 character, parameter :: lim_vleer     = 'V'
 character, parameter :: lim_sbee      = 'S'
+character, parameter :: lim_kim3      = 'K'
 
 ! -- Constantes pour schema de calcul des flux dissipatifs (sch_dis)
 integer(kpp), parameter :: dis_dif2 = 1     ! difference des 2 etats/face (NON CONSISTANT)
