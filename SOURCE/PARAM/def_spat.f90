@@ -100,7 +100,7 @@ case(solNS)
   select case(defsolver%defns%typ_fluid)
   case(eqEULER)
   case(eqNSLAM, eqRANS)
-    call get_gradientmethod("DISSIPATIVE_FLUX", defspat%sch_dis)
+    call get_dissipmethod(pcour, "DISSIPATIVE_FLUX", defspat)
   case default
     call erreur("parameters parsing","unexpected fluid dynamical model")
   endselect
@@ -128,8 +128,8 @@ case(solNS)
     ! -- High resolution order
     call rpmgetkeyvalint(pcour, "ORDER", defspat%order, 2_kpp)
 
-    ! -- High resolution gradient computation
-    call get_gradientmethod("GRADIENT", defspat%muscl%sch_grad)
+    ! -- High resolution gradient computation                  
+    call get_gradientmethod(pcour, defspat)
 
     defspat%muscl%limiter = cnull
     call rpmgetkeyvalstr(pcour, "LIMITER", str, "VAN_ALBADA")
@@ -153,51 +153,22 @@ case(solNS)
 case(solKDIF)
 
   ! -- Methode de calcul des flux dissipatifs --
-  call get_gradientmethod("DISSIPATIVE_FLUX", defspat%sch_dis)
+  call get_dissipmethod(pcour, "DISSIPATIVE_FLUX", defspat)
 
 case(solVORTEX)
 
 endselect
 
-contains
-
-  !-------------------------------------------------------------------------
-  ! get method for dissipative flux computation
-  !-------------------------------------------------------------------------
-  subroutine get_gradientmethod(keyword, sch)
-
-  character(len=*), intent(in)  :: keyword
-  integer(kpp),     intent(out) :: sch
-
-    call rpmgetkeyvalstr(pcour, keyword, str, "FULL")
-    sch = inull
-
-    if (samestring(str,"COMPACT")) sch = dis_dif2
-    if (samestring(str,"AVERAGE")) sch = dis_avg2
-    if (samestring(str,"FULL"))    sch = dis_full
-
-    if (sch == inull) &
-         call erreur("parameters parsing","unknown DISSIPATIVE_FLUX method")
-
-    select case(sch)
-    case(dis_dif2)
-  
-    case(dis_avg2)
-      defspat%calc_grad = .true.
-    case(dis_full)
-      defspat%calc_grad = .true.
-    endselect
-
-  endsubroutine get_gradientmethod
 
 endsubroutine def_spat
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! nov  2002 : creation, lecture de bloc vide
 ! oct  2003 : choix de la methode de calcul des flux dissipatifs
 ! mars 2004 : traitement dans le cas solVORTEX
 ! july 2004 : NS solver parameters
 ! nov  2004 : NS high resolution parameters
+! jan  2006 : basic parameter routines moved to MENU_NUM
 !------------------------------------------------------------------------------!

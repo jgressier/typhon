@@ -7,27 +7,29 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine calc_gradient(def_solver, grid, gfield, grad)
+subroutine calc_gradient(defsolver, defspat, grid, gfield, grad)
 
 use TYPHMAKE
 use LAPACK
 use OUTPUT
 use VARCOM
 use MENU_SOLVER
+use MENU_NUM
 use DEFFIELD
 use MGRID
 
 implicit none
 
-! -- Declaration des entrees --
-type(mnu_solver)      :: def_solver  ! definition des parametres du solveur
+! -- INPUTS --
+type(mnu_solver)      :: defsolver   ! definition des parametres du solveur
+type(mnu_spat)        :: defspat     ! spatial numerical parameters
 type(st_grid)         :: grid        ! maillage et connectivites
 type(st_genericfield) :: gfield      ! champ des valeurs
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 type(st_genericfield) :: grad        ! champ des gradients
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 real(krp), allocatable :: dcg(:,:)    ! delta cg
 real(krp), allocatable :: rhs(:,:)    ! second membre
 real(krp)              :: dsca        ! variation de variable scalaire
@@ -41,11 +43,11 @@ integer                :: is, iv      ! indice de variable scalaire et vectoriel
 integer                :: ic1, ic2    ! indices de cellules (gauche et droite de face)
 integer                :: info, xinfo ! retour d'info des routines LAPACK
 
-! -- Debut de la procedure --
+! -- BODY --
 
 
 if (.not.grid%optmem%gradcond_computed) then
-  call precalc_grad_lsq(def_solver, grid)
+  call precalc_grad_lsq(defsolver, defspat, grid)
 endif
 
 ! need OPTIMIZATION
@@ -65,11 +67,23 @@ dim = gfield%nscal+3*gfield%nvect
 allocate(dcg(3,nf))
 allocate(rhs(3,nc*dim))    ! allocation
 
-do if = 1, nf
-  ic1 = grid%umesh%facecell%fils(if,1)
-  ic2 = grid%umesh%facecell%fils(if,2)
-  dcg(1:3,if) = tab(grid%umesh%mesh%centre(ic2,1,1) - grid%umesh%mesh%centre(ic1,1,1))
-enddo
+select case(defspat%gradmeth)
+case(grad_lsq)
+  do if = 1, nf
+    ic1  = grid%umesh%facecell%fils(if,1)
+    ic2  = grid%umesh%facecell%fils(if,2)
+    dcg(1:3,if) = tab(grid%umesh%mesh%centre(ic2,1,1) - grid%umesh%mesh%centre(ic1,1,1))
+  enddo
+case(grad_lsqw)
+  do if = 1, nf
+    ic1  = grid%umesh%facecell%fils(if,1)
+    ic2  = grid%umesh%facecell%fils(if,2)
+    dvec = grid%umesh%mesh%centre(ic2,1,1) - grid%umesh%mesh%centre(ic1,1,1)
+    dcg(1:3,if) = tab(dvec)/sqrabs(dvec)**2
+  enddo
+case default
+  call erreur("Internal error", "unknown GRADIENT computation method")
+endselect
 
 !-----------------------------------------------------------------------------
 ! Fill RHS and pack scalars and vectors

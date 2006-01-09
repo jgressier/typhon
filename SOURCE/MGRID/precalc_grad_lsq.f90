@@ -7,29 +7,29 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine precalc_grad_lsq(def_solver, grid)
+subroutine precalc_grad_lsq(defsolver, defspat, grid)
 
 use TYPHMAKE
 use LAPACK
 use OUTPUT
 use VARCOM
 use MENU_SOLVER
+use MENU_NUM
 use DEFFIELD
 use USTMESH
 use TENSOR3
 
 implicit none
 
-! -- Declaration des entrees --
-type(mnu_solver)      :: def_solver  ! definition des parametres du solveur
+! -- INPUTS --
+type(mnu_solver)      :: defsolver  ! definition des parametres du solveur
+type(mnu_spat)        :: defspat     ! spatial numerical parameters
 type(st_grid)         :: grid        ! maillage et connectivites
 
-! -- Declaration des variables internes --
+! -- Internal parameters --
 type(v3d), allocatable :: dcg(:)      ! delta cg
 !real(krp), allocatable :: rhs(:,:)    ! second membre
 real(krp)              :: imat(3,3)   ! matrice locale
-!real(krp)              :: dsca        ! variation de variable scalaire
-!type(v3d)              :: dvec        ! variation de variable vectorielle
 integer                :: ic, nc      ! indice et nombre de cellules internes
 integer                :: if, nf, nfi ! indice et nombre de faces totales et internes
 integer                :: nv          ! nombre de variables
@@ -37,7 +37,7 @@ integer                :: is, iv      ! indice de variable scalaire et vectoriel
 integer                :: ic1, ic2    ! indices de cellules (gauche et droite de face)
 integer                :: info, xinfo ! retour d'info des routines LAPACK
 
-! -- Debut de la procedure --
+! -- BODY --
 
 nc  = grid%umesh%ncell_int   ! nombre de cellules internes
 nfi = grid%umesh%nface_int   ! nb de faces internes (connectees avec 2 cellules)
@@ -56,11 +56,24 @@ grid%optmem%gradcond_computed = .true.
 ! -- Calcul des differences de centres de cellules --
 !    (toutes les faces, meme limites, doivent avoir un centre de cellule)
 
-do if = 1, nf
-  ic1 = grid%umesh%facecell%fils(if,1)
-  ic2 = grid%umesh%facecell%fils(if,2)
-  dcg(if) = grid%umesh%mesh%centre(ic2,1,1) - grid%umesh%mesh%centre(ic1,1,1) 
-enddo
+select case(defspat%gradmeth)
+case(grad_lsq)
+  do if = 1, nf
+    ic1 = grid%umesh%facecell%fils(if,1)
+    ic2 = grid%umesh%facecell%fils(if,2)
+    dcg(if) = grid%umesh%mesh%centre(ic2,1,1) - grid%umesh%mesh%centre(ic1,1,1) 
+  enddo
+case(grad_lsqw)
+  do if = 1, nf
+    ic1  = grid%umesh%facecell%fils(if,1)
+    ic2  = grid%umesh%facecell%fils(if,2)
+    dcg(if) = grid%umesh%mesh%centre(ic2,1,1) - grid%umesh%mesh%centre(ic1,1,1) 
+    dcg(if) = dcg(if)/sqrabs(dcg(if))
+  enddo
+case default
+  call erreur("Internal error", "unknown GRADIENT computation method")
+endselect
+
 
 ! -- Calcul des matrices At.A et inversion --
 

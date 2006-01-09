@@ -45,6 +45,7 @@ Task Dévlp.    début fin   Type  Développement
 0124 Jeremie   16/12 16/12 NS    Bug correction in MUSCL-fast/superbee method
 0125 Jeremie   16/12 17/12 NS    MUSCL-fast : Kim's 3rd order limiter
 0126 Jeremie   17/12 17/12 NS    test energy positivity (dt computation)
+0127 Jeremie   08/01 09/01 Num   gradient computation method : weighted least square
      Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
                            Make  Restructuration de MAIN/integration_cycle (split)
                            Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)

@@ -763,6 +763,18 @@ Task 0123 (Jeremie): Out : Mesh computation report
 - report is done on standart output
 
 ---------------------------------------------------------------------------------
+Task 0123 (Jeremie): Out : Mesh computation report
+---------------------------------------------------------------------------------
+- MESH: GEO3D, MESHBASE (calc_mesh_info), calc_ust_face, calc_ustmesh
+- report is done on standart output
+
+---------------------------------------------------------------------------------
+Task 0126 (Jeremie): Num : gradient computation method : weighted least square
+---------------------------------------------------------------------------------
+- MGRID: precalc_grad_lsq, calc_gradient
+- PARAM: MENU_NUM, def_spat (GRADMETH=W-LSQ)
+
+---------------------------------------------------------------------------------
 Task 0150 (Jeremie): Core : MPI development & split grids (branch core-0-3)
 ---------------------------------------------------------------------------------
 * merge from pamr branch

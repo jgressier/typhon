@@ -12,6 +12,8 @@
 module MENU_NUM
 
 use TYPHMAKE   ! Definition de la precision
+use VARCOM
+use RPM
 
 implicit none
 
@@ -76,8 +78,9 @@ integer(kpp), parameter :: dis_dif2 = 1     ! difference des 2 etats/face (NON C
 integer(kpp), parameter :: dis_avg2 = 5     ! moyenne des 2 gradients/face
 integer(kpp), parameter :: dis_full = 10    ! evaluation complete (ponderee de 1 et 5)
 
-! -- Constantes pour le calcul des gradients (gradmeth)
-integer(kpp), parameter :: lsm1 = 10     ! moindres carres basee sur les centres voisins
+! -- Constants for gradients construction method (gradmeth)
+integer(kpp), parameter :: grad_lsq  = 10     ! least square method
+integer(kpp), parameter :: grad_lsqw = 12     ! weighted least square method
 
 ! -- Constantes pour la methode de resolution matricielle
 integer(kpp), parameter :: alg_lu       = 10  ! resolution directe LU
@@ -161,16 +164,78 @@ endtype mnu_spat
 
 
 ! -- IMPLEMENTATION ---------------------------------------------------------
-!contains
+contains
+
+!-------------------------------------------------------------------------
+! get method for dissipative flux computation
+!-------------------------------------------------------------------------
+subroutine get_dissipmethod(pcour, keyword, defspat)
+implicit none
+type(rpmblock), pointer       :: pcour  ! pointeur de bloc RPM
+character(len=*), intent(in)  :: keyword
+type(mnu_spat)                :: defspat
+character(len=dimrpmlig)      :: str            ! chaine RPM intermediaire
+
+call rpmgetkeyvalstr(pcour, keyword, str, "FULL")
+defspat%sch_dis = inull
+
+if (samestring(str,"COMPACT")) defspat%sch_dis = dis_dif2
+if (samestring(str,"AVERAGE")) defspat%sch_dis = dis_avg2
+if (samestring(str,"FULL"))    defspat%sch_dis = dis_full
+
+if (defspat%sch_dis == inull) &
+     call erreur("parameters parsing","unknown DISSIPATIVE_FLUX method")
+
+select case(defspat%sch_dis)
+case(dis_dif2)
+  
+case(dis_avg2)
+  defspat%calc_grad = .true.
+case(dis_full)
+  defspat%calc_grad = .true.
+endselect
+
+call get_gradientmethod(pcour, defspat)
+
+endsubroutine get_dissipmethod
+
+
+!-------------------------------------------------------------------------
+! get method for gradient computation
+!-------------------------------------------------------------------------
+subroutine get_gradientmethod(pcour, defspat)
+implicit none
+type(rpmblock), pointer       :: pcour  ! pointeur de bloc RPM
+type(mnu_spat)                :: defspat
+character(len=dimrpmlig)      :: str            ! chaine RPM intermediaire
+
+defspat%calc_grad = .true.
+
+call rpmgetkeyvalstr(pcour, "GRADMETH", str, "LSQ")
+defspat%gradmeth = inull
+
+if (samestring(str,"LSQ"))   defspat%gradmeth = grad_lsq
+if (samestring(str,"W-LSQ")) defspat%gradmeth = grad_lsqw
+
+if (defspat%gradmeth == inull) &
+     call erreur("parameters parsing","unknown GRADIENT computation method")
+
+select case(defspat%gradmeth)
+case(grad_lsq)
+case(grad_lsqw)
+endselect
+
+endsubroutine get_gradientmethod
 
 
 endmodule MENU_NUM
 
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! mai  2002 : creation du module
 ! aout 2003 : parametres pour l'integration temporelle (Fourier, residu)
 ! sept 2003 : parametres pour l'integration spatiale (calcul de gradients)
+! jan  2006 : gradient computation method (local routine to get parameters)
 !------------------------------------------------------------------------------!
