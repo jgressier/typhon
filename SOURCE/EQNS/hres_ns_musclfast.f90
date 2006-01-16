@@ -60,6 +60,7 @@ do i = 1, nf
   kLF(i) =  abs(umesh%mesh%iface(if,1,1)%centre  - umesh%mesh%centre(icl, 1, 1))
   kRF(i) = -abs(umesh%mesh%iface(if,1,1)%centre  - umesh%mesh%centre(icr, 1, 1))
   dLR(i) = abs(uLR(i))
+  dLR(i) = kLF(i)-kRF(i)
   uLR(i) = uLR(i)/dLR(i)
 enddo
 
