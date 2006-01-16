@@ -1,3 +1,0 @@
-Compiler with profiling options (-pg with ifc) : typhon-pg
-1. execute typhon-pg (create gmon.out)
-2. analyse with gprof --brief ~gressier/local/bin/typhon-pg

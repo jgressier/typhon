@@ -1,2 +1,0 @@
-plot "typhon.dat" using (sqrt($1*$1+$2*$2)):($4)
-pause -1 "Entrée pour terminer..."
