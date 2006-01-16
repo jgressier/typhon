@@ -21,6 +21,8 @@ item([E. Radenac])
 
 section([Contributors])
 
+item([A. Blay, J. Rodriguez, N. Morbieu, M. Betoule (Supaero)])
+
 
 
 skip_line

@@ -9,9 +9,17 @@ include_header
 
 dnl -------------------------------------------------------------
 
-You can find a presentation of the development team, 
-a description of all previous changes 
-and an expected roadmap of future developments.
+<p>
+You can find: <br>
+item([a presentation of the hyperlink([development team], [dev_team.html]),]) 
+item([a description of all hyperlink([previous changes], [dev_chlog.html])])  
+item([and an expected hyperlink([roadmap], [dev_rmap.html]) of future developments.]) 
+</p>
+
+<p>
+Sourceforge project page provides: <br>
+item([hyperlink([Bug tracker],     [http://sourceforge.net/tracker/?group_id=132321&atid=723918])])
+</p>
 
 skip_line
 
