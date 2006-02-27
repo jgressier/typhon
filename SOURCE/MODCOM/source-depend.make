@@ -12,6 +12,7 @@ MODCOM_MOD = CONNECTIVITY.$(MOD)     \
              GEO2D.$(MOD)            \
              LAPACK.$(MOD)           \
              MODINFO.$(MOD)          \
+             STRING.$(MOD)           \
              TYPHMAKE.$(MOD)         \
              VARCOM.$(MOD)           
 

@@ -84,6 +84,24 @@ function uppercase(str) result(strout)
 endfunction uppercase
 
 !------------------------------------------------------------------------------!
+! Fonction : Remove space characters
+!------------------------------------------------------------------------------!
+function delspace(str) result(strout)
+  implicit none
+  character(len=*), intent(in) :: str
+  character(len=len(str))      :: strout
+  integer                      :: i1, i2
+
+  i2 = 0
+  do i1 = 1, len(str)
+    if (str(i1:i1) /= ' ') then
+      i2 = i2 + 1
+      strout(i2:i2) = str(i1:i1)
+    endif
+  enddo
+endfunction delspace
+
+!------------------------------------------------------------------------------!
 ! Fonction : Remplacement de caractere
 !------------------------------------------------------------------------------!
 function chg_char(str, c, r) result(strout)

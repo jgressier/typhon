@@ -9,7 +9,7 @@ PIO_LIB = $(PRJLIB)/libt_pio.a
 
 PIO_MOD = OUTPUT.$(MOD)   \
           RPM.$(MOD)      \
-          STRING.$(MOD)
+
 
 PIO_OBJ = $(PIO_MOD:.$(MOD)=.o)  \
           erreur.o               \
