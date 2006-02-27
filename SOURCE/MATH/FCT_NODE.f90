@@ -45,26 +45,28 @@ integer(ipar), parameter :: fct_atanh = 18
 integer(ipar), parameter :: fct_abs   = 19
 integer(ipar), parameter :: fct_sign  = 20
 integer(ipar), parameter :: fct_step  = 21
+integer(ipar), parameter :: min_fct   = 01
 integer(ipar), parameter :: max_fct   = fct_step
 
-! -- binary operators
+! -- binary operators (reverse priority order) --
 
-integer(ipar), parameter :: op_add = 01
-integer(ipar), parameter :: op_sub = 02
-integer(ipar), parameter :: op_mul = 03
-integer(ipar), parameter :: op_div = 04
-integer(ipar), parameter :: op_pow = 05
-integer(ipar), parameter :: op_and = 06
-integer(ipar), parameter :: op_or  = 07
-integer(ipar), parameter :: op_neq = 08
-integer(ipar), parameter :: op_eq  = 09
-integer(ipar), parameter :: op_lt  = 10
-integer(ipar), parameter :: op_gt  = 11
-integer(ipar), parameter :: op_leq = 12
-integer(ipar), parameter :: op_geq = 13
-integer(ipar), parameter :: max_op = op_geq
+integer(ipar), parameter :: op_and = 01
+integer(ipar), parameter :: op_or  = 02
+integer(ipar), parameter :: op_neq = 03
+integer(ipar), parameter :: op_eq  = 04
+integer(ipar), parameter :: op_lt  = 05
+integer(ipar), parameter :: op_gt  = 06
+integer(ipar), parameter :: op_leq = 07
+integer(ipar), parameter :: op_geq = 08
+integer(ipar), parameter :: op_add = 09
+integer(ipar), parameter :: op_sub = 10
+integer(ipar), parameter :: op_mul = 11
+integer(ipar), parameter :: op_div = 12
+integer(ipar), parameter :: op_pow = 13
+integer(ipar), parameter :: min_op = op_and
+integer(ipar), parameter :: max_op = op_pow
 
-! -- associated strings
+! -- associated strings --
 
 integer(ipar), parameter :: fct_len = 5
 character(len=fct_len), dimension(fct_inv:max_fct), parameter :: op1name = & 
@@ -74,13 +76,13 @@ character(len=fct_len), dimension(fct_inv:max_fct), parameter :: op1name = &
      "abs  ", "sign ", "step "/)
      
 integer(ipar), parameter :: op_len = 2
-character(len=op_len), dimension(op_add:max_op), parameter :: op2name = &
-  (/ "+ ", "- ", "* ", "/ ", "^ ", "&&", "||", &
-     "!=", "==", "< ", "> ", "<=", ">=" /)
+character(len=op_len), dimension(min_op:max_op), parameter :: op2name = &
+  (/ "&&", "||", "!=", "==", "< ", "> ", "<=", ">=", &
+     "+ ", "- ", "* ", "/ ", "^ " /)
      
-integer(ipar), dimension(op_add:max_op), parameter :: op2priority = &
-  (/   50,   51,   60,   61,  100,   40,   40, &
-       30,   30,   30,   30,   30,   30 /) 
+!integer(ipar), dimension(op_add:max_op), parameter :: op2priority = &
+!  (/   50,   51,   60,   61,  100,   40,   40, &
+!       30,   30,   30,   30,   30,   30 /) 
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
@@ -117,13 +119,33 @@ contains
 !------------------------------------------------------------------------------!
 ! new_fct_node : allocate FCT_NODE structure
 !------------------------------------------------------------------------------!
-subroutine new_fct_node(node, type)
+subroutine new_fct_node(node, type, oper)
 implicit none
 ! - paramètres
-type(st_fct_node) :: node
-integer(ipar)     :: type
+type(st_fct_node)       :: node
+integer(ipar)           :: type
+integer(ipar), optional :: oper
 
   node%type_node = type
+
+  nullify(node%left)          ! default initialization
+  nullify(node%right)         ! default initialization
+
+  select case(type)
+  case(node_cst)
+    call new_fct_container(node%container, cont_real)
+  case(node_var)
+    call new_fct_container(node%container, cont_var)
+  case(node_opunit)
+    node%type_oper = oper
+    allocate(node%left)
+  case(node_opbin)
+    node%type_oper = oper
+    allocate(node%left)
+    allocate(node%right)
+  case default
+    call set_fct_error(type, "unknown type of node")
+  endselect
 
 endsubroutine new_fct_node
 
@@ -148,7 +170,7 @@ type(st_fct_node) :: node
     call delete(node%right)
     deallocate(node%left, node%right)
   case default
-    call set_fct_error(1,"unknown type of node")
+    call set_fct_error(node%type_node, "unknown type of node")
   endselect
 
 endsubroutine delete_fct_node

@@ -15,16 +15,16 @@ implicit none
 
 ! -- Constants -------------------------------------------
 
-integer(ipar), parameter :: cont_str     = 20
+integer, parameter       :: cont_str     = 20
 
 ! -- node container type
 
-integer(ipar), parameter :: cont_real    = 10
-integer(ipar), parameter :: cont_vect    = 15
-integer(ipar), parameter :: cont_mat     = 30
-integer(ipar), parameter :: cont_v3d     = 50
-integer(ipar), parameter :: cont_v3dvect = 55
-integer(ipar), parameter :: cont_func    = 100
+integer(ipar), parameter :: cont_var      = 01           ! variable
+integer(ipar), parameter :: cont_real     = 10           ! real
+integer(ipar), parameter :: cont_vect     = 15           ! array of reals
+integer(ipar), parameter :: cont_mat      = 30           ! matrix
+integer(ipar), parameter :: cont_v3d      = 50           ! 3D vector
+integer(ipar), parameter :: cont_v3dvect  = 55           ! array of 3D vectors
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
@@ -78,6 +78,7 @@ integer(iprc), optional :: n
       call set_fct_error(1,"bad definition of vector node")
     endif
   case(cont_v3d)
+  case(cont_var)
   case default
     call set_fct_error(1,"unknown type of node container")
   endselect

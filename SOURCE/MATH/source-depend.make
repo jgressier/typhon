@@ -7,7 +7,13 @@ LDIR = MATH
 
 MATH_LIB = $(PRJLIB)/libt_math.a
 
-MATH_MOD = INTEGRATION.$(MOD) \
+MATH_MOD = FCT_CONTAINER.$(MOD) \
+           FCT_DEF.$(MOD)       \
+           FCT_EVAL.$(MOD)      \
+           FCT_FUNC.$(MOD)      \
+           FCT_NODE.$(MOD)      \
+           FCT_PARSER.$(MOD)    \
+           INTEGRATION.$(MOD) \
            INTERPOL.$(MOD)    \
            MATH.$(MOD)        \
            MATRIX_ARRAY.$(MOD)\
