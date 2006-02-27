@@ -32,11 +32,22 @@ To improve
 Details:
 (1) Restructuration des sorties (get_data/calc_data/output) pour formats multiples
 
---------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------
 
 Task Dévlp.    début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
 0041 Jérémie   01/07       Solv  Inversion Gauss-Seidel
+0127 Jeremie   08/01 09/01 Num   gradient computation method : weighted least square
+     Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
+                           Make  Restructuration de MAIN/integration_cycle (split)
+                           Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
+
+------------------------------------------------------------------------
+release 0.2.2 - 16th January 2006
+------------------------------------------------------------------------
+
+Task Dévlp.    début fin   Type  Développement
+--------------------------------------------------------------------------------------------------------
 0101 Jérémie   13/10 13/10 Opt   Gradient computation optimization
 0102 Jérémie   15/10 15/10 NS    Fast MUSCL method
 095b Jérémie   28/10 28/10 BUG   Correct local time stepping (bounded to cycle time step)
@@ -46,9 +57,6 @@ Task Dévlp.    début fin   Type  Développement
 0125 Jeremie   16/12 17/12 NS    MUSCL-fast : Kim's 3rd order limiter
 0126 Jeremie   17/12 17/12 NS    test energy positivity (dt computation)
 0127 Jeremie   08/01 09/01 Num   gradient computation method : weighted least square
-     Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
-                           Make  Restructuration de MAIN/integration_cycle (split)
-                           Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
 
 ------------------------------------------------------------------------
 release 0.2.1 - 13th October 2005
