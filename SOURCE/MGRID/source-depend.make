@@ -16,6 +16,7 @@ MGRID_OBJ = $(MGRID_MOD:.$(MOD)=.o)    \
             calc_gradient.o            \
             calc_gradient_limite.o     \
             distrib_field.o            \
+            extractpart_grid.o         \
             getpart_grid.o             \
             interpface_gradient_scal.o \
             interpface_gradient_vect.o \

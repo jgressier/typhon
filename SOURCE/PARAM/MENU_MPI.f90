@@ -1,5 +1,5 @@
 !------------------------------------------------------------------------------!
-! MODULE : MENU_MPI                     Auteur : J. Gressier
+! MODULE : MENU_MPI                       Auteur : J. Gressier
 !                                         Date   : Novembre 2002
 ! Fonction                                Modif  : 
 !   Definition des structures pour les entrees du programme TYPHON
@@ -25,7 +25,8 @@ implicit none
 ! structure MNU_MPI : parametres pour la distribution entre processeurs
 !------------------------------------------------------------------------------!
 type mnu_mpi
-  character       :: temps      ! (S)tationnaire, (I)nstationnaire, (P)eriodique
+  character       :: temps            ! (S)tationnaire, (I)nstationnaire, (P)eriodique
+  logical         :: exchange_grad    ! exchange gradients
 endtype mnu_mpi
 
 

@@ -61,11 +61,11 @@ interface size_tot
   module procedure size_tot_gfield
 endinterface
 
-interface pack
+interface packst
   module procedure pack_gfield
 endinterface
 
-interface unpack
+interface unpackst
   module procedure unpack_gfield
 endinterface
 

@@ -17,12 +17,13 @@
 !   changent).
 !
 !------------------------------------------------------------------------------!
-subroutine calc_ustmesh(ust_mesh, defmesh)
+subroutine calc_ustmesh(umesh, defmesh)
 
 use TYPHMAKE
 use OUTPUT
 use USTMESH
 use MENU_MESH
+use MESHBASE
 
 implicit none
 
@@ -30,7 +31,7 @@ implicit none
 type(mnu_mesh) :: defmesh
 
 ! -- Inputs/Outputs --
-type(st_ustmesh) :: ust_mesh
+type(st_ustmesh) :: umesh
 
 ! -- Ouputs --
 
@@ -43,50 +44,57 @@ real(krp), dimension(:,:), allocatable :: vol_elem  ! volumes elementaires
 
 ! -- BODY --
 
-call scale_mesh(ust_mesh%mesh, defmesh%scale)
+call scale_mesh(umesh%mesh, defmesh%scale)
 
-call test_ustmesh(ust_mesh)
+call test_ustmesh(umesh)
 
 ! -- allocation --
 ! les allocations de faces et cellules geometriques sont de taille (nface) et (ncell)
 ! (nombre d'elements limites ou fictifs inclus)
 ! le calcul se fait sur toutes les faces mais uniquement sur les cellules internes.
 
-! allocation des faces geometriques si necessaire
-if (ust_mesh%mesh%nface == 0) then
-  ust_mesh%mesh%nface = ust_mesh%nface                  ! copie du nombre de faces
-  allocate(ust_mesh%mesh%iface(ust_mesh%nface,1,1))     ! allocation des faces
-endif
+! -- allocate cells & face (vertices are already allocated) --
 
-allocate(cgface(ust_mesh%nface))                      ! tab. interm. centre G des faces
+call new(umesh%mesh, umesh%ncell, umesh%nface, 0)
+
+!! allocation des faces geometriques si necessaire
+!if (umesh%mesh%nface == 0) then
+!  umesh%mesh%nface = umesh%nface                  ! copie du nombre de faces
+!  allocate(umesh%mesh%iface(umesh%nface,1,1))     ! allocation des faces
+!endif
+
+allocate(cgface(umesh%nface))                      ! tab. interm. centre G des faces
   ! les centres G des faces sont maintenant memorisees dans la liste de faces
   ! il n'est pas utile d'allouer un tableau separement
 
 !-------------------------------------------------------------------
 ! Calcul des faces (centres, normales et surfaces)
 
-call calc_ust_face(ust_mesh%facevtex, ust_mesh%mesh, cgface)
+call print_info(10, "  . computing face geometry...")
+call calc_ust_face(umesh%facevtex, umesh%mesh, cgface(1:umesh%nface))
 
 
-select case(typgeo(ust_mesh))
+select case(typgeo(umesh))
 
 !-------------------------------------------------------------------
 ! maillage de cellules + faces
 
 case(msh_2dplan, msh_3d)
 
+  call print_info(10, "  . computing cell geometry...")
+
   ! -- Calcul de centres de cellules (centres approximatifs)
 
-  allocate(midcell(ust_mesh%ncell))
-  call calc_ust_midcell(ust_mesh%ncell_int, ust_mesh%facecell, cgface, midcell)
+  allocate(midcell(umesh%ncell))
+  call calc_ust_midcell(umesh%ncell_int, umesh%facecell, cgface, midcell)
 
   ! -- Calcul des volumes elementaires (volume et centre de gravite)
 
-  allocate(cg_elem (ust_mesh%nface,2))
-  allocate(vol_elem(ust_mesh%nface,2))
-  call calc_ust_elemvol(typgeo(ust_mesh), ust_mesh%ncell_int, ust_mesh%nface, &
-                        midcell, ust_mesh%facecell,                     &
-                        cgface, ust_mesh%mesh%iface, cg_elem, vol_elem)
+  allocate(cg_elem (umesh%nface,2))
+  allocate(vol_elem(umesh%nface,2))
+  call calc_ust_elemvol(typgeo(umesh), umesh%ncell_int, umesh%nface, &
+                        midcell, umesh%facecell,                     &
+                        cgface, umesh%mesh%iface, cg_elem, vol_elem)
 
   ! -- Calcul des cellules (volumes et centre de gravite)
 
@@ -94,22 +102,37 @@ case(msh_2dplan, msh_3d)
   ! on choisit d'allouer par defaut toutes les cellules y compris les cellules fictives,
   ! meme si elles ne sont pas utilisees par le code (economie en memoire a rechercher)
 
-  allocate(ust_mesh%mesh%centre(ust_mesh%ncell,1,1))
-  allocate(ust_mesh%mesh%volume(ust_mesh%ncell,1,1))
+  !allocate(umesh%mesh%centre(umesh%ncell,1,1))
+  !allocate(umesh%mesh%volume(umesh%ncell,1,1))
 
-  ust_mesh%mesh%centre(1:ust_mesh%ncell,1,1) = v3d(0.,0.,0.)
-  ust_mesh%mesh%volume(1:ust_mesh%ncell,1,1) = 0._krp
+  umesh%mesh%centre(1:umesh%ncell,1,1) = v3d_zero
+  umesh%mesh%volume(1:umesh%ncell,1,1) = 0._krp
 
-  call calc_ust_cell(ust_mesh%ncell_int, ust_mesh%nface, &
-                     ust_mesh%facecell, cg_elem, vol_elem, ust_mesh%mesh)
+  call calc_ust_cell(umesh%ncell_int, umesh%nface, &
+                     umesh%facecell, cg_elem, vol_elem, umesh%mesh)
 
   ! -- Verification de l'orientation des normales et connectivites face->cellules
 
-  call calc_ust_checkface(ust_mesh%facecell, ust_mesh%mesh)
+  call calc_ust_checkface(umesh%facecell, umesh%mesh)
 
   ! desallocation tableaux intermediaires
 
   deallocate(cgface, midcell, cg_elem, vol_elem)
+
+  ! -- compute info --
+
+  call print_info(10, "  mesh information:")
+
+  call calc_mesh_info(umesh%mesh)
+
+  write(str_w, '(a,e12.4,a,e10.4)') "    min & max volume:",umesh%mesh%info%minvol, &
+                                                                    " to ",umesh%mesh%info%maxvol
+  call print_info(10, str_w)
+  write(str_w, '(a,e12.4)')         "        total volume:",umesh%mesh%info%totvol
+  call print_info(10, str_w)
+  write(str_w, '(a,3e12.4)')        "      gravity center:",umesh%mesh%info%center
+  call print_info(10, str_w)
+
 
 !-------------------------------------------------------------------
 ! maillage de facettes uniquement (solveur VORTEX)

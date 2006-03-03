@@ -60,14 +60,19 @@ if (info%typ_temps == stationnaire) then
       info%cur_res = info%cur_res + abs(field%residu%tabvect(ip)%vect(ic))
     enddo
   enddo
+
+  ! -- merge residual for all procs --
+
+  call exchange_zonal_residual(info)
   
 endif
 
 endsubroutine update_champ
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
-! mai  2003 : creation de la procedure
-! sept 2003 : calcul des residus
+! may  2003 : created
+! sept 2003 : Residual computation
+! oct  2005 : merge residual for all procs
 !------------------------------------------------------------------------------!

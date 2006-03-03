@@ -238,6 +238,7 @@ enddo ! vector loop
 deallocate(LRvec, tgradL, tgradR, vcellgrad)
 
 !------------------------------------------
+! Primitive variable reconstruction
 !------------------------------------------
 do i = 1, nf
   if  = ideb+i-1
@@ -250,6 +251,10 @@ do i = 1, nf
   cell_l(i)%velocity = fprim%tabvect(1)%vect(icl) + gprimL%tabvect(1)%vect(i)
   cell_r(i)%velocity = fprim%tabvect(1)%vect(icr) + gprimR%tabvect(1)%vect(i)
 enddo
+
+!------------------------------------------
+! Multi-dimensional limitation
+!------------------------------------------
 
 !------------------------------------------
 deallocate(uLR, dLR, LF, RF)

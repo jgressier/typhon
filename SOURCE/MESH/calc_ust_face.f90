@@ -42,7 +42,6 @@ type(v3d)      :: pt, cg1, cg2   ! point et CG intermediaires
 
 ! -- Debut de la procedure --
 
-!print*,"debug",facevtex%nbnodes
 nface = facevtex%nbnodes          ! nombre de faces dans la connectivite
 allocate(vtex(facevtex%nbfils))   ! nombre maximal de sommets par face
 
@@ -55,12 +54,12 @@ allocate(vtex(facevtex%nbfils))   ! nombre maximal de sommets par face
 do if = 1, nface
 
   ! calcul du nombre de sommet de la face
-  ns = 2
-  do while ((ns <= facevtex%nbfils).and.(facevtex%fils(if,ns) /= 0))
-    ns = ns + 1
-  enddo
-  ns = ns - 1  ! le dernier sommet ne satisfait pas les conditions
-
+  ns = count(facevtex%fils(if,1:facevtex%nbfils) /= 0)
+  !ns = 2
+  !do while ((ns <= facevtex%nbfils).and.(facevtex%fils(if,ns) /= 0))
+  !  ns = ns + 1
+  !enddo
+  !ns = ns - 1  ! le dernier sommet ne satisfait pas les conditions
   ! affectation des sommets
   do is = 1, ns
     vtex(is) = mesh%vertex(facevtex%fils(if,is),1,1)
@@ -103,7 +102,7 @@ do if = 1, nface
   case default
     call erreur("Developpement","Trop de sommets pour le calcul de face")
   endselect
-
+  !print*,"done"
   mesh%iface(if,1,1)%centre = cgface(if)
 
 enddo

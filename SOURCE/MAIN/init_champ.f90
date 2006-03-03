@@ -34,19 +34,17 @@ integer                :: id
 pgrid => zone%grid
 
 do while (associated(pgrid))
-  !allocate(pgrid%field)
+  print*,"init field"
+  allocate(pgrid%field)
   !call init_champ_ust(zone%defsolver, pgrid%umesh, pgrid%field, pgrid)
   call init_champ_ust(zone%defsolver, pgrid%umesh, pgrid)
-  allocate(pgrid%info%field_loc)
+  print*,"end init field"
+  !allocate(pgrid%info%field_loc)
   pgrid%info%field_loc => pgrid%field
   pgrid => pgrid%next
 enddo
 
-
-
 endsubroutine init_champ
-
-
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !

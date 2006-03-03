@@ -28,11 +28,68 @@ Roadmap
 --------------------------------------------------------------------
 To improve
 - KDIF  Bug: timestep computation for non linear material
+- OUTPUT Bug : incomplete velocity field (seen with VTK / core 0.3 RC1)
 --------------------------------------------------------------------
 Details:
 (1) Restructuration des sorties (get_data/calc_data/output) pour formats multiples
 
 --------------------------------------------------------------------
+
+------------------------------------------------------------------------
+core 0.3
+------------------------------------------------------------------------
+
+Task Dévlp.    début fin   Type  Développement
+--------------------------------------------------------------------------------------------------------
+0156 Jeremie               MPI   Validation with second order NS computation (with gradient communication)
+
+------------------------------------------------------------------------
+release 0.3.0 - 3rd March 2006 (based on release 0.2.2)
+------------------------------------------------------------------------
+
+Task Dévlp.    début fin   Type  Développement
+--------------------------------------------------------------------------------------------------------
+0158 Jeremie   01/12 03/12 Bug   Corrected MPI Split function (found in CYL case)
+
+
+------------------------------------------------------------------------
+release 0.3 RC 1 - 5th November 2005 (based on 0.2.0)
+------------------------------------------------------------------------
+
+Task Dévlp.    début fin   Type  Développement
+--------------------------------------------------------------------------------------------------------
+0150 Jeremie   01/10 25/10 Core  MPI development & split grids
+0151 Jeremie   25/10 25/10 Out   Splitted files for each grid (VTK)
+0152 Jeremie   01/11 01/11 MPI   Merge residuals between grids (same criterion)
+0153 Jeremie   24/10 26/10 Opt   Optimize CSR connectivity computation      
+0154 Jeremie   30/10 31/10 MPI   Merge global time step
+0155 Jeremie   02/11 02/11 MPI   Validation with second order NS computation (without gradient communication)
+0157 Jeremie   02/11 02/11 Make  SGI portage
+
+
+------------------------------------------------------------------------
+core 0.2
+------------------------------------------------------------------------
+
+Task Dévlp.    début fin   Type  Développement
+--------------------------------------------------------------------------------------------------------
+0041 Jérémie   01/07       Solv  Inversion Gauss-Seidel
+0101 Jérémie   13/10 13/10 Opt   Gradient computation optimization
+0102 Jérémie   15/10 15/10 NS    Fast MUSCL method
+095b Jérémie   28/10 28/10 BUG   Correct local time stepping (bounded to cycle time step)
+0122 Jeremie   20/11 05/12 Out   Cycle Output
+0123 Jeremie   14/12 15/12 Out   Mesh computation report
+0124 Jeremie   16/12 16/12 NS    Bug correction in MUSCL-fast/superbee method
+0125 Jeremie   16/12 17/12 NS    MUSCL-fast : Kim's 3rd order limiter
+0126 Jeremie   17/12 17/12 NS    test energy positivity (dt computation)
+0127 Jeremie   08/01 09/01 Num   gradient computation method : weighted least square
+     Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
+                           Make  Restructuration de MAIN/integration_cycle (split)
+                           Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
+
+------------------------------------------------------------------------
+release 0.2.1 - 13th October 2005
+------------------------------------------------------------------------
 
 Task Dévlp.    début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
@@ -40,7 +97,7 @@ Task Dévlp.    début fin   Type  Développement
 0120 Emmanuel  21/09 23/09 Debug Truncation of Pi/P to 1
 0119 Emmanuel  20/09 23/09 Coupl Implicit coupling
 0118 Emmanuel  20/09 23/09 Debug Implicit warnings
-0117 Emmanuel  22/09 23/09 NS    Change in CFL computation
+0117 Emmanuel  22/09 23/09 NS    Change in CFL computation (as a function of GLOBAL residual)
 0116 Emmanuel  16/09 19/09 Coupl Maximum number of cycles
 0115 Emmanuel  08/09       NS/KD Initialization with a file
 0114 Emmanuel  08/09 08/09 NS    Linear viscosity
@@ -50,16 +107,20 @@ Task Dévlp.    début fin   Type  Développement
 0110 Emmanuel  01/09 01/09 NS    Non uniform thermal boundary conditions
 0109 Emmanuel  01/09 01/09 KDIF  Adiabatic boundary condition
 0108 Emmanuel  01/09 01/09 KDIF  Change in convection and flux boundary condition
-0041 Jérémie   01/07       Solv  Inversion Gauss-Seidel
-0063 Jérémie               Out   Tecplot outputs : FEBLOCK format and output of scalars & vectors
-0064 Jérémie               Out   CGNS outputs
 0078 Jérémie   24/09 25/09 Mesh  Scale function (SCALE parameter)
 0079 Jérémie   25/09 25/09 NS    AUSM-M numerical scheme
 086b Jérémie   27/09 27/09 NS    Bug correction: Implicit jacobian matrices for HLL fluxes
 0097 Jérémie   28/09 29/09 NS    MUSCL method improvement
+<<<<<<< current_dev
+0098 Jérémie   11/10 12/10 NS    UDF initialization
+0099 Jérémie   13/10 13/10 NS    bug correction in CFL computation (cf task 88 & 117)
      Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
                            Make  Restructuration de MAIN/integration_cycle (split)
                            Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
+=======
+0098 Jérémie   11/10 12/10 NS    UDF initialization
+0099 Jérémie   13/10 13/10 NS    bug correction in CFL computation (cf task 88 & 117)
+>>>>>>> 1.95
 
 ------------------------------------------------------------------------
 release 0.2.0 - 4th Septembre 2005
@@ -85,9 +146,6 @@ Task Dévlp.    début fin   Type  Développement
 0096 Jérémie   23/09 23/09 NS    change default implicit method to BICGSTAB, 50 it, conv 1e-1
 0106 Emmanuel  24/06 31/08 Coupl Fluid - solid coupling + NRG case
 0107 Emmanuel  30/08 31/08 Out   Change in tecplot output : 1 file per zone
-     Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
-                           Make  Restructuration de MAIN/integration_cycle (split)
-                           Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
 --------------------------------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------

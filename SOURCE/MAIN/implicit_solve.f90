@@ -36,7 +36,7 @@ integer(kip)           :: if, ic1, ic2, ic, info, dim
 
 allocate(tabres(size_tot(rhsfield)))
 
-call pack(rhsfield, tabres, size_tot(rhsfield))
+call packst(rhsfield, tabres, size_tot(rhsfield))
 
 ! CALL SOLVE IMPLICIT SYSTEM
 ! resolution
@@ -78,7 +78,7 @@ endselect
 !print*,'deallocate sparse mat'
 !call delete(mat)
 
-call unpack(tabres, rhsfield, size_tot(rhsfield))
+call unpackst(tabres, rhsfield, size_tot(rhsfield))
 
 deallocate(tabres)
 

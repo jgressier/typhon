@@ -20,6 +20,7 @@ use MENU_BOCO     ! Definition des conditions limites
 use MENU_INIT     ! Definition de l'initialisation
 use MENU_CAPTEURS ! Definition des capteurs
 use MENU_AMR      ! Definition des parametres de raffinement
+use MENU_MPI      ! MPI parameters
 
 implicit none
 
@@ -50,6 +51,7 @@ type mnu_solver
   type(mnu_kdif)  :: defkdif         ! options si solveur KDIF
   type(mnu_vort)  :: defvort         ! options si solveur VORTEX
   type(mnu_amr)   :: defamr          ! options si AMR
+  type(mnu_mpi)   :: defmpi          ! options si MPI
   integer         :: nboco           ! nombre de conditions aux limites
   type(mnu_boco), dimension(:), pointer &
                   :: boco            ! definitions des conditions aux limites

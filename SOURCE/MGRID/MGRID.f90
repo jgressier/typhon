@@ -1,11 +1,9 @@
 !------------------------------------------------------------------------------!
-! MODULE : MGRID                          Auteur : J. Gressier
-!                                         Date   : Mars 2004
-! Fonction                                Modif  : (cf historique)
+! MODULE : MGRID                                  Authors : J. Gressier
+!                                                 Created : Mars 2004
+! Fonction
 !   Definition des structures de donnees des grilles
 !   maillage et champ
-!
-! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
 
@@ -15,6 +13,7 @@ use TYPHMAKE      ! Definition de la precision/donnees informatiques
 use USTMESH       ! Definition des maillages non structures
 use DEFFIELD      ! Definition des champs physiques
 use GEO3D        ! module de definition des vecteurs et operateurs associes
+use GRID_CONNECT
 
 
 
@@ -117,6 +116,8 @@ type st_grid
                                         !   for boundary conditions
   type(st_grd_optmem)     :: optmem     ! 
   real(krp), pointer      :: dtloc(:)   ! array of local timestep
+  type(st_gridconnect), pointer :: gdcon_send
+  type(st_gridconnect), pointer :: gdcon_recv
 endtype st_grid
 
 
@@ -157,6 +158,8 @@ integer        :: id
   nullify(grid%next)
   nullify(grid%first)
   nullify(grid%subgrid)
+
+  nullify(grid%field)
 
   nullify(grid%gridmere)
   nullify(grid%cellext)
@@ -270,11 +273,11 @@ type(st_grid)  :: grid
   ! destruction des champs et maillage de la grille
   call grid_dealloc_gradcond(grid) 
   call delete(grid%umesh)
-  call delete_chainedfield(grid%field)
+  if (associated(grid%field)) call delete_chainedfield(grid%field)
   if (associated(grid%dtloc)) deallocate(grid%dtloc)
 
   ! destruction des sous-grilles
-  call delete_chainedgrid(grid%subgrid)
+  if (associated(grid%subgrid)) call delete_chainedgrid(grid%subgrid)
 
   ! ATTENTION : pas de destruction de la grilles suivante
 
@@ -419,20 +422,20 @@ type(st_cellext)    :: cellext ! element a trouver
 type(st_cellext), pointer    :: pcellext ! element en cours
 
 allocate(pcellext)
-found=0
+found=.false.	
 
 if(associated(cellext_list)) then
    pcellext=>cellext_list
-   found=1
-   do while(pcellext%icell /= icell .AND. found==1)
+   found=.true.
+   do while(pcellext%icell /= icell .AND. found)
       if(associated(pcellext%next)) then
          pcellext=>pcellext%next
       else
-         found=0
+         found=.false.
       end if
    end do
 else
-   found=0
+   found=.false.
 end if
 
 cellext=pcellext
@@ -473,10 +476,11 @@ end subroutine new_subcell
 endmodule MGRID
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! mars 2004 : creation du module
 ! juin 2004 : procedure newbocofield
 ! oct  2004 : field chained list
 ! mai  2005 : definition et procedure cellext
+! Oct  2005 : send & receive connection structures in MGRID structure
 !------------------------------------------------------------------------------!

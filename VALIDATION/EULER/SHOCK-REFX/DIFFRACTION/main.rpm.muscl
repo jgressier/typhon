@@ -6,10 +6,8 @@ BLOCK:PROJECT           ! DEFINITION DU PROJET
   NZONE     = 1       
   COORD     = 2D      
   TIME      = UNSTEADY 
-  BASETIME  = 0.0001
-  DURATION  = 0.01
-  !TIME       = STEADY
-  !RESIDUALS = 1.e-02
+  DURATION  = .0005     ! 
+  BASETIME  = .000005   
 ENDBLOCK               
 
 BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
@@ -18,7 +16,7 @@ BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
 ENDBLOCK
 
 BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
-  NAME   = "petit test" 
+  NAME   = "corner-diff" 
   SOLVER = EULER  
 ENDBLOCK
 
@@ -28,11 +26,11 @@ ENDBLOCK
 
 BLOCK:MESH
   FORMAT = CGNS
-  FILE   = "tube.cgns"
+  FILE   = "corner-quad.cgns"
 ENDBLOCK
 
 BLOCK:MODEL
-  DYNAMICS = LAMINAR
+  DYNAMICS = EULER
   GAS      = AIR
 ENDBLOCK
 
@@ -41,32 +39,44 @@ BLOCK:TIME_PARAM
 ENDBLOCK
 
 BLOCK:SPAT_PARAM  
-  SCHEME = HLLC
-  !HIGHRES = MUSCL
-  !DISSIPATIVE_FLUX = AVERAGE
+  HIGHRES = MUSCL
+  SCHEME  = HLLC
+  LIMITER = VANLEER
 ENDBLOCK
 
 BLOCK:INIT
-  PI      = 101300
-  TI      = 30000000.
-  MACH    = 0.00000005
-  DIRECTION = (0., 1., 0.)
+  PI      = 1.E5
+  TI      = 300.
+  MACH    = 0.
+  DIRECTION = (1., 0., 0.)
 ENDBLOCK
 
 BLOCK:BOCO
-  FAMILY = SYM
-  TYPE   = EXTRAPOLATE
+  FAMILY = BOTTOM
+  TYPE   = SYMMETRY
 ENDBLOCK
 
 BLOCK:BOCO
-  FAMILY = INFINI
-  TYPE   = EXTRAPOLATE 
+  FAMILY = TOP
+  TYPE   = SYMMETRY
 ENDBLOCK
 
 BLOCK:BOCO
+  FAMILY = OUTLET
+  TYPE   = SUPERSONIC_OUTLET 
+ENDBLOCK
+
+BLOCK:BOCO                        ! Inlet for a mach 5.09 forward moving shock wave
+  FAMILY    = INLET               ! p1/p0 = 30.05945      ws    = 1767.621 m/s
+  TYPE      = SUPERSONIC_INLET    ! d1/d0 =  5.02938      
+  PI        = 141.4105E5          ! T1/T0 =  5.97677      V1    = 1416.162 m/s
+  TI        = 2790.81             !                       T1    = 1793.031 K
+  MACH      = 1.66805             !
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO  
   FAMILY    = WALL
-  TYPE      = FLUXSET_WALL
-  WALL_FLUX = 0
+  TYPE      = SYMMETRY
 ENDBLOCK
-
 

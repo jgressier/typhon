@@ -33,6 +33,7 @@ integer               :: info
 type(st_genericfield) :: vfield
 
 ! -- Debut de la procedure --
+
 if (position == end_calc) then  !DEV2602
 
   if ((outp_typ == outp_NODE).or.(outp_typ == outp_CENTER)) then !DEV2602

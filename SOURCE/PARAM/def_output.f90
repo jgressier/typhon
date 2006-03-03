@@ -67,17 +67,19 @@ do io = 1, world%noutput !DEV2602
 
   call rpmgetkeyvalstr(pcour, "TYPE", str, "CENTER")
 
-  if (samestring(str,"NODE"))   world%output(io)%type = outp_NODE
-  if (samestring(str,"CENTER")) world%output(io)%type = outp_CENTER
-  if (samestring(str,"CORRECTION")) world%output(io)%type = outp_COR !DEV602
-  if (samestring(str,"FLUX"))   world%output(io)%type = outp_FLUX !DEV2602
-  if (samestring(str,"WALLTEMP")) world%output(io)%type = outp_TEMPINTER !DEV1404
+  if (samestring(str,"NODE"))       world%output(io)%type = outp_NODE
+  if (samestring(str,"CENTER"))     world%output(io)%type = outp_CENTER
+  if (samestring(str,"CORRECTION")) world%output(io)%type = outp_COR
+  if (samestring(str,"FLUX"))       world%output(io)%type = outp_FLUX
+  if (samestring(str,"WALLTEMP"))   world%output(io)%type = outp_TEMPINTER
 
   select case(world%output(io)%type)
-  case(outp_TEMPINTER)
-    call rpmgetkeyvalint(pcour, "PERIOD",  world%output(io)%period,1)
+  case(outp_NODE, outp_CENTER)
+    call rpmgetkeyvalint(pcour, "PERIOD",  world%output(io)%period, 0)
+  case(outp_TEMPINTER, outp_COR, outp_FLUX)
+    call rpmgetkeyvalint(pcour, "PERIOD",  world%output(io)%period, 1)
   case default
-    world%output(io)%period = 1
+    call erreur("internal error (def_output)", "unknown parameter")
   endselect
 
 enddo
@@ -85,7 +87,7 @@ enddo
 !-----------------------------
 endsubroutine def_output
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! nov  2002 : creation de la procedure
 ! oct  2003 : choix des sorties NODE ou CENTER pour Tecplot

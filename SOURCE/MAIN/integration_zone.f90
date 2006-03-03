@@ -47,7 +47,7 @@ call conditions_limites(zone)
 if (zone%defspat%calc_grad) then
   pgrid => zone%grid
   do while (associated(pgrid))
-    call calc_gradient(zone%defsolver, pgrid,                 &
+    call calc_gradient(zone%defsolver, zone%defspat, pgrid,                 &
                        pgrid%info%field_loc%etatprim, pgrid%info%field_loc%gradient)
     call calc_gradient_limite(zone%defsolver, pgrid%umesh, pgrid%info%field_loc%gradient)
     pgrid => pgrid%next
@@ -58,6 +58,7 @@ endif
 
 pgrid => zone%grid
 do while (associated(pgrid))
+  !print*,"integrate grid"
   ! DEV : changer les structures de couplages dans MGRID
   call integration_grid(dt, zone%info%typ_temps,                    &
                         zone%defsolver, zone%defspat, zone%deftime, &

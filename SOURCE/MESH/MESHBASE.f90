@@ -37,7 +37,10 @@ character, parameter :: msh_3D     = '3'
 type info_mesh
   character :: geom                ! type de maillage (cf constantes)
   type(v3d) :: min, max            ! coordonnees min et max des vertex
+  type(v3d) :: center              ! mesh gravity center
   real(krp) :: minscale, maxscale  ! echelle de longueur (min et max)
+  real(krp) :: minvol,   maxvol    ! cell volumes        (min et max)
+  real(krp) :: totvol              ! total volume
 endtype
 
 
@@ -121,12 +124,36 @@ type(st_mesh) :: mesh
   
 endsubroutine delete_mesh
 
+!------------------------------------------------------------------------------!
+! Procedure : desallocation d'une structure MESH
+!------------------------------------------------------------------------------!
+subroutine calc_mesh_info(mesh)
+implicit none
+type(st_mesh) :: mesh
+integer(kip)  :: i
+
+  ! -- min & max cell volume --
+
+  mesh%info%minvol = minval(mesh%volume(1:mesh%ncell,1,1))
+  mesh%info%maxvol = maxval(mesh%volume(1:mesh%ncell,1,1))
+
+  ! -- total volume & volume gravity center --
+
+  mesh%info%totvol = 0._krp
+  mesh%info%center = v3d_zero
+  do i = 1, mesh%ncell
+    mesh%info%center = mesh%info%center + mesh%volume(i,1,1)*mesh%centre(i,1,1)
+    mesh%info%totvol = mesh%info%totvol + mesh%volume(i,1,1)
+  enddo
+  mesh%info%center = mesh%info%center / mesh%info%totvol
+
+endsubroutine calc_mesh_info
 
 
 endmodule MESHBASE
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! oct  2002 : creation du module
 ! fev  2004 : suppression de certains elements propres au structure
