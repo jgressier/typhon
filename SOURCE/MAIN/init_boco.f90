@@ -4,8 +4,6 @@
 ! Fonction                                Modif  : (cf historique)
 !   Initialisation des conditions limites
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
 
 subroutine init_boco(zone)
@@ -35,8 +33,10 @@ integer                :: ig
 select case(zone%defsolver%typ_solver)
 
 case(solNS)
+  print*,"init NS boco zone/grid"
   pgrid => zone%grid
-  do ig = 1, zone%ngrid
+  do while (associated(pgrid))
+    print*," - grid"
     call init_boco_ns(zone%defsolver, pgrid%umesh)
     pgrid => pgrid%next
   enddo
@@ -59,7 +59,7 @@ endselect
 endsubroutine init_boco
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! nov  2003 : creation de la procedure
 ! mars 2004 : fusion "init_boco_ust" dans "init_boco"

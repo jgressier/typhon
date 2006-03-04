@@ -38,7 +38,7 @@ LIB2 = libt_param.a  \
        libt_eqns.a   \
        libt_eqkdif.a \
        libt_mgrid.a  \
-       libt_udf.a    \
+       libt_udf.so   \
        libt_mesh.a   \
        libt_pio.a    \
        libt_math.a   \
@@ -86,7 +86,7 @@ $(PRGNAME)-seq : $(MAIN) $(D_LIBSEQ) $(MAKEFILE)
 	@echo LINKING $(PRGNAME)-seq ---
 	@echo external Libraries: $(EXTLIBS)
 	@echo TYPHON   Libraries: $(LIBSEQ)
-	@$(LINKER) $(LINKFB) $(MAIN) $(D_LIBSEQ) $(EXTLIBS) -o $(PRGNAME)-seq
+	@(cd $(PRJLIB) ; $(LINKER) $(LINKFB) ../$(MAIN) $(LIBSEQ) $(EXTLIBS) -o ../$(PRGNAME)-seq)
 	@echo --- Creation of $(PRGNAME)-seq done ---
 
 $(PRGNAME)-mpi : $(MAIN) $(D_LIBMPI) $(MAKEFILE)
@@ -94,7 +94,7 @@ $(PRGNAME)-mpi : $(MAIN) $(D_LIBMPI) $(MAKEFILE)
 	@echo  LINKING $(PRGNAME)-mpi ---
 	@echo external Libraries: $(EXTLIBS) $(MPILIB)
 	@echo TYPHON   Libraries: $(LIBMPI)
-	@$(LINKER) $(LINKFB) $(MAIN) $(D_LIBMPI) $(EXTLIBS) $(MPILIB) -o $(PRGNAME)-mpi
+	@(cd $(PRJLIB) ; $(LINKER) $(LINKFB) ../$(MAIN) $(LIBMPI) $(EXTLIBS) $(MPILIB) -o ../$(PRGNAME)-mpi)
 	@echo --- Creation of $(PRGNAME)-mpi done ---
 
 clean:

@@ -98,6 +98,8 @@ case(solKDIF, solNS)
 
   enddo
 
+  call exchange_zonal_timestep(lzone, dt)
+
   dt = min(dt, dtmax)
 
   ! -- if global time stepping: reset dtloc to minimum time step --
@@ -141,4 +143,5 @@ endsubroutine calc_zonetimestep
 ! oct  2004 : field chained list
 ! sept 2005 : local time stepping
 ! oct  2005 : bound local time step to dtmax only if global time step
+! nov  2005 : merge minimal time step with other procs
 !------------------------------------------------------------------------------!

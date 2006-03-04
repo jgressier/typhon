@@ -61,8 +61,8 @@ case(init_def)
 
 case(init_file)
   open(unit=1004, file = initfile, form="formatted")
-  read(1004,'(a)'), charac
-  read(1004,'(a)'), charac
+  read(1004,'(a)') charac
+  read(1004,'(a)') charac
   do ic=1, ncell
     read(1004,'(4e18.8)') x, y, z, champ%etatprim%tabscal(1)%scal(ic)
   enddo

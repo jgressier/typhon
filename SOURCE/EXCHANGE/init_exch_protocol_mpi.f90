@@ -33,7 +33,8 @@ call MPI_Init(ierr)
 call MPI_Comm_rank(MPI_COMM_WORLD, myprocid,     ierr)
 call MPI_Comm_size(MPI_COMM_WORLD, winfo%nbproc, ierr)
 
-mpi_run = .true.
+myprocid = myprocid+1    ! mpi_comm_rank starts to 0
+mpi_run  = .true.
 
 print*,'I am ',myprocid,'among',winfo%nbproc,' procs'
 

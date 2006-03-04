@@ -1,11 +1,9 @@
 !------------------------------------------------------------------------------!
-! Procedure : calcboco_ust                Auteur : J. Gressier
-!                                         Date   : Avril 2003
-! Fonction                                Modif  : (cf Historique)
+! Procedure : calcboco_ust                             Authors : J. Gressier
+!                                                      Created : April 2003
+! Fonction 
 !   Calcul des conditions aux limites pour maillage non structure
 !   Aiguillage des appels selon le type (general ou par solveur)
-!
-! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
 subroutine calcboco_ust(defsolver, grid, defspat)
@@ -35,9 +33,24 @@ integer :: nrac                      ! numero de raccord
 
 ! -- Debut de la procedure --
 
+
+!-----------------------------------------------------------
+! compute connections first (idef <= 0)
+
 do ib = 1, grid%umesh%nboco
 
   idef = grid%umesh%boco(ib)%idefboco
+  if (idef <= 0) call calcboco_connect(defsolver, grid, defspat, grid%umesh%boco(ib))
+
+enddo
+
+!-----------------------------------------------------------
+! compute physical boundary conditions (idef >= 1)
+
+do ib = 1, grid%umesh%nboco
+
+  idef = grid%umesh%boco(ib)%idefboco
+  if (idef >= 1) then
 
   ! Traitement des conditions aux limites communes aux solveurs
 
@@ -54,7 +67,7 @@ do ib = 1, grid%umesh%nboco
     call calcboco_ust_extrapol(defsolver%boco(idef), grid%umesh%boco(ib), grid%umesh, grid%info%field_loc)
 
 ! PROVISOIRE : a retirer
-  case(bc_connection)
+  case(bc_connect_match)
     call erreur("Developpement","'bc_connection' : Cas non implemente")
 
   case default 
@@ -72,15 +85,18 @@ do ib = 1, grid%umesh%nboco
 
   endselect
 
+  endif
+
 enddo
 
 
 endsubroutine calcboco_ust
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! avril 2003 : creation de la procedure
 ! july  2004 : simplification of call tree (uniform or not boundary conditions)
 ! oct   2004 : field chained list
+! Oct   2005 : add connection computation (idef <= 0)
 !------------------------------------------------------------------------------!

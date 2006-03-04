@@ -54,7 +54,7 @@ call alloc_prim(champ)
 
 do i = 1, defsolver%ninit
 
-  write(str_w,'(a,i3)') "    initialisation n°",i
+  write(str_w,'(a,i3)') "    initialization ",i
   call print_info(10, str_w)
 
   ! initialisation selon solveur

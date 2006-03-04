@@ -1,11 +1,11 @@
 ############################################################
-##   Compilation de la librairie MODZONE
+##   Compilation of SHARED library of UDF functions
 
 LDIR := UDF
 
 ####### Files
 
-UDF_LIB = $(PRJLIB)/libt_udf.a
+UDF_LIB = $(PRJLIB)/libt_udf.so
 
 UDF_MOD = 
 
@@ -24,11 +24,9 @@ all: $(UDF_LIB)
 
 $(UDF_LIB): $(D_UDF_OBJ)
 	@echo ---------------------------------------------------------------
-	@echo \* Compiling library $(UDF_LIB)
+	@echo \* Compiling SHARED library $(UDF_LIB)
 	@touch $(UDF_LIB) ; rm $(UDF_LIB)
-	@$(AR) ruv $(UDF_LIB) $(D_UDF_OBJ)
-	@echo \* Library index updating
-	@$(RAN)    $(UDF_LIB)
+	@$(LINKSO) -o $(UDF_LIB) $(D_UDF_OBJ)
 	@echo ---------------------------------------------------------------
 	@echo \* LIBRARY $(UDF_LIB) created
 	@echo ---------------------------------------------------------------

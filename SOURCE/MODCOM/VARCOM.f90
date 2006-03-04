@@ -15,7 +15,7 @@ use TYPHMAKE   ! machine accuracy definition
 
 ! -- Variables globales du module -------------------------------------------
 
-character(len=6), parameter :: version = "0.2.2"
+character(len=6), parameter :: version = "0.3"
 
 logical        :: mpi_run              ! calcul parallele MPI ou non
 character      :: memory_mode          ! mode d'economie memoire
@@ -101,8 +101,10 @@ integer, parameter :: end_cycle         = 03
 
 ! -- Constantes de definition des conditions aux limites (physique) --
 
-integer, parameter :: bc_connection     = 01
-integer, parameter :: bc_coupling       = 02
+integer, parameter :: bc_coupling        = 02
+integer, parameter :: bc_connect_match   = 05
+integer, parameter :: bc_connect_refined = 06
+integer, parameter :: bc_connect_nomatch = 07
 
 integer, parameter :: bc_geo_sym        = 10
 integer, parameter :: bc_geo_period     = 11
@@ -193,7 +195,6 @@ subroutine init_varcom()
 
   ! parametres par defaut
 
-  mpi_run       = .false.
   memory_mode   = mode_normal
   model_mode    = model_max
   taille_buffer = 64   ! 1024 ? 
@@ -208,7 +209,7 @@ endsubroutine init_varcom
 endmodule VARCOM
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! Oct  2002 : creation du module
 !------------------------------------------------------------------------------!

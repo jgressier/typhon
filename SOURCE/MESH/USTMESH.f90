@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
-! MODULE : USTMESH                        Auteur : J. Gressier
-!                                         Date   : Octobre 2002
-! Fonction                                Modif  : (cf historique)
+! MODULE : USTMESH                                Authors : J. Gressier
+!                                                 Created : October 2002
+! Fonction
 !   Bibliotheque de procedures et fonctions pour la gestion de maillages
 !   non structures
 !
@@ -16,11 +16,13 @@ use GEO3D
 use MESHBASE      ! geometrical basic elements
 use CONNECTIVITY  ! lists & connectivity 
 use DEFFIELD
+use GRID_CONNECT  ! definition of connectivity between grids
 
 implicit none
 
 ! -- Variables globales du module -------------------------------------------
 
+integer, parameter :: defboco_connect = -1       
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
@@ -47,16 +49,13 @@ endtype st_cellvtex
 !------------------------------------------------------------------------------!
 type st_ustboco
   character(len=strlen)          :: family     ! nom de famille
-  integer                        :: idefboco   ! pointeur index vers la definition 
-                                               ! des conditions aux limites dans defsolver
+  integer                        :: idefboco   ! index pointer to defsolver boco definition
+                                               !   if <= 0 then other definition (cf defboco_* constants)
   integer                        :: nface      ! nombre de faces concernees
   integer, dimension(:), pointer :: iface      ! liste des faces concernees par
                                                ! les conditions aux limites
-  type(st_genericfield), pointer &
-                         :: bocofield          ! liste chainee de champs generiques
-
-  !! type(st_solvboco), pointer    :: boco      ! condition aux limites associee
-  !! type(st_strboco),  pointer :: next       ! (liste) condition suivante
+  type(st_genericfield), pointer :: bocofield  ! pointer to chained list of boco fields (in MGRID)
+  type(st_gridconnect)           :: gridcon    ! connectivity to grid
 endtype st_ustboco
 
 
@@ -216,6 +215,7 @@ integer               :: n
   bc%family = nom
   bc%nface  = n
   allocate(bc%iface(n))
+  nullify(bc%bocofield)
 
 endsubroutine new_ustboco
 
@@ -229,6 +229,7 @@ type(st_ustboco) :: bc
 integer          :: i
 
   deallocate(bc%iface)
+  if (bc%idefboco <= 0) call delete(bc%gridcon)
 
 endsubroutine delete_ustboco
 

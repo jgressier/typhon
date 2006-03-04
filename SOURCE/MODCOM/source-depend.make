@@ -7,10 +7,13 @@ LDIR := MODCOM
 
 MODCOM_LIB = $(PRJLIB)/libt_modcom.a
 
-MODCOM_MOD = CONNECTIVITY.$(MOD)     \
+MODCOM_MOD = COMMTAG.$(MOD)          \
+             CONNECTIVITY.$(MOD)     \
+             CONNECT_CSR.$(MOD)      \
              GENLIB.$(MOD)           \
              GEO2D.$(MOD)            \
              LAPACK.$(MOD)           \
+             LIBSORT.$(MOD)          \
              MODINFO.$(MOD)          \
              STRING.$(MOD)           \
              TYPHMAKE.$(MOD)         \

@@ -71,6 +71,8 @@ call def_spat(block, zone%defsolver, zone%defspat)
 
 call def_amr(block, solver, zone%defsolver%defamr)
 
+if (mpi_run) call def_mpi(block, solver, zone%defsolver%defamr)
+
 ! -------------------------
 ! Definition des conditions aux limites et parametres de couplage
 

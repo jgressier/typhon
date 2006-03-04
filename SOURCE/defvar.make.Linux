@@ -23,6 +23,7 @@ FO = $(FO_$(OPT))
 
 # Editeur de lien
 LINKER = $(CF)
+LINKSO = $(CF) -shared
 
 # Options de base
 LINKFB  = $(FO) -L$(PRJEXT) -i_dynamic

@@ -26,6 +26,7 @@ PARAM_OBJ := $(PARAM_MOD:.$(MOD)=.o)  \
             def_capteurs.o     \
             def_init.o         \
             def_mesh.o         \
+            def_mpi.o          \
             def_other.o        \
             def_output.o       \
             def_param.o        \

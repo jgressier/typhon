@@ -56,10 +56,13 @@ do i = 1, world%noutput
     call output_tecplot(nom, world, world%output(i)%type, position, i) 
 
   case(fmt_VIGIE)
-    call erreur("Developpement","format VIGIE non implemente")
+    call erreur("Development","VIGIE format not implemented")
+
+  case(fmt_CGNS)
+    call erreur("Development","CGNS format not implemented")
 
   case default
-    call erreur("Sauvegarde de resultats","format de fichier inconnu")
+    call erreur("Internal error","unknown output parameter")
 
   endselect
 
@@ -67,3 +70,7 @@ enddo
 
 
 endsubroutine output_result
+!------------------------------------------------------------------------------!
+! Changes history
+!
+!------------------------------------------------------------------------------!
