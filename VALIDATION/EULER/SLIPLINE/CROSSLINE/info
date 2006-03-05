@@ -1,0 +1,4 @@
+computed :
+- HLLE first order (cfl 1.)
+- HLLC first order (cfl 1.)
+- HLLC MUSCL minmod/vanleer (no convergence with superbee) (cfl 0.5)
