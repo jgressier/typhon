@@ -763,12 +763,6 @@ Task 0123 (Jeremie): Out : Mesh computation report
 - report is done on standart output
 
 ---------------------------------------------------------------------------------
-Task 0123 (Jeremie): Out : Mesh computation report
----------------------------------------------------------------------------------
-- MESH: GEO3D, MESHBASE (calc_mesh_info), calc_ust_face, calc_ustmesh
-- report is done on standart output
-
----------------------------------------------------------------------------------
 Task 0126 (Jeremie): Num : gradient computation method : weighted least square
 ---------------------------------------------------------------------------------
 - MGRID: precalc_grad_lsq, calc_gradient
@@ -825,3 +819,4 @@ Task 0158 (Jeremie): Bug : Corrected MPI Split function (found in CYL case)
 ---------------------------------------------------------------------------------
 - extractpart_grid : bad boco definition (could fail in some cases)
 - CYL case was failing with 2 procs
+
