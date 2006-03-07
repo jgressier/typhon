@@ -146,6 +146,17 @@ do isca = 1, fprim%nscal
     scellgrad(:) = superbee(2._krp*scellgrad(:)-LRsca(:), LRsca(:)) - scellgrad(:)
     vgradR   (:) = vgradR(:) + scellgrad(:)*uLR(:)
     gprimR%tabscal(isca)%scal(:) = vgradR(:).scal.RF(:)
+  case(lim_kim3)
+    ! -- left --
+    scellgrad(:) = vgradL(:).scal.uLR(:)
+    scellgrad(:) = kim3(LRsca(:), 2._krp*scellgrad(:)-LRsca(:)) - scellgrad(:)  ! param order !
+    vgradL   (:) = vgradL(:) + scellgrad(:)*uLR(:)
+    gprimL%tabscal(isca)%scal(:) = vgradL(:).scal.LF(:)
+    ! -- right --
+    scellgrad(:) = vgradR(:).scal.uLR(:)
+    scellgrad(:) = kim3(LRsca(:), 2._krp*scellgrad(:)-LRsca(:)) - scellgrad(:)  ! param order !
+    vgradR   (:) = vgradR(:) + scellgrad(:)*uLR(:)
+    gprimR%tabscal(isca)%scal(:) = vgradR(:).scal.RF(:)
   case default
     call erreur("high resolution","unknown limiter")
   endselect
@@ -229,6 +240,17 @@ do ivec = 1, fprim%nvect
     vcellgrad(:) = superbee(2._krp*vcellgrad(:)-LRvec(:), LRvec(:)) - vcellgrad(:) 
     tgradR   (:) = tgradR(:) + (vcellgrad(:).tens.uLR(:))
     gprimR%tabvect(ivec)%vect(:) = tgradR(:).scal.RF(:)
+  case(lim_kim3)
+    ! -- left --
+    vcellgrad(:) = tgradL(:).scal.uLR(:)
+    vcellgrad(:) = kim3(LRvec(:), 2._krp*vcellgrad(:)-LRvec(:)) - vcellgrad(:)   ! param order !
+    tgradL   (:) = tgradL(:) + (vcellgrad(:).tens.uLR(:))
+    gprimL%tabvect(ivec)%vect(:) = tgradL(:).scal.LF(:)
+    ! -- right --
+    vcellgrad(:) = tgradR(:).scal.uLR(:)
+    vcellgrad(:) = kim3(LRvec(:), 2._krp*vcellgrad(:)-LRvec(:)) - vcellgrad(:)   ! param order !
+    tgradR   (:) = tgradR(:) + (vcellgrad(:).tens.uLR(:))
+    gprimR%tabvect(ivec)%vect(:) = tgradR(:).scal.RF(:)
   case default
     call erreur("high resolution","unknown limiter")
   endselect
@@ -268,4 +290,5 @@ endsubroutine hres_ns_muscl
 ! Changes history
 !
 ! nov  2004 : created, MUSCL interpolation
+! mar  2006 : kim's third order limiter
 !------------------------------------------------------------------------------!
