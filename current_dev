@@ -43,15 +43,6 @@ core 0.3
 Task Dévlp.    début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
 0041 Jérémie   01/07       Solv  Inversion Gauss-Seidel
-0101 Jérémie   13/10 13/10 Opt   Gradient computation optimization
-0102 Jérémie   15/10 15/10 NS    Fast MUSCL method
-095b Jérémie   28/10 28/10 BUG   Correct local time stepping (bounded to cycle time step)
-0122 Jeremie   20/11 05/12 Out   Cycle Output
-0123 Jeremie   14/12 15/12 Out   Mesh computation report
-0124 Jeremie   16/12 16/12 NS    Bug correction in MUSCL-fast/superbee method
-0125 Jeremie   16/12 17/12 NS    MUSCL-fast : Kim's 3rd order limiter
-0126 Jeremie   17/12 17/12 NS    test energy positivity (dt computation)
-0127 Jeremie   08/01 09/01 Num   gradient computation method : weighted least square
 0156 Jeremie               MPI   Validation with second order NS computation (with gradient communication)
      Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
                            Make  Restructuration de MAIN/integration_cycle (split)
