@@ -45,7 +45,7 @@ do i = 1, world%noutput
   select case(world%output(i)%format)
   case(fmt_VTK)
 
-    nom = trim(nom)//".vtk"
+    nom = trim(nom)
     call print_info(2,"* write VTK file: " // trim(nom))
     call output_vtk(nom, world, world%output(i)%type, position, i) 
 
