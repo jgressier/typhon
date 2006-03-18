@@ -16,6 +16,7 @@ use OUTPUT
 use VARCOM
 use USTMESH
 use DEFFIELD
+use GEO3D
 use MATRIX_ARRAY
 
 implicit none
@@ -54,7 +55,8 @@ do ip = 1, flux%nscal
   flux%tabscal(ip)%scal(:) = surf(:) * flux%tabscal(ip)%scal(:)
 enddo
 do ip = 1, flux%nvect
-  flux%tabvect(ip)%vect(:) = surf(:) * flux%tabvect(ip)%vect(:)
+  !flux%tabvect(ip)%vect(:) = surf(:) * flux%tabvect(ip)%vect(:)
+  call scale(flux%tabvect(ip)%vect, surf(:))
 enddo
 
 ! -- idem traitement des jacobiennes
@@ -82,8 +84,10 @@ do if = 1, umesh%nface
     residu%tabscal(ip)%scal(ic2) = residu%tabscal(ip)%scal(ic2) + flux%tabscal(ip)%scal(if)
   enddo
   do ip = 1, residu%nvect
-    residu%tabvect(ip)%vect(ic1) = residu%tabvect(ip)%vect(ic1) - flux%tabvect(ip)%vect(if)
-    residu%tabvect(ip)%vect(ic2) = residu%tabvect(ip)%vect(ic2) + flux%tabvect(ip)%vect(if)
+    call shift_sub(residu%tabvect(ip)%vect(ic1), flux%tabvect(ip)%vect(if))
+    call shift_add(residu%tabvect(ip)%vect(ic2), flux%tabvect(ip)%vect(if))
+    !residu%tabvect(ip)%vect(ic1) = residu%tabvect(ip)%vect(ic1) - flux%tabvect(ip)%vect(if)
+    !residu%tabvect(ip)%vect(ic2) = residu%tabvect(ip)%vect(ic2) + flux%tabvect(ip)%vect(if)
   enddo
 enddo
 

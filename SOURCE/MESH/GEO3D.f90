@@ -42,6 +42,18 @@ interface sqrabs
   module procedure v3d_sqrnorme, v3d_sqrnorme_t
 endinterface
 
+interface scale
+  module procedure v3d_eq_mult, v3d_eq_mult_t, v3d_eq_mult_tt
+endinterface
+
+interface shift_add
+  module procedure v3d_shift, v3d_shift_t, v3d_shift_tt
+endinterface
+
+interface shift_sub
+  module procedure v3d_shiftopp, v3d_shiftopp_t, v3d_shiftopp_tt
+endinterface
+
 interface operator(+)
   module procedure v3d_add, v3d_add_t
 endinterface
@@ -53,10 +65,6 @@ endinterface
 interface operator(*)
   module procedure v3d_mult, v3d_mult_t, v3d_mult_tt
 endinterface
-
-!interface assignment(*=)
-!  module procedure v3d_eq_mult, v3d_eq_mult_t, v3d_eq_mult_tt
-!endinterface
 
 interface operator(/)
   module procedure v3d_div, v3d_div_t, v3d_div_tt
@@ -125,7 +133,6 @@ integer :: id, if
   if   = scan(str, ')')
   pstr = chg_char(str(id+1:if-1),',',' ') 
   read(pstr,*,iostat=info) v3d_fromstr !%x, v3d_fromstr%z, v3d_fromstr%y
-  print*,"TEST STR->V3D",info,":", v3d_fromstr
 
 endfunction v3d_fromstr
 
@@ -161,6 +168,55 @@ integer :: i, n
 
 endfunction v3d_add_t
 
+
+!------------------------------------------------------------------------------!
+! Assignment : vector v = v + w
+!------------------------------------------------------------------------------!
+subroutine v3d_shift(v, a)
+implicit none
+type(v3d), intent(in)    :: a
+type(v3d), intent(inout) :: v
+
+  v%x = v%x + a%x
+  v%y = v%y + a%y
+  v%z = v%z + a%z
+
+end subroutine v3d_shift
+
+!------------------------------------------------------------------------------!
+! Assignment : v(:) = v(:) + w
+!------------------------------------------------------------------------------!
+subroutine v3d_shift_t(v, a)
+implicit none
+type(v3d), intent(in)    :: a
+type(v3d), intent(inout) :: v(:)
+integer :: i
+
+  do i = 1, size(v)
+    v(i)%x = v(i)%x + a%x
+    v(i)%y = v(i)%y + a%y
+    v(i)%z = v(i)%z + a%z
+  enddo
+
+end subroutine v3d_shift_t
+
+!------------------------------------------------------------------------------!
+! Assignment : v(:) = a(:) + v(:)
+!------------------------------------------------------------------------------!
+subroutine v3d_shift_tt(v, a)
+implicit none
+type(v3d), intent(in)    :: a(:)
+type(v3d), intent(inout) :: v(:)
+integer :: i
+
+  do i = 1, size(v)
+    v(i)%x = v(i)%x + a(i)%x
+    v(i)%y = v(i)%y + a(i)%y
+    v(i)%z = v(i)%z + a(i)%z
+  enddo
+
+end subroutine v3d_shift_tt
+
 !------------------------------------------------------------------------------!
 ! Fonction : vector sub
 !------------------------------------------------------------------------------!
@@ -192,6 +248,54 @@ integer :: i, n
   enddo
 
 endfunction v3d_sub_t
+
+!------------------------------------------------------------------------------!
+! Assignment : vector v = v - w
+!------------------------------------------------------------------------------!
+subroutine v3d_shiftopp(v, a)
+implicit none
+type(v3d), intent(in)    :: a
+type(v3d), intent(inout) :: v
+
+  v%x = v%x - a%x
+  v%y = v%y - a%y
+  v%z = v%z - a%z
+
+end subroutine v3d_shiftopp
+
+!------------------------------------------------------------------------------!
+! Assignment : v(:) = v(:) - w
+!------------------------------------------------------------------------------!
+subroutine v3d_shiftopp_t(v, a)
+implicit none
+type(v3d), intent(in)    :: a
+type(v3d), intent(inout) :: v(:)
+integer :: i
+
+  do i = 1, size(v)
+    v(i)%x = v(i)%x - a%x
+    v(i)%y = v(i)%y - a%y
+    v(i)%z = v(i)%z - a%z
+  enddo
+
+end subroutine v3d_shiftopp_t
+
+!------------------------------------------------------------------------------!
+! Assignment : v(:) = a(:) - v(:)
+!------------------------------------------------------------------------------!
+subroutine v3d_shiftopp_tt(v, a)
+implicit none
+type(v3d), intent(in)    :: a(:)
+type(v3d), intent(inout) :: v(:)
+integer :: i
+
+  do i = 1, size(v)
+    v(i)%x = v(i)%x - a(i)%x
+    v(i)%y = v(i)%y - a(i)%y
+    v(i)%z = v(i)%z - a(i)%z
+  enddo
+
+end subroutine v3d_shiftopp_tt
 
 !------------------------------------------------------------------------------!
 ! Fonction : vector opposite
@@ -471,9 +575,10 @@ endfunction v3d_vectorial_product
 endmodule GEO3D
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! mai  2002 : creation du module
 ! juil 2003 : compatibilite des operateurs toute precision
+! mar  2006 : subroutine transformers for vector array shifting and scaling
 !------------------------------------------------------------------------------!
 

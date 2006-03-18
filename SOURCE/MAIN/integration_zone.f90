@@ -58,7 +58,6 @@ endif
 
 pgrid => zone%grid
 do while (associated(pgrid))
-  !print*,"integrate grid"
   ! DEV : changer les structures de couplages dans MGRID
   call integration_grid(dt, zone%info%typ_temps,                    &
                         zone%defsolver, zone%defspat, zone%deftime, &
