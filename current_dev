@@ -44,6 +44,9 @@ Task Dévlp.    début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
 0041 Jérémie   01/07       Solv  Inversion Gauss-Seidel
 0156 Jeremie               MPI   Validation with second order NS computation (with gradient communication)
+0160 Jeremie   05/03 05/03 Core  CPU time computation (total and cycle average)
+0161 Jeremie   07/03 07/03 NS    MUSCL : Kim's 3rd order limiter
+0162 Jeremie   14/03 14/03 Bug   Ability to use long filename (seen with mesh files) (strlen)
      Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
                            Make  Restructuration de MAIN/integration_cycle (split)
                            Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
