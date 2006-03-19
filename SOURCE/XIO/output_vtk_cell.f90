@@ -21,20 +21,20 @@ use DEFFIELD
 
 implicit none
 
-! -- Declaration des entrees --
-integer          :: uf            ! unite d'ecriture
-type(mnu_solver) :: defsolver     ! parametres du solveur
-type(st_ustmesh) :: ust_mesh      ! maillage a ecrire
-type(st_field)   :: field         ! champ de valeurs
+! -- INPUTS --
+integer         , intent(in) :: uf            ! unite d'ecriture
+type(mnu_solver), intent(in) :: defsolver     ! parametres du solveur
+type(st_ustmesh), intent(in) :: ust_mesh      ! maillage a ecrire
+type(st_field),   intent(in) :: field         ! champ de valeurs
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 
-! -- Declaration des variables internes --
-integer   :: i
+! -- Internal variables --
+integer   :: i, ncellint
 integer   :: info, ntot
 type(v3d) :: vtex
 
-! -- Debut de la procedure --
+! -- BODY --
 
 
 ! ecriture du maillage
@@ -51,7 +51,7 @@ enddo
 
 ! connectivite 
 
-ust_mesh%ncell = ust_mesh%cellvtex%nbar   + &
+ncellint       = ust_mesh%cellvtex%nbar   + &
                  ust_mesh%cellvtex%ntri   + ust_mesh%cellvtex%nquad + &
                  ust_mesh%cellvtex%ntetra + ust_mesh%cellvtex%npyra + &
                  ust_mesh%cellvtex%npenta + ust_mesh%cellvtex%nhexa
@@ -63,7 +63,7 @@ ntot = ntot + 5*ust_mesh%cellvtex%ntetra
 ntot = ntot + 6*ust_mesh%cellvtex%npyra
 ntot = ntot + 7*ust_mesh%cellvtex%npenta
 ntot = ntot + 9*ust_mesh%cellvtex%nhexa
-write(uf,'(a,2i10)') 'CELLS ',ust_mesh%ncell, ntot
+write(uf,'(a,2i10)') 'CELLS ', ncellint, ntot
 
 do i = 1, ust_mesh%cellvtex%nbar
   write(uf,'(i3,2i9)') 2, ust_mesh%cellvtex%bar%fils(i,:)-1
@@ -89,7 +89,7 @@ enddo
 
 ! type de cellules
 
-write(uf,'(a,i9)') 'CELL_TYPES ',ust_mesh%ncell
+write(uf,'(a,i9)') 'CELL_TYPES ', ncellint
 do i = 1, ust_mesh%cellvtex%nbar
   write(uf,'(i2)') 3     ! VTK_LINE
 enddo
@@ -118,13 +118,13 @@ call calc_varprim(defsolver, field)
 
 select case(defsolver%typ_solver)
 case(solNS)
-  write(uf,'(a,i9)') 'CELL_DATA ',ust_mesh%ncell
+  write(uf,'(a,i9)') 'CELL_DATA ', ncellint
   call output_vtk_scal(uf, ust_mesh, "DENSITY",  field%etatprim%tabscal(1))
   call output_vtk_scal(uf, ust_mesh, "PRESSURE", field%etatprim%tabscal(2))
   call output_vtk_vect(uf, ust_mesh, "VELOCITY", field%etatprim%tabvect(1))
 
 case(solKDIF)
-  write(uf,'(a,i9)') 'CELL_DATA ',ust_mesh%ncell
+  write(uf,'(a,i9)') 'CELL_DATA ', ncellint
   call output_vtk_scal(uf, ust_mesh, "TEMPERATURE",  field%etatprim%tabscal(1))
 
 case(solVORTEX)
@@ -136,9 +136,10 @@ endselect
 endsubroutine output_vtk_cell
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! avr  2004 : creation de la procedure
 ! juin 2004 : ecriture de format CELL_DATA
 ! july 2004 : extension to NS solver outputs (write scalar and vector fields)
+! mar  2006 : bug correction (umesh%ncell was changed by outputs)
 !------------------------------------------------------------------------------!
