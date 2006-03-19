@@ -28,8 +28,7 @@ integer               :: nflux            ! nombre de flux (face) a calculer
 integer               :: ideb             ! indice du premier flux a remplir
 type(st_face), dimension(1:nflux) & 
                       :: face             ! donnees geometriques des faces
-type(st_nsetat), dimension(1:nflux) &
-                      :: cell_l, cell_r   ! champs des valeurs primitives
+type(st_nsetat)       :: cell_l, cell_r   ! champs des valeurs primitives
 logical               :: calc_jac         ! choix de calcul de la jacobienne
 
 
@@ -53,16 +52,14 @@ gig1 = g/(g - 1._krp)
 
 ! -- speed of sound --
 
-do if = 1, nflux
-  al(if) = sqrt(g*cell_l(if)%pressure/cell_l(if)%density)        ! sound speed          (left state)
-  ar(if) = sqrt(g*cell_r(if)%pressure/cell_r(if)%density)        !                      (right state)
-enddo
+al(1:nflux) = sqrt(g*cell_l%pressure(1:nflux)/cell_l%density(1:nflux))        ! sound speed (left state)
+ar(1:nflux) = sqrt(g*cell_r%pressure(1:nflux)/cell_r%density(1:nflux))        !             (right state)
 
 ! -- Mach numbers -- 
 
 do if = 1, nflux
-  ml(if) = (cell_l(if)%velocity.scal.face(if)%normale)/al(if)    ! face normal velocity (left  state)
-  mr(if) = (cell_r(if)%velocity.scal.face(if)%normale)/ar(if)    !                      (right state)
+  ml(if) = (cell_l%velocity(if).scal.face(if)%normale)/al(if)    ! face normal velocity (left  state)
+  mr(if) = (cell_r%velocity(if).scal.face(if)%normale)/ar(if)    !                      (right state)
 enddo
 
 ! -- Mach numbers functions and Pressure upwinding functions (van Leer basic ones) --
@@ -97,22 +94,19 @@ mr(1:nflux) = ar(1:nflux) * min(0._krp, ms(1:nflux))
 
 ! -- volumic total enthalpy (left and right) --
 
-do if = 1, nflux
-  rHl(if) = gig1*cell_l(if)%pressure + .5_krp*cell_l(if)%density*sqrabs(cell_l(if)%velocity)
-  rHr(if) = gig1*cell_r(if)%pressure + .5_krp*cell_r(if)%density*sqrabs(cell_r(if)%velocity)
-enddo
-
+rHl(1:nflux) = gig1*cell_l%pressure(1:nflux) + .5_krp*cell_l%density(1:nflux)*sqrabs(cell_l%velocity(1:nflux))
+rHr(1:nflux) = gig1*cell_r%pressure(1:nflux) + .5_krp*cell_r%density(1:nflux)*sqrabs(cell_r%velocity(1:nflux))
 
 do if = 1, nflux
 
   ! mass flux
-  flux%tabscal(1)%scal(ideb-1+if) = ml(if)*cell_l(if)%density + mr(if)*cell_r(if)%density
+  flux%tabscal(1)%scal(ideb-1+if) = ml(if)*cell_l%density(if) + mr(if)*cell_r%density(if)
   ! energy flux
   flux%tabscal(2)%scal(ideb-1+if) = ml(if)*rHl(if) + mr(if)*rHr(if)
   ! momentum flux
-  flux%tabvect(1)%vect(ideb-1+if) = (ml(if)*cell_l(if)%density)*cell_l(if)%velocity &
-                                  + (mr(if)*cell_r(if)%density)*cell_r(if)%velocity &
-                                  + (pp(if)*cell_l(if)%pressure + pm(if)*cell_r(if)%pressure)*face(if)%normale
+  flux%tabvect(1)%vect(ideb-1+if) = (ml(if)*cell_l%density(if))*cell_l%velocity(if) &
+                                  + (mr(if)*cell_r%density(if))*cell_r%velocity(if) &
+                                  + (pp(if)*cell_l%pressure(if) + pm(if)*cell_r%pressure(if))*face(if)%normale
 enddo
 
 !--------------------------------------------------------------

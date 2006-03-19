@@ -30,8 +30,7 @@ integer               :: nflux            ! nombre de flux (face) a calculer
 integer               :: ideb             ! indice du premier flux a remplir
 type(st_face), dimension(1:nflux) & 
                       :: face             ! donnees geometriques des faces
-type(st_nsetat), dimension(1:nflux) &
-                      :: cell_l, cell_r   ! champs des valeurs primitives
+type(st_nsetat)       :: cell_l, cell_r   ! champs des valeurs primitives
 logical               :: calc_jac         ! choix de calcul de la jacobienne
 
 
@@ -41,9 +40,8 @@ type(st_mattab)       :: jacL, jacR  ! jac associees
 
 ! -- Internal variables --
 integer                     :: if
-type(st_nsetat), dimension(:), allocatable &
-                            :: roe
-type(v3d)                   :: fn
+type(st_nsetat)             :: roe
+type(v3d), dimension(taille_buffer) :: fn
 real(krp), dimension(taille_buffer) :: sl, sr, vnl, vnr
 real(krp)                   :: g, ig1, iks, kl, kr, ku
 real(krp)                   :: am, al, ar, vm, rel, rer
@@ -56,25 +54,29 @@ ig1 = 1._krp/(g - 1._krp)
 
 ! -- Calculs preliminaires --
 
-allocate(roe(1:nflux))
+call new(roe, nflux)
 
 call calc_roe_states(defsolver%defns%properties(1), nflux, cell_l, cell_r, roe)
 
 ! -- Calcul du flux --
 
 do if = 1, nflux
+  fn(if)  = face(if)%normale 
+enddo
 
-  fn  = face(if)%normale 
-  vnl(if) = cell_l(if)%velocity.scal.fn                ! face normal velocity (left  state)
-  vnr(if) = cell_r(if)%velocity.scal.fn                !                      (right state)
-  vm  = roe(if)%velocity.scal.fn                       !                      (roe average state)
-  al  = sqrt(g*cell_l(if)%pressure/cell_l(if)%density) ! sound speed          (left state)
-  ar  = sqrt(g*cell_r(if)%pressure/cell_r(if)%density) !                      (right state)
-  am  = sqrt(g*   roe(if)%pressure/   roe(if)%density) !                      (roe average state)
+vnl(1:nflux) = cell_l%velocity(1:nflux).scal.fn(1:nflux)       ! face normal velocity (left  state)
+vnr(1:nflux) = cell_r%velocity(1:nflux).scal.fn(1:nflux)       !                      (right state)
+
+do if = 1, nflux
+
+  vm  = roe%velocity(if).scal.fn(if)                   !                      (roe average state)
+  al  = sqrt(g*cell_l%pressure(if)/cell_l%density(if)) ! sound speed          (left state)
+  ar  = sqrt(g*cell_r%pressure(if)/cell_r%density(if)) !                      (right state)
+  am  = sqrt(g*   roe%pressure(if)/   roe%density(if)) !                      (roe average state)
 
   ! volumic total energy (left and right)
-  rel = ig1*cell_l(if)%pressure + .5_krp*cell_l(if)%density*sqrabs(cell_l(if)%velocity)
-  rer = ig1*cell_r(if)%pressure + .5_krp*cell_r(if)%density*sqrabs(cell_r(if)%velocity)
+  rel = ig1*cell_l%pressure(if) + .5_krp*cell_l%density(if)*sqrabs(cell_l%velocity(if))
+  rer = ig1*cell_r%pressure(if) + .5_krp*cell_r%density(if)*sqrabs(cell_r%velocity(if))
 
   sl(if) = min(0._krp, vnl(if)-al, vm-am)              ! left  highest wave speed
   sr(if) = max(0._krp, vnr(if)+ar, vm+am)              ! right highest wave speed
@@ -85,17 +87,17 @@ do if = 1, nflux
   ku     =  sl(if)*sr(if)*iks
 
   ! mass flux
-  flux%tabscal(1)%scal(ideb-1+if) = (kl*vnl(if)-ku)*cell_l(if)%density + (kr*vnr(if)+ku)*cell_r(if)%density
+  flux%tabscal(1)%scal(ideb-1+if) = (kl*vnl(if)-ku)*cell_l%density(if) + (kr*vnr(if)+ku)*cell_r%density(if)
   ! energy flux
   flux%tabscal(2)%scal(ideb-1+if) = (kl*vnl(if)-ku)*rel + (kr*vnr(if)+ku)*rer &
-                                  + (kl*vnl(if)*cell_l(if)%pressure + kr*vnr(if)*cell_r(if)%pressure)
+                                  + (kl*vnl(if)*cell_l%pressure (if)+ kr*vnr(if)*cell_r%pressure(if))
   ! momentum flux
-  flux%tabvect(1)%vect(ideb-1+if) = ((kl*vnl(if)-ku)*cell_l(if)%density)*cell_l(if)%velocity &
-                                  + ((kr*vnr(if)+ku)*cell_r(if)%density)*cell_r(if)%velocity &
-                                  + (kl*cell_l(if)%pressure + kr*cell_r(if)%pressure)*fn
+  flux%tabvect(1)%vect(ideb-1+if) = ((kl*vnl(if)-ku)*cell_l%density(if))*cell_l%velocity(if) &
+                                  + ((kr*vnr(if)+ku)*cell_r%density(if))*cell_r%velocity(if) &
+                                  + (kl*cell_l%pressure(if) + kr*cell_r%pressure(if))*fn(if)
 enddo
 
-deallocate(roe)
+call delete(roe)
 
 !--------------------------------------------------------------
 ! Calcul des jacobiennes

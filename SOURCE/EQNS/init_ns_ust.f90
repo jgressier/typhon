@@ -34,18 +34,19 @@ type(st_nsetat) :: nspri
 character(len=50):: charac
 real(krp)       :: x,y,z, temp
 
-! -- Debut de la procedure --
+! -- BODY --
+
 
 select case(init_type)
 
 case(init_def)
-  !print*,'init ns ',ncell
-  nspri = pi_ti_mach_dir2nspri(defns%properties(1),initns%ptot, initns%ttot, &
-                                                 initns%mach, initns%direction) 
-  champ%etatprim%tabscal(1)%scal(1:ncell) = nspri%density
-  champ%etatprim%tabscal(2)%scal(1:ncell) = nspri%pressure
-  champ%etatprim%tabvect(1)%vect(1:ncell) = nspri%velocity
-
+  call new(nspri, 1)
+  call pi_ti_mach_dir2nspri(defns%properties(1), 1, initns%ptot, initns%ttot, &
+                                                 initns%mach, initns%direction, nspri) 
+  champ%etatprim%tabscal(1)%scal(1:ncell) = nspri%density(1)
+  champ%etatprim%tabscal(2)%scal(1:ncell) = nspri%pressure(1)
+  champ%etatprim%tabvect(1)%vect(1:ncell) = nspri%velocity(1)
+  call delete(nspri)
   !!if (champ%allocgrad) champ%gradient(:,:,:,:,:) = 0._krp
 
 case(init_udf)

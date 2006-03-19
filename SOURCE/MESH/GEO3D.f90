@@ -443,7 +443,7 @@ endfunction v3d_div
 !------------------------------------------------------------------------------!
 ! Fonction : vector divided par real (array)
 !------------------------------------------------------------------------------!
-function v3d_div_t(x, v) result(tv)
+function v3d_div_t(v, x) result(tv)
 implicit none
 real(krp), intent(in) :: x
 type(v3d), dimension(:), intent(in) :: v
@@ -461,7 +461,7 @@ endfunction v3d_div_t
 !------------------------------------------------------------------------------!
 ! Fonction : vector divided par real (array*array)
 !------------------------------------------------------------------------------!
-function v3d_div_tt(x, v) result(tv)
+function v3d_div_tt(v, x) result(tv)
 implicit none
 real(krp), dimension(:), intent(in) :: x
 type(v3d), dimension(:), intent(in) :: v

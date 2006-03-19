@@ -45,14 +45,12 @@ integer :: ib, nbloc            ! index de bloc et nombre de blocs
 integer :: ideb, ifin           ! index de debut et fin de bloc
 integer :: it                   ! index de tableau
 integer :: icl, icr             ! index de cellule a gauche et a droite
-type(st_nsetat), dimension(:), allocatable & 
-        :: cell_l, cell_r       ! tableau de cellules a gauche et a droite
-type(st_genericfield) &
-        :: gradL, gradR         ! block size arrays of gradients
+type(st_nsetat)       :: cell_l, cell_r       ! tableau de cellules a gauche et a droite
+type(st_genericfield) :: gradL, gradR         ! block size arrays of gradients
 type(v3d), dimension(:), allocatable &
-        :: cg_l, cg_r           ! tableau des centres de cellules a gauche et a droite   
+                      :: cg_l, cg_r           ! tableau des centres de cellules a gauche et a droite   
 
-! -- Debut de la procedure --
+! -- BODY --
 
 ! On peut ici decouper la maillage complet en blocs de taille fixe pour optimiser
 ! l'encombrement memoire et la vectorisation
@@ -65,7 +63,8 @@ nfb   = 1 + mod(domaine%nface-1, nbuf)         ! taille de 1er bloc peut etre <>
 ! il sera a tester l'utilisation de tableaux de champs generiques plutôt que
 ! des definitions type d'etat specifiques (st_nsetat)
 
-allocate(cell_l(nbuf), cell_r(nbuf))
+call new(cell_l, nbuf)
+call new(cell_r, nbuf)
 allocate(  cg_l(nbuf),   cg_r(nbuf))
 call new(gradL, nbuf, field%gradient%nscal, field%gradient%nvect, field%gradient%ntens)
 call new(gradR, nbuf, field%gradient%nscal, field%gradient%nvect, field%gradient%ntens)
@@ -82,12 +81,12 @@ do ib = 1, nbloc
       if  = ideb+it-1
       icl = domaine%facecell%fils(if,1)
       icr = domaine%facecell%fils(if,2)
-      cell_l(it)%density  = field%etatprim%tabscal(1)%scal(icl)
-      cell_r(it)%density  = field%etatprim%tabscal(1)%scal(icr)
-      cell_l(it)%pressure = field%etatprim%tabscal(2)%scal(icl)
-      cell_r(it)%pressure = field%etatprim%tabscal(2)%scal(icr)
-      cell_l(it)%velocity = field%etatprim%tabvect(1)%vect(icl)
-      cell_r(it)%velocity = field%etatprim%tabvect(1)%vect(icr)
+      cell_l%density(it)  = field%etatprim%tabscal(1)%scal(icl)
+      cell_r%density(it)  = field%etatprim%tabscal(1)%scal(icr)
+      cell_l%pressure(it) = field%etatprim%tabscal(2)%scal(icl)
+      cell_r%pressure(it) = field%etatprim%tabscal(2)%scal(icr)
+      cell_l%velocity(it) = field%etatprim%tabvect(1)%vect(icl)
+      cell_r%velocity(it) = field%etatprim%tabvect(1)%vect(icr)
     enddo
   
   ! - l'acces au tableau flux n'est pas programme de maniere generale !!! DEV
@@ -179,7 +178,9 @@ enddo
 
 call ns_bocoflux(defsolver, domaine, flux, field, defspat)
 
-deallocate(cell_l, cell_r, cg_l, cg_r)
+call delete(cell_l)
+call delete(cell_r)
+deallocate(cg_l, cg_r)
 call delete(gradL)
 call delete(gradR)
 

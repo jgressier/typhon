@@ -31,8 +31,7 @@ type(st_face), dimension(1:nflux) &
                       :: face             ! geom. data of faces
 type(v3d),     dimension(1:nflux) &
                       :: cg_l, cg_r       ! cell centers (index related to face number)
-type(st_nsetat), dimension(1:nflux) &
-                      :: cell_l, cell_r   ! champs des valeurs primitives
+type(st_nsetat)       :: cell_l, cell_r   ! champs des valeurs primitives
 type(st_genericfield) :: gradL, gradR     ! left & right gradients
 logical               :: calc_jac         ! should compute jacobian matrices or not
 
@@ -83,21 +82,21 @@ do if = 1, nflux
   ! pour eviter sqrt()**2
   !dLR(if) = abs(vLR(if))
 
-  vL(if) = cell_l(if)%velocity
-  vR(if) = cell_r(if)%velocity
+  vL(if) = cell_l%velocity(if)
+  vR(if) = cell_r%velocity(if)
   velH(if) = dHR(if)*vL(if) + dHL(if)*vR(if)
 
-  TL(if) = cell_l(if)%pressure / (cell_l(if)%density * r_PG)
-  TR(if) = cell_r(if)%pressure / (cell_r(if)%density * r_PG)
+  TL(if) = cell_l%pressure(if) / (cell_l%density(if) * r_PG)
+  TR(if) = cell_r%pressure(if) / (cell_r%density(if) * r_PG)
   TH(if) = dHR(if)*TL(if) + dHL(if)*TR(if)
 
   ! computation of temperature gradient : 
   ! grad(T) = 1 / (density * r) * grad(P) - P/(r * density**2) * grad(density)
-  gradTL(if) = 1._krp/(cell_l(if)%density * r_PG) * gradL%tabvect(2)%vect(if) - &
-               cell_l(if)%pressure / (cell_l(if)%density**2 * r_PG) * &
+  gradTL(if) = 1._krp/(cell_l%density(if) * r_PG) * gradL%tabvect(2)%vect(if) - &
+               cell_l%pressure(if) / (cell_l%density(if)**2 * r_PG) * &
                gradL%tabvect(1)%vect(if)
-  gradTR(if) = 1._krp/(cell_r(if)%density * r_PG) * gradR%tabvect(2)%vect(if) - &
-               cell_r(if)%pressure / (cell_r(if)%density**2 * r_PG) * &
+  gradTR(if) = 1._krp/(cell_r%density(if) * r_PG) * gradR%tabvect(2)%vect(if) - &
+               cell_r%pressure(if) / (cell_r%density(if)**2 * r_PG) * &
                gradR%tabvect(1)%vect(if)
 
 enddo

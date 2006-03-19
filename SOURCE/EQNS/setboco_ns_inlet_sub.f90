@@ -37,18 +37,21 @@ type(st_nsetat) :: nspri
 
 if (unif /= uniform) call erreur("Developpement","Condition non uniforme non implementee")
 
+call new(nspri, 1)
+
 do ifb = 1, ustboco%nface
   if     = ustboco%iface(ifb)
   icell  = umesh%facecell%fils(if,1)
   ighost = umesh%facecell%fils(if,2)
-  nspri = pi_ti_ps_dir2nspri(defns%properties(1), bc_ns%ptot, bc_ns%ttot, &
-                             fld%etatprim%tabscal(2)%scal(icell), bc_ns%direction) 
+  call pi_ti_ps_dir2nspri(defns%properties(1), 1, bc_ns%ptot, bc_ns%ttot, &
+                          fld%etatprim%tabscal(2)%scal(icell), bc_ns%direction, nspri) 
 
-  fld%etatprim%tabscal(1)%scal(ighost) = nspri%density
-  fld%etatprim%tabscal(2)%scal(ighost) = nspri%pressure
-  fld%etatprim%tabvect(1)%vect(ighost) = nspri%velocity
+  fld%etatprim%tabscal(1)%scal(ighost) = nspri%density(1)
+  fld%etatprim%tabscal(2)%scal(ighost) = nspri%pressure(1)
+  fld%etatprim%tabvect(1)%vect(ighost) = nspri%velocity(1)
 enddo
 
+call delete(nspri)
 
 endsubroutine setboco_ns_inlet_sub
 

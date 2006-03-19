@@ -5,8 +5,6 @@
 !   Bibliotheque de procedures et fonctions pour la definition des etats
 !   dans les equations de Navier-Stokes
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
 
 module EQNS
@@ -21,11 +19,10 @@ use OUTPUT
 ! Definition de la structure ST_NSETAT : etat physique
 !------------------------------------------------------------------------------!
 type st_nsetat
-!  real(krp), dimension(:), pointer &
-!                  :: density    ! masses volumiques partielles (nesp)
-  real(krp)       :: density    ! masse volumique
-  real(krp)       :: pressure   ! pression
-  type(v3d)       :: velocity   ! vitesse
+  integer                          :: dim
+  real(krp), dimension(:), pointer :: density    ! masse volumique
+  real(krp), dimension(:), pointer :: pressure   ! pression
+  type(v3d), dimension(:), pointer :: velocity   ! vitesse
 endtype st_nsetat
 
 !------------------------------------------------------------------------------!
@@ -42,13 +39,13 @@ endtype st_espece
 
 ! -- INTERFACES -------------------------------------------------------------
 
-!interface new
-!  module procedure new_mesh, new_field, new_block, new_zone
-!endinterface
+interface new
+  module procedure new_nsetat
+endinterface
 
-!interface delete
-!  module procedure delete_mesh, delete_field, delete_block, delete_zone
-!endinterface
+interface delete
+  module procedure delete_nsetat
+endinterface
 
 
 ! -- Fonctions et Operateurs ------------------------------------------------
@@ -58,35 +55,48 @@ endtype st_espece
 contains
 
 !------------------------------------------------------------------------------!
-! Fonction : conversion de variables conservatives en variables primitives
+! Fonction : nsetat constructor
 !------------------------------------------------------------------------------!
-!type(st_nsetat) function cons2nspri(fluid, etat)
-!implicit none
+subroutine new_nsetat(nsetat, dim)
+implicit none
+type(st_nsetat) :: nsetat
+integer         :: dim
 
-! -- declaration des entrees
-!type(st_espece)          :: fluid
-!type(st_ :: etat
+  nsetat%dim = dim
+  allocate(nsetat%density(dim))
+  allocate(nsetat%pressure(dim))
+  allocate(nsetat%velocity(dim))
 
-!  cons2kdif%density  = etat(1)
-!  cons2kdif%pressure = etat(1)/defkdif%materiau%Cp
-!  cons2kdif%density = etat(1)/defkdif%materiau%Cp
-!  cons2kdif%density = etat(1)/defkdif%materiau%Cp
+endsubroutine new_nsetat
 
-!endfunction cons2kdif
+!------------------------------------------------------------------------------!
+! Fonction : nsetat destructor
+!------------------------------------------------------------------------------!
+subroutine delete_nsetat(nsetat)
+implicit none
+type(st_nsetat) :: nsetat
+
+  deallocate(nsetat%density)
+  deallocate(nsetat%pressure)
+  deallocate(nsetat%velocity)
+
+endsubroutine delete_nsetat
+
 
 !------------------------------------------------------------------------------!
 ! Fonction : conversion de parametres en variables primitives
 !------------------------------------------------------------------------------!
-type(st_nsetat) function rho_ps_vel2nspri(rho, ps, vel) result(nspri)
+type(st_nsetat) function rho_ps_vel2nspri(n, rho, ps, vel) result(nspri)
 implicit none
 
-! -- declaration des entrees
-type(v3d)       :: vel
-real(krp)       :: rho, ps
+! -- INPUTS --
+integer         :: n
+type(v3d)       :: vel(n)
+real(krp)       :: rho(n), ps(n)
 
-  nspri%pressure = ps
-  nspri%density  = rho
-  nspri%velocity = vel
+  nspri%pressure(1:n) = ps(1:n)
+  nspri%density(1:n)  = rho(1:n)
+  nspri%velocity(1:n) = vel(1:n)
 
 endfunction rho_ps_vel2nspri
 
@@ -94,13 +104,16 @@ endfunction rho_ps_vel2nspri
 !------------------------------------------------------------------------------!
 ! Fonction : conversion de parametres en variables primitives
 !------------------------------------------------------------------------------!
-type(st_nsetat) function pi_ti_mach_dir2nspri(fluid, pi, ti, mach, dir) result(nspri)
+subroutine pi_ti_mach_dir2nspri(fluid, n, pi, ti, mach, dir, nspri)
 implicit none
 
-! -- declaration des entrees
+! -- INPUTS --
 type(st_espece) :: fluid
+integer         :: n
 type(v3d)       :: dir
 real(krp)       :: pi, ti, mach
+! -- OUTPUTS --
+type(st_nsetat) :: nspri
 ! -- internal variables 
 real(krp)       :: g1, fm, ts, a
 
@@ -108,66 +121,68 @@ real(krp)       :: g1, fm, ts, a
   fm = 1._krp / (1._krp + .5_krp*g1*mach**2)
   ts = ti *fm
   a  = sqrt(fluid%gamma*fluid%r_const*ts)
-  nspri%pressure = pi *(fm**(fluid%gamma/g1))
-  nspri%density  = nspri%pressure / (fluid%r_const * ts)
-  nspri%velocity = (mach*a)*dir       ! product of scalars before
+  nspri%pressure(1:n) = pi *(fm**(fluid%gamma/g1))
+  nspri%density(1:n)  = nspri%pressure(1:n) / (fluid%r_const * ts)
+  nspri%velocity(1:n) = (mach*a)*dir       ! product of scalars before
 
-endfunction pi_ti_mach_dir2nspri
+end subroutine pi_ti_mach_dir2nspri
 
 
 !------------------------------------------------------------------------------!
 ! Fonction : conversion de parametres en variables primitives
 !------------------------------------------------------------------------------!
-type(st_nsetat) function pi_ti_ps_dir2nspri(fluid, pi, ti, ps, dir) result(nspri)
+subroutine pi_ti_ps_dir2nspri(fluid, n, pi, ti, ps, dir, nspri)
 implicit none
-
-! -- declaration des entrees
+! -- INPUTS --
+integer         :: n
 type(st_espece) :: fluid
-type(v3d)       :: dir
-real(krp)       :: pi, ti, ps
+type(v3d)       :: dir(n)
+real(krp)       :: pi(n), ti(n), ps(n)
+! -- OUTPUTS --
+type(st_nsetat) :: nspri
 ! -- internal variables 
-real(krp)       :: g1, fm, ts, a, mach, m2
+real(krp)       :: g1, fm(n), ts, a, mach, m2
 
   g1   = fluid%gamma -1._krp
   fm   = (pi/ps)**(g1/fluid%gamma)
-  if (fm < 1._krp) then
+  if (count(fm(1:n) < 1._krp) > 0) then
     call print_warning("Bad ratio Pi/P : truncated to 1.")
-    fm = 1._krp
+    where (fm(1:n) < 1._krp) fm = 1._krp
   endif
-  mach = sqrt((fm-1._krp)*2._krp/g1)
-  ts   = ti/fm
-  a    = sqrt(fluid%gamma*fluid%r_const*ts)
-  nspri%pressure = ps
-  nspri%density  = ps / (fluid%r_const * ts)
-  nspri%velocity = (mach*a)*dir       ! product of scalars before
 
-endfunction pi_ti_ps_dir2nspri
+  nspri%pressure(1:n) = ps(1:n) 
+  nspri%density(1:n)  = ps(1:n)  / (fluid%r_const * ti(1:n)) * fm(1:n)
+  nspri%velocity(1:n) = ( sqrt((fm-1._krp)*2._krp/g1)                    &    ! mach number
+                         *sqrt(fluid%gamma*ps(1:n)/nspri%density(1:n))   &    ! speed of sound
+                         ) * dir(1:n)
+
+end subroutine pi_ti_ps_dir2nspri
 
 
 !------------------------------------------------------------------------------!
 ! Fonction : conversion de parametres en variables primitives
 !------------------------------------------------------------------------------!
-subroutine nspri2pi_ti_mach_dir(fluid, nspri, pi, ti, mach, dir)
+subroutine nspri2pi_ti_mach_dir(fluid, n, nspri, pi, ti, mach, dir)
 implicit none
-
-! -- declaration des entrees
+! -- INPUTS --
+integer         :: n
 type(st_espece) :: fluid
 type(st_nsetat) :: nspri
-! -- declaration des sorties
-real(krp)       :: pi, ti, mach
-type(v3d)       :: dir
+! -- OUTPUTS --
+real(krp)       :: pi(n), ti(n), mach(n)
+type(v3d)       :: dir(n)
 ! -- internal variables 
-real(krp)       :: g1, fm, ts, a2, v2, m2
+real(krp)               :: g1
+real(krp), dimension(n) :: fmv    ! automatic array
 
   g1   = fluid%gamma -1._krp
-  v2   = sqrabs(nspri%velocity)
-  a2   = fluid%gamma*nspri%pressure/nspri%density
-  m2   = v2/a2
-  fm   = 1._krp + 0.5_krp*g1*m2
-  pi   = nspri%pressure*fm**(fluid%gamma/g1)
-  ti   = nspri%pressure/fluid%r_const/nspri%density*fm
-  mach = sqrt(m2)
-  dir  = nspri%velocity / sqrt(v2)
+  fmv(1:n)  = sqrabs(nspri%velocity)                                            ! V^2
+  dir(1:n)  = nspri%velocity(1:n) / sqrt(fmv(1:n))                              ! direction
+  fmv(1:n)  = fmv(1:n) / (fluid%gamma*nspri%pressure(1:n)) * nspri%density(1:n) ! M^2
+  mach(1:n) = sqrt(fmv(1:n))
+  fmv(1:n)  = 1._krp + 0.5_krp*g1*fmv(1:n)
+  pi        = nspri%pressure(1:n)*fmv(1:n)**(fluid%gamma/g1)
+  ti        = nspri%pressure(1:n)/fluid%r_const/nspri%density(1:n)*fmv(1:n)
 
 endsubroutine nspri2pi_ti_mach_dir
 
@@ -180,4 +195,5 @@ endmodule EQNS
 ! mai  2002 : creation du module
 ! sept 2003 : adaptation du module pour premiers developpements
 ! july 2004 : primitive variables calculation
+! mar  2006 : nsetat transformed to array
 !------------------------------------------------------------------------------!

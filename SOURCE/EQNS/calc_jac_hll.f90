@@ -29,8 +29,7 @@ integer               :: nflux            ! nombre de flux (face) a calculer
 integer               :: ideb             ! indice du premier flux a remplir
 type(st_face), dimension(1:nflux) & 
                       :: face             ! donnees geometriques des faces
-type(st_nsetat), dimension(1:nflux) &
-                      :: cell_l, cell_r   ! champs des valeurs primitives
+type(st_nsetat)       :: cell_l, cell_r   ! champs des valeurs primitives
 real(krp), dimension(nflux) &
                       :: sl, sr, vnl, vnr 
 

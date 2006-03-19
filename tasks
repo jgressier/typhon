@@ -820,3 +820,10 @@ Task 0158 (Jeremie): Bug : Corrected MPI Split function (found in CYL case)
 - extractpart_grid : bad boco definition (could fail in some cases)
 - CYL case was failing with 2 procs
 
+---------------------------------------------------------------------------------
+Task 0164 (Jeremie): Opt : NS states optimization (flux computation)
+---------------------------------------------------------------------------------
+- nsetat structure has been modified to array structure for better vectorization
+- SOURCE/EQNS: EQNS (main modification), calc_flux_hlle (slight modification), 
+               calc_roe_states (fully vectorized)
+> no specific improvement (certainly need flux vectorization)

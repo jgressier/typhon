@@ -26,8 +26,7 @@ integer               :: nflux            ! nombre de flux (face) a calculer
 integer               :: ideb             ! indice du premier flux a remplir
 type(st_face), dimension(1:nflux) & 
                       :: face             ! donnees geometriques des faces
-type(st_nsetat), dimension(1:nflux) &
-                      :: cell             ! champs des valeurs primitives
+type(st_nsetat)       :: cell             ! champs des valeurs primitives
 real(krp), dimension(1:nflux) &
                       :: vn
 
@@ -52,8 +51,8 @@ jac%mat(1:5, 1:5, ideb:ideb-1+nflux) = 0._krp
 do if = 1, nflux
 
   fn = face(if)%normale 
-  v2 = sqrabs(cell(if)%velocity)
-  en = ig1*cell(if)%pressure/cell(if)%density + .5_krp*v2
+  v2 = sqrabs(cell%velocity(if))
+  en = ig1*cell%pressure(if)/cell%density(if) + .5_krp*v2
 
   ! -- mass jacobian --
 
@@ -64,13 +63,13 @@ do if = 1, nflux
 
   jac%mat(2, 1,   ideb-1+if) = vn(if)*(g1*v2 - g*en)
   jac%mat(2, 2,   ideb-1+if) = vn(if)*g
-  jac%mat(2, 3:5, ideb-1+if) = (g*en - .5_krp*g1*v2)*tab(fn) - g1*vn(if)*tab(cell(if)%velocity)
+  jac%mat(2, 3:5, ideb-1+if) = (g*en - .5_krp*g1*v2)*tab(fn) - g1*vn(if)*tab(cell%velocity(if))
 
   ! -- momentum jacobian --
 
-  jac%mat(3:5,   1, ideb-1+if) = .5_krp*g1*v2*tab(fn) - vn(if)*tab(cell(if)%velocity)
+  jac%mat(3:5,   1, ideb-1+if) = .5_krp*g1*v2*tab(fn) - vn(if)*tab(cell%velocity(if))
   jac%mat(3:5,   2, ideb-1+if) = g1*tab(fn)
-  jac%mat(3:5, 3:5, ideb-1+if) = tab((cell(if)%velocity.tens.fn)) - tab(((g1*fn).tens.cell(if)%velocity))
+  jac%mat(3:5, 3:5, ideb-1+if) = tab((cell%velocity(if).tens.fn)) - tab(((g1*fn).tens.cell%velocity(if)))
   jac%mat(3,3, ideb-1+if) = jac%mat(3,3, ideb-1+if) + vn(if)
   jac%mat(4,4, ideb-1+if) = jac%mat(4,4, ideb-1+if) + vn(if)
   jac%mat(5,5, ideb-1+if) = jac%mat(5,5, ideb-1+if) + vn(if)
