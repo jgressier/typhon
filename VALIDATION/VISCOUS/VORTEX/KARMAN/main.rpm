@@ -1,0 +1,90 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON 
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+  NZONE     = 1       
+  COORD     = 2D      
+  TIME      = UNSTEADY 
+  DURATION  = .000002
+  BASETIME  = .00000001
+  !RESIDUALS = 1.e-2
+ENDBLOCK               
+
+BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+  FORMAT = VTK         
+  FILE   = "typhon" 
+ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "cyl" 
+  SOLVER = EULER
+ENDBLOCK
+
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = CGNS
+  FILE   = "cyl-ns.cgns"
+  SCALE  = 0.00001
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS = LAMINAR
+  GAS      = AIR
+ENDBLOCK
+
+BLOCK:TIME_PARAM 
+  !DTCALC    = LOCAL_STABILITY_CONDITION
+  METHOD    = IMPLICIT
+  INVERSION = BICGSTAB
+  INV_RES   = 1.e-2
+  MAX_IT    = 20
+  CFL       = 5.
+ENDBLOCK
+
+BLOCK:SPAT_PARAM  
+  SCHEME   = HLLC
+  JACOBIAN = HLL-diag
+  HIGHRES  = MUSCL-FAST
+  LIMITER  = ALBADA
+ENDBLOCK
+
+BLOCK:INIT
+  PI      = 1.0282811E5
+  TI      = 300.
+  MACH    = 0.2
+  DIRECTION = (1., 0.001, 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY    = UPSTREAM
+  TYPE      = SUBSONIC_INLET
+  PI        = 1.0282811E5
+  TI        = 300.
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = CYL1
+  TYPE   = FLUXSET_WALL
+  WALL_FLUX   = 0.
+ENDBLOCK
+
+
+!BLOCK:BOCO
+!  FAMILY = CURVES
+!  TYPE   = FLUXSET_WALL
+!  WALL_FLUX   = 0.
+!ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = DOWNSTREAM
+  TYPE   = SUBSONIC_OUTLET 
+  P      = 1.E5
+ENDBLOCK
+
+
+
