@@ -48,6 +48,7 @@ Task Dévlp.    début fin   Type  Développement
 0161 Jeremie   07/03 07/03 NS    MUSCL : Kim's 3rd order limiter
 0162 Jeremie   14/03 14/03 Bug   Ability to use long filename (seen with mesh files) (strlen)
      Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
+0170 Jeremie   19/03 19/03 Bug   Unexpected interaction computation/output (ustmesh%ncell)
                            Make  Restructuration de MAIN/integration_cycle (split)
                            Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
 
