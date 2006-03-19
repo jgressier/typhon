@@ -15,6 +15,6 @@ module TYPHMAKE
   integer, parameter :: kip = 4  ! simple (2) ou double (4) precision
   integer, parameter :: kpp = 4  ! taille des variables parametres (2 devrait suffire)
 
-  integer, parameter :: strlen = 20   ! longueur des noms par defaut
+  integer, parameter :: strlen = 100   ! longueur des noms par defaut
 
 endmodule TYPHMAKE
