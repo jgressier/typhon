@@ -384,12 +384,12 @@ enddo
 ! ---------------------------------------------
 ! extract/copy ustmesh boco connectivity
 
-allocate(boco(fullgrid%umesh%nboco+maxval(facepart(1:nface_cut))-1))   ! allocate maximum nb of boco
+allocate(boco(fullgrid%umesh%nboco+maxval(facepart(1:nface_cut))))   ! allocate maximum nb of boco
 new_ib = 0
 
 do ib = 1, fullgrid%umesh%nboco   ! loop on original bocos
   nf = count(new_iface(fullgrid%umesh%boco(ib)%iface(1:fullgrid%umesh%boco(ib)%nface))/=0)
-  print*,"extract boco",ib," - "//fullgrid%umesh%boco(ib)%family//":",nf, " faces"
+  print*,"extract boco",ib," - "//fullgrid%umesh%boco(ib)%family(1:20)//":",nf, " faces"
   if (nf /= 0) then               ! new boco (at least one face) in extracted part
     new_ib = new_ib + 1
     call new(boco(new_ib), fullgrid%umesh%boco(ib)%family, nf)
@@ -413,9 +413,9 @@ enddo
 
 maxcom = maxval(facepart(1:nface_cut))
 
-do ib = 1, maxcom   ! loop on all parts
+do ib = 1, maxcom   ! loop on all needed parts
 
-  nf = count(facepart(1:nface_cut) == ipart)
+  nf = count(facepart(1:nface_cut) == ib)
 
   if (nf /= 0) then  
     ! if it exists faces then
@@ -427,7 +427,7 @@ do ib = 1, maxcom   ! loop on all parts
     print*,"create connectivity boco",new_ib," :",nf, " faces"
     if2 = 0
     do if = 1, nface_cut
-      if (facepart(if) == ipart) then
+      if (facepart(if) == ib) then
         if2 = if2 + 1
         boco(new_ib)%iface(if2) = new_iface(cutface(if))
       endif
@@ -445,6 +445,7 @@ enddo
 ! ---------------------------------------------
 ! pack boco array
 
+print*,"pack", new_ib, "boco conditions"
 partgrid%umesh%nboco = new_ib
 allocate(partgrid%umesh%boco(new_ib))
 partgrid%umesh%boco(1:new_ib) = boco(1:new_ib)

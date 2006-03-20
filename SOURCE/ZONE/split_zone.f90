@@ -37,7 +37,7 @@ pgrid => zone%grid
 do while (associated(pgrid))
 
   ipart = index_int(myprocid, zone%info%proc(1:npart))   ! 1 to nproc
-  if (ipart == 0) call erreur("developement", "not concerned by computation")
+  if (ipart == 0) call erreur("development", "not concerned by computation")
 
   ! -------------------------------------------------
   ! compute partition of a grid
@@ -60,14 +60,9 @@ do while (associated(pgrid))
   ! replace original grid by partitioned grid 
 
   next => pgrid%next
-  print*,"a"
   call delete(pgrid)
-  print*,"b"
   pgrid = partgrid
-  print*,"c"
   pgrid%next => next
-
-  print*,"  done"
 
   ! -- next grid --
 

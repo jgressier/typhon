@@ -36,7 +36,7 @@ real(krp), allocatable :: bocodata(:) ! packed array of data
 dim = prim%nscal + 3*prim%nvect
 allocate(bocodata(boco%nface*dim))
 
-! -- pack internal variables --
+! -- pack internal variables ( scal1 scal2 vec1%x vec1%y vec1%z ... )--
 
 do if = 1, boco%nface
   ic   = umesh%facecell%fils(boco%iface(if), 1)      ! internal cell of limit face
@@ -52,13 +52,13 @@ enddo
 
 ! -- send internal variables --
 
-!print*,"send",boco%gridcon%grid_id, dim*boco%nface, bocodata
+!print*, "send",boco%gridcon%grid_id, dim*boco%nface, bocodata
 call sendtogrid(boco%gridcon%grid_id, dim*boco%nface, bocodata, mpitag_field)
 
 ! -- receive boundary conditions --
 
 call receivefromgrid(boco%gridcon%grid_id, dim*boco%nface, bocodata, mpitag_field)
-!print*,"recv",boco%gridcon%grid_id, dim*boco%nface, bocodata
+!print*, "recv",boco%gridcon%grid_id, dim*boco%nface, bocodata
 
 ! -- unpack boundary conditions --
 

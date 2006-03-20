@@ -33,7 +33,6 @@ integer :: nrac                      ! numero de raccord
 
 ! -- BODY --
 
-
 idef = boco%idefboco
 
 select case(boco%gridcon%contype)

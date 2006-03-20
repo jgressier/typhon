@@ -29,11 +29,11 @@ integer(kip) :: izone, ip
 allocate(world%info%headproc(world%prj%nzone))
 
 do izone = 1, world%prj%nzone
-  world%info%headproc(izone) = izone -1                 ! each zone has a differente master proc
+  world%info%headproc(izone) = izone                    ! each zone has a differente master proc
   world%zone(izone)%info%nbproc = world%info%nbproc     ! each zone uses all procs
   allocate(world%zone(izone)%info%proc(world%zone(izone)%info%nbproc))
   do ip = 1, world%zone(izone)%info%nbproc
-    world%zone(izone)%info%proc(ip) = ip -1
+    world%zone(izone)%info%proc(ip) = ip
   enddo
 enddo
 

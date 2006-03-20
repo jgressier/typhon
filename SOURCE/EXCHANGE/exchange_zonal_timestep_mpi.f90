@@ -32,7 +32,6 @@ dtmin = huge(dtmin)
 
 do i = 1, zone%info%nbproc
   ip = zone%info%proc(i)
-
   if (ip /= myprocid) then
 
     ! -- send to other grid --

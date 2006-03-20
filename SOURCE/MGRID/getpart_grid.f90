@@ -49,12 +49,7 @@ integer                            ::  size_xadj     ! Size of xadj
 integer                            ::  cur_adjncy    ! Other variable
 
 integer, dimension(:), allocatable :: tab_parts      ! Number of cells in each parts
-integer, dimension(:), allocatable :: tab_intcell 
-integer                            :: ncell_real    ! nombre reel de cellules a extraire
 integer                            :: i, j, k  ! compteur de boucle
-integer                            :: id_tmp !stockage temporaire d'id
-integer                            :: count_tmp ! stockahe temporaire d'un compteur de chaine
-integer                            :: count_tmp2 ! stockahe temporaire d'un compteur de chaine
 
 ! -- BODY --
 
@@ -93,20 +88,13 @@ else
                                 npart, options, edgecut, partition)
 endif
 
-call print_info(5,"  DONE")
 call delete(csr)
 
 pfullgrid=>fullgrid
 allocate(tab_parts(npart))
 
-do i=1,npart
-   count_tmp = 0
-   do j=1, ncell
-      if (partition(j).eq.i) then
-         count_tmp = count_tmp + 1
-      endif
-   enddo
-   tab_parts(i)=count_tmp
+do i = 1, npart
+  tab_parts(i) = count(partition(1:ncell) == i)
 enddo
 
 print*,"size of parts:",tab_parts(1:npart)

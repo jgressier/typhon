@@ -827,3 +827,9 @@ Task 0164 (Jeremie): Opt : NS states optimization (flux computation)
 - SOURCE/EQNS: EQNS (main modification), calc_flux_hlle (slight modification), 
                calc_roe_states (fully vectorized)
 > no specific improvement (certainly need flux vectorization)
+
+---------------------------------------------------------------------------------
+Task 0167 (Jeremie): MPI : Bug correction
+---------------------------------------------------------------------------------
+- all proc id have been renumbered from 1 to nbproc
+- bug correction in extractpart_grid (creation of matching connection boco)

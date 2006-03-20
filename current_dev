@@ -51,6 +51,7 @@ Task Dévlp.    début fin   Type  Développement
 0164 Jeremie   17/03 19/03 Opt   NS states optimization (flux computation)
 0165 Jeremie               Opt   Mesh face definition (arrays)
 0166 Jeremie               Opt   BCSR connectivity for implicit matrix computation
+0167 Jeremie   19/03 19/03 MPI   Bug correction (tested on EULER/HYPERSONIC/CYL)
      Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
 0170 Jeremie   19/03 19/03 Bug   Unexpected interaction computation/output (ustmesh%ncell)
                            Make  Restructuration de MAIN/integration_cycle (split)

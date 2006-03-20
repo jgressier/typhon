@@ -9,15 +9,16 @@ subroutine receivefromgrid(grid_id, dim, data, tag)
 
 use TYPHMAKE
 use VARCOM
+use COMMTAG
 
 implicit none
 
 include 'mpif.h'
 
 ! -- INPUTS --
-integer(kip) :: grid_id 
-integer(kip) :: dim
-integer(kip) :: tag
+integer(kip)  :: grid_id 
+integer(kip)  :: dim
+integer(kmpi) :: tag
 
 ! -- OUTPUTS --
 real(krp)    :: data(dim) 
