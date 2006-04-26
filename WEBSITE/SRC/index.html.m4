@@ -19,6 +19,7 @@ a finite volume solver for heat transfer.] (see hyperlink([Presentation], [index
 dnl -------------------------------------------------------------
 section([Web site news])
 
+  item([2006/03/05 : version 0.3.0 released (development branches merged)])
   item([2006/01/16 : version 0.2.2 released (MUSCL improvement)])
   item([2005/11/06 : Added documentation about numerical schemes in 
                      hyperlink([User guide], [doc_scheme.html]) [section]])
@@ -33,13 +34,17 @@ skip_line
 
 dnl -------------------------------------------------------------
 section([TYPHON solver])
-<br>
+
+<p align=justify>
+[The current released version is 0.3.0 which newly features automatic splitting and parallel 
+computations. Future developments will focus on automatic and local mesh refinement (core 0.4).]
+</p>
 
 dnl -------------------------------------------------------------
 section([Users])
 [<p align=justify>
-The current release is 0.2.2 and is not available as a package. Release 0.2.2 and 0.2.1 contain some
-improvements and is available on the CVS server. 
+The current release is 0.3.0 and is available as a package. Releases 0.2.2 and 0.2.1 contain some
+improvements of release 0.2.0 and is available on the CVS server. 
 
 See] hyperlink([Presentation], [index_pres.html]) [to find a description of this
 release or] hyperlink([[Features section]], [feat.html]) [to get more details.]

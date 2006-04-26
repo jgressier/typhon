@@ -14,21 +14,30 @@ define([writedev],  [<tr class=orange><td align=center>$1</td><td width=10><td>$
 define([writebug],  [<tr class=red><td align=center>$1</td><td width=10><td>$2</td></tr>])
 
 dnl -------------------------------------------------------------
+sectionlr([release 0.3.0], [2006/03/05])
+beginlist
+writefunc([MPI],  [automatic mesh splitting (Metis)])
+writefunc([MPI],  [NS first order computation (up to 20 procs at least)])
+writefunc([MPI],  [NS second order computation (slightly different results at interfaces)])
+writefunc([MPI],  [Unsteady synchronization])
+endlist
+
+dnl -------------------------------------------------------------
 sectionlr([release 0.2.2], [2006/01/16])
 beginlist
 writefunc([Opt],  [optimization of CPU cost for gradient optimization (nearly 50%)])
 writefunc([NS],   [Fast MUSCL method (for high quality meshes)])
 writefunc([NS],   [Kim's 3rd order limiter (only for Fast MUSCL method)])
-writefunc([NS],   [test of internal energy positivity (output of bad cell if not positive)])
+writefunc([NS],   [test of internal energy positivity (output of bad cell index if not positive)])
 writebug([Core],  [ensure local time stepping bounded to cycle time step])
 endlist
 
 dnl -------------------------------------------------------------
 sectionlr([release 0.3 RC 1], [2005/11/06])
 beginlist
-writefunc([MPI],  [automatic mesh splitting (Metis)])
-writefunc([MPI],  [NS first order computation (up to 20 procs)])
-writefunc([MPI],  [Unsteady synchronization])
+writedev([MPI],  [automatic mesh splitting (Metis)])
+writedev([MPI],  [NS first order computation (up to 20 procs)])
+writedev([MPI],  [Unsteady synchronization])
 endlist
 
 dnl -------------------------------------------------------------

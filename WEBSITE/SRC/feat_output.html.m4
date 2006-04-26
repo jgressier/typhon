@@ -10,6 +10,8 @@ include_header
 dnl -------------------------------------------------------------
 
 section([Output files])
+item([optional mesh computation report])
+item([final output or unsteady outputs at cycles])
 item([VTK])
 Cell centered unstructured data, save primitive variables <br>
 item([Tecplot])

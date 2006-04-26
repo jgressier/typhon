@@ -12,15 +12,13 @@ dnl -------------------------------------------------------------
 section([future releases])
 <br>
 
-section([core 0.2])
-item([Navier-Stokes solver: Dissipative flux computation])
-item([Navier-Stokes solver: Implicit solver])
-item([extension of boundary conditions])
+section([core 0.3])
+item([MPI communications])
 <br>
 
-section([core 0.3])
+section([core 0.4])
 item([AMR functions])
-item([MPI communications])
+item([Multigrid computations])
 <br>
 
 

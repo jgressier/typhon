@@ -9,6 +9,11 @@ include_header
 
 dnl -------------------------------------------------------------
 
+section([March 2006, 5th : version 0.3.0 released])<br>
+[It is based on a merged version of release 0.2.2 and 0.3RC1 (this release was only based on 0.2.0).]
+See hyperlink([Change log], [dev_chlog.html]) for details <br>
+<br>
+
 section([January 2006, 16th : version 0.2.2 released])
 item([CPU optimisation of gradient computation (MUSCL scheme, viscous flows and heat transfer)])
 item([MUSCL high order variants (specific method for high quality mesh, 3rd order based limiter)])

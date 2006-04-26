@@ -11,7 +11,12 @@ dnl -------------------------------------------------------------
 
 dnl section([])
 
+<p>[There are two ways to get TYPHON (see Download section):]
+item([.tar.gz releases in file release section of TYPHON sourceforge project])
+item([download it by CVS anonymous pserver method])
+</p>
 
+<p>[To compile and install it, please see Installation and FAQ sections]</p>
 skip_line
 
 

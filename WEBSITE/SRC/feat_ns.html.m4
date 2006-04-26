@@ -24,7 +24,8 @@ section([Numerical Schemes])
 item([HLLE upwind scheme])
 item([HLLC upwind scheme (cf Toro, Batten)])
 item([AUSM-M upwind scheme (cf Liou)])
-item([MUSCL second order extension])
+item([MUSCL second order extension (MUSCL or FAST-MUSCL for high quality grids)])
+item([MUSCL limiters: Minmod, van Albada, van Leer, Superbee, Kim (3rd order)])
 item([Linear Implicit resolution (BiCG-Stab)])
 <br>
 
