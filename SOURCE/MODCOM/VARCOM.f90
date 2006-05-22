@@ -78,14 +78,6 @@ character, parameter :: c2dplan  = 'P'
 character, parameter :: c2daxi   = 'X'
 character, parameter :: c3dgen   = 'G'
 
-! -- Constantes de definition du format de maillage --
-
-character, parameter   :: fmt_CGNS    = 'C'   ! format CGNS
-character, parameter   :: fmt_TYPHMSH = 'M'   ! format CGNS
-character, parameter   :: fmt_TECPLOT = 'T'   ! format TECPLOT (ascii)
-character, parameter   :: fmt_VIGIE   = 'V'   ! format VIGIE
-character, parameter   :: fmt_VTK     = 'K'   ! format VTK
-
 ! -- Constantes pour le choix du type de sortie des donnees (centres ou noeuds)
 
 integer, parameter :: outp_NODE         = 01

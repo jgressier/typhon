@@ -27,13 +27,11 @@ real(krp)   :: wcur_res           ! world current residual
 ! -- Declaration des sorties --
 
 ! -- Declaration des variables internes --
-real(krp)   :: local_t            ! temps local (0 a mdt)
 real(krp)   :: dt                 ! pas de temps de la zone
 integer     :: if, ic, ib, nbc    ! index de champ, couplage et boco
 real(krp)   :: part_cor           ! part de correction a appliquer
 real(krp)   :: dtmax
 integer     :: typ_cor            ! type de correction
-logical     :: fin
 
 !DEV
 integer :: cumulreste, oui, non
@@ -46,8 +44,8 @@ cumulreste = oui
 
 lzone%info%iter_loc    = 0
 lzone%info%cur_res     = lzone%info%residu_ref   ! defined or initialized in integration_cycle
-local_t = 0._krp
-fin     = .false.
+lzone%info%cycle_time = 0._krp
+lzone%info%end_cycle   = .false.
 
 ! ecriture d'informations
 
@@ -57,7 +55,7 @@ case(stationnaire)
   write(str_w,'(a,i5)') "  zone",lzone%id
 
 case(instationnaire)
-  write(str_w,'(a,i5,a,g10.4)') "  zone",lzone%id," a t local =",local_t
+  write(str_w,'(a,i5,a,g10.4)') "  zone",lzone%id," a t local =",lzone%info%cycle_time
   
 case(periodique)
 
@@ -69,7 +67,7 @@ call print_info(7,str_w)
 ! integration
 !----------------------------------
 
-do while (.not.fin)
+do while (.not.lzone%info%end_cycle)
 
   
   lzone%info%iter_loc = lzone%info%iter_loc + 1
@@ -79,7 +77,7 @@ do while (.not.fin)
   case(stationnaire)
     dtmax = huge(dtmax)
   case(instationnaire)
-    dtmax = lzone%info%cycle_dt - local_t
+    dtmax = lzone%info%cycle_dt - lzone%info%cycle_time
   case(periodique)
     call erreur("Developpement","cas non implemente")
   endselect
@@ -93,15 +91,16 @@ do while (.not.fin)
   select case(lzone%info%typ_temps)
   case(stationnaire)
   case(instationnaire)
-    if (dt >= (lzone%info%cycle_dt - local_t)) then
-      fin = .true.
-      dt  = lzone%info%cycle_dt - local_t
+    if (dt >= (lzone%info%cycle_dt - lzone%info%cycle_time)) then
+      lzone%info%end_cycle = .true.
+      dt  = lzone%info%cycle_dt - lzone%info%cycle_time
     endif  
   case(periodique)
     call erreur("Developpement","cas non implemente")
   endselect
 
   ! Correction de flux quand necessaire
+
   do ic = 1, lzone%ncoupling
     part_cor = lzone%coupling(ic)%partcor
     typ_cor = lzone%coupling(ic)%typ_cor
@@ -123,7 +122,7 @@ do while (.not.fin)
         call corr_varprim(lzone%grid%field, lzone%grid%umesh, &
                           lzone%defsolver, &
                           lzone%coupling(ic)%zcoupling%etatcons, nbc, &
-                          part_cor, typ_cor, fin)
+                          part_cor, typ_cor, lzone%info%end_cycle)
       endif 
     endif
   enddo
@@ -159,44 +158,22 @@ do while (.not.fin)
     endselect
   !enddo
 
-  ! ecriture d'informations et test de fin de cycle
+  ! ecriture d'informations et test de lzone%info%end_cycle de cycle
 
-  select case(lzone%info%typ_temps)
-
-  case(stationnaire)
-    lzone%info%residu_ref = max(lzone%info%residu_ref, lzone%info%cur_res)
-    if (lzone%info%cur_res/lzone%info%residu_ref <= lzone%info%residumax) fin = .true.
-    if (mod(lzone%info%iter_loc,10) == 0) &
-      write(str_w,'(a,i5,a,g10.4)') "    iteration",lzone%info%iter_loc," | residu = ", log10(lzone%info%cur_res)
-!                                    log10(lzone%info%cur_res/lzone%info%residu_ref)
-
-    !if (mod(lzone%info%iter_loc,10) == 0) call print_info(9,str_w)
-
-  case(instationnaire)
-    local_t = local_t + dt
-    if (mod(lzone%info%iter_loc,10) == 0) &
-!    if (fin) &
-     write(str_w,'(a,i5,a,g10.4)') "    integration",lzone%info%iter_loc," a t local =",local_t
-  
-  case(periodique)
-
-  endselect
-
-   if (mod(lzone%info%iter_loc,10) == 0) call print_info(9,str_w)
-!  if (fin) call print_info(9,str_w)
+  call check_end_cycle(lzone%info, dt)
 
   call capteurs(lzone)
 
 enddo
 
-write(str_w,'(a,i5,a)') "    integration terminee en ",lzone%info%iter_loc," iterations"
+write(str_w,'(a,i5,a)') "    end of cycle integration within ",lzone%info%iter_loc," iterations"
 call print_info(9,str_w)
 
 !---------------------------------------
 endsubroutine integrationmacro_zone
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! juil 2002 : creation de la procedure
 ! juin 2003 : champs multiples
@@ -206,5 +183,6 @@ endsubroutine integrationmacro_zone
 ! oct  2003 : deplacement des proc. calc_gradient et calc_varprim dans integration_zone
 ! mars 2004 : integration de zone par technique lagrangienne
 ! oct  2004 : field chained list
+! may  2006 : retructuration (to end_cycle subroutine)
 !------------------------------------------------------------------------------!
 

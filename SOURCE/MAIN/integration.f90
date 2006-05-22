@@ -30,7 +30,7 @@ type(st_grid), pointer :: pgrid
 real(krp)              :: cpu_start, cpu_end
 integer, dimension(:), allocatable &
                        :: exchcycle ! indices des cycles d'echange pour les differents couplages de zones
-integer                :: ir, izone, if, ib, ic
+integer                :: ir, izone, if, ib, ic, ierr
 integer                :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
 
 ! -- BODY --
@@ -124,6 +124,13 @@ do while (.not. lworld%info%fin_integration)
   call print_info(6,str_w)
 
   call output_result(lworld, end_cycle)
+
+  open(unit=2001, file="typhon_stop", status="old", iostat=ierr)
+  if (ierr == 0) then
+    lworld%info%fin_integration = .true.
+    call print_info(9, "INTERRUPTING INTEGRATION...")
+    close(2001)
+  endif
 
 enddo
 

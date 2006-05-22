@@ -22,6 +22,7 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            calc_zonetimestep.o      \
            calcul_raccord.o         \
            capteurs.o               \
+           check_end_cycle.o        \
            choixcorrection.o        \
            conditions_limites.o     \
            correction.o             \
