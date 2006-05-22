@@ -53,6 +53,7 @@ open(unit=2001, file="typhon_stop", status="old", iostat=ierr)
 if (ierr == 0) then
   zinfo%end_cycle = .true.
   call print_info(9, "INTERRUPTING CYCLE INTEGRATION...")
+  close(2001)
 endif
 
 !---------------------------------------
