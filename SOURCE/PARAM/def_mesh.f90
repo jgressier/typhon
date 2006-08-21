@@ -12,6 +12,7 @@ use TYPHMAKE
 use OUTPUT
 use VARCOM
 use MENU_MESH
+use MENU_GEN
 
 implicit none
 

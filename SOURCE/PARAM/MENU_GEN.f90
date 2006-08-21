@@ -23,6 +23,15 @@ integer(kpp), parameter :: act_analyse = 2
 integer(kpp), parameter :: write_end   = 10
 integer(kpp), parameter :: write_cycle = 20
 
+! -- Constants for output formats --
+
+character, parameter   :: fmt_CGNS    = 'C'   ! format CGNS
+character, parameter   :: fmt_TYPHMSH = 'M'   ! format TYPHON MESH
+character, parameter   :: fmt_TECPLOT = 'T'   ! format TECPLOT (ascii)
+character, parameter   :: fmt_VIGIE   = 'V'   ! format VIGIE
+character, parameter   :: fmt_VTK     = 'K'   ! format VTK
+character, parameter   :: fmt_VTKBIN  = 'I'   ! format VTK Binary
+
 ! -- DECLARATIONS -----------------------------------------------------------
 
 

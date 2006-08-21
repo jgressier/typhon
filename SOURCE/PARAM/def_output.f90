@@ -52,9 +52,12 @@ do io = 1, world%noutput !DEV2602
   call rpmgetkeyvalstr(pcour, "FORMAT", str)
   world%output(io)%format = cnull
 
-  if (samestring(str,"TECPLOT")) world%output(io)%format = fmt_TECPLOT
-  if (samestring(str,"VIGIE"))   world%output(io)%format = fmt_VIGIE
-  if (samestring(str,"VTK"))     world%output(io)%format = fmt_VTK
+  if (samestring(str,"TECPLOT"))    world%output(io)%format = fmt_TECPLOT
+  if (samestring(str,"VIGIE"))      world%output(io)%format = fmt_VIGIE
+  if (samestring(str,"VTK"))        world%output(io)%format = fmt_VTK
+  if (samestring(str,"VTK-ASCII"))  world%output(io)%format = fmt_VTK
+  if (samestring(str,"VTK-BIN"))    world%output(io)%format = fmt_VTKBIN
+  if (samestring(str,"VTK-BINARY")) world%output(io)%format = fmt_VTKBIN
   if (world%output(io)%format == cnull) call erreur("lecture de menu","format de fichier inconnu")
 
   ! -- lecture du nom de fichier

@@ -43,11 +43,18 @@ do i = 1, world%noutput
   endselect  
 
   select case(world%output(i)%format)
+
   case(fmt_VTK)
 
     nom = trim(nom)
     call print_info(2,"* write VTK file: " // trim(nom))
     call output_vtk(nom, world, world%output(i)%type, position, i) 
+
+  case(fmt_VTKBIN)
+
+    nom = trim(nom)
+    call print_info(2,"* write VTK Binary file: " // trim(nom))
+    call output_vtkbin(nom, world, world%output(i)%type, position, i) 
 
   case(fmt_TECPLOT)
 

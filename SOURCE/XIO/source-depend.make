@@ -23,6 +23,10 @@ XIO_OBJ = $(XIO_MOD:.$(MOD)=.o)  \
           output_vtk_cell.o      \
           output_vtk_scal.o      \
           output_vtk_vect.o      \
+          output_vtkbin.o        \
+          output_vtkbin_cell.o   \
+          output_vtkbin_scal.o   \
+          output_vtkbin_vect.o   \
           readtyphmsh_dom.o      \
           readtyphmshfile.o      
  
