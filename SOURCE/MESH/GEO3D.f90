@@ -42,7 +42,7 @@ interface sqrabs
   module procedure v3d_sqrnorme, v3d_sqrnorme_t
 endinterface
 
-interface scale
+interface v3d_scale
   module procedure v3d_eq_mult, v3d_eq_mult_t, v3d_eq_mult_tt
 endinterface
 

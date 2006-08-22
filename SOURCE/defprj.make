@@ -6,7 +6,7 @@ LIBDIR  = $(HDIR)/LIB/Lib
 PRJDIR  = .
 PRJINC  = $(PRJDIR)/Include
 PRJLIB  = $(PRJDIR)/Lib
-PRJEXT  = $(PRJDIR)/LIBEXT
+PRJEXT  = ../LIBEXT
 PRJOBJ  = $(PRJDIR)/Obj
 
 ####### Définition des utilitaires

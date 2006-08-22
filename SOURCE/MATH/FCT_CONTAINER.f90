@@ -3,6 +3,7 @@
 !                                         Date   : February 2005
 ! Fonction                                Modif  : (see history)
 !   Definition of NODE CONTAINER
+!     contains any type of variable
 !
 !------------------------------------------------------------------------------!
 
@@ -75,12 +76,12 @@ integer(iprc), optional :: n
       container%size = n
       allocate(container%r_t(n))
     else
-      call set_fct_error(1,"bad definition of vector node")
+      call set_fct_error(1_ipar, "bad definition of vector node")
     endif
   case(cont_v3d)
   case(cont_var)
   case default
-    call set_fct_error(1,"unknown type of node container")
+    call set_fct_error(1_ipar, "unknown type of node container")
   endselect
 
 endsubroutine new_fct_container
@@ -99,7 +100,7 @@ type(st_fct_container) :: container
     deallocate(container%r_t)
   case(cont_v3d)
   case default
-    call set_fct_error(1,"unknown type of node")
+    call set_fct_error(1_ipar, "unknown type of node")
   endselect
 
 endsubroutine delete_fct_container

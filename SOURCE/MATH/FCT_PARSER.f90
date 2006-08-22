@@ -66,11 +66,11 @@ character(len=*)  :: str
 type(st_fct_node) :: node
 
 ! -- internal variables --
-integer    :: iop             ! operator or function index
-integer    :: istr, lstr      ! index of operator in string, length of string
-integer    :: ierr            ! error code
-real(iprc) :: x               ! temporary real
-logical    :: found
+integer(ipar) :: iop             ! operator or function index
+integer       :: istr, lstr      ! index of operator in string, length of string
+integer       :: ierr            ! error code
+real(iprc)    :: x               ! temporary real
+logical       :: found
 
 ! -- body --
 

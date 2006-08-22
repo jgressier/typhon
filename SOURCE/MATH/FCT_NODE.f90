@@ -2,7 +2,8 @@
 ! MODULE : FCT_NODE                       Auteur : J. Gressier
 !                                         Date   : July 2004
 ! Fonction                                Modif  : (see history)
-!   Definition of NODE for equation tree
+!   Definition of NODE of the tree
+!     contains type, links and CONTAINER
 !
 !------------------------------------------------------------------------------!
 
