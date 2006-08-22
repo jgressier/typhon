@@ -88,11 +88,11 @@ character(len=op_len), dimension(min_op:max_op), parameter :: op2name = &
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! structure ST_FCT_NODE : 
+! structure ST_FCT_NODE : NODE element of equation TREE
 !------------------------------------------------------------------------------!
 type st_fct_node
-  integer(ipar)              :: type_node
-  integer(ipar)              :: type_oper
+  integer(ipar)              :: type_node            ! type of node : operator/container
+  integer(ipar)              :: type_oper            ! if node : type of operator
   integer(ipar)              :: size
   type(st_fct_container)          :: container
   type(st_fct_node),      pointer :: left, right
@@ -122,9 +122,9 @@ contains
 !------------------------------------------------------------------------------!
 subroutine new_fct_node(node, type, oper)
 implicit none
-! - paramètres
+! - parameters
 type(st_fct_node)       :: node
-integer(ipar)           :: type
+integer(ipar)           :: type       ! type of container
 integer(ipar), optional :: oper
 
   node%type_node = type
@@ -155,7 +155,7 @@ endsubroutine new_fct_node
 !------------------------------------------------------------------------------!
 recursive subroutine delete_fct_node(node) 
 implicit none
-! - paramètres
+! - parameters
 type(st_fct_node) :: node
 
   select case(node%type_node)

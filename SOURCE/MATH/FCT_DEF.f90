@@ -31,6 +31,19 @@ endinterface
 ! -- IMPLEMENTATION ---------------------------------------------------------
 contains
 
+!-------------------------------------------------
+! fct_warning
+!------------------------------------------------------------------------------!
+subroutine fct_warning(comment)
+implicit none
+! - parameters
+integer           :: type
+character(len=*)  :: comment
+
+  print*,"FCT MODULE warning : ",comment
+
+endsubroutine fct_warning
+
 !------------------------------------------------------------------------------!
 ! set_fct_error
 !------------------------------------------------------------------------------!

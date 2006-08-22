@@ -3,7 +3,7 @@
 !                                         Date   : February 2005
 ! Fonction                                Modif  : (see history)
 !   Definition of NODE CONTAINER
-!     contains any type of variable
+!   should represent any kind of variable
 !
 !------------------------------------------------------------------------------!
 
@@ -30,15 +30,15 @@ integer(ipar), parameter :: cont_v3dvect  = 55           ! array of 3D vectors
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! structure ST_FCT_CONTAINER : 
+! structure ST_FCT_CONTAINER : polymorphic mathematical element
 !------------------------------------------------------------------------------!
 type st_fct_container
-  integer(ipar)   :: type
-  integer(iprc)   :: size
-  character(len=cont_str) :: name
-  real(rprc)              :: r
-  real(rprc), pointer     :: r_t(:)
-  type(v3d)               :: v3d
+  integer(ipar)   :: type               ! type of the element
+  integer(iprc)   :: size               ! size of element (if variable size)
+  character(len=cont_str) :: name       ! name of element itself or external variable
+  real(rprc)              :: r          ! if element is real
+  real(rprc), pointer     :: r_t(:)     ! if element is a vector(size)
+  type(v3d)               :: v3d        ! if element is a 3D vector (x,y,z)
 endtype st_fct_container
 
 

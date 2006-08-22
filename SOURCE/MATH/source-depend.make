@@ -9,6 +9,7 @@ MATH_LIB = $(PRJLIB)/libt_math.a
 
 MATH_MOD = FCT_CONTAINER.$(MOD) \
            FCT_DEF.$(MOD)       \
+           FCT_ENV.$(MOD)       \
            FCT_EVAL.$(MOD)      \
            FCT_FUNC.$(MOD)      \
            FCT_NODE.$(MOD)      \
