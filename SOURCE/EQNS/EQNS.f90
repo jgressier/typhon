@@ -86,19 +86,19 @@ endsubroutine delete_nsetat
 !------------------------------------------------------------------------------!
 ! Fonction : conversion de parametres en variables primitives
 !------------------------------------------------------------------------------!
-type(st_nsetat) function rho_ps_vel2nspri(n, rho, ps, vel) result(nspri)
-implicit none
+!type(st_nsetat) function rho_ps_vel2nspri(n, rho, ps, vel) result(nspri)
+!implicit none
 
 ! -- INPUTS --
-integer         :: n
-type(v3d)       :: vel(n)
-real(krp)       :: rho(n), ps(n)
+!integer         :: n
+!type(v3d)       :: vel(n)
+!real(krp)       :: rho(n), ps(n)
 
-  nspri%pressure(1:n) = ps(1:n)
-  nspri%density(1:n)  = rho(1:n)
-  nspri%velocity(1:n) = vel(1:n)
+!  nspri%pressure(1:n) = ps(1:n)
+!  nspri%density(1:n)  = rho(1:n)
+!  nspri%velocity(1:n) = vel(1:n)
 
-endfunction rho_ps_vel2nspri
+!endfunction rho_ps_vel2nspri
 
 
 !------------------------------------------------------------------------------!
