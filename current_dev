@@ -43,6 +43,7 @@ core 0.3
 Task Dévlp.    début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
 0041 Jérémie   01/07       Solv  Inversion Gauss-Seidel
+0128 Jeremie   15/02       Core  Symbolic function library
 0156 Jeremie               MPI   Validation with second order NS computation (with gradient communication)
 0160 Jeremie   05/03 05/03 Core  CPU time computation (total and cycle average)
 0161 Jeremie   07/03 07/03 NS    MUSCL : Kim's 3rd order limiter
