@@ -12,6 +12,7 @@ MATH_MOD = FCT_CONTAINER.$(MOD) \
            FCT_ENV.$(MOD)       \
            FCT_EVAL.$(MOD)      \
            FCT_FUNC.$(MOD)      \
+           FCT_MATH.$(MOD)      \
            FCT_NODE.$(MOD)      \
            FCT_PARSER.$(MOD)    \
            INTEGRATION.$(MOD) \

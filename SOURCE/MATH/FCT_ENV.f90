@@ -24,6 +24,7 @@ implicit none
 ! structure ST_FCT_ENV : 
 !------------------------------------------------------------------------------!
 type st_fct_env
+  logical                    :: uptodate
   integer                    :: nvar
   type(st_fct_node), pointer :: var_stack
 endtype st_fct_env
@@ -47,7 +48,8 @@ implicit none
 type(st_fct_env)  :: env
 
   ! -- initialize ENV to no constant/function --
-  env%nvar = 0
+  env%uptodate = .false.
+  env%nvar     = 0
   nullify(env%var_stack)  
 
 endsubroutine new_fct_env
@@ -68,15 +70,33 @@ integer                    :: i
       call delete_fct_node(env%var_stack)
       env%var_stack => p
     enddo
-    if (associated(p)) call set_fct_error(-1, "bad number of variables while FCT_ENV deleting")
+    if (associated(p)) call fct_warning("bad number of variables while FCT_ENV deleting")
   endif
 
 endsubroutine delete_fct_env
 
 !------------------------------------------------------------------------------!
-! fct_env_add_real
+! fct_env_seek_name : obtain node pointer of a name in ENVironment
 !------------------------------------------------------------------------------!
-subroutine fct_env_add_real(env, name, x)
+subroutine fct_env_seek_name(env, name, p)
+implicit none
+! - parameters
+type(st_fct_env)           :: env
+character(len=cont_str)    :: name
+type(st_fct_node), pointer :: p
+
+  p => env%var_stack
+  do while (associated(p))
+    if (samestring(name, p%container%name)) exit
+    p => p%right
+  enddo
+
+endsubroutine fct_env_seek_name
+
+!------------------------------------------------------------------------------!
+! fct_env_set_real
+!------------------------------------------------------------------------------!
+subroutine fct_env_set_real(env, name, x)
 implicit none
 ! - parameters
 type(st_fct_env)           :: env
@@ -84,18 +104,26 @@ character(len=cont_str)    :: name
 real(rprc)                 :: x
 type(st_fct_node), pointer :: p
 
-  ! -- create constant --
-  allocate(p)
-  call new_fct_node(p, node_cst)    ! create node and container
-  p%container%r    = x              ! assign value and name
-  p%container%name = name
+  env%uptodate = .false.              ! environment has been changed
 
-  ! --  add element to stack --
-  env%nvar     =  env%nvar + 1
-  p%right      => env%var_stack
-  env%var_stack => p
+  call fct_env_seek_name(env, name, p)
 
-endsubroutine fct_env_add_real
+  if (.not.associated(p)) then        ! variable NAME does not exist : must create it
+
+    ! -- create constant --
+    allocate(p)
+    call new_fct_node(p, node_cst, name)    ! create node and container and assign name
+
+    ! --  add element to stack --
+    env%nvar     =  env%nvar + 1
+    p%right      => env%var_stack
+    env%var_stack => p
+
+  endif
+
+  p%container%r    = x              ! assign value 
+
+endsubroutine fct_env_set_real
 
 
 !------------------------------------------------------------------------------!
@@ -103,5 +131,5 @@ endmodule FCT_ENV
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! Mar  2006 : module creation
+! July 2006 : module creation, environment with real constants
 !------------------------------------------------------------------------------!

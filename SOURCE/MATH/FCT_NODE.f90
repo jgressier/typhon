@@ -18,13 +18,14 @@ implicit none
 
 ! -- node type
 
-integer(ipar), parameter :: node_cst    = 0
-integer(ipar), parameter :: node_var    = 5
-integer(ipar), parameter :: node_opunit = 1
-integer(ipar), parameter :: node_opbin  = 2
+integer(ipar), parameter :: node_cst    = 5
+integer(ipar), parameter :: node_var    = 6
+integer(ipar), parameter :: node_opunit = 10
+integer(ipar), parameter :: node_opbin  = 20
 
 ! -- unitary operators
 
+integer(ipar), parameter :: fct_opp   = 00  ! special operator not included in associated string
 integer(ipar), parameter :: fct_inv   = 01
 integer(ipar), parameter :: fct_sqr   = 02
 integer(ipar), parameter :: fct_sqrt  = 03
@@ -46,8 +47,8 @@ integer(ipar), parameter :: fct_atanh = 18
 integer(ipar), parameter :: fct_abs   = 19
 integer(ipar), parameter :: fct_sign  = 20
 integer(ipar), parameter :: fct_step  = 21
-integer(ipar), parameter :: min_fct   = 01
-integer(ipar), parameter :: max_fct   = fct_step
+integer(ipar), parameter :: min_fct   = 01        ! TO BE checked if operator added
+integer(ipar), parameter :: max_fct   = fct_step  ! TO BE checked if operator added
 
 ! -- binary operators (reverse priority order) --
 
@@ -64,8 +65,8 @@ integer(ipar), parameter :: op_sub = 10
 integer(ipar), parameter :: op_mul = 11
 integer(ipar), parameter :: op_div = 12
 integer(ipar), parameter :: op_pow = 13
-integer(ipar), parameter :: min_op = op_and
-integer(ipar), parameter :: max_op = op_pow
+integer(ipar), parameter :: min_op = op_and  ! TO BE checked if operator added
+integer(ipar), parameter :: max_op = op_pow  ! TO BE checked if operator added
 
 ! -- associated strings --
 
@@ -120,12 +121,13 @@ contains
 !------------------------------------------------------------------------------!
 ! new_fct_node : allocate FCT_NODE structure
 !------------------------------------------------------------------------------!
-subroutine new_fct_node(node, type, oper)
+subroutine new_fct_node(node, type, name, oper)
 implicit none
 ! - parameters
-type(st_fct_node)       :: node
-integer(ipar)           :: type       ! type of container
-integer(ipar), optional :: oper
+type(st_fct_node), intent(out) :: node
+integer(ipar),     intent(in)  :: type       ! type of container
+character(len=*),  intent(in)  :: name
+integer(ipar),     optional    :: oper
 
   node%type_node = type
 
@@ -134,9 +136,9 @@ integer(ipar), optional :: oper
 
   select case(type)
   case(node_cst)
-    call new_fct_container(node%container, cont_real)
+    call new_fct_container(node%container, cont_real, name)
   case(node_var)
-    call new_fct_container(node%container, cont_var)
+    call new_fct_container(node%container, cont_var, name)
   case(node_opunit)
     node%type_oper = oper
     allocate(node%left)

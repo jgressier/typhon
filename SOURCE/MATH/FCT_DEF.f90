@@ -53,7 +53,7 @@ implicit none
 integer(ipar)     :: type
 character(len=*)  :: comment
 
-  print*,"FCT MODULE error : ",type,comment
+  print*,"FCT MODULE error : ",comment
   stop
 
 endsubroutine set_fct_error_intipar
@@ -65,7 +65,7 @@ implicit none
 integer           :: type
 character(len=*)  :: comment
 
-  print*,"FCT MODULE error : ",type,comment
+  print*,"FCT MODULE error : ",comment
   stop
 
 endsubroutine set_fct_error_int
