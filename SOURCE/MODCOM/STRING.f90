@@ -118,6 +118,61 @@ function chg_char(str, c, r) result(strout)
 endfunction chg_char
 
 !------------------------------------------------------------------------------!
+! Function : check if "str" is a readable real value
+!------------------------------------------------------------------------------!
+logical function is_real(str)
+  implicit none
+  character(len=*), intent(in) :: str
+  character(len=len(str))      :: wstr
+  integer                      :: i, is, idot, iexp, nch
+  logical                      :: afterdot
+
+  is_real = .true.
+  wstr = adjustl(str)
+  nch  = len_trim(wstr)         ! length of useful string
+  iexp = scan(wstr, "eE")       ! index of Ennn ~ 10^nnn
+  if (iexp == 0) iexp = nch+1   ! if no EE then default index at the end of string
+  idot = index(wstr, '.')       ! index of dot separation
+  if (idot == 0) idot = iexp    ! if no dot then default index at same index as iexp
+
+  ! -- check string after "." and before "E" --
+  if (idot+1 <= iexp-1) then
+    afterdot = .true.
+    do i = idot+1, iexp-1
+      if (index("0123456789", wstr(i:i)) == 0) is_real = .false.
+    enddo
+  else
+    afterdot = .false.
+  endif
+
+  ! -- check string after "E" --
+  if ((iexp+1 <= nch)) then
+    is = iexp+1
+    ! -- if character is not the last, then it can be a sign -> increase index
+    if ((is /= nch).and.(index("+-", wstr(is:is)) /= 0)) is = is +1
+    ! -- all characters must be figures
+    do i = is, nch
+      if (index("0123456789", wstr(i:i)) == 0) is_real = .false.
+    enddo
+  endif
+
+  ! -- check "main" string (before dot) --
+  is = 1
+  ! -- if character is a sign -> increase starting index
+  if (index("+-", wstr(is:is)) /= 0) is = is +1
+  if ((idot-1 >= is)) then
+    ! -- all characters must be figures
+    do i = is, idot-1
+      if (index("0123456789", wstr(i:i)) == 0) is_real = .false.
+    enddo
+  else
+    ! there is no main string : there should be a valid "afterdot" string
+    is_real = is_real.and.afterdot   
+  endif
+
+endfunction is_real
+
+!------------------------------------------------------------------------------!
 ! Fonction : tranformation entier -> chaine de caracteres (len=l)
 !------------------------------------------------------------------------------!
 function strof_int(nb, l) result(strout)

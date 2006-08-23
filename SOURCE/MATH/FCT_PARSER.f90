@@ -92,6 +92,18 @@ if (str(1:1) == '(') then
 endif
 
 !-------------------------------------------------------
+! look for constants
+
+if ((.not.found).and.(is_real(str))) then
+  read(str, *, iostat=ierr) x
+  if (ierr == 0) then
+    call new_fct_node(node, node_cst, "")
+    node%container%r = x
+    found = .true.
+  endif
+endif
+
+!-------------------------------------------------------
 ! look for binary operator
 
 iop = min_op
@@ -169,18 +181,6 @@ do while ((.not.found).and.(iop <= max_fct))      ! ---------- loop on unary ope
   endif
 
 enddo
-
-!-------------------------------------------------------
-! look for constants
-
-if (.not.found) then
-  read(str, *, iostat=ierr) x
-  if (ierr == 0) then
-    call new_fct_node(node, node_cst, "")
-    node%container%r = x
-    found = .true.
-  endif
-endif
 
 !-------------------------------------------------------
 ! then : variables
