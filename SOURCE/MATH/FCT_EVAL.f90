@@ -48,7 +48,8 @@ type(st_fct_node),      intent(in)  :: fct     ! function to evaluate (base node
 type(st_fct_container), intent(out) :: res     ! container result
 
 ! -- internal variables --
-type(st_fct_container) :: left, right          ! evaluation of possible left & right operands
+type(st_fct_container)     :: left, right      ! evaluation of possible left & right operands
+type(st_fct_node), pointer :: p
 
 ! -- body --
 
@@ -59,7 +60,12 @@ case(node_cst)
 
 case(node_var)
   ! should be evaluated in ENV
-  call set_fct_error(-1, "computation with environment variables not implemented in FCT_EVAL")
+  call fct_env_seek_name(env, fct%container%name, p)
+  if (associated(p)) then
+    call copy_fct_container(p%container, res)
+  else 
+    call set_fct_error(-1, "variable "//trim(fct%container%name)//" not found in environment")
+  endif
 
 case(node_opunit)
   call fct_node_eval(env, fct%left, left)

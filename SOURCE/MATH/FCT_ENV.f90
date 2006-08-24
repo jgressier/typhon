@@ -99,9 +99,9 @@ endsubroutine fct_env_seek_name
 subroutine fct_env_set_real(env, name, x)
 implicit none
 ! - parameters
-type(st_fct_env)           :: env
-character(len=cont_str)    :: name
-real(rprc)                 :: x
+type(st_fct_env), intent(out) :: env
+character(len=*), intent(in)  :: name
+real(rprc),       intent(in)  :: x
 type(st_fct_node), pointer :: p
 
   env%uptodate = .false.              ! environment has been changed
@@ -112,11 +112,11 @@ type(st_fct_node), pointer :: p
 
     ! -- create constant --
     allocate(p)
-    call new_fct_node(p, node_cst, name)    ! create node and container and assign name
+    call new_fct_node(p, node_cst, lowercase(name))    ! create node and container and assign name
 
     ! --  add element to stack --
-    env%nvar     =  env%nvar + 1
-    p%right      => env%var_stack
+    env%nvar      =  env%nvar + 1
+    p%right       => env%var_stack
     env%var_stack => p
 
   endif
@@ -124,6 +124,34 @@ type(st_fct_node), pointer :: p
   p%container%r    = x              ! assign value 
 
 endsubroutine fct_env_set_real
+
+
+!------------------------------------------------------------------------------!
+! print-fct_env
+!------------------------------------------------------------------------------!
+subroutine print_fct_env(unit, env)
+implicit none
+! - parameters
+integer                             :: unit
+type(st_fct_env),        intent(in) :: env
+type(st_fct_node), pointer :: p
+
+  p => env%var_stack
+
+  do while (associated(p))
+
+    select case(p%container%type)
+    case(cont_real)
+      print*,p%container%name,":",p%container%r
+    case default
+      call set_fct_error(-1, "incorrect or non-implemented type in FCT Environment")
+    endselect
+
+    p => p%right
+
+  enddo
+
+  endsubroutine print_fct_env
 
 
 !------------------------------------------------------------------------------!

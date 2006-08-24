@@ -772,6 +772,11 @@ Task 0127 (Jeremie): Num : gradient computation method : weighted least square
 Task 0128 (Jeremie): Core : Symbolic function library
 ---------------------------------------------------------------------------------
 - MATH/FCT*.f90
+* evaluation of a string expression which can contain variables
+  variables can only be scalar reals.
+  binary operators : + - * / ^
+  unary  operators : - inv sqr sqrt exp ln log sin cos tan sinh cosh tanh 
+                     asin acos atan
 
 ---------------------------------------------------------------------------------
 Task 0150 (Jeremie): Core : MPI development & split grids (branch core-0-3)

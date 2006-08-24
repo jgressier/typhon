@@ -147,7 +147,7 @@ integer(ipar),     optional    :: oper
     allocate(node%left)
     allocate(node%right)
   case default
-    call set_fct_error(type, "unknown type of node")
+    call set_fct_error(type, "unknown type of node in new_fct_node")
   endselect
 
 endsubroutine new_fct_node
@@ -173,7 +173,7 @@ type(st_fct_node) :: node
     call delete(node%right)
     deallocate(node%left, node%right)
   case default
-    call set_fct_error(node%type_node, "unknown type of node")
+    call set_fct_error(node%type_node, "unknown type of node in delete_fct_node")
   endselect
 
 endsubroutine delete_fct_node

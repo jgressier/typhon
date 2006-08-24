@@ -73,7 +73,7 @@ integer(iprc), optional :: n
 
   select case(type)
   case(cont_real)
-    ! nothing to do
+    ! nothing else to do
   case(cont_vect)
     if (present(n)) then
       container%size = n
@@ -82,12 +82,12 @@ integer(iprc), optional :: n
       call set_fct_error(1_ipar, "bad definition of vector node: size expected")
     endif
   case(cont_v3d)
-    ! nothing to do
+    ! nothing else to do
   case(cont_var)
     if (len_trim(name) == 0) &
       call set_fct_error(-1, "bad definition of variable node: name expected")
   case default
-    call set_fct_error(1_ipar, "unknown type of node container")
+    call set_fct_error(1_ipar, "unknown type of node container (in new_fct_container)")
   endselect
 
 endsubroutine new_fct_container
@@ -116,7 +116,7 @@ type(st_fct_container), intent(out) :: dest
   case(cont_var)
     ! name already copied
   case default
-    call set_fct_error(1_ipar, "unknown type of node container")
+    call set_fct_error(1_ipar, "unknown type of node container (in copy_fct_container)")
   endselect
 
 endsubroutine copy_fct_container
@@ -134,8 +134,9 @@ type(st_fct_container) :: container
   case(cont_vect)
     deallocate(container%r_t)
   case(cont_v3d)
+  case(cont_var)
   case default
-    call set_fct_error(1_ipar, "unknown type of node")
+    call set_fct_error(1_ipar, "unknown type of node container (in delete_fct_container)")
   endselect
 
 endsubroutine delete_fct_container
