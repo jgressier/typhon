@@ -843,3 +843,9 @@ Task 0167 (Jeremie): MPI : Bug correction
 ---------------------------------------------------------------------------------
 - all proc id have been renumbered from 1 to nbproc
 - bug correction in extractpart_grid (creation of matching connection boco)
+
+---------------------------------------------------------------------------------
+Task 0171 (Jeremie): Out : Optional cycle output + cycle period
+---------------------------------------------------------------------------------
+- .vtk are removed in main.rpm filenames
+- (PERIOD = n) for cycle output (default is non cycle output)

@@ -33,6 +33,9 @@ character(len=strlen) :: nom       ! file name
 
 do i = 1, world%noutput
 
+  if ((position == end_calc).or. &
+      (mod(world%info%icycle, world%output(i)%period) == 0)) then
+
   select case(position)
   case(end_calc)
     nom = trim(world%output(i)%fichier)
@@ -72,6 +75,8 @@ do i = 1, world%noutput
     call erreur("Internal error","unknown output parameter")
 
   endselect
+
+  endif
 
 enddo
 

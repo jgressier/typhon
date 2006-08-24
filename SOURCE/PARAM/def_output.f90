@@ -28,7 +28,7 @@ type(st_world) :: world
 ! -- Declaration des variables internes --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nkey, nkey2    ! nombre de clefs
-integer                  :: i, io
+integer                  :: i, io, ic
 character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- Debut de la procedure --
@@ -63,6 +63,12 @@ do io = 1, world%noutput !DEV2602
   ! -- lecture du nom de fichier
 
   call rpmgetkeyvalstr(pcour, "FILE", str)
+  select case(world%output(io)%format)
+  case(fmt_VTK, fmt_VTKBIN)
+    ic = index(str, ".vtk")
+    if (ic == 0) ic = len(str)+1
+    str = str(1:ic-1)
+  endselect
   world%output(io)%fichier = str
 
   ! -- Determination du type de sortie : aux noeuds du maillage 
@@ -78,7 +84,7 @@ do io = 1, world%noutput !DEV2602
 
   select case(world%output(io)%type)
   case(outp_NODE, outp_CENTER)
-    call rpmgetkeyvalint(pcour, "PERIOD",  world%output(io)%period, 0)
+    call rpmgetkeyvalint(pcour, "PERIOD",  world%output(io)%period, huge(world%output(io)%period))
   case(outp_TEMPINTER, outp_COR, outp_FLUX)
     call rpmgetkeyvalint(pcour, "PERIOD",  world%output(io)%period, 1)
   case default
