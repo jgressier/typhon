@@ -9,7 +9,7 @@ MOD     = mod
 CF = ifort
 
 # Options de base (include d'entetes de module)
-FB = -implicitnone -I$(PRJINC)
+FB = $(CFLAGS) -implicitnone -I$(PRJINC)
 
 # Optimisation classique
 FO_debug = -CB -traceback
@@ -26,7 +26,7 @@ LINKER = $(CF)
 LINKSO = $(CF) -shared
 
 # Options de base
-LINKFB  = $(FO) -L$(PRJEXT) -i_dynamic
+LINKFB  = $(LFLAGS) $(FO) -L$(PRJEXT) -i_dynamic
 
 ####### Librairies systèmes
 

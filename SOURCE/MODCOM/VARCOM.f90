@@ -15,7 +15,7 @@ use TYPHMAKE   ! machine accuracy definition
 
 ! -- Variables globales du module -------------------------------------------
 
-character(len=6), parameter :: version = "0.3"
+character(len=6), parameter :: version = "0.3.1"
 
 logical        :: mpi_run              ! calcul parallele MPI ou non
 character      :: memory_mode          ! mode d'economie memoire

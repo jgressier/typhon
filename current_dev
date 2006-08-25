@@ -56,6 +56,9 @@ Task Dévlp.    début fin   Type  Développement
      Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
 0170 Jeremie   19/03 19/03 Bug   Unexpected interaction computation/output (ustmesh%ncell)
 0171 Jeremie   24/08 24/08 Out   Optional cycle output + cycle period
+0172 Jeremie   19/05 22/05 Core  External stop of typhon computation
+0173 Jeremie   11/07 12/07 Core  TYPHON installation and user compilation of udf files
+0174 Jeremie   13/04       Out   Output of Binary VTK files (VTK-BIN)
                            Make  Restructuration de MAIN/integration_cycle (split)
                            Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
 

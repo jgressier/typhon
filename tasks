@@ -849,3 +849,15 @@ Task 0171 (Jeremie): Out : Optional cycle output + cycle period
 ---------------------------------------------------------------------------------
 - .vtk are removed in main.rpm filenames
 - (PERIOD = n) for cycle output (default is non cycle output)
+
+---------------------------------------------------------------------------------
+Task 0172 (Jeremie): Core : External stop of typhon computation
+---------------------------------------------------------------------------------
+- create check_end_cycle from integrationmacro_zone (stop with "typhon_stop" file)
+- integrate local_t and fin into zone%info
+
+---------------------------------------------------------------------------------
+Task 0174 (Jeremie): Out : Output of Binary VTK files
+---------------------------------------------------------------------------------
+- not validated
+

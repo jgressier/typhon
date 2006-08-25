@@ -6,12 +6,12 @@ BLOCK:PROJECT           ! DEFINITION DU PROJET
   NZONE     = 1       
   COORD     = 2D      
   TIME      = STEADY 
-  RESIDUALS = 1.e-10
+  RESIDUALS = 1.e-6
 ENDBLOCK               
 
 BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
   FORMAT = VTK         
-  FILE   = "typhon.vtk" 
+  FILE   = "typhon" 
 ENDBLOCK
 
 BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
