@@ -1,0 +1,82 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON 
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+  NZONE     = 1       
+  COORD     = 2D      
+  TIME      = UNSTEADY 
+  DURATION  = .0005     ! 
+  BASETIME  = .000005   
+ENDBLOCK               
+
+BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+  FORMAT = VTK         
+  FILE   = "typhon.vtk" 
+ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "corner-diff" 
+  SOLVER = EULER  
+ENDBLOCK
+
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = CGNS
+  FILE   = "corner-quad.cgns"
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS = EULER
+  GAS      = AIR
+ENDBLOCK
+
+BLOCK:TIME_PARAM 
+  CFL = 1.
+ENDBLOCK
+
+BLOCK:SPAT_PARAM  
+  SCHEME  = HLLC
+  HIGHRES = MUSCL-FAST
+  LIMITER = ALBADA
+ENDBLOCK
+
+BLOCK:INIT
+  PI      = 1.E5
+  TI      = 300.
+  MACH    = 0.
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = BOTTOM
+  TYPE   = SYMMETRY
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = TOP
+  TYPE   = SYMMETRY
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = OUTLET
+  TYPE   = SUPERSONIC_OUTLET 
+ENDBLOCK
+
+BLOCK:BOCO                        ! Inlet for a mach 5.09 forward moving shock wave
+  FAMILY    = INLET               ! p1/p0 = 30.05945      ws    = 1767.621 m/s
+  TYPE      = SUPERSONIC_INLET    ! d1/d0 =  5.02938      
+  PI        = 141.4105E5          ! T1/T0 =  5.97677      V1    = 1416.162 m/s
+  TI        = 2790.81             !                       T1    = 1793.031 K
+  MACH      = 1.66805             !
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO  
+  FAMILY    = WALL
+  TYPE      = SYMMETRY
+ENDBLOCK
+
