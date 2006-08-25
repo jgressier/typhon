@@ -28,13 +28,15 @@ until [[ -d $dir ]] && [[ -w $dir ]] ; do
 done
 
 TYPHON_PATH=$dir/typhon
-TYPHON_INC=$dir/include
-TYPHON_LIB=$dir/lib
+TYPHON_INC=$TYPHON_PATH/include
+TYPHON_LIB=$TYPHON_PATH/lib
+TYPHON_UDF=$TYPHON_PATH/udf
 echo 
 echo . Installation paths
-echo "scripts and binaries:" $TYPHON_PATH
-echo "include files       :" $TYPHON_INC
-echo "libraries           :" $TYPHON_LIB
+echo "scripts and binaries    :" $TYPHON_PATH
+echo "include files           :" $TYPHON_INC
+echo "libraries               :" $TYPHON_LIB
+echo "user defined files (UDF):" $TYPHON_UDF
 
 # -- Installation --
 
@@ -46,24 +48,19 @@ else
   echo creating $TYPHON_PATH
   mkdir $TYPHON_PATH || echo unexpected error in TYPHON installation
 fi
-cp    SOURCE/Typhon-seq $TYPHON_PATH
-cp    SOURCE/Typhon-mpi $TYPHON_PATH
-cp -r GUI/TYMON         $TYPHON_PATH
-cp    bin/tymon         $TYPHON_PATH
 
-if [ -d $TYPHON_INC  ]  ; then
-  echo $TYPHON_INC  already exists 
-else
-  echo creating $TYPHON_INC
-  mkdir $TYPHON_INC || echo unexpected error in TYPHON installation
-fi
+mkdir $TYPHON_INC 2> /dev/null
+mkdir $TYPHON_LIB 2> /dev/null
+mkdir $TYPHON_UDF 2> /dev/null
 
-if [ -d $TYPHON_LIB  ]  ; then
-  echo $TYPHON_LIB  already exists 
-else
-  echo creating $TYPHON_LIB
-  mkdir $TYPHON_LIB || echo unexpected error in TYPHON installation
-fi
+cp    SOURCE/Typhon-seq      $TYPHON_PATH
+cp    SOURCE/Typhon-mpi      $TYPHON_PATH
+cp    SOURCE/UDF/udf*.f90    $TYPHON_UDF
+cp    SOURCE/Include/*       $TYPHON_INC
+cp    SOURCE/Lib/libt_udf.so $TYPHON_LIB
+cp -r GUI/TYMON              $TYPHON_PATH
+cp    bin/tymon              $TYPHON_PATH
+cp    bin/*.sh               $TYPHON_PATH
 
 # -- check configuration scripts --
 
@@ -82,6 +79,6 @@ cat bin/typhonconf.sh | sed "s/SEDTYPHONPATH/$sedpath/" > $PROF_FILE
 
 echo
 echo Please check that $PROF_FILE will be read in your profile files...
-echo \(or run \". $PROF_FILE\" to immediately use TYPHON\)
+echo \(or run \" . $PROF_FILE \" to immediately use TYPHON\)
 
 
