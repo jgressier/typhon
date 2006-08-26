@@ -1,0 +1,24 @@
+               TRI    QUAD     TOT
+diam1          206    4233    4439
+diam1-quad            4758    4758
+diam2          442           18155
+diam2-quad           18117   18117
+diam2-tri    49758           49758
+diam4          942           73629
+diam8         2238          280401
+
+                                    diam1   diam2   diam2-quad    diam4     diam8
+- HLLC / HLL first order,  CFL 2.     ok                            ok
+- HLL  MUSCL-FAST superbee CFL 0.5    ok
+- HLL  MUSCL-FAST albada   CFL 0.5    ok
+- HLL  MUSCL-FAST minmod   CFL 0.5         fail(60)                 ok        ok
+- HLLC MUSCL-FAST albada   CFL 0.5         fail
+- HLLC MUSCL-FAST minmod   CFL 0.5         fail                   fail(53)   
+- HLLC MUSCL-FAST vanleer  CFL 0.5    ok   fail        ok         fail(53)
+- HLLC MUSCL-FAST vanleer  CFL 0.2         fail
+- HLLC MUSCL-FAST vanleer  CFL 0.1         fail
+- HLLC MUSCL      vanleer  CFL 0.5                     ok         fail(1)
+- HLLC MUSCL      kim3     CFL 0.5                                fail(53)
+
+
+ bug allocation (!) for implicit computations
