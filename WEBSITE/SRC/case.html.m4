@@ -12,7 +12,7 @@ dnl -------------------------------------------------------------
 section([Examples and application news])
 
 item([11/2005 : new two-cylinder case in inviscid hypersonic flow 
-                (hyperlink([shock-waves], [case_shock]) section)])
+                (hyperlink([shock-waves], [case_shock]) [section])])
 
 skip_line
 

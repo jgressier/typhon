@@ -9,7 +9,14 @@ include_header
 
 dnl -------------------------------------------------------------
 
-section([March 2006, 5th : version 0.3.0 released])<br>
+section([August 2006, 26th : version 0.3.1 released])
+item([Enhanced output options (CPU, periodic writing)])
+item([CPU optimization])
+item([Bug correction (MPI splitting)])
+See hyperlink([Change log], [dev_chlog.html]) for details <br>
+<br>
+
+section([March 2006, 5th : version 0.3.0 released])
 [It is based on a merged version of release 0.2.2 and 0.3RC1 (this release was only based on 0.2.0).]
 See hyperlink([Change log], [dev_chlog.html]) for details <br>
 <br>

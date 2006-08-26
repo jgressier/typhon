@@ -14,6 +14,19 @@ define([writedev],  [<tr class=orange><td align=center>$1</td><td width=10><td>$
 define([writebug],  [<tr class=red><td align=center>$1</td><td width=10><td>$2</td></tr>])
 
 dnl -------------------------------------------------------------
+sectionlr([release 0.3.1], [2006/08/26])
+beginlist
+writefunc([NS],     [Kim's 3rd order limiter extended to MUSCL method])
+writefunc([Output], [display CPU time])
+writefunc([Output], [enhanced outputs and options (periodic, etc)])
+writefunc([Core],   [external stop of computation (file stop_typhon)])
+writefunc([Core],   [CPU optimization (20% for explicit second order NS computation)])
+writedev([Core],    [symbolic computation library])
+writefunc([MESH],   [can use long file names])
+writebug([MPI],     [Bug correction in automatic splitting])
+endlist
+
+dnl -------------------------------------------------------------
 sectionlr([release 0.3.0], [2006/03/05])
 beginlist
 writefunc([MPI],  [automatic mesh splitting (Metis)])

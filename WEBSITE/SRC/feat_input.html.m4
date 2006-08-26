@@ -31,7 +31,8 @@ item([Flow initialization (NS solver)])
 
 skip_line
 section([Stop & resume])
-not featured
+item([External stop of computation])
+
 
 skip_line
 

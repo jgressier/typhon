@@ -13,7 +13,8 @@ section([future releases])
 <br>
 
 section([core 0.3])
-item([MPI communications])
+item([MPI communications: automatic mesh splitting and parallel computations])
+item([Field initialization and boundary conditions with symbolic functions])
 <br>
 
 section([core 0.4])
