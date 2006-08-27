@@ -185,9 +185,9 @@ endsubroutine createboco
 !------------------------------------------------------------------------------!
 function pboco_ustmesh(umesh, name) result(pboco)
 implicit none
-type(st_ustboco), pointer :: pboco
-type(st_ustmesh)          :: umesh
-character(len=strlen)     :: name
+type(st_ustboco), pointer    :: pboco
+type(st_ustmesh), intent(in) :: umesh
+character(len=*), intent(in) :: name
 ! -- variables internes --
 integer :: i, info
 
@@ -208,9 +208,9 @@ endfunction pboco_ustmesh
 !------------------------------------------------------------------------------!
 subroutine new_ustboco(bc, nom, n)
 implicit none
-type(st_ustboco)      :: bc
-character(len=strlen) :: nom
-integer               :: n
+type(st_ustboco), intent(out) :: bc
+character(len=*), intent(in)  :: nom
+integer,          intent(in)  :: n
 
   bc%family = nom
   bc%nface  = n
