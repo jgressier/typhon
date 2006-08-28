@@ -35,7 +35,7 @@ $(PIO_LIB): $(D_PIO_OBJ)
 	@echo ---------------------------------------------------------------
 
 PIO_clean:
-	-rm  $(PIO_LIB) $(D_PIO_OBJ) $(PIO_MOD)
+	-rm  $(PIO_LIB) $(D_PIO_OBJ) $(PIO_MOD) PIO/depends.make
 
 ####### Dependencies
 

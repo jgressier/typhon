@@ -42,7 +42,7 @@ $(MODCOM_LIB): $(D_MODCOM_OBJ)
 	@echo ---------------------------------------------------------------
 
 MODCOM_clean:
-	-rm  $(MODCOM_LIB) $(D_MODCOM_OBJ) $(MODCOM_MOD)
+	-rm  $(MODCOM_LIB) $(D_MODCOM_OBJ) $(MODCOM_MOD) MODCOM/depends.make
 
 ####### Dependencies
 

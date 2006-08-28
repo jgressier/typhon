@@ -43,7 +43,7 @@ $(VORTEX_LIB): $(D_VORTEX_OBJ)
 	@echo ---------------------------------------------------------------
 
 VORTEX_clean:
-	-rm $(VORTEX_LIB) $(D_VORTEX_OBJ) $(VORTEX_MOD)
+	-rm $(VORTEX_LIB) $(D_VORTEX_OBJ) $(VORTEX_MOD) VORTEX/depends.make
 
 ####### Dependencies
 

@@ -44,7 +44,7 @@ $(MGRID_LIB): $(D_MGRID_OBJ)
 	@echo ---------------------------------------------------------------
 
 MGRID_clean:
-	-rm $(MGRID_LIB) $(D_MGRID_OBJ) $(MGRID_MOD)
+	-rm $(MGRID_LIB) $(D_MGRID_OBJ) $(MGRID_MOD) MGRID/depends.make
 
 ####### Dependencies
 

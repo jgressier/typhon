@@ -52,7 +52,7 @@ $(MESH_LIB): $(D_MESH_OBJ)
 	@echo ---------------------------------------------------------------
 
 MESH_clean:
-	-rm $(MESH_LIB) $(D_MESH_OBJ) $(MESH_MOD)
+	-rm $(MESH_LIB) $(D_MESH_OBJ) $(MESH_MOD) MESH/depends.make
 
 ####### Dependencies
 

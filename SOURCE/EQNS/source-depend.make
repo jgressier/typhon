@@ -65,7 +65,7 @@ $(EQNS_LIB): $(D_EQNS_OBJ)
 	@echo ---------------------------------------------------------------
 
 EQNS_clean:
-	-rm  $(EQNS_LIB) $(D_EQNS_OBJ) $(EQNS_MOD)
+	-rm  $(EQNS_LIB) $(D_EQNS_OBJ) $(EQNS_MOD) EQNS/depends.make
 
 
 ####### Dependencies

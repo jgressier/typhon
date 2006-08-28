@@ -49,7 +49,7 @@ $(XIO_LIB): $(D_XIO_OBJ)
 	@echo ---------------------------------------------------------------
 
 XIO_clean:
-	-rm  $(XIO_LIB) $(D_XIO_OBJ) $(XIO_MOD) || echo
+	-rm  $(XIO_LIB) $(D_XIO_OBJ) $(XIO_MOD) XIO/depends.make
 
 ####### Dependencies
 

@@ -50,7 +50,7 @@ $(CGNS_LIB): $(D_CGNS_OBJ)
 	@echo ---------------------------------------------------------------
 
 CGNS_clean:
-	-rm  $(CGNS_LIB) $(D_CGNS_OBJ) $(CGNS_MOD)
+	-rm  $(CGNS_LIB) $(D_CGNS_OBJ) $(CGNS_MOD) CGNS/depends.make
 
 ####### Dependencies
 

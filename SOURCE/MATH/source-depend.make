@@ -59,7 +59,7 @@ $(MATH_LIB): $(D_MATH_OBJ)
 	@echo ---------------------------------------------------------------
 
 MATH_clean:
-	-rm  $(MATH_LIB) $(D_MATH_OBJ) $(MATH_MOD)
+	-rm  $(MATH_LIB) $(D_MATH_OBJ) $(MATH_MOD) MATH/depends.make
 
 ####### Dependencies
 

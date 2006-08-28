@@ -61,7 +61,7 @@ $(EXCHMPI_LIB): $(D_EXCHMPI_OBJ)
 	@echo ---------------------------------------------------------------
 
 #EXCHANGE_clean:
-#	-rm  $(EXCHANGE_LIB) $(D_EXCHANGE_OBJ) $(EXCHANGE_MOD)
+#	-rm  $(EXCHANGE_LIB) $(D_EXCHANGE_OBJ) $(EXCHANGE_MOD) EXCHANGE/depends.make
 
 
 ####### Dependencies

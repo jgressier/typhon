@@ -55,7 +55,7 @@ $(ZONE_LIB): $(D_ZONE_OBJ)
 	@echo ---------------------------------------------------------------
 
 ZONE_clean:
-	-rm  $(ZONE_LIB) $(D_ZONE_OBJ) $(ZONE_MOD)
+	-rm  $(ZONE_LIB) $(D_ZONE_OBJ) $(ZONE_MOD) ZONE/depends.make
 
 ####### Dependencies
 

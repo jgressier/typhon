@@ -68,7 +68,7 @@ $(EQKDIF_LIB): $(D_EQKDIF_OBJ)
 	@echo ---------------------------------------------------------------
 
 EQKDIF_clean:
-	-rm  $(EQKDIF_LIB) $(D_EQKDIF_OBJ) $(EQKDIF_MOD)
+	-rm  $(EQKDIF_LIB) $(D_EQKDIF_OBJ) $(EQKDIF_MOD) EQKDIF/depends.make
 
 
 ####### Dependencies

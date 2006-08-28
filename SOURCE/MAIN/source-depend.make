@@ -76,7 +76,7 @@ $(MAIN_LIB): $(D_MAIN_OBJ)
 	@echo ---------------------------------------------------------------
 
 MAIN_clean: 
-	-rm  $(MAIN_LIB) $(D_MAIN_OBJ) $(MAIN_MOD)
+	-rm  $(MAIN_LIB) $(D_MAIN_OBJ) $(MAIN_MOD) MAIN/depends.make
 
 
 ####### Dependencies
