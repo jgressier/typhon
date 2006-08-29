@@ -28,7 +28,7 @@ integer :: ierr
 
 ! -- BODY --
 
-call MPI_SEND(data, dim, MPI_DOUBLE_PRECISION, grid_id-1, tag, MPI_COMM_WORLD,  ierr)
+call MPI_SEND(data, dim, tympi_real, grid_id-1, tag, MPI_COMM_WORLD,  ierr)
 
 if (ierr /= 0) call erreur("MPI error", "impossible to send")
 

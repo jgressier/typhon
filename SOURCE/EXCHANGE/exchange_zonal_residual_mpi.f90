@@ -42,11 +42,11 @@ do i = 1, info%nbproc
   if (ip /= myprocid) then
 
     ! -- send to other grid --
-    call MPI_SEND(res, 1, MPI_DOUBLE_PRECISION, ip-1, mpitag_res, MPI_COMM_WORLD,  ierr)
+    call MPI_SEND(res, 1, tympi_real, ip-1, mpitag_res, MPI_COMM_WORLD,  ierr)
     if (ierr /= 0) call erreur("MPI error", "impossible to send")
 
     ! -- receive from other grid --
-    call MPI_RECV(val, 1, MPI_DOUBLE_PRECISION, ip-1, mpitag_res, MPI_COMM_WORLD, status, ierr)
+    call MPI_RECV(val, 1, tympi_real, ip-1, mpitag_res, MPI_COMM_WORLD, status, ierr)
     if (ierr /= 0) call erreur("MPI error", "impossible to receive")
     sumres = sumres + val
 

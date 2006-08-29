@@ -29,7 +29,7 @@ integer :: status(MPI_STATUS_SIZE)
 
 ! -- BODY --
 
-call MPI_RECV(data, dim, MPI_DOUBLE_PRECISION, grid_id-1, tag, MPI_COMM_WORLD, status, ierr)
+call MPI_RECV(data, dim, tympi_real, grid_id-1, tag, MPI_COMM_WORLD, status, ierr)
 
 if (ierr /= 0) call erreur("MPI error", "impossible to receive")
 

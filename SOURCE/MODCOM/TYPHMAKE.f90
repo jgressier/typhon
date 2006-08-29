@@ -17,4 +17,6 @@ module TYPHMAKE
 
   integer, parameter :: strlen = 100   ! longueur des noms par defaut
 
+  integer :: tympi_real
+
 endmodule TYPHMAKE

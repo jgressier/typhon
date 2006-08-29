@@ -35,14 +35,16 @@ do i = 1, zone%info%nbproc
   if (ip /= myprocid) then
 
     ! -- send to other grid --
-    call MPI_SEND(dt, 1, MPI_DOUBLE_PRECISION, ip-1, mpitag_tstep, MPI_COMM_WORLD,  ierr)
+    call MPI_SEND(dt, 1, tympi_real, ip-1, mpitag_tstep, MPI_COMM_WORLD,  ierr)
     if (ierr /= 0) call erreur("MPI error", "impossible to send")
 
     ! -- receive from other grid --
-    call MPI_RECV(val, 1, MPI_DOUBLE_PRECISION, ip-1, mpitag_tstep, MPI_COMM_WORLD, status, ierr)
+    call MPI_RECV(val, 1, tympi_real, ip-1, mpitag_tstep, MPI_COMM_WORLD, status, ierr)
     if (ierr /= 0) call erreur("MPI error", "impossible to receive")
     dtmin = min(dtmin, val)
 
+    !print*,myprocid,'send', dt,'to  ',ip
+    !print*,myprocid,'recv',val,'from',ip
   endif
 enddo
 

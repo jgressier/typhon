@@ -38,6 +38,8 @@ mpi_run  = .true.
 
 print*,'I am ',myprocid,'among',winfo%nbproc,' procs'
 
+tympi_real = MPI_REAL8
+
 endsubroutine init_exch_protocol
 
 !------------------------------------------------------------------------------!
