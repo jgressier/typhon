@@ -43,24 +43,32 @@ core 0.3
 Task Dévlp.    début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
 0041 Jérémie   01/07       Solv  Inversion Gauss-Seidel
-0128 Jeremie   15/02 24/08 Core  Symbolic function library
 0156 Jeremie               MPI   Validation with second order NS computation (with gradient communication)
+0165 Jeremie               Opt   Mesh face definition (arrays)
+0166 Jeremie               Opt   BCSR connectivity for implicit matrix computation
+     Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
+0174 Jeremie   13/04       Out   Output of Binary VTK files (VTK-BIN)
+0175 Jeremie   29/08 29/08 MPI   Portage SGI (REAL8)
+                           Make  Restructuration de MAIN/integration_cycle (split)
+                           Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
+
+------------------------------------------------------------------------
+release 0.3.1 - 26th August 2006
+------------------------------------------------------------------------
+
+Task Dévlp.    début fin   Type  Développement
+--------------------------------------------------------------------------------------------------------
+0128 Jeremie   15/02 24/08 Core  Symbolic function library
 0160 Jeremie   05/03 05/03 Core  CPU time computation (total and cycle average)
 0161 Jeremie   07/03 07/03 NS    MUSCL : Kim's 3rd order limiter
 0162 Jeremie   14/03 14/03 Bug   Ability to use long filename (seen with mesh files) (strlen)
 0163 Jeremie   17/03 17/03 Opt   flux_to_res optimization (v3D computation) (-36%)
 0164 Jeremie   17/03 19/03 Opt   NS states optimization (flux computation)
-0165 Jeremie               Opt   Mesh face definition (arrays)
-0166 Jeremie               Opt   BCSR connectivity for implicit matrix computation
 0167 Jeremie   19/03 19/03 MPI   Bug correction (tested on EULER/HYPERSONIC/CYL)
-     Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
 0170 Jeremie   19/03 19/03 Bug   Unexpected interaction computation/output (ustmesh%ncell)
 0171 Jeremie   24/08 24/08 Out   Optional cycle output + cycle period
 0172 Jeremie   19/05 22/05 Core  External stop of typhon computation
 0173 Jeremie   11/07 12/07 Core  TYPHON installation and user compilation of udf files
-0174 Jeremie   13/04       Out   Output of Binary VTK files (VTK-BIN)
-                           Make  Restructuration de MAIN/integration_cycle (split)
-                           Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
 
 ------------------------------------------------------------------------
 release 0.3.0 - 3rd March 2006 (based on release 0.2.2)
