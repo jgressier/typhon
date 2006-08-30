@@ -3,7 +3,8 @@ Benchmarks
 ----------------------------------------------------------------------------------------
 Harfang:         Pentium 4 - 1.7GHz - 512 Mo
 Akira  :
-port-gressier:   Pentium 4 M - 1.8 GHz - 512 Mo (Fedora 2) ifort 8.1
+pgressier8:      Pentium 4 M - 1.8 GHz - 512 Mo (Fedora 2) ifort 8.1
+pgressier9:      Pentium 4 M - 1.8 GHz - 512 Mo (Fedora 2) ifort 9.0
 
 ----------------------------------------------------------------------------------------
 COMPUTATION "ORDER1"
@@ -11,7 +12,7 @@ COMPUTATION "ORDER1"
 HLL explicit CFL 2.
 
 ------------------------------------------------------------------
-Version    Harfang         Akira      port-gressier
+Version    Harfang         Akira      pgressier8  pgressier9
 0.1.5                                  33.4s
 0.2.0                                  33.3s
 0.2.1                                  47.3s
@@ -24,7 +25,7 @@ COMPUTATION "MUSCL"
 ----------------------------------------------------------------------------------------
 HLLC MUSCL van Albada explicit CFL 1.
 ------------------------------------------------------------------
-Version    Harfang         Akira      port-gressier
+Version    Harfang         Akira      pgressier8  pgressier9
 0.2.0                                  161.6s
 0.2.1                                  238.3s
 0.3.0                                  249.0s          (all cycle output)
@@ -32,11 +33,11 @@ Version    Harfang         Akira      port-gressier
 ------------------------------------------------------------------
 
 ----------------------------------------------------------------------------------------
-COMPUTATION "MUSCL"
+COMPUTATION "MUSCLFAST"
 ----------------------------------------------------------------------------------------
 HLLC MUSCL-FAST van Albada explicit CFL 1.
 ------------------------------------------------------------------
-Version    Harfang         Akira      port-gressier
-0.3.0                                  224.0s          (all cycle output)
-0.3.1                                  172.8s
+Version    Harfang         Akira      pgressier8  pgressier9
+0.3.0                                  224.0s                  (all cycle output)
+0.3.1                                  172.8s       142.0s
 ------------------------------------------------------------------

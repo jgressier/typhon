@@ -11,9 +11,9 @@ diam8         2238          280401
 - HLLC / HLL first order,  CFL 2.     ok                            ok
 - HLL  MUSCL-FAST superbee CFL 0.5    ok
 - HLL  MUSCL-FAST albada   CFL 0.5    ok
-- HLL  MUSCL-FAST minmod   CFL 0.5         fail(60)                 ok        ok
+- HLL  MUSCL-FAST minmod   CFL 0.5         fail(60)                 ok        
 - HLLC MUSCL-FAST albada   CFL 0.5         fail
-- HLLC MUSCL-FAST minmod   CFL 0.5         fail                   fail(53)   
+- HLLC MUSCL-FAST minmod   CFL 0.5         fail                   fail(53)    ok
 - HLLC MUSCL-FAST vanleer  CFL 0.5    ok   fail        ok         fail(53)
 - HLLC MUSCL-FAST vanleer  CFL 0.2         fail
 - HLLC MUSCL-FAST vanleer  CFL 0.1         fail
@@ -22,3 +22,7 @@ diam8         2238          280401
 
 
  bug allocation (!) for implicit computations
+
+
+Port-gressier
+diam8 HLLC MUSCL-FAST minmod   CFL 0.5     0.3.1       1191m53.884s
