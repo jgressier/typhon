@@ -275,6 +275,7 @@ type(st_grid)  :: grid
   call delete(grid%umesh)
   if (associated(grid%field)) call delete_chainedfield(grid%field)
   if (associated(grid%dtloc)) deallocate(grid%dtloc)
+  if (associated(grid%optmem%gradcond)) deallocate(grid%optmem%gradcond)
 
   ! destruction des sous-grilles
   if (associated(grid%subgrid)) call delete_chainedgrid(grid%subgrid)
