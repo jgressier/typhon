@@ -132,7 +132,126 @@ type st_cgns_world
 endtype st_cgns_world
 
 
+contains 
 
+!------------------------------------------------------------------------------!
+! delete_cgns_world
+!------------------------------------------------------------------------------!
+subroutine delete_cgns_world(cgw)
+implicit none
+type(st_cgns_world) :: cgw
+integer             :: i
+
+  if (associated(cgw%base)) then
+    do i = 1, cgw%nbase
+      call delete_cgns_base(cgw%base(i))
+    enddo
+    deallocate(cgw%base)
+  endif
+
+endsubroutine delete_cgns_world
+
+
+!------------------------------------------------------------------------------!
+! delete_cgns_base
+!------------------------------------------------------------------------------!
+subroutine delete_cgns_base(cgb)
+implicit none
+type(st_cgns_base) :: cgb
+integer             :: i
+
+  if (associated(cgb%zone)) then
+    do i = 1, cgb%nzone
+      call delete_cgns_zone(cgb%zone(i))
+    enddo
+    deallocate(cgb%zone)
+  endif
+
+endsubroutine delete_cgns_base
+
+
+!------------------------------------------------------------------------------!
+! delete_cgns_zone
+!------------------------------------------------------------------------------!
+subroutine delete_cgns_zone(cgz)
+implicit none
+type(st_cgns_zone) :: cgz
+integer             :: i
+
+  if (associated(cgz%cellfam)) then
+    do i = 1, cgz%ncellfam
+      call delete_cgns_ustconnect(cgz%cellfam(i))
+    enddo
+    deallocate(cgz%cellfam)
+  endif
+
+  if (associated(cgz%facefam)) then
+    do i = 1, cgz%nfacefam
+      call delete_cgns_ustconnect(cgz%facefam(i))
+    enddo
+    deallocate(cgz%facefam)
+  endif
+
+  if (associated(cgz%edgefam)) then
+    do i = 1, cgz%nedgefam
+      call delete_cgns_ustconnect(cgz%edgefam(i))
+    enddo
+    deallocate(cgz%edgefam)
+  endif
+
+  call delete_cgns_vtex(cgz%mesh)
+
+  if (associated(cgz%boco)) then
+    do i = 1, cgz%nboco
+      !call delete_cgns_boco(cgz%boco(i))
+    enddo
+    deallocate(cgz%boco)
+  endif
+
+endsubroutine delete_cgns_zone
+
+
+!------------------------------------------------------------------------------!
+! delete_cgns_ustconnect
+!------------------------------------------------------------------------------!
+subroutine delete_cgns_ustconnect(fam)
+implicit none
+type(st_cgns_ustconnect) :: fam
+integer             :: i
+
+  if (associated(fam%fils)) then
+    deallocate(fam%fils)
+  endif
+
+endsubroutine delete_cgns_ustconnect
+
+
+!------------------------------------------------------------------------------!
+! delete_cgns_mesh
+!------------------------------------------------------------------------------!
+subroutine delete_cgns_mesh(mesh)
+implicit none
+type(st_cgns_mesh) :: mesh
+integer             :: i
+
+  if (associated(mesh%vertex)) then
+    deallocate(mesh%vertex)
+  endif
+
+endsubroutine delete_cgns_mesh
+
+
+!------------------------------------------------------------------------------!
+! delete_cgns_boco
+!------------------------------------------------------------------------------!
+subroutine delete_cgns_boco(boco)
+implicit none
+type(st_cgns_boco) :: boco
+integer             :: i
+
+  call delete(boco%list)
+
+endsubroutine delete_cgns_boco
 
 
 endmodule CGNS_STRUCT

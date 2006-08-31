@@ -41,6 +41,8 @@ do i = 1, typhonworld%prj%nzone
 
 enddo
 
+call delete_cgns_world(cgnsworld)
+
 call print_info(8, "Fin de la conversion CGNS -> TYPHON")
 
 
