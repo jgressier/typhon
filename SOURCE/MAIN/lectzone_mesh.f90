@@ -45,7 +45,7 @@ case(fmt_CGNS) ! Format de fichier CGNS
   !  connectivites face->cellules
   !  connectivites face->sommets
   call cgns2typhon_zone(cgnsworld%base(1), zone)
-  ! DEV : call delete(cgnsworld)
+  call delete_cgns_world(cgnsworld)
 
 case(fmt_TYPHMSH) ! Format de fichier CGNS
 
