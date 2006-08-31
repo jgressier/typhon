@@ -227,18 +227,18 @@ endsubroutine delete_cgns_ustconnect
 
 
 !------------------------------------------------------------------------------!
-! delete_cgns_mesh
+! delete_cgns_vtex
 !------------------------------------------------------------------------------!
-subroutine delete_cgns_mesh(mesh)
+subroutine delete_cgns_vtex(mesh)
 implicit none
-type(st_cgns_mesh) :: mesh
+type(st_cgns_vtex) :: mesh
 integer             :: i
 
   if (associated(mesh%vertex)) then
     deallocate(mesh%vertex)
   endif
 
-endsubroutine delete_cgns_mesh
+endsubroutine delete_cgns_vtex
 
 
 !------------------------------------------------------------------------------!
