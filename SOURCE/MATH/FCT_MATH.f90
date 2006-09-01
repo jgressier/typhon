@@ -556,6 +556,34 @@ endselect
 
 endsubroutine fct_cont_atan
 
+!------------------------------------------------------------------------------!
+! fct_cont_step
+!------------------------------------------------------------------------------!
+subroutine fct_cont_step(res, op)
+implicit none
+! -- parameters --
+type(st_fct_container), intent(in)  :: op            ! operand
+type(st_fct_container), intent(out) :: res           ! container result
+! -- internal variables --
+
+! -- body --
+
+select case(op%type)
+
+case(cont_real)            ! -- op OP is REAL -------------------------------
+  call new_fct_container(res, cont_real, "")
+  if (op%r >= 0._rprc) then
+    res%r = 1._rprc
+  else
+    res%r = 0._rprc
+  endif
+
+case default
+  call set_fct_error(-1, "incorrect or non-implemented operands in ATAN operator")
+endselect
+
+endsubroutine fct_cont_step
+
 
 !------------------------------------------------------------------------------!
 endmodule FCT_MATH
@@ -563,4 +591,5 @@ endmodule FCT_MATH
 ! Changes history
 !
 ! July 2006 : module creation
+! Aug  2006 : add step function
 !------------------------------------------------------------------------------!

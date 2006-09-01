@@ -179,8 +179,8 @@ case(fct_atan)
 !  call fct_cont_inv(res, operand)
 !case(fct_sign)
 !  call fct_cont_inv(res, operand)
-!case(fct_step)
-!  call fct_cont_inv(res, operand)
+case(fct_step)
+  call fct_cont_step(res, operand)
 case default
   call set_fct_error(-1, "unknown or non-implemented UNARY OPERATOR in FCT_MATH")
 endselect
