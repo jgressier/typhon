@@ -82,7 +82,7 @@ subroutine fct_env_seek_name(env, name, p)
 implicit none
 ! - parameters
 type(st_fct_env)           :: env
-character(len=cont_str)    :: name
+character(len=*)           :: name
 type(st_fct_node), pointer :: p
 
   p => env%var_stack

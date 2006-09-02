@@ -11,8 +11,14 @@ real(prec)             :: x, gamma, mach, r
 
 call new_fct_env(env)
 
+x  = 2._prec
+call fct_env_set_real(env, "x", x)
+print*,'ENV'
+call print_fct_env(6, env)
+
 x  = 10._prec
 call fct_env_set_real(env, "x", x)
+print*,'ENV'
 call print_fct_env(6, env)
 
 r  = exp(x)/x 
@@ -24,6 +30,7 @@ call fct_env_set_real(env, "Gamma", gamma)
 mach = 2._prec
 call fct_env_set_real(env, "MACH", mach)
 
+print*,'ENV'
 call print_fct_env(6, env)
 
 r  = (1.+(gamma-1)/2*mach**2)**(gamma/(gamma-1))
