@@ -11,7 +11,7 @@ module FCT_PARSER
 
 use FCT_DEF
 use FCT_NODE
-use FCT_FUNC
+!use FCT_FUNC
 use STRING
 
 implicit none
@@ -31,12 +31,13 @@ contains
 !------------------------------------------------------------------------------!
 ! convert STRING to FCT_FUNCT structure
 !------------------------------------------------------------------------------!
-subroutine string_to_funct(str, func)
+subroutine string_to_funct(str, func, ierr)
 implicit none
 
 ! -- parameters --
 character(len=*),  intent(in)  :: str         ! string   input
-type(st_fct_func), intent(out) :: func        ! function output
+type(st_fct_node), intent(out) :: func        ! function output
+integer,           intent(out) :: ierr        ! error code
 
 ! -- internal variables --
 character(len=len(str)) :: strpack    ! intermediate string
@@ -45,9 +46,9 @@ character(len=len(str)) :: strpack    ! intermediate string
 
 strpack = delspace(str)
 strpack = lowercase(strpack)
+call string_to_node(trim(strpack), func)
 
-call string_to_node(strpack, func%function)
-
+ierr = 0
 
 endsubroutine string_to_funct
 
@@ -67,6 +68,7 @@ type(st_fct_node), intent(out) :: node
 ! -- internal variables --
 integer(ipar) :: iop             ! operator or function index
 integer       :: istr, lstr      ! index of operator in string, length of string
+integer       :: pos, endpos
 integer       :: ierr            ! error code
 real(rprc)    :: x               ! temporary real
 logical       :: found
@@ -110,7 +112,16 @@ iop = min_op
 
 do while ((.not.found).and.(iop <= max_op))  ! ---------- loop on binary operators
 
-  istr = index_oper(str, trim(op2name(iop)))    ! index of operator
+  !-------------------------------------------------------
+  ! look for LAST binary operator in string 
+  ! this is to handle unexpected effect of no symmetric operators : - /
+
+  istr   = 0
+  pos    = lstr        ! force first loop
+  do while (pos /= 0)
+    pos = index_oper(str(istr+1:lstr), trim(op2name(iop)))    ! FIRST index of operator
+    istr = istr+pos
+  enddo
 
   !-------------------------------------------------------
   ! operator (iop) not found -> next operator
@@ -161,7 +172,8 @@ iop = min_fct
 
 do while ((.not.found).and.(iop <= max_fct))      ! ---------- loop on unary operators
 
-  istr = index_oper(str, trim(op1name(iop))//"(")      ! index of "operator("
+  !istr = index_oper(str, trim(op1name(iop))//"(")      ! index of "operator("
+  istr = index(str, trim(op1name(iop))//"(")      ! index of "operator("
 
   if (istr == 0) then         ! --------- not found
     iop = iop + 1             !           -> next operator
@@ -194,8 +206,9 @@ endsubroutine string_to_node
 
 
 !------------------------------------------------------------------------------!
-! function index of a operator string into a string & ignore inside brackets
+! function FIRST index of a operator string into a string & ignore inside brackets
 !   - spaces are supposed to be removed
+!   - can look for "(", ")", unary or binary operators
 !------------------------------------------------------------------------------!
 recursive function index_oper(str, strop) result (ind)
 implicit none
@@ -217,7 +230,7 @@ lstrop = len(strop)        ! length of operator string
 
 iop  = index(str, trim(strop))    ! index of "operator"      in full string
 ibk1 = index(str, "(")            ! index of opening bracket in full string
-if (ibk1 == 0) ibk1 = lstr+1      ! if no '(', avoid ibk1 effect
+if (ibk1 == 0) ibk1 = lstr+1      ! if no '(', trick to avoid ibk1 effect
 
 if (iop == ibk1) then     ! -------- oper = '(' -----------------
   ind = iop               ! looking for '(' and found
@@ -235,7 +248,6 @@ elseif (iop > ibk1) then  ! -------- manage '('  first ----------
   if (ind == ibk2) ind = 0                             ! if not found, ind is set to 0
 
 endif
-!print*,"  ind",ind
 
 endfunction index_oper
 

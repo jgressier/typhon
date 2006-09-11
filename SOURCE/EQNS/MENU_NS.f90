@@ -13,6 +13,7 @@ module MENU_NS
 use TYPHMAKE   ! Definition de la precision
 use VARCOM     ! Definition des parametres constantes
 use EQNS       ! Definition des proprietes gaz
+use FCT_NODE
 
 implicit none
 
@@ -53,7 +54,8 @@ endtype mnu_ns
 !------------------------------------------------------------------------------!
 type st_boco_ns
   ! definir un etat
-  real(krp) :: pstat, ptot, ttot, mach
+  real(krp) :: pstat, ptot, ttot, mach ! old definition
+  !type(st_fct_node) :: pstat, ptot, ttot, mach         ! FCT functions
   real(krp) :: temp_wall
   type(v3d) :: direction
   real(krp), dimension(:), pointer  &
@@ -79,7 +81,8 @@ endtype st_boco_ns
 !------------------------------------------------------------------------------!
 type st_init_ns
   ! definir un etat
-  real(krp) :: pstat, ptot, ttot, mach
+  type(st_fct_node) :: pstat, ptot, ttot, mach         ! FCT functions
+  !real(krp) :: pstat, ptot, ttot, mach
   type(v3d) :: direction
 endtype st_init_ns
 
@@ -125,10 +128,11 @@ endfunction bctype_of_nsboco
 
 endmodule MENU_NS
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Change history
 !
 ! aout 2002 : creation du module
-! juin 2004 : conditions limites (bctype_of_nsboco, st_boco_ns) 
+! june 2004 : conditions limites (bctype_of_nsboco, st_boco_ns) 
+! sept 2006 : FCT functions for initialization variables
 !------------------------------------------------------------------------------!
 
 

@@ -120,6 +120,22 @@ x  = asin(.5_prec)
 str="asin(.5)"
 call test_real(str, x)
 
+x  = 10.-3.-2.
+str="10.-3.-2."
+call test_real(str, x)
+
+x  = 10._prec/3._prec/2._prec
+str="10./3./2."
+call test_real(str, x)
+
+x  = ((3+2)*5+4/2)*3+(3+2./4.)
+str="((3+2)*5+4/2)*3+(3+2./4.)"
+call test_real(str, x)
+
+x  = (((3**2+2)*5+4./2.)*3-(3-2./4.)*4)/(2-4)**2
+str="(((3^2+2)*5+4./2.)*3-(3-2./4.)*4)/(2-4)^2"
+call test_real(str, x)
+
 contains
 
 subroutine test_real(str, x)
@@ -135,12 +151,16 @@ call string_to_node(str, func)
 call fct_node_eval(blank_env, func, cont)
 if ((abs(cont%r-x)/x) > 10*sqrt(epsilon(x))) then
   err = "FAUX"
+  print form, str, cont%r, x, err
+  call fct_node_to_str(func, str)
+  print*,"->",trim(str)
 elseif ((abs(cont%r-x)/x) > 10*epsilon(x)) then
   err = "Mauvais"
+  print form, str, cont%r, x, err
 else
   err = " Ok "
+  print form, str, cont%r, x, err
 endif
-print form, str, cont%r, x, err
 call delete(cont)
 call delete(func)
 

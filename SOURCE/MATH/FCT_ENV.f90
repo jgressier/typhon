@@ -50,6 +50,7 @@ type(st_fct_env)  :: env
   ! -- initialize ENV to no constant/function --
   env%uptodate = .false.
   env%nvar     = 0
+  if (associated(env%var_stack)) call delete_fct_env(env)
   nullify(env%var_stack)  
 
 endsubroutine new_fct_env
@@ -127,7 +128,7 @@ endsubroutine fct_env_set_real
 
 
 !------------------------------------------------------------------------------!
-! print-fct_env
+! print_fct_env
 !------------------------------------------------------------------------------!
 subroutine print_fct_env(unit, env)
 implicit none

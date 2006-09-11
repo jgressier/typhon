@@ -15,6 +15,7 @@ use TYPHMAKE
 use VARCOM
 use OUTPUT
 use MENU_NS
+use FCT_PARSER
 
 implicit none
 
@@ -30,25 +31,36 @@ type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: ib, nkey, info
 character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
-! -- Debut de la procedure --
+! -- BODY --
 
 pblock => block
 
-call rpmgetkeyvalreal(pblock, "PI",        initns%ptot)
-call rpmgetkeyvalreal(pblock, "TI",        initns%ttot)
-call rpmgetkeyvalreal(pblock, "MACH",      initns%mach)
+call rpmgetkeyvalstr(pblock, "PI", str)
+print*," parsing "//trim(str)
+call string_to_funct(str, initns%ptot, info)
+
+call rpmgetkeyvalstr(pblock, "TI", str)
+print*," parsing "//trim(str)
+call string_to_funct(str, initns%ttot, info)
+
+call rpmgetkeyvalstr(pblock, "MACH", str)
+print*," parsing "//trim(str)
+call string_to_funct(str, initns%mach, info)
+
 call rpmgetkeyvalstr (pblock, "DIRECTION", str)
 initns%direction = v3d_of(str, info)
 if (info /= 0) &
-  call erreur("lecture de menu","probleme a la lecture du vecteur DIRECTION") 
+  call erreur("menu definition","problem when parsing DIRECTION vector (NS initialization)") 
+
 initns%direction = initns%direction / abs(initns%direction)
 
 endsubroutine def_init_ns
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! juil 2004 : creation de la routine
+! sept 2006 : FCT functions for Ptot, Ttot ans Mach
 !------------------------------------------------------------------------------!
 
 

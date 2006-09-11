@@ -29,12 +29,61 @@ type(st_fct_env) :: blank_env
 
 ! -- INTERFACES -------------------------------------------------------------
 
+interface fct_eval_real
+  module procedure fct_eval_real4, fct_eval_real8
+end interface
 
 ! -- Fonctions et Operateurs ------------------------------------------------
 
 
 ! -- IMPLEMENTATION ---------------------------------------------------------
 contains
+
+!------------------------------------------------------------------------------!
+! fct_eval_real4
+!------------------------------------------------------------------------------!
+subroutine fct_eval_real4(env, fct, res)
+implicit none
+
+! -- parameters --
+type(st_fct_env),       intent(in)  :: env     ! environment
+type(st_fct_node),      intent(in)  :: fct     ! function to evaluate (base node)
+real(4),                intent(out) :: res     ! real result
+
+! -- internal variables --
+type(st_fct_container)     :: cont             ! evaluation of container
+
+  call fct_node_eval(env, fct, cont)
+  if (cont%type == cont_real) then
+    res = cont%r
+  else
+    call set_fct_error(-1, "unexpected type of result (fct_eval)")
+  endif
+
+end subroutine fct_eval_real4
+
+!------------------------------------------------------------------------------!
+! fct_eval_real8
+!------------------------------------------------------------------------------!
+subroutine fct_eval_real8(env, fct, res)
+implicit none
+
+! -- parameters --
+type(st_fct_env),       intent(in)  :: env     ! environment
+type(st_fct_node),      intent(in)  :: fct     ! function to evaluate (base node)
+real(8),                intent(out) :: res     ! real result
+
+! -- internal variables --
+type(st_fct_container)     :: cont             ! evaluation of container
+
+  call fct_node_eval(env, fct, cont)
+  if (cont%type == cont_real) then
+    res = cont%r
+  else
+    call set_fct_error(-1, "unexpected type of result (fct_eval)")
+  endif
+
+end subroutine fct_eval_real8
 
 !------------------------------------------------------------------------------!
 ! fct_node_eval

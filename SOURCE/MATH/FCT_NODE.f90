@@ -179,11 +179,43 @@ type(st_fct_node) :: node
 endsubroutine delete_fct_node
 
 
+!------------------------------------------------------------------------------!
+! fct_node_to_str : 
+!------------------------------------------------------------------------------!
+recursive subroutine fct_node_to_str(node, str) 
+implicit none
+! -- parameters --
+type(st_fct_node) :: node
+character(len=*)  :: str
+! -- internal variables --
+character(len=len(str)) :: str2
+
+  select case(node%type_node)
+  case(node_cst)
+    write(str,'(g20.2)') node%container%r
+    str = adjustl(str)
+  case(node_var)
+    str = node%container%name
+  case(node_opunit)
+    call fct_node_to_str(node%left, str)
+    str = trim(op1name(node%type_oper))//"("//trim(str)//")"
+  case(node_opbin)
+    call fct_node_to_str(node%left,  str)
+    call fct_node_to_str(node%right, str2)
+    str = "("//trim(str)//trim(op2name(node%type_oper))//trim(str2)//")"
+  case default
+    call set_fct_error(node%type_node, "unknown type of node in fct_node_to_str")
+  endselect
+
+endsubroutine fct_node_to_str
+
+
 endmodule FCT_NODE
 
 
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! July  2004 : module creation
+! July  2006 : module creation
+! Sept  2006 : node tree string expression added 
 !------------------------------------------------------------------------------!

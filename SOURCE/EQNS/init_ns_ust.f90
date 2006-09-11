@@ -14,6 +14,8 @@ use TYPHMAKE
 use DEFFIELD
 use MENU_NS
 use MENU_INIT
+use FCT_EVAL
+use FCT_ENV
 
 implicit none
 
@@ -29,23 +31,39 @@ integer(kip)     :: ncell
 type(st_field) :: champ
 
 ! -- Declaration des variables internes --
-integer         :: ip, ic
+integer         :: ip, ic, ierr
 type(st_nsetat) :: nspri
 character(len=50):: charac
-real(krp)       :: x,y,z, temp
+real(krp)       :: x, y, z, temp, ptot, ttot, mach
+logical         :: is_x, is_y, is_z
 
 ! -- BODY --
 
 
 select case(init_type)
 
-case(init_def)
+case(init_def)  ! --- initialization through FCT functions ---
+  
+  !is_x = 
+  !
+  !if (is_x.or.is_y.or.is_z) then ! test if function depends on x, y, or z
+
   call new(nspri, 1)
-  call pi_ti_mach_dir2nspri(defns%properties(1), 1, initns%ptot, initns%ttot, &
-                                                 initns%mach, initns%direction, nspri) 
-  champ%etatprim%tabscal(1)%scal(1:ncell) = nspri%density(1)
-  champ%etatprim%tabscal(2)%scal(1:ncell) = nspri%pressure(1)
-  champ%etatprim%tabvect(1)%vect(1:ncell) = nspri%velocity(1)
+  call new_fct_env(blank_env)      ! temporary environment from FCT_EVAL
+
+  do ic = 1, ncell
+    call fct_env_set_real(blank_env, "x", mesh%centre(ic,1,1)%x)
+    call fct_env_set_real(blank_env, "y", mesh%centre(ic,1,1)%y)
+    call fct_env_set_real(blank_env, "z", mesh%centre(ic,1,1)%z)
+    call fct_eval_real(blank_env, initns%ptot, ptot)
+    call fct_eval_real(blank_env, initns%ttot, ttot)
+    call fct_eval_real(blank_env, initns%mach, mach)
+    call pi_ti_mach_dir2nspri(defns%properties(1), 1, ptot, ttot, mach, initns%direction, nspri) 
+    champ%etatprim%tabscal(1)%scal(ic) = nspri%density(1)
+    champ%etatprim%tabscal(2)%scal(ic) = nspri%pressure(1)
+    champ%etatprim%tabvect(1)%vect(ic) = nspri%velocity(1)
+  enddo
+
   call delete(nspri)
   !!if (champ%allocgrad) champ%gradient(:,:,:,:,:) = 0._krp
 

@@ -90,15 +90,19 @@ function delspace(str) result(strout)
   implicit none
   character(len=*), intent(in) :: str
   character(len=len(str))      :: strout
-  integer                      :: i1, i2
+  integer                      :: length, i1, i2
 
-  i2 = 0
-  do i1 = 1, len(str)
+  strout = str  !!! WHY IS THIS USEFUL ? but it works: removes bug...
+  i2     = 0
+  length = len(str)
+  do i1 = 1, length
     if (str(i1:i1) /= ' ') then
       i2 = i2 + 1
       strout(i2:i2) = str(i1:i1)
     endif
   enddo
+  if (i2+1 >= length) strout(i2+1:length) = ' '    ! blank ending characters
+
 endfunction delspace
 
 !------------------------------------------------------------------------------!
