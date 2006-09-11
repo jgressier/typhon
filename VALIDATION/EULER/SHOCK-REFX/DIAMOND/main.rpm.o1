@@ -1,0 +1,90 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON 
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+  NZONE     = 1       
+  COORD     = 2D      
+  TIME      = UNSTEADY 
+  DURATION  = .00060     ! 
+  BASETIME  = .00005   
+  !RESIDUALS = 1.e-4
+ENDBLOCK               
+
+BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+  FORMAT = VTK         
+  FILE   = "typhon" 
+ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "diam" 
+  SOLVER = EULER  
+ENDBLOCK
+
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = CGNS
+  FILE   = "diam2-quad.cgns"
+  !SCALE  = 0.5
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS = EULER
+  GAS      = AIR
+ENDBLOCK
+
+BLOCK:TIME_PARAM 
+  !METHOD = IMPLICIT
+  CFL    = 0.5
+ENDBLOCK
+
+BLOCK:SPAT_PARAM  
+  !HIGHRES = MUSCL-FAST
+  SCHEME  = HLLC
+  LIMITER = MINMOD
+ENDBLOCK
+
+BLOCK:INIT
+  PI      = 1.E5
+  TI      = 100.+50*sin(x)
+  MACH    = 0.
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = OUTLET
+  TYPE   = SUPERSONIC_OUTLET 
+ENDBLOCK
+
+BLOCK:BOCO                        ! Inlet for a mach 2.85 forward moving shock wave
+  FAMILY    = INLET               ! 
+  TYPE      = SUPERSONIC_INLET    ! 
+  PI        = 26.34128E5          ! 
+  TI        = 337.416666667       ! 
+  MACH      = 1.31538663361
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = OUTLET
+  TYPE   = SUPERSONIC_OUTLET 
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = WALL
+  TYPE   = SYMMETRY
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = UP
+  TYPE   = SYMMETRY
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = DIAMOND
+  TYPE   = SYMMETRY
+ENDBLOCK
+
