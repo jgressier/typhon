@@ -110,18 +110,16 @@ do while (.not. lworld%info%fin_integration)
       write(uf_log,'(a,g10.4)') "Nombre de cycles maximal atteint, RESIDU = ",&
                            log10(lworld%info%cur_res/lworld%info%residu_ref)
     endif
+    call print_info(6,str_w)
 
   case(instationnaire)
     lworld%info%curtps = lworld%info%curtps + lworld%prj%dtbase
-    if (lworld%info%curtps >= lworld%prj%duree) lworld%info%fin_integration = .true.
-    write(str_w,'(a)') " "
+    if (lworld%info%icycle == lworld%prj%ncycle) lworld%info%fin_integration = .true.
 
   case(periodique)
     lworld%info%fin_integration = .true.
 
   endselect
-
-  call print_info(6,str_w)
 
   call output_result(lworld, end_cycle)
 

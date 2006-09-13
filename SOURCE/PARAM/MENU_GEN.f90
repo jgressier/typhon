@@ -43,7 +43,7 @@ type mnu_project
   integer(kip)    :: ncoupling  ! nombre de couplages entre zones
   character       :: typ_coord  ! type de repere
   character       :: typ_temps  ! (S)tationnaire, (I)nstationnaire, (P)eriodique
-  real(krp)       :: duree      ! duree de l'integration ou de la periode
+  real(krp)       :: duration   ! duree de l'integration ou de la periode
   real(krp)       :: tpsbase    ! pas de temps de base du couplage
   integer(kip)    :: ncycle     ! nombre de cycle (en stationnaire ou periodique)
   real(krp)       :: residumax  ! valeur maximale du residu admise (stationnaire)

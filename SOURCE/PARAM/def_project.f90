@@ -27,7 +27,7 @@ integer                  :: nkey, nkey2    ! nombre de clefs
 integer                  :: i
 character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
-! -- Debut de la procedure --
+! -- BODY --
 
 call print_info(2,"* Project definition")
 
@@ -65,14 +65,14 @@ if (samestring(str, "3D"))      prj%typ_coord = c3dgen
 
 select case(prj%typ_coord)
 case(c2dplan)
-  call print_info(10,"repere 2d plan")
+  call print_info(10,"2D framework")
 case(c2daxi) 
-  call print_info(10,"repere 2d axisymetrique")
+  call print_info(10,"Axisymmetric 2D framework")
   ! DEV : lecture de la position de l'axe
 case(c3dgen) 
-  call print_info(10,"repere 3d general")
+  call print_info(10,"3D framework")
 case default
-  call erreur("parameter parsing","type de repere inconnu")
+  call erreur("parameter parsing","unknown type of framework (def_project)")
 endselect
 
 ! ----------------------------------------------------------------------------
@@ -88,27 +88,42 @@ if (samestring(str, "PERIODIC"))  prj%typ_temps = periodique
 select case(prj%typ_temps)
 
 case(stationnaire) ! Evolution pseudo-instationnaire
-  call print_info(10,"calcul stationnaire (convergence pseudo-instationnaire)")
+
+  call print_info(10,"STEADY computation (pseudo unsteady convergence)")
   if (.not.(rpm_existkey(pcour,"RESIDUALS").or.rpm_existkey(pcour,"NCYCLE"))) then
-    call erreur("parameter parsing","parametre RESIDUALS ou NCYCLE manquant")
+    call erreur("parameter parsing","RESIDUALS or NCYCLE parameter not found (def_project)")
   endif
   call rpmgetkeyvalreal(pcour, "RESIDUALS", prj%residumax)
   call rpmgetkeyvalint (pcour, "NCYCLE",    prj%ncycle, huge(prj%ncycle))
   ! DEV : TRAITER LES MOTS CLEFS INTERDITS
-
   
 case(instationnaire) ! Evolution instationnaire
-  call print_info(10,"calcul instationnaire")
-  call rpmgetkeyvalreal(pcour, "DURATION", prj%duree)
-  call rpmgetkeyvalreal(pcour, "BASETIME", prj%dtbase)
-  prj%tpsbase = prj%dtbase
+
+  call print_info(10,"UNSTEADY computation")
+  call rpmgetkeyvalreal(pcour, "DURATION", prj%duration)
+  if (rpm_existkey(pcour,"BASETIME").and.rpm_existkey(pcour,"NCYCLE")) then
+    call erreur("parameter parsing","BASETIME and NCYCLE parameters conflict (def_project)")
+  endif
+  if (rpm_existkey(pcour,"BASETIME")) then
+    call print_info(10,"!!! Warning !!! it not adviced to use BASETIME parameter...")
+    call rpmgetkeyvalreal(pcour, "BASETIME", prj%dtbase)
+    prj%ncycle = int((prj%duration+.01*prj%dtbase)/prj%dtbase)
+    prj%dtbase = prj%duration / prj%ncycle
+  elseif (rpm_existkey(pcour,"NCYCLE")) then
+    call rpmgetkeyvalreal(pcour, "BASETIME", prj%dtbase)
+    prj%ncycle = int((prj%duration+.01*prj%dtbase)/prj%dtbase)
+    prj%dtbase = prj%duration / prj%ncycle
+  else
+    call erreur("parameter parsing","NCYCLE (or BASETIME) parameter not found (def_project)")
+  endif
   ! DEV : TRAITER LES MOTS CLEFS INTERDITS
 
 case(periodique) ! Evolution periodique
+
   call print_info(10,"calcul cyclique")
-  call rpmgetkeyvalreal(pcour, "PERIOD", prj%duree)
+  call rpmgetkeyvalreal(pcour, "PERIOD", prj%duration)
   call rpmgetkeyvalint (pcour, "NCYCLE", prj%ncycle)
-  prj%dtbase = prj%duree / prj%ncycle
+  prj%dtbase = prj%duration / prj%ncycle
   ! DEV : TRAITER LES MOTS CLEFS INTERDITS
   call erreur("Developpement","calcul periodique non implemente")
 
