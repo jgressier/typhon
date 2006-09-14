@@ -129,7 +129,7 @@ str="10./3./2."
 call test_real(str, x)
 
 x  = ((3+2)*5+4/2)*3+(3+2./4.)
-str="((3+2)*5+4/2)*3+(3+2./4.)"
+str="( (3+2)*5 + 4/2 )*3 + (3+2./4.)"
 call test_real(str, x)
 
 x  = (((3**2+2)*5+4./2.)*3-(3-2./4.)*4)/(2-4)**2
@@ -146,8 +146,9 @@ type(st_fct_container) :: cont
 real(prec)             :: x
 character(len=20)  :: form="(a30,2g16.8,2x,a8)"
 character(len=20)  :: err
+integer            :: ierr
 
-call string_to_node(str, func)
+call string_to_funct(str, func, ierr)
 call fct_node_eval(blank_env, func, cont)
 if ((abs(cont%r-x)/x) > 10*sqrt(epsilon(x))) then
   err = "FAUX"

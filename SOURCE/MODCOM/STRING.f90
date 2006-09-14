@@ -92,7 +92,7 @@ function delspace(str) result(strout)
   character(len=len(str))      :: strout
   integer                      :: length, i1, i2
 
-  strout = str  !!! WHY IS THIS USEFUL ? but it works: removes bug...
+  strout = ""  !!! WHY IS THIS USEFUL ? but it works: removes bug...
   i2     = 0
   length = len(str)
   do i1 = 1, length
