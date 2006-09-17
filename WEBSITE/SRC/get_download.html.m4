@@ -15,9 +15,9 @@ section([TYPHON sources])
 item([choose your version as a tarball file on 
       hyperlink([sourceforge download], [http://sourceforge.net/project/showfiles.php?group_id=132321]) page])
 item([get a tagged version from CVS repository using <br>
-      cvs -z5 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/typhon export -r rel-0-2-1 TYPHON])
+      cvs -z5 -d:pserver:anonymous@typhon.cvs.sourceforge.net:/cvsroot/typhon export -r rel-0-2-1 TYPHON])
 item([get an up-to-date version from CVS repository using <br>
-      cvs -z5 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/typhon export -D today TYPHON])
+      cvs -z5 -d:pserver:anonymous@typhon.cvs.sourceforge.net:/cvsroot/typhon export -D today TYPHON])
 skip_line
 
 section([External libraries])

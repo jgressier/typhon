@@ -45,7 +45,7 @@ dnl -------------------------------------------------------------
 
 <span class="ghostitem" id="subitem_hlle">
 section([HLLE scheme])
-HLLE scheme is a variant of the two-waves HLL family orginally proposed by Harten, Lax and Van Leer (1986). This variant is
+HLLE scheme is a variant of the two-waves HLL family originally proposed by Harten, Lax and Van Leer (1986). This variant is
 the positive version of Einfeldt (1988). It is a very robust scheme which behaves as 
 <acronym title="Flux Vector Splitting">FVS</acronym> schemes, even if it is originally based on a Riemann solver.
 skip_line
