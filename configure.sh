@@ -1,4 +1,4 @@
-#!/bin/sh
+##!/bin/sh
 
 echo ------------------------------------------------------------------
 echo TYPHON configuration
@@ -28,11 +28,11 @@ fail()    {
   }
 
 warning()    {
-  echo -e "!!! warning !!!" $*
+  echo -e "!!! warning !!!" "$*"
   }
 
 error()    {
-  echo -e "!!!  ERROR  !!!" $*
+  echo -e "!!!  ERROR  !!!" "$*"
   }
 
 check_system() {
@@ -85,14 +85,14 @@ check_f90module() {
   cd $TMPDIR
   rm * 2> /dev/null
   cp $LOCALDIR/$TOOLSCONF/module.f90 .
-  $F90C -c module.f90 > /dev/null >&1
+  $F90C -c module.f90 > /dev/null 2>&1
   if [ $? ] ; then
     module=$(ls modulename.* 2> /dev/null)
     if [ -n "$module" ] ; then
       F90modext=${module#*.}
       F90modcase=lower
     else
-      module=$(ls MODULE.* 2> /dev/null)
+      module=$(ls MODULENAME.* 2> /dev/null)
       if [ -n "$module" ] ; then
         F90modext=${module#*.}
         F90modcase=upper
@@ -103,11 +103,12 @@ check_f90module() {
       success "$F90modcase-case name"
       export F90modext F90modcase
     else
-      fail "no module output"
+      fail "no module output found"
     fi
   else
     fail "error when compiling"
   fi
+  cd $LOCALDIR
   }
 
 
@@ -126,7 +127,7 @@ done
 LOCALDIR=$PWD
 TMPDIR=/tmp/configure.$$
 mkdir $TMPDIR
-trap "rm -Rf $TMPDIR" ERR EXIT
+trap "cd $LOCALDIR ; rm -Rf $TMPDIR ; exit 1" 0 2
 
 if [ -n "$F90C" ] ; then
   check "fortran 90 module creation" f90module
@@ -136,12 +137,12 @@ fi
 
 ### REVIEW ###
 
-[[ -z "$F90C" ]]            && error   "no fortran compiler found: impossible to build TYPHON"
+[[ -z "$F90C" ]]         && error   "no fortran compiler found: impossible to build TYPHON"
 [[ -z "$LIB_blas"   ]]   && error   "BLAS   not available: impossible to build TYPHON"
 [[ -z "$LIB_lapack" ]]   && error   "LAPACK not available: impossible to build TYPHON"
 [[ -z "$LIB_cgns"   ]]   && error   "CGNS   not available: impossible to build TYPHON"
 [[ -z "$LIB_metis"  ]]   && error   "METIS  not available: TYPHON will not feature automatic distribution"
 [[ -z "$LIB_mpich"  ]] && 
-  [[ -z "$LIB_mpi"    ]] && warning "MPI not available: TYPHON will not feature parallel computation"
+  [[ -z "$LIB_mpi"    ]] && warning "MPI    not available: TYPHON will not feature parallel computation"
 
 echo Configuration ended
