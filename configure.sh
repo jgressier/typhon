@@ -5,6 +5,7 @@ echo TYPHON configuration
 echo ------------------------------------------------------------------
 
 TOOLSCONF=TOOLS/configure
+MAKECONF=SOURCE/defvar.make
 
 check() {
   local com
@@ -146,3 +147,25 @@ fi
   [[ -z "$LIB_mpi"    ]] && warning "MPI    not available: TYPHON will not feature parallel computation"
 
 echo Configuration ended
+echo Writing Makefile configuration...
+rm $MAKECONF 2> /dev/null
+echo "SHELL       = $SHELL"                         >> $MAKECONF
+echo "MAKEDEPENDS = Util/make_depends_$F90modcase"  >> $MAKECONF
+echo "MOD         = $F90modext"                     >> $MAKECONF
+echo "CF          = ${F90C##*/}"                     >> $MAKECONF
+echo "FB          = -I\$(PRJINC)"                   >> $MAKECONF
+echo "FO_debug    = "                               >> $MAKECONF
+echo "FO_opt      = -O3"                            >> $MAKECONF
+echo "FO_prof     = \$(FO_opt) -pg"                 >> $MAKECONF
+echo "FO_         = \$(FO_opt)"                     >> $MAKECONF
+echo "FO          = \$(FO_\$(OPT))"                 >> $MAKECONF
+echo "LINKER      = \$(CF)"                         >> $MAKECONF
+echo "LINKSO      = \$(CF) -shared"                 >> $MAKECONF
+echo "METISLIB    = $LIB_metis"                     >> $MAKECONF
+echo "CGNSLIB     = $LIB_cgns"                      >> $MAKECONF
+echo "LAPACKLIB   = $LIB_lapack $LIB_blas"          >> $MAKECONF
+echo "MPILIB      = $LIB_mpich"                     >> $MAKECONF
+echo Done
+echo
+echo "to build TYPHON : cd SOURCE ; gmake clean ; gmake all OPT=opt"
+

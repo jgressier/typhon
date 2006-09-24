@@ -37,13 +37,12 @@ MAKE        = make
 	$(CF) $(FF) -c $<
 
 $(PRJINC)/%.$(MOD):
-	@echo - MODULE : compiling file $*
+	@echo -n "MODULE: "
 	$(CF) $(FF) -c ${$*.source} -o $(PRJOBJ)/${$*.objet}
-	@echo - transfert du module $*
 	@mv $*.$(MOD) $(PRJINC)
 
 $(PRJOBJ)/%.o: %.f90
-	@echo - OBJECT : compiling file $*
+	@echo -n "OBJECT: "
 	$(CF) $(FF) -c $< -o $(PRJOBJ)/$*.o
 
 # intermédiaire pour les dépendances, garantissant la compilation
