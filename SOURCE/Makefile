@@ -6,7 +6,7 @@ all: seq mpi
 ####### Compiler, tools and options
 
 SYS = $(shell Util/test-systeme)
-include defvar.make.$(SYS)
+include defvar.make #.$(SYS)
 include defprj.make
 
 
@@ -24,7 +24,7 @@ MAKEFILE= Makefile
 
 PRGNAME = Typhon
 
-EXTLIBS   = $(CGNSLIB) $(LAPACKLIBS) $(METISLIB)
+EXTLIBS   = $(CGNSLIB) $(LAPACKLIB) $(METISLIB)
 
 include librairies.make
 

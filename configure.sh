@@ -48,24 +48,85 @@ check_proc() {
   }
 
 check_f90compiler() {
-  local namelist="f90 ifort ifc pgf g95"
+  local namelist="ifort ifc pgf90 lfc pathf90 af90 f90 f95 g95 gfortran"
   for exe in $namelist ; do
     F90C=$(which $exe 2> /dev/null)
     if [ -n "$F90C" ] ; then
+      success $F90C
+      F90C=${F90C##*/}
+      check "$F90C fortran 90 conformance" f90conformance
       break
     fi
   done
   if [ -n "$F90C" ] ; then
-    success $F90C
+    export F90C
   else
     fail "not found"
   fi
   }
 
+check_f90conformance() {
+  local f90options
+  f90options="$*"
+  cd $TMPDIR
+  rm * 2> /dev/null
+  cp $LOCALDIR/$TOOLSCONF/f90conformance.f90 .
+  $F90C $f90options f90conformance.f90 -o f90test > /dev/null 2>&1
+  if [ $? ] ; then
+    success "successfully compiled"
+    ./f90test > /dev/null 2>&1
+    if [ $? ] ; then
+      success "checked"
+    else
+      fail "execution failed"
+    fi
+  else
+    fail "compiler error"
+  fi
+  cd $LOCALDIR
+  }
+
+check_f90opti() {
+  case $SYS-$F90C in
+    *ifc|*ifort) F90_OPTI="-O3" ;;
+    *pgf90)      F90_OPTI="-fastsse -Munroll=n:4 -Mipa=fast,inline" ;;
+    *pathf90)    F90_OPTI="-Ofast" ;;
+    *gfortran)   F90_OPTI="-ffast-math -funroll-loops -O3" ;;
+    *g95)        F90_OPTI="-ffast-math -funroll-loops -O3" ;;
+    *af90)       F90_OPTI="-Ofast -fast_math" ;;
+    *lfc)        F90_OPTI="--fast" ;;
+    IRIX*f90)    F90_OPTI="-03" ;;
+    HP-UX-f90)   F90_OPTI="-03" ;;
+    *)           F90_OPTI="-03" ;;
+  esac
+  export F90_OPTI
+  success "$F90_OPTI"
+  check "$F90_OPTI options" f90conformance "$F90_OPTI"
+  }
+
+check_f90debug() {
+  case $SYS-$F90C in
+    *ifc|*ifort) F90_DEBUG="-traceback -CB" ;;
+    *)           F90_DEBUG="-g" ;;
+  esac
+  export F90_DEBUG
+  success "$F90_DEBUG"
+  check "$F90_DEBUG options" f90conformance "$F90_DEBUG"
+  }
+
+check_f90prof() {
+  case $SYS-$F90C in
+    *)           F90_PROF="$F90_OPTI -pg" ;;
+  esac
+  export F90_PROF
+  success "$F90_PROF"
+  check "$F90_PROF options" f90conformance "$F90_PROF"
+  }
+
 check_library() {
   local    name=$1
   local     ext=$2
-  local pathlib="/usr/lib /usr/local/lib /opt/lib /opt/local/lib"
+  local pathlib="$F90LIB /usr/lib /usr/local/lib /opt/lib /opt/local/lib"
   local fullname
   for dir in $pathlib ; do
     if [ -r "$dir/lib$name.$ext" ] ; then
@@ -115,6 +176,11 @@ check_f90module() {
 
 ### BASIC CHECK ###
 
+LOCALDIR=$PWD
+TMPDIR=/tmp/configure.$$
+mkdir $TMPDIR
+trap "cd $LOCALDIR ; rm -Rf $TMPDIR ; exit 1" 0 2
+
 check "native system"               system
 check "CPU model"                   proc
 check "fortran 90 compiler"         f90compiler
@@ -122,13 +188,11 @@ check "fortran 90 compiler"         f90compiler
 for lib in blas lapack cgns metis mpich mpi; do
   check "static library $lib" library $lib a
 done
+check "$F90C optimization options"  f90opti
+check "$F90C debug        options"  f90debug
+check "$F90C profiling    options"  f90prof
 
 ### DEEPER CHECK ###
-
-LOCALDIR=$PWD
-TMPDIR=/tmp/configure.$$
-mkdir $TMPDIR
-trap "cd $LOCALDIR ; rm -Rf $TMPDIR ; exit 1" 0 2
 
 if [ -n "$F90C" ] ; then
   check "fortran 90 module creation" f90module
@@ -150,13 +214,13 @@ echo Configuration ended
 echo Writing Makefile configuration...
 rm $MAKECONF 2> /dev/null
 echo "SHELL       = $SHELL"                         >> $MAKECONF
-echo "MAKEDEPENDS = Util/make_depends_$F90modcase"  >> $MAKECONF
+echo "MAKEDEPENDS = Util/make_depends $F90modcase"  >> $MAKECONF
 echo "MOD         = $F90modext"                     >> $MAKECONF
-echo "CF          = ${F90C##*/}"                     >> $MAKECONF
+echo "CF          = $F90C"                          >> $MAKECONF
 echo "FB          = -I\$(PRJINC)"                   >> $MAKECONF
-echo "FO_debug    = "                               >> $MAKECONF
-echo "FO_opt      = -O3"                            >> $MAKECONF
-echo "FO_prof     = \$(FO_opt) -pg"                 >> $MAKECONF
+echo "FO_debug    = $F90_DEBUG"                     >> $MAKECONF
+echo "FO_opt      = $F90_OPTI"                      >> $MAKECONF
+echo "FO_prof     = $F90_PROF"                      >> $MAKECONF
 echo "FO_         = \$(FO_opt)"                     >> $MAKECONF
 echo "FO          = \$(FO_\$(OPT))"                 >> $MAKECONF
 echo "LINKER      = \$(CF)"                         >> $MAKECONF
@@ -168,4 +232,4 @@ echo "MPILIB      = $LIB_mpich"                     >> $MAKECONF
 echo Done
 echo
 echo "to build TYPHON : cd SOURCE ; gmake clean ; gmake all OPT=opt"
-
+echo
