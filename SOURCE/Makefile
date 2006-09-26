@@ -5,8 +5,7 @@ all: seq mpi
 
 ####### Compiler, tools and options
 
-SYS = $(shell Util/test-systeme)
-include defvar.make #.$(SYS)
+include defvar.make
 include defprj.make
 
 

@@ -7,6 +7,11 @@ echo ------------------------------------------------------------------
 TOOLSCONF=TOOLS/configure
 MAKECONF=SOURCE/defvar.make
 
+configure_help() {
+  echo "TYPHON configuration help"
+  echo "  set F90LIB to help finding external libraries (i.e. export F90LIB=/opt/aero/lib)"
+  }
+
 check() {
   local com
   echo -n checking $1...
@@ -34,6 +39,8 @@ warning()    {
 
 error()    {
   echo -e "!!!  ERROR  !!!" "$*"
+  configure_help
+  exit 1
   }
 
 check_system() {
@@ -230,6 +237,7 @@ echo "CGNSLIB     = $LIB_cgns"                      >> $MAKECONF
 echo "LAPACKLIB   = $LIB_lapack $LIB_blas"          >> $MAKECONF
 echo "MPILIB      = $LIB_mpich"                     >> $MAKECONF
 echo Done
+echo ------------------------------------------------------------------
 echo
 echo "to build TYPHON : cd SOURCE ; gmake clean ; gmake all OPT=opt"
 echo

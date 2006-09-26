@@ -1,4 +1,4 @@
-#!/bin/ksh
+#!/bin/sh
 #
 # Script:            make_depends
 # Created by         Jeremie Gressier
@@ -24,19 +24,17 @@
 #                          $(OD)/ok5.$(o)    \
 #                          $(OD)/ok6.$(o)    \
 #
-# Attention : la reconnaissance des mots-clefs ne dépend pas de la casse
-# mais par contre, les fichiers .o DOIVENT TOUS exister en minuscules uniquement
-# (cela impose souvent que les noms des fichiers sources doivent etre en minuscules)
-#
-# Attention : des problemes ont ete remarqués avec des commentaires contenant des lettres 
-# accentuées qui ne sont pas considérées par les jokers regexp .*
+# Caution: Some problems had happened with comments containing no basic letters
+# which can be not recognized by regexp wikdcards (.*)
 
 #-----------------------------------------------------------------
-case $1
+case $1 in
   lower) changecase="A-Z a-z" ;;
   upper) changecase="a-z A-Z" ;;
   *)     echo Panic: unknown option :$1: ; exit 1 ;;
 esac
+
+USE=$(echo use | tr $changecase)
 
 #-----------------------------------------------------------------
 # try to get optional output file
@@ -57,16 +55,15 @@ for fic in *.f90 ; do
   # MODULE
 
   if [ -n "$(grep -i '^ *module ' $fic)" ] ; then
-    module=$(echo ${fic%.f90} | tr A-Z a-z)
-    #echo $module.module:=${PWD##*/}/$fic >> $TARGET
+    module=$(echo ${fic%.f90} | tr $changecase)
     echo $module.source:=${PWD##*/}/$fic >> $TARGET
     echo $module.objet:=${fic%.f90}.o >> $TARGET
     echo '$(PRJINC)/'${module}.'$(MOD)': ${PWD##*/}/$fic \\ >> $TARGET
     grep -i '^ *use ' $fic       | 
       sed 's/!.*$//'             | 
-      tr   A-Z a-z               |
+      tr   $changecase           |
       sed 's/ *$/.$(MOD)    \\/' | 
-      sed 's/^ *use /                         $(PRJINC)\//' >> $TARGET
+      sed "s/^ *$USE /"'                     $(PRJINC)\//' >> $TARGET
     echo >> $TARGET
   fi
 
@@ -75,9 +72,9 @@ for fic in *.f90 ; do
   echo '$(PRJOBJ)/'${fic%.f90}.o: \\   >> $TARGET
   grep -i '^ *use ' $fic       | 
     sed 's/!.*$//'             | 
-    tr   A-Z a-z               |
+    tr   $changecase           |
     sed 's/ *$/.$(MOD)    \\/' | 
-    sed 's/^ *use /                         $(PRJINC)\//' >> $TARGET
+    sed "s/^ *$USE /"'                       $(PRJINC)\//' >> $TARGET
   echo >> $TARGET
 
 done
