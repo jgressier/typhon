@@ -98,9 +98,9 @@ do if = fullgrid%umesh%nface_int+1, fullgrid%umesh%nface
   endif
 enddo
 
-print*,"part ",ipart,":",nface_int," internal faces"
-print*,"part ",ipart,":",nface_lim," limit    faces"
-print*,"part ",ipart,":",nface_cut," cut      faces"
+!print*,"part ",ipart,":",nface_int," internal faces"
+!print*,"part ",ipart,":",nface_lim," limit    faces"
+!print*,"part ",ipart,":",nface_cut," cut      faces"
 
 if (if2 /= nface_int+nface_lim) &
   call erreur("internal error", "numbers of faces do not match (int+lim)")
@@ -148,7 +148,7 @@ do if = 1, fullgrid%umesh%nface_int
   endif
 enddo
 
-print*,"info :", if2, " faces in the partition"
+!print*,"info :", if2, " faces in the partition"
 
 ! ---------------------------------------------
 ! compute size of the mesh & re-indexation of vtex
@@ -267,7 +267,7 @@ do if = 1, nface_cut
   endif
 enddo
 
-print*,"check new face/cell connectivity:",count(partgrid%umesh%facecell%fils(1:partgrid%umesh%nface, 1:2)==0)," errors"
+!print*,"check new face/cell connectivity:",count(partgrid%umesh%facecell%fils(1:partgrid%umesh%nface, 1:2)==0)," errors"
 
 ! -- face->vtex --
 
@@ -424,7 +424,7 @@ do ib = 1, maxcom   ! loop on all needed parts
     call new(boco(new_ib), "", nf)
     boco(new_ib)%idefboco = defboco_connect   ! not a reference to defsolver boco but internal connection
 
-    print*,"create connectivity boco",new_ib," :",nf, " faces"
+    !print*,"create connectivity boco",new_ib," :",nf, " faces"
     if2 = 0
     do if = 1, nface_cut
       if (facepart(if) == ib) then
@@ -445,7 +445,7 @@ enddo
 ! ---------------------------------------------
 ! pack boco array
 
-print*,"pack", new_ib, "boco conditions"
+!print*,"pack", new_ib, "boco conditions"
 partgrid%umesh%nboco = new_ib
 allocate(partgrid%umesh%boco(new_ib))
 partgrid%umesh%boco(1:new_ib) = boco(1:new_ib)

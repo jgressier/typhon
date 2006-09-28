@@ -17,6 +17,7 @@ use MENU_SOLVER
 use MENU_NUM
 use DEFFIELD
 use MGRID
+use MATRIX
 
 implicit none
 
@@ -131,9 +132,10 @@ enddo
 
 xinfo = 0
 do ic = 1, nc
-  call lapack_potrs('U', 3, dim, &
-                    grid%optmem%gradcond(ic)%mat, 3, &
-                    rhs(1:3, (ic-1)*dim+1:ic*dim), 3, info)
+  !call lapack_potrs('U', 3, dim, &
+  !                  grid%optmem%gradcond(ic)%mat, 3, &
+  !                  rhs(1:3, (ic-1)*dim+1:ic*dim), 3, info)
+  call cholesky_solve(grid%optmem%gradcond(ic)%mat, 3, rhs(1:3, (ic-1)*dim+1:ic*dim), dim)
   if (info /= 0) xinfo = ic
 enddo
 if (xinfo /= 0) call erreur("Routine LAPACK","Probleme POTRS")

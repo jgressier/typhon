@@ -17,6 +17,7 @@ use MENU_SOLVER
 use MENU_NUM
 use DEFFIELD
 use USTMESH
+use MATRIX
 use TENSOR3
 
 implicit none
@@ -143,7 +144,8 @@ endselect
 xinfo = 0
 do ic = 1, nc
   ! decomposition de Choleski
-  call lapack_potrf('U', 3, grid%optmem%gradcond(ic)%mat, 3, info)
+  !call lapack_potrf('U', 3, grid%optmem%gradcond(ic)%mat, 3, info)
+  call cholesky_decomp(grid%optmem%gradcond(ic)%mat, 3)
   if (info /= 0) xinfo = ic
   !if (info /= 0) then
   !  xinfo = ic

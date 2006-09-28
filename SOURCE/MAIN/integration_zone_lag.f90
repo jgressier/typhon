@@ -160,12 +160,15 @@ piv(:) = 0
 !print*,'mat:',real(mat,4)
 !print*,'rhs:',real(rhs,4)
 
-call lapack_getrf(dim, dim, mat, dim, piv, info)
+call erreur("development",&
+            "dense LU decomposition no longer available")
+
+!call lapack_getrf(dim, dim, mat, dim, piv, info)
 
 if (info /= 0) call erreur("calcul des singularites",&
                            "probleme dans la decomposition LU")
 
-call lapack_getrs('N', dim, 1, mat, dim, piv, rhs, dim, info)
+!call lapack_getrs('N', dim, 1, mat, dim, piv, rhs, dim, info)
 
 if (info /= 0) call erreur("calcul des singularites",&
                            "probleme dans l'inversion")

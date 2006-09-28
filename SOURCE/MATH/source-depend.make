@@ -18,6 +18,7 @@ MATH_MOD = FCT_CONTAINER.$(MOD) \
            INTEGRATION.$(MOD) \
            INTERPOL.$(MOD)    \
            MATH.$(MOD)        \
+           MATRIX.$(MOD)      \
            MATRIX_ARRAY.$(MOD)\
            SPARSE_MAT.$(MOD)  \
            SPMAT_BDLU.$(MOD)  \

@@ -64,13 +64,16 @@ allocate(piv(mat%dim))
 
 ! decomposition LU dans pmat
 
-call lapack_getrf(mat%dim, mat%dim, pmat, mat%dim, piv, info)
+call erreur("development",&
+            "dense LU decomposition no longer available")
+
+!call lapack_getrf(mat%dim, mat%dim, pmat, mat%dim, piv, info)
 
 if (info /= 0) call erreur("resolution matricielle",&
                            "probleme dans la decomposition LU")
 
 ! resolution RHS dans pvec en entree, solution en sortie
-call lapack_getrs('N', mat%dim, 1, pmat, mat%dim, piv, pvec, mat%dim, info)
+!call lapack_getrs('N', mat%dim, 1, pmat, mat%dim, piv, pvec, mat%dim, info)
 
 if (info /= 0) call erreur("resolution matricielle",&
                            "probleme dans l'inversion")
@@ -86,7 +89,8 @@ deallocate(pmat, pvec, piv)
 endsubroutine dlu_lu
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! avr  2004 : creation de la procedure
+! oct  2006 : stopped in order to avoid LAPACK library (dense LU not efficient)
 !------------------------------------------------------------------------------!
