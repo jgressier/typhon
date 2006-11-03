@@ -34,7 +34,8 @@ type(st_genericfield) :: vfield
 
 ! -- Debut de la procedure --
 
-if (position == end_calc) then  !DEV2602
+select case(position)
+case(end_calc)
 
   if ((outp_typ == outp_NODE).or.(outp_typ == outp_CENTER)) then !DEV2602
 
@@ -125,7 +126,78 @@ if (position == end_calc) then  !DEV2602
     enddo
   endif
 
-else !DEV2602
+case(end_cycle)
+
+  if ((outp_typ == outp_NODE).or.(outp_typ == outp_CENTER)) then !DEV2602
+
+    do izone = 1, world%prj%nzone
+
+      ! DEVELOPPEMENT PROVISOIRE
+      open(unit=uf_chpresu+izone, &
+           file=trim(nom)//'_'//trim(adjustl(strof(izone,3))) &
+           //'.dat', form='formatted', iostat = info)
+
+      select case(world%zone(izone)%defsolver%typ_solver)
+
+      case(solKDIF)
+
+        write(uf_chpresu+izone,'(a)') 'VARIABLES="X","Y","Z","T"'
+        call output_tec_ust(uf_chpresu+izone, world%zone(izone)%grid%umesh, &
+                            world%zone(izone)%grid%info%field_loc, outp_typ, &
+                            world%zone(izone)%defsolver%typ_solver)
+
+      case(solVORTEX)
+
+        write(uf_chpresu+izone,'(a)') 'VARIABLES="X","Y","Z","V","P"'
+
+        !! DEV: allocation
+        dim = world%zone(izone)%grid%umesh%nface
+        call new(vfield, dim, 1, 2, 0)
+
+        !! DEV: initialisation
+        call init_genericfield(vfield, 0._krp, v3d(0._krp, 0._krp, 0._krp))
+
+
+        do i = 1, vfield%dim
+          vfield%tabvect(1)%vect(i) = world%zone(izone)%grid%umesh%mesh%iface(i,1,1)%centre &
+                                      - .0000001_krp*world%zone(izone)%grid%umesh%mesh%iface(i,1,1)%normale
+        enddo
+
+        call calc_induced_velocities(world%zone(izone)%defsolver,   &
+                                     vfield%tabvect(1)%vect(1:dim), &
+                                     vfield%tabvect(2)%vect(1:dim), dim)
+
+        do i = 1, vfield%dim
+          vfield%tabscal(1)%scal(i) = 1._krp - (abs(vfield%tabvect(2)%vect(i))/100._krp)**2
+        enddo
+
+        do i = 1, vfield%dim
+          write(uf_chpresu+izone, '(5(g16.8))') vfield%tabvect(1)%vect(i), &
+                                          abs(vfield%tabvect(2)%vect(i)),&
+                                          vfield%tabscal(1)%scal(i)
+        enddo
+
+        call delete(vfield)
+
+      case(solNS)
+
+        write(uf_chpresu+izone,'(a)') 'VARIABLES="X","Y","Z","u","v","w","P","T"'
+        call output_tec_ust(uf_chpresu+izone, world%zone(izone)%grid%umesh, &
+                            world%zone(izone)%grid%info%field_loc, outp_typ, &
+                            world%zone(izone)%defsolver%typ_solver, &
+                            world%zone(izone)%defsolver%defns)
+
+
+      endselect
+
+      close(uf_chpresu+izone)
+
+    enddo ! fin boucle : zone
+
+  endif !DEV2602
+
+case default
+
   if (outp_typ == outp_FLUX) then !DEV2602
     call output_tec_flux(nom, world,io)
   endif
@@ -135,7 +207,8 @@ else !DEV2602
   if (outp_typ == outp_COR) then !DEV2602
     call output_tec_cor(nom, world,io)
   endif
-endif !DEV2602
+
+endselect
 
 endsubroutine output_tecplot
 

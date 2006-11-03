@@ -861,3 +861,9 @@ Task 0174 (Jeremie): Out : Output of Binary VTK files
 ---------------------------------------------------------------------------------
 - not validated
 
+---------------------------------------------------------------------------------
+Task 0183 (Emmanuel): Bug : Correction of output inside cycles
+---------------------------------------------------------------------------------
+- output_tecplot : distribution of outputs : inside cycles (in_cycle), at the
+                   end of cycles (end_cycle) and at the end of the computation
+                   (end_calc)
