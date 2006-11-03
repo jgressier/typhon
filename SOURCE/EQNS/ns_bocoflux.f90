@@ -50,7 +50,7 @@ do ib = 1, domaine%nboco
   ! assign flux as already computed flux in bocofield
 
   select case(defsolver%boco(idef)%typ_boco)
-  case(bc_wall_adiab, bc_wall_flux, bc_wall_hconv) 
+  case(bc_wall_adiab, bc_wall_flux, bc_wall_hconv, bc_wall_hgen) 
     do ifb = 1, domaine%boco(ib)%nface
       if = domaine%boco(ib)%iface(ifb)
 

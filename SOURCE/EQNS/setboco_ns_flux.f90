@@ -91,7 +91,7 @@ if (unif == uniform) then
            ( fld%etatprim%tabscal(1)%scal(ic) * r_PG ) + gTdc - &
            2._krp*bcns%flux*abs( (cgface - cg).scal.normale )/conduct
     ! heat flux
-    flux(ifb) = bcns%flux
+    flux(ifb) = flux(ifb) + bcns%flux
 
     ! pressure
     !fld%etatprim%tabscal(2)%scal(ighost) = fld%etatprim%tabscal(2)%scal(ic)
@@ -153,7 +153,7 @@ else
            2._krp*bcns%flux_nunif(ifb)*abs( (cgface - cg).scal.normale )/conduct
 
     ! heat flux
-    flux(ifb) = bcns%flux_nunif(ifb)
+    flux(ifb) = flux(ifb) + bcns%flux_nunif(ifb)
 
     ! pressure
     !fld%etatprim%tabscal(2)%scal(ighost) = fld%etatprim%tabscal(2)%scal(ic)

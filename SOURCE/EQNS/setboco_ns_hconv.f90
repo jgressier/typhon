@@ -97,7 +97,7 @@ do ifb = 1, ustboco%nface
          (conduct/d+bcns%h_nunif(ifb))
 
   ! Heat flux
-  flux(ifb) = bcns%h_nunif(ifb)*(temp - bcns%tconv_nunif(ifb))
+  flux(ifb) = flux(ifb) + bcns%h_nunif(ifb)*(temp - bcns%tconv_nunif(ifb))
 
   ! pressure
   gPdc = fld%gradient%tabvect(2)%vect(ic) .scal. dc

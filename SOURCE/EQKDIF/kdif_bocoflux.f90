@@ -44,7 +44,7 @@ do ib = 1, domaine%nboco
   ! assign flux as already computed flux in bocofield
 
   select case(defsolver%boco(idef)%typ_boco)
-  case(bc_wall_adiab, bc_wall_flux, bc_wall_hconv) 
+  case(bc_wall_adiab, bc_wall_flux, bc_wall_hconv,bc_wall_hgen) 
     do ifb = 1, domaine%boco(ib)%nface
       if = domaine%boco(ib)%iface(ifb)
       flux%tabscal(1)%scal(if) = domaine%boco(ib)%bocofield%tabscal(1)%scal(ifb)
@@ -62,7 +62,7 @@ do ib = 1, domaine%nboco
   idef = domaine%boco(ib)%idefboco
 
   select case(defsolver%boco(idef)%typ_boco)
-  case(bc_wall_adiab, bc_wall_flux, bc_wall_hconv) 
+  case(bc_wall_adiab, bc_wall_flux, bc_wall_hconv, bc_wall_hgen) 
 
     select case(defsolver%boco(idef)%boco_kdif%radiating)
     case(rad_none)

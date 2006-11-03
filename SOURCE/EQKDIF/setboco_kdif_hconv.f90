@@ -82,7 +82,7 @@ do ifb = 1, ustboco%nface
   endif
 
   ! Heat flux
-  flux(ifb) = bckdif%h_conv*(champ%etatprim%tabscal(1)%scal(ighost) - bckdif%temp_conv)
+  flux(ifb) = flux(ifb) + bckdif%h_conv*(champ%etatprim%tabscal(1)%scal(ighost) - bckdif%temp_conv)
 
 enddo
 
@@ -124,7 +124,7 @@ do ifb = 1, ustboco%nface
   endif
 
   ! Heat flux
-  flux(ifb) = bckdif%h_nunif(ifb)*(champ%etatprim%tabscal(1)%scal(ighost) &
+  flux(ifb) = flux(ifb) + bckdif%h_nunif(ifb)*(champ%etatprim%tabscal(1)%scal(ighost) &
                                        - bckdif%tconv_nunif(ifb))
 enddo
 

@@ -66,7 +66,7 @@ do ifb = 1, ustboco%nface
   conduct = valeur_loi(defsolver%defkdif%materiau%Kd, champ%etatprim%tabscal(1)%scal(ic))
 
   ! Heat flux
-  flux(ifb) = bckdif%flux
+  flux(ifb) = flux(ifb) + bckdif%flux
 
   ! Approximated temperature in factice cell, for computation of gradients
   dc = (cgface - cg) - ( (cgface - cg).scal.normale ) * normale
@@ -106,7 +106,7 @@ do ifb = 1, ustboco%nface
   conduct = valeur_loi(defsolver%defkdif%materiau%Kd, champ%etatprim%tabscal(1)%scal(ic))
 
   ! Heat flux
-  flux(ifb) = bckdif%flux_nunif(ifb)
+  flux(ifb) = flux(ifb) + bckdif%flux_nunif(ifb)
 
   ! Approximated temperature in factice cell, for computation of gradients
   dc = (cgface - cg) - ( (cgface - cg).scal.normale ) * normale

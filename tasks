@@ -867,3 +867,25 @@ Task 0183 (Emmanuel): Bug : Correction of output inside cycles
 - output_tecplot : distribution of outputs : inside cycles (in_cycle), at the
                    end of cycles (end_cycle) and at the end of the computation
                    (end_calc)
+
+---------------------------------------------------------------------------------
+Task 0184 (Emmanuel): SCH : generalized convection boundary condition :
+			F(lim) = F(imp)+h(imp)*(T(lim)-T(imp))
+---------------------------------------------------------------------------------
+- generalization of convection boudary condition 
+	-> user keyword GEN_CONV_WALL
+        -> developer keyword bc_wall_hgen
+
+---------------------------------------------------------------------------------
+Task 0185 (Emmanuel): COUPL : Flux correction distributed all over the cycle
+			(CORRECTION=DISTRIBUTED)
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+Task 0186 (Emmanuel): COUPL : Simplification of options
+---------------------------------------------------------------------------------
+
+---------------------------------------------------------------------------------
+Task 0187 (Emmanuel): COUPL : EFFUSIVITY Temperature interpolation 
+---------------------------------------------------------------------------------
+- Interface temperature computed with coupled domain temperatures weigthed by effusivities

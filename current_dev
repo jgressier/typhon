@@ -57,6 +57,10 @@ Task Dévlp.    début fin   Type  Développement
                            Make  Restructuration de MAIN/integration_cycle (split)
                            Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
 0183 Emmanuel  03/11 03/11 Bug   Correction of output inside cycles
+0184 Emmanuel  03/11 03/11 SCH   Generalized convection boundary condition
+0185 Emmanuel  03/11       Coupl Regularly distributed conservative correction
+0186 Emmanuel  03/11       Coupl Simplification of options for user
+0187 Emmanuel  03/11       Coupl Effusivity weighted temperature interpolation
 
 ------------------------------------------------------------------------
 release 0.3.1 - 26th August 2006

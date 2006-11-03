@@ -94,6 +94,31 @@ case(bc_wall_hconv)
 
   endselect
 
+case(bc_wall_hgen)
+  typ = bc_wall_hgen 
+  select case(unif)
+  
+  case(uniform)
+    call rpmgetkeyvalreal(pblock, "H", boco%h_conv)
+    !boco%h_conv = - boco%h_conv ! convention : flux out in the algorithm
+                                 ! BOCO : convention flux in for user
+    call rpmgetkeyvalreal(pblock, "T_CONV", boco%temp_conv)
+    call rpmgetkeyvalreal(pblock, "WALL_FLUX", boco%flux)
+    boco%flux = - boco%flux ! convention : flux out in the algorithm
+                            ! BOCO : convention flux in for user
+
+  case(nonuniform)
+    boco%allochconv = .true.
+    call rpmgetkeyvalstr(pblock, "H_FILE", str)
+    boco%hfile = str
+    call rpmgetkeyvalstr(pblock, "TCONV_FILE", str)
+    boco%tconvfile = str
+    boco%allocflux = .true.
+    call rpmgetkeyvalstr(pblock, "FLUX_FILE", str)
+    boco%fluxfile = str
+
+  endselect
+
 case default
   call erreur("Lecture de menu","type de conditions aux limites non reconnu&
               & pour le solveur de conduction")

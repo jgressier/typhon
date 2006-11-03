@@ -53,6 +53,14 @@ case(bc_wall_hconv)
                           defsolver, defboco%boco_kdif, defspat)
   ustboco%bocofield => pbcf
 
+case(bc_wall_hgen)
+  pbcf => newbocofield(grid,ustboco%nface,1,0,0)
+  call setboco_kdif_flux(defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, pbcf%tabscal(1)%scal, &
+                         defsolver, defboco%boco_kdif, defspat) 
+  call setboco_kdif_hconv(defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, pbcf%tabscal(1)%scal, &
+                          defsolver, defboco%boco_kdif, defspat)
+  ustboco%bocofield => pbcf
+
 case default
   call erreur("Developpement","Condition limite inconnu a ce niveau (calcboco_kdif)")
 
@@ -71,4 +79,5 @@ endsubroutine calcboco_kdif
 ! july 2004 : merge of uniform or non-uniform boundary conditions
 !             (old name: calc_boco_kdif_?unif)
 ! oct  2004 : field chained list
+! nov  2006 : generalized convection condition
 !------------------------------------------------------------------------------!

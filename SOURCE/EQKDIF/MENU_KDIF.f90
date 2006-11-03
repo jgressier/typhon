@@ -112,6 +112,8 @@ integer bocotype
     !bctype_of_kdifboco = bc_calc_flux
   case(bc_wall_hconv)
     bctype_of_kdifboco = bc_calc_ghostface
+  case(bc_wall_hgen)
+    bctype_of_kdifboco = bc_calc_ghostface
   case default
     call erreur("incoherence interne (MENU_KDIF)",&
                 "type de conditions aux limites inattendu")
@@ -138,8 +140,9 @@ endmodule MENU_KDIF
 !------------------------------------------------------------------------------!
 ! Change history
 !
-! nov  2002 : creation du module
-! nov  2003 : ajout de la temperature non uniforme de paroi (CL Dirichlet)
-! june 2004 : conditions de Neumann et Fourier non uniformes
+! nov  2002 : creation
+! nov  2003 : non-uniform Dirichlet boundary condition
+! june 2004 : non-uniform Neumann and Robin boundary conditions
 ! june 2005 : radiating parameters & view factors
+! nov  2006 : generalized convection condition
 !------------------------------------------------------------------------------!

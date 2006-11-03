@@ -107,6 +107,7 @@ integer, parameter :: bc_wall_adiab     = 20
 integer, parameter :: bc_wall_isoth     = 21
 integer, parameter :: bc_wall_flux      = 22
 integer, parameter :: bc_wall_hconv     = 23
+integer, parameter :: bc_wall_hgen      = 24
 
 integer, parameter :: bc_inlet_sub      = 30
 integer, parameter :: bc_inlet_sup      = 31

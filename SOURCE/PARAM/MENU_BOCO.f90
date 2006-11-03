@@ -91,6 +91,7 @@ character(len=*) str
   if (samestring(str, "ISOTHERMAL_WALL" ))     bocotype = bc_wall_isoth 
   if (samestring(str, "FLUXSET_WALL" ))        bocotype = bc_wall_flux  
   if (samestring(str, "CONVECTION_WALL" ))     bocotype = bc_wall_hconv 
+  if (samestring(str, "GEN_CONV_WALL" ))       bocotype = bc_wall_hgen
 
   if (samestring(str, "SUBSONIC_INLET" ))      bocotype = bc_inlet_sub
   if (samestring(str, "SUPERSONIC_INLET" ))    bocotype = bc_inlet_sup
@@ -140,11 +141,12 @@ endmodule MENU_BOCO
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! nov  2002 : creation du module
-! mars 2003 : definition des types de conditions aux limites
-! juin 2003 : regroupement des types "connection", ajout de "coupling"
-! nov  2003 : ajout de l'uniformite ou non des CL
-! fev  2004 : ajout des CL specifiques au solveur VORTEX
+! nov  2002 : creation
+! mars 2003 : definition of the different kinds of boundary conditions
+! juin 2003 : "connection" types put together, "coupling" type added
+! nov  2003 : (non-)uniformity of boundary conditions
+! fev  2004 : boundary conditions specific of the VORTEX solver added
+! nov  2006 : generalized convection condition added
 !------------------------------------------------------------------------------!
 
 
