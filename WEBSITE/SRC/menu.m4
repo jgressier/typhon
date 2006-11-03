@@ -48,82 +48,62 @@ define([item_m2], [<img src=img_dir(tri-3d-blue.gif)>])
 define([print_t1], [
   ifelse(id1, $1, 
     [<tr><td class=menu1act>hyperlink(m_$1, $1.html)</td></tr>],
-    [<tr><td>hyperlink(m_$1, $1.html)</td></tr>] )
+    [<tr><td class=menu1>   hyperlink(m_$1, $1.html)</td></tr>] )
 ])
 define([print_t2], [
-  ifelse(id2, $1, 
-    [<td class=menu2act>hyperlink([m_]id1[_]$1, id1[_]$1.html)</td>], 
-    [<td class=menu2>   hyperlink([m_]id1[_]$1, id1[_]$1.html)</td>] )
+  ifelse(id1, $1, 
+    [ifelse(id2, $2, 
+       [<tr><td class=menu2act> hyperlink([m_]id1[_]$2, id1[_]$2.html)</td></tr>], 
+       [<tr><td class=menu2>    hyperlink([m_]id1[_]$2, id1[_]$2.html)</td></tr>] ) ])
 ])
 
 dnl =========== write menu left ================================================
 
-define([write_menu_left], [
-<table width=110  border=0 cellpadding=4 cellspacing=0 class=menu1>
-skip_row
+<table width=100%  border=0 cellpadding=0 cellspacing=0>
 print_t1([index])
+  print_t2([index], [pres])
+  print_t2([index], [news])
 print_t1([feat])
+  print_t2([feat], [core])
+  print_t2([feat], [ns])
+  print_t2([feat] ,[kdif])
+  print_t2([feat] ,[input])
+  print_t2([feat] ,[output])
 print_t1([case])
+  print_t2([case], [shock])
+  print_t2([case], [viscous])
+  print_t2([case], [amr])
+  print_t2([case], [heat])
 print_t1([doc])
+  print_t2([doc], [input])
+  print_t2([doc], [mesh])
+  print_t2([doc], [ns])
+  print_t2([doc], [amr])
+  print_t2([doc], [coupling])
+  print_t2([doc], [output])
+  print_t2([doc], [scheme])
+  print_t2([doc], [kdif])
+  print_t2([doc], [mpi])
 print_t1([dev])
+  print_t2([dev], [team])
+  print_t2([dev], [chlog])
+  print_t2([dev], [rmap])
+  print_t2([dev], [sf]) 
 print_t1([devdoc])
+  print_t2([devdoc], [core])
+  print_t2([devdoc], [zone])
+  print_t2([devdoc], [grid])
+  print_t2([devdoc], [ustmesh]) 
 print_t1([get])
+  print_t2([get], [download])
+  print_t2([get], [install])
+  print_t2([get], [faq])
 skip_row
-<tr><td><A href="http://sourceforge.net"> <IMG src="http://sourceforge.net/sflogo.php?group_id=132321&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net" /></A></td></tr>
+<tr><td align=center><A href="http://sourceforge.net"> 
+          <IMG src="http://sourceforge.net/sflogo.php?group_id=132321&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net" />
+        </A></td></tr>
 skip_row
 </table>
-])
 
-dnl =========== write menu head ================================================
-
-define([write_menu_head], [
-  <table width="100%" cellspacing="0" cellpadding="0" class=menuhead>
-  <tr>
-  <td> imglink([back], [back-arrow.png], id1.html)</td>
-  <td align=center>
-  <table cellspacing="0" cellpadding="4" class=menuhead>
-  <tr valign="middle">
-  ifelse(id1, [index], [
-    print_t2([pres])
-    print_t2([news])
-    ])
-  ifelse(id1, [feat], [
-    print_t2([core])
-    print_t2([ns])
-    print_t2([kdif])
-    print_t2([input])
-    print_t2([output])
-    ])
-  ifelse(id1, [case], [
-    print_t2([shock])
-    print_t2([viscous])
-    print_t2([amr])
-    print_t2([heat])
-    ])
-  ifelse(id1, [doc], [
-    print_t2([input])  print_t2([mesh])    print_t2([ns])   print_t2([amr]) print_t2([coupling])
-    </tr><tr valign="middle" style="border-top:1px">
-    print_t2([output]) print_t2([scheme])  print_t2([kdif]) print_t2([mpi])
-    ])
-  ifelse(id1, [dev], [
-    print_t2([team])
-    print_t2([chlog])
-    print_t2([rmap])
-    print_t2([sf]) 
-    ])
-  ifelse(id1, [devdoc], [
-    print_t2([core])
-    print_t2([zone])
-    print_t2([grid])
-    print_t2([ustmesh]) 
-    ])
-  ifelse(id1, [get], [
-    print_t2([download])
-    print_t2([install])
-    print_t2([faq]) ])
-  </tr>
-  </table>
-
-  </td></tr>
-  </table>
-])
+define([write_menu_left], []) dnl FOR COMPATIBILITY with old versions
+define([write_menu_head], []) dnl FOR COMPATIBILITY with old versions

@@ -25,8 +25,7 @@ define([html_header], [
 <link rel="shortcut icon" href="tornado-32.png" type="image/png">
 
 </head>
-<body text="#000000" link="#000080" vlink="#000080" alink="#800000"
-background="img_dir([bgray.gif])">
+<body text="#000000" link="#000080" vlink="#000080" alink="#800000">
 ])
 
 define([html_footer], [

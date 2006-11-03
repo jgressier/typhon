@@ -1,18 +1,40 @@
+/* TYPHON SITE - GENERAL STYLES */
+
+body        { font-family:Verdana, Arial, Helvetica, sans-serif; font-size: 0.8em; margin: 0; padding: 0; }
+#conteneur  { position: absolute; margin: 0; padding: 0; width: 100%; 
+              background-color:#FFFFFF; background-image:url(img/bg-menu-main.png); background-repeat: repeat-y; }
+#headbox    { height: 100px; margin: 0; padding: 0; background-image:url(img/bg-banner.png); background-repeat: repeat-x; }
+#titlebox   { position: absolute; left:190px; top:20px; }
+#bannerbox  { position: absolute; left:0px; top:0px; width: 180px; height:100px; background-image:url(img/bg-corner.png); }
+#mainbox    { margin-left: 140px; padding: 1em; background-color:#FFFFFF; }
+#leftbox    { position: absolute; left:0px; width: 120px; }
+#footbox    { height: 30px; }
+#bottombox  { position: absolute; height:100; width:140; background-color:#FFFFFF; background-image:url(img/bg-menu-bottom.png); }
+
+.menugauche         { list-style-type: none; margin: 0; padding:0; }
+.menugauche li      { margin-bottom: 5px; }
+.menugauche a       { margin: 0 2px; color: #000000; text-decoration: underline; }
+.menugauche a:hover { text-decoration: none; }
+
+p {text-align: justify; margin: 0 0 10px 0;}
+
 .notes { font-family: Arial, Helvetica, sans-serif; font-size: 11px}
-##.menu  { font-family: Arial, Helvetica, sans-serif; font-size: 11px}
-.menu1 { font-family: Arial, Helvetica, sans-serif; font-size: 13px; text-align: center; text-decoration: none}
-.menu1 a:link    { text-decoration: none}
-.menu1 a:visited { text-decoration: none}
-.menu1act { font-family: Arial, Helvetica, sans-serif; font-size: 13px; font-weight: bold; text-align: center; background-color: #fff4b7;
-            border-top: solid 1px #000080; border-bottom: solid 1px #000080}
-.menu2 { font-family: Arial, Helvetica, sans-serif; font-size: 13px; text-align: center; padding: 0em 2em 0em 2em}
-.menu2 a:link    { text-decoration: none}
-.menu2 a:visited { text-decoration: none}
-.menu2act { font-family: Arial, Helvetica, sans-serif; font-size: 13px; font-weight: bold; text-align: center; background-color: #fff4b7;
-            border-left: solid 1px #000080; border-right: solid 1px #000080; padding: 0em 2em 0em 2em}
-.menu2act a:link    { text-decoration: none}
-.menu2act a:visited { text-decoration: none}
-##.menu2:hover { font-family: Arial, Helvetica, sans-serif; font-size: 12px; text-align: center}
+.menu1 { font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: bold; 
+         text-align: center; text-decoration: none; padding: 0.3em 0em 0.1em 0em; }
+.menu1 a:link    { color: #000080; text-decoration: none}
+.menu1 a:visited { color: #000080; text-decoration: none}
+.menu1act { font-family: Arial, Helvetica, sans-serif; font-size: 14px; font-weight: bold; text-align: center; text-decoration: none; 
+            background-color: #fff4b7; border-top: solid 1px #000080; border-bottom: solid 1px #000080; padding: 0.4em 0em 0.4em 0em}
+.menu1act a:link    { color: #000080; text-decoration: none}
+.menu1act a:visited { color: #000080; text-decoration: none}
+.menu2 { font-family: Arial, Helvetica, sans-serif; font-size: 13px; text-align: center; padding: 0em 0em 0em 0em; background-color: #9ccfef; }
+.menu2 a:link    { color: #303080; text-decoration: none}
+.menu2 a:visited { color: #303080; text-decoration: none}
+.menu2 a:hover   { }
+.menu2act { font-family: Arial, Helvetica, sans-serif; font-size: 13px; font-weight: bold; 
+            text-align: center; background-color: #d7e6ef; padding: 0.1em 0em 0.1em 0em}
+.menu2act a:link    { color: #000080; text-decoration: none}
+.menu2act a:visited { color: #000080; text-decoration: none}
 .banner { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: bold; padding: 3em; vertical-align: middle}
 .titre { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: bold; color: #000080; text-align: center}
 .defaut { font-family: Arial, Helvetica, sans-serif; font-size: 13px}
@@ -25,8 +47,6 @@
 .quickmenu { font-family: Arial, Helvetica, sans-serif; font-size: 11px ; font-weight: bold; margin-bottom:5px}
 .quickmenu a:link { text-decoration: none}
 .quickmenu a:visited { text-decoration: none}
-##a:hover { font-family: Arial, Helvetica, sans-serif; font-size: 13px; text-align: center; margin-bottom:5px}
-##.menu1:hover { font-family: Arial, Helvetica, sans-serif; font-size: 12px; text-align: center}
 
 table.menuhead { height: 25px; border: 0; background-color:d7e6ef; background-image:url(img/hbar-bluegrad.png);
                  background-repeat: repeat-x }

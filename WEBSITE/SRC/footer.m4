@@ -1,11 +1,7 @@
-</div> 
-</td></tr>
-</table>
+skip_line
 
-dnl ========== end main frame ================================================
+<div id="footbox"> dnl ========== end main frame ================================================
   
-<tr><td width="100%">
-
 <table width="100%" border=0 cellspacing="1" cellpadding="1">
   <tr><td><span class="quickmenu">
   hyperlink([m_]id1,     id1.html)
@@ -24,8 +20,9 @@ dnl ========== end main frame ================================================
  </td></tr>
 </table>
 
-dnl == end page ===============================================================
+</div> dnl == end mainbox   ==
+</div> dnl == end container ==
 
-</td></tr>
-</table>
-</div>
+<div id="bottombox"></div> dnl === END of MENU bar
+
+
