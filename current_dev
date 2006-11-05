@@ -51,9 +51,11 @@ Task Dévlp.    début fin   Type  Développement
 0175 Jeremie   29/08 29/08 MPI   Portage SGI (REAL8)
 0176 Jeremie   02/09 11/09 NS    Symbolic function initialization
 0177 Jeremie   12/09 13/09 Core  Management of unsteady computation : BASETIME / NCYCLE
-0178 Jeremie   19/09       Make  Automatic configuration
+0178 Jeremie   19/09 28/09 Make  Automatic configuration
+0179 Jeremie   28/09 28/09 Make  Internal Cholesky decomposition (no more lapack/blas linkage)
 0180 Jeremie   01/08       Out   CGNS Output
 0181 Jeremie   31/08       Opt   Memory deallocation (CGNS)
+0182 Jeremie   05/11       Make  Automatic non regression tests
                            Make  Restructuration de MAIN/integration_cycle (split)
                            Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
 0183 Emmanuel  03/11 03/11 Bug   Correction of output inside cycles
