@@ -20,6 +20,8 @@ col=60
 mkdir $TMPDIR
 trap "rm -Rf $TMPDIR ; exit 1" 0 2
 
+rm diff.log check.log 2> /dev/null
+
 cd $NRGDIR
 if [ -z "$1" ] ; then
   LISTCASES=$(find . -name $CONFFILE)
@@ -35,6 +37,7 @@ for FILE in $LISTCASES ; do
   echo -n checking $CASE...
   rm -f $TMPDIR/* 2> /dev/null
   # configure
+  cd $NRGDIR
   . $FILE
   cd $MESHDIR
   cp $MESHFILE $TMPDIR
@@ -42,10 +45,11 @@ for FILE in $LISTCASES ; do
   cp $INPUTFILE $TMPDIR
   cd $TMPDIR
   echo $CASE >> $HOMEDIR/check.log
+  echo $CASE >> $HOMEDIR/diff.log
   $EXEDIR/Typhon-$TYPE_EXE >> $HOMEDIR/check.log 2>&1
   if [ $? ] ; then
     for fic in $TO_CHECK ; do
-      diff -bB $fic $DIR/$fic #>> diff.log
+      diff -bB $fic $DIR/$fic >> $HOMEDIR/diff.log
       case $? in
         0) echo -e \\033[${col}G$fic identical ;;
         1) echo -e \\033[${col}G$fic changed ;;
