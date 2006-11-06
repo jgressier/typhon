@@ -1,0 +1,81 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON 
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+  NZONE     = 1       
+  COORD     = 2D      
+  TIME      = STEADY 
+  RESIDUALS = 1.e-2
+ENDBLOCK               
+
+BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+  FORMAT = VTK
+  FILE   = "typhon" 
+ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "flat" 
+  SOLVER = EULER  
+ENDBLOCK
+
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = CGNS
+  FILE   = "square-quad10.cgns"
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS = EULER
+  GAS      = AIR
+ENDBLOCK
+
+BLOCK:TIME_PARAM 
+  CFL       = 1.
+ENDBLOCK
+
+BLOCK:SPAT_PARAM  
+  SCHEME   = HLLE
+ENDBLOCK
+
+BLOCK:INIT
+  PI      = 1.E5
+  TI      = 300.
+  MACH    = 2.
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = LEFT-UP
+  TYPE   = SUBSONIC_INLET 
+  PI        = 1.7E5
+  TI        = 200.
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = LEFT-DOWN
+  TYPE   = SUBSONIC_INLET 
+  PI        = 1.2E5
+  TI        = 600.
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = RIGHT
+  TYPE   = SUBSONIC_OUTLET 
+  P      = 1.E5
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = TOP
+  TYPE   = SYMMETRY
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = BOTTOM
+  TYPE   = SYMMETRY
+ENDBLOCK
