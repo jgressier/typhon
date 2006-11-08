@@ -31,7 +31,9 @@ type(st_boco_kdif) :: bocokdif ! stockage des conditions
 ! -- Debut de la procedure --
 
 bocokdif%temp(if) = temp
-bocokdif%flux_nunif(if) = flux
+!bocokdif%flux_nunif(if) = flux
+bocokdif%flux_nunif(if) = 0
+
 if ((temp-t_op).ne.0) then
   bocokdif%h_nunif(if) = flux/(temp-t_op)
 else

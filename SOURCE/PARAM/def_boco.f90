@@ -165,14 +165,15 @@ do ib = 1, nboco
     call rpmgetkeyvalstr(pcour, "CORRECTION", str, "AUTO")
 
     if (samestring(str, "AUTO"))          zcoupling(izr)%typ_cor = auto
-    if (samestring(str, "BEF_EXCH"))         zcoupling(izr)%typ_cor = avant
-    if (samestring(str, "AFT_EXCH"))         zcoupling(izr)%typ_cor = apres  
+    if (samestring(str, "BEF_EXCH"))      zcoupling(izr)%typ_cor = avant
+    if (samestring(str, "AFT_EXCH"))      zcoupling(izr)%typ_cor = apres  
     if (samestring(str, "NO"))            zcoupling(izr)%typ_cor = sans 
     if (samestring(str, "SPLIT_REG"))     zcoupling(izr)%typ_cor = repart_reg
     if (samestring(str, "SPLIT_GEO"))     zcoupling(izr)%typ_cor = repart_geo
     if (samestring(str, "SPLIT_PARTIAL")) zcoupling(izr)%typ_cor = partiel
-    if (samestring(str, "EQ_BOCOT"))         zcoupling(izr)%typ_cor = bocoT
-    if (samestring(str, "NEQ_BOCOT"))        zcoupling(izr)%typ_cor = bocoT2 !DEV1603
+    if (samestring(str, "EQ_BOCOT"))      zcoupling(izr)%typ_cor = bocoT
+    if (samestring(str, "NEQ_BOCOT"))     zcoupling(izr)%typ_cor = bocoT2 !DEV1603
+    if (samestring(str, "DISTRIBUTED"))   zcoupling(izr)%typ_cor = distributed
 
     select case(zcoupling(izr)%typ_cor)
 
@@ -204,7 +205,9 @@ do ib = 1, nboco
     case(bocoT2)   ! Correction sur la condition aux limites
       call print_info(10,"    Correction appliquee sur la condition limite d'interface")
       zcoupling(izr)%partcor = 1
-
+    case(distributed)   ! Correction ditributed uniformly all over the cycle
+      call print_info(10,"    Correction distributed all over the cycle")
+      zcoupling(izr)%partcor = 1
     case default
       call erreur("lecture de menu","type de correction inconnu") 
     endselect

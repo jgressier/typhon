@@ -41,6 +41,8 @@ select case(def_solver%typ_solver)
 case(solKDIF)
   call corr_varprim_kdif(field, domaine, def_solver, dif_enflux, nb, &
                          part_cor, typ_cor, fincycle)
+case(solNS)
+
 case default
   call erreur("Incoherence interne (corr_varprim)","type de solveur inconnu")
 endselect 

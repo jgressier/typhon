@@ -67,6 +67,8 @@ case (repart_geo)
   placement = apres
 case (partiel)
   placement = avant
+case(distributed)
+  placement = apres
 endselect
 
 ! Coefficient de correction

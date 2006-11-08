@@ -172,6 +172,7 @@ integer, parameter  :: repart_geo = 06
 integer, parameter  :: partiel    = 07
 integer, parameter  :: bocoT      = 08
 integer, parameter  :: bocoT2     = 09 !DEV1603
+integer, parameter  :: distributed= 10
 
 ! -- Constantes pour le choix du parametre "activite" (senseur)
 !

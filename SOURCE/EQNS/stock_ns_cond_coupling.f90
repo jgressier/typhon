@@ -31,7 +31,8 @@ type(st_boco_ns) :: bocons ! stockage des conditions
 ! -- Debut de la procedure --
 
 bocons%temp(if) = temp
-bocons%flux_nunif(if) = flux
+!bocons%flux_nunif(if) = flux
+bocons%flux_nunif(if) = 0
 if ((temp-t_op).ne.0) then
   bocons%h_nunif(if) = flux/(temp-t_op)
 else

@@ -43,13 +43,13 @@ case(couplingboco_TT)
 
 case(couplingboco_CC)
   zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%typ_boco = &
-                                                                  bc_wall_hconv
+                                                                  bc_wall_hgen
   zone2%defsolver%boco(zone2%grid%umesh%boco(nbc2)%idefboco)%typ_boco = &
-                                                                  bc_wall_hconv
+                                                                  bc_wall_hgen
 
 case(couplingboco_CT)
   zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%typ_boco = &
-                                                                  bc_wall_hconv
+                                                                  bc_wall_hgen
   zone2%defsolver%boco(zone2%grid%umesh%boco(nbc2)%idefboco)%typ_boco = &
                                                                   bc_wall_isoth
 
@@ -57,11 +57,12 @@ case(couplingboco_TC)
   zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%typ_boco = &
                                                                   bc_wall_isoth
   zone2%defsolver%boco(zone2%grid%umesh%boco(nbc2)%idefboco)%typ_boco = &
-                                                                  bc_wall_hconv
+                                                                  bc_wall_hgen
 
 case default
   call erreur("update_couplingboco_kdif","Conditions limites de raccord inconnues")
 endselect
+
 
 !  case default
 !  call erreur("update_couplingboco","cas non implemente")

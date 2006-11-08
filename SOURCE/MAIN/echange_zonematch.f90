@@ -101,7 +101,8 @@ select case(typtemps)
 ! DEBUG
 print*, "CORRECTION AVANT"
       call correction(zone1, zone2, nfacelim, corcoef, nbc1, nbc2, ncoupl1, &
-                    ncoupl2, part_cor1, part_cor2, typ_cor1, typ_cor2, .false.)
+                    ncoupl2, part_cor1, part_cor2, typ_cor1, typ_cor2, &
+                    .false., dtexch)
     endif
 
 endselect
@@ -175,7 +176,7 @@ print*, "CORRECTION APRES"
       if (typ_cor1 .ne. bocoT) then
         call correction(zone1, zone2, nfacelim, corcoef, nbc1, nbc2, ncoupl1, &
                         ncoupl2, part_cor1, part_cor2, typ_cor1, typ_cor2, &
-                        .false.)
+                        .false., dtexch)
       endif
     endif
 

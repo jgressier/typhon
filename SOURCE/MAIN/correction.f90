@@ -9,7 +9,7 @@
 
 subroutine correction(zone1, zone2, nfacelim, corcoef, nbc1, nbc2, ncoupl1, &
                       ncoupl2, part_cor1, part_cor2, typ_cor1, typ_cor2, &
-                      fincycle)
+                      fincycle, dtexch)
  
 use OUTPUT
 use VARCOM
@@ -30,12 +30,14 @@ real(krp)                  :: part_cor1, part_cor2 ! part de la correction a
                                                 ! apporter, dans les deux zones
 integer                    :: typ_cor1, typ_cor2 ! type de correction
 logical                    :: fincycle
+real(krp)                  :: dtexch             ! pas de temps entre 
+                                                 ! deux echanges
 
 ! -- Declaration des sorties --
 type(st_zone)              :: zone1, zone2
 
 ! -- Declaration des variables internes --
-integer                        :: ifield
+integer                        :: ifield, i, if
 
 ! -- Debut de la procedure --
 
@@ -49,7 +51,7 @@ call calcdifflux(zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal, &
 ! Calcul des variables primitives avec correction de flux
 
 if ( (typ_cor1.ne.bocoT) .and. (typ_cor1.ne.repart_reg) .and. &
-     (typ_cor1.ne.repart_geo) )then
+     (typ_cor1.ne.repart_geo) .and. (typ_cor1.ne.distributed) )then
 
   call corr_varprim(zone1%grid%info%field_loc, &
                     zone1%grid%umesh, &
@@ -62,6 +64,42 @@ if ( (typ_cor1.ne.bocoT) .and. (typ_cor1.ne.repart_reg) .and. &
                     zone2%defsolver, &
                     zone2%coupling(ncoupl2)%zcoupling%etatcons, nbc2, &
                     part_cor2, typ_cor2, fincycle)
+endif
+
+if (typ_cor1.eq.distributed) then
+
+  select case(zone1%defsolver%typ_solver)
+
+  case(solKDIF)
+    do i=1,nfacelim
+      if = zone1%grid%umesh%boco(nbc1)%iface(i)
+      zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%boco_kdif%flux_nunif(if) = part_cor1 * zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal(2)%scal(i) / (zone1%grid%umesh%mesh%iface(if,1,1)%surface * dtexch)
+      zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal(3)%scal(i) = 0
+    enddo
+
+  case(solNS)
+
+  case default
+    call erreur("Incoherence interne (correction)","type de solveur inconnu")
+
+  endselect
+
+  select case(zone2%defsolver%typ_solver)
+
+  case(solKDIF)
+    do i=1,nfacelim
+      if = zone1%grid%umesh%boco(nbc1)%iface(i)
+      zone2%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%boco_kdif%flux_nunif(if) = part_cor2 * zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal(2)%scal(i) / (zone2%grid%umesh%mesh%iface(if,1,1)%surface * dtexch)
+      zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal(3)%scal(i) = 0
+    enddo
+
+  case(solNS)
+
+  case default
+    call erreur("Incoherence interne (correction)","type de solveur inconnu")
+
+  endselect
+
 endif
 
 endsubroutine correction
