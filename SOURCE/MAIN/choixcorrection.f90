@@ -72,48 +72,68 @@ case(distributed)
 endselect
 
 ! Coefficient de correction
-do i=1, nfacelim
-  if1 = zone1%grid%umesh%boco(nbc1)%iface(i)
-  if2 = zone2%grid%umesh%boco(nbc2)%iface(zone2%coupling(ncoupl2)%zcoupling%connface(i))
+! PROVISOIRE / A AMELIORER
+! couplage KDIF / KDIF : coeff attribue selon resultats analyse de stabilite
+! couplage KDIF / NS : coeff attribue de facon a corriger dans le solide
 
-  icl1 = zone1%grid%umesh%facecell%fils(if1,1)
-  icl2 = zone2%grid%umesh%facecell%fils(if2,1)
+select case (zone2%coupling(ncoupl2)%zcoupling%solvercoupling)
+case(kdif_kdif)
 
-  ! Calcul de conductivite de la zone 1
-  select case(zone1%defsolver%defkdif%materiau%type)
-  case(mat_LIN, mat_KNL)
-    conduct1 = valeur_loi(zone1%defsolver%defkdif%materiau%Kd, &
-                          zone1%grid%info%field_loc%etatprim%tabscal(1)%scal(icl1))
-  case(mat_XMAT)
-    call erreur("Calcul de materiau","Materiau non lineaire interdit")
-  endselect
+  do i=1, nfacelim
+    if1 = zone1%grid%umesh%boco(nbc1)%iface(i)
+    if2 = zone2%grid%umesh%boco(nbc2)%iface(zone2%coupling(ncoupl2)%zcoupling%connface(i))
 
-  ! Calcul de conductivite de la zone 2
-  select case(zone2%defsolver%defkdif%materiau%type)
-  case(mat_LIN, mat_KNL)
-    conduct2 = valeur_loi(zone2%defsolver%defkdif%materiau%Kd, &
-                          zone2%grid%info%field_loc%etatprim%tabscal(1)%scal(icl2))
-  case(mat_XMAT)
-    call erreur("Calcul de materiau","Materiau non lineaire interdit")
-  endselect
+    icl1 = zone1%grid%umesh%facecell%fils(if1,1)
+    icl2 = zone2%grid%umesh%facecell%fils(if2,1)
 
-  ! Volumes des cellules limitrophes
-  vol1 = zone1%grid%umesh%mesh%volume(icl1,1,1)
-  vol2 = zone2%grid%umesh%mesh%volume(icl2,1,1)
+    ! Calcul de conductivite de la zone 1
+    select case(zone1%defsolver%defkdif%materiau%type)
+    case(mat_LIN, mat_KNL)
+      conduct1 = valeur_loi(zone1%defsolver%defkdif%materiau%Kd, &
+                            zone1%grid%info%field_loc%etatprim%tabscal(1)%scal(icl1))
+    case(mat_XMAT)
+      call erreur("Calcul de materiau","Materiau non lineaire interdit")
+    endselect
 
-  ! Capacites thermiques
-  c1 = zone1%defsolver%defkdif%materiau%Cp
-  c2 = zone2%defsolver%defkdif%materiau%Cp
+    ! Calcul de conductivite de la zone 2
+    select case(zone2%defsolver%defkdif%materiau%type)
+    case(mat_LIN, mat_KNL)
+      conduct2 = valeur_loi(zone2%defsolver%defkdif%materiau%Kd, &
+                            zone2%grid%info%field_loc%etatprim%tabscal(1)%scal(icl2))
+    case(mat_XMAT)
+      call erreur("Calcul de materiau","Materiau non lineaire interdit")
+    endselect
 
-  ! Rapport des diffusivites thermiques (avec prise en compte volumes cellules)
-  rapdifth = (conduct2*c1*vol1) / (conduct1*c2*vol2)
+    ! Volumes des cellules limitrophes
+    vol1 = zone1%grid%umesh%mesh%volume(icl1,1,1)
+    vol2 = zone2%grid%umesh%mesh%volume(icl2,1,1)
 
-  ! Orientation des valeurs de coefficient de correction
-  if (rapdifth == 1)   corcoef(i) = 0.5
-  if (rapdifth .gt. 1) corcoef(i) = 1
-  if (rapdifth .lt. 1) corcoef(i) = 0
-!print*, "DEBUG", rapdifth, corcoef(i)
-enddo
+    ! Capacites thermiques
+    c1 = zone1%defsolver%defkdif%materiau%Cp
+    c2 = zone2%defsolver%defkdif%materiau%Cp
+
+    ! Rapport des diffusivites thermiques (avec prise en compte volumes cellules)
+    rapdifth = (conduct2*c1*vol1) / (conduct1*c2*vol2)
+
+    ! Orientation des valeurs de coefficient de correction
+    if (rapdifth == 1)   corcoef(i) = 0.5
+    if (rapdifth .gt. 1) corcoef(i) = 1
+    if (rapdifth .lt. 1) corcoef(i) = 0
+  !print*, "DEBUG", rapdifth, corcoef(i)
+  enddo
+
+case(kdif_ns)
+  if (zone1%defsolver%typ_solver == solKDIF) then
+    do i=1, nfacelim    
+      corcoef(i) = 1._krp
+    enddo
+  else
+    do i=1, nfacelim
+      corcoef(i) = 0._krp
+    enddo
+  endif
+endselect
+
 endsubroutine choixcorrection
 
 !------------------------------------------------------------------------------

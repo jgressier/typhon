@@ -101,31 +101,34 @@ do while (.not.lzone%info%end_cycle)
 
   ! Correction de flux quand necessaire
 
-  do ic = 1, lzone%ncoupling
-    part_cor = lzone%coupling(ic)%partcor
-    typ_cor = lzone%coupling(ic)%typ_cor
-    if ( (typ_cor.ne.sans).and.(typ_cor.ne.auto).and.(typ_cor.ne.partiel).and.&
+  ! PROVISOIRE A AMELIORER : correction seulement si KDIF
+  if (lzone%defsolver%typ_solver == solKDIF) then
+    do ic = 1, lzone%ncoupling
+      part_cor = lzone%coupling(ic)%partcor
+      typ_cor = lzone%coupling(ic)%typ_cor
+      if ( (typ_cor.ne.sans).and.(typ_cor.ne.auto).and.(typ_cor.ne.partiel).and.&
          (typ_cor.ne.bocoT).and.(typ_cor.ne.avant).and.(typ_cor.ne.apres).and.&
          (typ_cor.ne.bocoT2).and.(typ_cor.ne.distributed)) then !DEV1603
       ! Calcul de l'indice de condition aux limites
       do ib = 1, lzone%grid%umesh%nboco
         if (samestring(lzone%coupling(ic)%family, &
                        lzone%grid%umesh%boco(ib)%family)) nbc = ib
-      enddo
-      ! Correction de flux
-      if (cumulreste == oui) then
-        call corr_varprim(lzone%grid%field, lzone%grid%umesh, &
+        enddo
+        ! Correction de flux
+        if (cumulreste == oui) then
+          call corr_varprim(lzone%grid%field, lzone%grid%umesh, &
                           lzone%defsolver, &
                           lzone%coupling(ic)%zcoupling%etatcons, nbc, &
                           part_cor, typ_cor, .false.)
-      else
-        call corr_varprim(lzone%grid%field, lzone%grid%umesh, &
+        else
+          call corr_varprim(lzone%grid%field, lzone%grid%umesh, &
                           lzone%defsolver, &
                           lzone%coupling(ic)%zcoupling%etatcons, nbc, &
                           part_cor, typ_cor, lzone%info%end_cycle)
-      endif 
-    endif
-  enddo
+        endif 
+      endif
+    enddo
+  endif
 
   ! On peut ici coder differentes methodes d'integration (RK, temps dual...)
 

@@ -49,22 +49,48 @@ call calcdifflux(zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal, &
                   corcoef, zone2%coupling(ncoupl2)%zcoupling%connface )
 
 ! Calcul des variables primitives avec correction de flux
+! PROVISOIRE : A AMELIORER
+! si couplage KDIF / KDIF correction dans les deux domaines avec repartition donnee
+! si couplage KDIF / NS correction dans le solide seulement
+select case (zone1%coupling(ncoupl1)%zcoupling%solvercoupling)
+case(kdif_kdif)
 
 if ( (typ_cor1.ne.bocoT) .and. (typ_cor1.ne.repart_reg) .and. &
      (typ_cor1.ne.repart_geo) .and. (typ_cor1.ne.distributed) )then
 
-  call corr_varprim(zone1%grid%info%field_loc, &
+    call corr_varprim(zone1%grid%info%field_loc, &
                     zone1%grid%umesh, &
                     zone1%defsolver, &
                     zone1%coupling(ncoupl1)%zcoupling%etatcons, nbc1, &
                     part_cor1, typ_cor1, fincycle)
 
-  call corr_varprim(zone2%grid%info%field_loc, &
+    call corr_varprim(zone2%grid%info%field_loc, &
                     zone2%grid%umesh, &
                     zone2%defsolver, &
                     zone2%coupling(ncoupl2)%zcoupling%etatcons, nbc2, &
                     part_cor2, typ_cor2, fincycle)
-endif
+  endif
+
+case(kdif_ns)
+  if ( (typ_cor1.ne.bocoT) .and. (typ_cor1.ne.repart_reg) .and. &
+         (typ_cor1.ne.repart_geo) ) then
+    if (zone1%defsolver%typ_solver == solKDIF) then
+      call corr_varprim(zone1%grid%info%field_loc, &
+                     zone1%grid%umesh, &
+                     zone1%defsolver, &
+                     zone1%coupling(ncoupl1)%zcoupling%etatcons, nbc1, &
+                     part_cor1, typ_cor1, fincycle)
+    else
+      call corr_varprim(zone2%grid%info%field_loc, &
+                     zone2%grid%umesh, &
+                     zone2%defsolver, &
+                     zone2%coupling(ncoupl2)%zcoupling%etatcons, nbc2, &
+                     part_cor2, typ_cor2, fincycle)
+
+    endif
+  endif
+
+endselect
 
 if (typ_cor1.eq.distributed) then
 

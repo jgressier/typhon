@@ -41,6 +41,8 @@ type(st_scafield), dimension(2) &
 select case(solvercoupling)
 case(kdif_kdif)
   call calcdifflux_kdif(etatcons1, etatcons2, nfacelim, corcoef, connface2)
+case(kdif_ns)
+  call calcdifflux_kdif(etatcons1, etatcons2, nfacelim, corcoef, connface2)
 case default
   call erreur("Incoherence interne (calcdifflux)","type de solveur inconnu")
 endselect 
