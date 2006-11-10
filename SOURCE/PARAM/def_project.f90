@@ -107,11 +107,10 @@ case(instationnaire) ! Evolution instationnaire
   if (rpm_existkey(pcour,"BASETIME")) then
     call print_info(10,"!!! Warning !!! it not adviced to use BASETIME parameter...")
     call rpmgetkeyvalreal(pcour, "BASETIME", prj%dtbase)
-    prj%ncycle = int((prj%duration+.01*prj%dtbase)/prj%dtbase)
+    prj%ncycle = int((prj%duration+2.*tiny(prj%dtbase))/prj%dtbase)
     prj%dtbase = prj%duration / prj%ncycle
   elseif (rpm_existkey(pcour,"NCYCLE")) then
-    call rpmgetkeyvalreal(pcour, "BASETIME", prj%dtbase)
-    prj%ncycle = int((prj%duration+.01*prj%dtbase)/prj%dtbase)
+    call rpmgetkeyvalint(pcour, "NCYCLE", prj%ncycle)
     prj%dtbase = prj%duration / prj%ncycle
   else
     call erreur("parameter parsing","NCYCLE (or BASETIME) parameter not found (def_project)")
