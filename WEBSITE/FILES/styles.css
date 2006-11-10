@@ -38,6 +38,7 @@ p {text-align: justify; margin: 0 0 10px 0;}
 .banner { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: bold; padding: 3em; vertical-align: middle}
 .titre { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: bold; color: #000080; text-align: center}
 .defaut { font-family: Arial, Helvetica, sans-serif; font-size: 13px}
+.param  { font-family: Courier, Monospace; font-size: 13px}
 .body   { font-family: Arial, Helvetica, sans-serif; font-size: 13px; margin: 1.5em}
 .blue   { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #000080; margin-left: 2em; margin-right: 2em}
 .orange { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #C87F1F}

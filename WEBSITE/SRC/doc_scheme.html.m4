@@ -6,62 +6,111 @@ define([id2], [scheme])
 define([id3], [])
 
 include_header
-[
-<script type="text/javascript">
-<!--
-var nsubitem     = 0;
-var subitemnames = new Array();
+include_javascript([showhide.js])
 
-function additem(strname, title) {
-  subitemnames[nsubitem] = strname;
-  nsubitem++;
-  document.write('<a onclick="javascript:showitem('+"'subitem_"+strname+"'"+');" href="#">'+title+'</a>');
-}
-
-function showitem(id) {
-  var d = document.getElementById(id);
-  for (var i = 0; i<nsubitem; i++) {
-    var id = 'subitem_'+subitemnames[i];
-    if (document.getElementById(id)) { document.getElementById(id).style.display='none'; }
-  }
-  if (d) {d.style.display='block';}
-}
-//-->
-</script>
-]
 dnl -------------------------------------------------------------
 
 <OL>
   <LI> Convection based schemes
     <OL>
-      <LI><script type="text/javascript"> additem("hlle",  "HLLE"); </script></LI>
-      <LI><script type="text/javascript"> additem("hllc",  "HLLC"); </script></LI>
-      <LI><script type="text/javascript"> additem("ausmm", "AUSM-M"); </script></LI>
+      <LI><script type="text/javascript"> js_additem("hlle",  "HLLE"); </script></LI>
+      <LI><script type="text/javascript"> js_additem("hllc",  "HLLC"); </script></LI>
+      <LI><script type="text/javascript"> js_additem("ausmm", "AUSM-M"); </script></LI>
     </OL></LI>
   <LI> Diffusion based schemes</LI>
   <LI> High order interpolation</LI>
+    <OL>
+      <LI><script type="text/javascript"> js_additem("gradient", "Gradient computation"); </script></LI>
+      <LI><script type="text/javascript"> js_additem("muscl",    "MUSCL methods"); </script></LI>
+      <LI><script type="text/javascript"> js_additem("limiter",  "Limiters"); </script></LI>
+    </OL></LI>
   <LI> Time integration</LI>
+    <OL>
+      <LI><script type="text/javascript"> js_additem("explicit",  "Explicit method"); </script></LI>
+      <LI><script type="text/javascript"> js_additem("implicit",  "Implicit method"); </script></LI>
+      <LI><script type="text/javascript"> js_additem("matrix",    "Matrix resolution"); </script></LI>
+    </OL></LI>
 </OL>
 
+dnl -------------------------------------------------------------
 <span class="ghostitem" id="subitem_hlle">
 section([HLLE scheme])
-HLLE scheme is a variant of the two-waves HLL family originally proposed by Harten, Lax and Van Leer (1986). This variant is
-the positive version of Einfeldt (1988). It is a very robust scheme which behaves as 
-<acronym title="Flux Vector Splitting">FVS</acronym> schemes, even if it is originally based on a Riemann solver.
-skip_line
+
+<p>[HLLE scheme is a variant of the two-waves HLL family originally proposed by Harten, Lax and Van Leer (1986).
+This variant is the positive version of Einfeldt (1988). It is a very robust scheme which behaves as 
+<acronym title="Flux Vector Splitting">FVS</acronym> schemes, 
+even if it is originally based on a Riemann solver.]<br>
+item([to use in TYPHON: specify m4_param([SCHEME=HLLE]) in m4_param([BLOCK:SPAT_PARAM])])
+</p>
 </span>
 
+dnl -------------------------------------------------------------
 <span class="ghostitem"  id="subitem_hllc">
 section([HLLC scheme])
-skip_line
+
+<p>[HLLC scheme is an extension of basic 2 waves HLL schemes. Slightly different extensions have
+been proposed by Toro and Batten. All of them provide the third wave resolution which allows this scheme
+to be accurate in contact discontinuities and boundary layers configurations.]<br>
+item([to use in TYPHON: specify m4_param([SCHEME=HLLC]) in m4_param([BLOCK:SPAT_PARAM])])
+</p>
 </span>
 
+dnl -------------------------------------------------------------
 <span class="ghostitem"  id="subitem_ausmm">
 section([AUSM-M scheme])
-skip_line
+
+<p>[]<br>
+</p>
 </span>
 
-skip_line
+dnl -------------------------------------------------------------
+<span class="ghostitem"  id="subitem_gradient">
+section([Gradient computation])
+
+<p>[]<br>
+</p>
+</span>
+
+dnl -------------------------------------------------------------
+<span class="ghostitem"  id="subitem_muscl">
+section([MUSCL methods])
+
+<p>[]<br>
+</p>
+</span>
+
+dnl -------------------------------------------------------------
+<span class="ghostitem"  id="subitem_limiter">
+section([Limiters])
+
+<p>[]<br>
+</p>
+</span>
+
+dnl -------------------------------------------------------------
+<span class="ghostitem"  id="subitem_explicit">
+section([Explicit time integration])
+
+<p>[]<br>
+</p>
+</span>
+
+dnl -------------------------------------------------------------
+<span class="ghostitem"  id="subitem_implicit">
+section([Implicit time integration])
+
+<p>[]<br>
+</p>
+</span>
+
+dnl -------------------------------------------------------------
+<span class="ghostitem"  id="subitem_matrix">
+section([Matrix resolution methods])
+
+<p>[]<br>
+</p>
+</span>
+
 
 
 dnl -------------------------------------------------------------

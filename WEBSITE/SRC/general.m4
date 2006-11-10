@@ -43,6 +43,10 @@ include([footer$1.m4])
 html_footer
 ])
 
+define([include_javascript], [
+<script type="text/javascript" src="$1"></script>
+])
+
 define([margins], [
 <table border=0 width="100%" cellpadding=0 cellspacing=0>
 <tr valign="top">
@@ -57,6 +61,8 @@ define([include_image], [<img border=0 alt="[$1]" src="img_dir([$2])" [$3]>])
 define([item], [include_image([-], [puce-tri.gif]) $1<br>])
 
 define([item3d], [include_image([-], [tri-3d-blue.gif]) $1<br>])
+
+define([m4_param], [<span class=param>$1</span>])
 
 define([hyperlink], [<a href="$2">$1</a>])
 
@@ -81,10 +87,11 @@ define([twocols], [
   </table> 
 ])
 
-define([google], [
+define([m4_googlesearch], [
 <!-- Search Google -->
 <FORM method=GET action="http://www.[google].com/search">
 <TABLE><tr><td>
+<input type=hidden name=sitesearch value="typhon.sourceforge.net">
 <INPUT TYPE=text name=q size=25 maxlength=255 value="">
 <INPUT type=submit name=btnG VALUE="Google">
 </td></tr></TABLE>
