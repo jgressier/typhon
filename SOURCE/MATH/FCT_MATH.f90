@@ -557,6 +557,30 @@ endselect
 endsubroutine fct_cont_atan
 
 !------------------------------------------------------------------------------!
+! fct_cont_abs
+!------------------------------------------------------------------------------!
+subroutine fct_cont_abs(res, op)
+implicit none
+! -- parameters --
+type(st_fct_container), intent(in)  :: op            ! operand
+type(st_fct_container), intent(out) :: res           ! container result
+! -- internal variables --
+
+! -- body --
+
+select case(op%type)
+
+case(cont_real)            ! -- op OP is REAL -------------------------------
+  call new_fct_container(res, cont_real, "")
+  res%r = abs(op%r)
+
+case default
+  call set_fct_error(-1, "incorrect or non-implemented operands in ABSOLUTE operator")
+endselect
+
+endsubroutine fct_cont_abs
+
+!------------------------------------------------------------------------------!
 ! fct_cont_step
 !------------------------------------------------------------------------------!
 subroutine fct_cont_step(res, op)
