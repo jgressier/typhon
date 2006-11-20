@@ -105,7 +105,7 @@ case(instationnaire) ! Evolution instationnaire
     call erreur("parameter parsing","BASETIME and NCYCLE parameters conflict (def_project)")
   endif
   if (rpm_existkey(pcour,"BASETIME")) then
-    call print_info(10,"!!! Warning !!! it not adviced to use BASETIME parameter...")
+    call print_info(10,"!!! Warning !!! it not advised to use BASETIME parameter...")
     call rpmgetkeyvalreal(pcour, "BASETIME", prj%dtbase)
     prj%ncycle = int((prj%duration+2.*tiny(prj%dtbase))/prj%dtbase)
     prj%dtbase = prj%duration / prj%ncycle
