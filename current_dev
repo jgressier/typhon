@@ -50,7 +50,7 @@ Task Dévlp.    début fin   Type  Développement
 0174 Jeremie   13/04       Out   Output of Binary VTK files (VTK-BIN)
 0175 Jeremie   29/08 29/08 MPI   Portage SGI (REAL8)
 0176 Jeremie   02/09 11/09 NS    Symbolic function initialization
-0177 Jeremie   12/09 13/09 Core  Management of unsteady computation : BASETIME / NCYCLE
+0177 Jeremie   12/09 10/11 Core  Management of unsteady computation : BASETIME / NCYCLE
 0178 Jeremie   19/09 28/09 Make  Automatic configuration
 0179 Jeremie   28/09 28/09 Make  Internal Cholesky decomposition (no more lapack/blas linkage)
 0180 Jeremie   01/08       Out   CGNS Output
@@ -63,6 +63,7 @@ Task Dévlp.    début fin   Type  Développement
 0185 Emmanuel  03/11       Coupl Regularly distributed conservative correction
 0186 Emmanuel  03/11       Coupl Simplification of options for user
 0187 Emmanuel  03/11       Coupl Effusivity weighted temperature interpolation
+0190 Jeremie   24/11       Core  FCT (symbolic function) bug
 
 ------------------------------------------------------------------------
 release 0.3.1 - 26th August 2006
