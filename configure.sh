@@ -192,7 +192,9 @@ check "native system"               system
 check "CPU model"                   proc
 check "fortran 90 compiler"         f90compiler
 #
-for lib in blas lapack cgns metis mpich mpi; do
+# EXTLIBS="blas lapack cgns metis mpich mpi"
+EXTLIBS="cgns metis mpich mpi"
+for lib in $EXTLIBS ; do
   check "static library $lib" library $lib a
 done
 check "$F90C optimization options"  f90opti
@@ -210,8 +212,8 @@ fi
 ### REVIEW ###
 
 [[ -z "$F90C" ]]         && error   "no fortran compiler found: impossible to build TYPHON"
-[[ -z "$LIB_blas"   ]]   && error   "BLAS   not available: impossible to build TYPHON"
-[[ -z "$LIB_lapack" ]]   && error   "LAPACK not available: impossible to build TYPHON"
+#[[ -z "$LIB_blas"   ]]   && error   "BLAS   not available: impossible to build TYPHON"
+#[[ -z "$LIB_lapack" ]]   && error   "LAPACK not available: impossible to build TYPHON"
 [[ -z "$LIB_cgns"   ]]   && error   "CGNS   not available: impossible to build TYPHON"
 [[ -z "$LIB_metis"  ]]   && error   "METIS  not available: TYPHON will not feature automatic distribution"
 [[ -z "$LIB_mpich"  ]] && 
