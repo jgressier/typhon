@@ -889,3 +889,11 @@ Task 0186 (Emmanuel): COUPL : Simplification of options
 Task 0187 (Emmanuel): COUPL : EFFUSIVITY Temperature interpolation 
 ---------------------------------------------------------------------------------
 - Interface temperature computed with coupled domain temperatures weigthed by effusivities
+
+---------------------------------------------------------------------------------
+Task 0190 (Jeremie): Core : FCT bug correction
+---------------------------------------------------------------------------------
+- There is a bad detection of + or - sign when operand are constants
+  such as 1E+1 or 1E-1. So (1-1E-1) will fail...
+- fixed with detection of bad variable (but produces error)
+
