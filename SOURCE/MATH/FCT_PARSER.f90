@@ -95,7 +95,7 @@ endif
 
 !-------------------------------------------------------
 ! look for constants
-
+!print*,found,trim(str),is_real(str)
 if ((.not.found).and.(is_real(str))) then
   read(str, *, iostat=ierr) x
   if (ierr == 0) then
@@ -114,7 +114,7 @@ do while ((.not.found).and.(iop <= max_op))  ! ---------- loop on binary operato
 
   !-------------------------------------------------------
   ! look for LAST binary operator in string 
-  ! this is to handle unexpected effect of no symmetric operators : - /
+  ! this is to handle unexpected effect of non-symmetric operators : - and /
 
   istr   = 0
   pos    = lstr        ! force first loop
@@ -199,7 +199,11 @@ enddo
 ! DEV : should add some consistency checks of variable names
 
 if (.not.found) then
-  call new_fct_node(node, node_var, str)
+  if (index("abcdefghiklmnopkrstuvwxyz_", str(1:1)) == 0) then    ! check first letter
+    call set_fct_error(istr, "(string_to_node) internal error : bad variable name")
+  else
+    call new_fct_node(node, node_var, str)
+  endif
 endif
 
 endsubroutine string_to_node

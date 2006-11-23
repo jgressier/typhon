@@ -135,11 +135,12 @@ logical function is_real(str)
   wstr = adjustl(str)
   nch  = len_trim(wstr)         ! length of useful string
   iexp = scan(wstr, "eE")       ! index of Ennn ~ 10^nnn
-  if (iexp == 0) iexp = nch+1   ! if no EE then default index at the end of string
+  if (iexp == 0) iexp = nch+1   ! if no EE then default index at the end of string (+1)
   idot = index(wstr, '.')       ! index of dot separation
   if (idot == 0) idot = iexp    ! if no dot then default index at same index as iexp
 
   ! -- check string after "." and before "E" --
+
   if (idot+1 <= iexp-1) then
     afterdot = .true.
     do i = idot+1, iexp-1
@@ -150,6 +151,8 @@ logical function is_real(str)
   endif
 
   ! -- check string after "E" --
+
+  if (iexp == nch) is_real = .false.       ! ending "E" not allowed
   if ((iexp+1 <= nch)) then
     is = iexp+1
     ! -- if character is not the last, then it can be a sign -> increase index
@@ -161,6 +164,7 @@ logical function is_real(str)
   endif
 
   ! -- check "main" string (before dot) --
+
   is = 1
   ! -- if character is a sign -> increase starting index
   if (index("+-", wstr(is:is)) /= 0) is = is +1
