@@ -1,8 +1,8 @@
 !------------------------------------------------------------------------------!
-! Procedure : output_vtkbin                      Authors : J. Gressier
-!                                                Created : April 2006
+! Procedure : output_vtkbin                     Authors : J. Gressier
+!                                               Created : April 2006
 ! Function
-!   Write VTK Binary file
+!   Write the field of each zone in a VTK Binary file
 !
 !------------------------------------------------------------------------------!
  
@@ -43,6 +43,7 @@ case(end_calc, end_cycle)
 
   if ((outp_typ == outp_NODE).or.(outp_typ == outp_CENTER)) then
 
+    ! DEVELOPPEMENT PROVISOIRE
     open(unit=uf_chpresu, file=trim(nom)//trim(suffix), form='binary', iostat = info)
 
     do izone = 1, world%prj%nzone
@@ -69,6 +70,7 @@ case(end_calc, end_cycle)
         call erreur("Developpement","les sorties VORTEX ne sont pas prevues dans ce format")
 
       case default
+
         call erreur("Developpement","solveur inconnu (output_vtkbin)")
 
       endselect

@@ -1,9 +1,9 @@
 !-----------------------------------------------------------------------------!
-! Procedure : output_vtkbin_vect             Auteur : J. Gressier
-!                                            Date   : April 2006
-! Fonction                  
+! Procedure : output_vtkbin_vect                Auteur : J. Gressier
+!                                               Date   : April 2006
+! Function
 !   Ecriture fichier des champs NON STRUCTURES de chaque zone au format VTK
-!   Valeurs au centre des cellules / Ecriture de champs VECLAIRES
+!   Valeurs au centre des cellules / Ecriture de champs VECTORIELS
 !
 ! Defauts/Limitations/Divers :
 !
@@ -30,34 +30,36 @@ character(len=*)  :: name          ! nom de la variable
 
 ! -- Declaration des variables internes --
 integer   :: i
+type(st_cellvtex) :: cvtx
 
 ! -- Debut de la procedure --
 
+call writestr(uf, 'VECTORS '//trim(name)//' double')
+
+cvtx = ust_mesh%cellvtex
+
+do i = 1, cvtx%nbar
+  write(uf) real(tab(vecfld%vect(cvtx%ibar(i))), kind=8)
+enddo
+do i = 1, cvtx%ntri
+  write(uf) real(tab(vecfld%vect(cvtx%itri(i))), kind=8)
+enddo
+do i = 1, cvtx%nquad
+  write(uf) real(tab(vecfld%vect(cvtx%iquad(i))), kind=8)
+enddo
+do i = 1, cvtx%ntetra
+  write(uf) real(tab(vecfld%vect(cvtx%itetra(i))), kind=8)
+enddo
+do i = 1, cvtx%npyra
+  write(uf) real(tab(vecfld%vect(cvtx%ipyra(i))), kind=8)
+enddo
+do i = 1, cvtx%npenta
+  write(uf) real(tab(vecfld%vect(cvtx%ipenta(i))), kind=8)
+enddo
+do i = 1, cvtx%nhexa
+  write(uf) real(tab(vecfld%vect(cvtx%ihexa(i))), kind=8)
+enddo
 call writereturn(uf)
-call writestr(uf, 'VECTORS '//trim(name)//' float')
-
-do i = 1, ust_mesh%cellvtex%nbar
-  write(uf) real(tab(vecfld%vect(ust_mesh%cellvtex%ibar(i))), kind=4)
-enddo
-do i = 1, ust_mesh%cellvtex%ntri
-  write(uf) real(tab(vecfld%vect(ust_mesh%cellvtex%itri(i))), kind=4)
-enddo
-do i = 1, ust_mesh%cellvtex%nquad
-  write(uf) real(tab(vecfld%vect(ust_mesh%cellvtex%iquad(i))), kind=4)
-enddo
-do i = 1, ust_mesh%cellvtex%ntetra
-  write(uf) real(tab(vecfld%vect(ust_mesh%cellvtex%itetra(i))), kind=4)
-enddo
-do i = 1, ust_mesh%cellvtex%npyra
-  write(uf) real(tab(vecfld%vect(ust_mesh%cellvtex%ipyra(i))), kind=4)
-enddo
-do i = 1, ust_mesh%cellvtex%npenta
-  write(uf) real(tab(vecfld%vect(ust_mesh%cellvtex%ipenta(i))), kind=4)
-enddo
-do i = 1, ust_mesh%cellvtex%nhexa
-  write(uf) real(tab(vecfld%vect(ust_mesh%cellvtex%ihexa(i))), kind=4)
-enddo
-
 
 endsubroutine output_vtkbin_vect
 
