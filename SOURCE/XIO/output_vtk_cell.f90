@@ -1,7 +1,7 @@
 !-----------------------------------------------------------------------------!
-! Procedure : output_vtk_cell             Auteur : J. Gressier
-!                                         Date   : Avril 2004
-! Fonction                                Modif  : (cf historique)
+! Procedure : output_vtk_cell                   Auteur : J. Gressier
+!                                               Date   : Avril 2004
+! Function                                      Modif  : (cf historique)
 !   Ecriture fichier des champs NON STRUCTURES de chaque zone au format VTK
 !   Valeurs au centre des cellules
 !
@@ -33,83 +33,93 @@ type(st_field),   intent(in) :: field         ! champ de valeurs
 integer   :: i, ncellint
 integer   :: info, ntot
 type(v3d) :: vtex
+type(st_cellvtex) :: cvtx
 
 ! -- BODY --
 
 
 ! ecriture du maillage
 
-write(uf,'(a)')      'DATASET UNSTRUCTURED_GRID'
-write(uf,'(a,i9,a)') 'POINTS ',ust_mesh%nvtex, ' float'
+write(uf,'(A)')      'DATASET UNSTRUCTURED_GRID'
+write(uf,'(A,I9,A)') 'POINTS ', ust_mesh%nvtex, ' double'
 
 ! coordonnees
 
 do i = 1, ust_mesh%nvtex
   vtex = ust_mesh%mesh%vertex(i,1,1)
-  write(uf,'(4e18.8)') vtex%x, vtex%y, vtex%z
+  write(uf,'(1P,4E17.8E3)') vtex%x, vtex%y, vtex%z
 enddo
+
+! variable interne
+
+cvtx = ust_mesh%cellvtex
 
 ! connectivite 
 
-ncellint       = ust_mesh%cellvtex%nbar   + &
-                 ust_mesh%cellvtex%ntri   + ust_mesh%cellvtex%nquad + &
-                 ust_mesh%cellvtex%ntetra + ust_mesh%cellvtex%npyra + &
-                 ust_mesh%cellvtex%npenta + ust_mesh%cellvtex%nhexa
+ncellint       = cvtx%nbar   + &
+                 cvtx%ntri   + &
+                 cvtx%nquad  + &
+                 cvtx%ntetra + &
+                 cvtx%npyra  + &
+                 cvtx%npenta + &
+                 cvtx%nhexa
 
-ntot =        3*ust_mesh%cellvtex%nbar
-ntot = ntot + 4*ust_mesh%cellvtex%ntri
-ntot = ntot + 5*ust_mesh%cellvtex%nquad
-ntot = ntot + 5*ust_mesh%cellvtex%ntetra
-ntot = ntot + 6*ust_mesh%cellvtex%npyra
-ntot = ntot + 7*ust_mesh%cellvtex%npenta
-ntot = ntot + 9*ust_mesh%cellvtex%nhexa
-write(uf,'(a,2i10)') 'CELLS ', ncellint, ntot
+ntot =        3*cvtx%nbar
+ntot = ntot + 4*cvtx%ntri
+ntot = ntot + 5*cvtx%nquad
+ntot = ntot + 5*cvtx%ntetra
+ntot = ntot + 6*cvtx%npyra
+ntot = ntot + 7*cvtx%npenta
+ntot = ntot + 9*cvtx%nhexa
 
-do i = 1, ust_mesh%cellvtex%nbar
-  write(uf,'(i3,2i9)') 2, ust_mesh%cellvtex%bar%fils(i,:)-1
+write(uf,'(A,2i10)') 'CELLS ', ncellint, ntot
+
+do i = 1, cvtx%nbar
+  write(uf,'(i3,2I9)') 2, cvtx%bar%fils(i,:)-1
 enddo
-do i = 1, ust_mesh%cellvtex%ntri
-  write(uf,'(i3,3i9)') 3, ust_mesh%cellvtex%tri%fils(i,:)-1
+do i = 1, cvtx%ntri
+  write(uf,'(i3,3I9)') 3, cvtx%tri%fils(i,:)-1
 enddo
-do i = 1, ust_mesh%cellvtex%nquad
-  write(uf,'(i3,4i9)') 4, ust_mesh%cellvtex%quad%fils(i,:)-1
+do i = 1, cvtx%nquad
+  write(uf,'(i3,4I9)') 4, cvtx%quad%fils(i,:)-1
 enddo
-do i = 1, ust_mesh%cellvtex%ntetra
-  write(uf,'(i3,4i9)') 4, ust_mesh%cellvtex%tetra%fils(i,:)-1
+do i = 1, cvtx%ntetra
+  write(uf,'(i3,4I9)') 4, cvtx%tetra%fils(i,:)-1
 enddo
-do i = 1, ust_mesh%cellvtex%npyra
-  write(uf,'(i3,5i9)') 5, ust_mesh%cellvtex%pyra%fils(i,:)-1
+do i = 1, cvtx%npyra
+  write(uf,'(i3,5I9)') 5, cvtx%pyra%fils(i,:)-1
 enddo
-do i = 1, ust_mesh%cellvtex%npenta
-  write(uf,'(i3,6i9)') 6, ust_mesh%cellvtex%penta%fils(i,:)-1
+do i = 1, cvtx%npenta
+  write(uf,'(i3,6I9)') 6, cvtx%penta%fils(i,:)-1
 enddo
-do i = 1, ust_mesh%cellvtex%nhexa
-  write(uf,'(i3,8i9)') 8, ust_mesh%cellvtex%hexa%fils(i,:)-1
+do i = 1, cvtx%nhexa
+  write(uf,'(i3,8I9)') 8, cvtx%hexa%fils(i,:)-1
 enddo
 
 ! type de cellules
 
-write(uf,'(a,i9)') 'CELL_TYPES ', ncellint
-do i = 1, ust_mesh%cellvtex%nbar
-  write(uf,'(i2)') 3     ! VTK_LINE
+write(uf,'(A,I9)') 'CELL_TYPES ', ncellint
+
+do i = 1, cvtx%nbar
+  write(uf,'(I2)')  3    ! VTK_LINE
 enddo
-do i = 1, ust_mesh%cellvtex%ntri
-  write(uf,'(i2)') 5     ! VTK_TRIANGLE
+do i = 1, cvtx%ntri
+  write(uf,'(I2)')  5    ! VTK_TRIANGLE
 enddo
-do i = 1, ust_mesh%cellvtex%nquad
-  write(uf,'(i2)') 9     ! VTK_QUAD
+do i = 1, cvtx%nquad
+  write(uf,'(I2)')  9    ! VTK_QUAD
 enddo
-do i = 1, ust_mesh%cellvtex%ntetra
-  write(uf,'(i2)') 10    ! VTK_TETRA
+do i = 1, cvtx%ntetra
+  write(uf,'(I2)') 10    ! VTK_TETRA
 enddo
-do i = 1, ust_mesh%cellvtex%npyra
-  write(uf,'(i2)') 14    ! VTK_PYRAMID
+do i = 1, cvtx%npyra
+  write(uf,'(I2)') 14    ! VTK_PYRAMID
 enddo
-do i = 1, ust_mesh%cellvtex%npenta
-  write(uf,'(i2)') 13    ! VTK_WEDGE
+do i = 1, cvtx%npenta
+  write(uf,'(I2)') 13    ! VTK_WEDGE
 enddo
-do i = 1, ust_mesh%cellvtex%nhexa
-  write(uf,'(i2)') 12    ! VTK_HEXAHEDRON
+do i = 1, cvtx%nhexa
+  write(uf,'(I2)') 12    ! VTK_HEXAHEDRON
 enddo
 
 ! -- donnees --
@@ -118,20 +128,19 @@ call calc_varprim(defsolver, field)
 
 select case(defsolver%typ_solver)
 case(solNS)
-  write(uf,'(a,i9)') 'CELL_DATA ', ncellint
+  write(uf,'(A,I9)') 'CELL_DATA ', ncellint
   call output_vtk_scal(uf, ust_mesh, "DENSITY",  field%etatprim%tabscal(1))
   call output_vtk_scal(uf, ust_mesh, "PRESSURE", field%etatprim%tabscal(2))
   call output_vtk_vect(uf, ust_mesh, "VELOCITY", field%etatprim%tabvect(1))
 
 case(solKDIF)
-  write(uf,'(a,i9)') 'CELL_DATA ', ncellint
+  write(uf,'(A,I9)') 'CELL_DATA ', ncellint
   call output_vtk_scal(uf, ust_mesh, "TEMPERATURE",  field%etatprim%tabscal(1))
 
 case(solVORTEX)
 case default
   call erreur("Developpement","solveur inconnu (output_vtk_cell)")
 endselect
-
 
 endsubroutine output_vtk_cell
 
