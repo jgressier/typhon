@@ -54,6 +54,7 @@ character(len=256) :: str_w   ! chaine provisoire pour l'ecriture sur unite
 character(len=6), parameter :: str_std = "[STD] ", &   ! prefixe d'ecriture std/log
                                str_log = "      "      ! prefixe d'ecriture log/log
 
+character, parameter :: newline_char = char(10)
 character, parameter :: carriage_char = char(13)
 
 ! -- DECLARATIONS -----------------------------------------------------------
@@ -254,7 +255,7 @@ implicit none
 integer,          intent(in) :: unit
 character(len=*), intent(in) :: str
 
-  write(unit) str//carriage_char
+  write(unit) str//newline_char
 
 endsubroutine
 
@@ -266,7 +267,7 @@ subroutine writereturn(unit)
 implicit none
 integer,          intent(in) :: unit
 
-  write(unit) carriage_char
+  write(unit) newline_char
 
 endsubroutine
 
