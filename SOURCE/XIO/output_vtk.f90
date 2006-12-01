@@ -1,8 +1,8 @@
 !------------------------------------------------------------------------------!
-! Procedure : output_vtk                      Authors : J. Gressier
-!                                             Created : April 2004
-! Fonction
-!   Ecriture fichier des champs de chaque zone au format VTK
+! Procedure : output_vtk                        Authors : J. Gressier
+!                                               Created : April 2004
+! Function
+!   Write the field of each zone in a VTK file
 !
 !------------------------------------------------------------------------------!
  
@@ -51,17 +51,17 @@ case(end_calc, end_cycle)
       select case(world%zone(izone)%defsolver%typ_solver)
 
       case(solNS)
-        write(uf_chpresu,'(a)') '# vtk DataFile Version 2.0'
-        write(uf_chpresu,'(a)') 'TYPHON-NS'
-        write(uf_chpresu,'(a)') 'ASCII'
+        write(uf_chpresu,'(A)') '# vtk DataFile Version 2.0'
+        write(uf_chpresu,'(A)') 'TYPHON-NS'
+        write(uf_chpresu,'(A)') 'ASCII'
         call output_vtk_cell(uf_chpresu, world%zone(izone)%defsolver, &
                              world%zone(izone)%grid%umesh, world%zone(izone)%grid%info%field_loc)
 
       case(solKDIF)
 
-        write(uf_chpresu,'(a)') '# vtk DataFile Version 2.0'
-        write(uf_chpresu,'(a)') 'TYPHON-KDIF'
-        write(uf_chpresu,'(a)') 'ASCII'
+        write(uf_chpresu,'(A)') '# vtk DataFile Version 2.0'
+        write(uf_chpresu,'(A)') 'TYPHON-KDIF'
+        write(uf_chpresu,'(A)') 'ASCII'
         call output_vtk_cell(uf_chpresu, world%zone(izone)%defsolver, &
                              world%zone(izone)%grid%umesh, world%zone(izone)%grid%info%field_loc)
 
@@ -70,6 +70,7 @@ case(end_calc, end_cycle)
         call erreur("Developpement","les sorties VORTEX ne sont pas prevues dans ce format")
 
       case default
+
         call erreur("Developpement","solveur inconnu (output_vtk)")
 
       endselect
