@@ -21,6 +21,7 @@ skip_line
 </table>
 
 </div> dnl == end mainbox   ==
+
 </div> dnl == end container ==
 
 <div id="bottombox"></div> dnl === END of MENU bar

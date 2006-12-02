@@ -19,6 +19,7 @@ item([and an expected hyperlink([roadmap], [dev_rmap.html]) of future developmen
 <p>
 Sourceforge project page provides: <br>
 item([hyperlink([Bug tracker],     [http://sourceforge.net/tracker/?group_id=132321&atid=723918])])
+item([hyperlink([Feature request], [http://sourceforge.net/tracker/?group_id=132321&atid=723921])])
 </p>
 
 skip_line

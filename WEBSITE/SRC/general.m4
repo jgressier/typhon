@@ -87,6 +87,10 @@ define([twocols], [
   </table> 
 ])
 
+define([m4_showitem], [
+  <script type="text/javascript"> js_additem("$1",  "$2"); </script>
+])
+
 define([m4_googlesearch], [
 <!-- Search Google -->
 <FORM method=GET action="http://www.[google].com/search">

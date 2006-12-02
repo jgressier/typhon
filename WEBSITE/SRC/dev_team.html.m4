@@ -11,17 +11,19 @@ dnl -------------------------------------------------------------
 
 section([Project Administrators])
 
-item([J. Gressier (Supaero/ONERA)])
+item([J. Gressier])
 <br>
 
 section([Main Developers])
 
+item([J. Gressier (Supaero/ONERA)])
+item([G. Grondin (Supaero)])
 item([E. Radenac])
 <br>
 
 section([Contributors])
 
-item([A. Blay, J. Rodriguez, N. Morbieu, M. Betoule (Supaero)])
+item([A. Blay, J. Rodriguez, N. Morbieu, M. Betoule (as Supaero students)])
 
 
 

@@ -9,7 +9,7 @@ body        { font-family:Verdana, Arial, Helvetica, sans-serif; font-size: 0.8e
 #mainbox    { margin-left: 140px; padding: 1em; background-color:#FFFFFF; }
 #leftbox    { position: absolute; left:0px; width: 120px; }
 #footbox    { height: 30px; }
-#bottombox  { position: absolute; height:100; width:140; background-color:#FFFFFF; background-image:url(img/bg-menu-bottom.png); }
+#bottombox  { height:100; width:140; background-color:#FFFFFF; background-image:url(img/bg-menu-bottom.png); }
 
 .menugauche         { list-style-type: none; margin: 0; padding:0; }
 .menugauche li      { margin-bottom: 5px; }

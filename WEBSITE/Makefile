@@ -19,6 +19,7 @@ FIC  = index.html         \
        feat_output.html   \
        case.html          \
        case_shock.html    \
+       case_shock_bicyl.html    \
        case_viscous.html  \
        case_amr.html      \
        case_heat.html     \
@@ -64,7 +65,7 @@ site: $(DIR) $(DEST)
 	@echo "---------------------------"
 	@mkdir -p $(DIR)
 	cp -r FILES/* $(DIR)
-	-find $(DIR) -type d -name CVS -exec rm -r {} \;
+	-find $(DIR) -type d -name CVS | xargs rm -r
 
 img:
 

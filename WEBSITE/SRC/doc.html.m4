@@ -11,18 +11,18 @@ dnl -------------------------------------------------------------
 
 [<p>In this section, you will find useful parts which describe how to specify
 physical models, numerical parameters in TYPHON. All information are organized as follows:</p>]
-item([hyperlink([Input:], [doc_input.html]) ])
-item([hyperlink([NS model:], [doc_ns.html])])
-item([hyperlink([Conduction model:], [doc_kdif.html])])
-item([hyperlink([Coupling:], [doc_coupling.html])])
-item([hyperlink([Output:], [doc_output.html])])
-item([hyperlink([Numerical schemes:], [doc_scheme.html])])
+item([hyperlink([Input:], [doc_input.html]) describes inputs files and m4_param([main.rpm]) parameters])
+item([hyperlink([NS model:], [doc_ns.html]) describes Inviscid and Navier-Stokes models])
+item([hyperlink([Conduction model:], [doc_kdif.html]) describes Heat Transfer models])
+item([hyperlink([Coupling:], [doc_coupling.html]) describes coupling methods])
+item([hyperlink([Output:], [doc_output.html]) describes different kinds of outputs])
+item([hyperlink([Numerical schemes:], [doc_scheme.html]) describes numerical parameters])
 <br>
 
 dnl -------------------------------------------------------------
 section([Documentation news])
 
-dnl item([hyperlink([Input], id1[_input.html])])
+item([2006, November: numerical schemes for flow equations])
 <br>
 
 dnl -------------------------------------------------------------

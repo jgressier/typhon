@@ -13,22 +13,22 @@ dnl -------------------------------------------------------------
 <OL>
   <LI> Convection based schemes
     <OL>
-      <LI><script type="text/javascript"> js_additem("hlle",  "HLLE"); </script></LI>
-      <LI><script type="text/javascript"> js_additem("hllc",  "HLLC"); </script></LI>
-      <LI><script type="text/javascript"> js_additem("ausmm", "AUSM-M"); </script></LI>
+      <LI>m4_showitem([hlle],  [HLLE])</LI>
+      <LI>m4_showitem([hllc],  [HLLC])</LI>
+      <LI>m4_showitem([ausmm], [AUSM-M])</LI>
     </OL></LI>
   <LI> Diffusion based schemes</LI>
   <LI> High order interpolation</LI>
     <OL>
-      <LI><script type="text/javascript"> js_additem("gradient", "Gradient computation"); </script></LI>
-      <LI><script type="text/javascript"> js_additem("muscl",    "MUSCL methods"); </script></LI>
-      <LI><script type="text/javascript"> js_additem("limiter",  "Limiters"); </script></LI>
+      <LI>m4_showitem([gradient], [Gradient computation])</LI>
+      <LI>m4_showitem([muscl],    [MUSCL methods])</LI>
+      <LI>m4_showitem([limiter],  [Limiters])</LI>
     </OL></LI>
   <LI> Time integration</LI>
     <OL>
-      <LI><script type="text/javascript"> js_additem("explicit",  "Explicit method"); </script></LI>
-      <LI><script type="text/javascript"> js_additem("implicit",  "Implicit method"); </script></LI>
-      <LI><script type="text/javascript"> js_additem("matrix",    "Matrix resolution"); </script></LI>
+      <LI>m4_showitem([explicit],  [Explicit method])</LI>
+      <LI>m4_showitem([implicit],  [Implicit method])</LI>
+      <LI>m4_showitem([matrix],    [Matrix resolution])</LI>
     </OL></LI>
 </OL>
 

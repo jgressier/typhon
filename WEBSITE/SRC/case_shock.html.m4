@@ -9,32 +9,18 @@ include_header
 
 dnl -------------------------------------------------------------
 
-section([Case description])
+section([Steady supersonic or hypersonic flows])
+<p>
+  item3d([hyperlink([Two staggered cylinders interaction], [case_shock_bicyl.html])])
+</p>
 
-twocols([
-  include_image([bi-cylinder density], [comput/hypers-bicyl-mesh-small.png], [width=400])
-], [
-  <center><b>Two staggered cylinders in a Mach 10 hypersonic flow</b></center><br>
-  item([Mesh: 2D hybrid quads and tri])
-  item([Model: inviscid flow])
-  item([Numerics: first order HLLC])
-])
+section([Unsteady shock-wave interactions])
+<p>
+  item3d([Backward step diffraction])
+  item3d([Forward step reflexion (Emery case)])
+  item3d([Pyramid reflexion-diffraction])
+</p>
 
-dnl -------------------------------------------------------------
-
-section([Results])
-twocols([
-  item([Density contours and mesh: two shock waves and interaction])
-], [
-  include_image([bi-cylinder density], [comput/hypers-bicyl-density-small.png],[width=400])
-])
-<br>
-twocols([
-  item([Streamlines colored by pressure:])<br> 
-  streamlines are severely deviated through the shock waves
-], [
-  include_image([bi-cylinder density], [comput/hypers-bicyl-streamlines-pressure.png], [width=400])
-])
 
 skip_line
 
