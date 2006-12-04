@@ -294,7 +294,7 @@ module CGNSLIB
   integer, parameter :: Unstructured =  3
 
 !* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *\
-!*      Rigid Grid Motion types						 *
+!*      Rigid Grid Motion types                                          *
 !* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
   character(len=cgnslen), parameter :: RigidGridMotionTypeName(0:3) = &
@@ -314,7 +314,7 @@ module CGNSLIB
   integer, parameter :: DeformingGrid = 3
 
 !* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - *\
-!*      Simulation type							 *
+!*      Simulation type                                                  *
 !* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
   character(len=cgnslen), parameter :: SimulationTypeName(0:3) = &

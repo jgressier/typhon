@@ -34,7 +34,7 @@ endtype mnu_coupling
 type mnu_senseur
   integer                      :: mode ! utilisation du senseur
   logical                      :: sens ! "detection" de conditions de declenchement
-  				       ! de couplage
+                                       ! de couplage
   integer                      :: nmin
   integer                      :: nmax
   real(krp)                    :: ecartflux

@@ -119,10 +119,10 @@ SUBROUTINE sort_shell_real(ARR, n)
       l = i+m
       if (ARR(l) < ARR(i)) then
         t = ARR(i)
-	ARR(i) = ARR(l)
-	ARR(l) = t
-	i = i-m
-	if (i >= 1) GOTO 10
+        ARR(i) = ARR(l)
+        ARR(l) = t
+        i = i-m
+        if (i >= 1) GOTO 10
       end if
     end do
   end do
