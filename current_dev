@@ -63,7 +63,8 @@ Task Dévlp.    début fin   Type  Développement
 0185 Emmanuel  03/11       Coupl Regularly distributed conservative correction
 0186 Emmanuel  03/11       Coupl Simplification of options for user
 0187 Emmanuel  03/11       Coupl Effusivity weighted temperature interpolation
-0190 Jeremie   24/11       Core  FCT (symbolic function) bug
+0190 Jeremie   24/11 26/11 Core  FCT (symbolic function) bug
+0191 Jeremie   05/12 07/11 NS    Moving wall boundary condition (ex: WALL_VELOCITY = (10., 0., 0.))
 
 ------------------------------------------------------------------------
 release 0.3.1 - 26th August 2006

@@ -57,6 +57,7 @@ type st_boco_ns
   real(krp) :: pstat, ptot, ttot, mach ! old definition
   !type(st_fct_node) :: pstat, ptot, ttot, mach         ! FCT functions
   real(krp) :: temp_wall
+  type(v3d) :: wall_velocity
   type(v3d) :: direction
   real(krp), dimension(:), pointer  &
             :: temp           ! not uniform wall temperature

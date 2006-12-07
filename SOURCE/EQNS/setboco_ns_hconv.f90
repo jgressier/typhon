@@ -109,7 +109,7 @@ do ifb = 1, ustboco%nface
 
   ! velocity
   !fld%etatprim%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)  
-  fld%etatprim%tabvect(1)%vect(ighost) = - fld%etatprim%tabvect(1)%vect(ic)
+  fld%etatprim%tabvect(1)%vect(ighost) = (2._krp*bcns%wall_velocity) - fld%etatprim%tabvect(1)%vect(ic)
 
 enddo
 

@@ -32,12 +32,24 @@ x  = 1E-2_prec
 str="1E-2"
 call test_real(str, x)
 
+x  = 1.E-2_prec
+str="1.E-2"
+call test_real(str, x)
+
 x  = 2_prec+3_prec
 str="2+3"
 call test_real(str, x)
 
 x  = 1.5_prec-.5_prec
 str="1.5-.5"
+call test_real(str, x)
+
+x  = 10_prec-1E-1_prec
+str="10-1E-1"
+call test_real(str, x)
+
+x  = 20_prec-1E+1_prec
+str="20-1E+1"
 call test_real(str, x)
 
 x  = .2_prec*1E2_prec
@@ -136,6 +148,10 @@ x  = (((3**2+2)*5+4./2.)*3-(3-2./4.)*4)/(2-4)**2
 str="(((3^2+2)*5+4./2.)*3-(3-2./4.)*4)/(2-4)^2"
 call test_real(str, x)
 
+
+str=" 1.E-9 + (.9622504-1.E-9)*step(-2-x)"
+call test_parse(str)
+
 contains
 
 subroutine test_real(str, x)
@@ -163,6 +179,22 @@ else
   print form, str, cont%r, x, err
 endif
 call delete(cont)
+call delete(func)
+
+endsubroutine
+
+subroutine test_parse(str)
+implicit none
+character(len=*)     :: str
+character(len=100)   :: str2
+type(st_fct_node)      :: func
+character(len=20)  :: form="(a30,2g16.8,2x,a8)"
+character(len=20)  :: err
+integer            :: ierr
+
+call string_to_funct(str, func, ierr)
+call fct_node_to_str(func, str2)
+print*,trim(str)," -> ",trim(str2)
 call delete(func)
 
 endsubroutine

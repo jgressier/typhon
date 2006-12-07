@@ -66,7 +66,7 @@ if (unif == uniform) then
                 fld%etatprim%tabscal(2)%scal(ighost)/(r_PG*temp) 
     ! velocity
     !fld%etatprim%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)
-    fld%etatprim%tabvect(1)%vect(ighost) = - fld%etatprim%tabvect(1)%vect(ic)
+    fld%etatprim%tabvect(1)%vect(ighost) = (2._krp*bcns%wall_velocity) - fld%etatprim%tabvect(1)%vect(ic)
 
   enddo
 
@@ -99,7 +99,7 @@ else
                 fld%etatprim%tabscal(2)%scal(ighost)/(r_PG*temp)
     ! velocity
     !fld%etatprim%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)  
-    fld%etatprim%tabvect(1)%vect(ighost) = - fld%etatprim%tabvect(1)%vect(ic)
+    fld%etatprim%tabvect(1)%vect(ighost) = (2._krp*bcns%wall_velocity) - fld%etatprim%tabvect(1)%vect(ic)
 
   enddo
 

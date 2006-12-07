@@ -43,11 +43,19 @@ pblock => block
 select case(type)
 
 case(bc_wall_adiab)
-  typ = bc_wall_flux
+  call rpmgetkeyvalstr (pblock, "WALL_VELOCITY", str, "(0., 0., 0.)")
+  boco%wall_velocity = v3d_of(str, info)
+  if (info /= 0) &
+    call erreur("parsing parameters","unable to read WALL_VELOCITY data") 
+   typ = bc_wall_flux
   boco%flux = 0._krp
 
 case(bc_wall_isoth)
-  typ = bc_wall_isoth
+  call rpmgetkeyvalstr (pblock, "WALL_VELOCITY", str, "(0., 0., 0.)")
+  boco%wall_velocity = v3d_of(str, info)
+  if (info /= 0) &
+    call erreur("parsing parameters","unable to read WALL_VELOCITY data") 
+   typ = bc_wall_isoth
   select case(unif)
 
   case(uniform)
@@ -61,6 +69,10 @@ case(bc_wall_isoth)
   endselect
 
 case(bc_wall_flux)
+  call rpmgetkeyvalstr (pblock, "WALL_VELOCITY", str, "(0., 0., 0.)")
+  boco%wall_velocity = v3d_of(str, info)
+  if (info /= 0) &
+    call erreur("parsing parameters","unable to read WALL_VELOCITY data") 
   typ = bc_wall_flux
   select case(unif)
   
@@ -83,7 +95,7 @@ case(bc_inlet_sub)
    call rpmgetkeyvalstr (pblock, "DIRECTION", str)
    boco%direction = v3d_of(str, info)
    if (info /= 0) &
-     call erreur("lecture de menu","probleme a la lecture du vecteur DIRECTION") 
+     call erreur("parsing parameters","unable to read DIRECTION data (subsonic inlet)") 
    boco%direction = boco%direction / abs(boco%direction)
    !call erreur("Developpement","'bc_inlet_sub' : Cas non implemente")
 
@@ -95,7 +107,7 @@ case(bc_inlet_sup)
    call rpmgetkeyvalstr (pblock, "DIRECTION", str)
    boco%direction = v3d_of(str, info)
    if (info /= 0) &
-     call erreur("lecture de menu","probleme a la lecture du vecteur DIRECTION") 
+     call erreur("parsing parameters","unable to read DIRECTION data (supersonic inlet)") 
    boco%direction = boco%direction / abs(boco%direction)
    !call erreur("Developpement","'bc_inlet_sup' : Cas non implemente")
 
@@ -124,6 +136,7 @@ endsubroutine def_boco_ns
 ! nov  2003 : creation
 ! june 2004 : definition and reading of boundary conditions(inlet/outlet)
 ! june 2005 : wall conditions
+! nov  2006 : NS wall conditions with WALL_VELOCITY
 !------------------------------------------------------------------------------!
 
 
