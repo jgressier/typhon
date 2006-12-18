@@ -47,7 +47,7 @@ Task Dévlp.    début fin   Type  Développement
 0165 Jeremie               Opt   Mesh face definition (arrays)
 0166 Jeremie               Opt   BCSR connectivity for implicit matrix computation
      Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
-0174 Jeremie   13/04       Out   Output of Binary VTK files (VTK-BIN)
+0174 Jeremie   13/04 27/11 Out   Output of Binary VTK files (VTK-BIN)
 0175 Jeremie   29/08 29/08 MPI   Portage SGI (REAL8)
 0176 Jeremie   02/09 11/09 NS    Symbolic function initialization
 0177 Jeremie   12/09 10/11 Core  Management of unsteady computation : BASETIME / NCYCLE
@@ -65,6 +65,9 @@ Task Dévlp.    début fin   Type  Développement
 0187 Emmanuel  03/11       Coupl Effusivity weighted temperature interpolation
 0190 Jeremie   24/11 26/11 Core  FCT (symbolic function) bug
 0191 Jeremie   05/12 07/11 NS    Moving wall boundary condition (ex: WALL_VELOCITY = (10., 0., 0.))
+0192 Jeremie   16/12 17/12 NS    Approximate viscous flux jacobian
+0193 Jeremie               Math  GMRES iterative solver
+0194 Jeremie               NS    Variable normalization (rho_ref, velocity_ref)
 
 ------------------------------------------------------------------------
 release 0.3.1 - 26th August 2006
