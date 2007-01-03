@@ -8,13 +8,16 @@ echo ------------------------------------------------------------------
 
 # --- initialization ---
 #
+. bin/shconf.sh
+#
 export  HOMEDIR=$PWD
 export   EXEDIR=$PWD/SOURCE
 export   BINDIR=$PWD/bin
 export   NRGDIR=$PWD/NRG
-export  MESHDIR=$PWD/VALIDATION/mesh
+export  MESHDIR=$PWD/NRG/COMMON
 export   TMPDIR=/tmp/typhon.$$
 export CONFFILE=nrgconf.sh
+export  DIFFCOM=$DIFF
 #
 col=60
 mkdir $TMPDIR
@@ -22,12 +25,18 @@ trap "rm -Rf $TMPDIR ; exit 1" 0 2
 
 rm diff.log check.log 2> /dev/null
 
+# --- get list of cases ---
+#
 cd $NRGDIR
 if [ -z "$1" ] ; then
   LISTCASES=$(find . -name $CONFFILE)
 else
   LISTCASES=$(find . -name $CONFFILE | grep $1)
 fi
+
+# --- tests ---
+#
+echo diffing with $DIFF
 
 for FILE in $LISTCASES ; do
   # init
@@ -49,7 +58,7 @@ for FILE in $LISTCASES ; do
   $EXEDIR/Typhon-$TYPE_EXE >> $HOMEDIR/check.log 2>&1
   if [ $? ] ; then
     for fic in $TO_CHECK ; do
-      diff -bB $fic $DIR/$fic >> $HOMEDIR/diff.log
+      $DIFFCOM $fic $DIR/$fic >> $HOMEDIR/diff.log
       case $? in
         0) echo -e \\033[${col}G$fic identical ;;
         1) echo -e \\033[${col}G$fic changed ;;

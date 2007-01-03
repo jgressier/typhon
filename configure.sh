@@ -6,6 +6,7 @@ echo ------------------------------------------------------------------
 
 TOOLSCONF=TOOLS/configure
 MAKECONF=SOURCE/defvar.make
+SHELLCONF=bin/shconf.sh
 
 configure_help() {
   echo "TYPHON configuration help"
@@ -54,6 +55,27 @@ check_proc() {
   success $PROC
   }
 
+check_echo() {
+  export ECHO="echo -e"
+  success $ECHO
+  }
+
+check_diff() {
+  local difflist="ndiff diff"
+  for diffcom in $difflist ; do
+    DIFF=$(which $diffcom) 2> /dev/null
+    if [ -n "$DIFF" ] ; then
+      success $DIFF
+      break
+    fi
+  done
+  case $DIFF in
+    */ndiff) export DIFF="$DIFF -relerr 1.E-12" ;;
+    */diff)  export DIFF="$DIFF -bB" ;;
+    *)     fail "not found" ;;
+  esac
+  }
+
 check_f90compiler() {
   local namelist="ifort ifc pgf90 lfc pathf90 af90 f90 f95 g95 gfortran"
   for exe in $namelist ; do
@@ -95,7 +117,7 @@ check_f90conformance() {
 
 check_f90opti() {
   case $SYS-$F90C in
-    *ifc|*ifort) F90_OPTI="-O3" ;;
+    *ifc|*ifort) F90_OPTI="-implicitnone -convert big_endian -O3" ;;
     *pgf90)      F90_OPTI="-fastsse -Munroll=n:4 -Mipa=fast,inline" ;;
     *pathf90)    F90_OPTI="-Ofast" ;;
     *gfortran)   F90_OPTI="-ffast-math -funroll-loops -O3" ;;
@@ -113,7 +135,7 @@ check_f90opti() {
 
 check_f90debug() {
   case $SYS-$F90C in
-    *ifc|*ifort) F90_DEBUG="-traceback -CB" ;;
+    *ifc|*ifort) F90_DEBUG="-implicitnone -convert big_endian -g -traceback -CB" ;;
     *)           F90_DEBUG="-g" ;;
   esac
   export F90_DEBUG
@@ -190,6 +212,8 @@ trap "cd $LOCALDIR ; rm -Rf $TMPDIR ; exit 1" 0 2
 
 check "native system"               system
 check "CPU model"                   proc
+check "echo command"                echo
+check "diff command"                diff
 check "fortran 90 compiler"         f90compiler
 #
 # EXTLIBS="blas lapack cgns metis mpich mpi"
@@ -220,6 +244,15 @@ fi
   [[ -z "$LIB_mpi"    ]] && warning "MPI    not available: TYPHON will not feature parallel computation"
 
 echo Configuration ended
+
+### SHELL CONFIGURATION ###
+echo Writing Shell configuration...
+rm $SHELLCONF 2> /dev/null
+for VAR in SYS PROC DIFF ; do
+  echo export $VAR=\"$(printenv $VAR)\" >> $SHELLCONF
+done
+
+### MAKEFILE CONFIGURATION ###
 echo Writing Makefile configuration...
 rm $MAKECONF 2> /dev/null
 echo "SHELL       = $SHELL"                         >> $MAKECONF
