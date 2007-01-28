@@ -31,6 +31,7 @@ EQNS_OBJ := $(EQNS_MOD:.$(MOD)=.o)    \
             def_model_ns.o            \
             hres_ns_muscl.o           \
             hres_ns_musclfast.o       \
+            hres_ns_muscluns.o        \
             init_boco_ns.o            \
             init_ns_ust.o             \
             integration_ns_ust.o      \
@@ -43,6 +44,8 @@ EQNS_OBJ := $(EQNS_MOD:.$(MOD)=.o)    \
             setboco_ns_outlet_sub.o   \
             setboco_ns_outlet_sup.o   \
             stock_ns_cond_coupling.o  \
+            tvdgradstr_scal.o         \
+            tvdgradstr_vect.o         \
 
 D_EQNS_OBJ := $(EQNS_OBJ:%=$(PRJOBJ)/%)
 
