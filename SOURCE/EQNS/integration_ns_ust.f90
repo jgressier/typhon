@@ -106,7 +106,13 @@ do ib = 1, nbloc
                            field%etatprim, field%gradient,   &
                            cell_l, cell_r)
 
-  case default
+  case(hres_muscluns)
+
+    call hres_ns_muscluns(defspat, nfb, ideb, domaine,      &
+                          field%etatprim, field%gradient,   &
+                          cell_l, cell_r)
+
+   case default
     call erreur("flux computation","unknown high resolution method")
   endselect
 
