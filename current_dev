@@ -42,7 +42,6 @@ core 0.3
 
 Task Dévlp.    début fin   Type  Développement
 --------------------------------------------------------------------------------------------------------
-0041 Jérémie   01/07       Solv  Inversion Gauss-Seidel
 0156 Jeremie               MPI   Validation with second order NS computation (with gradient communication)
 0165 Jeremie               Opt   Mesh face definition (arrays)
 0166 Jeremie               Opt   BCSR connectivity for implicit matrix computation
@@ -54,8 +53,8 @@ Task Dévlp.    début fin   Type  Développement
 0178 Jeremie   19/09 28/09 Make  Automatic configuration
 0179 Jeremie   28/09 28/09 Make  Internal Cholesky decomposition (no more lapack/blas linkage)
 0180 Jeremie   01/08       Out   CGNS Output
-0181 Jeremie   31/08       Opt   Memory deallocation (CGNS)
-0182 Jeremie   05/11       Make  Automatic non regression tests
+0181 Jeremie   31/08       Opt   Memory deallocation and optimization (CGNS)
+0182 Jeremie   05/11 28/01 Make  Automatic non regression tests
                            Make  Restructuration de MAIN/integration_cycle (split)
                            Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
 0183 Emmanuel  03/11 03/11 Bug   Correction of output inside cycles
@@ -68,6 +67,9 @@ Task Dévlp.    début fin   Type  Développement
 0192 Jeremie   16/12 17/12 NS    Approximate viscous flux jacobian
 0193 Jeremie               Math  GMRES iterative solver
 0194 Jeremie               NS    Variable normalization (rho_ref, velocity_ref)
+0195 Jeremie   20/01 18/01 NS    MUSCL extrapolation variant (MUSCL-UNS)
+0196 Jeremie   28/01 29/01 NS    MUSCL subroutines reorganization
+0197 Jeremie   15/01 25/01 NS    Viscous term implicitation
 
 ------------------------------------------------------------------------
 release 0.3.1 - 26th August 2006

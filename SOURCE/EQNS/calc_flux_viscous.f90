@@ -56,7 +56,7 @@ type(v3d)  :: sigma_n
 real(krp)  :: sigma_vn, addvisc
 real(krp)  :: r_PG, cp, conduct
 real(krp)  :: id
-integer    :: if
+integer    :: if, i
 
 ! -- Debut de la procedure --
 
@@ -148,18 +148,19 @@ do if = 1, nflux
 
 enddo
 
-!!$!--------------------------------------------------------------
-!!$! Calcul des jacobiennes
-!!$!--------------------------------------------------------------
-!!$if (calc_jac) then
-!!$  call erreur("Developpement","Calcul de jacobiennes du flux VISCOUS non implemente")
-!!$endif
-!!$!  do if = 1, nflux
-!!$!    jacR(if) =  - kH(if) * (vLR(if).scal.face(if)%normale) &
-!!$!                  / (defsolver%defkdif%materiau%Cp * dLR(if)**2)
-!!$!    jacL(if) = -jacR(if)
-!!$!  enddo
-!!$!endif
+!--------------------------------------------------------------
+! Calcul des jacobiennes
+!--------------------------------------------------------------
+if (calc_jac) then
+  do if = 1, nflux
+    id = mu(if) / (dHR(if)*cell_l%density(if) + dHL(if)*cell_r%density(if)) & 
+                / abs(cg_r(if) - cg_l(if))
+    do i = 1, 5
+      jacR%mat(i,i,if) = jacR%mat(i,i,if) - id 
+      jacL%mat(i,i,if) = jacL%mat(i,i,if) + id
+    enddo
+  enddo
+endif
 
 
 !deallocate()
