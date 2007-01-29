@@ -61,6 +61,7 @@ integer(kpp), parameter :: jac_efm     = 20
 character, parameter :: hres_none       = 'N'
 character, parameter :: hres_muscl      = 'M'
 character, parameter :: hres_musclfast  = 'F'
+character, parameter :: hres_muscluns   = 'U'
 character, parameter :: hres_eno        = 'E'
 character, parameter :: hres_weno       = 'W'
 character, parameter :: hres_spect      = 'S'

@@ -42,25 +42,28 @@ integer, parameter :: qv_stress      = 102
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! structure MNU_SOLVER : options numeriques les solveurs 
+! structure MNU_SOLVER : solver parameters
 !------------------------------------------------------------------------------!
 type mnu_solver
-  integer         :: typ_solver      ! type de solveur (cf definitions VARCOM) 
-  integer         :: nequat          ! nombre d'equations
-  type(mnu_ns)    :: defns           ! options si solveur NS
-  type(mnu_kdif)  :: defkdif         ! options si solveur KDIF
-  type(mnu_vort)  :: defvort         ! options si solveur VORTEX
-  type(mnu_amr)   :: defamr          ! options si AMR
-  type(mnu_mpi)   :: defmpi          ! options si MPI
-  integer         :: nboco           ! nombre de conditions aux limites
+  integer            :: typ_solver      ! type de solveur (cf definitions VARCOM) 
+  integer            :: nequat          ! nombre d'equations
+  integer            :: nsca, nvec      ! scalar and vector numbers
+  real(krp), pointer :: refsca(:)       ! reference value for scalars
+  real(krp), pointer :: refvec(:)       ! reference value for vectors
+  type(mnu_ns)       :: defns           ! options si solveur NS
+  type(mnu_kdif)     :: defkdif         ! options si solveur KDIF
+  type(mnu_vort)     :: defvort         ! options si solveur VORTEX
+  type(mnu_amr)      :: defamr          ! options si AMR
+  type(mnu_mpi)      :: defmpi          ! options si MPI
+  integer            :: nboco           ! nombre de conditions aux limites
   type(mnu_boco), dimension(:), pointer &
-                  :: boco            ! definitions des conditions aux limites
-  integer         :: ninit           ! nombre de conditions initiales
+                     :: boco            ! definitions des conditions aux limites
+  integer            :: ninit           ! nombre de conditions initiales
   type(mnu_init), dimension(:), pointer &
-                  :: init            ! definitions des conditions initiales
-  integer         :: nprobe          ! nombre de capteurs
+                     :: init            ! definitions des conditions initiales
+  integer            :: nprobe          ! nombre de capteurs
   type(mnu_capteur), dimension(:), pointer &
-                  :: probe           ! definitions des capteurs
+                     :: probe           ! definitions des capteurs
 endtype mnu_solver
 
 
@@ -257,6 +260,7 @@ endmodule MENU_SOLVER
 ! fev  2004 : definition du solveur VORTEX
 ! juin 2004 : procedure delete : condition limite Fourier non uniforme
 ! july 2004 : add AMR parameters
+! dec  2006 : add reference values
 !------------------------------------------------------------------------------!
 
 
