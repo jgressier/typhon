@@ -46,27 +46,34 @@ Task Dévlp.    début fin   Type  Développement
 0165 Jeremie               Opt   Mesh face definition (arrays)
 0166 Jeremie               Opt   BCSR connectivity for implicit matrix computation
      Jérémie               Solv  Gel des matrices d'implicitation en fonction du résidu
+0180 Jeremie   01/08       Out   CGNS Output
+0181 Jeremie   31/08       Opt   Memory deallocation and optimization (CGNS)
+                           Make  Restructuration de MAIN/integration_cycle (split)
+                           Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
+0185 Emmanuel  03/11       Coupl Regularly distributed conservative correction
+0186 Emmanuel  03/11       Coupl Simplification of options for user
+0187 Emmanuel  03/11       Coupl Effusivity weighted temperature interpolation
+0193 Jeremie               Math  GMRES iterative solver
+0194 Jeremie               NS    Variable normalization (rho_ref, velocity_ref)
+
+------------------------------------------------------------------------
+release 0.3.2 - 6th February 2007
+------------------------------------------------------------------------
+
+Task Dévlp.    début fin   Type  Développement
+--------------------------------------------------------------------------------------------------------
 0174 Jeremie   13/04 27/11 Out   Output of Binary VTK files (VTK-BIN)
 0175 Jeremie   29/08 29/08 MPI   Portage SGI (REAL8)
 0176 Jeremie   02/09 11/09 NS    Symbolic function initialization
 0177 Jeremie   12/09 10/11 Core  Management of unsteady computation : BASETIME / NCYCLE
 0178 Jeremie   19/09 28/09 Make  Automatic configuration
 0179 Jeremie   28/09 28/09 Make  Internal Cholesky decomposition (no more lapack/blas linkage)
-0180 Jeremie   01/08       Out   CGNS Output
-0181 Jeremie   31/08       Opt   Memory deallocation and optimization (CGNS)
 0182 Jeremie   05/11 28/01 Make  Automatic non regression tests
-                           Make  Restructuration de MAIN/integration_cycle (split)
-                           Make  Renommer init_ust_boco* en iniconn_* (confusion avec init_boco)
 0183 Emmanuel  03/11 03/11 Bug   Correction of output inside cycles
 0184 Emmanuel  03/11 03/11 SCH   Generalized convection boundary condition
-0185 Emmanuel  03/11       Coupl Regularly distributed conservative correction
-0186 Emmanuel  03/11       Coupl Simplification of options for user
-0187 Emmanuel  03/11       Coupl Effusivity weighted temperature interpolation
 0190 Jeremie   24/11 26/11 Core  FCT (symbolic function) bug
 0191 Jeremie   05/12 07/11 NS    Moving wall boundary condition (ex: WALL_VELOCITY = (10., 0., 0.))
 0192 Jeremie   16/12 17/12 NS    Approximate viscous flux jacobian
-0193 Jeremie               Math  GMRES iterative solver
-0194 Jeremie               NS    Variable normalization (rho_ref, velocity_ref)
 0195 Jeremie   20/01 18/01 NS    MUSCL extrapolation variant (MUSCL-UNS)
 0196 Jeremie   28/01 29/01 NS    MUSCL subroutines reorganization
 0197 Jeremie   15/01 25/01 NS    Viscous term implicitation
