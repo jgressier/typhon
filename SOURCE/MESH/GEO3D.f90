@@ -63,7 +63,7 @@ interface operator(-)
 endinterface
 
 interface operator(*)
-  module procedure v3d_mult, v3d_mult_t, v3d_mult_tt
+  module procedure v3d_mult, v3d_mult_t1, v3d_mult_t2, v3d_mult_tt
 endinterface
 
 interface operator(/)
@@ -356,9 +356,9 @@ type(v3d), intent(inout) :: v
 end subroutine v3d_eq_mult
 
 !------------------------------------------------------------------------------!
-! Fonction : vector multiplied par real (array)
+! Fonction : vector (array) multiplied par real
 !------------------------------------------------------------------------------!
-function v3d_mult_t(x, v) result(tv)
+function v3d_mult_t2(x, v) result(tv)
 implicit none
 real(krp), intent(in) :: x
 type(v3d), dimension(:), intent(in) :: v
@@ -371,9 +371,27 @@ integer :: i
     tv(i)%z = x * v(i)%z 
   enddo
 
-endfunction v3d_mult_t
+endfunction v3d_mult_t2
 
 !------------------------------------------------------------------------------!
+! Fonction : vector multiplied par real (array)
+!------------------------------------------------------------------------------!
+function v3d_mult_t1(x, v) result(tv)
+implicit none
+real(krp), dimension(:), intent(in) :: x
+type(v3d),               intent(in) :: v
+type(v3d), dimension(size(x))       :: tv
+integer :: i
+
+  do i = 1, size(x)
+    tv(i)%x = x(i) * v%x 
+    tv(i)%y = x(i) * v%y 
+    tv(i)%z = x(i) * v%z 
+  enddo
+
+endfunction v3d_mult_t1
+
+!!------------------------------------------------------------------------------!
 ! Assignment : v(:) = a . v(:)
 !------------------------------------------------------------------------------!
 subroutine v3d_eq_mult_t(v, a)

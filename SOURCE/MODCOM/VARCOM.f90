@@ -20,7 +20,11 @@ character(len=6), parameter :: version = "0.3.1"
 logical        :: mpi_run              ! calcul parallele MPI ou non
 character      :: memory_mode          ! mode d'economie memoire
 character      :: model_mode           ! mode de modelisation physique
-integer        :: taille_buffer        ! taille de buffer pour la distribution des calculs
+
+integer        :: cell_buffer          ! buffer for vector computation
+integer        :: taille_buffer        ! buffer for vector computation
+integer        :: histo_buffer         ! buffer for history writing
+
 integer        :: myprocid             ! id of current proc
 
 ! -- CONSTANTES globales du module -------------------------------------------
@@ -191,11 +195,28 @@ subroutine init_varcom()
 
   memory_mode   = mode_normal
   model_mode    = model_max
-  taille_buffer = 64   ! 1024 ? 
+  cell_buffer   = 64   ! Compiler dependent ?
+  taille_buffer = cell_buffer
+  histo_buffer  = 10   ! 
 
   ! constantes
 
 endsubroutine init_varcom
+
+!----------------------------------------------------------------------------------------
+subroutine calc_buffer(ntot, maxbuffer, nblock, resbuffer, partbuffer)
+
+  integer, intent(in)  :: ntot, maxbuffer          ! total number of element and maximal buffer
+  integer, intent(out) :: nblock                   ! number of packs/blocks
+  integer, intent(out) :: resbuffer                ! computed buffer (for almost all blocks)
+  integer, intent(out) :: partbuffer               ! small block (residue of distribution)
+  
+  nblock     = 1 + (ntot-1) / maxbuffer
+  resbuffer  = 1 + (ntot-1) / nblock        
+  partbuffer = 1 + mod(ntot-1, resbuffer)
+
+endsubroutine
+
 
 
 

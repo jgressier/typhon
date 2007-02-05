@@ -1,5 +1,5 @@
 !------------------------------------------------------------------------------!
-! Procedure : def_init_ns                 Auteur : J. Gressier
+! Procedure : def_initns                 Auteur : J. Gressier
 !                                         Date   : Juillet 2004
 ! Fonction                                Modif  : cf historique
 !   Traitement des parametres du fichier menu principal
@@ -19,14 +19,14 @@ use FCT_PARSER
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(rpmblock), target :: block    ! bloc RPM contenant les definitions
 integer                :: type     ! type de condition aux limites
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 type(st_init_ns) :: initns
 
-! -- Declaration des variables internes --
+! -- internal variables --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: ib, nkey, info
 character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
@@ -35,17 +35,41 @@ character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 pblock => block
 
-call rpmgetkeyvalstr(pblock, "PI", str)
-print*," parsing "//trim(str)
-call string_to_funct(str, initns%ptot, info)
+if (rpm_existkey(pblock, "PI")) then
+  initns%is_pstat = .false.
+  call rpmgetkeyvalstr(pblock, "PI", str)
+  print*," parsing PI = "//trim(str)
+  call string_to_funct(str, initns%ptot, info)
+else
+  initns%is_pstat = .true.
+  call rpmgetkeyvalstr(pblock, "P", str)
+  print*," parsing P = "//trim(str)
+  call string_to_funct(str, initns%pstat, info)
+endif
 
-call rpmgetkeyvalstr(pblock, "TI", str)
-print*," parsing "//trim(str)
-call string_to_funct(str, initns%ttot, info)
+if (rpm_existkey(pblock, "TI")) then
+  initns%is_tstat = .false.
+  call rpmgetkeyvalstr(pblock, "TI", str)
+  print*," parsing TI = "//trim(str)
+  call string_to_funct(str, initns%ttot, info)
+else
+  initns%is_tstat = .true.
+  call rpmgetkeyvalstr(pblock, "T", str)
+  print*," parsing T = "//trim(str)
+  call string_to_funct(str, initns%tstat, info)
+endif
 
-call rpmgetkeyvalstr(pblock, "MACH", str)
-print*," parsing "//trim(str)
-call string_to_funct(str, initns%mach, info)
+if (rpm_existkey(pblock, "MACH")) then
+  initns%is_velocity = .false.
+  call rpmgetkeyvalstr(pblock, "MACH", str)
+  print*," parsing MACH = "//trim(str)
+  call string_to_funct(str, initns%mach, info)
+else
+  initns%is_velocity = .true.
+  call rpmgetkeyvalstr(pblock, "VELOCITY", str)
+  print*," parsing VELOCITY = "//trim(str)
+  call string_to_funct(str, initns%velocity, info)
+endif
 
 call rpmgetkeyvalstr (pblock, "DIRECTION", str)
 initns%direction = v3d_of(str, info)
@@ -62,5 +86,3 @@ endsubroutine def_init_ns
 ! juil 2004 : creation de la routine
 ! sept 2006 : FCT functions for Ptot, Ttot ans Mach
 !------------------------------------------------------------------------------!
-
-

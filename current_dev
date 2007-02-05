@@ -70,6 +70,7 @@ Task Dévlp.    début fin   Type  Développement
 0195 Jeremie   20/01 18/01 NS    MUSCL extrapolation variant (MUSCL-UNS)
 0196 Jeremie   28/01 29/01 NS    MUSCL subroutines reorganization
 0197 Jeremie   15/01 25/01 NS    Viscous term implicitation
+0198 Jeremie   05/02 07/02 NS    NS initialization (p/pi, t/ti, mach/velocity + direction)
 
 ------------------------------------------------------------------------
 release 0.3.1 - 26th August 2006

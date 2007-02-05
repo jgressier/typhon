@@ -55,10 +55,7 @@ type(v3d), dimension(:), allocatable &
 ! On peut ici decouper la maillage complet en blocs de taille fixe pour optimiser
 ! l'encombrement memoire et la vectorisation
 
-! nombre de blocs (<= taille_buffer) necessaires pour domaine%nface
-nbloc = 1 + (domaine%nface-1) / taille_buffer
-nbuf  = 1 + (domaine%nface-1) / nbloc          ! taille de bloc buffer
-nfb   = 1 + mod(domaine%nface-1, nbuf)         ! taille de 1er bloc peut etre <> de nbuf
+call calc_buffer(domaine%nface, cell_buffer, nbloc, nbuf, nfb)
 
 ! il sera a tester l'utilisation de tableaux de champs generiques plutôt que
 ! des definitions type d'etat specifiques (st_nsetat)

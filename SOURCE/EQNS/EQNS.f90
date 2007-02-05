@@ -15,6 +15,8 @@ use OUTPUT
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
+integer(kpp), parameter :: perfect_gas = 10
+
 !------------------------------------------------------------------------------!
 ! Definition de la structure ST_NSETAT : etat physique
 !------------------------------------------------------------------------------!
@@ -29,6 +31,7 @@ endtype st_nsetat
 ! Definition de la structure ST_ESPECE : Definition d'une espece de gaz
 !------------------------------------------------------------------------------!
 type st_espece
+  integer(kpp) :: fluid_type    ! type of fluid
   real(krp)    :: gamma         ! rapport de chaleurs specifiques
   real(krp)    :: r_const       ! constante du gaz
   real(krp)    :: prandtl       ! nombre de Prandtl
@@ -114,7 +117,7 @@ type(v3d)       :: dir
 real(krp)       :: pi, ti, mach
 ! -- OUTPUTS --
 type(st_nsetat) :: nspri
-! -- internal variables 
+! -- internal variables --
 real(krp)       :: g1, fm, ts, a
 
   g1 = fluid%gamma -1._krp

@@ -71,12 +71,13 @@ case(alg_bicgstab)
   call solve_bicgstab(deftime, mat, tabres, info)
   if (info < 0) call print_warning("BICG-Stabilized iterative method not converged")
 
+case(alg_gmres)
+  !call solve_gmres(deftime, mat, tabres, info)
+  if (info < 0) call print_warning("GMRES iterative method not converged")
+
 case default
   call erreur("Internal error","Unknown algebraic inversion method")
 endselect
-
-!print*,'deallocate sparse mat'
-!call delete(mat)
 
 call unpackst(tabres, rhsfield, size_tot(rhsfield))
 
@@ -88,4 +89,5 @@ endsubroutine implicit_solve
 ! Change History
 !
 ! Aug  2005 : creation (from part of implicit_step)
+! Dec  2006 : add GMRES method
 !------------------------------------------------------------------------------!

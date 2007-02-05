@@ -12,6 +12,7 @@ subroutine init_ns_ust(defns, initns, champ, mesh, init_type, initfile, ncell)
 
 use TYPHMAKE
 use DEFFIELD
+use EQNS
 use MENU_NS
 use MENU_INIT
 use FCT_EVAL
@@ -19,7 +20,7 @@ use FCT_ENV
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(mnu_ns)     :: defns
 type(st_init_ns) :: initns
 type(st_mesh)    :: mesh
@@ -27,22 +28,28 @@ integer(kpp)     :: init_type
 character(len=strlen) :: initfile
 integer(kip)     :: ncell
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 type(st_field) :: champ
 
-! -- Declaration des variables internes --
-integer         :: ip, ic, ierr
-type(st_nsetat) :: nspri
-character(len=50):: charac
-real(krp)       :: x, y, z, temp, ptot, ttot, mach
-logical         :: is_x, is_y, is_z
+! -- Internal variables --
+integer                           :: ip, ifirst, iend, ic, i, ib, ierr
+integer                           :: nb, maxbuf, buf       ! block number, buffers
+type(st_nsetat)                   :: nspri
+character(len=50)                 :: charac
+real(krp)                         :: xx, yy, zz, temp
+real(krp), dimension(cell_buffer) :: ptot, pstat, ttot, tstat, vel, mach
+logical                           :: is_x, is_y, is_z
+real(krp)                         :: gamma
 
 ! -- BODY --
 
+!!! DEV !!! should not directly use gamma
+gamma = defns%properties(1)%gamma
 
 select case(init_type)
 
 case(init_def)  ! --- initialization through FCT functions ---
+  print*,"   FCT initialization"
   
   !is_x = 
   !
@@ -51,19 +58,65 @@ case(init_def)  ! --- initialization through FCT functions ---
   call new(nspri, 1)
   call new_fct_env(blank_env)      ! temporary environment from FCT_EVAL
 
-  do ic = 1, ncell
-    call fct_env_set_real(blank_env, "x", mesh%centre(ic,1,1)%x)
-    call fct_env_set_real(blank_env, "y", mesh%centre(ic,1,1)%y)
-    call fct_env_set_real(blank_env, "z", mesh%centre(ic,1,1)%z)
-    call fct_eval_real(blank_env, initns%ptot, ptot)
-    call fct_eval_real(blank_env, initns%ttot, ttot)
-    call fct_eval_real(blank_env, initns%mach, mach)
-    call pi_ti_mach_dir2nspri(defns%properties(1), 1, ptot, ttot, mach, initns%direction, nspri) 
-    champ%etatprim%tabscal(1)%scal(ic) = nspri%density(1)
-    champ%etatprim%tabscal(2)%scal(ic) = nspri%pressure(1)
-    champ%etatprim%tabvect(1)%vect(ic) = nspri%velocity(1)
-  enddo
+  call calc_buffer(ncell, cell_buffer, nb, maxbuf, buf)
+  ifirst = 1
 
+  do ib = 1, nb
+  
+    iend = ifirst+buf-1
+    
+    do ic = ifirst, iend
+      i = ic - ifirst+1
+      
+      
+      call fct_env_set_real(blank_env, "x", mesh%centre(ic,1,1)%x)
+      call fct_env_set_real(blank_env, "y", mesh%centre(ic,1,1)%y)
+      call fct_env_set_real(blank_env, "z", mesh%centre(ic,1,1)%z)
+      if (initns%is_pstat) then
+        call fct_eval_real(blank_env, initns%pstat, pstat(i))
+      else
+        call fct_eval_real(blank_env, initns%ptot, ptot(i))
+      endif
+      if (initns%is_tstat) then
+        call fct_eval_real(blank_env, initns%tstat, tstat(i))
+      else
+        call fct_eval_real(blank_env, initns%ttot, ttot(i))
+      endif
+      if (initns%is_velocity) then
+        call fct_eval_real(blank_env, initns%velocity, vel(i))
+      else
+        call fct_eval_real(blank_env, initns%mach, mach(i))
+      endif
+    enddo
+
+    ! -- compute static temperature --
+    if (.not.initns%is_tstat) then
+      if (initns%is_velocity) then
+        tstat(1:buf) = ttot(1:buf) - .5_krp*(gamma-1._krp)/gamma/defns%properties(1)%r_const*vel(1:buf)**2
+      else
+        tstat(1:buf) = ttot(1:buf) / (1._krp + .5_krp*(gamma-1._krp)*mach(1:buf)**2)
+      endif 
+    endif
+    
+    ! -- compute velocity (from mach number) --
+    if (.not.initns%is_velocity) then
+      vel(1:buf) = sqrt(gamma*defns%properties(1)%r_const*tstat(1:buf))*mach(1:buf)
+    endif
+    
+    ! -- compute static pressure (from pi & mach number) --
+    if (.not.initns%is_pstat) then
+      pstat(1:buf) = ptot(1:buf) / (1._krp + .5_krp*(gamma-1._krp)*mach(1:buf)**2)**(gamma/(gamma-1._krp))
+    endif
+    
+    ! -- compute density --
+    champ%etatprim%tabscal(1)%scal(ifirst:iend) = pstat(1:buf)/(defns%properties(1)%r_const*tstat(1:buf))
+    champ%etatprim%tabscal(2)%scal(ifirst:iend) = pstat(1:buf)
+    champ%etatprim%tabvect(1)%vect(ifirst:iend) = vel(1:buf)*initns%direction
+
+    ifirst = ifirst + buf
+    buf    = maxbuf
+  enddo
+  
   call delete(nspri)
   !!if (champ%allocgrad) champ%gradient(:,:,:,:,:) = 0._krp
 
@@ -72,15 +125,15 @@ case(init_udf)
   call udf_ns_init(defns, ncell, mesh%centre(1:ncell, 1, 1), champ%etatprim)
 
 case(init_file)
-  print*, initfile
+  print*,"   File initialization"
   open(unit=1004, file = initfile, form="formatted")
   read(1004,'(a)') charac
   read(1004,'(a)') charac
   do ic=1, ncell
-    read(1004,'(8e18.8)') x, y, z, champ%etatprim%tabvect(1)%vect(ic)%x, &
-                 champ%etatprim%tabvect(1)%vect(ic)%y, &
-                 champ%etatprim%tabvect(1)%vect(ic)%z, &
-                 champ%etatprim%tabscal(2)%scal(ic), temp
+    read(1004,'(8e18.8)') xx, yy, zz, champ%etatprim%tabvect(1)%vect(ic)%x, &
+                                      champ%etatprim%tabvect(1)%vect(ic)%y, &
+                                      champ%etatprim%tabvect(1)%vect(ic)%z, &
+                                      champ%etatprim%tabscal(2)%scal(ic), temp
     champ%etatprim%tabscal(1)%scal(ic) = champ%etatprim%tabscal(2)%scal(ic) / &
                   ( temp * defns%properties(1)%r_const )
   enddo

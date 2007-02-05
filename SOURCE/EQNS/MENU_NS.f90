@@ -28,10 +28,10 @@ integer, parameter :: eqRANS  = 12
 integer, parameter :: gas_AIR = 10
 
 ! -- Viscosity : computation
-integer, parameter :: visc_no = 10
+integer, parameter :: visc_no   = 10
 integer, parameter :: visc_suth = 11
-integer, parameter :: visc_cst =12
-integer, parameter :: visc_lin = 13
+integer, parameter :: visc_cst  = 12
+integer, parameter :: visc_lin  = 13
 
 
 ! -- DECLARATIONS -----------------------------------------------------------
@@ -81,10 +81,10 @@ endtype st_boco_ns
 ! structure ST_INIT_NS : Definition de l'initialisation
 !------------------------------------------------------------------------------!
 type st_init_ns
-  ! definir un etat
-  type(st_fct_node) :: pstat, ptot, ttot, mach         ! FCT functions
-  !real(krp) :: pstat, ptot, ttot, mach
-  type(v3d) :: direction
+  ! multiple ways to define a state
+  logical :: is_pstat, is_tstat, is_velocity
+  type(st_fct_node) :: pstat, ptot, tstat, ttot, mach, velocity         ! FCT functions
+  type(v3d)         :: direction
 endtype st_init_ns
 
 
