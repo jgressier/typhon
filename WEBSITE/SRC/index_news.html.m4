@@ -9,6 +9,14 @@ include_header
 
 dnl -------------------------------------------------------------
 
+section([February 2007, 6th : version 0.3.2 released])
+item([Symbolic function initialization (P/Pi, T/Ti, Mach/Velocity)])
+item([New binary VTK output])
+item([Automatic configuration for compilation])
+item([Automatic non regression test cases])
+See hyperlink([Change log], [dev_chlog.html]) for details <br>
+<br>
+
 section([August 2006, 26th : version 0.3.1 released])
 item([Enhanced output options (CPU, periodic writing)])
 item([CPU optimization])

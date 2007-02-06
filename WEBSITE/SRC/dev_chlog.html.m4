@@ -7,11 +7,24 @@ define([id3], [])
 
 include_header
 
-define([beginlist],  [<table class=defaut border=0 cellpadding=0 cellspacing=0 style="padding-left:10pt; padding-right:10pt">])
-define([endlist],    [</table><br>])
+define([beginlist], [<table class=defaut border=0 cellpadding=0 cellspacing=0 style="padding-left:10pt; padding-right:10pt">])
+define([endlist],   [</table><br>])
 define([writefunc], [<tr class=blue><td align=center>$1</td><td width=10><td>$2</td></tr>])
 define([writedev],  [<tr class=orange><td align=center>$1</td><td width=10><td>$2</td></tr>])
 define([writebug],  [<tr class=red><td align=center>$1</td><td width=10><td>$2</td></tr>])
+
+dnl -------------------------------------------------------------
+sectionlr([release 0.3.2], [2007/02/06])
+beginlist
+writefunc([NS],     [Basic MUSCL method (MUSCL-UNS)])
+writefunc([NS],     [Initialization with symbolic functions])
+writefunc([NS],     [Initialization with optional static/total pressure or temperature, Mach/velocity])
+writefunc([NS],     [Moving wall boundary condition (WALL_VELOCITY)])
+writedev([NS],      [Viscous flux implicitation])
+writefunc([Output], [Binary VTK (VTK-BIN)])
+writefunc([Core],   [Automatic system configuration])
+writefunc([Core],   [Automatic non regression test cases])
+endlist
 
 dnl -------------------------------------------------------------
 sectionlr([release 0.3.1], [2006/08/26])
