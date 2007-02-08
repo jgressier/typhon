@@ -22,7 +22,8 @@ item([scaling function])
 
 skip_line
 section([Initialization fields])
-not featured
+item([symbolic functions])
+item([internal format (development)])
 
 skip_line
 section([User Defined Functions])

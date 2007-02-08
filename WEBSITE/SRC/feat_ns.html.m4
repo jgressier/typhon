@@ -24,13 +24,16 @@ section([Numerical Schemes])
 item([HLLE upwind scheme])
 item([HLLC upwind scheme (cf Toro, Batten)])
 item([AUSM-M upwind scheme (cf Liou)])
-item([MUSCL second order extension (MUSCL or FAST-MUSCL for high quality grids)])
-item([MUSCL limiters: Minmod, van Albada, van Leer, Superbee, Kim (3rd order)])
-item([Linear Implicit resolution (BiCG-Stab)])
+item([MUSCL second order extension (MUSCL, MUSCL-UNS or FAST-MUSCL for high quality grids)])
+item([TVD limiters: Minmod, van Albada, van Leer, Superbee, Kim (3rd order)])
+item([Implicitation])
+Linear Implicit resolution (BiCG-Stab)<br>
+Approximate upwind fluxes jacobian<br>
+Viscous fluxes jacobian<br>
 <br>
 
 section([Boundary Conditions])
-item([wall (isothermal, adiabatic, coupled)])
+item([wall (isothermal, adiabatic, coupled) and moving wall])
 item([symmetry])
 item([subsonic or supersonic inlet])
 item([subsonic or supersonic outlet])

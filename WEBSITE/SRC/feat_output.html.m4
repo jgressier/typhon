@@ -14,12 +14,14 @@ item([optional mesh computation report])
 item([final output or unsteady (periodic) outputs at cycles])
 item([VTK])
 Cell centered unstructured data, save primitive variables <br>
+Binary (VTK-BIN keyword) or ASCII (VTK keyword) <br>
 item([Tecplot])
 Cell vertex interpolation & unstructured mesh
 <br>
 <br>
 
 section([Monitoring])
+item([Residuals file (monres.xxx)])
 
 skip_line
 

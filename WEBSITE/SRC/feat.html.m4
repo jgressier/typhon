@@ -30,6 +30,7 @@ section([Upcoming Features])
 item([history outputs])
 item([CGNS outputs])
 item([Mesh refinement])
+item([Spectral high order interpolation])
 
 skip_line
 

@@ -20,7 +20,7 @@ item([exchange values at interfaces (no gradient communication)])
 <br>
 
 section([Common methods])
-item([gradient computation: least squares or weighted least squares])
+item([gradient computation (GRADMETH) : least squares (LSQ) or weighted least squares (W-LSQ)])
 <br>
 
 skip_line
