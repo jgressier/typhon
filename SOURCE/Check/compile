@@ -1,4 +1,2 @@
-for prog in check*.f90 ; do
-  echo compiling $prog...
-  ifort -I.. -I../Include -L../Lib $prog -lt_math -lt_modcom -o ${prog%.f90}.exe
-done
+ifort -I.. -I../Include -L../Lib check_fct_eval.f90 -lt_math -lt_modcom -o check_fct_eval.exe
+ifort -I.. -I../Include -L../Lib check_fct_env.f90  -lt_math -lt_modcom -o check_fct_env.exe

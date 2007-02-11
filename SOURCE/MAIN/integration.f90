@@ -50,7 +50,7 @@ exchcycle(:) = 1 ! initialisation a 1 : 1er echange au 1er cycle, a partir des c
 ! allocation des champs de residus et gradients
 
 do izone = 1, lworld%prj%nzone
-  pgrid => lworld%zone(izone)%grid
+  pgrid => lworld%zone(izone)%gridlist%first
   do while (associated(pgrid))
     call alloc_res(pgrid%info%field_loc)
     !! DEV : l'allocation ne doit se faire que dans certains cas
@@ -83,7 +83,8 @@ do while (.not. lworld%info%fin_integration)
 
   call print_info(6,str_w)
 
-  ! -- integration d'un cycle --
+  !--------------------------------------------------------
+  ! cycle integration of all zones
 
   call integration_cycle(lworld, exchcycle, lworld%prj%ncoupling)  
 
@@ -130,6 +131,15 @@ do while (.not. lworld%info%fin_integration)
     close(2001)
   endif
 
+  call output_result(lworld, end_cycle)
+
+  open(unit=2001, file="typhon_stop", status="old", iostat=ierr)
+  if (ierr == 0) then
+    lworld%info%fin_integration = .true.
+    call print_info(9, "INTERRUPTING INTEGRATION...")
+    close(2001)
+  endif
+
 enddo
 
 call cpu_time(cpu_end)
@@ -140,11 +150,13 @@ write(str_w, "(a,e13.4)") "CPU average cycle time: ", (cpu_end-cpu_start)/lworld
 call print_info(10, str_w)
 
 ! Mise a jour des variables primitives
+
 do izone = 1, lworld%prj%nzone
-  call calc_varprim(lworld%zone(izone)%defsolver, lworld%zone(izone)%grid%info%field_loc)
+  call calc_varprim(lworld%zone(izone)%defsolver, lworld%zone(izone)%gridlist%first%info%field_loc)
 enddo
 
 ! Mise a jour des conditions aux limites, notamment de couplage pour l'affichage des donnees :
+
 if (lworld%prj%ncoupling > 0) then
   do ir = 1, lworld%prj%ncoupling
       call calcul_raccord(lworld, ir, iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2)
@@ -171,8 +183,8 @@ deallocate(exchcycle)
 do izone = 1, lworld%prj%nzone
  select case(lworld%zone(izone)%defsolver%typ_solver)    ! DEV : en attendant homogeneisation
  case(solKDIF)                                           ! de l'acces des champs dans 
-   call dealloc_res(lworld%zone(izone)%grid%info%field_loc)       ! les structures MGRID
-   call dealloc_grad(lworld%zone(izone)%grid%info%field_loc)
+   call dealloc_res(lworld%zone(izone)%gridlist%first%info%field_loc)       ! les structures MGRID
+   call dealloc_grad(lworld%zone(izone)%gridlist%first%info%field_loc)
  case(solVORTEX)
  endselect
 enddo

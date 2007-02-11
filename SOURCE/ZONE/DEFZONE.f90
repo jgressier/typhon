@@ -14,7 +14,6 @@ module DEFZONE
 use TYPHMAKE      ! Definition de la precision/donnees informatiques
 use MODINFO       ! Information pour la gestion de l'integration
 use MENU_SOLVER   ! Definition des solveurs
-use MENU_NUM      ! Definition des parametres numeriques d'integration
 use MENU_MESH     ! Definition du maillage
 use MGRID         ! Definition des grilles
 use STRMESH       ! Definition des maillages structures
@@ -42,8 +41,6 @@ type st_zone
   integer               :: ncoupling  ! nombre d'echanges avec d'autres zones
   type(st_infozone)     :: info       ! information sur l'integration
   type(mnu_solver)      :: defsolver  ! type de solveur a utiliser 
-  type(mnu_time)        :: deftime    ! parametres d'integration temporelle
-  type(mnu_spat)        :: defspat    ! parametres d'integration spatiale
                                       !   cf definitions variables globales
   type(mnu_mesh)        :: defmesh    ! type de maillage
   character             :: typ_mesh   ! type de maillage (cf VARCOM)
@@ -52,8 +49,8 @@ type st_zone
                                       !   H : hybride
   integer               :: mpi_cpu    ! numero de CPU charge du calcul
 
-  integer                :: ngrid      ! nombre de grilles (mesh + field)
-  type(st_grid), pointer :: grid       ! liste chainee de grilles
+  !integer                :: ngrid      ! nombre de grilles (mesh + field)
+  type(st_gridlist)     :: gridlist       ! liste chainee de grilles
   type(st_capteur), dimension(:), pointer &
                         :: probe      ! tableau des capteurs
   type(mnu_zonecoupling), dimension(:), pointer &
@@ -90,8 +87,9 @@ integer        :: id
 
   !zone%ndom  = 0   ! DEV: a supprimer apres homogeneisation dans MGRID
 
-  zone%ngrid = 0
-  nullify(zone%grid)
+  !zone%ngrid = 0
+  !nullify(zone%grid)
+  call init_gridlist(zone%gridlist)
 
 endsubroutine new_zone
 
@@ -149,27 +147,27 @@ endsubroutine delete_zone
 !------------------------------------------------------------------------------!
 ! Procedure : ajout avec allocation d'une structure grille (par insertion)
 !------------------------------------------------------------------------------!
-function newgrid(zone) result(pgrid)
-implicit none
-type(st_grid), pointer :: pgrid
-type(st_zone)          :: zone
-integer                :: id
-
-  zone%ngrid = zone%ngrid + 1
-
-  if (zone%ngrid == 1) then
-   allocate(pgrid)
-   call new(pgrid, zone%ngrid)
-  else
-    pgrid => insert_newgrid(zone%grid, zone%ngrid)
-  endif
-
-  pgrid%nbocofield = 0
-  pgrid%nfield = 0
-
-  zone%grid => pgrid
-
-endfunction newgrid
+!!$function newgrid(zone) result(pgrid)
+!!$implicit none
+!!$type(st_grid), pointer :: pgrid
+!!$type(st_zone)          :: zone
+!!$integer                :: id
+!!$
+!!$  zone%ngrid = zone%ngrid + 1
+!!$
+!!$  if (zone%ngrid == 1) then
+!!$   allocate(pgrid)
+!!$   call new(pgrid, zone%ngrid)
+!!$  else
+!!$    pgrid => insert_newgrid(zone%grid, zone%ngrid)
+!!$  endif
+!!$
+!!$  pgrid%nbocofield = 0
+!!$  pgrid%nfield = 0
+!!$
+!!$  zone%grid => pgrid
+!!$
+!!$endfunction newgrid
 
 
 

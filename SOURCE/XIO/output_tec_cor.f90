@@ -57,7 +57,7 @@ do ir = 1, lworld%prj%ncoupling
     ufc = ufc + 2
   endif
 
-  do if = 1, lworld%zone(iz1)%grid%umesh%boco(nbc1)%nface
+  do if = 1, lworld%zone(iz1)%gridlist%first%umesh%boco(nbc1)%nface
     write(ufc1,'(2e18.8)') curtps, &
       lworld%zone(iz1)%coupling(ncoupl1)%zcoupling%etatcons%tabscal(2)%scal(if)
 

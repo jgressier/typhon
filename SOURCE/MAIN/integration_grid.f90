@@ -7,14 +7,13 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine integration_grid(dt, typtemps, defsolver, defspat, deftime, grid, &
+subroutine integration_grid(dt, typtemps, defsolver, grid, &
                             coupling, ncoupling)
 
 use TYPHMAKE
 use OUTPUT
 use VARCOM
 use MENU_SOLVER
-use MENU_NUM
 use MGRID
 use MENU_ZONECOUPLING
 
@@ -24,8 +23,6 @@ implicit none
 real(krp)        :: dt               ! pas de temps CFL
 character        :: typtemps         ! type d'integration (stat, instat, period)
 type(mnu_solver) :: defsolver        ! type d'equation a resoudre
-type(mnu_spat)   :: defspat          ! parametres d'integration spatiale
-type(mnu_time)   :: deftime          ! parametres d'integration spatiale
 integer          :: ncoupling        ! nombre de couplages de la zone
 
 ! -- Declaration des entrees/sorties --
@@ -33,23 +30,23 @@ type(st_grid)    :: grid             ! domaine non structure a integrer
 type(mnu_zonecoupling), dimension(1:ncoupling) &
                  :: coupling ! donnees de couplage
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 
 
-! -- Debut de la procedure --
+! -- Body --
 
 
-select case(deftime%tps_meth)
+select case(defsolver%deftime%tps_meth)
 
 case(tps_expl)
-  call explicit_step(grid%dtloc, typtemps, defsolver, defspat, deftime, grid%umesh, grid%info%field_loc, &
+  call explicit_step(grid%dtloc, typtemps, defsolver, grid%umesh, grid%info%field_loc, &
                      coupling, ncoupling)
 
 case(tps_rk)
   call erreur("developpement","methode RUNGE KUTTA non implementee")
 
 case(tps_impl)
-  call implicit_step(grid%dtloc, typtemps, defsolver, defspat, deftime, grid%umesh, grid%info%field_loc, &
+  call implicit_step(grid%dtloc, typtemps, defsolver, grid%umesh, grid%info%field_loc, &
                      coupling, ncoupling)
 
 case(tps_dualt)

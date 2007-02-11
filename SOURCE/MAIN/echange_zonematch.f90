@@ -123,16 +123,16 @@ typsolver2 = zone2%defsolver%typ_solver
 do i=1, nfacelim    
   
   ! indices des faces concernees
-  if  = zone1%grid%umesh%boco(nbc1)%iface(i)
-  if2 = zone2%grid%umesh%boco(nbc2)%iface(zone2%coupling(ncoupl2)%zcoupling%connface(i))
+  if  = zone1%gridlist%first%umesh%boco(nbc1)%iface(i)
+  if2 = zone2%gridlist%first%umesh%boco(nbc2)%iface(zone2%coupling(ncoupl2)%zcoupling%connface(i))
   
-  normale(i) = zone1%grid%umesh%mesh%iface(if,1,1)%normale
+  normale(i) = zone1%gridlist%first%umesh%mesh%iface(if,1,1)%normale
  
-  cgface = zone1%grid%umesh%mesh%iface(if,1,1)%centre
-  ic = zone1%grid%umesh%facecell%fils(if,1)
-  cg1 = zone1%grid%umesh%mesh%centre(ic,1,1)
-  ic = zone2%grid%umesh%facecell%fils(if2,1)
-  cg2 = zone2%grid%umesh%mesh%centre(ic,1,1)
+  cgface = zone1%gridlist%first%umesh%mesh%iface(if,1,1)%centre
+  ic = zone1%gridlist%first%umesh%facecell%fils(if,1)
+  cg1 = zone1%gridlist%first%umesh%mesh%centre(ic,1,1)
+  ic = zone2%gridlist%first%umesh%facecell%fils(if2,1)
+  cg2 = zone2%gridlist%first%umesh%mesh%centre(ic,1,1)
 
   ! calcul du vecteur unitaire "inter-cellules"
   vecinter(i) = (cg2 - cg1) / abs((cg2 - cg1))
@@ -146,8 +146,8 @@ do i=1, nfacelim
 enddo 
 
 ! Type de methode de calcul:
-typmethod = zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%typ_calc
-! = zone2%defsolver%boco(zone2%grid%umesh%boco(nbc2)%idefboco)%typ_calc
+typmethod = zone1%defsolver%boco(zone1%gridlist%first%umesh%boco(nbc1)%idefboco)%typ_calc
+! = zone2%defsolver%boco(zone2%gridlist%first%umesh%boco(nbc2)%idefboco)%typ_calc
 
 ! Valeurs des donnees instationnaires a echanger
 call donnees_echange(zone1%coupling(ncoupl1)%zcoupling%solvercoupling, &
@@ -161,8 +161,8 @@ call echange(zone1%coupling(ncoupl1)%zcoupling%echdata, &
              zone2%coupling(ncoupl2)%zcoupling%echdata, &
              normale, vecinter, d1, d2, nfacelim, typcalc, typmethod,&
              typsolver1, typsolver2, &
-             zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco), &
-             zone2%defsolver%boco(zone2%grid%umesh%boco(nbc2)%idefboco), &
+             zone1%defsolver%boco(zone1%gridlist%first%umesh%boco(nbc1)%idefboco), &
+             zone2%defsolver%boco(zone2%gridlist%first%umesh%boco(nbc2)%idefboco), &
              zone2%coupling(ncoupl2)%zcoupling%connface)
 
 select case(typtemps)

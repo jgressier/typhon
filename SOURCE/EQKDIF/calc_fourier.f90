@@ -33,18 +33,18 @@ integer                              :: ncell    ! nombre de cellules pour le ca
 
 ! -- Calcul des nombres de Fourier locaux --
 
-ncell = lzone%grid%umesh%ncell_int
+ncell = lzone%gridlist%first%umesh%ncell_int
 allocate(fourierloc(ncell))
 
-select case(lzone%deftime%stab_meth)
+select case(lzone%defsolver%deftime%stab_meth)
 case(stab_cond)   ! -- Pas de temps impose --
-  fourierloc(1:ncell) = lzone%deftime%stabnb
+  fourierloc(1:ncell) = lzone%defsolver%deftime%stabnb
 
 case(given_dt)  ! -- Calcul par condition de stabilite (deftim%stabnb) --
   select case(lzone%defsolver%typ_solver)
   case(solKDIF)
-    call calc_kdif_fourier(lzone%deftime%dt, lzone%defsolver%defkdif%materiau,&
-                            lzone%grid%umesh, lzone%grid%field, fourierloc, ncell)
+    call calc_kdif_fourier(lzone%defsolver%deftime%dt, lzone%defsolver%defkdif%materiau,&
+                            lzone%gridlist%first%umesh, lzone%gridlist%first%field, fourierloc, ncell)
   case default
     call erreur("incoherence interne (calc_fourier)", "solveur inconnu")
   endselect

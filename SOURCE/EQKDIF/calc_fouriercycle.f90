@@ -32,10 +32,10 @@ integer                              :: ncell    ! nombre de cellules pour le ca
 
 ! -- Debut de la procedure --
 
-select case(lzone%deftime%stab_meth)
+select case(lzone%defsolver%deftime%stab_meth)
 
 case(given_dt)   ! -- Pas de temps impose --
-  fcycle = fint * dtcycle / lzone%deftime%dt
+  fcycle = fint * dtcycle / lzone%defsolver%deftime%dt
 
 case(stab_cond)  ! -- Calcul par condition de stabilite (deftim%stabnb) --
 
@@ -43,11 +43,11 @@ case(stab_cond)  ! -- Calcul par condition de stabilite (deftim%stabnb) --
   
   case(solKDIF)
 
-    ncell = lzone%grid%umesh%ncell_int
+    ncell = lzone%gridlist%first%umesh%ncell_int
     allocate(fourierloc(ncell))
 
     call calc_kdif_fourier(dtcycle, lzone%defsolver%defkdif%materiau, &
-                            lzone%grid%umesh, lzone%grid%field, fourierloc, ncell)
+                            lzone%gridlist%first%umesh, lzone%gridlist%first%field, fourierloc, ncell)
     ! -- DEV -- choix du nombre de Fourier global encore a faire
 
     ! valeur maximale des cellules de la zone

@@ -43,7 +43,7 @@ ist = 0
 
 do i = 1, cgnsbase%nzone
 
-  pgrid => newgrid(typhonzone)
+  pgrid => add_grid(typhonzone%gridlist)
   
   select case(cgnsbase%zone(i)%type)
   case(Structured)
@@ -69,7 +69,7 @@ call print_info(8, "Fin de la conversion CGNS -> TYPHON")
 endsubroutine cgns2typhon_zone
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! nov  2002 : creation de la procedure
 ! avr  2004 : suppression des maillages structures 

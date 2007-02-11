@@ -12,7 +12,7 @@ use VARCOM
 
 implicit none
 
-include 'mpif.h'
+!include 'mpif.h'
 
 ! -- INPUTS --
 integer(kip) :: grid_id 

@@ -48,7 +48,7 @@ select case(lzone%defsolver%typ_solver)
 !--------------------------------------------------------
 case(solKDIF, solNS)
 
-  pgrid => lzone%grid
+  pgrid => lzone%gridlist%first  !!! DEV !!! should handle tree structure of grids
   dt    =  huge(dt)
 
   do while (associated(pgrid))   ! BOUCLE sur les grilles (liste chainee)
@@ -56,31 +56,31 @@ case(solKDIF, solNS)
     ncell = pgrid%umesh%ncell_int
     if (.not.associated(pgrid%dtloc)) allocate(pgrid%dtloc(pgrid%umesh%ncell))
 
-    select case(lzone%deftime%stab_meth)
+    select case(lzone%defsolver%deftime%stab_meth)
 
     !--------------------------------------------------------
     case(given_dt)   ! -- Pas de temps impose --
-      pgrid%dtloc(1:ncell) = lzone%deftime%dt
+      pgrid%dtloc(1:ncell) = lzone%defsolver%deftime%dt
 
     !--------------------------------------------------------
     case(stab_cond, loc_stab_cond)  ! -- Calcul par condition de stabilite (deftim%stabnb) --
       select case(lzone%defsolver%typ_solver)
       case(solNS)
-        select case(lzone%deftime%temps)
+        select case(lzone%defsolver%deftime%temps)
         case(stationnaire)
-          cfl = lzone%deftime%stabnb*max(1._krp, 1._krp-log10(lzone%info%cur_res/ &
+          cfl = lzone%defsolver%deftime%stabnb*max(1._krp, 1._krp-log10(lzone%info%cur_res/ &
                                       lzone%info%residu_ref)- &
                                       log10(wcur_res/ wres_ref) )
-          cfl = min(cfl, lzone%deftime%stabnb_max)
+          cfl = min(cfl, lzone%defsolver%deftime%stabnb_max)
         case(instationnaire)
-          cfl = lzone%deftime%stabnb
+          cfl = lzone%defsolver%deftime%stabnb
         case default
           call erreur("internal error", "unknown temporal parameter")
         endselect
         call calc_ns_timestep(cfl, lzone%defsolver%defns%properties(1), &
                               pgrid%umesh, pgrid%info%field_loc, pgrid%dtloc(1:ncell), ncell)
       case(solKDIF)
-        call calc_kdif_timestep(lzone%deftime, lzone%defsolver%defkdif%materiau, &
+        call calc_kdif_timestep(lzone%defsolver%deftime, lzone%defsolver%defkdif%materiau, &
                                 pgrid%umesh, pgrid%info%field_loc, pgrid%dtloc(1:ncell), ncell)
       case default
         call erreur("internal error (calc_zonetimestep)", "solveur inconnu")
@@ -104,8 +104,8 @@ case(solKDIF, solNS)
 
   ! -- if global time stepping: reset dtloc to minimum time step --
 
-  if (lzone%deftime%stab_meth == stab_cond) then
-    pgrid => lzone%grid
+  if (lzone%defsolver%deftime%stab_meth == stab_cond) then
+    pgrid => lzone%gridlist%first  !!! DEV !!! should handle tree structure
     do while (associated(pgrid))   ! BOUCLE sur les grilles (liste chainee)
       pgrid%dtloc(1:ncell) = dt
       pgrid => pgrid%next          ! next grid
@@ -117,9 +117,9 @@ case(solKDIF, solNS)
 !--------------------------------------------------------
 case(solVORTEX)
 
-  select case(lzone%deftime%stab_meth)
+  select case(lzone%defsolver%deftime%stab_meth)
   case(given_dt)   ! -- Pas de temps impose --
-    dt = min(lzone%deftime%dt, dtmax)
+    dt = min(lzone%defsolver%deftime%dt, dtmax)
   case default
     call erreur("internal error (calc_zonetimestep)", "condition incompatible")
   endselect  

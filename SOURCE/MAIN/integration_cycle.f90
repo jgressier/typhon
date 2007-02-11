@@ -32,15 +32,9 @@ integer   :: izone, ir, ifield, if
 integer   :: iz1, iz2, ic, ncoupl1, ncoupl2, ib, nbc1, nbc2
 real(krp) :: wcur_res
 
-! -- Debut de la procedure --
+! -- Body --
 
 
-! allocation des champs de residus
-!do izone = 1, lworld%prj%nzone
-!  do if = 1, lworld%zone(izone)%ndom
-!    call alloc_res(lworld%zone(izone)%field(if))
-!  enddo
-!enddo
 
 ! -- Procedure d'echange, en debut de cycle
 
@@ -77,39 +71,15 @@ do ir = 1, ncoupling
 
 enddo
 
-call output_result(lworld, in_cycle) !DEV2602
+call output_result(lworld, in_cycle) !DEV2602 !!
 
 endif
 
 
 !------------------------------------------------------------------------------
-! DVT : comparaison des flux a l'interface.
-!------------------------------------------------------------------------------
-!
-! Calcul des conditions aux limites pour le calcul des flux a l'interface
-!
-!do izone = 1, lworld%prj%nzone
-! call conditions_limites(lworld%zone(izone))
-!enddo
-!
-!if (lworld%prj%ncoupling > 0) then
-!
-!ir =1 ! DVT : provisoire
-!    
-! calcul des donnees de raccord : indices de raccord, de CL pour les 
-! deux zones couplees
-
-!call calcul_raccord(lworld, ir, iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2)
-!
-!call comp_flux(lworld%zone(iz1), lworld%zone(iz2), nbc1, nbc2, lworld%zone(iz1)%ust_mesh%boco(nbc1)%nface,  &
-!                    lworld%info%curtps, ncoupl1)
-!endif
-!
-
-!------------------------------------------------------------------------------
 
 ! --------------------------------------------
-! Integration d'un cycle de chacune des zones 
+! CYCLE integration : loop on zones
 ! --------------------------------------------
 
 ! -- Initialisation du residu courant de world a 0 :
@@ -126,7 +96,7 @@ do izone = 1, lworld%prj%nzone
   select case(lworld%prj%typ_temps)
 
   case(stationnaire)
-    lworld%zone(izone)%info%residumax  = lworld%zone(izone)%deftime%maxres
+    lworld%zone(izone)%info%residumax  = lworld%zone(izone)%defsolver%deftime%maxres
     lworld%zone(izone)%info%residu_ref = lworld%info%cur_res
 
   case(instationnaire)
@@ -137,8 +107,7 @@ do izone = 1, lworld%prj%nzone
   endselect
 
   !-------------------------------------
-  ! changement de nom en integration_cycle_zone ?
-  call integrationmacro_zone(lworld%zone(izone), lworld%info%residu_ref, wcur_res)
+  call integration_cyclezone(lworld%zone(izone), lworld%info%residu_ref, wcur_res)
   !-------------------------------------
 
   ! -- Initialisation de residu_reforigine : valeur du residu de reference 
@@ -183,7 +152,7 @@ enddo
 endsubroutine integration_cycle
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! juil 2002 : creation de la procedure
 ! mai  2003 : procedures d'echange

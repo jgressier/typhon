@@ -55,7 +55,7 @@ case(end_calc, end_cycle)
         write(uf_chpresu,'(A)') 'TYPHON-NS'
         write(uf_chpresu,'(A)') 'ASCII'
         call output_vtk_cell(uf_chpresu, world%zone(izone)%defsolver, &
-                             world%zone(izone)%grid%umesh, world%zone(izone)%grid%info%field_loc)
+                             world%zone(izone)%gridlist%first%umesh, world%zone(izone)%gridlist%first%info%field_loc)
 
       case(solKDIF)
 
@@ -63,7 +63,7 @@ case(end_calc, end_cycle)
         write(uf_chpresu,'(A)') 'TYPHON-KDIF'
         write(uf_chpresu,'(A)') 'ASCII'
         call output_vtk_cell(uf_chpresu, world%zone(izone)%defsolver, &
-                             world%zone(izone)%grid%umesh, world%zone(izone)%grid%info%field_loc)
+                             world%zone(izone)%gridlist%first%umesh, world%zone(izone)%gridlist%first%info%field_loc)
 
       case(solVORTEX)
 

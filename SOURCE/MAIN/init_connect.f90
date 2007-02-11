@@ -29,7 +29,7 @@ type(st_grid), pointer :: pgrid
 
 ! -- Debut de la procedure --
 
-pgrid => zone%grid
+pgrid => zone%gridlist%first
 
 do while (associated(pgrid))
 

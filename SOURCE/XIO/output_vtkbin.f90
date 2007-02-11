@@ -55,7 +55,7 @@ case(end_calc, end_cycle)
         call writestr(uf_chpresu, 'TYPHON-NS')
         call writestr(uf_chpresu, 'BINARY')
         call output_vtkbin_cell(uf_chpresu, world%zone(izone)%defsolver, &
-                             world%zone(izone)%grid%umesh, world%zone(izone)%grid%info%field_loc)
+                             world%zone(izone)%gridlist%first%umesh, world%zone(izone)%gridlist%first%info%field_loc)
 
       case(solKDIF)
 
@@ -63,7 +63,7 @@ case(end_calc, end_cycle)
         call writestr(uf_chpresu, 'TYPHON-KDIF')
         call writestr(uf_chpresu, 'BINARY')
         call output_vtkbin_cell(uf_chpresu, world%zone(izone)%defsolver, &
-                             world%zone(izone)%grid%umesh, world%zone(izone)%grid%info%field_loc)
+                             world%zone(izone)%gridlist%first%umesh, world%zone(izone)%gridlist%first%info%field_loc)
 
       case(solVORTEX)
 

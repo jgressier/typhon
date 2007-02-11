@@ -32,7 +32,7 @@ npart = zone%info%nbproc
 
 !-- loop on all grids --
 
-pgrid => zone%grid
+pgrid => zone%gridlist%first
 
 do while (associated(pgrid))
 
@@ -53,7 +53,7 @@ do while (associated(pgrid))
 
   print*,"> extract part", ipart," over ",npart
 
-  call new(partgrid, ipart)
+  call init_grid(partgrid, ipart)
   call extractpart_grid(pgrid, ipart, nci, partition, partgrid)
 
   ! -------------------------------------------------

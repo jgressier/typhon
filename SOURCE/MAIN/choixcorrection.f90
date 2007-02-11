@@ -71,6 +71,8 @@ case(distributed)
   placement = apres
 endselect
 
+!!! DEV !!! only allowed for single grids in gridlist
+
 ! Coefficient de correction
 ! PROVISOIRE / A AMELIORER
 ! couplage KDIF / KDIF : coeff attribue selon resultats analyse de stabilite
@@ -80,17 +82,17 @@ select case (zone2%coupling(ncoupl2)%zcoupling%solvercoupling)
 case(kdif_kdif)
 
   do i=1, nfacelim
-    if1 = zone1%grid%umesh%boco(nbc1)%iface(i)
-    if2 = zone2%grid%umesh%boco(nbc2)%iface(zone2%coupling(ncoupl2)%zcoupling%connface(i))
+    if1 = zone1%gridlist%first%umesh%boco(nbc1)%iface(i)
+    if2 = zone2%gridlist%first%umesh%boco(nbc2)%iface(zone2%coupling(ncoupl2)%zcoupling%connface(i))
 
-    icl1 = zone1%grid%umesh%facecell%fils(if1,1)
-    icl2 = zone2%grid%umesh%facecell%fils(if2,1)
+    icl1 = zone1%gridlist%first%umesh%facecell%fils(if1,1)
+    icl2 = zone2%gridlist%first%umesh%facecell%fils(if2,1)
 
     ! Calcul de conductivite de la zone 1
     select case(zone1%defsolver%defkdif%materiau%type)
     case(mat_LIN, mat_KNL)
       conduct1 = valeur_loi(zone1%defsolver%defkdif%materiau%Kd, &
-                            zone1%grid%info%field_loc%etatprim%tabscal(1)%scal(icl1))
+                            zone1%gridlist%first%info%field_loc%etatprim%tabscal(1)%scal(icl1))
     case(mat_XMAT)
       call erreur("Calcul de materiau","Materiau non lineaire interdit")
     endselect
@@ -99,14 +101,14 @@ case(kdif_kdif)
     select case(zone2%defsolver%defkdif%materiau%type)
     case(mat_LIN, mat_KNL)
       conduct2 = valeur_loi(zone2%defsolver%defkdif%materiau%Kd, &
-                            zone2%grid%info%field_loc%etatprim%tabscal(1)%scal(icl2))
+                            zone2%gridlist%first%info%field_loc%etatprim%tabscal(1)%scal(icl2))
     case(mat_XMAT)
       call erreur("Calcul de materiau","Materiau non lineaire interdit")
     endselect
 
     ! Volumes des cellules limitrophes
-    vol1 = zone1%grid%umesh%mesh%volume(icl1,1,1)
-    vol2 = zone2%grid%umesh%mesh%volume(icl2,1,1)
+    vol1 = zone1%gridlist%first%umesh%mesh%volume(icl1,1,1)
+    vol2 = zone2%gridlist%first%umesh%mesh%volume(icl2,1,1)
 
     ! Capacites thermiques
     c1 = zone1%defsolver%defkdif%materiau%Cp

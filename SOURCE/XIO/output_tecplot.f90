@@ -18,21 +18,21 @@ use MESHBASE
 
 implicit none
 
-! -- Declaration des entrees --
+! -- Inputs --
 character(len=strlen) :: nom       ! nom du fichier
 type(st_world)        :: world
 integer               :: outp_typ
 integer               :: position !DEV2602
 integer               :: io       !DEV2602
 
-! -- Declaration des sorties --
+! -- Outputs --
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 integer               :: izone, i, dim, ufc, ir
 integer               :: info
 type(st_genericfield) :: vfield
 
-! -- Debut de la procedure --
+! -- BODY --
 
 select case(position)
 case(end_calc)
@@ -51,8 +51,8 @@ case(end_calc)
       case(solKDIF)
 
         write(uf_chpresu+izone,'(a)') 'VARIABLES="X","Y","Z","T"'
-        call output_tec_ust(uf_chpresu+izone, world%zone(izone)%grid%umesh, &
-                            world%zone(izone)%grid%info%field_loc, outp_typ, &
+        call output_tec_ust(uf_chpresu+izone, world%zone(izone)%gridlist%first%umesh, &
+                            world%zone(izone)%gridlist%first%info%field_loc, outp_typ, &
                             world%zone(izone)%defsolver%typ_solver)
 
       case(solVORTEX)
@@ -60,7 +60,7 @@ case(end_calc)
         write(uf_chpresu+izone,'(a)') 'VARIABLES="X","Y","Z","V","P"'
 
         !! DEV: allocation
-        dim = world%zone(izone)%grid%umesh%nface
+        dim = world%zone(izone)%gridlist%first%umesh%nface
         call new(vfield, dim, 1, 2, 0)
 
         !! DEV: initialisation
@@ -68,8 +68,8 @@ case(end_calc)
 
 
         do i = 1, vfield%dim
-          vfield%tabvect(1)%vect(i) = world%zone(izone)%grid%umesh%mesh%iface(i,1,1)%centre &
-                                      - .0000001_krp*world%zone(izone)%grid%umesh%mesh%iface(i,1,1)%normale
+          vfield%tabvect(1)%vect(i) = world%zone(izone)%gridlist%first%umesh%mesh%iface(i,1,1)%centre &
+                                      - .0000001_krp*world%zone(izone)%gridlist%first%umesh%mesh%iface(i,1,1)%normale
         enddo
 
         call calc_induced_velocities(world%zone(izone)%defsolver,   &
@@ -91,8 +91,8 @@ case(end_calc)
       case(solNS)
 
         write(uf_chpresu+izone,'(a)') 'VARIABLES="X","Y","Z","u","v","w","P","T"'
-        call output_tec_ust(uf_chpresu+izone, world%zone(izone)%grid%umesh, &
-                            world%zone(izone)%grid%info%field_loc, outp_typ, &
+        call output_tec_ust(uf_chpresu+izone, world%zone(izone)%gridlist%first%umesh, &
+                            world%zone(izone)%gridlist%first%info%field_loc, outp_typ, &
                             world%zone(izone)%defsolver%typ_solver, &
                             world%zone(izone)%defsolver%defns)
 
@@ -142,8 +142,8 @@ case(end_cycle)
       case(solKDIF)
 
         write(uf_chpresu+izone,'(a)') 'VARIABLES="X","Y","Z","T"'
-        call output_tec_ust(uf_chpresu+izone, world%zone(izone)%grid%umesh, &
-                            world%zone(izone)%grid%info%field_loc, outp_typ, &
+        call output_tec_ust(uf_chpresu+izone, world%zone(izone)%gridlist%first%umesh, &
+                            world%zone(izone)%gridlist%first%info%field_loc, outp_typ, &
                             world%zone(izone)%defsolver%typ_solver)
 
       case(solVORTEX)
@@ -151,7 +151,7 @@ case(end_cycle)
         write(uf_chpresu+izone,'(a)') 'VARIABLES="X","Y","Z","V","P"'
 
         !! DEV: allocation
-        dim = world%zone(izone)%grid%umesh%nface
+        dim = world%zone(izone)%gridlist%first%umesh%nface
         call new(vfield, dim, 1, 2, 0)
 
         !! DEV: initialisation
@@ -159,8 +159,8 @@ case(end_cycle)
 
 
         do i = 1, vfield%dim
-          vfield%tabvect(1)%vect(i) = world%zone(izone)%grid%umesh%mesh%iface(i,1,1)%centre &
-                                      - .0000001_krp*world%zone(izone)%grid%umesh%mesh%iface(i,1,1)%normale
+          vfield%tabvect(1)%vect(i) = world%zone(izone)%gridlist%first%umesh%mesh%iface(i,1,1)%centre &
+                                      - .0000001_krp*world%zone(izone)%gridlist%first%umesh%mesh%iface(i,1,1)%normale
         enddo
 
         call calc_induced_velocities(world%zone(izone)%defsolver,   &
@@ -182,8 +182,8 @@ case(end_cycle)
       case(solNS)
 
         write(uf_chpresu+izone,'(a)') 'VARIABLES="X","Y","Z","u","v","w","P","T"'
-        call output_tec_ust(uf_chpresu+izone, world%zone(izone)%grid%umesh, &
-                            world%zone(izone)%grid%info%field_loc, outp_typ, &
+        call output_tec_ust(uf_chpresu+izone, world%zone(izone)%gridlist%first%umesh, &
+                            world%zone(izone)%gridlist%first%info%field_loc, outp_typ, &
                             world%zone(izone)%defsolver%typ_solver, &
                             world%zone(izone)%defsolver%defns)
 
@@ -213,7 +213,7 @@ endselect
 endsubroutine output_tecplot
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! dec  2002 : creation de la procedure
 ! avr  2004 : cas Vortex

@@ -39,7 +39,7 @@ do ib = 1, lzone%defsolver%nboco
 enddo
   
 !--------------------------------------------------------
-pgrid => lzone%grid
+pgrid => lzone%gridlist%first
  
 do while(associated(pgrid))
  

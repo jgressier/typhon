@@ -1,26 +1,27 @@
 !------------------------------------------------------------------------------!
-! Procedure : conditions_limites          Auteur : J. Gressier
-!                                         Date   : Mars 2003
-! Fonction                                Modif  : (cf Historique)
+! Procedure : conditions_limites                  Authors : J. Gressier
+!                                                 Date    : March 2003
+! Fonction
 !   Calcul des conditions limites pour une zone
 !
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine conditions_limites(lzone)
+subroutine conditions_limites(defsolver, gridlist)
 
 use TYPHMAKE
 use OUTPUT
 use VARCOM
-use DEFZONE
+use MENU_SOLVER
 use MGRID
 
 implicit none
 
-! -- Declaration des entrees --
-type(st_zone) :: lzone            ! zone a integrer
+! -- INPUTS --    
+type(mnu_solver)  :: defsolver           ! solver parameters
+type(st_gridlist) :: gridlist            ! zone a integrer
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 
 ! -- Declaration des variables internes --
 type(st_grid), pointer :: pgrid
@@ -28,11 +29,11 @@ integer                :: ifield            ! indice de champ
 
 ! -- Debut de la procedure --
 
-pgrid => lzone%grid
+pgrid => gridlist%first
 
 do while(associated(pgrid))
 
-  call calcboco_ust(lzone%defsolver, pgrid, lzone%defspat)
+  call calcboco_ust(defsolver, pgrid, defsolver%defspat)
   pgrid => pgrid%next
 
 enddo
@@ -40,8 +41,9 @@ enddo
 endsubroutine conditions_limites
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes History
 !
 ! avr  2003 : creation de la procedure
 ! avr  2004 : suppression de STRMESH / boucle sur MGRID
+! mar  2006 : loop on gridlist
 !------------------------------------------------------------------------------!

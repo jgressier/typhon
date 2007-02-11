@@ -37,7 +37,7 @@ type st_infogrid
 endtype st_infogrid
 
 !------------------------------------------------------------------------------!
-! Definition ST_INFOGRID : 
+! Definition ST_GRD_OPTMEM : 
 !------------------------------------------------------------------------------!
 type st_grd_optmem
   logical            :: gradcond_computed
@@ -77,7 +77,6 @@ endtype st_snddata
 !-------------------------------------------------------------------------
 ! Definition of st_subcell
 !-------------------------------------------------------------------------
-!
 
 type st_subcell
    integer                                 :: degree  ! nb of subcell per cell
@@ -88,24 +87,32 @@ end type st_subcell
 
 
 !------------------------------------------------------------------------------!
+! structure def.  ST_GRIDLIST : list of grids
+!------------------------------------------------------------------------------!
+type st_gridlist
+  type(st_grid), pointer :: parent          ! pointer to parent grid
+  type(st_grid), pointer :: first, last     ! pointer to first and last grid
+  integer(kip)           :: nbgrid          ! number of grids
+endtype
+
+
+!------------------------------------------------------------------------------!
 ! Definition de la structure ST_GRID : grid maillage general et champ
 !------------------------------------------------------------------------------!
 type st_grid
-  type(st_infogrid)       :: info       ! grid information
-  type(st_grid), pointer  :: gridmere   ! pointeur vers la grille mere
-  type(st_grid), pointer  :: next       ! pointeur de liste chainee
-  type(st_grid), pointer  :: first      ! pointeur vers 1° element liste next
-  type(st_grid), pointer  :: subgrid    ! pointeur de liste chainee
+  type(st_infogrid)          :: info       ! grid information
+
+  type(st_gridlist), pointer :: family     ! pointer to grid list family (parent & sisters)
+  type(st_gridlist)          :: children   ! grid list of children
+  type(st_grid),     pointer :: next       ! next sister in grid list
+
   type(st_ustmesh)        :: umesh      ! maillage non structure (geometry + connectivity)
 
-  logical, dimension(:), pointer &
-                          :: need_rf
-  integer, dimension(:), pointer &
-                          :: tab_intcell! tableau des cellules de la grille mere 
+  !logical, dimension(:), pointer  :: need_rf
+  !integer, dimension(:), pointer  :: tab_intcell ! tableau des cellules de la grille mere 
 
-  type(st_subcell), pointer :: subcell   ! Subcells
-
-  type(st_cellext), pointer :: cellext   ! Connectivite de voisinage
+  !type(st_subcell), pointer :: subcell   ! Subcells
+  !type(st_cellext), pointer :: cellext   ! Connectivite de voisinage
 
   integer                 :: nfield     ! nombre de champs
   type(st_field), pointer :: field      ! chained list of field (cons, prim, grad, residuals)
@@ -123,9 +130,9 @@ endtype st_grid
 
 ! -- INTERFACES -------------------------------------------------------------
 
-interface new
-  module procedure new_grid
-endinterface
+!interface new
+!  module procedure new_grid
+!endinterface
 
 interface delete
   module procedure delete_grid
@@ -142,71 +149,140 @@ endinterface
 contains
 
 
+!---------------------------------------------------------------------------------------!
+! GRID routines and functions
+!---------------------------------------------------------------------------------------!
+
 !------------------------------------------------------------------------------!
 ! Procedure : initialisation d'une structure GRID
 !------------------------------------------------------------------------------!
-subroutine new_grid(grid, id)
+subroutine init_grid(grid, id, gridlist)
 implicit none
-type(st_grid)  :: grid
-integer        :: id
+! -- parameters --
+type(st_grid)                        :: grid
+integer                              :: id
+type(st_gridlist), optional, target  :: gridlist
 
   grid%info%id = id
-  
+  if (present(gridlist)) then 
+    grid%family  => gridlist
+  else
+    nullify(grid%family)
+  endif
+
+  grid%nbocofield = 0
+  grid%nfield     = 0
+
   grid%optmem%gradcond_computed = .false.
   nullify(grid%optmem%gradcond)
 
   nullify(grid%next)
-  nullify(grid%first)
-  nullify(grid%subgrid)
+  !nullify(grid%first)
+  !nullify(grid%subgrid)
 
   nullify(grid%field)
 
-  nullify(grid%gridmere)
-  nullify(grid%cellext)
-  nullify(grid%subcell)
-
   nullify(grid%dtloc)
 
-endsubroutine new_grid
+endsubroutine init_grid
+
 
 !------------------------------------------------------------------------------!
-! Procedure : initialisation d'une structure GRID fille
+! Procedure : desallocation d'une structure GRID
 !------------------------------------------------------------------------------!
-subroutine new_subgrid(grid, id, gridmere)
+subroutine delete_grid(grid)
 implicit none
-type(st_grid), target  :: grid
-type(st_grid), pointer ::  gridmere
-type(st_grid), pointer ::  pg
-integer        :: id
+type(st_grid)  :: grid
+
+  ! destruction des champs et maillage de la grille
+  call grid_dealloc_gradcond(grid) 
+  call delete(grid%umesh)
+  if (associated(grid%field)) call delete_chainedfield(grid%field)
+  if (associated(grid%dtloc)) deallocate(grid%dtloc)
+
+  ! destruction des sous-grilles
+  !if (associated(grid%subgrid)) call delete_chainedgrid(grid%subgrid)
+
+  ! ATTENTION : pas de destruction de la grilles suivante (done by delete_gridlist)
+
+endsubroutine delete_grid
 
 
-  allocate(pg)
-  grid%info%id = id
-  grid%info%l=gridmere%info%l+1
-  grid%info%mpi_cpu=gridmere%info%mpi_cpu
+!---------------------------------------------------------------------------------------!
+! GRIDLIST routines and functions
+!---------------------------------------------------------------------------------------!
 
-  grid%optmem%gradcond_computed = .false.
-  allocate(grid%first)
-  allocate(grid%gridmere)
+!------------------------------------------------------------------------------!
+! Procedure : init a grid list
+!------------------------------------------------------------------------------!
+subroutine init_gridlist(gridlist, gridparent)
+implicit none
+! -- parameters --
+type(st_gridlist)               :: gridlist
+type(st_grid), optional, target :: gridparent
 
-  nullify(grid%optmem%gradcond)
-  nullify(grid%cellext)
-  nullify(grid%next)
-  nullify(grid%subgrid)
-  nullify(grid%subcell)
+  gridlist%nbgrid = 0
+  nullify(gridlist%first)
+  nullify(gridlist%last)
+  if (present(gridparent)) then
+    gridlist%parent => gridparent
+  else
+    nullify(gridlist%parent)
+  endif
 
-  grid%gridmere => gridmere
-  grid%next=>gridmere%subgrid
-  gridmere%subgrid=>grid
+end subroutine init_gridlist
 
-  pg=>grid
-  do while(associated(pg))
-     pg%first=>grid
-     pg=>pg%next
-  end do
 
-endsubroutine new_subgrid
+!------------------------------------------------------------------------------!
+! Procedure : add a new grid to grid list
+!------------------------------------------------------------------------------!
+function add_grid(gridlist)
+implicit none
+! -- parameters --
+type(st_gridlist), target  :: gridlist
+type(st_grid),     pointer :: add_grid
 
+  gridlist%nbgrid = gridlist%nbgrid + 1                 ! add grid index
+
+  allocate(add_grid)                                    ! create grid
+  call init_grid(add_grid, gridlist%nbgrid, gridlist)   ! init grid
+
+  nullify(add_grid%next)
+
+  if (gridlist%nbgrid == 1) then  
+    gridlist%first => add_grid          ! new grid is the only grid and is the first
+  else
+    gridlist%last%next => add_grid      ! new grid is the last grid / associate links
+  endif
+
+  gridlist%last      => add_grid
+
+endfunction add_grid
+
+
+!------------------------------------------------------------------------------!
+! Procedure : desallocation d'une liste chainee de structure GRID
+!------------------------------------------------------------------------------!
+subroutine delete_gridlist(gridlist)
+implicit none
+! -- parameters --
+type(st_gridlist) :: gridlist
+! -- internal variables --
+type(st_grid), pointer :: pgrid, dgrid
+
+  pgrid => gridlist%first
+  do while(associated(pgrid))
+    dgrid => pgrid
+    pgrid => pgrid%next
+    call delete(dgrid)
+  enddo
+
+endsubroutine delete_gridlist
+
+
+!---------------------------------------------------------------------------------------!
+! GRID PROPERTIES routines and functions
+!---------------------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------------!
 ! Procedure : allocation of matrix for gradient computation
@@ -239,54 +315,54 @@ integer        :: id
 endsubroutine grid_dealloc_gradcond
 
 
+!! !------------------------------------------------------------------------------!
+!! ! Procedure : creation et lien chaine d'une structure GRID
+!! !------------------------------------------------------------------------------!
+!! function insert_newgrid(grid, id) result(pgrid)
+!! implicit none
+!! type(st_grid), pointer :: pgrid
+!! type(st_grid), target  :: grid
+!! type(st_grid), pointer :: pg
+!! integer                :: id
+!! 
+!!   allocate(pgrid)
+!!   allocate(pg)
+!!   call new(pgrid, id)
+!!   pgrid%next => grid  
+!! 
+!!   pg=>pgrid
+!!   do while(associated(pg))
+!!      pg%first=pgrid
+!!      pg=>pg%next
+!!   end do
+!! 
+!! endfunction insert_newgrid
+
+
+!! !------------------------------------------------------------------------------!
+!! ! Procedure : desallocation d'une structure GRID (?? DEV)
+!! !------------------------------------------------------------------------------!
+!! subroutine delete_grid(grid)
+!! implicit none
+!! type(st_grid)  :: grid
+!! 
+!!   ! destruction des champs et maillage de la grille
+!!   call grid_dealloc_gradcond(grid) 
+!!   call delete(grid%umesh)
+!!   if (associated(grid%field)) call delete_chainedfield(grid%field)
+!!   if (associated(grid%dtloc)) deallocate(grid%dtloc)
+!!   if (associated(grid%optmem%gradcond)) deallocate(grid%optmem%gradcond)
+!! 
+!!   ! destruction des sous-grilles
+!!   if (associated(grid%subgrid)) call delete_chainedgrid(grid%subgrid)
+!! 
+!!   ! ATTENTION : pas de destruction de la grilles suivante
+!! 
+!! endsubroutine delete_grid
+
+
 !------------------------------------------------------------------------------!
-! Procedure : creation et lien chaine d'une structure GRID
-!------------------------------------------------------------------------------!
-function insert_newgrid(grid, id) result(pgrid)
-implicit none
-type(st_grid), pointer :: pgrid
-type(st_grid), target  :: grid
-type(st_grid), pointer :: pg
-integer                :: id
-
-  allocate(pgrid)
-  allocate(pg)
-  call new(pgrid, id)
-  pgrid%next => grid  
-
-  pg=>pgrid
-  do while(associated(pg))
-     pg%first=pgrid
-     pg=>pg%next
-  end do
-
-endfunction insert_newgrid
-
-
-!------------------------------------------------------------------------------!
-! Procedure : desallocation d'une structure GRID
-!------------------------------------------------------------------------------!
-subroutine delete_grid(grid)
-implicit none
-type(st_grid)  :: grid
-
-  ! destruction des champs et maillage de la grille
-  call grid_dealloc_gradcond(grid) 
-  call delete(grid%umesh)
-  if (associated(grid%field)) call delete_chainedfield(grid%field)
-  if (associated(grid%dtloc)) deallocate(grid%dtloc)
-  if (associated(grid%optmem%gradcond)) deallocate(grid%optmem%gradcond)
-
-  ! destruction des sous-grilles
-  if (associated(grid%subgrid)) call delete_chainedgrid(grid%subgrid)
-
-  ! ATTENTION : pas de destruction de la grilles suivante
-
-endsubroutine delete_grid
-
-
-!------------------------------------------------------------------------------!
-! Procedure : desallocation d'une liste chainee de structure GRID
+! Procedure : desallocation d'une liste chainee de structure GRID (?? DEV)
 !------------------------------------------------------------------------------!
 subroutine delete_chainedgrid(grid)
 implicit none
@@ -314,6 +390,7 @@ character(len=strlen) :: str
   str = "" ! grid%umesh%name
 
 endfunction name_grid
+
 
 !------------------------------------------------------------------------------!
 ! Procedure : ajout avec allocation d'une structure champ generique

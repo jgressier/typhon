@@ -7,14 +7,13 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine explicit_step(dtloc, typtemps, defsolver, defspat, deftime, &
+subroutine explicit_step(dtloc, typtemps, defsolver, &
                          umesh, field, coupling, ncp)
 
 use TYPHMAKE
 use OUTPUT
 use VARCOM
 use MENU_SOLVER
-use MENU_NUM
 use USTMESH
 use DEFFIELD
 use MENU_ZONECOUPLING
@@ -25,8 +24,6 @@ implicit none
 ! -- Declaration des entrees --
 character        :: typtemps   ! type d'integration (stat, instat, period)
 type(mnu_solver) :: defsolver  ! type d'equation a resoudre
-type(mnu_spat)   :: defspat    ! parametres d'integration spatiale
-type(mnu_time)   :: deftime    ! parametres d'integration spatiale
 type(st_ustmesh) :: umesh      ! domaine non structure a integrer
 real(krp)        :: dtloc(1:umesh%ncell)         ! pas de temps CFL
 integer          :: ncp        ! nombre de couplages de la zone
@@ -52,9 +49,9 @@ call new(flux, umesh%nface, field%nscal, field%nvect, 0)
 
 select case(defsolver%typ_solver)
 case(solNS)
-  call integration_ns_ust(defsolver, defspat, umesh, field, flux, .false., jacL, jacR)
+  call integration_ns_ust(defsolver, defsolver%defspat, umesh, field, flux, .false., jacL, jacR)
 case(solKDIF)
-  call integration_kdif_ust(defsolver, defspat, umesh, field, flux, .false., jacL, jacR)
+  call integration_kdif_ust(defsolver, defsolver%defspat, umesh, field, flux, .false., jacL, jacR)
 case default
   call erreur("incoherence interne (explicit_step)", "solveur inconnu")
 endselect
@@ -74,7 +71,7 @@ select case(typtemps)
  if (ncp>0) then
    call accumulfluxcorr(dtloc, defsolver, umesh%nboco, umesh%boco, &
                         umesh%nface, flux%tabscal(1)%scal, ncp, &
-                        coupling, field, umesh, defspat)
+                        coupling, field, umesh, defsolver%defspat)
  endif
 
 endselect

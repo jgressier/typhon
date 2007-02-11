@@ -36,29 +36,28 @@ integer       :: nbc1, nbc2, ncoupl1, raccord
 
 select case(raccord)
 case(couplingboco_TT)
-  zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%typ_boco = &
+  zone1%defsolver%boco(zone1%gridlist%first%umesh%boco(nbc1)%idefboco)%typ_boco = &
                                                                   bc_wall_isoth
-  zone2%defsolver%boco(zone2%grid%umesh%boco(nbc2)%idefboco)%typ_boco = &
+  zone2%defsolver%boco(zone2%gridlist%first%umesh%boco(nbc2)%idefboco)%typ_boco = &
                                                                   bc_wall_isoth
 
 case(couplingboco_CC)
-  zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%typ_boco = &
+  zone1%defsolver%boco(zone1%gridlist%first%umesh%boco(nbc1)%idefboco)%typ_boco = &
                                                                   bc_wall_hgen
-  zone2%defsolver%boco(zone2%grid%umesh%boco(nbc2)%idefboco)%typ_boco = &
+  zone2%defsolver%boco(zone2%gridlist%first%umesh%boco(nbc2)%idefboco)%typ_boco = &
                                                                   bc_wall_hgen
 
 case(couplingboco_CT)
-  zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%typ_boco = &
+  zone1%defsolver%boco(zone1%gridlist%first%umesh%boco(nbc1)%idefboco)%typ_boco = &
                                                                   bc_wall_hgen
-  zone2%defsolver%boco(zone2%grid%umesh%boco(nbc2)%idefboco)%typ_boco = &
+  zone2%defsolver%boco(zone2%gridlist%first%umesh%boco(nbc2)%idefboco)%typ_boco = &
                                                                   bc_wall_isoth
 
 case(couplingboco_TC)
-  zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%typ_boco = &
+  zone1%defsolver%boco(zone1%gridlist%first%umesh%boco(nbc1)%idefboco)%typ_boco = &
                                                                   bc_wall_isoth
-  zone2%defsolver%boco(zone2%grid%umesh%boco(nbc2)%idefboco)%typ_boco = &
+  zone2%defsolver%boco(zone2%gridlist%first%umesh%boco(nbc2)%idefboco)%typ_boco = &
                                                                   bc_wall_hgen
-
 case default
   call erreur("update_couplingboco_kdif","Conditions limites de raccord inconnues")
 endselect

@@ -33,21 +33,19 @@ integer                :: ig
 select case(zone%defsolver%typ_solver)
 
 case(solNS)
-  print*,"init NS boco zone/grid"
-  pgrid => zone%grid
+  pgrid => zone%gridlist%first
   do while (associated(pgrid))
-    print*," - grid"
     call init_boco_ns(zone%defsolver, pgrid%umesh)
     pgrid => pgrid%next
   enddo
 
 case(solKDIF)
-  if (zone%ngrid /= 1) call erreur("Init BOCO","une seule grille acceptee")
-  call init_boco_kdif(zone%defsolver, zone%grid%umesh)
+  if (zone%gridlist%nbgrid /= 1) call erreur("Init BOCO","une seule grille acceptee")
+  call init_boco_kdif(zone%defsolver, zone%gridlist%first%umesh)
 
 case(solVORTEX)
-  pgrid => zone%grid
-  do ig = 1, zone%ngrid
+  pgrid => zone%gridlist%first
+  do while (associated(pgrid))
     call init_boco_vort(zone%defsolver, pgrid)
     pgrid => pgrid%next
   enddo

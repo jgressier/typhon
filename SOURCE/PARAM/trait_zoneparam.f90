@@ -65,13 +65,13 @@ call def_mesh(block, zone%defmesh)
 ! -------------------------
 ! Definition des parametres de simulation
 
-call def_time(prj, block, solver, zone%deftime)
+call def_time(prj, block, solver, zone%defsolver%deftime)
 
-call def_spat(block, zone%defsolver, zone%defspat)
+call def_spat(block, zone%defsolver, zone%defsolver%defspat)
 
 call def_amr(block, solver, zone%defsolver%defamr)
 
-if (mpi_run) call def_mpi(block, solver, zone%defsolver%defamr)
+if (mpi_run) call def_mpi(block, solver, zone%defsolver%defmpi)
 
 ! -------------------------
 ! Definition des conditions aux limites et parametres de couplage
@@ -129,7 +129,7 @@ call def_other(block, solver, zone%defsolver)
 endsubroutine trait_zoneparam
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! Juil 2002 : creation de la procedure
 ! Sept 2003 : appel a la definition de solveur NS

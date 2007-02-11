@@ -13,6 +13,7 @@
 module MENU_SOLVER
 
 use TYPHMAKE      ! Definition de la precision
+use MENU_NUM      ! Definition des parametres numeriques d'integration
 use MENU_NS       ! Definition des solveurs type NS
 use MENU_KDIF     ! Definition des solveurs type Equation de diffusion
 use MENU_VORTEX   ! Definition des solveurs type VORTEX (lagrangien)
@@ -50,12 +51,14 @@ type mnu_solver
   integer            :: nsca, nvec      ! scalar and vector numbers
   real(krp), pointer :: refsca(:)       ! reference value for scalars
   real(krp), pointer :: refvec(:)       ! reference value for vectors
-  type(mnu_ns)       :: defns           ! options si solveur NS
-  type(mnu_kdif)     :: defkdif         ! options si solveur KDIF
-  type(mnu_vort)     :: defvort         ! options si solveur VORTEX
-  type(mnu_amr)      :: defamr          ! options si AMR
-  type(mnu_mpi)      :: defmpi          ! options si MPI
-  integer            :: nboco           ! nombre de conditions aux limites
+  type(mnu_time)  :: deftime         ! parametres d'integration temporelle
+  type(mnu_spat)  :: defspat         ! parametres d'integration spatiale
+  type(mnu_ns)    :: defns           ! options si solveur NS
+  type(mnu_kdif)  :: defkdif         ! options si solveur KDIF
+  type(mnu_vort)  :: defvort         ! options si solveur VORTEX
+  type(mnu_amr)   :: defamr          ! options si AMR
+  type(mnu_mpi)   :: defmpi          ! options si MPI
+  integer         :: nboco           ! nombre de conditions aux limites
   type(mnu_boco), dimension(:), pointer &
                      :: boco            ! definitions des conditions aux limites
   integer            :: ninit           ! nombre de conditions initiales
@@ -248,7 +251,7 @@ endfunction indexcapteur
 endmodule MENU_SOLVER
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! aout 2002 : creation du module
 ! mars 2003 : ajout des conditions aux limites

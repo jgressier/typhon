@@ -49,10 +49,10 @@ if ( (mod(lworld%info%icycle,lworld%output(io)%period) == 0).or.&
     ! deux zones couplees
     call calcul_raccord(lworld, ir, iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2)
 
-    do i = 1, lworld%zone(iz1)%grid%umesh%boco(nbc1)%nface
+    do i = 1, lworld%zone(iz1)%gridlist%first%umesh%boco(nbc1)%nface
 
       write(uf_tempinter,'(2e18.8)') lworld%info%curtps, &
-        lworld%zone(iz1)%defsolver%boco(lworld%zone(iz1)%grid%umesh%boco(nbc1)%idefboco)%boco_kdif%temp(i)
+        lworld%zone(iz1)%defsolver%boco(lworld%zone(iz1)%gridlist%first%umesh%boco(nbc1)%idefboco)%boco_kdif%temp(i)
                   
     enddo
 

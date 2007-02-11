@@ -162,22 +162,17 @@ type(st_fct_container) :: cont
 real(prec)             :: x
 character(len=20)  :: form="(a30,2g16.8,2x,a8)"
 character(len=20)  :: err
-integer            :: ierr
 
-call string_to_funct(str, func, ierr)
+call string_to_node(str, func)
 call fct_node_eval(blank_env, func, cont)
 if ((abs(cont%r-x)/x) > 10*sqrt(epsilon(x))) then
   err = "FAUX"
-  print form, str, cont%r, x, err
-  call fct_node_to_str(func, str)
-  print*,"->",trim(str)
 elseif ((abs(cont%r-x)/x) > 10*epsilon(x)) then
   err = "Mauvais"
-  print form, str, cont%r, x, err
 else
   err = " Ok "
-  print form, str, cont%r, x, err
 endif
+print form, str, cont%r, x, err
 call delete(cont)
 call delete(func)
 

@@ -193,7 +193,7 @@ endsubroutine nspri2pi_ti_mach_dir
 endmodule EQNS
 
 !------------------------------------------------------------------------------!
-! Modification history
+! Changes history
 !
 ! mai  2002 : creation du module
 ! sept 2003 : adaptation du module pour premiers developpements

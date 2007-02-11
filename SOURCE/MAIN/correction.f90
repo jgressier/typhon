@@ -58,14 +58,14 @@ case(kdif_kdif)
 if ( (typ_cor1.ne.bocoT) .and. (typ_cor1.ne.repart_reg) .and. &
      (typ_cor1.ne.repart_geo) .and. (typ_cor1.ne.distributed) )then
 
-    call corr_varprim(zone1%grid%info%field_loc, &
-                    zone1%grid%umesh, &
+  call corr_varprim(zone1%gridlist%first%info%field_loc, &
+                    zone1%gridlist%first%umesh, &
                     zone1%defsolver, &
                     zone1%coupling(ncoupl1)%zcoupling%etatcons, nbc1, &
                     part_cor1, typ_cor1, fincycle)
 
-    call corr_varprim(zone2%grid%info%field_loc, &
-                    zone2%grid%umesh, &
+  call corr_varprim(zone2%gridlist%first%info%field_loc, &
+                    zone2%gridlist%first%umesh, &
                     zone2%defsolver, &
                     zone2%coupling(ncoupl2)%zcoupling%etatcons, nbc2, &
                     part_cor2, typ_cor2, fincycle)
@@ -75,14 +75,14 @@ case(kdif_ns)
   if ( (typ_cor1.ne.bocoT) .and. (typ_cor1.ne.repart_reg) .and. &
          (typ_cor1.ne.repart_geo) ) then
     if (zone1%defsolver%typ_solver == solKDIF) then
-      call corr_varprim(zone1%grid%info%field_loc, &
-                     zone1%grid%umesh, &
+      call corr_varprim(zone1%gridlist%first%info%field_loc, &
+                     zone1%gridlist%first%umesh, &
                      zone1%defsolver, &
                      zone1%coupling(ncoupl1)%zcoupling%etatcons, nbc1, &
                      part_cor1, typ_cor1, fincycle)
     else
-      call corr_varprim(zone2%grid%info%field_loc, &
-                     zone2%grid%umesh, &
+      call corr_varprim(zone2%gridlist%first%info%field_loc, &
+                     zone2%gridlist%first%umesh, &
                      zone2%defsolver, &
                      zone2%coupling(ncoupl2)%zcoupling%etatcons, nbc2, &
                      part_cor2, typ_cor2, fincycle)
@@ -98,8 +98,8 @@ if (typ_cor1.eq.distributed) then
 
   case(solKDIF)
     do i=1,nfacelim
-      if = zone1%grid%umesh%boco(nbc1)%iface(i)
-      zone1%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%boco_kdif%flux_nunif(if) = part_cor1 * zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal(2)%scal(i) / (zone1%grid%umesh%mesh%iface(if,1,1)%surface * dtexch)
+      if = zone1%gridlist%first%umesh%boco(nbc1)%iface(i)
+      zone1%defsolver%boco(zone1%gridlist%first%umesh%boco(nbc1)%idefboco)%boco_kdif%flux_nunif(if) = part_cor1 * zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal(2)%scal(i) / (zone1%gridlist%first%umesh%mesh%iface(if,1,1)%surface * dtexch)
       zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal(3)%scal(i) = 0
     enddo
 
@@ -114,8 +114,8 @@ if (typ_cor1.eq.distributed) then
 
   case(solKDIF)
     do i=1,nfacelim
-      if = zone1%grid%umesh%boco(nbc1)%iface(i)
-      zone2%defsolver%boco(zone1%grid%umesh%boco(nbc1)%idefboco)%boco_kdif%flux_nunif(if) = part_cor2 * zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal(2)%scal(i) / (zone2%grid%umesh%mesh%iface(if,1,1)%surface * dtexch)
+      if = zone1%gridlist%first%umesh%boco(nbc1)%iface(i)
+      zone2%defsolver%boco(zone1%gridlist%first%umesh%boco(nbc1)%idefboco)%boco_kdif%flux_nunif(if) = part_cor2 * zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal(2)%scal(i) / (zone2%gridlist%first%umesh%mesh%iface(if,1,1)%surface * dtexch)
       zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal(3)%scal(i) = 0
     enddo
 

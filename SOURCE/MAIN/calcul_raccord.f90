@@ -48,18 +48,19 @@ do ic = 1, lworld%zone(iz2)%ncoupling
   endif
 enddo
 
+!!! DEV !!! coupling is only allowed for single grids
 
 ! Determination des indices de condition aux limites pour les zones 1 et 2
-do ib = 1, lworld%zone(iz1)%grid%umesh%nboco
+do ib = 1, lworld%zone(iz1)%gridlist%first%umesh%nboco
   if (samestring(lworld%zone(iz1)%coupling(ncoupl1)%family, &
-                 lworld%zone(iz1)%grid%umesh%boco(ib)%family)) then
+                 lworld%zone(iz1)%gridlist%first%umesh%boco(ib)%family)) then
     nbc1 = ib
   endif
 enddo
   
-do ib = 1, lworld%zone(iz2)%grid%umesh%nboco
+do ib = 1, lworld%zone(iz2)%gridlist%first%umesh%nboco
   if (samestring(lworld%zone(iz2)%coupling(ncoupl2)%family, &
-                 lworld%zone(iz2)%grid%umesh%boco(ib)%family)) then
+                 lworld%zone(iz2)%gridlist%first%umesh%boco(ib)%family)) then
     nbc2 = ib
   endif
 enddo

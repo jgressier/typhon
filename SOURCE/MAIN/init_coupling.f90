@@ -69,14 +69,14 @@ endselect
 
 ! Initialisation des structures du couplage
 
-call new(zone1%coupling(ncoupl1)%zcoupling, zone1%grid%umesh%boco(nbc1)%nface)
-call new(zone2%coupling(ncoupl2)%zcoupling, zone2%grid%umesh%boco(nbc2)%nface)
+call new(zone1%coupling(ncoupl1)%zcoupling, zone1%gridlist%first%umesh%boco(nbc1)%nface)
+call new(zone2%coupling(ncoupl2)%zcoupling, zone2%gridlist%first%umesh%boco(nbc2)%nface)
 
 ! calcul des connections et connectivites entre zones
 ! maillages coincidants
-call calc_connface(zone1%grid%umesh, zone1%grid%umesh%boco(nbc1), &
+call calc_connface(zone1%gridlist%first%umesh, zone1%gridlist%first%umesh%boco(nbc1), &
                    zone1%coupling(ncoupl1)%zcoupling%connface, &
-                   zone2%grid%umesh, zone2%grid%umesh%boco(nbc2), &
+                   zone2%gridlist%first%umesh, zone2%gridlist%first%umesh%boco(nbc2), &
                    zone2%coupling(ncoupl2)%zcoupling%connface)
 
   write(uf_log,"(a,5i)")"conn de zones : ", &

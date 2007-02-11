@@ -40,7 +40,7 @@ type(st_grid), pointer :: pgrid
    
 ! --- Ouverture du fichier ---
 
-call print_info(5, "* LECTURE DU MAILLAGE TYPHMSH : "//trim(nom))
+call print_info(5, "* reading TYPHMSH mesh : "//trim(nom))
 
 zone%typ_mesh = mshUST
 
@@ -80,7 +80,7 @@ read(unit,*) ndom
 
 if (ndom /= 1) call erreur("Developpement","nombre de domaines limite a 1")
 
-pgrid => newgrid(zone)
+pgrid => add_grid(zone%gridlist)
 
 do i = 1, ndom
 

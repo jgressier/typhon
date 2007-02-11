@@ -14,11 +14,9 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            analyse.o                \
            analyse_zone.o           \
            build_implicit.o         \
-           calc_bilan.o             \
            calc_cpl_flux.o          \
            calc_cpl_temp.o          \
            calcdifflux.o            \
-           calc_volum.o             \
            calc_zonetimestep.o      \
            calcul_raccord.o         \
            capteurs.o               \
@@ -44,10 +42,11 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            init_zone.o              \
            integration.o            \
            integration_cycle.o      \
+           integration_cyclezone.o  \
            integration_grid.o       \
-           integration_zone.o       \
            integration_zone_lag.o   \
-           integrationmacro_zone.o  \
+           integzone_tstep_usttree.o  \
+           integ_treelevel.o        \
            lecture_maillage.o       \
            lectzone_mesh.o          \
            mpi_strategy_pre.o       \

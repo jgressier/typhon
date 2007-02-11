@@ -40,13 +40,13 @@ real(krp), dimension(1) &
 
 ! -- Debut de la procedure --
 
-do i=1, zone1%grid%umesh%boco(nbc1)%nface
+do i=1, zone1%gridlist%first%umesh%boco(nbc1)%nface
   
-  if1 = zone1%grid%umesh%boco(nbc1)%iface(i)
-  if2 = zone2%grid%umesh%boco(nbc2)%iface(zone2%coupling(ncoupl2)%zcoupling%connface(i))
+  if1 = zone1%gridlist%first%umesh%boco(nbc1)%iface(i)
+  if2 = zone2%gridlist%first%umesh%boco(nbc2)%iface(zone2%coupling(ncoupl2)%zcoupling%connface(i))
 
-  icl1 = zone1%grid%umesh%facecell%fils(if1,1)
-  icl2 = zone2%grid%umesh%facecell%fils(if2,1)
+  icl1 = zone1%gridlist%first%umesh%facecell%fils(if1,1)
+  icl2 = zone2%gridlist%first%umesh%facecell%fils(if2,1)
 
   ! ZONE 1 !
 
@@ -57,7 +57,7 @@ do i=1, zone1%grid%umesh%boco(nbc1)%nface
     select case(zone1%defsolver%defkdif%materiau%type)
     case(mat_LIN, mat_KNL)
       conduct = valeur_loi(zone1%defsolver%defkdif%materiau%Kd, &
-                         zone1%grid%info%field_loc%etatprim%tabscal(1)%scal(icl1))
+                         zone1%gridlist%first%info%field_loc%etatprim%tabscal(1)%scal(icl1))
     case(mat_XMAT)
       call erreur("Calcul de materiau","Materiau non lineaire interdit")
     endselect
@@ -68,22 +68,22 @@ do i=1, zone1%grid%umesh%boco(nbc1)%nface
       !DEBUG
       print*, "correction BOCO"
       donnees_echange_inst1%tabscal(1)%scal(i) = &
-             (zone1%grid%info%field_loc%etatcons%tabscal(1)%scal(icl1) - &
+             (zone1%gridlist%first%info%field_loc%etatcons%tabscal(1)%scal(icl1) - &
              (zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal(2)%scal(i) / &
-             zone1%grid%umesh%mesh%volume(icl1,1,1)) ) / &
+             zone1%gridlist%first%umesh%mesh%volume(icl1,1,1)) ) / &
              zone1%defsolver%defkdif%materiau%Cp
       ! Correction  rest zero
       ! zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal(3)%scal(i) = 0
     else
       !donnees_echange_inst1%tabscal(1)%scal(i) = &
-      !                              zone1%grid%field%etatprim%tabscal(1)%scal(icl1)
+      !                              zone1%gridlist%first%field%etatprim%tabscal(1)%scal(icl1)
       donnees_echange_inst1%tabscal(1)%scal(i) = &
-             zone1%grid%info%field_loc%etatcons%tabscal(1)%scal(icl1)/ &
+             zone1%gridlist%first%info%field_loc%etatcons%tabscal(1)%scal(icl1)/ &
              zone1%defsolver%defkdif%materiau%Cp
     endif
 
     donnees_echange_inst1%tabscal(2)%scal(i) = conduct
-    !donnees_echange_inst1%tabvect(1)%vect(if) = zone1%grid%field%gradient%tabvect(1)%vect(icl)
+    !donnees_echange_inst1%tabvect(1)%vect(if) = zone1%gridlist%first%field%gradient%tabvect(1)%vect(icl)
 
   case(solNS)
     ! Computation of zone 1 conductivity
@@ -91,7 +91,7 @@ do i=1, zone1%grid%umesh%boco(nbc1)%nface
     cp = zone1%defsolver%defns%properties(1)%gamma * r_PG / &
        (zone1%defsolver%defns%properties(1)%gamma - 1)      ! heat capacity
     ! Temperature :
-    TH(1) = zone1%grid%field%etatprim%tabscal(2)%scal(icl1) / (zone1%grid%field%etatprim%tabscal(1)%scal(icl1) * r_PG)
+    TH(1) = zone1%gridlist%first%field%etatprim%tabscal(2)%scal(icl1) / (zone1%gridlist%first%field%etatprim%tabscal(1)%scal(icl1) * r_PG)
     ! Viscosity :
     select case(zone1%defsolver%defns%typ_visc)
     case(visc_suth)
@@ -111,8 +111,8 @@ do i=1, zone1%grid%umesh%boco(nbc1)%nface
       print*, "correction BOCO"
       donnees_echange_inst1%tabscal(1)%scal(i) = TH(1) - &
              zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal(2)%scal(i) / &
-             (zone1%grid%umesh%mesh%volume(icl1,1,1) * cp * &
-             zone1%grid%field%etatprim%tabscal(1)%scal(icl1))
+             (zone1%gridlist%first%umesh%mesh%volume(icl1,1,1) * cp * &
+             zone1%gridlist%first%field%etatprim%tabscal(1)%scal(icl1))
       ! Correction  rest zero
       ! zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal(3)%scal(i) = 0
     else
@@ -132,7 +132,7 @@ do i=1, zone1%grid%umesh%boco(nbc1)%nface
     select case(zone2%defsolver%defkdif%materiau%type)
     case(mat_LIN, mat_KNL)
       conduct = valeur_loi(zone2%defsolver%defkdif%materiau%Kd, &
-                         zone2%grid%info%field_loc%etatprim%tabscal(1)%scal(icl2))
+                         zone2%gridlist%first%info%field_loc%etatprim%tabscal(1)%scal(icl2))
     case(mat_XMAT)
       call erreur("Calcul de materiau","Materiau non lineaire interdit")
     endselect
@@ -141,22 +141,22 @@ do i=1, zone1%grid%umesh%boco(nbc1)%nface
 
     if (typcor == bocoT) then
       donnees_echange_inst2%tabscal(1)%scal(i) = &
-             (zone2%grid%info%field_loc%etatcons%tabscal(1)%scal(icl2) - &
+             (zone2%gridlist%first%info%field_loc%etatcons%tabscal(1)%scal(icl2) - &
              (zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal(2)%scal(i) / &
-             zone2%grid%umesh%mesh%volume(icl2,1,1)) ) / &
+             zone2%gridlist%first%umesh%mesh%volume(icl2,1,1)) ) / &
              zone2%defsolver%defkdif%materiau%Cp
       ! Correction rest zero
       ! zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal(3)%scal(i) = 0
     else
       !donnees_echange_inst2%tabscal(1)%scal(i) = &
-      !                              zone2%grid%field%etatprim%tabscal(1)%scal(icl2)
+      !                              zone2%gridlist%first%field%etatprim%tabscal(1)%scal(icl2)
       donnees_echange_inst2%tabscal(1)%scal(i) = &
-             zone2%grid%info%field_loc%etatcons%tabscal(1)%scal(icl2)/ &
+             zone2%gridlist%first%info%field_loc%etatcons%tabscal(1)%scal(icl2)/ &
              zone2%defsolver%defkdif%materiau%Cp
     endif
 
     donnees_echange_inst2%tabscal(2)%scal(i) = conduct
-    !donnees_echange_inst2%tabvect(1)%vect(if) = zone2%grid%field%gradient%tabvect(1)%vect(icl)  
+    !donnees_echange_inst2%tabvect(1)%vect(if) = zone2%gridlist%first%field%gradient%tabvect(1)%vect(icl)  
 
   case(solNS)
     ! Computation of zone 2 conductivity
@@ -164,7 +164,7 @@ do i=1, zone1%grid%umesh%boco(nbc1)%nface
     cp = zone2%defsolver%defns%properties(1)%gamma * r_PG / &
        (zone2%defsolver%defns%properties(1)%gamma - 1)      ! heat capacity
     ! Temperature :
-    TH(1) = zone2%grid%field%etatprim%tabscal(2)%scal(icl2) / (zone2%grid%field%etatprim%tabscal(1)%scal(icl2) * r_PG)
+    TH(1) = zone2%gridlist%first%field%etatprim%tabscal(2)%scal(icl2) / (zone2%gridlist%first%field%etatprim%tabscal(1)%scal(icl2) * r_PG)
     ! Viscosity :
     select case(zone2%defsolver%defns%typ_visc)
     case(visc_suth)
@@ -184,8 +184,8 @@ do i=1, zone1%grid%umesh%boco(nbc1)%nface
       print*, "correction BOCO"
       donnees_echange_inst2%tabscal(1)%scal(i) = TH(1) - &
              zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal(2)%scal(i) / &
-             (zone2%grid%umesh%mesh%volume(icl2,1,1) * cp * &
-             zone2%grid%field%etatprim%tabscal(1)%scal(icl2))
+             (zone2%gridlist%first%umesh%mesh%volume(icl2,1,1) * cp * &
+             zone2%gridlist%first%field%etatprim%tabscal(1)%scal(icl2))
       ! Correction  rest zero
       ! zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal(3)%scal(i) = 0
     else
