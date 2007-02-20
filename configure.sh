@@ -8,6 +8,8 @@ TOOLSCONF=TOOLS/configure
 MAKECONF=SOURCE/defvar.make
 SHELLCONF=bin/shconf.sh
 
+ALLMPILIB="mpi mpich lampi mpi_f90"
+
 configure_help() {
   echo "TYPHON configuration help"
   echo "  set F90LIB to help finding external libraries (i.e. export F90LIB=/opt/aero/lib)"
@@ -77,7 +79,7 @@ check_diff() {
   }
 
 check_f90compiler() {
-  local namelist="ifort ifc pgf90 lfc pathf90 af90 f90 f95 g95 gfortran"
+  local namelist="ifort ifc pgf90 lfc pathf90 af90 f90 f95 sxf90 g95 gfortran"
   for exe in $namelist ; do
     F90C=$(which $exe 2> /dev/null)
     if [ -n "$F90C" ] ; then
@@ -171,6 +173,21 @@ check_library() {
   fi
   }
 
+check_mpilib() {
+  for name in $ALLMPILIB ; do
+    if [ -n "$(printenv LIB_$name)" ] ; then
+      success lib$name
+      eval MPILIB=\$LIB_$name
+      export MPILIB
+      break
+    fi
+  done
+  if [ -n "$MPILIB" ] ; then
+    fail "not found"
+  fi
+  }
+
+
 check_f90module() {
   local module
   cd $TMPDIR
@@ -217,10 +234,11 @@ check "diff command"                diff
 check "fortran 90 compiler"         f90compiler
 #
 # EXTLIBS="blas lapack cgns metis mpich mpi"
-EXTLIBS="cgns metis mpich mpi"
+EXTLIBS="cgns metis $ALLMPILIB"
 for lib in $EXTLIBS ; do
-  check "static library $lib" library $lib a
+  check "static library $lib" library $lib  a
 done
+check "MPI library"                 mpilib
 check "$F90C optimization options"  f90opti
 check "$F90C debug        options"  f90debug
 check "$F90C profiling    options"  f90prof
@@ -240,8 +258,7 @@ fi
 #[[ -z "$LIB_lapack" ]]   && error   "LAPACK not available: impossible to build TYPHON"
 [[ -z "$LIB_cgns"   ]]   && error   "CGNS   not available: impossible to build TYPHON"
 [[ -z "$LIB_metis"  ]]   && error   "METIS  not available: TYPHON will not feature automatic distribution"
-[[ -z "$LIB_mpich"  ]] && 
-  [[ -z "$LIB_mpi"    ]] && warning "MPI    not available: TYPHON will not feature parallel computation"
+[[ -z "$MPILIB"     ]]   && warning "MPI    not available: TYPHON will not feature parallel computation"
 
 echo Configuration ended
 
@@ -269,8 +286,8 @@ echo "LINKER      = \$(CF)"                         >> $MAKECONF
 echo "LINKSO      = \$(CF) -shared"                 >> $MAKECONF
 echo "METISLIB    = $LIB_metis"                     >> $MAKECONF
 echo "CGNSLIB     = $LIB_cgns"                      >> $MAKECONF
-echo "LAPACKLIB   = $LIB_lapack $LIB_blas"          >> $MAKECONF
-echo "MPILIB      = $LIB_mpich"                     >> $MAKECONF
+#echo "LAPACKLIB   = $LIB_lapack $LIB_blas"          >> $MAKECONF
+echo "MPILIB      = $MPILIB"                        >> $MAKECONF
 echo Done
 echo ------------------------------------------------------------------
 echo
