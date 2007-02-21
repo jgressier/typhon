@@ -2,9 +2,11 @@
 #
 # Check non-regression of all NRG cases containing nrgconf.sh
 #
-echo ------------------------------------------------------------------
+bar=------------------------------------------------------------------
+
+echo $bar
 echo TYPHON non regression verification
-echo ------------------------------------------------------------------
+echo $bar
 
 # --- initialization ---
 #
@@ -53,12 +55,18 @@ for FILE in $LISTCASES ; do
   cd $DIR
   cp $INPUTFILE $TMPDIR
   cd $TMPDIR
+  echo $bar  >> $HOMEDIR/check.log
   echo $CASE >> $HOMEDIR/check.log
+  echo $var  >> $HOMEDIR/diff.log
   echo $CASE >> $HOMEDIR/diff.log
-  $EXEDIR/Typhon-$TYPE_EXE >> $HOMEDIR/check.log 2>&1
-  if [ $? ] ; then
+  case $TYPE_EXE in
+    seq) $EXEDIR/Typhon-$TYPE_EXE >> $HOMEDIR/check.log 2>&1 ;;
+    mpi) mpirun -np ${MPIPROCS:-2} $EXEDIR/Typhon-$TYPE_EXE >> $HOMEDIR/check.log 2>&1 ;;
+    *)   echo -e \\033[${col}G$fic unknown typhon executable ;;
+  esac
+  if [ $? -eq 0 ] ; then
     for fic in $TO_CHECK ; do
-      $DIFFCOM $fic $DIR/$fic >> $HOMEDIR/diff.log
+      $DIFFCOM $fic $DIR/$fic >> $HOMEDIR/diff.log 2>&1 
       case $? in
         0) echo -e \\033[${col}G$fic identical ;;
         1) echo -e \\033[${col}G$fic changed ;;
