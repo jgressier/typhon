@@ -40,7 +40,7 @@ enddo
 
 ! -- calcul des conditions aux limites pour tous les domaines --
 
-call conditions_limites(zone)
+call conditions_limites(zone%defsolver, zone%gridlist)
     
 ! -- gradients are computed only if necessary (by selected methods)
 

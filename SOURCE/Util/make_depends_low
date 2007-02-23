@@ -1,14 +1,56 @@
-##!/bin/bash
+#!/bin/ksh
+#
+# Script:            make_depends
+# Created by         Jeremie Gressier
+# Usage              make_depends lower|upper filename
+#
+# Description:		
+#
+# This script parses f90 files in order to extract
+# file dependencies (MODULE). It can handle:
+#      use ok1                ! comment
+#      use ok2, ok3           ! comment
+#      use ok4, only not_me   ! comment
+#      use ok5, &             ! comment
+#          ok6                ! comment
+#
+# and writes
+#
+#  $(OD)/test.$(o): test.f90 \
+#                          $(OD)/ok1.$(o)    \
+#                          $(OD)/ok2.$(o)    \
+#                          $(OD)/ok3.$(o)    \
+#                          $(OD)/ok4.$(o)    \
+#                          $(OD)/ok5.$(o)    \
+#                          $(OD)/ok6.$(o)    \
+#
+# Attention : la reconnaissance des mots-clefs ne dépend pas de la casse
+# mais par contre, les fichiers .o DOIVENT TOUS exister en minuscules uniquement
+# (cela impose souvent que les noms des fichiers sources doivent etre en minuscules)
+#
+# Attention : des problemes ont ete remarqués avec des commentaires contenant des lettres 
+# accentuées qui ne sont pas considérées par les jokers regexp .*
 
+#-----------------------------------------------------------------
+case $1
+  lower) changecase="A-Z a-z" ;;
+  upper) changecase="a-z A-Z" ;;
+  *)     echo Panic: unknown option :$1:
+esac
+
+#-----------------------------------------------------------------
+# try to get optional output file
+shift
 TARGET=${1:-depends.make}
 
-echo Création des dépendances dans $TARGET
+#-----------------------------------------------------------------
+echo Building module dependencies in $TARGET
 
-rm $TARGET
+rm $TARGET 2> /dev/null
 
-echo \# Ce fichier est généré automatiquement > $TARGET
-echo \# et est susceptible d\'être écrasé    >> $TARGET
-echo                                         >> $TARGET
+echo \# This file has been created automatically      > $TARGET
+echo \# It can be overwritten                        >> $TARGET
+echo \# \(manual modifications are not recommended\) >> $TARGET
 
 for fic in *.f90 ; do
 
