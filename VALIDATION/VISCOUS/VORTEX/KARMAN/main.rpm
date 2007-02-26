@@ -1,24 +1,24 @@
 !------------------------------------------------------------------------------!
-! MENU TYPHON 
+! MENU TYPHON
 !------------------------------------------------------------------------------!
 
 BLOCK:PROJECT           ! DEFINITION DU PROJET
-  NZONE     = 1       
-  COORD     = 2D      
-  TIME      = UNSTEADY 
+  NZONE     = 1         ! nombre de zones (facultatif, défaut = 1)
+  COORD     = 2D        ! type de repère  : 2D=2DPLAN / 2DAXI / 3D
+  TIME      = UNSTEADY  ! type d'intégration temporelle : STEADY / UNSTEADY / PERIODIC
   DURATION  = .000002
   BASETIME  = .00000001
-  !RESIDUALS = 1.e-2
-ENDBLOCK               
+  !RESIDUALS = 1.E-2     ! STEADY : résidu maximal dans le champ
+ENDBLOCK
 
 BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
-  FORMAT = VTK         
-  FILE   = "typhon" 
+  FORMAT = VTK
+  FILE   = "typhon"     ! nom du fichier de sortie
 ENDBLOCK
 
 BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
-  NAME   = "cyl" 
-  SOLVER = EULER
+  NAME   = "cyl"        ! nom de la zone (facultatif)
+  SOLVER = EULER        ! type de solveur : HEAT / EULER / NS
 ENDBLOCK
 
 !------------------------------------------------------------------------------!
@@ -36,7 +36,7 @@ BLOCK:MODEL
   GAS      = AIR
 ENDBLOCK
 
-BLOCK:TIME_PARAM 
+BLOCK:TIME_PARAM
   !DTCALC    = LOCAL_STABILITY_CONDITION
   METHOD    = IMPLICIT
   INVERSION = BICGSTAB
@@ -45,7 +45,7 @@ BLOCK:TIME_PARAM
   CFL       = 5.
 ENDBLOCK
 
-BLOCK:SPAT_PARAM  
+BLOCK:SPAT_PARAM
   SCHEME   = HLLC
   JACOBIAN = HLL-diag
   HIGHRES  = MUSCL-FAST
@@ -73,7 +73,6 @@ BLOCK:BOCO
   WALL_FLUX   = 0.
 ENDBLOCK
 
-
 !BLOCK:BOCO
 !  FAMILY = CURVES
 !  TYPE   = FLUXSET_WALL
@@ -82,9 +81,6 @@ ENDBLOCK
 
 BLOCK:BOCO
   FAMILY = DOWNSTREAM
-  TYPE   = SUBSONIC_OUTLET 
+  TYPE   = SUBSONIC_OUTLET
   P      = 1.E5
 ENDBLOCK
-
-
-
