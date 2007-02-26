@@ -5,46 +5,16 @@ echo TYPHON configuration
 echo ------------------------------------------------------------------
 
 TOOLSCONF=TOOLS/configure
+
+# output files
 MAKECONF=SOURCE/defvar.make
 SHELLCONF=bin/shconf.sh
 
+# Initialization
+. $TOOLSCONF/conf_init.sh
 ALLMPILIB="mpi mpich lampi mpi_f90"
 
-configure_help() {
-  echo "TYPHON configuration help"
-  echo "  set F90LIB to help finding external libraries (i.e. export F90LIB=/opt/aero/lib)"
-  }
-
-check() {
-  local com
-  echo -n checking $1...
-  shift
-  com=$1
-  shift
-  check_$com $*
-  }
-
-success() {
-  local col
-  col=60
-  echo -e \\033[${col}G$1
-  }
-
-fail()    {
-  local col
-  col=60
-  echo -e \\033[${col}G$1
-  }
-
-warning()    {
-  echo -e "!!! warning !!!" "$*"
-  }
-
-error()    {
-  echo -e "!!!  ERROR  !!!" "$*"
-  configure_help
-  exit 1
-  }
+# CHECK system tools
 
 check_system() {
   export SYS=$(uname -s)
