@@ -1,8 +1,8 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calcboco_connect_match                   Authors : J. Gressier
 !                                                      Created : October 2005
-! Fonction 
-!   Computation & exchange of boundary conditonis for connection conditions
+! Fonction
+!   Computation & exchange of connection data for connection boundary conditions
 !
 !------------------------------------------------------------------------------!
 subroutine calcboco_connect_match(defsolver, umesh, prim, boco)
@@ -18,7 +18,7 @@ use GENFIELD
 implicit none
 
 ! -- Inputs --
-type(mnu_solver)       :: defsolver        ! type d'equation a resoudre
+type(mnu_solver)       :: defsolver        ! solver type
 type(st_ustmesh)       :: umesh
 type(st_ustboco)       :: boco
 
@@ -27,9 +27,8 @@ type(st_genericfield)  :: prim             ! primitive variables fields
 
 ! -- Internal variables --
 integer :: if, ic, dim, ideb, var
-integer :: idef                      ! index de definitions des conditions aux limites
-integer :: nrac                      ! numero de raccord
-real(krp), allocatable :: bocodata(:) ! packed array of data
+integer :: idef                      ! boundary condition definition index
+real(krp), allocatable :: bocodata(:) ! array of packed data
 
 ! -- BODY --
 
@@ -55,12 +54,12 @@ enddo
 !print*, "send",boco%gridcon%grid_id, dim*boco%nface, bocodata
 call sendtogrid(boco%gridcon%grid_id, dim*boco%nface, bocodata, mpitag_field)
 
-! -- receive boundary conditions --
+! -- receive boundary condition data --
 
 call receivefromgrid(boco%gridcon%grid_id, dim*boco%nface, bocodata, mpitag_field)
 !print*, "recv",boco%gridcon%grid_id, dim*boco%nface, bocodata
 
-! -- unpack boundary conditions --
+! -- unpack boundary condition data --
 
 !print*,"list icell",umesh%facecell%fils(boco%iface(1:boco%nface), 2)
 do if = 1, boco%nface
@@ -85,4 +84,5 @@ endsubroutine calcboco_connect_match
 ! Changes history
 !
 ! Oct   2005 : Created
+! Feb  2007 : Comments
 !------------------------------------------------------------------------------!
