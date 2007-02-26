@@ -9,7 +9,7 @@
 !
 !------------------------------------------------------------------------------!
 subroutine def_output(block, world)
- 
+
 use RPM
 use TYPHMAKE
 use OUTPUT
@@ -46,9 +46,9 @@ call seekrpmblock(pblock, "OUTPUT", 0, pcour, nkey)
 world%noutput = nkey !DEV2602    world%noutput = 1
 allocate(world%output(world%noutput)) !DEV2602 allocate(world%output(1))
 
-do io = 1, world%noutput !DEV2602 
+do io = 1, world%noutput !DEV2602
   ! -- lecture du format
-  call seekrpmblock(pblock, "OUTPUT", io, pcour, nkey) 
+  call seekrpmblock(pblock, "OUTPUT", io, pcour, nkey)
   call rpmgetkeyvalstr(pcour, "FORMAT", str)
   world%output(io)%format = cnull
 
@@ -66,12 +66,14 @@ do io = 1, world%noutput !DEV2602
   select case(world%output(io)%format)
   case(fmt_VTK, fmt_VTKBIN)
     ic = index(str, ".vtk")
-    if (ic == 0) ic = len(str)+1
-    str = str(1:ic-1)
+    if (ic == len(trim(str))-3) str = str(1:ic-1)//"    "
+  case(fmt_TECPLOT)
+    ic = index(str, ".dat")
+    if (ic == len(trim(str))-3) str = str(1:ic-1)//"    "
   endselect
   world%output(io)%fichier = str
 
-  ! -- Determination du type de sortie : aux noeuds du maillage 
+  ! -- Determination du type de sortie : aux noeuds du maillage
   !    ou au centre des cellules (par defaut au centre)
 
   call rpmgetkeyvalstr(pcour, "TYPE", str, "CENTER")
@@ -100,4 +102,5 @@ endsubroutine def_output
 !
 ! nov  2002 : creation de la procedure
 ! oct  2003 : choix des sorties NODE ou CENTER pour Tecplot
+! fev  2007 : correction du nom de fichier pour VTK[BIN] et TECPLOT
 !------------------------------------------------------------------------------!
