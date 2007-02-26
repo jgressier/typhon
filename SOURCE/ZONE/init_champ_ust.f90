@@ -33,7 +33,7 @@ type(st_field), pointer :: champ
 
 ! -- Debut de la procedure --
 
-call print_info(8, ". initialisation et allocation des champs")
+call print_info(8, ". initializing and allocating fields")
 
 ! allocation des champs
 
@@ -45,7 +45,7 @@ case(solKDIF)
 case(solVORTEX)
   champ=>newfield(grid, 1, 0, ust_mesh%ncell, ust_mesh%nface)
 case default
-  call erreur("Incoherence interne (init_champ_ust)","type de solveur inconnu")
+  call erreur("Internal error (init_champ_ust)","unknown solver type")
 endselect 
 
 call alloc_prim(champ)
@@ -71,7 +71,7 @@ do i = 1, defsolver%ninit
   case(solVORTEX)
     call init_vort_ust(defsolver%init(i)%vortex, champ)
   case default
-    call erreur("Incoherence interne (init_champ_ust)","type de solveur inconnu")
+    call erreur("Internal error (init_champ_ust)","unknown solver type")
   endselect 
 
 enddo
@@ -82,7 +82,7 @@ case(solNS, solKDIF)
 case(solVORTEX)
   ! nothing to do
 case default
-  call erreur("Incoherence interne (init_champ_ust)","type de solveur inconnu")
+  call erreur("Internal error (init_champ_ust)","unknown solver type")
 endselect
 
 grid%field => champ
@@ -97,4 +97,5 @@ endsubroutine init_champ_ust
 ! mars 2004 : ajouts specifiques au solveur VORTEX
 ! july 2004 : initialization of NS fields
 ! oct  2004 : field chained list
+! Fev  2007 : English translation
 !------------------------------------------------------------------------------!
