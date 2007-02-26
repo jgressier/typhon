@@ -26,21 +26,20 @@ integer :: ierr
 
 ! -- BODY --
 
-
 select case(zinfo%typ_temps)
 
 case(stationnaire)
   zinfo%residu_ref = max(zinfo%residu_ref, zinfo%cur_res)
   if (zinfo%cur_res/zinfo%residu_ref <= zinfo%residumax) zinfo%end_cycle = .true.
   if (mod(zinfo%iter_loc,10) == 0) &
-      write(str_w,'(a,i5,a,g10.4)') "    it.",zinfo%iter_loc," | res. = ", log10(zinfo%cur_res)
+      write(str_w,'(a,i8,a,g10.4)') "    it.",zinfo%iter_loc," | res. = ", log10(zinfo%cur_res)
                                                                        !   log10(zinfo%cur_res/zinfo%residu_ref)
       !if (mod(zinfo%iter_loc,10) == 0) call print_info(9,str_w)
 
 case(instationnaire)
   zinfo%cycle_time = zinfo%cycle_time + dt
   if (mod(zinfo%iter_loc,10) == 0) &      !    if (zinfo%end_cycle) &
-      write(str_w,'(a,i5,a,g10.4)') "    it.",zinfo%iter_loc," at time =",zinfo%cycle_time
+      write(str_w,'(a,i8,a,g10.4)') "    it.",zinfo%iter_loc," at time =",zinfo%cycle_time
   
 case(periodique)
 
@@ -64,4 +63,3 @@ endsubroutine check_end_cycle
 !
 ! may  2006 : subroutine creation (from integrationmacro_zone)
 !------------------------------------------------------------------------------!
-
