@@ -2,7 +2,7 @@
 ! Procedure : def_boco_ns                 Author : J. Gressier
 !                                         Date   : Novembre 2003
 ! Function                                Modif  : (cf historique)
-!   Processing of main menu file parameters 
+!   Processing of main menu file parameters
 !   Main project parameters
 !
 ! Faults/Limitations/Varia :
@@ -46,16 +46,16 @@ case(bc_wall_adiab)
   call rpmgetkeyvalstr (pblock, "WALL_VELOCITY", str, "(0., 0., 0.)")
   boco%wall_velocity = v3d_of(str, info)
   if (info /= 0) &
-    call erreur("parsing parameters","unable to read WALL_VELOCITY data") 
-   typ = bc_wall_flux
+    call erreur("parsing parameters","unable to read WALL_VELOCITY data")
+  typ = bc_wall_flux
   boco%flux = 0._krp
 
 case(bc_wall_isoth)
   call rpmgetkeyvalstr (pblock, "WALL_VELOCITY", str, "(0., 0., 0.)")
   boco%wall_velocity = v3d_of(str, info)
   if (info /= 0) &
-    call erreur("parsing parameters","unable to read WALL_VELOCITY data") 
-   typ = bc_wall_isoth
+    call erreur("parsing parameters","unable to read WALL_VELOCITY data")
+  typ = bc_wall_isoth
   select case(unif)
 
   case(uniform)
@@ -72,10 +72,10 @@ case(bc_wall_flux)
   call rpmgetkeyvalstr (pblock, "WALL_VELOCITY", str, "(0., 0., 0.)")
   boco%wall_velocity = v3d_of(str, info)
   if (info /= 0) &
-    call erreur("parsing parameters","unable to read WALL_VELOCITY data") 
+    call erreur("parsing parameters","unable to read WALL_VELOCITY data")
   typ = bc_wall_flux
   select case(unif)
-  
+
   case(uniform)
     call rpmgetkeyvalreal(pblock, "WALL_FLUX", boco%flux)
     boco%flux = - boco%flux ! convention : flux out in the algorithm
@@ -90,40 +90,39 @@ case(bc_wall_flux)
 
 case(bc_inlet_sub)
   typ = bc_inlet_sub
-   call rpmgetkeyvalreal(pblock, "PI",        boco%ptot)
-   call rpmgetkeyvalreal(pblock, "TI",        boco%ttot)
-   call rpmgetkeyvalstr (pblock, "DIRECTION", str)
-   boco%direction = v3d_of(str, info)
-   if (info /= 0) &
-     call erreur("parsing parameters","unable to read DIRECTION data (subsonic inlet)") 
-   boco%direction = boco%direction / abs(boco%direction)
-   !call erreur("Developpement","'bc_inlet_sub' : Cas non implemente")
+  call rpmgetkeyvalreal(pblock, "PI",        boco%ptot)
+  call rpmgetkeyvalreal(pblock, "TI",        boco%ttot)
+  call rpmgetkeyvalstr (pblock, "DIRECTION", str)
+  boco%direction = v3d_of(str, info)
+  if (info /= 0) &
+    call erreur("parsing parameters","unable to read DIRECTION data (subsonic inlet)")
+  boco%direction = boco%direction / abs(boco%direction)
+  !call erreur("Development","'bc_inlet_sub' : Case not implemented")
 
 case(bc_inlet_sup)
   typ = bc_inlet_sup
-   call rpmgetkeyvalreal(pblock, "PI",        boco%ptot)
-   call rpmgetkeyvalreal(pblock, "TI",        boco%ttot)
-   call rpmgetkeyvalreal(pblock, "MACH",      boco%mach)
-   call rpmgetkeyvalstr (pblock, "DIRECTION", str)
-   boco%direction = v3d_of(str, info)
-   if (info /= 0) &
-     call erreur("parsing parameters","unable to read DIRECTION data (supersonic inlet)") 
-   boco%direction = boco%direction / abs(boco%direction)
-   !call erreur("Developpement","'bc_inlet_sup' : Cas non implemente")
+  call rpmgetkeyvalreal(pblock, "PI",        boco%ptot)
+  call rpmgetkeyvalreal(pblock, "TI",        boco%ttot)
+  call rpmgetkeyvalreal(pblock, "MACH",      boco%mach)
+  call rpmgetkeyvalstr (pblock, "DIRECTION", str)
+  boco%direction = v3d_of(str, info)
+  if (info /= 0) &
+    call erreur("parsing parameters","unable to read DIRECTION data (supersonic inlet)")
+  boco%direction = boco%direction / abs(boco%direction)
+  !call erreur("Development","'bc_inlet_sup' : Case not implemented")
 
 case(bc_outlet_sub)
   typ = bc_outlet_sub
   call rpmgetkeyvalreal(pblock, "P",         boco%pstat)
-  !call erreur("Developpement","'bc_outlet_sub' : Cas non implemente")
+  !call erreur("Development","'bc_outlet_sub' : Case not implemented")
 
 case(bc_outlet_sup)
   typ = bc_outlet_sup
-  !call erreur("Developpement","'bc_outlet_sup' : Cas non implemente")
+  !call erreur("Development","'bc_outlet_sup' : Case not implemented")
   ! No parameter to read
 
 case default
-  call erreur("Lecture de menu","type de conditions aux limites non reconnu&
-              & pour le solveur Navier-Stokes")
+  call erreur("reading menu","unknown boundary condition type for Navier-Stokes solver")
 endselect
 
 type = typ
@@ -137,6 +136,5 @@ endsubroutine def_boco_ns
 ! june 2004 : definition and reading of boundary conditions(inlet/outlet)
 ! june 2005 : wall conditions
 ! nov  2006 : NS wall conditions with WALL_VELOCITY
+! fev  2007 : English translation
 !------------------------------------------------------------------------------!
-
-
