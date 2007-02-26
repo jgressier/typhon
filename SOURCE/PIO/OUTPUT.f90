@@ -8,7 +8,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
- 
+
 module OUTPUT
 
 use TYPHMAKE   ! Definition de la precision
@@ -24,7 +24,7 @@ logical :: debug_mode
 integer  std_maxlevel ! profondeur d'affichage maximale en sortie standard
 integer  log_maxlevel ! profondeur d'affichage maximale en fichier log
 
-! unites d'entrees 
+! unites d'entrees
 
 integer  uf_stdin     ! entree standard
 integer  uf_menu      ! menus
@@ -44,7 +44,7 @@ integer  uf_compflux  ! comparaison des flux a l'interface
 integer  uf_correction  ! correction  DEV2602
 integer  uf_tempinter ! temperature interface DEV1404
 
-! unites de entrees/sorties 
+! unites de entrees/sorties
 
 integer  uf_reprise   ! fichier reprise
 
@@ -84,7 +84,7 @@ implicit none
   std_maxlevel = 100  !  15   ! profondeur d'affichage maximale en sortie standard
   log_maxlevel = 100  ! profondeur d'affichage maximale en fichier log
 
-  ! unites d'entrees 
+  ! unites d'entrees
   uf_stdin   = 5     ! entree standard
   uf_menu    = 10    ! menus
   uf_mesh    = 20    ! maillages
@@ -102,9 +102,9 @@ implicit none
   uf_tempinter=57   ! DEV1404
   uf_correction = 1000 !DEV2602
 
-  open(unit=uf_log, file = "typhon.log", form="formatted")  
+  open(unit=uf_log, file = "typhon.log", form="formatted")
 
-  ! unites de entrees/sorties 
+  ! unites de entrees/sorties
   uf_reprise = 60   ! fichier reprise
 
   debug_mode= .false.
@@ -132,7 +132,7 @@ implicit none
   call print_info(0,   trim(str))
 
 endsubroutine print_etape
-  
+
 
 !------------------------------------------------------------------------------!
 ! Procedure : print_warning               Auteur : J. Gressier
@@ -152,7 +152,7 @@ implicit none
   write(uf_log,'(a,a)')   "[WARNING] ",trim(str)
 
 endsubroutine print_warning
-  
+
 
 !------------------------------------------------------------------------------!
 ! Procedure : print_info                  Auteur : J. Gressier
@@ -178,7 +178,7 @@ implicit none
   endif
 
 endsubroutine print_info
-  
+
 
 !------------------------------------------------------------------------------!
 ! Procedure : print_stdout                Auteur : J. Gressier
@@ -195,12 +195,12 @@ implicit none
 
 ! -- Debut de la procedure --
 
-  call erreur("interne","procedure print_std obsolete")
+  call erreur("internal","print_std subroutine obsolete")
   write(uf_stdout,'(a)') trim(str)
   write(uf_log,'(a,a)')    "[OUT] ",trim(str)
 
 endsubroutine print_std
-  
+
 
 !------------------------------------------------------------------------------!
 ! Procedure : print_log                   Auteur : J. Gressier
@@ -217,12 +217,12 @@ implicit none
 
 ! -- Debut de la procedure --
 
-  call erreur("interne","procedure print_log obsolete")
+  call erreur("internal","print_log subroutine obsolete")
   write(uf_stdout,'(a)') trim(str)
   write(uf_log,'(a,a)')    "[OUT] ",trim(str)
 
 endsubroutine print_log
-  
+
 
 !------------------------------------------------------------------------------!
 ! Procedure : print_debug                   Auteur : J. Gressier
@@ -246,7 +246,7 @@ implicit none
 
 endsubroutine print_debug
 
-  
+
 !------------------------------------------------------------------------------!
 ! Procedure : writestr
 !------------------------------------------------------------------------------!
@@ -257,7 +257,7 @@ character(len=*), intent(in) :: str
 
   write(unit) str//newline_char
 
-endsubroutine
+endsubroutine writestr
 
 
 !------------------------------------------------------------------------------!
@@ -269,7 +269,7 @@ integer,          intent(in) :: unit
 
   write(unit) newline_char
 
-endsubroutine
+endsubroutine writereturn
 
 
 endmodule OUTPUT
@@ -278,5 +278,6 @@ endmodule OUTPUT
 !
 ! July 2002 : creation
 ! Nov  2002 : print_info
-! Aug  2005 : debug output 
+! Aug  2005 : debug output
+! Feb  2007 : English translation
 !------------------------------------------------------------------------------!
