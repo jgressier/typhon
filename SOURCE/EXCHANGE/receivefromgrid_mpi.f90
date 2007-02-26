@@ -26,12 +26,15 @@ real(krp)    :: data(dim)
 ! -- Internal variables --
 integer :: ierr
 integer :: status(MPI_STATUS_SIZE)
+integer :: request
 
 ! -- BODY --
 
-call MPI_RECV(data, dim, tympi_real, grid_id-1, tag, MPI_COMM_WORLD, status, ierr)
-
+call MPI_IRECV(data, dim, tympi_real, grid_id-1, tag, MPI_COMM_WORLD, request, ierr)
 if (ierr /= 0) call erreur("MPI error", "impossible to receive")
+
+call MPI_WAIT(request , status, ierr)
+if (ierr /= 0) call erreur("MPI error", "impossible to wait")
 
 endsubroutine receivefromgrid
 
@@ -39,4 +42,5 @@ endsubroutine receivefromgrid
 ! Changes history
 !
 ! Oct  2005 : created
+! Fev  2007 : Immediate MPI Send/Receive
 !------------------------------------------------------------------------------!

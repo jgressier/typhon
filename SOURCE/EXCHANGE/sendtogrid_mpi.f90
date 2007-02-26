@@ -25,12 +25,15 @@ real(krp)     :: data(dim)
 
 ! -- Internal variables --
 integer :: ierr
+integer :: request
 
 ! -- BODY --
 
-call MPI_SEND(data, dim, tympi_real, grid_id-1, tag, MPI_COMM_WORLD,  ierr)
-
+call MPI_ISEND(data, dim, tympi_real, grid_id-1, tag, MPI_COMM_WORLD, request, ierr)
 if (ierr /= 0) call erreur("MPI error", "impossible to send")
+
+call MPI_REQUEST_FREE(request, ierr)
+if (ierr /= 0) call erreur("MPI error", "impossible to free request")
 
 endsubroutine sendtogrid
 
@@ -38,4 +41,5 @@ endsubroutine sendtogrid
 ! Changes history
 !
 ! Oct  2005 : created
+! Fev  2007 : Immediate MPI Send/Receive
 !------------------------------------------------------------------------------!
