@@ -33,7 +33,7 @@ character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- Debut de la procedure --
 
-call print_info(2,"* Definition des sorties resultats")
+call print_info(2,"* Definition of output parameters")
 
 ! -- Recherche du BLOCK:OUTPUT
 
@@ -103,4 +103,5 @@ endsubroutine def_output
 ! nov  2002 : creation de la procedure
 ! oct  2003 : choix des sorties NODE ou CENTER pour Tecplot
 ! fev  2007 : correction du nom de fichier pour VTK[BIN] et TECPLOT
+! fev  2007 : Traduction en anglais
 !------------------------------------------------------------------------------!
