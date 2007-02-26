@@ -27,7 +27,6 @@ integer :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
 
 ! -- Debut de la procedure --
 
-
 !--------------------------------------------------------------------
 ! Initialization of zone parameters
 
@@ -35,7 +34,6 @@ call print_info(5,"* Initializing zones")
 do izone = 1, world%prj%nzone
   call init_zone(world%zone(izone), world%prj)
 enddo
-
 
 !--------------------------------------------------------------------
 ! Lecture, transformation des maillages, calcul des parametres geometriques et connectivites
@@ -48,8 +46,8 @@ enddo
 !--------------------------------------------------------------------
 ! Initialisation des connectivites cellules/faces/sommets des conditions aux limites
 
-call print_info(5,"* Calcul et Initialisation des connectivites&
-                  & et conditions aux limites")
+call print_info(5,"* Computing and Initializing connectivities&
+                  & of boundary conditions")
 do izone = 1, world%prj%nzone
   call init_connect(world%zone(izone))
 enddo
@@ -84,7 +82,7 @@ enddo
 ! Initialisation des echanges entre zones
 
 do icoupling = 1,  world%prj%ncoupling
-  call print_info(5,"Calcul et Initialisation des echanges entre zones")
+  call print_info(5,"Computing and Initializing exchanges between zones")
   call calcul_raccord(world, icoupling, iz1, iz2, ncoupl1, ncoupl2, nbc1, &
                       nbc2)
   call init_coupling(world%zone(iz1), world%zone(iz2), nbc1, nbc2, ncoupl1, &
@@ -99,10 +97,6 @@ do izone = 1, world%prj%nzone
   call init_capteurs(world%zone(izone))
 enddo
 
- 
-
-
-
 endsubroutine init_world
 
 !------------------------------------------------------------------------------!
@@ -110,4 +104,5 @@ endsubroutine init_world
 !
 ! nov   2002 : creation de la procedure
 ! jan   2004 : initialisation des capteurs
+! fev   2007 : English translation
 !------------------------------------------------------------------------------!

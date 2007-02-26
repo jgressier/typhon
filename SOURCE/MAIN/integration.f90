@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
- 
+
 subroutine integration(lworld)
 
 use TYPHMAKE
@@ -86,8 +86,7 @@ do while (.not. lworld%info%fin_integration)
   !--------------------------------------------------------
   ! cycle integration of all zones
 
-  call integration_cycle(lworld, exchcycle, lworld%prj%ncoupling)  
-
+  call integration_cycle(lworld, exchcycle, lworld%prj%ncoupling)
 
   ! -- Actualisation des conditions aux limites au raccord
   do ic = 1, lworld%prj%ncoupling
@@ -101,14 +100,14 @@ do while (.not. lworld%info%fin_integration)
   select case(lworld%prj%typ_temps)
 
   case(stationnaire)
-    write(str_w,'(a,g10.4)') "  Residu de cycle = ", log10(lworld%info%cur_res/lworld%info%residu_ref)
+    write(str_w,'(a,g10.4)') "  Residue in cycle = ", log10(lworld%info%cur_res/lworld%info%residu_ref)
     if (lworld%info%cur_res/lworld%info%residu_ref <= lworld%prj%residumax) then
       lworld%info%fin_integration = .true.
     endif
     if (lworld%info%icycle == lworld%prj%ncycle) then
       lworld%info%fin_integration = .true.
-      write(uf_stdout,'(a)') " Nombre de cycles maximal atteint"
-      write(uf_log,'(a,g10.4)') "Nombre de cycles maximal atteint, RESIDU = ",&
+      write(uf_stdout,'(a)')   " Maximum number of cycles reached"
+      write(uf_log,'(a,g10.4)') "Maximum number of cycles reached, RESIDUE = ",&
                            log10(lworld%info%cur_res/lworld%info%residu_ref)
     endif
     call print_info(6,str_w)
@@ -144,7 +143,7 @@ enddo
 
 call cpu_time(cpu_end)
 
-write(str_w, "(a,e13.4)") "CPU   integration time: ", cpu_end-cpu_start 
+write(str_w, "(a,e13.4)") "CPU   integration time: ", cpu_end-cpu_start
 call print_info(10, str_w)
 write(str_w, "(a,e13.4)") "CPU average cycle time: ", (cpu_end-cpu_start)/lworld%info%icycle
 call print_info(10, str_w)
@@ -160,7 +159,7 @@ enddo
 if (lworld%prj%ncoupling > 0) then
   do ir = 1, lworld%prj%ncoupling
       call calcul_raccord(lworld, ir, iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2)
-      call echange_zonedata(lworld,ir, iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2) 
+      call echange_zonedata(lworld,ir, iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2)
   enddo
 endif
 
@@ -181,7 +180,7 @@ deallocate(exchcycle)
 
 do izone = 1, lworld%prj%nzone
  select case(lworld%zone(izone)%defsolver%typ_solver)    ! DEV : en attendant homogeneisation
- case(solKDIF)                                           ! de l'acces des champs dans 
+ case(solKDIF)                                           ! de l'acces des champs dans
    call dealloc_res(lworld%zone(izone)%gridlist%first%info%field_loc)       ! les structures MGRID
    call dealloc_grad(lworld%zone(izone)%gridlist%first%info%field_loc)
  case(solVORTEX)
@@ -202,4 +201,5 @@ endsubroutine integration
 ! avr  2004 : integration des structures MGRID pour tous les solveurs
 ! oct  2004 : field chained list
 ! Nov  2005 : add ending cycle output
+! Fev  2007 : English translation
 !------------------------------------------------------------------------------!
