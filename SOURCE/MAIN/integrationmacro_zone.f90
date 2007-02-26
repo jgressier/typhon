@@ -79,7 +79,7 @@ do while (.not.lzone%info%end_cycle)
   case(instationnaire)
     dtmax = lzone%info%cycle_dt - lzone%info%cycle_time
   case(periodique)
-    call erreur("Developpement","cas non implemente")
+    call erreur("Development","periodic case not implemented")
   endselect
 
   ! ---
@@ -96,7 +96,7 @@ do while (.not.lzone%info%end_cycle)
       dt  = lzone%info%cycle_dt - lzone%info%cycle_time
     endif  
   case(periodique)
-    call erreur("Developpement","cas non implemente")
+    call erreur("Development","periodic case not implemented")
   endselect
 
   ! Correction de flux quand necessaire
@@ -139,7 +139,7 @@ do while (.not.lzone%info%end_cycle)
   case(solVORTEX)
     call integration_zone_lag(dt, lzone)
   case default
-    call erreur("incoherence interne","solveur inattendu")
+    call erreur("Internal error","unknown solver")
   endselect
   ! ---
 
@@ -157,7 +157,7 @@ do while (.not.lzone%info%end_cycle)
       lzone%info%cur_res    = 1.e-8_krp   ! dans le cycle
       lzone%info%residu_ref = 1.e+8_krp   ! astuce pour n'avoir qu'un cycle
     case default
-      call erreur("incoherence interne","solveur inattendu")
+      call erreur("Internal error","unknown solver")
     endselect
   !enddo
 
@@ -169,7 +169,7 @@ do while (.not.lzone%info%end_cycle)
 
 enddo
 
-write(str_w,'(a,i5,a)') "    end of cycle integration within ",lzone%info%iter_loc," iterations"
+write(str_w,'(a,i8,a)') "    end of cycle integration within ",lzone%info%iter_loc," iterations"
 call print_info(9,str_w)
 
 !---------------------------------------
@@ -186,6 +186,7 @@ endsubroutine integrationmacro_zone
 ! oct  2003 : deplacement des proc. calc_gradient et calc_varprim dans integration_zone
 ! mars 2004 : integration de zone par technique lagrangienne
 ! oct  2004 : field chained list
-! may  2006 : retructuration (to end_cycle subroutine)
+! may  2006 : restructuration (to end_cycle subroutine)
+! Fev  2007 : English translation
 !------------------------------------------------------------------------------!
 
