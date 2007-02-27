@@ -76,7 +76,7 @@ do if = 1, ust_mesh%boco(ib)%nface
     call erreur("Development", "Initialization of periodic boundary conditions not yet implemented")
 
   case default
-    call erreur("Internal error", "unknown type of boundary conditions with ghostcell implementation)")
+    call erreur("Internal error", "unknown type of boundary conditions with ghostcell implementation")
   endselect
 
 enddo
