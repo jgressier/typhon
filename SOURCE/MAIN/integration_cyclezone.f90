@@ -19,25 +19,24 @@ use GEO3D
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(st_zone) :: lzone            ! zone a integrer
 real(krp)   :: wres_ref           ! world reference residual
 real(krp)   :: wcur_res           ! world current residual
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 
-! -- Declaration des variables internes --
-real(krp)   :: local_t            ! temps local (0 a mdt)
+! -- Internal variables --
 real(krp)   :: dt                 ! pas de temps de la zone
 integer     :: if, ic, ib, nbc    ! index de champ, couplage et boco
 real(krp)   :: part_cor           ! part de correction a appliquer
 real(krp)   :: dtmax
 integer     :: typ_cor            ! type de correction
-logical     :: fin
 
 !DEV
 integer :: cumulreste, oui, non
-! -- Debut de la procedure --
+
+! -- BODY --
 
 !DEV
 oui = 1
@@ -46,10 +45,10 @@ cumulreste = oui
 
 lzone%info%iter_loc    = 0
 lzone%info%cur_res     = lzone%info%residu_ref   ! defined or initialized in integration_cycle
-local_t = 0._krp
-fin     = .false.
+lzone%info%cycle_time  = 0._krp
+lzone%info%end_cycle   = .false.
 
-! ecriture d'informations
+! -- CYCLE header --
 
 select case(lzone%info%typ_temps)
 
@@ -57,7 +56,7 @@ case(stationnaire)
   write(str_w,'(a,i5)') "  zone",lzone%id
 
 case(instationnaire)
-  write(str_w,'(a,i5,a,g10.4)') "  zone",lzone%id," at local t =",local_t
+  write(str_w,'(a,i5,a,g10.4)') "  zone",lzone%id," at local t =",lzone%info%cycle_time
 
 case(periodique)
 
@@ -69,7 +68,7 @@ call print_info(7,str_w)
 ! integration loop on timesteps
 !----------------------------------
 
-do while (.not.fin)
+do while (.not.lzone%info%end_cycle)
 
   lzone%info%iter_loc = lzone%info%iter_loc + 1
   lzone%info%iter_tot = lzone%info%iter_tot + 1
@@ -78,7 +77,7 @@ do while (.not.fin)
   case(stationnaire)
     dtmax = huge(dtmax)
   case(instationnaire)
-    dtmax = lzone%info%cycle_dt - local_t
+    dtmax = lzone%info%cycle_dt - lzone%info%cycle_time
   case(periodique)
     call erreur("Development","periodic case not implemented")
   endselect
@@ -94,15 +93,18 @@ do while (.not.fin)
   select case(lzone%info%typ_temps)
   case(stationnaire)
   case(instationnaire)
-    if (dt >= (lzone%info%cycle_dt - local_t)) then
-      fin = .true.
-      dt  = lzone%info%cycle_dt - local_t
+    if (dt >= (lzone%info%cycle_dt - lzone%info%cycle_time)) then
+      lzone%info%end_cycle = .true.
+      dt  = lzone%info%cycle_dt - lzone%info%cycle_time
     endif
   case(periodique)
     call erreur("Development","periodic case not implemented")
   endselect
 
+  !-- DEV (coupling) -------------------------------------------------------
   ! Correction de flux quand necessaire
+  ! PROVISOIRE A AMELIORER : correction seulement si KDIF
+  if (lzone%defsolver%typ_solver == solKDIF) then
   do ic = 1, lzone%ncoupling
     part_cor = lzone%coupling(ic)%partcor
     typ_cor = lzone%coupling(ic)%typ_cor
@@ -124,15 +126,15 @@ do while (.not.fin)
         call corr_varprim(lzone%gridlist%first%field, lzone%gridlist%first%umesh, &
                           lzone%defsolver, &
                           lzone%coupling(ic)%zcoupling%etatcons, nbc, &
-                          part_cor, typ_cor, fin)
+                          part_cor, typ_cor, lzone%info%end_cycle)
       endif
     endif
   enddo
+  endif
 
-  !----------------------------------
-  ! ecriture d'informations et gestion
+  ! ---------------------------------------------------------------------------------------
+  ! INTEGRATION
 
-  ! ---
   select case(lzone%defsolver%typ_solver)
 
   case(solKDIF, solNS)
@@ -147,33 +149,11 @@ do while (.not.fin)
   case default
     call erreur("internal error (integration_cyclezone)","unknown solver")
   endselect
-  ! ---
 
-  ! ecriture d'informations et test de fin de cycle
+  ! -------------------------------------------------------
+  ! Write info and test end of cycle
 
-  select case(lzone%info%typ_temps)
-
-  case(stationnaire)
-    lzone%info%residu_ref = max(lzone%info%residu_ref, lzone%info%cur_res)
-    if (lzone%info%cur_res/lzone%info%residu_ref <= lzone%info%residumax) fin = .true.
-    if (mod(lzone%info%iter_loc,10) == 0) &
-      write(str_w,'(a,i5,a,g10.4)') "    iteration",lzone%info%iter_loc," | residual = ", log10(lzone%info%cur_res)
-!                                    log10(lzone%info%cur_res/lzone%info%residu_ref)
-
-    !if (mod(lzone%info%iter_loc,10) == 0) call print_info(9,str_w)
-
-  case(instationnaire)
-    local_t = local_t + dt
-    if (mod(lzone%info%iter_loc,10) == 0) &
-!    if (fin) &
-     write(str_w,'(a,i5,a,g10.4)') "    integration it.",lzone%info%iter_loc," at local t =",local_t
-
-  case(periodique)
-
-  endselect
-
-   if (mod(lzone%info%iter_loc,10) == 0) call print_info(9,str_w)
-!  if (fin) call print_info(9,str_w)
+  call check_end_cycle(lzone%info, dt)
 
   call capteurs(lzone)
 

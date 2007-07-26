@@ -22,6 +22,8 @@ real(krp), intent(in)        :: dt         ! time step of current iteration
 type(st_infozone), intent(inout) :: zinfo      ! zone information (residuals)
 
 ! -- Internal variables --
+integer, parameter :: itfreq = 10
+integer, parameter :: nlines = 20
 integer :: ierr
 
 ! -- BODY --
@@ -31,21 +33,26 @@ select case(zinfo%typ_temps)
 case(stationnaire)
   zinfo%residu_ref = max(zinfo%residu_ref, zinfo%cur_res)
   if (zinfo%cur_res/zinfo%residu_ref <= zinfo%residumax) zinfo%end_cycle = .true.
-  if (mod(zinfo%iter_loc,10) == 0) &
-      write(str_w,'(a,i8,a,g10.4)') "    it.",zinfo%iter_loc," | res. = ", log10(zinfo%cur_res)
-                                                                       !   log10(zinfo%cur_res/zinfo%residu_ref)
-      !if (mod(zinfo%iter_loc,10) == 0) call print_info(9,str_w)
+  ! -- header --
+  if (mod(zinfo%iter_loc, itfreq*nlines) == 1) call print_info(9,'     it residuals')
+  ! -- residuals --
+  if (mod(zinfo%iter_loc,itfreq) == 0) &
+      write(str_w,'(i7,g10.4)') zinfo%iter_loc, log10(zinfo%cur_res) !   log10(zinfo%cur_res/zinfo%residu_ref)
+      !if (mod(zinfo%iter_loc,itfreq) == 0) call print_info(9,str_w)
 
 case(instationnaire)
   zinfo%cycle_time = zinfo%cycle_time + dt
-  if (mod(zinfo%iter_loc,10) == 0) &      !    if (zinfo%end_cycle) &
-      write(str_w,'(a,i8,a,g10.4)') "    it.",zinfo%iter_loc," at time =",zinfo%cycle_time
+  ! -- header --
+  if (mod(zinfo%iter_loc, itfreq*nlines) == 1) call print_info(9,'     it time')
+  ! -- residuals --
+  if (mod(zinfo%iter_loc,itfreq) == 0) &      !    if (zinfo%end_cycle) &
+      write(str_w,'(i7,g10.4)') zinfo%iter_loc, zinfo%cycle_time
   
 case(periodique)
 
 endselect
 
-if (mod(zinfo%iter_loc,10) == 0) call print_info(9,str_w)
+if (mod(zinfo%iter_loc,itfreq) == 0) call print_info(9,str_w)
 !  if (zinfo%end_cycle) call print_info(9,str_w)
 
 open(unit=2001, file="typhon_stop", status="old", iostat=ierr)
@@ -62,4 +69,5 @@ endsubroutine check_end_cycle
 ! Changes history
 !
 ! may  2006 : subroutine creation (from integrationmacro_zone)
+! july 2007 : change writing
 !------------------------------------------------------------------------------!
