@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine kdif_bocoflux(defsolver, domaine, flux, stprim)
+subroutine kdif_bocoflux(defsolver, domaine, flux, stprim, calc_jac, jacL, jacR)
 
 use TYPHMAKE
 use OUTPUT
@@ -23,18 +23,20 @@ use DEFFIELD
 implicit none
 
 ! -- Inputs --
-type(mnu_solver)        :: defsolver        ! type d'equation a resoudre
-type(st_ustmesh)        :: domaine          ! domaine non structure a integrer
+type(mnu_solver)        :: defsolver        ! type of equation to solve
+type(st_ustmesh)        :: domaine          ! unstructured domain to integrate
 type(st_genericfield)   :: stprim           ! primitive state field
+logical                 :: calc_jac         ! should compute jacobian mat. or not
 
 ! -- Outputs --
-type(st_genericfield)   :: flux             ! flux physiques
+type(st_genericfield)   :: flux             ! physical fluxes
+real(krp), dimension(*) :: jacL, jacR       ! jacobian matrix of the flux
 
 ! -- Internal variables --
 integer    :: ifb, if, ib, idef ! index de liste, index de face limite et parametres
 logical    :: coupled
 
-! -- Debut de la procedure --
+! -- Body --
 
 do ib = 1, domaine%nboco
 

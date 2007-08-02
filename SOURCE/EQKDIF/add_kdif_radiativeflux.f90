@@ -35,7 +35,7 @@ type(st_genericfield)   :: flux             ! physical flux
 integer                 :: ifb, if, ic       ! index de liste, index de face limite et parametres
 real(krp)               :: cst, Tfar4
 
-! -- Debut de la procedure --
+! -- Body --
 
 cst   = stefan_cst * defsolver%boco(idef)%boco_kdif%emmissivity
 Tfar4 = defsolver%boco(idef)%boco_kdif%rad_Tinf**4

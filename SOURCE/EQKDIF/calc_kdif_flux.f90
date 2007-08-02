@@ -166,7 +166,7 @@ case default
 endselect
 
 !--------------------------------------------------------------
-! Calcul des jacobiennes
+! Jacobian matrix computation (dFlux/dEnergy)R/L
 !--------------------------------------------------------------
 if (calc_jac) then
   do if = 1, nflux
@@ -186,7 +186,7 @@ endsubroutine calc_kdif_flux
 ! Change history
 !
 ! avr  2003 : creation de la procedure : methode COMPACTE
-! juil 2003 : conductivite non constante
+! juil 2003 : non linear conductivity
 ! sept 2003 : optimisation de la procedure pour recuperer les temps CPU initiaux
 ! oct  2003 : implementation des trois methodes de calcul COMPACT, AVERAGE, FULL
 ! avr  2004 : calcul des jacobiennes pour implicitation
