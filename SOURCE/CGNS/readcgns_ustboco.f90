@@ -62,13 +62,19 @@ endselect
  
 !write(str_w,*) 
 call print_info(5, ". condition aux limites"//strof(ibc,3)//" : "//trim(boco%family))
-call print_info(8, "type "//trim(BCTypeName(bctyp)))
+call print_info(8, "  type "//trim(BCTypeName(bctyp))//", "//strof(npts,6)//" items")
 
 ! --- Lecture des noeuds ou faces references --
 
 call new(boco%list, npts)
 
 select case(pttyp)
+
+case(ElementList)
+  call cg_boco_read_f(unit, ib, iz, ibc, boco%list%fils(1:npts), n1, ier)
+  if (ier /= 0) call erreur("Lecture CGNS", "Probleme a la lecture des conditions aux limites")
+  call print_warning("Lecture CGNS : type de connectivite non defini (FACE par defaut)")
+  boco%gridlocation = FaceCenter
 
 case(PointList)
   call cg_boco_read_f(unit, ib, iz, ibc, boco%list%fils(1:npts), n1, ier)

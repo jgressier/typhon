@@ -23,7 +23,7 @@ type(st_infozone), intent(inout) :: zinfo      ! zone information (residuals)
 
 ! -- Internal variables --
 integer, parameter :: itfreq = 10
-integer, parameter :: nlines = 20
+integer, parameter :: nlines = 25
 integer :: ierr
 
 ! -- BODY --

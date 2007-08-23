@@ -42,14 +42,16 @@ allocate(mesh%boco(mesh%nboco))    ! allocation des conditions aux limites TYPHO
 
 do ib = 1, cgnszone%nboco
 
-  call print_info(8,"  . traitement des conditions aux limites : "//trim(cgnszone%boco(ib)%family))
+  call print_info(8,"  . apply boundary condition: "//trim(cgnszone%boco(ib)%family))
 
   select case(cgnszone%boco(ib)%gridlocation)
   case(vertex)
+    print*,'     vertex tagging'
     call seek_bcface_vtex(ib, cgnszone%boco(ib), mesh, listface)
   case(facecenter)
+    print*,'     face tagging'
     call seek_bcface_face(ib, cgnszone%boco(ib), cgnszone%nfacefam , &
-                          cgnszone%facefam(:), mesh, listface)
+                          cgnszone%facefam(1:cgnszone%nfacefam), mesh, listface)
   case default
     call erreur("construction de condition limite","type de specification non admis")
   endselect
@@ -60,6 +62,7 @@ enddo
 
 nf = 0
 do ib = 1, cgnszone%nboco
+  print*,ib,mesh%boco(ib)%nface
   nf = nf + mesh%boco(ib)%nface
 enddo
 
