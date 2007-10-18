@@ -82,7 +82,7 @@ case(end_calc, end_cycle)
   endif
 
 case default
-  print*,"!DEV! blanked output_vtkbin"
+  !print*,"!DEV! blanked output_vtkbin"
 endselect
 
 endsubroutine output_vtkbin

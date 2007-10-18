@@ -119,9 +119,9 @@ integer        :: i
   !endif
   
 !  if (zone%ncoupling >= 1) then
-    print*,"desallocation tableau coupling" !! DEBUG
+    !print*,"desallocation tableau coupling" !! DEBUG
     do i = 1, zone%ncoupling
-      print*,"desallocation coupling ",i !! DEBUG
+      !print*,"desallocation coupling ",i !! DEBUG
       call delete(zone%coupling(i))
     enddo  
     deallocate(zone%coupling)
@@ -137,7 +137,7 @@ integer        :: i
 
   ! Destruction des structures MGRID
 
-  print*,'DEV!!! destruction des MGRID a effectuer'  
+  call delete_gridlist(zone%gridlist)
 
   !print*,'fin de destruction de zone interne' !! DEBUG
 

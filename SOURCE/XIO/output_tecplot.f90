@@ -106,17 +106,17 @@ case(end_calc)
   endif !DEV2602
 
   if (outp_typ == outp_FLUX) then !DEV2602
-    print*, "DEBUG output_tecplot compflux"
+    !print*, "DEBUG output_tecplot compflux"
     close(uf_compflux)
   endif 
 
   if (outp_typ == outp_TEMPINTER) then !DEV1404
-    print*, "DEBUG output_tecplot tempinter"
+    !print*, "DEBUG output_tecplot tempinter"
     close(uf_tempinter)
   endif 
 
   if (outp_typ == outp_COR) then !DEV2602
-    print*, "DEBUG output_tecplot corr"
+    !print*, "DEBUG output_tecplot corr"
     ufc = uf_correction
     do ir = 1, world%prj%ncoupling
       close(ufc)

@@ -73,12 +73,12 @@ implicit none
 type(st_loi)  :: loi     
 
 if (samestring(loi%type, LOI_POLY)) then
-  print*, 'desallocation de loi polynomiale'  !!DEBUG
+  !print*, 'desallocation de loi polynomiale'  !!DEBUG
   deallocate(loi%poly%coef)
 endif
 
 if (samestring(loi%type, LOI_PTS)) then
-  print*, 'desallocation de loi ptsnomiale'  !!DEBUG
+  !print*, 'desallocation de loi ptsnomiale'  !!DEBUG
   deallocate(loi%pts%val)
 endif
  

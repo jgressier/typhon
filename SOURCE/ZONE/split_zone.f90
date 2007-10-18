@@ -45,13 +45,16 @@ do while (associated(pgrid))
   nci = pgrid%umesh%ncell_int
   allocate(partition(nci))
 
-  print*,"> compute partition: ",npart," parts"
+  write(str_w,*) "> compute partition: ",npart," parts"
+  call print_info(10, trim(str_w))
+
   call getpart_grid(pgrid, npart, nci, partition)
 
   ! -------------------------------------------------
   ! extract partition of a grid & create connectivity
 
-  print*,"> extract part", ipart," over ",npart
+  write(str_w, *) "> extract part", ipart," over ",npart
+  call print_info(10, trim(str_w))
 
   call init_grid(partgrid, ipart)
   call extractpart_grid(pgrid, ipart, nci, partition, partgrid)

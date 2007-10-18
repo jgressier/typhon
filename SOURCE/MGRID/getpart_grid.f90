@@ -97,7 +97,8 @@ do i = 1, npart
   tab_parts(i) = count(partition(1:ncell) == i)
 enddo
 
-print*,"size of parts:",tab_parts(1:npart)
+write(str_w,*) "size of parts:",tab_parts(1:npart)
+call print_info(10,trim(str_w))
 
 
 endsubroutine getpart_grid

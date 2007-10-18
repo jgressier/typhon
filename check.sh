@@ -66,12 +66,16 @@ for FILE in $LISTCASES ; do
   esac
   if [ $? -eq 0 ] ; then
     for fic in $TO_CHECK ; do
-      $DIFFCOM $fic $DIR/$fic >> $HOMEDIR/diff.log 2>&1 
-      case $? in
-        0) echo -e \\033[${col}G$fic identical ;;
-        1) echo -e \\033[${col}G$fic changed ;;
-        *) echo -e \\033[${col}G$fic comparison failed ;;
-      esac
+      if [ -f "$fic" ] ; then
+        $DIFFCOM $fic $DIR/$fic >> $HOMEDIR/diff.log 2>&1 
+        case $? in
+          0) echo -e \\033[${col}G$fic identical ;;
+          1) echo -e \\033[${col}G$fic changed ;;
+          *) echo -e \\033[${col}G$fic comparison failed ;;
+        esac
+      else
+        echo -e \\033[${col}G$fic missing
+      fi
     done
   else
     echo -e \\033[${col}Gcomputation failed

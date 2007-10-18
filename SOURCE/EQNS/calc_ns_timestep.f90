@@ -74,8 +74,8 @@ do ic = 1, ncell
   irho = 1._krp/field%etatcons%tabscal(1)%scal(ic)
   a2   = (field%etatcons%tabscal(2)%scal(ic)-.5_krp*rv2*irho)*gg1*irho
   if (a2 <= 0._krp) then
-    print*, "cell ",ic,":",umesh%mesh%centre(ic,1,1)
-    call erreur("integration failed", "negative internal energy")
+    write(str_w,*) "cell ",ic,":",umesh%mesh%centre(ic,1,1)
+    call erreur("integration failed", "negative internal energy:"//trim(str_w))
   endif
   dtloc(ic) = dtloc(ic) / (sqrt(rv2)*irho+sqrt(a2))
 enddo

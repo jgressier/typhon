@@ -389,7 +389,8 @@ new_ib = 0
 
 do ib = 1, fullgrid%umesh%nboco   ! loop on original bocos
   nf = count(new_iface(fullgrid%umesh%boco(ib)%iface(1:fullgrid%umesh%boco(ib)%nface))/=0)
-  print*,"extract boco",ib," - "//fullgrid%umesh%boco(ib)%family(1:20)//":",nf, " faces"
+  write(str_w,*) "extract boco",ib," - "//fullgrid%umesh%boco(ib)%family(1:20)//":",nf, " faces"
+  call print_info(10, trim(str_w))
   if (nf /= 0) then               ! new boco (at least one face) in extracted part
     new_ib = new_ib + 1
     call new(boco(new_ib), fullgrid%umesh%boco(ib)%family, nf)
@@ -422,7 +423,7 @@ do ib = 1, maxcom   ! loop on all needed parts
     ! define a new boco
     new_ib = new_ib + 1
     call new(boco(new_ib), "", nf)
-    boco(new_ib)%idefboco = defboco_connect   ! not a reference to defsolver boco but internal connection
+    boco(new_ib)%idefboco = defboco_connect  ! not a reference to defsolver boco but internal connection
 
     !print*,"create connectivity boco",new_ib," :",nf, " faces"
     if2 = 0

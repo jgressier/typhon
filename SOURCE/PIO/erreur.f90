@@ -21,7 +21,7 @@ write(uf_stdout,'(a,a,a,a,a)') "!!! ",trim(str1)," : ",trim(str2)," !!!"
 write(uf_log,'(a)')    "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 write(uf_log,'(a,a,a,a)')    "[STOP] ",trim(str1)," : ",trim(str2)
 
-stop
+stop 1
 
 endsubroutine erreur
 

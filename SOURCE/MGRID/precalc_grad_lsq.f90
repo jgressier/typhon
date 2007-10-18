@@ -141,6 +141,7 @@ endselect
 ! * decomposition LU (GETRF) et resolution (GETRS)
 ! * decomposition Choleski (POTRF) et resolution (POTRS)
 
+info  = 0
 xinfo = 0
 do ic = 1, nc
   ! decomposition de Choleski
@@ -154,7 +155,7 @@ do ic = 1, nc
 enddo
 
 !print*,"DEBUG!!: xinfo = ",xinfo
-if (xinfo /= 0) call erreur("Routine LAPACK","Probleme POTRF")
+if (xinfo /= 0) call erreur("Gradient computation","Choleski decomposition failed")
 
 
 deallocate(dcg)

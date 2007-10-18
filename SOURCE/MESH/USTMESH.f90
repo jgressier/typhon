@@ -217,6 +217,8 @@ integer,          intent(in)  :: n
   allocate(bc%iface(n))
   nullify(bc%bocofield)
 
+  call init_gridconnect(bc%gridcon)
+
 endsubroutine new_ustboco
 
 

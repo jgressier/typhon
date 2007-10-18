@@ -12,6 +12,7 @@
 module OUTPUT
 
 use TYPHMAKE   ! Definition de la precision
+use VARCOM
 
 implicit none
 
@@ -170,11 +171,13 @@ implicit none
 
 ! -- Debut de la procedure --
 
-  if (n <= std_maxlevel) then
-    write(uf_stdout,'(a)') trim(str)
-    write(uf_log,'(a,a)')    str_std, trim(str)
-  elseif (n <= log_maxlevel) then
-    write(uf_log,'(a,a)')    str_log, trim(str)
+  if ((.not.mpi_run).or.(myprocid == 1)) then
+    if (n <= std_maxlevel) then
+      write(uf_stdout,'(a)') trim(str)
+      write(uf_log,'(a,a)')    str_std, trim(str)
+    elseif (n <= log_maxlevel) then
+      write(uf_log,'(a,a)')    str_log, trim(str)
+    endif
   endif
 
 endsubroutine print_info

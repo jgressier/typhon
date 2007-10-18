@@ -130,6 +130,7 @@ enddo
 ! Solve LSQ
 !-----------------------------------------------------------------------------
 
+info  = 0
 xinfo = 0
 do ic = 1, nc
   !call lapack_potrs('U', 3, dim, &
@@ -138,7 +139,7 @@ do ic = 1, nc
   call cholesky_solve(grid%optmem%gradcond(ic)%mat, 3, rhs(1:3, (ic-1)*dim+1:ic*dim), dim)
   if (info /= 0) xinfo = ic
 enddo
-if (xinfo /= 0) call erreur("Routine LAPACK","Probleme POTRS")
+if (xinfo /= 0) call erreur("Gradient computation","Choleski inversion failed")
 
 !-----------------------------------------------------------------------------
 ! Unpack solution

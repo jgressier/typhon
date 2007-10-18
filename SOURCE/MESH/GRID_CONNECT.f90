@@ -42,10 +42,6 @@ endtype st_gridconnect
 
 ! -- INTERFACES -------------------------------------------------------------
 
-interface new
-  module procedure new_gridconnect
-endinterface
-
 interface delete
   module procedure delete_gridconnect
 endinterface
@@ -60,7 +56,7 @@ contains
 !------------------------------------------------------------------------------!
 ! Constructor : new GRID CONNECT
 !------------------------------------------------------------------------------!
-subroutine new_gridconnect(gridconnect)
+subroutine init_gridconnect(gridconnect)
 implicit none
 type(st_gridconnect)  :: gridconnect
 
@@ -68,7 +64,7 @@ type(st_gridconnect)  :: gridconnect
   nullify(gridconnect%cells2)
   nullify(gridconnect%next)
 
-endsubroutine new_gridconnect
+endsubroutine init_gridconnect
 
 
 !------------------------------------------------------------------------------!
@@ -79,8 +75,8 @@ implicit none
 type(st_gridconnect)  :: gridconnect
 integer           :: i     
 
-  deallocate(gridconnect%cells1)
-  deallocate(gridconnect%cells2)
+  if (associated(gridconnect%cells1)) deallocate(gridconnect%cells1)
+  if (associated(gridconnect%cells2)) deallocate(gridconnect%cells2)
 
 endsubroutine delete_gridconnect
 

@@ -30,13 +30,13 @@ type(mnu_spat)          :: defspat          ! spatial integration parameters
 type(st_genericfield)   :: flux             ! physical flux
 
 ! -- Internal variables --
-integer    :: ifb, if, ib, idef ! index de liste, index de face limite et parametres
-real(krp), dimension(1) :: dHR, dHL   ! cell to face distance
-type(v3d), dimension(1) :: vLR        ! cell to cell vector
-type(v3d), dimension(1) :: gradTL, gradTR  ! left, right temp grad
-real(krp), dimension(1) :: TL, TR     ! left, right temperatures
-real(krp), dimension(1) :: TH, mu, gradTH ! temperature at H
-type(st_face), dimension(1) :: face       ! geomtrical face array
+integer                 :: ifb, if, ib, idef ! index de liste, index de face limite et parametres
+real(krp), dimension(1) :: dHR, dHL          ! cell to face distance
+type(v3d), dimension(1) :: vLR               ! cell to cell vector
+type(v3d), dimension(1) :: gradTL, gradTR    ! left, right temp grad
+real(krp), dimension(1) :: TL, TR            ! left, right temperatures
+real(krp), dimension(1) :: TH, mu, gradTH    ! temperature at H
+type(st_face), dimension(1) :: face          ! geomtrical face array
 real(krp)                   :: r_PG, cp, conduct
 real(krp)                   :: id  
 
@@ -44,7 +44,8 @@ real(krp)                   :: id
 
 do ib = 1, domaine%nboco
 
-  idef = domaine%boco(ib)%idefboco
+  idef = domaine%boco(ib)%idefboco   ! index of boco definition in defsolver structure
+  if (idef <= 0) cycle               ! if index <= 0, internal boco (connection...)
 
   !---------------------------------------------------------------------
   ! assign flux as already computed flux in bocofield

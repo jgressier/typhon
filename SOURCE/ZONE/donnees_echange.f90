@@ -66,7 +66,7 @@ do i=1, zone1%gridlist%first%umesh%boco(nbc1)%nface
 
     if (typcor == bocoT) then
       !DEBUG
-      print*, "correction BOCO"
+      !print*, "correction BOCO"
       donnees_echange_inst1%tabscal(1)%scal(i) = &
              (zone1%gridlist%first%info%field_loc%etatcons%tabscal(1)%scal(icl1) - &
              (zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal(2)%scal(i) / &
@@ -108,7 +108,7 @@ do i=1, zone1%gridlist%first%umesh%boco(nbc1)%nface
     ! Exchange data of zone 1
     if (typcor == bocoT) then
       !DEBUG
-      print*, "correction BOCO"
+      !print*, "correction BOCO"
       donnees_echange_inst1%tabscal(1)%scal(i) = TH(1) - &
              zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal(2)%scal(i) / &
              (zone1%gridlist%first%umesh%mesh%volume(icl1,1,1) * cp * &
@@ -181,7 +181,7 @@ do i=1, zone1%gridlist%first%umesh%boco(nbc1)%nface
     ! Exchange data of zone 2
     if (typcor == bocoT) then
       !DEBUG
-      print*, "correction BOCO"
+      !print*, "correction BOCO"
       donnees_echange_inst2%tabscal(1)%scal(i) = TH(1) - &
              zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal(2)%scal(i) / &
              (zone2%gridlist%first%umesh%mesh%volume(icl2,1,1) * cp * &
