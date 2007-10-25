@@ -12,7 +12,6 @@ CGNS_MOD = CGNS_STRUCT.$(MOD)       \
 
 
 CGNS_OBJ := $(CGNS_MOD:.$(MOD)=.o)   \
-            cgns2typhon.o            \
             cgns2typhon_zone.o       \
             cgns2typhon_ustboco.o    \
             cgns2typhon_ustmesh.o    \

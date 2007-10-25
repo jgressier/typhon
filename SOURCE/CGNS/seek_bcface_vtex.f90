@@ -44,10 +44,8 @@ do if = mesh%nface_int+1, mesh%nface_int+mesh%nface_lim
   endif
 enddo
 
-allocate(mesh%boco(ib)%iface(nf))
-mesh%boco(ib)%nface       = nf
+call new_ustboco(mesh%boco(ib), cgnsboco%family, nf)
 mesh%boco(ib)%iface(1:nf) = listface(1:nf)
-mesh%boco(ib)%family      = cgnsboco%family
   
 !-------------------------
 endsubroutine seek_bcface_vtex

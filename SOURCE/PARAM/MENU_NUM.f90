@@ -64,7 +64,8 @@ character, parameter :: hres_musclfast  = 'F'
 character, parameter :: hres_muscluns   = 'U'
 character, parameter :: hres_eno        = 'E'
 character, parameter :: hres_weno       = 'W'
-character, parameter :: hres_spect      = 'S'
+character, parameter :: hres_svm        = 'V'
+character, parameter :: hres_sdm        = 'S'
 
 ! -- Constants for limiters
 character, parameter :: lim_none      = 'X'
@@ -73,6 +74,10 @@ character, parameter :: lim_albada    = 'A'
 character, parameter :: lim_vleer     = 'V'
 character, parameter :: lim_sbee      = 'S'
 character, parameter :: lim_kim3      = 'K'
+
+! -- Constants for SVM splitting
+integer(kpp), parameter :: svm_2tri    = 21
+integer(kpp), parameter :: svm_2quad   = 22
 
 ! -- Constantes pour schema de calcul des flux dissipatifs (sch_dis)
 integer(kpp), parameter :: dis_dif2 = 1     ! difference des 2 etats/face (NON CONSISTANT)
@@ -144,17 +149,31 @@ type mnu_muscl
 endtype mnu_muscl
 
 !------------------------------------------------------------------------------!
-! structure MNU_SPAT : options numeriques pour l'integration spatiale
+! structure MNU_SVM : Options for  Spectral Volume Method
+!------------------------------------------------------------------------------!
+type mnu_svm
+  integer(kpp)   :: sv_meth         ! SV Method (cf constants)
+  integer(kpp)   :: cv_split        ! number of Control Volume (CV subcell) in a SV
+  integer(kpp)   :: svface_split    ! number of subface (CV face) by original face
+  integer(kpp)   :: intnode         ! number of internal added nodes for cell splitting
+  integer(kpp)   :: internal_faces  ! number of internal faces (by cell)
+  !integer(kpp)   :: external_faces  ! number of external faces (by cell)
+  integer(kpp)   :: nb_facepoints   ! number of integration points by face
+endtype mnu_svm
+
+!------------------------------------------------------------------------------!
+! structure MNU_SPAT : Options for numerical spatial parameters
 !------------------------------------------------------------------------------!
 type mnu_spat
-  integer(kpp)    :: order        ! ordre d'integration spatiale
+  !integer(kpp)    :: order        ! not used
   integer(kpp)    :: sch_hyp      ! type de schema pour les flux hyperboliques
   integer(kpp)    :: jac_hyp      ! type of jacobian for hyperbolic fluxes
   integer(kpp)    :: sch_dis      ! type de schema pour les flux dissipatifs
-  character       :: method       ! methode d'ordre eleve (M)USCL, (E)NO
+  character       :: method       ! methode d'ordre eleve (M)USCL, (E)NO ...
   integer(kpp)    :: gradmeth     ! methode de calcul des gradients
   logical         :: calc_grad    ! necessite le calcul des gradients
   type(mnu_muscl) :: muscl        ! parametres de la methode MUSCL
+  type(mnu_svm)   :: svm          ! parametres de la methode SVM
 endtype mnu_spat
 
 

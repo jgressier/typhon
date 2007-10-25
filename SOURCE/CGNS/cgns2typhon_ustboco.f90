@@ -44,16 +44,18 @@ do ib = 1, cgnszone%nboco
 
   call print_info(8,"  . apply boundary condition: "//trim(cgnszone%boco(ib)%family))
 
+  call 
+
   select case(cgnszone%boco(ib)%gridlocation)
   case(vertex)
-    print*,'     vertex tagging'
+    call print_info(20,'     vertex tagging')
     call seek_bcface_vtex(ib, cgnszone%boco(ib), mesh, listface)
   case(facecenter)
-    print*,'     face tagging'
+    call print_info(20,'     face tagging')
     call seek_bcface_face(ib, cgnszone%boco(ib), cgnszone%nfacefam , &
                           cgnszone%facefam(1:cgnszone%nfacefam), mesh, listface)
   case default
-    call erreur("construction de condition limite","type de specification non admis")
+    call erreur("boundary condition build","tagging method unknown")
   endselect
   
 enddo
@@ -62,14 +64,11 @@ enddo
 
 nf = 0
 do ib = 1, cgnszone%nboco
-  print*,ib,mesh%boco(ib)%nface
   nf = nf + mesh%boco(ib)%nface
 enddo
 
-print*,'nfaceboco/nfacelim:',nf, mesh%nface_lim
-print*,'mesh faces:',mesh%nface_int, mesh%nface_lim, mesh%nface
-if (nf /= mesh%nface_lim) call erreur("Conditions aux limites",&
-  "le nombre de faces affectees et existantes ne correspondent pas")
+if (nf /= mesh%nface_lim) &
+  call erreur("BOCO tagging", "tagged faces do not correspond to boundaring faces")
 
 ! desallocation
 

@@ -32,7 +32,7 @@ integer                  :: nkey           ! nombre de clefs
 integer                  :: i
 character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
-! -- Debut de la procedure --
+! -- BODY --
 
 call print_info(5,"- Definition of spatial numerical parameters")
 
@@ -78,8 +78,20 @@ case(solNS)
   if (samestring(str,"KFVS"))            defspat%sch_hyp = sch_efm
   if (samestring(str,"AUSMM"))           defspat%sch_hyp = sch_ausmm
 
-  if (defspat%sch_hyp == inull) &
+  select case(defspat%sch_hyp)
+  case(sch_roe)
+    call print_info(7,"  numerical flux : Roe")
+  case(sch_hlle)
+    call print_info(7,"  numerical flux : HLLE")
+  case(sch_hllc)
+    call print_info(7,"  numerical flux : HLLC")
+  case(sch_vanleer)
+    call print_info(7,"  numerical flux : Van Leer")
+  case(sch_ausmm)
+    call print_info(7,"  numerical flux : AUSM (original scheme, Mach weighting)")
+  case default
     call erreur("parameters parsing","unknown numerical scheme")
+  endselect
 
   !-----------------------------------------
   ! Jacobian matrix (if needed)
@@ -116,18 +128,26 @@ case(solNS)
   if (samestring(str,"MUSCL-UNS"))  defspat%method = hres_muscluns
   if (samestring(str,"ENO"))        defspat%method = hres_eno
   if (samestring(str,"WENO"))       defspat%method = hres_weno
-  if (samestring(str,"SPECTRAL"))   defspat%method = hres_spect
+  if (samestring(str,"SVM"))        defspat%method = hres_svm
+  if (samestring(str,"SDM"))        defspat%method = hres_sdm
   
   if (defspat%method == cnull) &
     call erreur("parameters parsing","unexpected high resolution method")
     
   select case(defspat%method)
+
+  ! --------------- first order ---------------------
   case(hres_none)
 
+    call print_info(7,"  No high order extension")
+
+  ! --------------- MUSCL methods ---------------------
   case(hres_muscl, hres_musclfast, hres_muscluns)
 
+    call print_info(7,"  MUSCL second order extension")
+
     ! -- High resolution order
-    call rpmgetkeyvalint(pcour, "ORDER", defspat%order, 2_kpp)
+    !call rpmgetkeyvalint(pcour, "ORDER", defspat%order, 2_kpp)
 
     ! -- High resolution gradient computation                  
     call get_gradientmethod(pcour, defspat)
@@ -146,6 +166,35 @@ case(solNS)
     if (defspat%muscl%limiter == cnull) &
       call erreur("parameters parsing","unexpected high resolution limiter")
 
+  ! --------------- SVM methods ---------------------
+  case(hres_svm)
+
+    call print_info(7,"  Spectral Volume method")
+
+    call rpmgetkeyvalstr(pcour, "SVM", str, "2QUAD")
+    if (samestring(str,"2"))       defspat%svm%sv_meth = svm_2quad
+    if (samestring(str,"2TRI"))    defspat%svm%sv_meth = svm_2tri
+    if (samestring(str,"2QUAD"))   defspat%svm%sv_meth = svm_2quad
+  
+    select case(defspat%svm%sv_meth)
+    case(svm_2quad)
+      call print_info(7,"    second order, splitted into quads (face split)")
+      defspat%svm%cv_split       = 3  ! nb of CV in SV
+      defspat%svm%intnode        = 1  ! nb of internal added nodes for cell splitting
+      defspat%svm%svface_split   = 2  ! nb of CV face per SV face
+      defspat%svm%internal_faces = 3  ! number of internal faces (by cell)
+      !defspat%svm%external_faces = 6  ! number of external faces (by cell)
+      defspat%svm%nb_facepoints  = 1  ! number of integration points by face
+    !case(svm_2tri)
+    !  call print_info(7,"    second order, splitted into tris (vertex split)")
+    !  defspat%svm%intnode        = 1  ! number of internal added nodes for cell splitting
+    !  defspat%svm%internal_faces = 3  ! number of internal faces (by cell)
+    !  defspat%svm%external_faces = 3  ! number of external faces (by cell)
+    !  defspat%svm%nb_facepoints  = 1  ! number of integration points by face
+    case default
+      call erreur("parameters parsing","unknown numerical scheme")
+    endselect
+
   case default
     call erreur("parameters parsing","unexpected high resolution method (reading limiter)")
   endselect
@@ -158,6 +207,8 @@ case(solKDIF)
 
 case(solVORTEX)
 
+case default
+  call erreur("development","unknown solver (defspat)")
 endselect
 
 
@@ -172,4 +223,5 @@ endsubroutine def_spat
 ! july 2004 : NS solver parameters
 ! nov  2004 : NS high resolution parameters
 ! jan  2006 : basic parameter routines moved to MENU_NUM
+! apr  2007 : add SVM method parameters
 !------------------------------------------------------------------------------!

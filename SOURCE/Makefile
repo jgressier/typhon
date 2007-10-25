@@ -25,7 +25,7 @@ PRGNAME = Typhon
 
 EXTLIBS   = $(CGNSLIB) $(LAPACKLIB) $(METISLIB)
 
-include librairies.make
+# include librairies.make
 
 LIB1 = libt_main.a   \
        libt_xio.a    \

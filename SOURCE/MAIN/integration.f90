@@ -130,15 +130,6 @@ do while (.not. lworld%info%fin_integration)
     close(2001)
   endif
 
-  call output_result(lworld, end_cycle)
-
-  open(unit=2001, file="typhon_stop", status="old", iostat=ierr)
-  if (ierr == 0) then
-    lworld%info%fin_integration = .true.
-    call print_info(9, "INTERRUPTING INTEGRATION...")
-    close(2001)
-  endif
-
 enddo
 
 call cpu_time(cpu_end)

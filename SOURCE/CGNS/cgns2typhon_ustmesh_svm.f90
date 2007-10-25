@@ -1,46 +1,42 @@
 !------------------------------------------------------------------------------!
-! Procedure : cgns2typhon_ustmesh         Auteur : J. Gressier
-!                                         Date   : Novembre 2002
-! Fonction                                Modif  : (cf historique)
-!   Conversion d'une zone CGNS en structure Maillage NON structure pour Typhon
-!   Creation des connectivites FACE->SOMMETS et FACES->CELLULES
+! Procedure : cgns2typhon_ustmesh_svm           Author : J. Gressier
+!                           
+! Function  
+!   create SVM mesh from typhon zone
 !
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
 
-subroutine cgns2typhon_ustmesh(defmesh, defspat, cgnszone, mesh) 
+subroutine cgns2typhon_ustmeshsvm(defsolver, defmesh, cgnszone, mesh) 
 
 use CGNS_STRUCT   ! Definition des structures CGNS
 use DEFZONE       ! Definition des structures ZONE
 use USTMESH       ! Definition des structures maillages non structures
 use OUTPUT        ! Sorties standard TYPHON
+use MENU_SOLVER
 use MENU_MESH
-use MENU_NUM
 
 implicit none 
 
 ! -- INPUTS --
+type(mnu_solver)   :: defsolver         ! solver parameters
 type(mnu_mesh)     :: defmesh           ! mesh parameters
-type(mnu_spat)     :: defspat           ! numerical spatial parameters
 type(st_cgns_zone) :: cgnszone          ! structure ZONE des donnees CGNS
 
 ! -- OUTPUTS --
-type(st_ustmesh)   :: mesh              ! structure USTMESH des donnees TYPHON
+type(st_ustmesh)   :: mesh           ! structure USTMESH des donnees TYPHON
 
 ! -- Internal variables --
-integer, parameter  :: nmax_cell = 20        ! max nb of cells in vtex->cell connectivity
-type(st_connect)    :: face_vtex, &          ! temporary face->vtex connectivity
-                       face_cell, &          ! temporary face->cell connectivity
-                       face_Ltag, face_Rtag  ! left & right tag for face
-integer             :: ntotcell              ! calcul du nombre total de cellules
-integer             :: maxvtex, maxface      ! nombre de sommets/face, face/cellule
-integer             :: nface                 ! estimation du nombre de faces
+integer, parameter  :: nmax_cell = 20   ! nb max de cellules dans la connectivite vtex->cell
+type(st_connect)    :: face_vtex, &     ! connectivite intermediaire faces   -> sommets
+                       face_cell        ! connectivite intermediaire faces   -> cellules
+integer             :: ntotcell         ! calcul du nombre total de cellules
+integer             :: maxvtex, maxface ! nombre de sommets/face, face/cellule
+integer             :: nface            ! estimation du nombre de faces
 integer             :: iconn, icell, ivtex   ! indices courants
 
 ! -- BODY --
-
-call init_ustmesh(mesh)   ! default values initialization
 
 call print_info(8,". converting mesh and computing connectivity")
 
@@ -54,18 +50,6 @@ case(2)
 case(3)
   mesh%mesh%info%geom = msh_3d
 endselect
-
-!--------------------------------------------------------------------------
-! reading vertices cloud 
-!--------------------------------------------------------------------------
-
-call print_info(8,"  mesh points coordinates")
-
-mesh%mesh%nvtex  = cgnszone%mesh%ni                  ! nb of vertices
-
-mesh%nvtex       = mesh%mesh%nvtex                   ! nb of vertices (redundant)
-allocate(mesh%mesh%vertex(mesh%mesh%nvtex, 1, 1))
-mesh%mesh%vertex = cgnszone%mesh%vertex              ! copy vertex cloud
 
 !--------------------------------------------------------------------------
 ! compute arrays approximate dimensions
@@ -82,7 +66,7 @@ do iconn = 1, cgnszone%ncellfam          ! boucle sur les sections de cellules
  
   ! cumul du nombre de cellules
   ntotcell = ntotcell + cgnszone%cellfam(iconn)%nbnodes  
-  !print*,iconn," ",cgnszone%cellfam(iconn)%type !! DEBUG
+
   select case(cgnszone%cellfam(iconn)%type)
   case(NODE)
     call erreur("Developement", "unexpected type of cell (NODE)")
@@ -124,6 +108,20 @@ do iconn = 1, cgnszone%ncellfam          ! boucle sur les sections de cellules
     call erreur("CGNS conversion", "unknown type of element section")
   endselect
 enddo
+
+
+!--------------------------------------------------------------------------
+! reading vertices cloud 
+!--------------------------------------------------------------------------
+
+call print_info(8,"  mesh points coordinates")
+
+! -- estimation of the number of vertices --
+
+mesh%mesh%nvtex  = cgnszone%mesh%ni + ntotcell*defsolver%defspat%svm%sub_node               ! nb of vertices
+allocate(mesh%mesh%vertex(mesh%mesh%nvtex, 1, 1))
+mesh%mesh%vertex(1:cgnszone%mesh%ni, 1, 1) = cgnszone%mesh%vertex(1:cgnszone%mesh%ni, 1, 1) ! copy vertex cloud
+mesh%nvtex       = mesh%mesh%nvtex                                                          ! nb of vertices (redundant)
 
 
 !--------------------------------------------------------------------------
@@ -208,29 +206,21 @@ mesh%mesh%nface = 0
 
 call print_info(8,"  creating faces and associated connectivity")
 
+! allocation des tableaux de connectivites
+
 ! -- connectivite intermediaire face->sommets --
-call new(face_vtex, nface, maxvtex)         ! nface is only is estimated size
-face_vtex%nbnodes   = 0                     ! set face counter to zero (not yet created)
-face_vtex%fils(:,:) = 0                     ! initialization
+call new(face_vtex, nface, maxvtex)
+face_vtex%nbnodes   = 0                     ! reinitialisation : nombre de faces crees
+face_vtex%fils(:,:) = 0                     ! initialisation de la connectivite
 
 ! -- connectivite intermediaire face->cellules --
-call new(face_cell, nface, 2)               ! nface is only is estimated size
+call new(face_cell, nface, 2)
 face_cell%nbnodes   = 0                     ! reinitialisation : nombre de faces crees
 face_cell%fils(:,:) = 0                     ! initialisation de la connectivite
 
-if (defspat%method == hres_svm) then
-  call new_connect(face_Ltag, nface, 1)
-  call new_connect(face_Rtag, nface, 1)
-  face_Ltag%fils(:,:) = 0
-  face_Ltag%fils(:,:) = 0
-endif  
+! -- creation des faces et des connectivites --
 
-!-------------------------------------------------------------------
-! creation of faces (face->vtex) and connectivities (face->cell)
-!-------------------------------------------------------------------
-
-call createface_fromcgns(defspat%method, mesh%nvtex, cgnszone, &
-                         face_cell, face_vtex, face_Ltag, face_Rtag)
+call createface_fromcgns(mesh%nvtex, cgnszone, face_cell, face_vtex)
 
 ! Recopie des connectivites dans la structure TYPHON
 ! avec le nombre exact de faces reconstruites
@@ -242,24 +232,17 @@ write(str_w,'(i10,a)') nface,"created faces"
 call print_info(8,str_w)
 
 call new(mesh%facevtex, nface, maxvtex)
-mesh%facevtex%fils(1:nface,1:maxvtex) = face_vtex%fils(1:nface,1:maxvtex)
-
 call new(mesh%facecell, nface, 2)
+
+mesh%facevtex%fils(1:nface,1:maxvtex) = face_vtex%fils(1:nface,1:maxvtex)
 mesh%facecell%fils(1:nface,1:2)       = face_cell%fils(1:nface,1:2)
 
-if (defspat%method == hres_svm) then
-  call new_connect(mesh%face_Ltag, nface, 1)
-  mesh%face_Ltag%fils(1:nface,1)       = face_Ltag%fils(1:nface,1)
-  call new_connect(mesh%face_Rtag, nface, 1)
-  mesh%face_Rtag%fils(1:nface,1)       = face_Rtag%fils(1:nface,1)
-endif
+! desallocation
 
-! -- desallocation --
+!deallocate(vtex_cell, ncell) !!! is it possible to deallocate ?
 
 call delete(face_cell)
 call delete(face_vtex)
-call delete(face_Ltag)
-call delete(face_Rtag)
 
 ! -- Renumerotation des faces --
 

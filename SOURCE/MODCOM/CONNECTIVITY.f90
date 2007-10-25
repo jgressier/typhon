@@ -67,6 +67,10 @@ interface copy
   module procedure copy_connect
 endinterface
 
+interface st_allocated
+  module procedure allocated_elemc, allocated_connect
+endinterface
+
 interface realloc
   module procedure realloc_connect
 endinterface
@@ -99,6 +103,18 @@ endsubroutine new_elemc
 
 
 !------------------------------------------------------------------------------!
+! Procedure : allocation test for ELEMC
+!------------------------------------------------------------------------------!
+logical function allocated_elemc(conn)
+implicit none
+type(st_elemc) :: conn
+
+  allocated_elemc = associated(conn%fils)
+
+endfunction allocated_elemc
+
+
+!------------------------------------------------------------------------------!
 ! Procedure : allocation d'une structure CONNECT
 !------------------------------------------------------------------------------!
 subroutine new_connect(conn, nbnodes, nbfils)
@@ -111,6 +127,18 @@ integer             :: nbnodes, nbfils
   allocate(conn%fils(nbnodes, nbfils))
 
 endsubroutine new_connect
+
+
+!------------------------------------------------------------------------------!
+! Procedure : allocation test for CONNECT
+!------------------------------------------------------------------------------!
+logical function allocated_connect(conn)
+implicit none
+type(st_connect) :: conn
+
+  allocated_connect = associated(conn%fils)
+
+endfunction allocated_connect
 
 
 !------------------------------------------------------------------------------!
@@ -143,11 +171,14 @@ endsubroutine realloc_connect
 function copy_connect(source)
 implicit none
 type(st_connect) :: copy_connect, source
+integer          :: nnodes, nfils
 
+  nnodes = source%nbnodes
+  nfils  = source%nbfils
   copy_connect%nbnodes = source%nbnodes
   copy_connect%nbfils  = source%nbfils
-  allocate(copy_connect%fils(copy_connect%nbnodes, copy_connect%nbfils))
-  copy_connect%fils    = source%fils
+  allocate(copy_connect%fils(nnodes, nfils))
+  copy_connect%fils(1:nnodes, 1:nfils) = source%fils(1:nnodes, 1:nfils)
 
 endfunction copy_connect
 

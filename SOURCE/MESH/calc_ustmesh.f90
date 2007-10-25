@@ -55,7 +55,7 @@ call test_ustmesh(umesh)
 
 ! -- allocate cells & face (vertices are already allocated) --
 
-call new(umesh%mesh, umesh%ncell, umesh%nface, 0)
+call new_mesh(umesh%mesh, umesh%ncell, umesh%nface, 0)
 
 !! allocation des faces geometriques si necessaire
 !if (umesh%mesh%nface == 0) then

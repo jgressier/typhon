@@ -16,17 +16,14 @@ use DEFZONE
 
 implicit none
 
-! -- Declaration des entrees --
-
-! -- Declaration des entrees/sorties --
+! -- INPUTS/OUTPUTS --
 type(st_zone) :: zone
 
-! -- Declaration des sorties --
-
-! -- Declaration des variables internes --
+! -- Internal variables --
 type(st_grid), pointer :: pgrid
+type(st_ustmesh)       :: newmesh
 
-! -- Debut de la procedure --
+! -- BODY --
 
 select case(zone%defsolver%typ_solver)
 
@@ -35,23 +32,38 @@ case(solKDIF)
 
 case(solVORTEX, solNS)
   pgrid => zone%gridlist%first
+
   do while (associated(pgrid))
+
+    ! -- if needed, split mesh into spectral volume subcells --
+
+    if (zone%defsolver%defspat%method == hres_svm) then
+      call convert_to_svm(zone%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh)
+      call delete(pgrid%umesh)
+      pgrid%umesh = newmesh
+    endif
+
+    ! -- compute geometrical properties of CELLS / FACES of the mesh --
+
     call calc_ustmesh(pgrid%umesh, zone%defmesh)
+
     pgrid => pgrid%next
+
   enddo
     
 case default
 
-  call erreur('Developpement','cas de solveur non prevu (init_maillage)')
+  call erreur('Development','unknown solver (init_maillage)')
 
 endselect
 
 endsubroutine init_maillage
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
-! nov  2002 : creation de la procedure
-! mars 2004 : traitement des grilles (VORTEX)
+! nov  2002: creation de la procedure
+! mars 2004: traitement des grilles (VORTEX)
+! oct  2007: add conversion to "Spectral Volume" mesh
 !------------------------------------------------------------------------------!
 

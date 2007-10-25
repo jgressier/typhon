@@ -24,7 +24,7 @@ integer             :: iaction
 type(st_ustmesh)    :: mesh            ! maillage non structure et connectivite
 
 ! -- Variables internes --
-type(st_connect) :: f_vtex, f_cell  ! conn. Typhon intermediaire : face -> sommets
+type(st_connect)    :: conn            ! temporary connectivity
 integer, dimension(:), allocatable &
                     :: trans_index     ! nouvelle renumerotation
 integer             :: nface_int       ! nombre de faces internes
@@ -57,40 +57,52 @@ do if = 1, ntotface
   endif
 enddo
 
-! copie des connectivites
-f_vtex = copy(mesh%facevtex)
-f_cell = copy(mesh%facecell)
-!print*,"!! DEBUG    f_vtex :",transpose(f_vtex%fils(:,:))
-!print*,"!! DEBUG face_vtex :",transpose(mesh%facevtex%fils(:,:))
+! --- face reordering ---
 
-! transposition d'index
-do if = 1, ntotface
-  oldf = trans_index(if)
-  newf = if
-  mesh%facecell%fils(newf,:) = f_cell%fils(oldf,:)
-  mesh%facevtex%fils(newf,:) = f_vtex%fils(oldf,:)
-  !print*,"!! DEBUG trans ",oldf, newf,":", mesh%facevtex%fils(newf,:),"<=",f_vtex%fils(oldf,:)
-enddo
+conn = copy(mesh%facevtex)
+mesh%facevtex%fils(1:ntotface,:) = conn%fils(trans_index(1:ntotface),:)
+call delete(conn)
+
+conn = copy(mesh%facecell)
+mesh%facecell%fils(1:ntotface,:) = conn%fils(trans_index(1:ntotface),:)
+call delete(conn)
+
+print*,st_allocated(mesh%face_Ltag)
+if (st_allocated(mesh%face_Ltag)) then
+  conn = copy(mesh%face_Ltag)
+  mesh%face_Ltag%fils(1:ntotface,:) = conn%fils(trans_index(1:ntotface),:)
+  call delete(conn)
+endif
+
+print*,st_allocated(mesh%face_Rtag)
+if (st_allocated(mesh%face_Rtag)) then
+  conn = copy(mesh%face_Rtag)
+  mesh%face_Rtag%fils(1:ntotface,:) = conn%fils(trans_index(1:ntotface),:)
+  call delete(conn)
+endif
+
+!!$do if = 1, ntotface
+!!$  oldf = trans_index(if)
+!!$  newf = if
+!!$  mesh%facecell%fils(newf,:) = f_cell%fils(oldf,:)
+!!$  mesh%facevtex%fils(newf,:) = f_vtex%fils(oldf,:)
+!!$enddo
 
 mesh%nface_int = nface_int
 mesh%nface_lim = nface_lim
 
-!print*,"!! DEBUG trans index :",trans_index(:)
-!print*,"!! DEBUG    f_vtex :",transpose(f_vtex%fils(:,:))
-!print*,"!! DEBUG face_vtex :",transpose(mesh%facevtex%fils(:,:))
-
 ! desallocation
-call delete(f_vtex)
-call delete(f_cell)
+
 deallocate(trans_index)
 
 !-------------------------
 endsubroutine reorder_ustconnect
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Change history
 !
-! fev 2003 (v0.0.1b): creation de la procedure
+! fev 2003: creation de la procedure
+! oct 2007: compact form, added face_L/Rtag reordering
 !------------------------------------------------------------------------------!
 
 

@@ -52,8 +52,8 @@ do iface = 1, cgnsboco%list%nbfils  ! boucle sur la liste de faces marquees
   do ifam = 1, nfam
     if ((pface >= facevtex(ifam)%ideb).and.(pface <= facevtex(ifam)%ifin)) pfam = ifam
   enddo
-
-  if (pfam == 0) call erreur("Calcul de connectivite","face limite introuvable dans CGNS")
+  !print*,'pface',pface
+  if (pfam == 0) call erreur("BOCO construction","unable to find tagged face in CGNS sections")
 
   ! on marque les sommets de la face trouvee
   do iv = 1, facevtex(pfam)%nbfils
