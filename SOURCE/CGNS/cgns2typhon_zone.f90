@@ -58,12 +58,7 @@ do i = 1, cgnsbase%nzone
     call print_info(5, "  unstructured mesh")
     typhonzone%typ_mesh = mshUST
 
-    select case(defsolver%defspat%method)
-    !case(hres_svm)
-    !  call cgns2typhon_ustmesh_svm(defmesh, cgnsbase%zone(i), pgrid%umesh)
-    case default
-      call cgns2typhon_ustmesh(defmesh, defsolver%defspat, cgnsbase%zone(i), pgrid%umesh)
-    endselect
+    call cgns2typhon_ustmesh(defmesh, cgnsbase%zone(i), pgrid%umesh)
 
   case default
     call erreur("Development","Unknown type of mesh")

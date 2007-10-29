@@ -18,11 +18,12 @@ use CGNS_STRUCT   ! Definition des structures CGNS
 use USTMESH       ! Definition des structures maillage non structure
 use OUTPUT        ! Sorties standard TYPHON
 use MENU_NUM
+use MENU_MESH
 
 implicit none 
 
 ! -- INPUTS --
-character             :: method          ! spatial method
+integer(kpp)          :: method          ! spatial method
 integer               :: nvtex           ! nombre total de sommets
 type(st_cgns_zone)    :: cgzone          ! conn. CGNS         : cellule -> sommets
 
@@ -49,12 +50,11 @@ integer               :: iprop
 !-------------------------------------------
 ! initialization
 
-if (method == hres_svm) then
+if (method /= split_none) then
   iprop = 1
 else
   iprop = 0
 endif
-!print*,'method',method, iprop
 
 ! allocation de la connectivite intermediaire VTEX -> FACE 
 ! utile pour la recherche optimale de face existante

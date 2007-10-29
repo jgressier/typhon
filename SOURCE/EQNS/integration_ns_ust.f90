@@ -72,7 +72,7 @@ do ib = 1, nbloc
 
   select case(defspat%method)
 
-  case(hres_none, hres_svm)
+  case(hres_none)
 
     do it = 1, nfb
       if  = ideb+it-1

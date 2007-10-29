@@ -67,14 +67,14 @@ conn = copy(mesh%facecell)
 mesh%facecell%fils(1:ntotface,:) = conn%fils(trans_index(1:ntotface),:)
 call delete(conn)
 
-print*,st_allocated(mesh%face_Ltag)
+!print*,st_allocated(mesh%face_Ltag)
 if (st_allocated(mesh%face_Ltag)) then
   conn = copy(mesh%face_Ltag)
   mesh%face_Ltag%fils(1:ntotface,:) = conn%fils(trans_index(1:ntotface),:)
   call delete(conn)
 endif
 
-print*,st_allocated(mesh%face_Rtag)
+!print*,st_allocated(mesh%face_Rtag)
 if (st_allocated(mesh%face_Rtag)) then
   conn = copy(mesh%face_Rtag)
   mesh%face_Rtag%fils(1:ntotface,:) = conn%fils(trans_index(1:ntotface),:)

@@ -58,6 +58,21 @@ defmesh%fichier = str
 
 call rpmgetkeyvalreal(pcour, "SCALE", defmesh%scale, 1._krp)
 
+! -- read split method --
+
+call rpmgetkeyvalstr(pcour, "SPLIT", str, "NONE")
+if (samestring(str,"NONE"))      defmesh%splitmesh = split_none
+if (samestring(str,"SVM2TRI"))   defmesh%splitmesh = split_svm2tri
+if (samestring(str,"SVM2QUAD"))  defmesh%splitmesh = split_svm2quad
+
+select case(defmesh%splitmesh)
+case(split_none)
+  ! nothing to write
+case(split_svm2quad)
+  call print_info(20, "  . split mesh : SVM based (3 quads)")
+case default
+  call erreur("Development", "unknown splitmesh parameter (def_mesh)")
+endselect
 
 endsubroutine def_mesh
 
@@ -67,4 +82,5 @@ endsubroutine def_mesh
 ! nov  2002 : creation de la procedure
 ! fev  2004 : lecture de format TYPHMSH (format interne)
 ! sept 2005 : add scale factor
+! oct  2007 : splitting option
 !------------------------------------------------------------------------------!

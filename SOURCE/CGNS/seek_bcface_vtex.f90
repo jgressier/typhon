@@ -44,6 +44,7 @@ do if = mesh%nface_int+1, mesh%nface_int+mesh%nface_lim
   endif
 enddo
 
+call print_info(20,'     '//trim(strof(nf))//' tagged faces')
 call new_ustboco(mesh%boco(ib), cgnsboco%family, nf)
 mesh%boco(ib)%iface(1:nf) = listface(1:nf)
   
@@ -51,7 +52,7 @@ mesh%boco(ib)%iface(1:nf) = listface(1:nf)
 endsubroutine seek_bcface_vtex
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
-! juin 2004 : creation de la procedure
+! june 2004: creation
 !------------------------------------------------------------------------------!

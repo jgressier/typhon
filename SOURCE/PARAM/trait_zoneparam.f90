@@ -67,7 +67,7 @@ call def_mesh(block, zone%defmesh)
 
 call def_time(prj, block, solver, zone%defsolver%deftime)
 
-call def_spat(block, zone%defsolver, zone%defsolver%defspat)
+call def_spat(block, zone%defsolver, zone%defsolver%defspat, zone%defmesh)
 
 call def_amr(block, solver, zone%defsolver%defamr)
 
@@ -123,6 +123,11 @@ call def_capteurs(block, solver, zone%defsolver)
 ! Definition des autres parametres
 
 call def_other(block, solver, zone%defsolver)
+
+! -------------------------
+! Final check
+
+call def_check(zone)
 
 
 

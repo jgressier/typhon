@@ -164,7 +164,7 @@ type(st_ustmesh) :: umesh
   nullify(umesh%face_Ltag%fils)
   nullify(umesh%face_Rtag%fils)
 
-  call new_mesh(umesh%mesh, 0, 0, 0)  ! nullify pointers
+  call init_mesh(umesh%mesh)  ! nullify pointers
 
 endsubroutine init_ustmesh
 

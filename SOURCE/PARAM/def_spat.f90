@@ -8,7 +8,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine def_spat(block, defsolver, defspat)
+subroutine def_spat(block, defsolver, defspat, defmesh)
 
 use RPM
 use TYPHMAKE
@@ -16,17 +16,19 @@ use OUTPUT
 use VARCOM
 use MENU_SOLVER
 use MENU_NUM
+use MENU_MESH
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(rpmblock), target :: block
 type(mnu_solver)       :: defsolver
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 type(mnu_spat) :: defspat
+type(mnu_mesh) :: defmesh
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nkey           ! nombre de clefs
 integer                  :: i
@@ -179,12 +181,7 @@ case(solNS)
     select case(defspat%svm%sv_meth)
     case(svm_2quad)
       call print_info(7,"    second order, splitted into quads (face split)")
-      defspat%svm%cv_split       = 3  ! nb of CV in SV
-      defspat%svm%intnode        = 1  ! nb of internal added nodes for cell splitting
-      defspat%svm%svface_split   = 2  ! nb of CV face per SV face
-      defspat%svm%internal_faces = 3  ! number of internal faces (by cell)
-      !defspat%svm%external_faces = 6  ! number of external faces (by cell)
-      defspat%svm%nb_facepoints  = 1  ! number of integration points by face
+      defmesh%splitmesh          = split_svm2quad
     !case(svm_2tri)
     !  call print_info(7,"    second order, splitted into tris (vertex split)")
     !  defspat%svm%intnode        = 1  ! number of internal added nodes for cell splitting

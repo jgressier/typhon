@@ -53,6 +53,8 @@ grid%umesh%ncell_lim = 0     ! initialisation du compteur de cellules limites
 
 do ib = 1, grid%umesh%nboco
 
+  if (grid%umesh%boco(ib)%nface == 0) cycle
+
   ! recherche d'une definition (boco) par nom de famille
 
   same_name = .false.

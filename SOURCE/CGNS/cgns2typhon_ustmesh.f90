@@ -9,20 +9,18 @@
 !
 !------------------------------------------------------------------------------!
 
-subroutine cgns2typhon_ustmesh(defmesh, defspat, cgnszone, mesh) 
+subroutine cgns2typhon_ustmesh(defmesh, cgnszone, mesh) 
 
 use CGNS_STRUCT   ! Definition des structures CGNS
 use DEFZONE       ! Definition des structures ZONE
 use USTMESH       ! Definition des structures maillages non structures
 use OUTPUT        ! Sorties standard TYPHON
 use MENU_MESH
-use MENU_NUM
 
 implicit none 
 
 ! -- INPUTS --
 type(mnu_mesh)     :: defmesh           ! mesh parameters
-type(mnu_spat)     :: defspat           ! numerical spatial parameters
 type(st_cgns_zone) :: cgnszone          ! structure ZONE des donnees CGNS
 
 ! -- OUTPUTS --
@@ -218,7 +216,7 @@ call new(face_cell, nface, 2)               ! nface is only is estimated size
 face_cell%nbnodes   = 0                     ! reinitialisation : nombre de faces crees
 face_cell%fils(:,:) = 0                     ! initialisation de la connectivite
 
-if (defspat%method == hres_svm) then
+if (defmesh%splitmesh /= split_none) then
   call new_connect(face_Ltag, nface, 1)
   call new_connect(face_Rtag, nface, 1)
   face_Ltag%fils(:,:) = 0
@@ -229,7 +227,7 @@ endif
 ! creation of faces (face->vtex) and connectivities (face->cell)
 !-------------------------------------------------------------------
 
-call createface_fromcgns(defspat%method, mesh%nvtex, cgnszone, &
+call createface_fromcgns(defmesh%splitmesh, mesh%nvtex, cgnszone, &
                          face_cell, face_vtex, face_Ltag, face_Rtag)
 
 ! Recopie des connectivites dans la structure TYPHON
@@ -247,7 +245,7 @@ mesh%facevtex%fils(1:nface,1:maxvtex) = face_vtex%fils(1:nface,1:maxvtex)
 call new(mesh%facecell, nface, 2)
 mesh%facecell%fils(1:nface,1:2)       = face_cell%fils(1:nface,1:2)
 
-if (defspat%method == hres_svm) then
+if (defmesh%splitmesh /= split_none) then
   call new_connect(mesh%face_Ltag, nface, 1)
   mesh%face_Ltag%fils(1:nface,1)       = face_Ltag%fils(1:nface,1)
   call new_connect(mesh%face_Rtag, nface, 1)

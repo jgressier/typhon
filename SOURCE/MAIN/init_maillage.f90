@@ -37,11 +37,16 @@ case(solVORTEX, solNS)
 
     ! -- if needed, split mesh into spectral volume subcells --
 
-    if (zone%defsolver%defspat%method == hres_svm) then
+    select case(zone%defmesh%splitmesh)
+    case(split_none)
+      ! nothing to do
+    case(split_svm2quad)
       call convert_to_svm(zone%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh)
       call delete(pgrid%umesh)
       pgrid%umesh = newmesh
-    endif
+    case default
+      call erreur('Development','unknown splitting method (init_maillage)')
+    endselect
 
     ! -- compute geometrical properties of CELLS / FACES of the mesh --
 

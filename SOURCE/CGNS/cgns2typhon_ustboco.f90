@@ -18,40 +18,37 @@ use OUTPUT        ! Sorties standard TYPHON
 
 implicit none 
 
-! -- Entrees --
+! -- INPUTS --
 type(st_cgns_zone)  :: cgnszone        ! zone CGNS contenant conditions aux limites
 
-! -- Entrees/Sorties --
+! -- INPUTS/OUTPUTS --
 type(st_ustmesh)    :: mesh            ! connectivites et conditions aux limites
 
-! -- Variables internes --
+! -- Internal variables --
 integer, dimension(:), allocatable &
                     :: listface        ! liste provisoire de faces
 integer             :: nface_int       ! nombre de faces internes
 integer             :: nface_lim       ! nombre de faces limites
-integer             :: ib, if, nf
+integer             :: ib, if, nf, iib
 
-! -- Debut de procedure
+! -- BODY --
 
 ! -- Creation des conditions aux limites --
 
 allocate(listface(mesh%nface_lim))   ! allocation provisoire avec marges
-mesh%nboco = cgnszone%nboco         
-allocate(mesh%boco(mesh%nboco))    ! allocation des conditions aux limites TYPHON
 
+call createboco(mesh, cgnszone%nboco)
 
 do ib = 1, cgnszone%nboco
 
   call print_info(8,"  . apply boundary condition: "//trim(cgnszone%boco(ib)%family))
 
-  call 
-
   select case(cgnszone%boco(ib)%gridlocation)
   case(vertex)
-    call print_info(20,'     vertex tagging')
+    call print_info(20,'     vertex tagging method')
     call seek_bcface_vtex(ib, cgnszone%boco(ib), mesh, listface)
   case(facecenter)
-    call print_info(20,'     face tagging')
+    call print_info(20,'     face tagging method')
     call seek_bcface_face(ib, cgnszone%boco(ib), cgnszone%nfacefam , &
                           cgnszone%facefam(1:cgnszone%nfacefam), mesh, listface)
   case default
@@ -60,12 +57,29 @@ do ib = 1, cgnszone%nboco
   
 enddo
 
-! -- Verification du nombre total de faces limites affectees aux conditions aux limites
+! --- Check empty boco marks ---
+
+nf  = 0
+iib = 0
+
+do ib = 1, mesh%nboco
+  if (mesh%boco(ib)%nface /= 0) then
+    iib = iib + 1
+    nf  = nf + mesh%boco(ib)%nface
+    if (iib < ib) mesh%boco(iib) = mesh%boco(ib)   ! if staggered, then transfer
+  else
+    call delete_ustboco(mesh%boco(ib))
+  endif
+enddo
+
+mesh%nboco = iib
 
 nf = 0
-do ib = 1, cgnszone%nboco
+do ib = 1, mesh%nboco
   nf = nf + mesh%boco(ib)%nface
 enddo
+
+! --- check bounding faces == tagged faces ---
 
 if (nf /= mesh%nface_lim) &
   call erreur("BOCO tagging", "tagged faces do not correspond to boundaring faces")
@@ -78,9 +92,10 @@ deallocate(listface)
 endsubroutine cgns2typhon_ustboco
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
-! fev  2003 : creation de la procedure 
-! juin 2004 : construction des connectivites BOCO-> faces, generalisation
-!             procedure intrinseque transferee dans USTMESH
+! fev  2003: creation
+! june 2004: construction des connectivites BOCO-> faces, generalisation
+!            procedure intrinseque transferee dans USTMESH
+! Nov  2007: check empty boco marks
 !------------------------------------------------------------------------------!
