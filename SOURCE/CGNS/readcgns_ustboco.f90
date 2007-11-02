@@ -61,8 +61,8 @@ case default
 endselect
  
 !write(str_w,*) 
-call print_info(5, ". condition aux limites"//strof(ibc,3)//" : "//trim(boco%family))
-call print_info(8, "  type "//trim(BCTypeName(bctyp))//", "//strof(npts,6)//" items")
+call print_info(5, ". tagged element section"//strof(ibc,3)//" : "//trim(boco%family))
+call print_info(8, "    type "//trim(BCTypeName(bctyp))//", "//strof(npts,6)//" items")
 
 ! --- Lecture des noeuds ou faces references --
 

@@ -32,12 +32,13 @@ integer(kip)     :: ncell
 type(st_field) :: champ
 
 ! -- Internal variables --
-integer                           :: ip, ifirst, iend, ic, i, ib, ierr
+integer                           :: ip, ifirst, iend, ic, i, ib, ierr, nc
 integer                           :: nb, maxbuf, buf       ! block number, buffers
 type(st_nsetat)                   :: nspri
 character(len=50)                 :: charac
 real(krp)                         :: xx, yy, zz, temp
 real(krp), dimension(cell_buffer) :: ptot, pstat, ttot, tstat, vel, mach
+type(v3d), dimension(cell_buffer) :: velocity
 logical                           :: is_x, is_y, is_z
 real(krp)                         :: gamma
 
@@ -49,7 +50,6 @@ gamma = defns%properties(1)%gamma
 select case(init_type)
 
 case(init_def)  ! --- initialization through FCT functions ---
-  print*,"   FCT initialization"
   
   !is_x = 
   !
@@ -87,6 +87,9 @@ case(init_def)  ! --- initialization through FCT functions ---
       else
         call fct_eval_real(blank_env, initns%mach, mach(i))
       endif
+      call fct_eval_real(blank_env, initns%dir_x, velocity(i)%x)
+      call fct_eval_real(blank_env, initns%dir_y, velocity(i)%y)
+      call fct_eval_real(blank_env, initns%dir_z, velocity(i)%z)
     enddo
 
     ! -- compute static temperature --
@@ -97,6 +100,10 @@ case(init_def)  ! --- initialization through FCT functions ---
         tstat(1:buf) = ttot(1:buf) / (1._krp + .5_krp*(gamma-1._krp)*mach(1:buf)**2)
       endif 
     endif
+    ! -- check positivity --
+    nc = count(tstat(1:buf) <= 0._krp)
+    if (nc > 0) call erreur("Initialization", "user parameters produce negative temperatures (" &
+                            //trim(strof(nc))//" cells)" )
     
     ! -- compute velocity (from mach number) --
     if (.not.initns%is_velocity) then
@@ -105,13 +112,20 @@ case(init_def)  ! --- initialization through FCT functions ---
     
     ! -- compute static pressure (from pi & mach number) --
     if (.not.initns%is_pstat) then
+      if (initns%is_velocity) then   ! Mach number is not defined
+        mach(1:buf) = abs(vel(1:buf))/sqrt(gamma*defns%properties(1)%r_const*tstat(1:buf))
+      endif
       pstat(1:buf) = ptot(1:buf) / (1._krp + .5_krp*(gamma-1._krp)*mach(1:buf)**2)**(gamma/(gamma-1._krp))
     endif
     
     ! -- compute density --
     champ%etatprim%tabscal(1)%scal(ifirst:iend) = pstat(1:buf)/(defns%properties(1)%r_const*tstat(1:buf))
+
+    ! -- pressure --
     champ%etatprim%tabscal(2)%scal(ifirst:iend) = pstat(1:buf)
-    champ%etatprim%tabvect(1)%vect(ifirst:iend) = vel(1:buf)*initns%direction
+
+    ! -- velocity vector --
+    champ%etatprim%tabvect(1)%vect(ifirst:iend) = (vel(1:buf)/abs(velocity(1:buf)))*velocity(1:buf)
 
     ifirst = ifirst + buf
     buf    = maxbuf

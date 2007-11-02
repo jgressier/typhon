@@ -44,7 +44,7 @@ do if = mesh%nface_int+1, mesh%nface_int+mesh%nface_lim
   endif
 enddo
 
-call print_info(20,'     '//trim(strof(nf))//' tagged faces')
+call print_info(20,'      '//trim(strof(nf))//' mesh faces tagged')
 call new_ustboco(mesh%boco(ib), cgnsboco%family, nf)
 mesh%boco(ib)%iface(1:nf) = listface(1:nf)
   

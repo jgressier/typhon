@@ -21,6 +21,9 @@ implicit none
 
 ! -- INTERFACES -------------------------------------------------------------
 
+interface convert_to_funct
+  module procedure real4_to_funct, real8_to_funct, string_to_funct
+endinterface
 
 ! -- Fonctions et Operateurs ------------------------------------------------
 
@@ -51,6 +54,49 @@ call string_to_node(trim(strpack), func)
 ierr = 0
 
 endsubroutine string_to_funct
+
+
+!------------------------------------------------------------------------------!
+! convert REAL CONSTANT to FCT_FUNCT structure
+!------------------------------------------------------------------------------!
+subroutine real4_to_funct(x, func, ierr)
+implicit none
+
+! -- parameters --
+real(4),           intent(in)  :: x
+type(st_fct_node), intent(out) :: func        ! function output
+integer,           intent(out) :: ierr        ! error code
+
+! -- body --
+
+call new_fct_node(func, node_cst, "")
+func%container%r = x
+
+ierr = 0
+
+endsubroutine real4_to_funct
+
+
+
+!------------------------------------------------------------------------------!
+! convert REAL CONSTANT to FCT_FUNCT structure
+!------------------------------------------------------------------------------!
+subroutine real8_to_funct(x, func, ierr)
+implicit none
+
+! -- parameters --
+real(8),           intent(in)  :: x
+type(st_fct_node), intent(out) :: func        ! function output
+integer,           intent(out) :: ierr        ! error code
+
+! -- body --
+
+call new_fct_node(func, node_cst, "")
+func%container%r = x
+
+ierr = 0
+
+endsubroutine real8_to_funct
 
 
 !------------------------------------------------------------------------------!

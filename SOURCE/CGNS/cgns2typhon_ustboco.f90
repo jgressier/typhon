@@ -41,14 +41,15 @@ call createboco(mesh, cgnszone%nboco)
 
 do ib = 1, cgnszone%nboco
 
-  call print_info(8,"  . apply boundary condition: "//trim(cgnszone%boco(ib)%family))
+  call print_info(8,"  . linking boundary condition marks"//strof(ib,3)//"/"//trim(strof(cgnszone%nboco))// &
+                    ": "//trim(cgnszone%boco(ib)%family))
 
   select case(cgnszone%boco(ib)%gridlocation)
   case(vertex)
-    call print_info(20,'     vertex tagging method')
+    call print_info(20,'      vertex tagging method')
     call seek_bcface_vtex(ib, cgnszone%boco(ib), mesh, listface)
   case(facecenter)
-    call print_info(20,'     face tagging method')
+    call print_info(20,'      face tagging method')
     call seek_bcface_face(ib, cgnszone%boco(ib), cgnszone%nfacefam , &
                           cgnszone%facefam(1:cgnszone%nfacefam), mesh, listface)
   case default
@@ -76,13 +77,14 @@ mesh%nboco = iib
 
 nf = 0
 do ib = 1, mesh%nboco
+  print*,ib, mesh%boco(ib)%nface
   nf = nf + mesh%boco(ib)%nface
 enddo
 
 ! --- check bounding faces == tagged faces ---
 
 if (nf /= mesh%nface_lim) &
-  call erreur("BOCO tagging", "tagged faces do not correspond to boundaring faces")
+  call erreur("BOCO tagging", "tagged faces number does not correspond to boundaring faces number")
 
 ! desallocation
 

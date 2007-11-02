@@ -82,7 +82,7 @@ select case(cgzone%cellfam(isect)%type)
 
 case(TRI_3)  ! trois faces (cotes) pour chacune deux sommets
 
-  call print_info(8,"    creating faces TRI_3")
+  call print_info(8,"  . creating faces of TRI_3")
 
   do icell = cgzone%cellfam(isect)%ideb, cgzone%cellfam(isect)%ifin
     element = cgzone%cellfam(isect)%fils(icell,:) 
@@ -100,7 +100,7 @@ case(TRI_3)  ! trois faces (cotes) pour chacune deux sommets
 
 case(QUAD_4) ! quatre faces (cotes) pour chacune deux sommets
 
-  call print_info(8,"    creating faces QUAD_4")
+  call print_info(8,"  . creating faces of QUAD_4")
  
   do icell = cgzone%cellfam(isect)%ideb, cgzone%cellfam(isect)%ifin
     element = cgzone%cellfam(isect)%fils(icell,:) 
@@ -121,7 +121,7 @@ case(QUAD_4) ! quatre faces (cotes) pour chacune deux sommets
 
 case(TETRA_4) ! quatre faces (triangles) pour chacune trois sommets
 
-  call print_info(8,"    creating faces TETRA_4")
+  call print_info(8,"  . creating faces of TETRA_4")
 
   do icell = cgzone%cellfam(isect)%ideb, cgzone%cellfam(isect)%ifin
     element = cgzone%cellfam(isect)%fils(icell,:) 
@@ -146,7 +146,7 @@ case(PYRA_5) ! 1 quadrangle (4 sommets) et 4 triangles par element PYRA
 
 case(PENTA_6) ! 3 quadrangles (4 sommets) et 2 triangles par element PENTA
 
-  call print_info(8,"    creating faces PENTA_6")
+  call print_info(8,"  . creating faces of PENTA_6")
 
   do icell = cgzone%cellfam(isect)%ideb, cgzone%cellfam(isect)%ifin
     element = cgzone%cellfam(isect)%fils(icell,:) 
@@ -174,7 +174,7 @@ case(PENTA_6) ! 3 quadrangles (4 sommets) et 2 triangles par element PENTA
 
 case(HEXA_8) ! 6 quadrangles (4 sommets)
 
-  call print_info(8,"    creating faces HEXA_8")
+  call print_info(8,"  . creating faces of HEXA_8")
 
   do icell = cgzone%cellfam(isect)%ideb, cgzone%cellfam(isect)%ifin
     element = cgzone%cellfam(isect)%fils(icell,:) 
@@ -202,7 +202,7 @@ case(HEXA_8) ! 6 quadrangles (4 sommets)
   ! CF PDF : CGNS SIDS pages 21-23
 
 case default
-  call erreur("Developpement", &
+  call erreur("Development", &
               "Type d'element inattendu dans le calcul de connectivite")
 endselect
 

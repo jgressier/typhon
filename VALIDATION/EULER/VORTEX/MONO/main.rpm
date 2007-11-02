@@ -1,0 +1,70 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON 
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+  NZONE     = 1       
+  COORD     = 2D      
+  TIME      = UNSTEADY 
+  DURATION  = .1
+  BASETIME  = .002
+ENDBLOCK               
+
+BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+  FILE   = "typhon.vtk" 
+  PERIOD = 1
+  FORMAT = VTK-BIN
+ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "" 
+  SOLVER = EULER  
+ENDBLOCK
+
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = CGNS
+  FILE   = "covortex-tri-a1.cgns"
+  SPLIT  = SVM2QUAD
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS = EULER
+  GAS      = AIR
+ENDBLOCK
+
+BLOCK:TIME_PARAM 
+  !METHOD    = IMPLICIT
+  INVERSION = BICGSTAB
+  MAX_IT    = 50
+  CFL       = 0.5
+ENDBLOCK
+
+BLOCK:SPAT_PARAM  
+  SCHEME   = HLLC
+  !JACOBIAN = HLL
+  HIGHRES  = MUSCL
+  LIMITER  = KIM3
+ENDBLOCK
+
+BLOCK:INIT
+  P        = 1.E5 - 1.161/2*900/2*exp(1-(X*X+Y*Y)/4)
+  TI       = 300
+  VELOCITY = 30*sqrt(X*X+Y*Y)/2*exp(0.5*(1-(X*X+Y*Y)/4))
+  !DIRECTION = (1., 0., 0.)
+  DIR_X    = -Y
+  DIR_Y    = X
+  DIR_Z    = 0.
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = C50
+  TYPE   = SUPERSONIC_OUTLET 
+ENDBLOCK
+
+
+
+

@@ -20,26 +20,26 @@ use MENU_NUM
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(st_zone) :: lzone
 real(krp)     :: wres_ref ! world reference residual
 real(krp)     :: wcur_res ! world current residual
 real(krp)     :: dtmax
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 real(krp)      :: dt
 
-! -- Declaration des variables internes --
-type(st_grid), pointer               :: pgrid    ! pointeur sur grille
-real(krp), dimension(:), allocatable :: dtloc    ! tableau de pas de temps local
+! -- Internal variables --
+type(st_grid), pointer               :: pgrid     ! pointeur sur grille
+real(krp), dimension(:), allocatable :: dtloc     ! tableau de pas de temps local
 real(krp)                            :: cfl
-integer                              :: ncell    ! nombre de cellules pour le calcul
+integer                              :: ncell, nc ! cell number, cell counter
 
 ! -- BODY --
 
-
-
-! -- Calcul des pas de temps locaux --
+! -----------------------------------------------------------------
+! COMPUTATION of LOCAL TIMESTEPS for all ZONES
+! -----------------------------------------------------------------
 
 select case(lzone%defsolver%typ_solver)
 
@@ -93,10 +93,19 @@ case(solKDIF, solNS)
     ! -- need to compute minimum time step for all grids (only if global time step) --
     dt = min(dt, minval(pgrid%dtloc(1:ncell)))  ! (!) only for internal cells
 
-    ! grille suivante
+    ! -- check time steps are not NAN numbers --
+    !pgrid%dtloc(1:ncell) = sqrt(-pgrid%dtloc(1:ncell))
+    !print*,sum(pgrid%dtloc(1:ncell))
+    nc = count(pgrid%dtloc(1:ncell) /= pgrid%dtloc(1:ncell))
+    if (nc > 0) call erreur("time step computation", &
+                            "found some NAN timesteps ("//trim(strof(nc))//" cells)")
+
+    ! next grid
     pgrid => pgrid%next
 
   enddo
+
+  ! -- MPI comparison of minimum timesteps
 
   call exchange_zonal_timestep(lzone, dt)
 

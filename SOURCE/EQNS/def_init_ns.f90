@@ -30,6 +30,7 @@ type(st_init_ns) :: initns
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: ib, nkey, info
 character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
+type(v3d)                :: direction
 
 ! -- BODY --
 
@@ -71,12 +72,22 @@ else
   call string_to_funct(str, initns%velocity, info)
 endif
 
-call rpmgetkeyvalstr (pblock, "DIRECTION", str)
-initns%direction = v3d_of(str, info)
-if (info /= 0) &
-  call erreur("menu definition","problem when parsing DIRECTION vector (NS initialization)") 
-
-initns%direction = initns%direction / abs(initns%direction)
+if (rpm_existkey(pblock, "DIRECTION")) then
+  call rpmgetkeyvalstr (pblock, "DIRECTION", str)
+  direction = v3d_of(str, info)
+  if (info /= 0) &
+       call erreur("menu definition","problem when parsing DIRECTION vector (NS initialization)") 
+  call convert_to_funct(direction%x, initns%dir_x, info)
+  call convert_to_funct(direction%y, initns%dir_y, info)
+  call convert_to_funct(direction%z, initns%dir_z, info)
+else
+  call rpmgetkeyvalstr(pblock, "DIR_X", str)
+  call convert_to_funct(str, initns%dir_x, info)  
+  call rpmgetkeyvalstr(pblock, "DIR_Y", str)
+  call convert_to_funct(str, initns%dir_y, info)  
+  call rpmgetkeyvalstr(pblock, "DIR_Z", str)
+  call convert_to_funct(str, initns%dir_z, info)  
+endif
 
 endsubroutine def_init_ns
 
@@ -85,4 +96,5 @@ endsubroutine def_init_ns
 !
 ! juil 2004 : creation de la routine
 ! sept 2006 : FCT functions for Ptot, Ttot ans Mach
+! Nov  2007 : FCT function for direction
 !------------------------------------------------------------------------------!

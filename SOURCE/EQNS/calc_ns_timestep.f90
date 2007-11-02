@@ -68,6 +68,8 @@ do ic = 1, ncell
   dtloc(ic) =  cfl * 2._krp * umesh%mesh%volume(ic,1,1) / dtloc(ic)
 enddo
 
+!!! OPTIM : try to vectorize !!!
+
 gg1 = fluid%gamma*(fluid%gamma -1._krp)
 do ic = 1, ncell
   rv2  = sqrabs(field%etatcons%tabvect(1)%vect(ic))

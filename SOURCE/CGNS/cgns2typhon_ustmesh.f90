@@ -49,8 +49,10 @@ endif
 select case(cgnszone%imesh)    ! transfer mesh dimension 
 case(2)
   mesh%mesh%info%geom = msh_2dplan
+  call print_info(8,"    mesh is 2D (planar)")
 case(3)
   mesh%mesh%info%geom = msh_3d
+  call print_info(8,"    mesh is 3D")
 endselect
 
 !--------------------------------------------------------------------------
@@ -83,9 +85,9 @@ do iconn = 1, cgnszone%ncellfam          ! boucle sur les sections de cellules
   !print*,iconn," ",cgnszone%cellfam(iconn)%type !! DEBUG
   select case(cgnszone%cellfam(iconn)%type)
   case(NODE)
-    call erreur("Developement", "unexpected type of cell (NODE)")
+    call erreur("Development", "unexpected type of cell (NODE)")
   case(BAR_2,BAR_3)
-    call erreur("Developement", "unexpected type of cell (BAR)")
+    call erreur("Development", "unexpected type of cell (BAR)")
   case(TRI_3,TRI_6)
     maxvtex = max(maxvtex, 2)
     maxface = max(maxface, 3)
@@ -236,14 +238,16 @@ call createface_fromcgns(defmesh%splitmesh, mesh%nvtex, cgnszone, &
 nface          = face_vtex%nbnodes     ! meme valeur que face_cell%nbnodes aussi
 mesh%nface     = nface
 mesh%ncell_int = ntotcell
-write(str_w,'(i10,a)') nface,"created faces"
-call print_info(8,str_w)
+
+call print_info(8,"  >"//strof(nface,8)//" created faces")
 
 call new(mesh%facevtex, nface, maxvtex)
 mesh%facevtex%fils(1:nface,1:maxvtex) = face_vtex%fils(1:nface,1:maxvtex)
 
 call new(mesh%facecell, nface, 2)
 mesh%facecell%fils(1:nface,1:2)       = face_cell%fils(1:nface,1:2)
+
+call print_info(8,"  >"//strof(count(mesh%facecell%fils(1:nface,2)==0),8)//" external faces")
 
 if (defmesh%splitmesh /= split_none) then
   call new_connect(mesh%face_Ltag, nface, 1)
