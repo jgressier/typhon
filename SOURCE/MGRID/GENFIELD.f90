@@ -3,10 +3,7 @@
 !                                                    Created : Octobre 2002
 ! Fonction  
 !   Library to manage scalar, vector, tensor fields
-!   des differents solveurs
-!
-! Defauts/Limitations/Divers :
-! Historique :
+!   of any solver
 !
 !------------------------------------------------------------------------------!
 
@@ -67,6 +64,18 @@ endinterface
 
 interface unpackst
   module procedure unpack_gfield
+endinterface
+
+interface scale
+  module procedure gfield_scale
+endinterface
+
+interface xeqxpy
+  module procedure gfield_xeqxpy
+endinterface
+
+interface xeqxpay
+  module procedure gfield_xeqxpay
 endinterface
 
 ! -- Fonctions et Operateurs ------------------------------------------------
@@ -312,6 +321,100 @@ type(st_genericfield) :: gfield
   size_tot_gfield = (gfield%nscal + 3*gfield%nvect + 9*gfield%ntens)*gfield%dim
 
 end function size_tot_gfield
+
+
+!------------------------------------------------------------------------------
+! Procédure : transfert de champ générique : rgfield reçoit igfield
+!------------------------------------------------------------------------------
+subroutine transfer_gfield(rgfield, igfield)
+implicit none
+type(st_genericfield) :: igfield, rgfield
+integer               :: i
+
+rgfield%nscal = igfield%nscal
+rgfield%nvect = igfield%nvect
+rgfield%ntens = igfield%ntens
+rgfield%dim = igfield%dim
+do i = 1, igfield%nscal
+  call transfer_scafield(rgfield%tabscal(i),igfield%tabscal(i))
+enddo
+do i = 1, igfield%nvect
+  call transfer_vecfield(rgfield%tabvect(i),igfield%tabvect(i))
+enddo
+do i = 1, igfield%ntens
+  call transfer_tenfield(rgfield%tabtens(i),igfield%tabtens(i))
+enddo
+  
+endsubroutine transfer_gfield
+
+!------------------------------------------------------------------------------
+! Computing routine : gfield_scale : X = A*X
+!------------------------------------------------------------------------------
+subroutine gfield_scale(x, a)
+implicit none
+type(st_genericfield) :: x, y
+real(krp)             :: a
+integer               :: ip
+
+do ip = 1, x%nscal
+  call scale(x%tabscal(ip), a)
+enddo
+
+do ip = 1, x%nvect
+  call scale(x%tabvect(ip), a)
+enddo
+
+do ip = 1, x%ntens
+  call scale(x%tabtens(ip), a)
+enddo
+
+endsubroutine gfield_scale
+
+!------------------------------------------------------------------------------
+! Computing routine : gfield_xeqxpy : X = X + Y
+!------------------------------------------------------------------------------
+subroutine gfield_xeqxpy(x, y)
+implicit none
+type(st_genericfield) :: x, y
+integer               :: ip
+
+do ip = 1, x%nscal
+  call xeqxpy(x%tabscal(ip), y%tabscal(ip))
+enddo
+
+do ip = 1, x%nvect
+  call xeqxpy(x%tabvect(ip), y%tabvect(ip))
+enddo
+
+do ip = 1, x%ntens
+  call xeqxpy(x%tabtens(ip), y%tabtens(ip))
+enddo
+
+endsubroutine gfield_xeqxpy
+
+
+!------------------------------------------------------------------------------
+! Computing routine : gfield_xeqxpay : X = X + A*Y
+!------------------------------------------------------------------------------
+subroutine gfield_xeqxpay(x, a, y)
+implicit none
+type(st_genericfield) :: x, y
+real(krp)             :: a
+integer               :: ip
+
+do ip = 1, x%nscal
+  call xeqxpay(x%tabscal(ip), a, y%tabscal(ip))
+enddo
+
+do ip = 1, x%nvect
+  call xeqxpay(x%tabvect(ip), a, y%tabvect(ip))
+enddo
+
+do ip = 1, x%ntens
+  call xeqxpay(x%tabtens(ip), a, y%tabtens(ip))
+enddo
+
+endsubroutine gfield_xeqxpay
 
 
 endmodule GENFIELD

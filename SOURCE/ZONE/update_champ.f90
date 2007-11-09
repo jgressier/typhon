@@ -28,21 +28,23 @@ type(st_field)    :: field                ! champ d'etat et de gradients
 ! -- Declaration des variables internes --
 integer :: nc, ip, ic
 
-! -- Debut de la procedure --
+! -- BODY --
 
 nc = ncell
 
-do ip = 1, field%nscal
-  field%etatcons%tabscal(ip)%scal(1:nc) = field%etatcons%tabscal(ip)%scal(1:nc) &
-                                        + field%residu%tabscal(ip)%scal(1:nc)   
-enddo
+!!$do ip = 1, field%nscal
+!!$  field%etatcons%tabscal(ip)%scal(1:nc) = field%etatcons%tabscal(ip)%scal(1:nc) &
+!!$                                        + field%residu%tabscal(ip)%scal(1:nc)   
+!!$enddo
+!!$
+!!$do ip = 1, field%nvect
+!!$  do ic = 1, nc
+!!$    field%etatcons%tabvect(ip)%vect(ic) = field%etatcons%tabvect(ip)%vect(ic) &
+!!$                                        + field%residu%tabvect(ip)%vect(ic)  
+!!$  enddo
+!!$enddo
 
-do ip = 1, field%nvect
-  do ic = 1, nc
-    field%etatcons%tabvect(ip)%vect(ic) = field%etatcons%tabvect(ip)%vect(ic) &
-                                        + field%residu%tabvect(ip)%vect(ic)  
-  enddo
-enddo
+call xeqxpy(field%etatcons, field%residu)
 
 ! -- Calcul de residus dans le cas pseudo-stationnaire
 

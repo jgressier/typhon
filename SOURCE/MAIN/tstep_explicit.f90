@@ -1,5 +1,5 @@
 !------------------------------------------------------------------------------!
-! Procedure : explicit_step               Auteur : J. Gressier
+! Procedure : tstep_explicit               Auteur : J. Gressier
 !                                         Date   : Avril 2004
 ! Fonction                                Modif  : (cf historique)
 !   Integration explicit de domaine
@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine explicit_step(dtloc, typtemps, defsolver, &
+subroutine tstep_explicit(dtloc, typtemps, defsolver, &
                          umesh, field, coupling, ncp)
 
 use TYPHMAKE
@@ -53,7 +53,7 @@ case(solNS)
 case(solKDIF)
   call integration_kdif_ust(defsolver, defsolver%defspat, umesh, field, flux, .false., jacL, jacR)
 case default
-  call erreur("incoherence interne (explicit_step)", "solveur inconnu")
+  call erreur("incoherence interne (tstep_explicit)", "solveur inconnu")
 endselect
 
 ! -- flux surfaciques -> flux de surfaces et calcul des residus  --
@@ -79,7 +79,7 @@ endselect
 call delete(flux)
 
 
-endsubroutine explicit_step
+endsubroutine tstep_explicit
 !------------------------------------------------------------------------------!
 ! changes history
 !
@@ -87,7 +87,8 @@ endsubroutine explicit_step
 ! juil 2003 : ajout corrections de  flux
 ! oct  2003 : corrections de flux seulement en instationnaire
 ! avr  2004 : changement de nom  integration_ustdomaine -> integration_grid
-! avr  2004 : decoupage integration_grid -> explicit_step
+! avr  2004 : decoupage integration_grid -> explicit_step (old name)
 ! july 2004 : call Navier-Stokes solver integration
 ! sept 2005 : local time stepping
+! Nov  2007 : new name "tstep_explicit"
 !------------------------------------------------------------------------------!

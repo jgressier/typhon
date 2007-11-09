@@ -1,11 +1,11 @@
 !------------------------------------------------------------------------------!
-! Procedure : implicit_step                            Auteur : J. Gressier
+! Procedure : tstep_implicit                            Auteur : J. Gressier
 !                                                      Date   : Avril 2004
 ! Fonction
 !   Implicit Integration of the domain
 !
 !------------------------------------------------------------------------------!
-subroutine implicit_step(dtloc, typtemps, defsolver, &
+subroutine tstep_implicit(dtloc, typtemps, defsolver, &
                          umesh, field, coupling, ncp)
 
 use TYPHMAKE
@@ -58,7 +58,7 @@ case(solKDIF)
 case(solNS)
   call integration_ns_ust(defsolver, defsolver%defspat, umesh, field, flux, .true., jacL, jacR)
 case default
-  call erreur("internal error (implicit_step)", "unknown or unexpected solver")
+  call erreur("internal error (tstep_implicit)", "unknown or unexpected solver")
 endselect
 
 ! -- flux surfaciques -> flux de surfaces et calcul des residus  --
@@ -87,7 +87,7 @@ call delete(mat)
 !--------------------------------------------------
 
 
-endsubroutine implicit_step
+endsubroutine tstep_implicit
 !------------------------------------------------------------------------------!
 ! Change History
 !
@@ -95,4 +95,5 @@ endsubroutine implicit_step
 ! Aug  2005 : split / call build_implicit to handle different structures
 !           : split / call implicit_solve 
 ! sept 2005 : local time stepping
+! Nov  2007 : new name "tstep_implicit"
 !------------------------------------------------------------------------------!

@@ -273,80 +273,12 @@ call transfer_gfield(rfield%residu,ifield%residu)
   
 endsubroutine transfer_field
 
-!------------------------------------------------------------------------------
-! Procédure : transfert de champ générique : rgfield reçoit igfield
-!------------------------------------------------------------------------------
-subroutine transfer_gfield(rgfield, igfield)
-implicit none
-type(st_genericfield) :: igfield, rgfield
-integer               :: i
-
-rgfield%nscal = igfield%nscal
-rgfield%nvect = igfield%nvect
-rgfield%ntens = igfield%ntens
-rgfield%dim = igfield%dim
-do i = 1, igfield%nscal
-  call transfer_scafield(rgfield%tabscal(i),igfield%tabscal(i))
-enddo
-do i = 1, igfield%nvect
-  call transfer_vecfield(rgfield%tabvect(i),igfield%tabvect(i))
-enddo
-do i = 1, igfield%ntens
-  call transfer_tenfield(rgfield%tabtens(i),igfield%tabtens(i))
-enddo
-  
-endsubroutine transfer_gfield
-
-!------------------------------------------------------------------------------
-!  Procédure : transfert de champ scalaire : rscafield reçoit iscafield
-!------------------------------------------------------------------------------
-subroutine transfer_scafield(rscafield,iscafield)
-implicit none
-type(st_scafield) :: iscafield, rscafield
-integer           :: i
-
-rscafield%dim= iscafield%dim
-do i = 1, iscafield%dim
-  rscafield%scal(i) = iscafield%scal(i)
-enddo
-
-endsubroutine transfer_scafield
-
-!------------------------------------------------------------------------------
-! Procédure : transfert de champ vectoriel : rvecfield reçoit ivecfield
-!------------------------------------------------------------------------------
-subroutine transfer_vecfield(rvecfield,ivecfield)
-implicit none
-type(st_vecfield) :: ivecfield, rvecfield
-integer           :: i
-
-rvecfield%dim= ivecfield%dim
-do i = 1, ivecfield%dim
-  rvecfield%vect(i)= ivecfield%vect(i)
-enddo
-
-endsubroutine transfer_vecfield
-
-!------------------------------------------------------------------------------
-! Procédure : transfert de champ tensoriel : rtenfield reçoit itenfield
-!------------------------------------------------------------------------------
-subroutine transfer_tenfield(rtenfield,itenfield)
-implicit none
-type(st_tenfield) :: itenfield, rtenfield
-integer           :: i
-
-rtenfield%dim= itenfield%dim
-do i = 1, itenfield%dim
-  rtenfield%tens(i)= itenfield%tens(i)
-enddo
-
-endsubroutine transfer_tenfield
 
 endmodule DEFFIELD
 
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! oct  2002 : creation du module
 ! juin 2003 : structuration des champs par type (scalaire, vecteur...)

@@ -30,10 +30,13 @@ integer(kpp), parameter :: stab_cond     = 2
 integer(kpp), parameter :: loc_stab_cond = 3
 
 ! -- Constantes pour la methode d'integration temporelle
-integer(kpp), parameter :: tps_expl  = 10   ! integration explicite basique
-integer(kpp), parameter :: tps_impl  = 20   ! integration implicite linearise (theta schema)
-integer(kpp), parameter :: tps_dualt = 25   ! integration implicite / convergence locale
-integer(kpp), parameter :: tps_rk    = 30   ! integration en Runge Kutta explicite
+integer(kpp), parameter :: tps_expl   = 10   ! genuine explicit
+integer(kpp), parameter :: tps_impl   = 20   ! linearized implicit (theta scheme)
+integer(kpp), parameter :: tps_dualt  = 25   ! dual time
+integer(kpp), parameter :: tps_rk2    = 30   ! Runge Kutta explicit : predictor-corrector
+integer(kpp), parameter :: tps_rk2ssp = 31   ! Runge Kutta explicit : Heun
+integer(kpp), parameter :: tps_rk3ssp = 33   ! Runge Kutta explicit 
+integer(kpp), parameter :: tps_rk4    = 35   ! Runge Kutta explicit 
 
 ! -- Constantes pour schema de calcul des flux hyperboliques (sch_hyp)
 integer(kpp), parameter :: sch_roe      = 10
@@ -108,7 +111,9 @@ integer(kpp), parameter :: alg_bicgstab = 70  ! Bi-Conjugate Gradient Stabilized
 ! structure MNU_RK : options numeriques pour la methode Runge Kutta
 !------------------------------------------------------------------------------!
 type mnu_rk
-  integer(kpp)    :: order        ! ordre d'integration temporelle Runge-Kutta
+  integer(kpp)       :: order        ! order of accuracy
+  integer(kpp)       :: nstage       ! number of stages
+  real(krp), pointer :: coef(:,:)    ! butcher array (1:nstage, 1:nstage)
 endtype mnu_rk
 
 !------------------------------------------------------------------------------!
@@ -247,6 +252,55 @@ endselect
 
 endsubroutine get_gradientmethod
 
+!-------------------------------------------------------------------------
+! init Runge-Kutta parameters
+!-------------------------------------------------------------------------
+subroutine init_rungekutta(method, rk)
+implicit none
+! -- parameters --
+integer(kpp) :: method
+type(mnu_rk) :: rk
+! -- internal --
+! -- body --
+
+select case(method)
+case(tps_rk2)
+  rk%order  = 2
+  rk%nstage = 2
+  allocate(rk%coef(1:rk%nstage, 1:rk%nstage))
+  rk%coef(:, :)   = 0._krp
+  rk%coef(1, 1)   = .5_krp
+  rk%coef(2, 1:2) = (/ 0._krp, 1._krp /)
+case(tps_rk2ssp)
+  rk%order  = 2
+  rk%nstage = 2
+  allocate(rk%coef(1:rk%nstage, 1:rk%nstage))
+  rk%coef(:, :)   = 0._krp
+  rk%coef(1, 1)   = 1._krp
+  rk%coef(2, 1:2) = (/ 0.5_krp, 0.5_krp /)
+case(tps_rk3ssp)
+  rk%order  = 3
+  rk%nstage = 3
+  allocate(rk%coef(1:rk%nstage, 1:rk%nstage))
+  rk%coef(:, :)   = 0._krp
+  rk%coef(1, 1)   = 1._krp
+  rk%coef(2, 1:2) = (/ 0.25_krp, 0.25_krp /)
+  rk%coef(3, 1:3) = (/   1._krp,   1._krp, 4._krp /) / 6._krp
+case(tps_rk4)
+  rk%order  = 4
+  rk%nstage = 4
+  allocate(rk%coef(1:rk%nstage, 1:rk%nstage))
+  rk%coef(:, :)   = 0._krp
+  rk%coef(1, 1)   = 0.5_krp
+  rk%coef(2, 1:2) = (/ 0._krp, 0.5_krp /)
+  rk%coef(3, 1:3) = (/ 0._krp,  0._krp, 1._krp /) 
+  rk%coef(4, 1:4) = (/ 1._krp,  2._krp, 2._krp, 1._krp /) / 6._krp
+case default
+  call erreur("parameters parsing","unknown RUNGE KUTTA method")
+endselect
+
+endsubroutine init_rungekutta
+
 
 endmodule MENU_NUM
 
@@ -258,4 +312,5 @@ endmodule MENU_NUM
 ! aout 2003 : parametres pour l'integration temporelle (Fourier, residu)
 ! sept 2003 : parametres pour l'integration spatiale (calcul de gradients)
 ! jan  2006 : gradient computation method (local routine to get parameters)
+! Nov  2007 : Runge-Kutta parameters
 !------------------------------------------------------------------------------!

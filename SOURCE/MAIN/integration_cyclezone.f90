@@ -141,7 +141,7 @@ do while (.not.lzone%info%end_cycle)
     call integzone_tstep_usttree(dt, lzone)
 
   case(solVORTEX)
-    call integration_zone_lag(dt, lzone)   !!! DEV !!! to be renamed "integzone_tstep_lag"
+    call integzone_tstep_lagrange(dt, lzone) 
     lzone%info%residumax  = 2._krp      ! astuce pour n'imposer qu'une iteration
     lzone%info%cur_res    = 1.e-8_krp   ! dans le cycle
     lzone%info%residu_ref = 1.e+8_krp   ! astuce pour n'avoir qu'un cycle

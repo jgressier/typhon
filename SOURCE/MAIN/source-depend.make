@@ -28,9 +28,7 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            echange.o                \
            echange_zonedata.o       \
            echange_zonematch.o      \
-           explicit_step.o          \
            flux_to_res.o            \
-           implicit_step.o          \
            implicit_solve.o         \
            init_boco.o              \
            init_capteurs.o          \
@@ -44,7 +42,7 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            integration_cycle.o      \
            integration_cyclezone.o  \
            integration_grid.o       \
-           integration_zone_lag.o   \
+           integzone_tstep_lagrange.o \
            integzone_tstep_usttree.o  \
            integ_treelevel.o        \
            lecture_maillage.o       \
@@ -52,6 +50,10 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            mpi_strategy_pre.o       \
            mpi_strategy_post.o      \
            output_result.o          \
+           treelevel_explicit.o     \
+           treelevel_rungekutta.o   \
+           tstep_explicit.o         \
+           tstep_implicit.o         \
            update_couplingboco.o      
 
 D_MAIN_OBJ = $(MAIN_OBJ:%=$(PRJOBJ)/%)

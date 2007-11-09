@@ -1,11 +1,11 @@
 !------------------------------------------------------------------------------!
-! Procedure : integ_treelevel                    Auteur : J. Gressier
+! Procedure : treelevel_explicit                    Auteur : J. Gressier
 !                                                Date   : March 2006
 ! Fonction                                       Modif  : (cf history)
 !   Time Integration during one timestep of ONE LEVEL of UST grid TREE structure
 !
 !------------------------------------------------------------------------------!
-subroutine integ_treelevel(dt, info, defsolver, gridlist, coupling, ncoupling)
+subroutine treelevel_explicit(dt, info, defsolver, gridlist, coupling, ncoupling)
 
 use TYPHMAKE
 use OUTPUT
@@ -35,36 +35,56 @@ integer                :: if
 
 ! -- Body --
 
-select case(defsolver%deftime%tps_meth)
-
-case(tps_expl, tps_impl)
-  call treelevel_explicit(dt, info, defsolver, gridlist, coupling, ncoupling)
-
-case(tps_rk2, tps_rk2ssp, tps_rk3ssp, tps_rk4)
-  call treelevel_rungekutta(dt, info, defsolver, gridlist, coupling, ncoupling)
-
-case(tps_dualt)
-  call erreur("development","DUAL TIME method  not yet implemented")
-
-case default
-  call erreur("Development","unknown integration method (integration_grid)")
-endselect
-
-! -- update main field of each grid with (last) RHS --
+! -- Preparation du calcul --
 
 pgrid => gridlist%first
 do while (associated(pgrid))
-  call update_champ(info, pgrid%info%field_loc, pgrid%umesh%ncell_int)
+  call calc_varprim(defsolver, pgrid%info%field_loc)     ! calcul des var. primitives
   pgrid => pgrid%next
+enddo
+
+! -- calcul des conditions aux limites pour tous les domaines --
+
+call conditions_limites(defsolver, gridlist)
+    
+! -- gradients are computed only if necessary (by selected methods)
+
+if (defsolver%defspat%calc_grad) then
+  pgrid => gridlist%first
+  do while (associated(pgrid))
+    call calc_gradient(defsolver, defsolver%defspat, pgrid,                 &
+                       pgrid%info%field_loc%etatprim, pgrid%info%field_loc%gradient)
+    call calc_gradient_limite(defsolver, pgrid%umesh, pgrid%info%field_loc%gradient)
+    pgrid => pgrid%next
+  enddo
+endif
+
+! -- integration des domaines --
+
+pgrid => gridlist%first
+do while (associated(pgrid))
+
+  ! DEV : changer les structures de couplages dans MGRID
+  call integration_grid(dt, info%typ_temps, defsolver, &
+                        pgrid, coupling, ncoupling)
+
+  ! Desallocation des eventuelles listes chainees de champ generique utilisees
+  if (pgrid%nbocofield .ne. 0) then
+    call delete_chainedgfield(pgrid%bocofield)
+    pgrid%nbocofield = 0
+  endif
+
+  pgrid => pgrid%next
+
 enddo
 
 
 !-----------------------------
-endsubroutine integ_treelevel
+endsubroutine treelevel_explicit
 
 !------------------------------------------------------------------------------!
 ! Changes history
 !
 ! Mar  2006: created from integzone_tstep_usttree
-! Nov  2007: choice of time integration method
+! Nov  2007: only compute RHS, updating is done by calling routine, changed name
 !------------------------------------------------------------------------------!

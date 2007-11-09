@@ -62,6 +62,18 @@ interface delete
   module procedure delete_scafield, delete_vecfield, delete_tenfield
 endinterface
 
+interface scale
+  module procedure scaf_scale, vecf_scale, tenf_scale
+endinterface
+
+interface xeqxpy
+  module procedure scaf_xeqxpy, vecf_xeqxpy, tenf_xeqxpy
+endinterface
+
+interface xeqxpay
+  module procedure scaf_xeqxpay, vecf_xeqxpay, tenf_xeqxpay
+endinterface
+
 ! -- Fonctions et Operateurs ------------------------------------------------
 
 
@@ -152,6 +164,168 @@ type(st_tenfield) :: tenfield
 
 endsubroutine delete_tenfield
 
+!------------------------------------------------------------------------------
+!  Procédure : transfert de champ scalaire : rscafield reçoit iscafield
+!------------------------------------------------------------------------------
+subroutine transfer_scafield(rscafield,iscafield)
+implicit none
+type(st_scafield) :: iscafield, rscafield
+integer           :: i
+
+rscafield%dim= iscafield%dim
+do i = 1, iscafield%dim
+  rscafield%scal(i) = iscafield%scal(i)
+enddo
+
+endsubroutine transfer_scafield
+
+
+!------------------------------------------------------------------------------
+! Procédure : transfert de champ vectoriel : rvecfield reçoit ivecfield
+!------------------------------------------------------------------------------
+subroutine transfer_vecfield(rvecfield,ivecfield)
+implicit none
+type(st_vecfield) :: ivecfield, rvecfield
+integer           :: i
+
+rvecfield%dim= ivecfield%dim
+do i = 1, ivecfield%dim
+  rvecfield%vect(i)= ivecfield%vect(i)
+enddo
+
+endsubroutine transfer_vecfield
+
+!------------------------------------------------------------------------------
+! Procédure : transfert de champ tensoriel : rtenfield reçoit itenfield
+!------------------------------------------------------------------------------
+subroutine transfer_tenfield(rtenfield,itenfield)
+implicit none
+type(st_tenfield) :: itenfield, rtenfield
+integer           :: i
+
+rtenfield%dim= itenfield%dim
+do i = 1, itenfield%dim
+  rtenfield%tens(i)= itenfield%tens(i)
+enddo
+
+endsubroutine transfer_tenfield
+
+!------------------------------------------------------------------------------
+! Computing routine : scaf_scale : X = a*X
+!------------------------------------------------------------------------------
+subroutine scaf_scale(x, a)
+implicit none
+type(st_scafield) :: x
+real(krp)         :: a
+
+  x%scal(1:x%dim) = a*x%scal(1:x%dim) 
+
+endsubroutine scaf_scale
+
+!------------------------------------------------------------------------------
+! Computing routine : vecf_scale : X = a*X
+!------------------------------------------------------------------------------
+subroutine vecf_scale(x, a)
+implicit none
+type(st_vecfield) :: x
+real(krp)         :: a
+
+  call scale(x%vect(1:x%dim), a)
+
+endsubroutine vecf_scale
+
+!------------------------------------------------------------------------------
+! Computing routine : vecf_scale : X = a*X
+!------------------------------------------------------------------------------
+subroutine tenf_scale(x, a)
+implicit none
+type(st_tenfield) :: x
+integer           :: i 
+real(krp)         :: a
+
+  do i = 1, x%dim
+    x%tens(i)%mat = a*x%tens(i)%mat 
+  enddo
+
+endsubroutine tenf_scale
+
+!------------------------------------------------------------------------------
+! Computing routine : scaf_xeqxpy : X = X + Y
+!------------------------------------------------------------------------------
+subroutine scaf_xeqxpy(x, y)
+implicit none
+type(st_scafield) :: x, y
+
+  x%scal(1:x%dim) = x%scal(1:x%dim) + y%scal(1:x%dim) 
+
+endsubroutine scaf_xeqxpy
+
+!------------------------------------------------------------------------------
+! Computing routine : vecf_xeqxpy : X = X + Y
+!------------------------------------------------------------------------------
+subroutine vecf_xeqxpy(x, y)
+implicit none
+type(st_vecfield) :: x, y
+
+  call shift_add(x%vect(1:x%dim), y%vect(1:x%dim))
+
+endsubroutine vecf_xeqxpy
+
+!------------------------------------------------------------------------------
+! Computing routine : vecf_xeqxpy : X = X + Y
+!------------------------------------------------------------------------------
+subroutine tenf_xeqxpy(x, y)
+implicit none
+type(st_tenfield) :: x, y
+integer           :: i 
+
+  do i = 1, x%dim
+    x%tens(i)%mat = x%tens(i)%mat + y%tens(i)%mat 
+  enddo
+
+endsubroutine tenf_xeqxpy
+
+!------------------------------------------------------------------------------
+! Computing routine : scaf_xeqxpay : X = X + a*Y
+!------------------------------------------------------------------------------
+subroutine scaf_xeqxpay(x, a, y)
+implicit none
+type(st_scafield) :: x, y
+real(krp)         :: a
+
+  x%scal(1:x%dim) = x%scal(1:x%dim) + a*y%scal(1:x%dim) 
+
+endsubroutine scaf_xeqxpay
+
+!------------------------------------------------------------------------------
+! Computing routine : vecf_xeqxpay : X = X + a*Y
+!------------------------------------------------------------------------------
+subroutine vecf_xeqxpay(x, a, y)
+implicit none
+type(st_vecfield) :: x, y
+real(krp)         :: a
+
+  call shift_add(x%vect(1:x%dim), a*y%vect(1:x%dim))
+
+endsubroutine vecf_xeqxpay
+
+!------------------------------------------------------------------------------
+! Computing routine : vecf_xeqxpay : X = X + a*Y
+!------------------------------------------------------------------------------
+subroutine tenf_xeqxpay(x, a, y)
+implicit none
+type(st_tenfield) :: x, y
+integer           :: i 
+real(krp)         :: a
+
+  do i = 1, x%dim
+    x%tens(i)%mat = x%tens(i)%mat + a*y%tens(i)%mat 
+  enddo
+
+endsubroutine tenf_xeqxpay
+
+
+
 
 endmodule BASEFIELD
 
@@ -164,5 +338,6 @@ endmodule BASEFIELD
 ! DEV: decoupage en MGFIELD et MZFIELD pour fonctions haut et bas niveau
 ! juin 2004 : procedures insert_newgfield et delete_chainedgfield
 ! nov  2004 : split GENFIELD -> GENFIELD / BASEFIELD
+! Nov  2007 : X = X + Y ; X = X + A*Y routines
 !------------------------------------------------------------------------------!
 

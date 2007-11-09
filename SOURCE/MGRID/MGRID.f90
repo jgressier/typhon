@@ -222,6 +222,7 @@ type(st_gridlist)               :: gridlist
 type(st_grid), optional, target :: gridparent
 
   gridlist%nbgrid = 0
+
   nullify(gridlist%first)
   nullify(gridlist%last)
   if (present(gridparent)) then

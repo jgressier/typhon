@@ -21,21 +21,21 @@ use SPARSE_MAT
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(mnu_project)      :: prj
 type(rpmblock), target :: block
 integer                :: solver
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 type(mnu_time) :: deftime
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nkey           ! nombre de clefs
 integer                  :: i
 character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
-! -- Debut de la procedure --
+! -- BODY --
 
 call print_info(5,"- Definition of time integration parameters")
 
@@ -88,7 +88,9 @@ call rpmgetkeyvalstr(pcour, "METHOD", str, "EXPLICIT")
 deftime%tps_meth = inull
 
 if (samestring(str,"EXPLICIT"))    deftime%tps_meth = tps_expl
-if (samestring(str,"RUNGE-KUTTA")) deftime%tps_meth = tps_rk
+if (samestring(str,"RK2"))         deftime%tps_meth = tps_rk2
+if (samestring(str,"RK2-TVD"))     deftime%tps_meth = tps_rk2ssp
+if (samestring(str,"RK2-SSP"))     deftime%tps_meth = tps_rk2ssp
 if (samestring(str,"IMPLICIT"))    deftime%tps_meth = tps_impl
 if (samestring(str,"DUAL-TIME"))   deftime%tps_meth = tps_dualt
 
@@ -103,11 +105,11 @@ case(tps_expl)
   call print_info(7,"  . EXPLICIT integration")
   
 !------------------------------------------------------
-! RUNGE-KUTTA METHOD
+! RUNGE-KUTTA METHODs
 !-------------------------------------------------------
-case(tps_rk)
+case(tps_rk2, tps_rk2ssp, tps_rk3ssp, tps_rk4)
   call print_info(7,"  . RUNGE-KUTTA integration")
-  call rpmgetkeyvalint(pcour, "ORDER", deftime%rk%order, 2_kpp)
+  call init_rungekutta(deftime%tps_meth, deftime%rk)
 
 !------------------------------------------------------
 ! IMPLICIT METHOD

@@ -1,5 +1,5 @@
 !------------------------------------------------------------------------------!
-! Procedure : integration_zone_lag        Auteur : J. Gressier
+! Procedure : integzone_tstep_lagrange        Auteur : J. Gressier
 !                                         Date   : Mars 2004
 ! Fonction                                Modif  : (cf historique)
 !   Integration de tous les domaines d'une zone sur un pas de temps correspondant 
@@ -8,7 +8,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine integration_zone_lag(dt, zone)
+subroutine integzone_tstep_lagrange(dt, zone)
 
 use TYPHMAKE
 use OUTPUT
@@ -196,7 +196,7 @@ enddo
 deallocate(mat, rhs, piv)
 
 !-----------------------------
-endsubroutine integration_zone_lag
+endsubroutine integzone_tstep_lagrange
 
 !------------------------------------------------------------------------------!
 ! Historique des modifications

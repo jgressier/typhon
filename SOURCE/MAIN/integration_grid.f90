@@ -1,10 +1,8 @@
 !------------------------------------------------------------------------------!
-! Procedure : integration_grid            Auteur : J. Gressier
-!                                         Date   : Avril 2003
-! Fonction                                Modif  : (cf historique)
-!   Integration domaine par domaine
+! Procedure : integration_grid
 !
-! Defauts/Limitations/Divers :
+! Function
+!   Time step Integration of one grid : select integration method
 !
 !------------------------------------------------------------------------------!
 subroutine integration_grid(dt, typtemps, defsolver, grid, &
@@ -19,13 +17,13 @@ use MENU_ZONECOUPLING
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 real(krp)        :: dt               ! pas de temps CFL
 character        :: typtemps         ! type d'integration (stat, instat, period)
 type(mnu_solver) :: defsolver        ! type d'equation a resoudre
 integer          :: ncoupling        ! nombre de couplages de la zone
 
-! -- Declaration des entrees/sorties --
+! -- INPUTS/OUTPUTS --
 type(st_grid)    :: grid             ! domaine non structure a integrer
 type(mnu_zonecoupling), dimension(1:ncoupling) &
                  :: coupling ! donnees de couplage
@@ -33,27 +31,21 @@ type(mnu_zonecoupling), dimension(1:ncoupling) &
 ! -- Internal variables --
 
 
-! -- Body --
+! -- BODY --
 
 
 select case(defsolver%deftime%tps_meth)
 
-case(tps_expl)
-  call explicit_step(grid%dtloc, typtemps, defsolver, grid%umesh, grid%info%field_loc, &
+case(tps_expl, tps_rk2, tps_rk2ssp, tps_rk3ssp, tps_rk4)
+  call tstep_explicit(grid%dtloc, typtemps, defsolver, grid%umesh, grid%info%field_loc, &
                      coupling, ncoupling)
 
-case(tps_rk)
-  call erreur("developpement","methode RUNGE KUTTA non implementee")
-
-case(tps_impl)
-  call implicit_step(grid%dtloc, typtemps, defsolver, grid%umesh, grid%info%field_loc, &
+case(tps_impl, tps_dualt)
+  call tstep_implicit(grid%dtloc, typtemps, defsolver, grid%umesh, grid%info%field_loc, &
                      coupling, ncoupling)
-
-case(tps_dualt)
-  call erreur("developpement","methode DUAL TIME non implementee")
 
 case default
-  call erreur("incoherence","parametre inattendu (integration_grid)")
+  call erreur("Development","unknown integration method (integration_grid)")
 endselect
 
 

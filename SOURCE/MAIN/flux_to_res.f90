@@ -56,7 +56,7 @@ do ip = 1, flux%nscal
 enddo
 do ip = 1, flux%nvect
   !flux%tabvect(ip)%vect(:) = surf(:) * flux%tabvect(ip)%vect(:)
-  call v3d_scale(flux%tabvect(ip)%vect, surf(:))
+  call scale(flux%tabvect(ip)%vect, surf(:))
 enddo
 
 ! -- idem traitement des jacobiennes
