@@ -7,8 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-
-subroutine readcgnsfile(unit, nom, world) 
+subroutine readcgnsfile(nom, world) 
 
 use CGNSLIB       ! definition des mots-clefs
 use CGNS_STRUCT   ! Definition des structures CGNS
@@ -16,24 +15,24 @@ use OUTPUT        ! Sorties standard TYPHON
 
 implicit none 
 
-! -- Entrees --
-integer             :: unit       ! numero d'unite pour la lecture
+! -- INPUTS --
 character(len=*)    :: nom
 
-! -- Sorties --
+! -- OUTPUTS --
 type(st_cgns_world) :: world      ! structure des donnees CGNS
 
-! -- Variables internes --
+! -- Internal variables --
+integer       :: unit       ! numero d'unite pour la lecture
 integer       :: ier              ! code d'erreur
 integer       :: i                ! indice courant
 
-! -- Debut de procedure
+! -- BODY --
    
 ! --- Lecture du nom de fichier ---
    
 ! --- Ouverture du fichier ---
 
-call print_info(5, "* LECTURE DU MAILLAGE CGNS : "//trim(nom))
+call print_info(5, "* READING CGNS MESH: "//trim(nom))
 
 call cg_open_f(trim(nom), MODE_READ, unit, ier)
 call print_info(8, "Ouverture du fichier "//trim(nom))
@@ -61,7 +60,7 @@ enddo
 ! --- fermeture du fichier ---
 
 call cg_close_f(unit, ier)
-call print_info(8, "Fermeture du fichier "//trim(nom))
+call print_info(8, "CGNS file "//trim(nom)//" closed")
 
 
 

@@ -35,7 +35,7 @@ select case(zone%defmesh%format)
 case(fmt_CGNS) ! Format de fichier CGNS
 
   ! DEV : numero d'unite inutile
-  call readcgnsfile(15, zone%defmesh%fichier, cgnsworld)
+  call readcgnsfile(zone%defmesh%fichier, cgnsworld)
   call print_info(2, "* CGNS -> TYPHON CONVERSION")
   if (cgnsworld%nbase /= 1) call erreur("CGNS -> TYPHON",&
                                         "too many CGNS bases in structure CGNS")
