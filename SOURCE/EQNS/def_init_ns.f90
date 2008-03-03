@@ -1,5 +1,5 @@
 !------------------------------------------------------------------------------!
-! Procedure : def_initns                 Auteur : J. Gressier
+! Procedure : def_init_ns                 Auteur : J. Gressier
 !                                         Date   : Juillet 2004
 ! Fonction                                Modif  : cf historique
 !   Traitement des parametres du fichier menu principal
@@ -39,31 +39,41 @@ pblock => block
 if (rpm_existkey(pblock, "PI")) then
   initns%is_pstat = .false.
   call rpmgetkeyvalstr(pblock, "PI", str)
-  print*," parsing PI = "//trim(str)
+  print*," parsing       PI = "//trim(str)
   call string_to_funct(str, initns%ptot, info)
 else
   initns%is_pstat = .true.
   call rpmgetkeyvalstr(pblock, "P", str)
-  print*," parsing P = "//trim(str)
+  print*," parsing       P  = "//trim(str)
   call string_to_funct(str, initns%pstat, info)
 endif
 
-if (rpm_existkey(pblock, "TI")) then
+if (rpm_existkey(pblock, "DENSITY")) then
+  initns%is_density = .true.
+  call rpmgetkeyvalstr(pblock, "DENSITY", str)
+  print*," parsing  DENSITY = "//trim(str)
+  call string_to_funct(str, initns%density, info)
+  if (rpm_existkey(pblock, "TI")) call erreur("NS initialization", "over-defined state (TI)")
+  if (rpm_existkey(pblock, "T"))  call erreur("NS initialization", "over-defined state (T)")
   initns%is_tstat = .false.
+elseif (rpm_existkey(pblock, "TI")) then
+  initns%is_density = .false.
+  initns%is_tstat   = .false.
   call rpmgetkeyvalstr(pblock, "TI", str)
-  print*," parsing TI = "//trim(str)
+  print*," parsing       TI = "//trim(str)
   call string_to_funct(str, initns%ttot, info)
 else
-  initns%is_tstat = .true.
+  initns%is_density = .false.
+  initns%is_tstat   = .true.
   call rpmgetkeyvalstr(pblock, "T", str)
-  print*," parsing T = "//trim(str)
+  print*," parsing       T  = "//trim(str)
   call string_to_funct(str, initns%tstat, info)
 endif
 
 if (rpm_existkey(pblock, "MACH")) then
   initns%is_velocity = .false.
   call rpmgetkeyvalstr(pblock, "MACH", str)
-  print*," parsing MACH = "//trim(str)
+  print*," parsing     MACH = "//trim(str)
   call string_to_funct(str, initns%mach, info)
 else
   initns%is_velocity = .true.

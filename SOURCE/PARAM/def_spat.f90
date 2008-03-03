@@ -146,7 +146,7 @@ case(solNS)
   ! --------------- MUSCL methods ---------------------
   case(hres_muscl, hres_musclfast, hres_muscluns)
 
-    call print_info(7,"  MUSCL second order extension")
+    call print_info(7,"  MUSCL second order extension: "//trim(str))
 
     ! -- High resolution order
     !call rpmgetkeyvalint(pcour, "ORDER", defspat%order, 2_kpp)
@@ -164,6 +164,7 @@ case(solNS)
     if (samestring(str,"VANLEER"))     defspat%muscl%limiter = lim_vleer
     if (samestring(str,"SUPERBEE"))    defspat%muscl%limiter = lim_sbee
     if (samestring(str,"KIM3"))        defspat%muscl%limiter = lim_kim3
+    call print_info(7,"    limiter     : "//trim(str))
 
     if (defspat%muscl%limiter == cnull) &
       call erreur("parameters parsing","unexpected high resolution limiter")
@@ -196,6 +197,12 @@ case(solNS)
     call erreur("parameters parsing","unexpected high resolution method (reading limiter)")
   endselect
   
+  ! --- Post-Limitation method ---
+ 
+  call rpmgetkeyvalstr(pcour, "POST-LIMITER", str, "NONE")
+  if (samestring(str,"NONE"))       defspat%postlimiter = postlim_none
+  if (samestring(str,"MONOTONIC"))  defspat%postlimiter = postlim_monotonic
+  call print_info(7,"    post-limiter: "//trim(str))
 
 case(solKDIF)
 

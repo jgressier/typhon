@@ -78,6 +78,10 @@ character, parameter :: lim_vleer     = 'V'
 character, parameter :: lim_sbee      = 'S'
 character, parameter :: lim_kim3      = 'K'
 
+! -- Constants for post-limitation --
+integer(kpp), parameter :: postlim_none       = 0
+integer(kpp), parameter :: postlim_monotonic  = 10
+
 ! -- Constants for SVM splitting
 integer(kpp), parameter :: svm_2tri    = 21
 integer(kpp), parameter :: svm_2quad   = 22
@@ -176,6 +180,7 @@ type mnu_spat
   integer(kpp)    :: sch_dis      ! type de schema pour les flux dissipatifs
   character       :: method       ! methode d'ordre eleve (M)USCL, (E)NO ...
   integer(kpp)    :: gradmeth     ! methode de calcul des gradients
+  integer(kpp)    :: postlimiter  ! Limitation method after reconstruction/extrapolation
   logical         :: calc_grad    ! necessite le calcul des gradients
   type(mnu_muscl) :: muscl        ! parametres de la methode MUSCL
   type(mnu_svm)   :: svm          ! parametres de la methode SVM

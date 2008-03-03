@@ -26,7 +26,7 @@ type(st_ustmesh)      :: umesh            ! unstructured mesh definition
 type(st_genericfield) :: fprim, fgrad     ! primitive variables & gradients fields
 
 ! -- OUTPUTS --
-type(st_nsetat)       :: cell_l, cell_r   ! champs des valeurs primitives
+type(st_genericfield)       :: cell_l, cell_r   ! champs des valeurs primitives
 
 ! -- Internal variables --
 integer                   :: i, if, isca, ivec
@@ -127,14 +127,13 @@ do i = 1, nf
   if  = ideb+i-1
   icl = umesh%facecell%fils(if,1)
   icr = umesh%facecell%fils(if,2)
-  cell_l%density(i)  = fprim%tabscal(1)%scal(icl) + gprimL%tabscal(1)%scal(i)
-  cell_r%density(i)  = fprim%tabscal(1)%scal(icr) + gprimR%tabscal(1)%scal(i)
-  cell_l%pressure(i) = fprim%tabscal(2)%scal(icl) + gprimL%tabscal(2)%scal(i)
-  cell_r%pressure(i) = fprim%tabscal(2)%scal(icr) + gprimR%tabscal(2)%scal(i)
-  cell_l%velocity(i) = fprim%tabvect(1)%vect(icl) + gprimL%tabvect(1)%vect(i)
-  cell_r%velocity(i) = fprim%tabvect(1)%vect(icr) + gprimR%tabvect(1)%vect(i)
+  cell_l%tabscal(1)%scal(i) = fprim%tabscal(1)%scal(icl) + gprimL%tabscal(1)%scal(i)
+  cell_r%tabscal(1)%scal(i) = fprim%tabscal(1)%scal(icr) + gprimR%tabscal(1)%scal(i)
+  cell_l%tabscal(2)%scal(i) = fprim%tabscal(2)%scal(icl) + gprimL%tabscal(2)%scal(i)
+  cell_r%tabscal(2)%scal(i) = fprim%tabscal(2)%scal(icr) + gprimR%tabscal(2)%scal(i)
+  cell_l%tabvect(1)%vect(i) = fprim%tabvect(1)%vect(icl) + gprimL%tabvect(1)%vect(i)
+  cell_r%tabvect(1)%vect(i) = fprim%tabvect(1)%vect(icr) + gprimR%tabvect(1)%vect(i)
 enddo
-
 
 !------------------------------------------
 ! Multi-dimensional limitation

@@ -91,6 +91,8 @@ if (samestring(str,"EXPLICIT"))    deftime%tps_meth = tps_expl
 if (samestring(str,"RK2"))         deftime%tps_meth = tps_rk2
 if (samestring(str,"RK2-TVD"))     deftime%tps_meth = tps_rk2ssp
 if (samestring(str,"RK2-SSP"))     deftime%tps_meth = tps_rk2ssp
+if (samestring(str,"RK3-SSP"))     deftime%tps_meth = tps_rk3ssp
+if (samestring(str,"RK4"))         deftime%tps_meth = tps_rk4
 if (samestring(str,"IMPLICIT"))    deftime%tps_meth = tps_impl
 if (samestring(str,"DUAL-TIME"))   deftime%tps_meth = tps_dualt
 

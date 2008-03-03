@@ -23,6 +23,7 @@ MGRID_OBJ = $(MGRID_MOD:.$(MOD)=.o)    \
             interpface_gradient_vect.o \
             interpface_gradn_scal.o    \
             interpface_gradn_vect.o    \
+            postlimit_monotonic.o      \
             precalc_grad_lsq.o 
 
 D_MGRID_OBJ = $(MGRID_OBJ:%=$(PRJOBJ)/%)
