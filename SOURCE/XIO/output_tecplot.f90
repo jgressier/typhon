@@ -53,7 +53,7 @@ case(end_calc)
         write(uf_chpresu+izone,'(a)') 'VARIABLES="X","Y","Z","T"'
         call output_tec_ust(uf_chpresu+izone, world%zone(izone)%gridlist%first%umesh, &
                             world%zone(izone)%gridlist%first%info%field_loc, outp_typ, &
-                            world%zone(izone)%defsolver%typ_solver)
+                            world%zone(izone)%defsolver)
 
       case(solVORTEX)
 
@@ -93,8 +93,7 @@ case(end_calc)
         write(uf_chpresu+izone,'(a)') 'VARIABLES="X","Y","Z","u","v","w","P","T"'
         call output_tec_ust(uf_chpresu+izone, world%zone(izone)%gridlist%first%umesh, &
                             world%zone(izone)%gridlist%first%info%field_loc, outp_typ, &
-                            world%zone(izone)%defsolver%typ_solver, &
-                            world%zone(izone)%defsolver%defns)
+                            world%zone(izone)%defsolver)
 
 
       endselect
@@ -144,7 +143,7 @@ case(end_cycle)
         write(uf_chpresu+izone,'(a)') 'VARIABLES="X","Y","Z","T"'
         call output_tec_ust(uf_chpresu+izone, world%zone(izone)%gridlist%first%umesh, &
                             world%zone(izone)%gridlist%first%info%field_loc, outp_typ, &
-                            world%zone(izone)%defsolver%typ_solver)
+                            world%zone(izone)%defsolver)
 
       case(solVORTEX)
 
@@ -184,8 +183,7 @@ case(end_cycle)
         write(uf_chpresu+izone,'(a)') 'VARIABLES="X","Y","Z","u","v","w","P","T"'
         call output_tec_ust(uf_chpresu+izone, world%zone(izone)%gridlist%first%umesh, &
                             world%zone(izone)%gridlist%first%info%field_loc, outp_typ, &
-                            world%zone(izone)%defsolver%typ_solver, &
-                            world%zone(izone)%defsolver%defns)
+                            world%zone(izone)%defsolver)
 
 
       endselect

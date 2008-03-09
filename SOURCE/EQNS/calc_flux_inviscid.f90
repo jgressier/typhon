@@ -23,7 +23,7 @@ implicit none
 ! -- INPUTS --
 type(mnu_solver)      :: defsolver        ! parametres de definition du solveur
 type(mnu_spat)        :: defspat          ! parametres d'integration spatiale
-integer               :: nflux            ! nombre de flux (face) a calculer
+integer, intent(in)   :: nflux            ! nombre de flux (face) a calculer
 integer               :: ideb             ! indice du premier flux a remplir
 type(st_face)         :: face(nflux)      ! geom. data of faces
 type(st_genericfield) :: cell_l, cell_r   ! champs des valeurs primitives

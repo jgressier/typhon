@@ -19,6 +19,7 @@ use MENU_BOCO
 use MENU_KDIF
 use USTMESH
 use DEFFIELD 
+use MATRIX_ARRAY
 
 implicit none
 
@@ -30,7 +31,7 @@ logical                 :: calc_jac         ! should compute jacobian mat. or no
 
 ! -- Outputs --
 type(st_genericfield)   :: flux             ! physical fluxes
-real(krp), dimension(*) :: jacL, jacR       ! jacobian matrix of the flux
+type(st_mattab)         :: jacL, jacR       ! jacobian matrix of the flux
 
 ! -- Internal variables --
 integer    :: ifb, if, ib, idef ! index de liste, index de face limite et parametres

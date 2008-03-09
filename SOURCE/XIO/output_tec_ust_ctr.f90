@@ -9,7 +9,7 @@
 !
 !------------------------------------------------------------------------------!
 
-subroutine output_tec_ust_ctr(uf, ust_mesh, field, typ_solver, defns)
+subroutine output_tec_ust_ctr(uf, ust_mesh, field, defsolver)
 
 use TYPHMAKE
 use OUTPUT
@@ -17,7 +17,7 @@ use VARCOM
 use GEO3D
 use USTMESH
 use DEFFIELD
-use MENU_NS
+use MENU_SOLVER
 
 implicit none
 
@@ -25,8 +25,7 @@ implicit none
 integer          :: uf            ! unite d'ecriture
 type(st_ustmesh) :: ust_mesh      ! maillage a ecrire
 type(st_field)   :: field         ! champ de valeurs
-integer          :: typ_solver    ! solver type
-type(mnu_ns)     :: defns         ! NS solver parameters
+type(mnu_solver) :: defsolver     ! solver parameters
 
 ! -- Declaration des sorties --
 
@@ -46,7 +45,7 @@ write(uf,*) 'ZONE T="USTMESH"' !, F=FEPOINT, N=',ust_mesh%nvtex,',E=',ncell
 do i = 1, ust_mesh%ncell
   vtex = ust_mesh%mesh%centre(i,1,1)
 
-  select case(typ_solver)
+  select case(defsolver%typ_solver)
 
     case(solKDIF)
     write(uf,'(4e18.8)') vtex%x, vtex%y, vtex%z, field%etatprim%tabscal(1)%scal(i)
@@ -54,7 +53,7 @@ do i = 1, ust_mesh%ncell
     case(solNS)
     temperature = field%etatprim%tabscal(2)%scal(i) / &
                   ( field%etatprim%tabscal(1)%scal(i) * &
-                  defns%properties(1)%r_const )
+                  defsolver%defns%properties(1)%r_const )
     write(uf,'(8e18.8)') vtex%x, vtex%y, vtex%z, &
                          field%etatprim%tabvect(1)%vect(i)%x, &
                          field%etatprim%tabvect(1)%vect(i)%y, &

@@ -137,7 +137,6 @@ do ib = 1, nbloc
     ! nothing to do
 
   case(eqNSLAM)
-
     ! -- redirection of cell centers 
     cg_l(1:nfb) = domaine%mesh%centre(domaine%facecell%fils(ideb:ifin,1), 1, 1)
     cg_r(1:nfb) = domaine%mesh%centre(domaine%facecell%fils(ideb:ifin,2), 1, 1)

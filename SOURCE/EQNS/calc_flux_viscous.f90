@@ -6,7 +6,7 @@
 !
 !------------------------------------------------------------------------------!
 subroutine calc_flux_viscous(defsolver, defspat, nflux, ideb, face, cg_l, cg_r, &
-                             cell_l, cell_r, gradL, gradR, flux,    &
+                             gcell_l, gcell_r, gradL, gradR, flux,    &
                              calc_jac, jacL, jacR)
 use TYPHMAKE
 use OUTPUT
@@ -31,7 +31,7 @@ type(st_face), dimension(1:nflux) &
                       :: face             ! geom. data of faces
 type(v3d),     dimension(1:nflux) &
                       :: cg_l, cg_r       ! cell centers (index related to face number)
-type(st_nsetat)       :: cell_l, cell_r   ! champs des valeurs primitives
+type(st_genericfield) :: gcell_l, gcell_r ! champs des valeurs primitives
 type(st_genericfield) :: gradL, gradR     ! left & right gradients
 logical               :: calc_jac         ! should compute jacobian matrices or not
 
@@ -51,6 +51,7 @@ type(v3d), dimension(taille_buffer) :: vL, vR     ! left, right velocities
 type(v3d), dimension(taille_buffer) :: gradTL, gradTR  ! left, right temp grad
 real(krp), dimension(taille_buffer) :: TL, TR     ! left, right temperatures
 real(krp), dimension(taille_buffer) :: TH, mu, gradTH ! temperature en H
+type(st_nsetat)                     :: cell_L, cell_R
 type(t3d)  :: sigma                               ! viscous tensor
 type(v3d)  :: sigma_n
 real(krp)  :: sigma_vn, addvisc
@@ -65,6 +66,14 @@ integer    :: if, i
 !allocate(dHL(nflux))    ! distance HL, rapportee a HL+HR
 !allocate(dLR(nflux))    ! distance LR (difference de HR+HL)
 !allocate(vLR(nflux))    ! vecteur  LR
+
+! pointers links
+cell_L%density  => gcell_l%tabscal(1)%scal
+cell_R%density  => gcell_r%tabscal(1)%scal
+cell_L%pressure => gcell_l%tabscal(2)%scal
+cell_R%pressure => gcell_r%tabscal(2)%scal
+cell_L%velocity => gcell_l%tabvect(1)%vect
+cell_R%velocity => gcell_r%tabvect(1)%vect
 
 ! -- Calculs preliminaires --
 r_PG = defsolver%defns%properties(1)%r_const        ! perfect gas constant

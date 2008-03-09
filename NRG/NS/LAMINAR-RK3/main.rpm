@@ -5,21 +5,17 @@
 BLOCK:PROJECT           ! DEFINITION DU PROJET
   NZONE     = 1       
   COORD     = 2D      
-  TIME      = UNSTEADY 
-  BASETIME  = 0.0001
-  DURATION  = 0.01
-  !TIME       = STEADY
-  !RESIDUALS = 1.e-02
+  TIME      = STEADY 
+  RESIDUALS = .03
 ENDBLOCK               
 
 BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
   FORMAT = VTK         
-  FILE   = "typhon.vtk" 
+  FILE   = "typhon" 
 ENDBLOCK
 
 BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
-  NAME   = "petit test" 
-  SOLVER = EULER  
+  SOLVER = NS
 ENDBLOCK
 
 !------------------------------------------------------------------------------!
@@ -28,7 +24,8 @@ ENDBLOCK
 
 BLOCK:MESH
   FORMAT = CGNS
-  FILE   = "tube.cgns"
+  FILE   = "channel2d.cgns"
+  SCALE  = .00001
 ENDBLOCK
 
 BLOCK:MODEL
@@ -37,36 +34,55 @@ BLOCK:MODEL
 ENDBLOCK
 
 BLOCK:TIME_PARAM 
-  CFL = 0.5
+  DTCALC    = LOCAL_STABILITY_CONDITION
+  METHOD    = RK3-SSP
+  CFL       = 0.6
+  !METHOD    = IMPLICIT
+  !INVERSION = BICGSTAB
+  !INV_RES   = 1.e-4
+  !MAX_IT    = 50
+  !CFL       = 0.5
+  !CFL_MAX   = 50.
 ENDBLOCK
 
 BLOCK:SPAT_PARAM  
-  SCHEME = HLLC
-  !HIGHRES = MUSCL
-  !DISSIPATIVE_FLUX = AVERAGE
+  SCHEME   = HLLC
+  !JACOBIAN = HLL
+  HIGHRES  = MUSCL-FAST
+  LIMITER  = KIM3
 ENDBLOCK
 
 BLOCK:INIT
-  PI      = 101300
-  TI      = 30000000.
-  MACH    = 0.00000005
-  DIRECTION = (0., 1., 0.)
+  PI      = 1.007E5
+  TI      = 300.
+  MACH    = 0.1
+  DIRECTION = (1., 0., 0.)
 ENDBLOCK
 
 BLOCK:BOCO
-  FAMILY = SYM
-  TYPE   = EXTRAPOLATE
+  FAMILY    = TOP
+  TYPE      = ISOTHERMAL_WALL
+  WALL_TEMP = 300.
+  !!WALL_VELOCITY = (10., 0., 0.)
 ENDBLOCK
 
 BLOCK:BOCO
-  FAMILY = INFINI
-  TYPE   = EXTRAPOLATE 
+  FAMILY    = BOTTOM
+  TYPE      = ISOTHERMAL_WALL
+  WALL_TEMP = 300.
 ENDBLOCK
 
 BLOCK:BOCO
-  FAMILY    = WALL
-  TYPE      = FLUXSET_WALL
-  WALL_FLUX = 0
+  FAMILY    = LEFT
+  TYPE      = SUBSONIC_INLET
+  PI        = 1.007E5
+  TI        = 300
+  DIRECTION = (1., 0., 0.)
 ENDBLOCK
 
+BLOCK:BOCO
+  FAMILY    = RIGHT
+  TYPE      = SUBSONIC_OUTLET
+  P         = 1.E5
+ENDBLOCK
 

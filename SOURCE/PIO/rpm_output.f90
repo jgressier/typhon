@@ -32,14 +32,16 @@ subroutine printrpmblock(iu, block, debug)
   implicit none 
 
 ! -- Declaration des entrees --
-  integer        :: iu      ! numero d'unite pour l'ecriture
-  type(rpmblock) :: block   ! bloc a ecrire
-  logical        :: debug
+  integer           :: iu      ! numero d'unite pour l'ecriture
+  type(rpmblock)    :: block   ! bloc a ecrire
+  logical, optional :: debug 
 
 ! -- Declaration des variables internes --
   integer i
 
 ! -- Debut de la procedure --
+
+  if (.not.present(debug)) debug = .false.
 
   write(iu,*) 'BLOCK: ',block%name
   do i = 1, block%nblig
