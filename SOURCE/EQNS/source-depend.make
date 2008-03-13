@@ -45,8 +45,12 @@ EQNS_OBJ := $(EQNS_MOD:.$(MOD)=.o)    \
             setboco_ns_outlet_sub.o   \
             setboco_ns_outlet_sup.o   \
             stock_ns_cond_coupling.o  \
+            tvdgradfst_scal.o         \
             tvdgradstr_scal.o         \
+            tvdgraduns_scal.o         \
+            tvdgradfst_vect.o         \
             tvdgradstr_vect.o         \
+            tvdgraduns_vect.o         \
 
 D_EQNS_OBJ := $(EQNS_OBJ:%=$(PRJOBJ)/%)
 

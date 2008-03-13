@@ -1,11 +1,11 @@
 !------------------------------------------------------------------------------!
-! Procedure : tvdgradstr_vect                        Authors : J. Gressier, G. Grondin
-!                                                    Created : January 2007
+! Procedure : tvdgraduns_vect                        Authors : G. Grondin, J. Gressier, G. Grondin
+!                                                    Created : March 2008
 ! Fonction
-!   TVD MUSCL interpolation (structured like method) for vectors
+!   TVD MUSCL interpolation (unstructured like method) for vectors
 !
 !------------------------------------------------------------------------------!
-subroutine tvdgradstr_vect(tvdlimiter, nf, dvect, tgrad, uLR, LRvec, CF)
+subroutine tvdgraduns_vect(tvdlimiter, nf, dvect, tgrad, uLR, LRvec, CF)
 
 use TYPHMAKE
 use OUTPUT
@@ -39,15 +39,15 @@ select case(tvdlimiter)
 case(lim_none)
   vcellgrad(:) = LRvec(:) - vcellgrad(:)
 case(lim_minmod)
-  vcellgrad(:) = minmod(2._krp*vcellgrad(:)-LRvec(:), LRvec(:)) - vcellgrad(:)
+  vcellgrad(:) = minmod(vcellgrad(:), LRvec(:)) - vcellgrad(:)
 case(lim_albada)
-  vcellgrad(:) = albada(2._krp*vcellgrad(:)-LRvec(:), LRvec(:)) - vcellgrad(:)
+  vcellgrad(:) = albada(vcellgrad(:), LRvec(:)) - vcellgrad(:)
 case(lim_vleer)
-  vcellgrad(:) = vleer(2._krp*vcellgrad(:)-LRvec(:), LRvec(:)) - vcellgrad(:)
+  vcellgrad(:) = vleer(vcellgrad(:), LRvec(:)) - vcellgrad(:)
 case(lim_sbee)
-  vcellgrad(:) = superbee(2._krp*vcellgrad(:)-LRvec(:), LRvec(:)) - vcellgrad(:)
+  vcellgrad(:) = superbee(vcellgrad(:), LRvec(:)) - vcellgrad(:)
 case(lim_kim3)
-  vcellgrad(:) = kim3(LRvec(:), 2._krp*vcellgrad(:)-LRvec(:)) - vcellgrad(:)  ! param order !
+  vcellgrad(:) = kim3(LRvec(:), vcellgrad(:)) - vcellgrad(:)  ! param order !
 case default
   call erreur("high resolution","unknown limiter")
 endselect
@@ -55,10 +55,10 @@ endselect
 tgrad(:) = tgrad(:) + (vcellgrad(:).tens.uLR(:))
 dvect(:) = tgrad(:).scal.CF(:)
 
-endsubroutine tvdgradstr_vect
+endsubroutine tvdgraduns_vect
 
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! Jan  2007 : created from hres_ns_muscl
+! Mar  2008 : created from hres_ns_muscluns
 !------------------------------------------------------------------------------!

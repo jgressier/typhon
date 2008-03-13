@@ -26,23 +26,24 @@ type(st_ustmesh)      :: umesh            ! unstructured mesh definition
 type(st_genericfield) :: fprim, fgrad     ! primitive variables & gradients fields
 
 ! -- OUTPUTS --
-type(st_genericfield)       :: cell_l, cell_r   ! champs des valeurs primitives
+type(st_genericfield) :: cell_l, cell_r   ! champs des valeurs primitives
 
 ! -- Internal variables --
 integer                   :: i, if, isca, ivec
 integer                   :: icl, icr
 type(t3d), allocatable    :: tgradL(:), tgradR(:)
 type(v3d), allocatable    :: vgradL(:), vgradR(:)
-type(v3d), allocatable    :: uLR(:), LF(:), RF(:), LRvec(:)
+type(v3d), allocatable    :: uLR(:), LRvec(:)
+type(v3d), allocatable    :: LF(:), RF(:)
 real(krp), allocatable    :: dLR(:), LRsca(:)
 type(st_genericfield)     :: gprimL, gprimR
 
 ! -- BODY --
 
-allocate(  uLR(nf))
-allocate(   LF(nf))
-allocate(   RF(nf))
-allocate(  dLR(nf))
+allocate(uLR(nf))
+allocate( LF(nf))
+allocate( RF(nf))
+allocate(dLR(nf))
 
 ! -- prepare geometrical data --
 
@@ -84,11 +85,13 @@ do isca = 1, fprim%nscal
     vgradR(i) = fgrad%tabvect(isca)%vect(icr)
   enddo
 
+  ! -- left --
   call tvdgradstr_scal(defspat%muscl%limiter, nf, gprimL%tabscal(isca)%scal, &
                        vgradL, uLR, LRsca, LF)
+  ! -- right --
   call tvdgradstr_scal(defspat%muscl%limiter, nf, gprimR%tabscal(isca)%scal, &
                        vgradR, uLR, LRsca, RF)
-  
+
 enddo ! scalar loop
 
 deallocate(LRsca, vgradL, vgradR)
@@ -111,11 +114,13 @@ do ivec = 1, fprim%nvect
     tgradR(i) = fgrad%tabtens(ivec)%tens(icr)
   enddo
 
+  ! -- left --
   call tvdgradstr_vect(defspat%muscl%limiter, nf, gprimL%tabvect(ivec)%vect, &
                        tgradL, uLR, LRvec, LF)
+  ! -- right --
   call tvdgradstr_vect(defspat%muscl%limiter, nf, gprimR%tabvect(ivec)%vect, &
                        tgradR, uLR, LRvec, RF)
-  
+
 enddo ! vector loop
 
 deallocate(LRvec, tgradL, tgradR)
@@ -139,8 +144,7 @@ enddo
 ! Multi-dimensional limitation
 !------------------------------------------
 
-
-!!------------------------------------------
+!------------------------------------------
 deallocate(uLR, dLR, LF, RF)
 
 call delete(gprimL)
@@ -151,6 +155,5 @@ endsubroutine hres_ns_muscl
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! nov  2004 : created, MUSCL interpolation
-! mar  2006 : kim's third order limiter
+! nov  2004 : created, MUSCL interpolation (from hres_ns_muscl)
 !------------------------------------------------------------------------------!

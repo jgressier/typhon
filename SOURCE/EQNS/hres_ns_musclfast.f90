@@ -4,7 +4,6 @@
 ! Fonction
 !   MUSCL interpolation of primitive quantities
 !
-!
 !------------------------------------------------------------------------------!
 subroutine hres_ns_musclfast(defspat, nf, ideb, umesh, fprim, fgrad, cell_l, cell_r)
 
@@ -29,18 +28,15 @@ type(st_genericfield) :: fprim, fgrad     ! primitive variables & gradients fiel
 ! -- OUTPUTS --
 type(st_genericfield) :: cell_l, cell_r   ! champs des valeurs primitives
 
-! -- Internal Variables --
+! -- Internal variables --
 integer                   :: i, if, isca, ivec
 integer                   :: icl, icr
 type(t3d), allocatable    :: tgradL(:), tgradR(:)
 type(v3d), allocatable    :: vgradL(:), vgradR(:)
 type(v3d), allocatable    :: uLR(:), LRvec(:)
+real(krp), allocatable    :: kLF(:), kRF(:)
 real(krp), allocatable    :: dLR(:), LRsca(:)
-type(v3d), allocatable    :: vcellgrad(:)
-real(krp), allocatable    :: kLF(:), kRF(:), scellgrad(:)
 type(st_genericfield)     :: gprimL, gprimR
-real(krp)                 :: g, ig1, sl, sr, iks, kl, kr, ku
-real(krp)                 :: am, al, ar, vm, vnl, vnr, rel, rer
 
 ! -- BODY --
 
@@ -78,7 +74,6 @@ call new(gprimR, nf, fprim%nscal, fprim%nvect, 0)
 allocate(    LRsca(nf))
 allocate(   vgradL(nf))
 allocate(   vgradR(nf))
-allocate(scellgrad(nf))
 
 do isca = 1, fprim%nscal
 
@@ -91,64 +86,16 @@ do isca = 1, fprim%nscal
     vgradR(i) = fgrad%tabvect(isca)%vect(icr)
   enddo
 
-  select case(defspat%muscl%limiter)
-  case(lim_none)
-    ! -- left --
-    gprimL%tabscal(isca)%scal(:) = LRsca(:)*kLF(:)
-    ! -- right --
-    gprimR%tabscal(isca)%scal(:) = LRsca(:)*kRF(:)
-  case(lim_minmod)
-    ! -- left --
-    scellgrad(:) = vgradL(:).scal.uLR(:)
-    scellgrad(:) = minmod(2._krp*scellgrad(:)-LRsca(:), LRsca(:))
-    gprimL%tabscal(isca)%scal(:) = scellgrad(:)*kLF(:)
-    ! -- right --
-    scellgrad(:) = vgradR(:).scal.uLR(:)
-    scellgrad(:) = minmod(2._krp*scellgrad(:)-LRsca(:), LRsca(:))
-    gprimR%tabscal(isca)%scal(:) = scellgrad(:)*kRF(:)
-  case(lim_albada)
-    ! -- left --
-    scellgrad(:) = vgradL(:).scal.uLR(:)
-    scellgrad(:) = albada(2._krp*scellgrad(:)-LRsca(:), LRsca(:))
-    gprimL%tabscal(isca)%scal(:) = scellgrad(:)*kLF(:)
-    ! -- right --
-    scellgrad(:) = vgradR(:).scal.uLR(:)
-    scellgrad(:) = albada(2._krp*scellgrad(:)-LRsca(:), LRsca(:))
-    gprimR%tabscal(isca)%scal(:) = scellgrad(:)*kRF(:)
-  case(lim_vleer)
-    ! -- left --
-    scellgrad(:) = vgradL(:).scal.uLR(:)
-    scellgrad(:) = vleer(2._krp*scellgrad(:)-LRsca(:), LRsca(:))
-    gprimL%tabscal(isca)%scal(:) = scellgrad(:)*kLF(:)
-    ! -- right --
-    scellgrad(:) = vgradR(:).scal.uLR(:)
-    scellgrad(:) = vleer(2._krp*scellgrad(:)-LRsca(:), LRsca(:))
-    gprimR%tabscal(isca)%scal(:) = scellgrad(:)*kRF(:)
-  case(lim_sbee)
-    ! -- left --
-    scellgrad(:) = vgradL(:).scal.uLR(:)
-    scellgrad(:) = superbee(2._krp*scellgrad(:)-LRsca(:), LRsca(:))
-    gprimL%tabscal(isca)%scal(:) = scellgrad(:)*kLF(:)
-    ! -- right --
-    scellgrad(:) = vgradR(:).scal.uLR(:)
-    scellgrad(:) = superbee(2._krp*scellgrad(:)-LRsca(:), LRsca(:))
-    gprimR%tabscal(isca)%scal(:) = scellgrad(:)*kRF(:)
-  case(lim_kim3)
-    ! -- left --
-    scellgrad(:) = vgradL(:).scal.uLR(:)
-    scellgrad(:) = kim3(LRsca(:), 2._krp*scellgrad(:)-LRsca(:))  ! param order !
-    gprimL%tabscal(isca)%scal(:) = scellgrad(:)*kLF(:)
-    ! -- right --
-    scellgrad(:) = vgradR(:).scal.uLR(:)
-    scellgrad(:) = kim3(LRsca(:), 2._krp*scellgrad(:)-LRsca(:))  ! param order !
-    gprimR%tabscal(isca)%scal(:) = scellgrad(:)*kRF(:)
-  case default
-    call erreur("high resolution","unknown limiter")
-  endselect
-  
+  ! -- left --
+  call tvdgradfst_scal(defspat%muscl%limiter, nf, gprimL%tabscal(isca)%scal, &
+                       vgradL, uLR, LRsca, kLF)
+  ! -- right --
+  call tvdgradfst_scal(defspat%muscl%limiter, nf, gprimR%tabscal(isca)%scal, &
+                       vgradR, uLR, LRsca, kRF)
+
 enddo ! scalar loop
 
-deallocate(LRsca, vgradL, vgradR, scellgrad)
+deallocate(LRsca, vgradL, vgradR)
 
 !------------------------------------------------------------------------------
 ! VECTOR computations
@@ -156,7 +103,6 @@ deallocate(LRsca, vgradL, vgradR, scellgrad)
 allocate(    LRvec(nf))
 allocate(   tgradL(nf))
 allocate(   tgradR(nf))
-allocate(vcellgrad(nf))
 
 do ivec = 1, fprim%nvect
 
@@ -169,64 +115,16 @@ do ivec = 1, fprim%nvect
     tgradR(i) = fgrad%tabtens(ivec)%tens(icr)
   enddo
 
-  select case(defspat%muscl%limiter)
-  case(lim_none)
-    ! -- left --
-    gprimL%tabvect(ivec)%vect(:) = kLF(:)*LRvec(:)
-    ! -- right --
-    gprimR%tabvect(ivec)%vect(:) = kRF(:)*LRvec(:)
-  case(lim_minmod)
-    ! -- left --
-    vcellgrad(:) = tgradL(:).scal.uLR(:)
-    vcellgrad(:) = minmod(2._krp*vcellgrad(:)-LRvec(:), LRvec(:))
-    gprimL%tabvect(ivec)%vect(:) = kLF(:)*vcellgrad(:)
-    ! -- right --
-    vcellgrad(:) = tgradR(:).scal.uLR(:)
-    vcellgrad(:) = minmod(2._krp*vcellgrad(:)-LRvec(:), LRvec(:))
-    gprimR%tabvect(ivec)%vect(:) = kRF(:)*vcellgrad(:)
-  case(lim_albada)
-    ! -- left --
-    vcellgrad(:) = tgradL(:).scal.uLR(:)
-    vcellgrad(:) = albada(2._krp*vcellgrad(:)-LRvec(:), LRvec(:))
-    gprimL%tabvect(ivec)%vect(:) = kLF(:)*vcellgrad(:)
-    ! -- right --
-    vcellgrad(:) = tgradR(:).scal.uLR(:)
-    vcellgrad(:) = albada(2._krp*vcellgrad(:)-LRvec(:), LRvec(:))
-    gprimR%tabvect(ivec)%vect(:) = kRF(:)*vcellgrad(:)
-  case(lim_vleer)
-    ! -- left --
-    vcellgrad(:) = tgradL(:).scal.uLR(:)
-    vcellgrad(:) = vleer(2._krp*vcellgrad(:)-LRvec(:), LRvec(:))
-    gprimL%tabvect(ivec)%vect(:) = kLF(:)*vcellgrad(:)
-    ! -- right --
-    vcellgrad(:) = tgradR(:).scal.uLR(:)
-    vcellgrad(:) = vleer(2._krp*vcellgrad(:)-LRvec(:), LRvec(:))
-    gprimR%tabvect(ivec)%vect(:) = kRF(:)*vcellgrad(:)
-  case(lim_sbee)
-    ! -- left --
-    vcellgrad(:) = tgradL(:).scal.uLR(:)
-    vcellgrad(:) = superbee(2._krp*vcellgrad(:)-LRvec(:), LRvec(:))
-    gprimL%tabvect(ivec)%vect(:) = kLF(:)*vcellgrad(:)
-    ! -- right --
-    vcellgrad(:) = tgradR(:).scal.uLR(:)
-    vcellgrad(:) = superbee(2._krp*vcellgrad(:)-LRvec(:), LRvec(:))
-    gprimR%tabvect(ivec)%vect(:) = kRF(:)*vcellgrad(:)
-  case(lim_kim3)
-    ! -- left --
-    vcellgrad(:) = tgradL(:).scal.uLR(:)
-    vcellgrad(:) = kim3(LRvec(:), 2._krp*vcellgrad(:)-LRvec(:))  ! param order !
-    gprimL%tabvect(ivec)%vect(:) = kLF(:)*vcellgrad(:)
-    ! -- right --
-    vcellgrad(:) = tgradR(:).scal.uLR(:)
-    vcellgrad(:) = kim3(LRvec(:), 2._krp*vcellgrad(:)-LRvec(:))  ! param order !
-    gprimR%tabvect(ivec)%vect(:) = kRF(:)*vcellgrad(:)
-  case default
-    call erreur("high resolution","unknown limiter")
-  endselect
-  
+  ! -- left --
+  call tvdgradfst_vect(defspat%muscl%limiter, nf, gprimL%tabvect(ivec)%vect, &
+                       tgradL, uLR, LRvec, kLF)
+  ! -- right --
+  call tvdgradfst_vect(defspat%muscl%limiter, nf, gprimR%tabvect(ivec)%vect, &
+                       tgradR, uLR, LRvec, kRF)
+
 enddo ! vector loop
 
-deallocate(LRvec, tgradL, tgradR, vcellgrad)
+deallocate(LRvec, tgradL, tgradR)
 
 !------------------------------------------
 ! Primitive variable reconstruction
@@ -244,6 +142,10 @@ do i = 1, nf
 enddo
 
 !------------------------------------------
+! Multi-dimensional limitation
+!------------------------------------------
+
+!------------------------------------------
 deallocate(uLR, dLR, kLF, kRF)
 
 call delete(gprimL)
@@ -254,5 +156,5 @@ endsubroutine hres_ns_musclfast
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! Oct  2005 : created, from hres_ns_muscl
+! Oct  2005 : created, MUSCL interpolation (from hres_ns_muscl)
 !------------------------------------------------------------------------------!

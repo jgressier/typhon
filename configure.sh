@@ -12,6 +12,7 @@ SHELLCONF=bin/shconf.sh
 
 # Initialization
 . $TOOLSCONF/conf_init.sh
+
 ALLMPILIB="mpi mpich lampi mpi_f90"
 
 # CHECK system tools
@@ -68,7 +69,7 @@ check_f90compiler() {
 
 check_f90conformance() {
   local f90options
-  f90options="$*"
+  f90options="$@"
   cd $TMPDIR
   rm * 2> /dev/null
   cp $LOCALDIR/$TOOLSCONF/f90conformance.f90 .
@@ -157,7 +158,6 @@ check_mpilib() {
   fi
   }
 
-
 check_f90module() {
   local module
   cd $TMPDIR
@@ -206,7 +206,7 @@ check "fortran 90 compiler"         f90compiler
 # EXTLIBS="blas lapack cgns metis mpich mpi"
 EXTLIBS="cgns metis $ALLMPILIB"
 for lib in $EXTLIBS ; do
-  check "static library $lib" library $lib  a
+  check "static library $lib" library $lib a
 done
 check "MPI library"                 mpilib
 check "$F90C optimization options"  f90opti
@@ -242,22 +242,26 @@ done
 ### MAKEFILE CONFIGURATION ###
 echo Writing Makefile configuration...
 rm $MAKECONF 2> /dev/null
-echo "SHELL       = $SHELL"                         >> $MAKECONF
-echo "MAKEDEPENDS = Util/make_depends $F90modcase"  >> $MAKECONF
-echo "MOD         = $F90modext"                     >> $MAKECONF
-echo "CF          = $F90C"                          >> $MAKECONF
-echo "FB          = -I\$(PRJINC)"                   >> $MAKECONF
-echo "FO_debug    = $F90_DEBUG"                     >> $MAKECONF
-echo "FO_opt      = $F90_OPTI"                      >> $MAKECONF
-echo "FO_prof     = $F90_PROF"                      >> $MAKECONF
-echo "FO_         = \$(FO_opt)"                     >> $MAKECONF
-echo "FO          = \$(FO_\$(OPT))"                 >> $MAKECONF
-echo "LINKER      = \$(CF)"                         >> $MAKECONF
-echo "LINKSO      = \$(CF) -shared"                 >> $MAKECONF
-echo "METISLIB    = $LIB_metis"                     >> $MAKECONF
-echo "CGNSLIB     = $LIB_cgns"                      >> $MAKECONF
-#echo "LAPACKLIB   = $LIB_lapack $LIB_blas"          >> $MAKECONF
-echo "MPILIB      = $MPILIB"                        >> $MAKECONF
+{
+  echo "SHELL       = $SHELL"
+  echo "MAKEDEPENDS = Util/make_depends $F90modcase"
+  echo "MOD         = $F90modext"
+  echo "CF          = $F90C"
+  echo "FB          = -I\$(PRJINC)"
+  echo "FO_debug    = $F90_DEBUG"
+  echo "FO_opt      = $F90_OPTI"
+  echo "FO_prof     = $F90_PROF"
+  echo "FO_         = \$(FO_opt)"
+  echo "FO          = \$(FO_\$(OPT))"
+  echo "LINKER      = \$(CF)"
+  echo "LINKSO      = \$(CF) -shared"
+  echo "METISLIB    = $LIB_metis"
+  echo "CGNSLIB     = $LIB_cgns"
+  echo "#LAPACKLIB   = $LIB_lapack $LIB_blas"
+  echo "MPILIB      = $MPILIB"
+  echo "#MPIOPT      = \$(mpif90 --showme:compile)"
+  echo "#MPILIB      = \$(mpif90 --showme:link)"
+} > $MAKECONF
 echo Done
 echo ------------------------------------------------------------------
 echo

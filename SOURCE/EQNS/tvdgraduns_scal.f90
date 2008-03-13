@@ -1,11 +1,11 @@
 !------------------------------------------------------------------------------!
-! Procedure : tvdgradstr_scal                        Authors : J. Gressier, G. Grondin
-!                                                    Created : January 2007
+! Procedure : tvdgraduns_scal                        Authors : J. Gressier, G. Grondin
+!                                                    Created : March 2008
 ! Fonction
-!   TVD MUSCL interpolation (structured like method) for scalars
+!   TVD MUSCL interpolation (unstructured like method) for scalars
 !
 !------------------------------------------------------------------------------!
-subroutine tvdgradstr_scal(tvdlimiter, nf, dscal, vgrad, uLR, LRsca, CF)
+subroutine tvdgraduns_scal(tvdlimiter, nf, dscal, vgrad, uLR, LRsca, CF)
 
 use TYPHMAKE
 use OUTPUT
@@ -38,15 +38,15 @@ select case(tvdlimiter)
 case(lim_none)
   scellgrad(:) = LRsca(:) - scellgrad(:)
 case(lim_minmod)
-  scellgrad(:) = minmod(2._krp*scellgrad(:)-LRsca(:), LRsca(:)) - scellgrad(:)
+  scellgrad(:) = minmod(scellgrad(:), LRsca(:)) - scellgrad(:)
 case(lim_albada)
-  scellgrad(:) = albada(2._krp*scellgrad(:)-LRsca(:), LRsca(:)) - scellgrad(:)
+  scellgrad(:) = albada(scellgrad(:), LRsca(:)) - scellgrad(:)
 case(lim_vleer)
-  scellgrad(:) = vleer(2._krp*scellgrad(:)-LRsca(:), LRsca(:)) - scellgrad(:)
+  scellgrad(:) = vleer(scellgrad(:), LRsca(:)) - scellgrad(:)
 case(lim_sbee)
-  scellgrad(:) = superbee(2._krp*scellgrad(:)-LRsca(:), LRsca(:)) - scellgrad(:)
-case(lim_kim3)
-  scellgrad(:) = kim3(LRsca(:), 2._krp*scellgrad(:)-LRsca(:)) - scellgrad(:)  ! param order !
+  scellgrad(:) = superbee(scellgrad(:), LRsca(:)) - scellgrad(:)
+case(lim_kim3) !!! 3rd order is not proved for this combination of slopes !!!
+  scellgrad(:) = kim3(LRsca(:), scellgrad(:)) - scellgrad(:)  ! param order !
 case default
   call erreur("high resolution","unknown limiter")
 endselect
@@ -54,10 +54,10 @@ endselect
 vgrad(:) = vgrad(:) + scellgrad(:)*uLR(:)
 dscal(:) = vgrad(:).scal.CF(:)
 
-endsubroutine tvdgradstr_scal
+endsubroutine tvdgraduns_scal
 
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! Jan  2007 : created from hres_ns_muscl
+! Mar  2008 : created from hres_ns_muscluns
 !------------------------------------------------------------------------------!
