@@ -33,6 +33,7 @@ EQNS_OBJ := $(EQNS_MOD:.$(MOD)=.o)    \
             hres_ns_muscl.o           \
             hres_ns_musclfast.o       \
             hres_ns_muscluns.o        \
+            hres_ns_svm.o             \
             init_boco_ns.o            \
             init_ns_ust.o             \
             integration_ns_ust.o      \

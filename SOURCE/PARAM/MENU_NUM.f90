@@ -161,13 +161,15 @@ endtype mnu_muscl
 ! structure MNU_SVM : Options for  Spectral Volume Method
 !------------------------------------------------------------------------------!
 type mnu_svm
-  integer(kpp)   :: sv_meth         ! SV Method (cf constants)
-  integer(kpp)   :: cv_split        ! number of Control Volume (CV subcell) in a SV
-  integer(kpp)   :: svface_split    ! number of subface (CV face) by original face
-  integer(kpp)   :: intnode         ! number of internal added nodes for cell splitting
-  integer(kpp)   :: internal_faces  ! number of internal faces (by cell)
-  !integer(kpp)   :: external_faces  ! number of external faces (by cell)
-  integer(kpp)   :: nb_facepoints   ! number of integration points by face
+  integer(kpp)      :: sv_meth              ! SV Method (cf constants)
+  integer(kpp)      :: cv_split             ! number of Control Volume (CV subcell) in a SV
+  integer(kpp)      :: svface_split         ! number of subface (CV face) by original face
+  integer(kpp)      :: intnode              ! number of internal added nodes for cell splitting
+  integer(kpp)      :: internal_faces       ! number of internal faces (by cell)
+  integer(kpp)      :: nb_subfaces          ! number of sub faces      (by cell) (internal + original*split)
+  integer(kpp)      :: nb_facepoints        ! number of integration points by face
+  real(krp),pointer :: interp_weights(:,:)  ! weights for cell to face Gauss points interpolation  
+                                    
 endtype mnu_svm
 
 !------------------------------------------------------------------------------!
@@ -305,6 +307,69 @@ case default
 endselect
 
 endsubroutine init_rungekutta
+
+
+!-------------------------------------------------------------------------
+! init SVM parameters
+!-------------------------------------------------------------------------
+subroutine init_svmparam(svm)
+implicit none
+! -- parameters --
+type(mnu_svm)    :: svm
+! -- body --
+
+select case(svm%sv_meth)
+case(svm_2quad)
+  svm%cv_split       = 3      ! nb of CV in SV
+  svm%intnode        = 1      ! nb of internal added nodes for cell splitting
+  svm%svface_split   = 2      ! nb of CV face per SV face
+  svm%internal_faces = 3      ! number of internal faces (by cell)
+  svm%nb_subfaces    = 3+2*3  ! total number of sub faces (by cell)
+  svm%nb_facepoints  = 1      ! number of integration points by face
+case default
+  call erreur("parameters parsing","unknown SVM method (init_svmparam)")
+endselect
+
+endsubroutine init_svmparam
+
+!-------------------------------------------------------------------------
+! init SVM weights
+!-------------------------------------------------------------------------
+subroutine init_svmweights(defsvm)
+implicit none
+! -- parameters --
+type(mnu_svm) :: defsvm
+! -- internal --
+real(krp)     :: k(1:5)
+! -- body --
+
+allocate(defsvm%interp_weights(1:defsvm%nb_subfaces*defsvm%nb_facepoints, &
+                               1:defsvm%cv_split))
+
+select case(defsvm%sv_meth)
+
+case(svm_2quad)
+  k(1) =  4._krp /  3._krp
+  k(2) =  2._krp / 15._krp
+  k(3) = -7._krp / 15._krp
+  k(4) = -1._krp / 15._krp
+  k(5) =  8._krp / 15._krp
+  defsvm%interp_weights(1, 1:defsvm%cv_split) = (/ k(4), k(5), k(5) /)
+  defsvm%interp_weights(2, 1:defsvm%cv_split) = (/ k(5), k(4), k(5) /)
+  defsvm%interp_weights(3, 1:defsvm%cv_split) = (/ k(5), k(5), k(4) /)
+  defsvm%interp_weights(4, 1:defsvm%cv_split) = (/ k(1), k(3), k(2) /)
+  defsvm%interp_weights(5, 1:defsvm%cv_split) = (/ k(1), k(2), k(3) /)
+  defsvm%interp_weights(6, 1:defsvm%cv_split) = (/ k(2), k(1), k(3) /)
+  defsvm%interp_weights(7, 1:defsvm%cv_split) = (/ k(3), k(1), k(2) /)
+  defsvm%interp_weights(8, 1:defsvm%cv_split) = (/ k(3), k(2), k(1) /)
+  defsvm%interp_weights(9, 1:defsvm%cv_split) = (/ k(2), k(3), k(1) /)
+  if (size(defsvm%interp_weights, 1) /= 9) call erreur("SVM initialization", "bad array size") 
+
+case default
+  call erreur("parameters parsing","unknown SVM method (init_svmweights)")
+endselect
+
+endsubroutine init_svmweights
 
 
 endmodule MENU_NUM

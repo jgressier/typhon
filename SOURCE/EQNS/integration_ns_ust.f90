@@ -1,12 +1,10 @@
 !------------------------------------------------------------------------------!
-! Procedure : integration_ns_ust                     Authors : J. Gressier
-!                                                    Created : July 2004
+! Procedure : integration_ns_ust  
+!      
 ! Fonction  
-!   Integration d'un domaine non structure
-!   Le corps de la routine consiste a distribuer les etats et les gradients
-!   sur chaque face.
-!
-! Defauts/Limitations/Divers :
+!   NS flux computation 
+!   - packet based computation
+!   - high order interpolation
 !
 !------------------------------------------------------------------------------!
 subroutine integration_ns_ust(defsolver, defspat, domaine, field, flux, &
@@ -57,9 +55,6 @@ type(v3d), dimension(:), allocatable &
 
 call calc_buffer(domaine%nface, cell_buffer, nbloc, nbuf, nfb)
 
-! il sera a tester l'utilisation de tableaux de champs generiques plutôt que
-! des definitions type d'etat specifiques (st_nsetat)
-
 call new(cell_l, nbuf, field%etatprim%nscal, field%etatprim%nvect, field%etatprim%ntens)
 call new(cell_r, nbuf, field%etatprim%nscal, field%etatprim%nvect, field%etatprim%ntens)
 allocate(  cg_l(nbuf),   cg_r(nbuf))
@@ -81,7 +76,7 @@ do ib = 1, nbloc
     call distrib_field(field%etatprim, domaine%facecell, ideb, ifin, &
                        cell_l, cell_r, 1)
   
-
+ 
   !----------------------------------------------------------------------
   ! HIGH ORDER states interpolation
   !----------------------------------------------------------------------
@@ -102,6 +97,10 @@ do ib = 1, nbloc
     call hres_ns_muscluns(defspat, nfb, ideb, domaine,      &
                           field%etatprim, field%gradient,   &
                           cell_l, cell_r)
+
+  case(hres_svm)
+
+    call hres_ns_svm(defspat, nfb, ideb, domaine, field%etatprim, cell_l, cell_r)
 
   case default
     call erreur("flux computation","unknown high resolution method")

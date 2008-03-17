@@ -54,6 +54,10 @@ interface shift_sub
   module procedure v3d_shiftopp, v3d_shiftopp_t, v3d_shiftopp_tt
 endinterface
 
+interface sum
+  module procedure v3d_sum
+endinterface
+
 interface operator(+)
   module procedure v3d_add, v3d_add_t
 endinterface
@@ -391,7 +395,7 @@ integer :: i
 
 endfunction v3d_mult_t1
 
-!!------------------------------------------------------------------------------!
+!------------------------------------------------------------------------------!
 ! Assignment : v(:) = a . v(:)
 !------------------------------------------------------------------------------!
 subroutine v3d_eq_mult_t(v, a)
@@ -586,6 +590,24 @@ type(v3d), intent(in) :: v1, v2
   v3d_vectorial_product%z = v1%x*v2%y - v1%y*v2%x
 
 endfunction v3d_vectorial_product
+
+!------------------------------------------------------------------------------!
+! Fonction : sum of v3d vector to a single v3d
+!------------------------------------------------------------------------------!
+function v3d_sum(v) result(t)
+implicit none
+type(v3d), dimension(:), intent(in) :: v
+type(v3d)                           :: t
+integer :: i
+
+  t = v3d( 0._krp, 0._krp, 0._krp )
+  do i = 1, size(v)
+    t%x = t%x  + v(i)%x
+    t%y = t%y  + v(i)%y
+    t%z = t%z  + v(i)%z
+  enddo
+
+endfunction v3d_sum
 
 
 

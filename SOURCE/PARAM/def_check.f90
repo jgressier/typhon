@@ -1,9 +1,7 @@
 !------------------------------------------------------------------------------!
-! Procedure : def_check                                Authors : J. Gressier
-!                                                     Created : March 2003
+! Procedure : def_check     
+!                           
 ! Fonction 
-!   Traitement des parametres du fichier menu principal
-!   Parametres principaux du projet
 !
 !------------------------------------------------------------------------------!
 subroutine def_check(zone)
@@ -30,11 +28,13 @@ call print_info(5,"- Check parameters consistency and further initialization")
 select case(zone%defmesh%splitmesh)
 case(split_none)
 case(split_svm2quad)
-  call print_info(10, "  initialize SVM mesh splitting parameters")
-  call init_svmmesh(zone%defmesh%splitmesh, zone%defmesh%svm)
+  zone%defsolver%defspat%svm%sv_meth = svm_2quad
+  call print_info(10, "  initialize SVM parameters")
+  call init_svmparam(zone%defsolver%defspat%svm)
 case default
   call erreur("Development", "unknown mesh splitting parameter (def_check)")
 endselect
+
 
 endsubroutine def_check
 
@@ -42,6 +42,7 @@ endsubroutine def_check
 ! Changes history
 !
 ! Nov  2007: creation
+! Mar  2008: SVM parameters
 !------------------------------------------------------------------------------!
 
 

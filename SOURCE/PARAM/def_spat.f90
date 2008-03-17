@@ -180,18 +180,23 @@ case(solNS)
     if (samestring(str,"2QUAD"))   defspat%svm%sv_meth = svm_2quad
   
     select case(defspat%svm%sv_meth)
+
     case(svm_2quad)
       call print_info(7,"    second order, splitted into quads (face split)")
-      defmesh%splitmesh          = split_svm2quad
+
     !case(svm_2tri)
     !  call print_info(7,"    second order, splitted into tris (vertex split)")
     !  defspat%svm%intnode        = 1  ! number of internal added nodes for cell splitting
     !  defspat%svm%internal_faces = 3  ! number of internal faces (by cell)
     !  defspat%svm%external_faces = 3  ! number of external faces (by cell)
     !  defspat%svm%nb_facepoints  = 1  ! number of integration points by face
+
     case default
       call erreur("parameters parsing","unknown numerical scheme")
     endselect
+    
+    call init_svmparam(defspat%svm)
+    call init_svmweights(defspat%svm)
 
   case default
     call erreur("parameters parsing","unexpected high resolution method (reading limiter)")
