@@ -195,6 +195,7 @@ case(solNS)
       call erreur("parameters parsing","unknown numerical scheme")
     endselect
     
+    defmesh%splitmesh = split_svm2quad
     call init_svmparam(defspat%svm)
     call init_svmweights(defspat%svm)
 

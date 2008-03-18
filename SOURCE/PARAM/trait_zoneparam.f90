@@ -1,10 +1,8 @@
 !------------------------------------------------------------------------------!
-! Procedure : trait_zoneparam             Auteur : J. Gressier
-!                                         Date   : Juillet 2002
-! Fonction                                Modif  : (cf historique)
+! Procedure : trait_zoneparam
+!                            
+! Fonction                   
 !   Traitement des parametres de definition des zones
-!
-! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
 subroutine trait_zoneparam(prj, block, solver, zone)
@@ -18,15 +16,15 @@ use MENU_BOCO
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(mnu_project)       :: prj
 type(rpmblock), target  :: block    ! blocks RPM (parametres de la zone a lire)
 integer                 :: solver  ! type de solveur
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 type(st_zone)          :: zone
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 type(rpmblock), pointer :: pblock, pcour  ! pointeur de bloc RPM
 integer                 :: nkey           ! nombre de clefs
 integer                 :: nboco          ! nombre de conditions limites
@@ -35,10 +33,15 @@ integer                 :: nzr            ! nombre de couplages avec d'autres
 integer                 :: ib             ! indice de parcours des boco
 character(len=dimrpmlig):: str            ! chaine RPM intermediaire
 
-! -- Debut de la procedure --
+! -- BODY --
 
 ! -------------------------
-! definition de la modelisation
+! MESH definition
+
+call def_mesh(block, zone%defmesh)
+
+! -------------------------
+! MODEL definition
 
 call init_mnu_solver(zone%defsolver)
 zone%defsolver%typ_solver = solver
@@ -58,12 +61,7 @@ case default
 endselect
 
 ! -------------------------
-! Definition du maillage
-
-call def_mesh(block, zone%defmesh)
-
-! -------------------------
-! Definition des parametres de simulation
+! SCHEME/NUMERICAL parameters
 
 call def_time(prj, block, solver, zone%defsolver%deftime)
 
