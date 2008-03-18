@@ -1,0 +1,96 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON 
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+  NZONE     = 1       
+  COORD     = 2D      
+  TIME      = STEADY 
+  RESIDUALS = 1.e-2
+ENDBLOCK               
+
+BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+  FORMAT = VTK-BIN         
+  FILE   = "typhon" 
+  PERIOD = 1
+ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "flat" 
+  SOLVER = EULER  
+ENDBLOCK
+
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = CGNS
+  FILE   = "square-tri10.cgns"
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS = EULER
+  GAS      = AIR
+ENDBLOCK
+
+BLOCK:TIME_PARAM 
+  METHOD    = RK3-SSP
+  CFL       = 1.
+  RESIDUALS = .5
+ENDBLOCK
+
+BLOCK:SPAT_PARAM  
+  SCHEME   = HLLC
+  HIGHRES  = SVM
+ENDBLOCK
+
+BLOCK:INIT
+  P       = 1.E5
+  TI      = 300.
+  MACH    = 0.5
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = TOP
+  TYPE   = SUBSONIC_OUTLET 
+  P      = 1.E5
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = BOTTOM
+  TYPE   = SUBSONIC_OUTLET 
+  P      = 1.E5
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = RIGHT
+  TYPE   = SUBSONIC_OUTLET 
+  P      = 1.E5
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY    = LEFT-UP
+  TYPE      = SUBSONIC_INLET
+  PI        = 1.3871013371908154E5  ! Mach 0.7
+  TI        = 200.
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY    = LEFT-DOWN
+  TYPE      = SUBSONIC_INLET
+  PI        = 1.0644302861529382E5  ! Mach 0.3
+  TI        = 500.
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+!BLOCK:BOCO 
+!  FAMILY    = UP
+!  TYPE      = SUBSONIC_INLET
+!  PI        = 1.1165519658097534E5 ! Mach 0.4
+!  TI        = 300.
+!  DIRECTION = (1., -.3, 0.)
+!ENDBLOCK
+
