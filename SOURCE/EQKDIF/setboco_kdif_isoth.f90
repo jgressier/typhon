@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine setboco_kdif_isoth(unif, ustboco, ustdom, champ, bckdif)
+subroutine setboco_kdif_isoth(curtime, unif, ustboco, ustdom, champ, bckdif)
 
 use TYPHMAKE
 use OUTPUT
@@ -15,31 +15,43 @@ use VARCOM
 use MENU_BOCO
 use USTMESH
 use DEFFIELD 
+use FCT_EVAL
+use FCT_ENV
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
+real(krp)          :: curtime          ! current time
 integer            :: unif             ! uniform or not
 type(st_ustboco)   :: ustboco          ! lieu d'application des conditions aux limites
 type(st_ustmesh)   :: ustdom           ! maillage non structure
 type(st_boco_kdif) :: bckdif           ! parameters and temperature (field or constant)
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 type(st_field)   :: champ            ! champ des etats
 
-! -- Declaration des variables internes --
+! -- Internal variables --
+integer    :: nface
 integer    :: ifb, if, ip      ! index de liste, index de face limite et parametres
 integer    :: ighost           ! index de cellule interieure, et de cellule fictive
+real(krp)  :: tloc
 
-! -- Debut de la procedure --
+! -- BODY --
 
 if (unif == uniform) then
+
+  call new_fct_env(blank_env)      ! temporary environment from FCT_EVAL
 
   do ifb = 1, ustboco%nface
     if     = ustboco%iface(ifb)
     ighost = ustdom%facecell%fils(if,2)
+    call fct_env_set_real(blank_env, "x", ustdom%mesh%iface(if,1,1)%centre%x)
+    call fct_env_set_real(blank_env, "y", ustdom%mesh%iface(if,1,1)%centre%y)
+    call fct_env_set_real(blank_env, "z", ustdom%mesh%iface(if,1,1)%centre%z)
+    call fct_env_set_real(blank_env, "t", curtime)
+    call fct_eval_real(blank_env, bckdif%wall_temp, tloc)
     do ip = 1, champ%nscal
-      champ%etatprim%tabscal(ip)%scal(ighost) = bckdif%temp_wall
+      champ%etatprim%tabscal(ip)%scal(ighost) = tloc
     enddo
   enddo
 
@@ -58,8 +70,9 @@ endif
 endsubroutine setboco_kdif_isoth
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! nov  2003 : creation de la procedure
 ! july 2004 : merge of uniform and non-uniform boco settings
+! Mar  2008 : use of FCT function
 !------------------------------------------------------------------------------!

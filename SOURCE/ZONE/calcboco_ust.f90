@@ -6,7 +6,7 @@
 !   Aiguillage des appels selon le type (general ou par solveur)
 !
 !------------------------------------------------------------------------------!
-subroutine calcboco_ust(defsolver, grid, defspat)
+subroutine calcboco_ust(curtime, defsolver, grid, defspat)
 
 use TYPHMAKE
 use OUTPUT
@@ -20,6 +20,7 @@ use DEFZONE
 implicit none
 
 ! -- Declaration des entrees --
+real(krp)              :: curtime
 type(mnu_solver)       :: defsolver        ! type d'equation a resoudre
 type(mnu_spat)         :: defspat
 
@@ -76,7 +77,7 @@ do ib = 1, grid%umesh%nboco
       case(solNS)
         call calcboco_ns(defsolver, defsolver%boco(idef), grid%umesh%boco(ib), grid)
       case(solKDIF)
-        call calcboco_kdif(defsolver, defsolver%boco(idef), grid%umesh%boco(ib), grid, defspat)
+        call calcboco_kdif(curtime, defsolver, defsolver%boco(idef), grid%umesh%boco(ib), grid, defspat)
       case(solVORTEX)
         ! rien a faire
       case default

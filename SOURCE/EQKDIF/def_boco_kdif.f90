@@ -16,6 +16,7 @@ use VARCOM
 use OUTPUT
 use MENU_KDIF
 use MENU_BOCO
+use FCT_PARSER
 
 implicit none
 
@@ -31,7 +32,7 @@ integer(kip)           :: type     ! kind of boundary condition
 
 ! -- Internal variables --
 type(rpmblock), pointer  :: pblock, pcour  ! RPM block pointer
-integer(kip)             :: ib, nkey,i
+integer(kip)             :: ib, nkey,i, info
 character(len=dimrpmlig) :: str            ! intermediate RPM string 
 integer(kip)             :: typ
 
@@ -43,14 +44,17 @@ select case(type)
 
 case(bc_wall_adiab)
   typ = bc_wall_flux
-  boco%flux = 0._krp
+  str = "0."
+  call string_to_funct(str, boco%wall_flux, info)
 
 case(bc_wall_isoth)
   typ = bc_wall_isoth
   select case(unif)
   
   case(uniform)
-    call rpmgetkeyvalreal(pblock, "WALL_TEMP", boco%temp_wall)
+    call rpmgetkeyvalstr(pblock, "WALL_TEMP", str)
+    print*," parsing WALL_TEMP = "//trim(str)
+    call string_to_funct(str, boco%wall_temp, info)
 
   case(nonuniform)
     boco%alloctemp = .true.
@@ -64,9 +68,9 @@ case(bc_wall_flux)
   select case(unif)
   
   case(uniform)
-    call rpmgetkeyvalreal(pblock, "WALL_FLUX", boco%flux)
-    boco%flux = - boco%flux ! convention : flux out in the algorithm
-                            ! BOCO : convention flux in for user
+    call rpmgetkeyvalstr(pblock, "WALL_FLUX", str)
+    print*," parsing WALL_FLUX = "//trim(str)
+    call string_to_funct(str, boco%wall_flux, info)
 
   case(nonuniform)
     boco%allocflux = .true.
@@ -80,7 +84,9 @@ case(bc_wall_hconv)
   select case(unif)
   
   case(uniform)
-    call rpmgetkeyvalreal(pblock, "H", boco%h_conv)
+    call rpmgetkeyvalstr(pblock, "H", str)
+    print*," parsing         H = "//trim(str)
+    call string_to_funct(str, boco%h_conv, info)
     !boco%h_conv = - boco%h_conv ! convention : flux out in the algorithm
                                  ! BOCO : convention flux in for user
     call rpmgetkeyvalreal(pblock, "T_CONV", boco%temp_conv)
@@ -99,13 +105,14 @@ case(bc_wall_hgen)
   select case(unif)
   
   case(uniform)
-    call rpmgetkeyvalreal(pblock, "H", boco%h_conv)
-    !boco%h_conv = - boco%h_conv ! convention : flux out in the algorithm
-                                 ! BOCO : convention flux in for user
+    call rpmgetkeyvalstr(pblock, "H", str)
+    print*," parsing         H = "//trim(str)
+    call string_to_funct(str, boco%h_conv, info)
     call rpmgetkeyvalreal(pblock, "T_CONV", boco%temp_conv)
-    call rpmgetkeyvalreal(pblock, "WALL_FLUX", boco%flux)
-    boco%flux = - boco%flux ! convention : flux out in the algorithm
-                            ! BOCO : convention flux in for user
+    call rpmgetkeyvalstr(pblock, "WALL_FLUX", str)
+    print*," parsing WALL_FLUX = "//trim(str)
+    call string_to_funct(str, boco%wall_flux, info)
+
 
   case(nonuniform)
     boco%allochconv = .true.

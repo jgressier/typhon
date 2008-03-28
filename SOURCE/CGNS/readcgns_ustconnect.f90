@@ -38,7 +38,7 @@ integer, dimension(:,:), allocatable &
                     :: elem       ! tableau de connectivite intermediaire
 character(len=cgnslen) :: nom     ! nom fantome
 
-! -- Debut de procedure
+! -- BODY --
 
 write(str_w,'(a,i8,a)') "reading element connectivity:",nmax_elem," elements"
 call print_info(5, adjustl(str_w))
@@ -78,17 +78,17 @@ do ifam = 1, nfam               ! Boucle sur l'ensemble des sections
         zone%ncellfam = zone%ncellfam + 1
         pfam => zone%cellfam(zone%ncellfam)
       case(TETRA_4,PYRA_5,PENTA_6,HEXA_8,TETRA_10,PYRA_14,PENTA_15,PENTA_18,HEXA_20,HEXA_27)
-        call erreur("Gestion CGNS", "Elements volumiques inattendus en 2D")
+        call erreur("CGNS reading", "unexpected volumic element for a 2D problem")
       case(MIXED, NGON_n)
-        call erreur("Gestion CGNS", "Elements MIXED et NFON_n non traites")
+        call erreur("CGNS reading", "cannot MIXED and NGON_n elements")
       case default
-        call erreur("Gestion CGNS", "Type d'element non reconnu dans CGNSLIB")
+        call erreur("CGNS reading", "unknown type element")
     endselect
 
   case(3) ! 3D
     select case(itype)
       case(NODE)
-        call erreur("Gestion CGNS","Elements NODE inattendus en 3D")
+        call print_info(10,"CGNS reading: NODE elements ignored")
       case(BAR_2,BAR_3)
         zone%nedgefam = zone%nedgefam + 1
         pfam => zone%edgefam(zone%nedgefam)
@@ -99,10 +99,10 @@ do ifam = 1, nfam               ! Boucle sur l'ensemble des sections
         zone%ncellfam = zone%ncellfam + 1
         pfam => zone%cellfam(zone%ncellfam)
       case(MIXED, NGON_n)
-        call erreur("Gestion CGNS", "Elements MIXED et NGON_n non traites")
+        call erreur("CGNS reading", "cannot MIXED and NGON_n elements")
       case default
-        call erreur("Gestion CGNS", "Type d'element non reconnu dans CGNSLIB")
-    endselect
+        call erreur("CGNS reading", "unknown type element")
+     endselect
 
   case default
     call erreur("Developpement", "incoherence de programmation (imesh)")

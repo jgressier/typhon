@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine calcboco_kdif(defsolver, defboco, ustboco, grid, defspat)
+subroutine calcboco_kdif(curtime, defsolver, defboco, ustboco, grid, defspat)
 
 use TYPHMAKE
 use OUTPUT
@@ -21,6 +21,7 @@ use MENU_NUM
 implicit none
 
 ! -- Declaration des entrees --
+real(krp)        :: curtime          ! current time
 type(mnu_boco)   :: defboco          ! parametres de conditions aux limites
 type(st_ustboco) :: ustboco          ! lieu d'application des conditions aux limites
 type(mnu_solver) :: defsolver        ! type d'equation a resoudre
@@ -39,25 +40,25 @@ type(st_genericfield), pointer :: pbcf
 select case(defboco%typ_boco) 
 
 case(bc_wall_isoth)
-  call setboco_kdif_isoth(defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, defboco%boco_kdif)
+  call setboco_kdif_isoth(curtime, defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, defboco%boco_kdif)
 
 case(bc_wall_flux)
   pbcf => newbocofield(grid,ustboco%nface,1,0,0)  
-  call setboco_kdif_flux(defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, pbcf%tabscal(1)%scal, &
+  call setboco_kdif_flux(curtime, defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, pbcf%tabscal(1)%scal, &
                          defsolver, defboco%boco_kdif, defspat)
   ustboco%bocofield => pbcf
 
 case(bc_wall_hconv)
   pbcf => newbocofield(grid,ustboco%nface,1,0,0) 
-  call setboco_kdif_hconv(defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, pbcf%tabscal(1)%scal, &
+  call setboco_kdif_hconv(curtime, defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, pbcf%tabscal(1)%scal, &
                           defsolver, defboco%boco_kdif, defspat)
   ustboco%bocofield => pbcf
 
 case(bc_wall_hgen)
   pbcf => newbocofield(grid,ustboco%nface,1,0,0)
-  call setboco_kdif_flux(defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, pbcf%tabscal(1)%scal, &
+  call setboco_kdif_flux(curtime, defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, pbcf%tabscal(1)%scal, &
                          defsolver, defboco%boco_kdif, defspat) 
-  call setboco_kdif_hconv(defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, pbcf%tabscal(1)%scal, &
+  call setboco_kdif_hconv(curtime, defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, pbcf%tabscal(1)%scal, &
                           defsolver, defboco%boco_kdif, defspat)
   ustboco%bocofield => pbcf
 

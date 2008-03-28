@@ -100,7 +100,8 @@ do izone = 1, lworld%prj%nzone
     lworld%zone(izone)%info%residu_ref = lworld%info%cur_res
 
   case(instationnaire)
-    lworld%zone(izone)%info%cycle_dt = lworld%prj%dtbase
+   lworld%zone(izone)%info%cycle_start = lworld%info%curtps
+   lworld%zone(izone)%info%cycle_dt    = lworld%prj%dtbase
 
   case(periodique)
 

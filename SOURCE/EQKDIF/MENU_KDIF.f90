@@ -11,6 +11,7 @@ use TYPHMAKE     ! Definition de la precision
 use VARCOM
 use MATERIAU     ! Definition du materiau
 use SPMAT_SDLU
+use FCT_NODE
 !use EQKDIF    ! Definition des proprietes temperatures et materiau
 
 implicit none
@@ -38,34 +39,35 @@ endtype mnu_kdif
 ! structure ST_BOCO_KDIF : Definition des conditions aux limites
 !------------------------------------------------------------------------------!
 type st_boco_kdif
-  real(krp) :: temp_ext       ! temperature exterieure pour le rayonnement
-  real(krp) :: temp_wall      ! temperature de paroi (si isotherme)
-  real(krp), dimension(:), pointer  &
-            :: temp           ! temperature de paroi non uniforme
-  logical   :: alloctemp      ! allocation du tableau temp
+  type(st_fct_node) :: wall_temp      ! Wall temperature (if isothermal condition)
+  type(st_fct_node) :: wall_flux      ! Wall Flux        (if flux set   condition)
+  type(st_fct_node) :: h_conv         ! Convection coeff (if            condition)
+  real(krp)    :: temp_conv      ! temperature de relaxation pour la convection
+  integer(kpp) :: radiating      ! parameter for radiating boundary condition
+  real(krp)    :: emmissivity    ! emmissivity of the surface
+  real(krp)    :: rad_Tinf       ! far field temperature
+  real(krp)    :: temp_ext       ! temperature exterieure pour le rayonnement
+
+  ! IF FILE BASED CONDITION
+  logical   :: alloctemp, allocflux, allochconv     ! flag for array allocations
   character (len=strlen) &
             :: tempfile       ! nom de fichier de definition de la temp non uniforme  
-  real(krp) :: flux           ! flux (si flux impose)
+
+  real(krp), dimension(:), pointer  &
+            :: temp           ! temperature de paroi non uniforme
   real(krp), dimension(:), pointer  &
             :: flux_nunif     ! flux non uniforme
-  logical   :: allocflux      ! allocation du tableau flux_nunif
   character (len=strlen) &
             :: fluxfile       ! nom de fichier de definition du flux non uniforme  
-  real(krp) :: h_conv         ! coefficient de convection
-  real(krp) :: temp_conv      ! temperature de relaxation pour la convection
   real(krp), dimension(:), pointer  &
             :: h_nunif        ! coefficient de convection non uniforme
   real(krp), dimension(:), pointer  &
             :: tconv_nunif    ! temperature de convection non uniforme
-  logical   :: allochconv     ! allocation des tableaux h_nunif et tconv_nunif
   character (len=strlen) &
             :: hfile          ! nom de fichier de definition du coef de convection non uniforme
   character (len=strlen) &
             :: tconvfile       ! nom de fichier de definition de la temperature de 
                                ! convection non uniforme  
-  integer(kpp) :: radiating    ! parameter for radiating boundary condition
-  real(krp)    :: emmissivity  ! emmissivity of the surface
-  real(krp)    :: rad_Tinf     ! far field temperature
 endtype st_boco_kdif
 
 

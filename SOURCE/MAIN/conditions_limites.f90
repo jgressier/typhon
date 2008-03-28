@@ -7,17 +7,19 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine conditions_limites(defsolver, gridlist)
+subroutine conditions_limites(info, defsolver, gridlist)
 
 use TYPHMAKE
 use OUTPUT
 use VARCOM
 use MENU_SOLVER
 use MGRID
+use MODINFO
 
 implicit none
 
 ! -- INPUTS --    
+type(st_infozone) :: info            ! zone information structure
 type(mnu_solver)  :: defsolver           ! solver parameters
 type(st_gridlist) :: gridlist            ! zone a integrer
 
@@ -26,14 +28,17 @@ type(st_gridlist) :: gridlist            ! zone a integrer
 ! -- Declaration des variables internes --
 type(st_grid), pointer :: pgrid
 integer                :: ifield            ! indice de champ
+real(krp)              :: curtime
 
 ! -- Debut de la procedure --
+
+curtime = info%cycle_start + info%cycle_time
 
 pgrid => gridlist%first
 
 do while(associated(pgrid))
 
-  call calcboco_ust(defsolver, pgrid, defsolver%defspat)
+  call calcboco_ust(curtime, defsolver, pgrid, defsolver%defspat)
   pgrid => pgrid%next
 
 enddo
