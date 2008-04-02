@@ -7,7 +7,8 @@ LDIR := MESH
 
 MESH_LIB = $(PRJLIB)/libt_mesh.a
 
-MESH_MOD = GEO3D.$(MOD)     \
+MESH_MOD = ELEMVTEX.$(MOD)     \
+           GEO3D.$(MOD)        \
            GRID_CONNECT.$(MOD) \
            MESHBASE.$(MOD)  \
            STRMESH.$(MOD)   \
@@ -18,7 +19,6 @@ MESH_OBJ = $(MESH_MOD:.$(MOD)=.o)  \
            build_implicit_bdlu.o   \
            build_implicit_dlu.o    \
            calc_connface.o         \
-           calc_cellvtex.o         \
            calc_ust_cell.o         \
            calc_ust_elemvol.o      \
            calc_ust_midcell.o      \
@@ -29,7 +29,6 @@ MESH_OBJ = $(MESH_MOD:.$(MOD)=.o)  \
            reorder_ustconnect.o    \
            scale_mesh.o            \
            test_ustmesh.o          \
-           verify_cellvtex.o
 
 
 D_MESH_OBJ = $(MESH_OBJ:%=$(PRJOBJ)/%)

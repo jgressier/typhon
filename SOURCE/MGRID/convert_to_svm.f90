@@ -33,6 +33,7 @@ integer                :: facev(8)         ! CV face vtex definition
 integer                :: face (2), CVface(2), SVface(2)         ! face definition
 integer                :: intv(8)          ! internal vtex definition
 integer                :: nfgauss          ! number of integration points per face (defspat%svm)
+integer                :: ielem, ielemtri, ielemquad, nquad
 type(st_connect)       :: cell_fvtex       ! cell to face.midpoint connectivity
 type(st_connect)       :: face_cell, &     ! temporary connectivity
                           face_vtex, &     ! temporary connectivity
@@ -93,7 +94,8 @@ endif
 
 ! -- check there are only tri --
 !
-if (umesh%ncell_int /= umesh%cellvtex%ntri) then
+call getindex_genelemvtex(umesh%cellvtex, elem_tri3, ielem)
+if (umesh%ncell_int /= umesh%cellvtex%elem(ielem)%nelem) then
   call erreur("Development", "SVM_2QUAD can only be used with original TRI cells")
 endif
 
@@ -102,14 +104,14 @@ endif
 if (defspat%svm%intnode /= 1) &
   call erreur("Error", "SVM_2QUAD : internal node should be defined to 1")
 
-do ic = 1, umesh%cellvtex%ntri
-  iv   = umesh%cellvtex%tri%fils(ic,1)          ! first node of cell
-  node = umesh%mesh%vertex(iv, 1, 1)            ! initialize sum of nodes
-  do i = 2, umesh%cellvtex%tri%nbfils           ! loop on nodes left (and sum)
-    iv   = umesh%cellvtex%tri%fils(ic,i) 
+do ic = 1, umesh%cellvtex%elem(ielem)%nelem
+  iv   = umesh%cellvtex%elem(ielem)%elemvtex(ic,1)          ! first node of cell
+  node = umesh%mesh%vertex(iv, 1, 1)                        ! initialize sum of nodes
+  do i = 2, umesh%cellvtex%elem(ielem)%nvtex                ! loop on nodes left (and sum)
+    iv   = umesh%cellvtex%elem(ielem)%elemvtex(ic,i)
     node = node + umesh%mesh%vertex(iv, 1, 1)
   enddo
-  newmesh%mesh%vertex(umesh%nvtex+ic, 1, 1) = node /  real(umesh%cellvtex%tri%nbfils, krp)
+  newmesh%mesh%vertex(umesh%nvtex+ic, 1, 1) = node /  real(umesh%cellvtex%elem(ielem)%nvtex, krp)
 enddo
 
 ! -- create new SV face nodes (splitting dependant) --
@@ -136,31 +138,26 @@ enddo
 !--------------------------------------------------------------------
 ! Create CONTROL VOLUMES (CV) as SV subcells
 
-! -- check there are only tri --
+call addelem_genelemvtex(newmesh%cellvtex)                          ! add a ELEMVTEX section
+ielemquad = newmesh%cellvtex%ntype
 
-if (umesh%ncell_int /= umesh%cellvtex%ntri) then
-  call erreur("Development", "SVM_2QUAD can only be used with original TRI cells")
-endif
+nquad = defspat%svm%cv_split*umesh%cellvtex%elem(ielem)%nelem               ! define number of QUAD (TRI => 3 QUAD)
+call new_elemvtex(newmesh%cellvtex%elem(ielemquad), nquad, elem_quad4)      ! allocation
+newmesh%cellvtex%elem(ielemquad)%ielem(1:nquad) = (/ (ic, ic=1, nquad) /)   ! numbering
 
-call init_cellvtex(newmesh%cellvtex)                                ! set all size to zero
-newmesh%cellvtex%nquad = defspat%svm%cv_split*umesh%cellvtex%ntri   ! define number of QUAD (TRI => 3 QUAD)
-call new_cellvtex(newmesh%cellvtex)                                 ! allocation
-
-newmesh%cellvtex%iquad(1:umesh%ncell_int*defspat%svm%cv_split) = (/ (ic, ic=1, umesh%ncell_int*defspat%svm%cv_split) /)
-
-call print_info(20, "    . creating"//strof(umesh%ncell_int*defspat%svm%cv_split,7)//" CV cells")
+call print_info(20, "    . creating"//strof(nquad,7)//" CV cells")
 
 do ic = 1, umesh%ncell_int
   icn = (ic-1)*defspat%svm%cv_split
-  cellv(1:3) = umesh%cellvtex%tri%fils(ic, 1:3)                             ! original vertices
-  intv(1)   = umesh%nvtex + ic                                              ! internal vertices
+  cellv(1:3) = umesh%cellvtex%elem(ielem)%elemvtex(ic, 1:3)                 ! original vertices
+  intv(1)    = umesh%nvtex + ic                                             ! internal vertices
   facev(1:cell_fvtex%nbfils) = cell_fvtex%fils(ic, 1:cell_fvtex%nbfils)     ! CV face  vertices
   ! CV 1 : connected to original vertex 1
-  newmesh%cellvtex%quad%fils(icn+1, 1:4) = (/ cellv(1), facev(3), intv(1), facev(2) /)
+  newmesh%cellvtex%elem(ielemquad)%elemvtex(icn+1, 1:4) = (/ cellv(1), facev(3), intv(1), facev(2) /)
   ! CV 2 : connected to original vertex 2
-  newmesh%cellvtex%quad%fils(icn+2, 1:4) = (/ cellv(2), facev(1), intv(1), facev(3) /)
+  newmesh%cellvtex%elem(ielemquad)%elemvtex(icn+2, 1:4) = (/ cellv(2), facev(1), intv(1), facev(3) /)
   ! CV 3 : connected to original vertex 3
-  newmesh%cellvtex%quad%fils(icn+3, 1:4) = (/ cellv(3), facev(2), intv(1), facev(1) /)
+  newmesh%cellvtex%elem(ielemquad)%elemvtex(icn+3, 1:4) = (/ cellv(3), facev(2), intv(1), facev(1) /)
 enddo
 
 !--------------------------------------------------------------------
@@ -218,8 +215,7 @@ do ic = 1, umesh%ncell_int
 
   ic0     = (ic-1)*defspat%svm%internal_faces       ! CV index offset
   facev(1:cell_fvtex%nbfils) = cell_fvtex%fils(ic, 1:cell_fvtex%nbfils)  ! CV face  vertices
-  cellv(1:cnv)               = umesh%cellvtex%tri%fils(ic, 1:cnv)
-  !print*,'cell',cellv(1:cnv), '/', facev(1:cell_fvtex%nbfils)
+  cellv(1:cnv)               = umesh%cellvtex%elem(ielem)%elemvtex(ic, 1:cnv)
   !
   ! -- 'CV 1' Riemann faces --
   icv  = ic0 + 1

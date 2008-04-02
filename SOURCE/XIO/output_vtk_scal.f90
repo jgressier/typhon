@@ -29,36 +29,19 @@ character(len=*)  :: name          ! nom de la variable
 ! -- Declaration des sorties --
 
 ! -- Declaration des variables internes --
-integer   :: i
-type(st_cellvtex) :: cvtx
+integer   :: i, ielem
 
-! -- Debut de la procedure --
+! -- BODY --
 
 write(uf,'(A)')    'SCALARS '//trim(name)//' double'
 write(uf,'(A)')    'LOOKUP_TABLE default'
 
-cvtx = ust_mesh%cellvtex
+do ielem = 1, ust_mesh%cellvtex%ntype
 
-do i = 1, cvtx%nbar
-  write(uf,'(1P,E17.8E3)') scafld%scal(cvtx%ibar(i))
-enddo
-do i = 1, cvtx%ntri
-  write(uf,'(1P,E17.8E3)') scafld%scal(cvtx%itri(i))
-enddo
-do i = 1, cvtx%nquad
-  write(uf,'(1P,E17.8E3)') scafld%scal(cvtx%iquad(i))
-enddo
-do i = 1, cvtx%ntetra
-  write(uf,'(1P,E17.8E3)') scafld%scal(cvtx%itetra(i))
-enddo
-do i = 1, cvtx%npyra
-  write(uf,'(1P,E17.8E3)') scafld%scal(cvtx%ipyra(i))
-enddo
-do i = 1, cvtx%npenta
-  write(uf,'(1P,E17.8E3)') scafld%scal(cvtx%ipenta(i))
-enddo
-do i = 1, cvtx%nhexa
-  write(uf,'(1P,E17.8E3)') scafld%scal(cvtx%ihexa(i))
+  do i = 1, ust_mesh%cellvtex%elem(ielem)%nelem
+    write(uf,'(1P,E17.8E3)') scafld%scal(ust_mesh%cellvtex%elem(ielem)%ielem(i))
+  enddo
+
 enddo
 
 endsubroutine output_vtk_scal

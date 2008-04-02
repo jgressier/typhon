@@ -5,7 +5,6 @@
 !   Ecriture fichier des champs NON STRUCTURES de chaque zone au format VTK
 !   Valeurs au centre des cellules
 !
-! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
 
@@ -33,7 +32,7 @@ type(st_field),   intent(in) :: field         ! champ de valeurs
 integer   :: i, ncellint
 integer   :: info, ntot
 type(v3d) :: vtex
-type(st_cellvtex) :: cvtx
+integer   :: ielem, nvtex, vtktype
 
 ! -- BODY --
 
@@ -50,76 +49,54 @@ do i = 1, ust_mesh%nvtex
   write(uf,'(1P,4E17.8E3)') vtex%x, vtex%y, vtex%z
 enddo
 
-! variable interne
+! CELLVTEX connectivity
 
-cvtx = ust_mesh%cellvtex
+ncellint       = ust_mesh%ncell_int
+ntot           = 0                       ! number of written integer in CELLVTEX connectivity
 
-! connectivite 
-
-ncellint       = cvtx%nbar   + &
-                 cvtx%ntri   + &
-                 cvtx%nquad  + &
-                 cvtx%ntetra + &
-                 cvtx%npyra  + &
-                 cvtx%npenta + &
-                 cvtx%nhexa
-
-ntot =        3*cvtx%nbar
-ntot = ntot + 4*cvtx%ntri
-ntot = ntot + 5*cvtx%nquad
-ntot = ntot + 5*cvtx%ntetra
-ntot = ntot + 6*cvtx%npyra
-ntot = ntot + 7*cvtx%npenta
-ntot = ntot + 9*cvtx%nhexa
+do ielem = 1, ust_mesh%cellvtex%ntype
+  nvtex = ust_mesh%cellvtex%elem(ielem)%nvtex
+  ntot  = ntot + (nvtex+1)*ust_mesh%cellvtex%elem(ielem)%nelem
+enddo
 
 write(uf,'(A,2i10)') 'CELLS ', ncellint, ntot
 
-do i = 1, cvtx%nbar
-  write(uf,'(i3,2I9)') 2, cvtx%bar%fils(i,:)-1
-enddo
-do i = 1, cvtx%ntri
-  write(uf,'(i3,3I9)') 3, cvtx%tri%fils(i,:)-1
-enddo
-do i = 1, cvtx%nquad
-  write(uf,'(i3,4I9)') 4, cvtx%quad%fils(i,:)-1
-enddo
-do i = 1, cvtx%ntetra
-  write(uf,'(i3,4I9)') 4, cvtx%tetra%fils(i,:)-1
-enddo
-do i = 1, cvtx%npyra
-  write(uf,'(i3,5I9)') 5, cvtx%pyra%fils(i,:)-1
-enddo
-do i = 1, cvtx%npenta
-  write(uf,'(i3,6I9)') 6, cvtx%penta%fils(i,:)-1
-enddo
-do i = 1, cvtx%nhexa
-  write(uf,'(i3,8I9)') 8, cvtx%hexa%fils(i,:)-1
+do ielem = 1, ust_mesh%cellvtex%ntype
+
+  nvtex = ust_mesh%cellvtex%elem(ielem)%nvtex
+  do i = 1, ust_mesh%cellvtex%elem(ielem)%nelem
+    write(uf,'(i3,2I9)') nvtex, ust_mesh%cellvtex%elem(ielem)%elemvtex(i,1:nvtex)-1
+  enddo
+
 enddo
 
 ! type de cellules
 
 write(uf,'(A,I9)') 'CELL_TYPES ', ncellint
 
-do i = 1, cvtx%nbar
-  write(uf,'(I2)')  3    ! VTK_LINE
-enddo
-do i = 1, cvtx%ntri
-  write(uf,'(I2)')  5    ! VTK_TRIANGLE
-enddo
-do i = 1, cvtx%nquad
-  write(uf,'(I2)')  9    ! VTK_QUAD
-enddo
-do i = 1, cvtx%ntetra
-  write(uf,'(I2)') 10    ! VTK_TETRA
-enddo
-do i = 1, cvtx%npyra
-  write(uf,'(I2)') 14    ! VTK_PYRAMID
-enddo
-do i = 1, cvtx%npenta
-  write(uf,'(I2)') 13    ! VTK_WEDGE
-enddo
-do i = 1, cvtx%nhexa
-  write(uf,'(I2)') 12    ! VTK_HEXAHEDRON
+do ielem = 1, ust_mesh%cellvtex%ntype
+
+  select case(ust_mesh%cellvtex%elem(ielem)%elemtype)
+  case(elem_bar2)
+    vtktype = 3    ! VTK_LINE 
+  case(elem_tri3)
+    vtktype = 5    ! VTK_TRIANGLE
+  case(elem_quad4)
+    vtktype = 9    ! VTK_QUAD
+  case(elem_tetra4)
+    vtktype = 10   ! VTK_TETRA
+  case(elem_pyra5)
+    vtktype = 14   ! VTK_PYRAMID
+  case(elem_penta6)
+    vtktype = 13   ! VTK_WEDGE
+  case(elem_hexa8)
+    vtktype = 12   ! VTK_HEXAHEDRON
+  case default
+    call erreur("VTK writer", "do not known how to write this element type")
+  endselect
+
+  write(uf,'(I2)') vtktype
+
 enddo
 
 ! -- donnees --

@@ -35,7 +35,8 @@ type(mnu_solver) :: defsolver     ! solver parameters
 select case(outp_typ)
 
 case(outp_NODE) ! Sortie des valeurs aux noeuds du maillage
-  call output_tec_ust_node(uf, ust_mesh, field)
+  !call output_tec_ust_node(uf, ust_mesh, field)
+  call erreur("Developement", "Option not available in these new releases")
 
 case(outp_CENTER) ! Sortie des valeurs aux centres des cellules
   call output_tec_ust_ctr(uf, ust_mesh, field, defsolver)

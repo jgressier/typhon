@@ -31,9 +31,8 @@ type(st_field),   intent(in) :: field         ! champ de valeurs
 
 ! -- Internal variables --
 integer   :: i, ncellint
-integer   :: info, ntot
+integer   :: info, ntot, ielem, vtktype, nvtex
 type(v3d) :: vtex
-type(st_cellvtex) :: cvtx
 
 ! -- BODY --
 
@@ -52,79 +51,58 @@ do i = 1, ust_mesh%nvtex
 enddo
 call writereturn(uf)
 
-! variable interne
+! CELLVTEX connectivity
 
-cvtx = ust_mesh%cellvtex
+ncellint       = ust_mesh%ncell_int
+ntot           = 0                       ! number of written integer in CELLVTEX connectivity
 
-! connectivite 
-
-ncellint       = cvtx%nbar   + &
-                 cvtx%ntri   + &
-                 cvtx%nquad  + &
-                 cvtx%ntetra + &
-                 cvtx%npyra  + &
-                 cvtx%npenta + &
-                 cvtx%nhexa
-
-ntot =        3*cvtx%nbar
-ntot = ntot + 4*cvtx%ntri
-ntot = ntot + 5*cvtx%nquad
-ntot = ntot + 5*cvtx%ntetra
-ntot = ntot + 6*cvtx%npyra
-ntot = ntot + 7*cvtx%npenta
-ntot = ntot + 9*cvtx%nhexa
+do ielem = 1, ust_mesh%cellvtex%ntype
+  nvtex = ust_mesh%cellvtex%elem(ielem)%nvtex
+  ntot  = ntot + (nvtex+1)*ust_mesh%cellvtex%elem(ielem)%nelem
+enddo
 
 write(str_w,'(A,2I10)') 'CELLS ', ncellint, ntot
 call writestr(uf, trim(str_w))
-do i = 1, cvtx%nbar
-  write(uf) 2, cvtx%bar%fils(i,:)-1
-enddo
-do i = 1, cvtx%ntri
-  write(uf) 3, cvtx%tri%fils(i,:)-1
-enddo
-do i = 1, cvtx%nquad
-  write(uf) 4, cvtx%quad%fils(i,:)-1
-enddo
-do i = 1, cvtx%ntetra
-  write(uf) 4, cvtx%tetra%fils(i,:)-1
-enddo
-do i = 1, cvtx%npyra
-  write(uf) 5, cvtx%pyra%fils(i,:)-1
-enddo
-do i = 1, cvtx%npenta
-  write(uf) 6, cvtx%penta%fils(i,:)-1
-enddo
-do i = 1, cvtx%nhexa
-  write(uf) 8, cvtx%hexa%fils(i,:)-1
-enddo
-call writereturn(uf)
 
-! type de cellules
+do ielem = 1, ust_mesh%cellvtex%ntype
+
+  nvtex = ust_mesh%cellvtex%elem(ielem)%nvtex
+  do i = 1, ust_mesh%cellvtex%elem(ielem)%nelem
+    write(uf) nvtex, ust_mesh%cellvtex%elem(ielem)%elemvtex(i,1:nvtex)-1
+  enddo
+
+enddo
+
+! -- CELL TYPES --
 
 write(str_w,'(A,I9,A)') 'CELL_TYPES ', ncellint, ' int'
 call writestr(uf, trim(str_w))
 
-do i = 1, cvtx%nbar
-  write(uf)  3    ! VTK_LINE
+do ielem = 1, ust_mesh%cellvtex%ntype
+
+  select case(ust_mesh%cellvtex%elem(ielem)%elemtype)
+  case(elem_bar2)
+    vtktype = 3    ! VTK_LINE 
+  case(elem_tri3)
+    vtktype = 5    ! VTK_TRIANGLE
+  case(elem_quad4)
+    vtktype = 9    ! VTK_QUAD
+  case(elem_tetra4)
+    vtktype = 10   ! VTK_TETRA
+  case(elem_pyra5)
+    vtktype = 14   ! VTK_PYRAMID
+  case(elem_penta6)
+    vtktype = 13   ! VTK_WEDGE
+  case(elem_hexa8)
+    vtktype = 12   ! VTK_HEXAHEDRON
+  case default
+    call erreur("VTK writer", "do not known how to write this element type")
+  endselect
+
+  write(uf) vtktype
+
 enddo
-do i = 1, cvtx%ntri
-  write(uf)  5    ! VTK_TRIANGLE
-enddo
-do i = 1, cvtx%nquad
-  write(uf)  9    ! VTK_QUAD
-enddo
-do i = 1, cvtx%ntetra
-  write(uf) 10    ! VTK_TETRA
-enddo
-do i = 1, cvtx%npyra
-  write(uf) 14    ! VTK_PYRAMID
-enddo
-do i = 1, cvtx%npenta
-  write(uf) 13    ! VTK_WEDGE
-enddo
-do i = 1, cvtx%nhexa
-  write(uf) 12    ! VTK_HEXAHEDRON
-enddo
+
 call writereturn(uf)
 
 ! -- donnees --

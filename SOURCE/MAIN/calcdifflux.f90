@@ -29,7 +29,7 @@ integer, dimension(nfacelim) &
                            :: connface2
 
 ! -- Declaration des entrees/sorties --
-type(st_scafield), dimension(2) &
+type(st_scafield), dimension(3) &
                            :: etatcons1, etatcons2 ! stockage des flux cumules
                                                    ! et des differences de flux
                                                    ! pour les deux zones

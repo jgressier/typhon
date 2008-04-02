@@ -35,6 +35,8 @@ integer             :: ntotcell              ! calcul du nombre total de cellule
 integer             :: maxvtex, maxface      ! nombre de sommets/face, face/cellule
 integer             :: nface                 ! estimation du nombre de faces
 integer             :: iconn, icell, ivtex   ! indices courants
+integer             :: ielem, nelem , nvtex    
+integer             :: ista, iend, itype         
 
 ! -- BODY --
 
@@ -68,7 +70,7 @@ allocate(mesh%mesh%vertex(mesh%mesh%nvtex, 1, 1))
 mesh%mesh%vertex = cgnszone%mesh%vertex              ! copy vertex cloud
 
 !--------------------------------------------------------------------------
-! compute arrays approximate dimensions
+! compute arrays APPROXIMATE sizes and copy of CELL->VTEX connectivity
 !--------------------------------------------------------------------------
 
 ntotcell = 0    ! total number of cells
@@ -76,64 +78,12 @@ maxvtex  = 0    ! max. number of vtex  by cell
 maxface  = 0    ! max. number of faces by cell
 nface    = 0    ! estimate of face number
 
-call init(mesh%cellvtex)
-
 do iconn = 1, cgnszone%ncellfam          ! boucle sur les sections de cellules
  
-  ! cumul du nombre de cellules
-  ntotcell = ntotcell + cgnszone%cellfam(iconn)%nbnodes  
-  !print*,iconn," ",cgnszone%cellfam(iconn)%type !! DEBUG
-  select case(cgnszone%cellfam(iconn)%type)
-  case(NODE)
-    call erreur("Development", "unexpected type of cell (NODE)")
-  case(BAR_2,BAR_3)
-    call erreur("Development", "unexpected type of cell (BAR)")
-  case(TRI_3,TRI_6)
-    maxvtex = max(maxvtex, 2)
-    maxface = max(maxface, 3)
-    nface   = nface + 3*cgnszone%cellfam(iconn)%nbnodes
-    mesh%cellvtex%ntri = mesh%cellvtex%ntri + cgnszone%cellfam(iconn)%nbnodes
-  case(QUAD_4,QUAD_8,QUAD_9)
-    maxvtex = max(maxvtex, 2)
-    maxface = max(maxface, 4)
-    nface   = nface + 4*cgnszone%cellfam(iconn)%nbnodes
-    mesh%cellvtex%nquad = mesh%cellvtex%nquad + cgnszone%cellfam(iconn)%nbnodes
-  case(TETRA_4,TETRA_10)
-    maxvtex = max(maxvtex, 3)
-    maxface = max(maxface, 4)
-    nface   = nface + 4*cgnszone%cellfam(iconn)%nbnodes
-    mesh%cellvtex%ntetra = mesh%cellvtex%ntetra + cgnszone%cellfam(iconn)%nbnodes
-  case(PYRA_5,PYRA_14)
-    maxvtex = max(maxvtex, 4)
-    maxface = max(maxface, 5)
-    nface   = nface + 5*cgnszone%cellfam(iconn)%nbnodes
-    mesh%cellvtex%npyra = mesh%cellvtex%npyra + cgnszone%cellfam(iconn)%nbnodes
-  case(PENTA_6,PENTA_15,PENTA_18)
-    maxvtex = max(maxvtex, 4)
-    maxface = max(maxface, 5)
-    nface   = nface + 5*cgnszone%cellfam(iconn)%nbnodes
-    mesh%cellvtex%npenta = mesh%cellvtex%npenta + cgnszone%cellfam(iconn)%nbnodes
-  case(HEXA_8,HEXA_20,HEXA_27)
-    maxvtex = max(maxvtex, 4)
-    maxface = max(maxface, 6)
-    nface   = nface + 6*cgnszone%cellfam(iconn)%nbnodes
-    mesh%cellvtex%nhexa = mesh%cellvtex%nhexa + cgnszone%cellfam(iconn)%nbnodes
-  case(MIXED, NGON_n)
-    call erreur("Development", "MIXED & NGON_n elements not yet handled")
-  case default
-    call erreur("CGNS conversion", "unknown type of element section")
-  endselect
-enddo
+  ielem    = 0 ; nvtex = 0 ; itype = 0
+  nelem    = cgnszone%cellfam(iconn)%nbnodes  
+  ntotcell = ntotcell + nelem
 
-
-!--------------------------------------------------------------------------
-! copy of CELL->VTEX connectivity
-!--------------------------------------------------------------------------
-
-call new(mesh%cellvtex)
-
-do iconn = 1, cgnszone%ncellfam          ! boucle sur les sections de cellules
- 
   select case(cgnszone%cellfam(iconn)%type)
 
   case(NODE)
@@ -143,48 +93,56 @@ do iconn = 1, cgnszone%ncellfam          ! boucle sur les sections de cellules
     call erreur("Development", "Unexpected type of cell (BAR)")
 
   case(TRI_3)
-    mesh%cellvtex%tri%fils(:,1:3) = cgnszone%cellfam(iconn)%fils(:,1:3)
-    mesh%cellvtex%itri(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
-                                               cgnszone%cellfam(iconn)%ifin  ) /)
+    itype = elem_tri3
+    maxvtex = max(maxvtex, 2)
+    maxface = max(maxface, 3)
+    nface   = nface + 3*cgnszone%cellfam(iconn)%nbnodes
+
   case(TRI_6)
     call erreur("Development", "Unexpected type of cell (TRI_6)")
-    !mesh%cellvtex%tri%fils(:,1:3) = cgnszone%cellfam(iconn)%fils(:,1:3)
-
+ 
   case(QUAD_4)
-    mesh%cellvtex%quad%fils(:,1:4) = cgnszone%cellfam(iconn)%fils(:,1:4)
-    mesh%cellvtex%iquad(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
-                                                cgnszone%cellfam(iconn)%ifin  ) /)
+    itype = elem_quad4
+    maxvtex = max(maxvtex, 2)
+    maxface = max(maxface, 4)
+    nface   = nface + 4*cgnszone%cellfam(iconn)%nbnodes
 
   case(QUAD_8,QUAD_9)
     call erreur("Development", "Unexpected type of cell (QUAD_8/9)")
 
   case(TETRA_4)
-    mesh%cellvtex%tetra%fils(:,1:4) = cgnszone%cellfam(iconn)%fils(:,1:4)
-    mesh%cellvtex%itetra(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
-                                                 cgnszone%cellfam(iconn)%ifin  ) /)
-
+    itype = elem_tetra4
+    maxvtex = max(maxvtex, 3)
+    maxface = max(maxface, 4)
+    nface   = nface + 4*cgnszone%cellfam(iconn)%nbnodes
+ 
   case(TETRA_10)
     call erreur("Development", "Unexpected type of cell (TETRA_10)")
 
   case(PYRA_5)
-    mesh%cellvtex%pyra%fils(:,1:5) = cgnszone%cellfam(iconn)%fils(:,1:5)
-    mesh%cellvtex%ipyra(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
-                                                cgnszone%cellfam(iconn)%ifin  ) /)
+    itype = elem_pyra5
+    maxvtex = max(maxvtex, 4)
+    maxface = max(maxface, 5)
+    nface   = nface + 5*cgnszone%cellfam(iconn)%nbnodes
+
   case(PYRA_14)
     call erreur("Development", "Unexpected type of cell (PYRA_14)")
 
   case(PENTA_6)
-    mesh%cellvtex%penta%fils(:,1:6) = cgnszone%cellfam(iconn)%fils(:,1:6)
-    mesh%cellvtex%ipenta(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
-                                                 cgnszone%cellfam(iconn)%ifin  ) /)
+    itype = elem_penta6
+    maxvtex = max(maxvtex, 4)
+    maxface = max(maxface, 5)
+    nface   = nface + 5*cgnszone%cellfam(iconn)%nbnodes
 
   case(PENTA_15,PENTA_18)
     call erreur("Development", "Unexpected type of cell (PENTA_15/18)")
 
   case(HEXA_8)
-    mesh%cellvtex%hexa%fils(:,1:8) = cgnszone%cellfam(iconn)%fils(:,1:8)
-    mesh%cellvtex%ihexa(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
-                                                cgnszone%cellfam(iconn)%ifin  ) /)
+    itype = elem_hexa8
+    maxvtex = max(maxvtex, 4)
+    maxface = max(maxface, 6)
+    nface   = nface + 6*cgnszone%cellfam(iconn)%nbnodes
+ 
   case(HEXA_20,HEXA_27)
     call erreur("Development", "Unexpected type of cell (HEXA_20/27)")
 
@@ -194,6 +152,20 @@ do iconn = 1, cgnszone%ncellfam          ! boucle sur les sections de cellules
   case default
     call erreur("Gestion CGNS", "Type d'element non reconnu dans CGNSLIB")
   endselect
+
+  call getindex_genelemvtex(mesh%cellvtex, itype, ielem)
+
+  if (ielem /= 0) call erreur("CGNS to USTMESH","element section already exists")
+
+  call addelem_genelemvtex(mesh%cellvtex)
+  ielem = mesh%cellvtex%ntype
+  call new_elemvtex(mesh%cellvtex%elem(ielem), nelem, itype)
+
+  nvtex = mesh%cellvtex%elem(ielem)%nvtex
+  ista  = cgnszone%cellfam(iconn)%ideb
+  iend  = cgnszone%cellfam(iconn)%ifin
+  mesh%cellvtex%elem(ielem)%elemvtex(1:nelem,1:nvtex) = cgnszone%cellfam(iconn)%fils(ista:iend,1:nvtex)
+  mesh%cellvtex%elem(ielem)%ielem   (1:nelem)         = (/ (icell, icell = ista, iend ) /)
 
 enddo
 
@@ -222,7 +194,7 @@ if (defmesh%splitmesh /= split_none) then
   call new_connect(face_Ltag, nface, 1)
   call new_connect(face_Rtag, nface, 1)
   face_Ltag%fils(:,:) = 0
-  face_Ltag%fils(:,:) = 0
+  face_Rtag%fils(:,:) = 0
 endif  
 
 !-------------------------------------------------------------------

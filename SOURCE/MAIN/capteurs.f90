@@ -32,7 +32,7 @@ do ic = 1, zone%defsolver%nprobe
   case(probe)
     call erreur("Developpement","type PROBE non implemente")
   case(boco_field)
-    call prb_boco_field()
+    call prb_boco_field(zone)
   case(boco_integral)
     call erreur("Developpement","type BOCO_INTEGRAL non implemente")
   case(residuals)

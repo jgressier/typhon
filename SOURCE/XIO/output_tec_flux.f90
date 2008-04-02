@@ -36,7 +36,7 @@ endif
 ! Calcul des conditions aux limites pour le calcul des flux a l'interface
 
 do izone = 1, lworld%prj%nzone
- call conditions_limites(lworld%zone(izone)%defsolver, lworld%zone(izone)%gridlist)
+ call conditions_limites(lworld%zone(izone)%info, lworld%zone(izone)%defsolver, lworld%zone(izone)%gridlist)
 enddo
 
 if (lworld%prj%ncoupling > 0) then

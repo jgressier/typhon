@@ -28,7 +28,6 @@ ZONE_OBJ := $(ZONE_MOD:.$(MOD)=.o)       \
             init_ustboco_ghostface.o     \
             init_ustboco_kutta.o         \
             init_ustboco_singpanel.o     \
-            interpol_onvtex.o            \
             prb_boco_field.o             \
             split_zone.o                 \
             update_champ.o

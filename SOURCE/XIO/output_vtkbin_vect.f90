@@ -29,36 +29,20 @@ character(len=*)  :: name          ! nom de la variable
 ! -- Declaration des sorties --
 
 ! -- Declaration des variables internes --
-integer   :: i
-type(st_cellvtex) :: cvtx
+integer   :: i, ielem
 
-! -- Debut de la procedure --
+! -- BODY --
 
 call writestr(uf, 'VECTORS '//trim(name)//' double')
 
-cvtx = ust_mesh%cellvtex
+do ielem = 1, ust_mesh%cellvtex%ntype
 
-do i = 1, cvtx%nbar
-  write(uf) real(tab(vecfld%vect(cvtx%ibar(i))), kind=8)
+  do i = 1, ust_mesh%cellvtex%elem(ielem)%nelem
+    write(uf) real(tab(vecfld%vect(ust_mesh%cellvtex%elem(ielem)%ielem(i))), kind=8)
+  enddo
+
 enddo
-do i = 1, cvtx%ntri
-  write(uf) real(tab(vecfld%vect(cvtx%itri(i))), kind=8)
-enddo
-do i = 1, cvtx%nquad
-  write(uf) real(tab(vecfld%vect(cvtx%iquad(i))), kind=8)
-enddo
-do i = 1, cvtx%ntetra
-  write(uf) real(tab(vecfld%vect(cvtx%itetra(i))), kind=8)
-enddo
-do i = 1, cvtx%npyra
-  write(uf) real(tab(vecfld%vect(cvtx%ipyra(i))), kind=8)
-enddo
-do i = 1, cvtx%npenta
-  write(uf) real(tab(vecfld%vect(cvtx%ipenta(i))), kind=8)
-enddo
-do i = 1, cvtx%nhexa
-  write(uf) real(tab(vecfld%vect(cvtx%ihexa(i))), kind=8)
-enddo
+
 call writereturn(uf)
 
 endsubroutine output_vtkbin_vect

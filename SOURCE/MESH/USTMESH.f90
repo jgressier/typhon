@@ -15,6 +15,7 @@ use TYPHMAKE      ! machine accuracy
 use GEO3D 
 use MESHBASE      ! geometrical basic elements
 use CONNECTIVITY  ! lists & connectivity 
+use ELEMVTEX      ! Cell (vtex) definition
 use DEFFIELD
 use GRID_CONNECT  ! definition of connectivity between grids
 
@@ -32,16 +33,16 @@ integer, parameter :: defboco_connect = -1
 !   une connectivite speciale est definie pour une meilleure gestions des
 !   actions selon le type des elements.
 !------------------------------------------------------------------------------!
-type st_cellvtex
-  integer          :: dim                      ! dimension spatiale des elements (2D/3D)
-  integer          :: nbar, ntri, nquad, &     ! nombre d'elements par famille
-                      ntetra, npyra, npenta, nhexa  
-  type(st_connect) :: bar, tri, quad,    &     ! definition des elements
-                      tetra, pyra, penta, hexa
-  integer, dimension(:), pointer &
-                   :: ibar, itri, iquad, &     ! redirection d'index vers "icell" de ustmesh
-                      itetra, ipyra, ipenta, ihexa 
-endtype st_cellvtex
+!!$type st_cellvtex
+!!$  integer          :: dim                      ! dimension spatiale des elements (2D/3D)
+!!$  integer          :: nbar, ntri, nquad, &     ! nombre d'elements par famille
+!!$                      ntetra, npyra, npenta, nhexa  
+!!$  type(st_connect) :: bar, tri, quad,    &     ! definition des elements
+!!$                      tetra, pyra, penta, hexa
+!!$  integer, dimension(:), pointer &
+!!$                   :: ibar, itri, iquad, &     ! redirection d'index vers "icell" de ustmesh
+!!$                      itetra, ipyra, ipenta, ihexa 
+!!$endtype st_cellvtex
 
 
 !------------------------------------------------------------------------------!
@@ -77,7 +78,8 @@ type st_ustmesh
   type(st_connect)      :: facevtex, &           ! connectivite face   -> sommets   par type
                            facecell              ! connectivite face   -> cellules  par type
                                                  ! SUPPOSED TO INDEX LOWER INDEX CELL BEFORE
-  type(st_cellvtex)     :: cellvtex              ! connectivite cellule-> vtex      par type
+  type(st_genelemvtex)  :: cellvtex              ! CELL-VTEX connectivity
+  
   integer               :: nboco                 ! number of boundary conditions
   type(st_ustboco), dimension(:), pointer &
                         :: boco                  ! liste des conditions aux limites
@@ -91,15 +93,11 @@ endtype st_ustmesh
 ! -- INTERFACES -------------------------------------------------------------
 
 interface new
-  module procedure new_ustmesh, new_cellvtex, new_ustboco
-endinterface
-
-interface init
-  module procedure init_cellvtex
+  module procedure new_ustmesh, new_ustboco
 endinterface
 
 interface delete
-  module procedure delete_ustmesh, delete_cellvtex, delete_ustboco
+  module procedure delete_ustmesh, delete_ustboco
 endinterface
 
 
@@ -121,28 +119,6 @@ integer       :: ncell, nface, nvtex
 
   print*,"!!! pas d'allocation dans new_ustmesh !!!"
   stop
-  !mesh%idim = idim
-  !mesh%jdim = jdim
-  !mesh%kdim = kdim
-  !if (kdim /= 1) then ! CAS 3D
-  !  allocate(mesh%center(0:idim+1, 0:jdim+1, 0:kdim+1))
-  !  allocate(mesh%vertex(1:idim+1, 1:jdim+1, 1:kdim+1))
-  !  allocate(mesh% iface(1:idim+1, 1:jdim,   1:kdim))
-  !  allocate(mesh% jface(1:idim,   1:jdim+1, 1:kdim))
-  !  allocate(mesh% kface(1:idim,   1:jdim,   1:kdim+1))
-  !  allocate(mesh%volume(1:idim,   1:jdim,   1:kdim))
-  !else                ! CAS 2D
-  !  allocate(mesh%center(0:idim+1, 0:jdim+1, 1))
-  !  allocate(mesh%vertex(1:idim+1, 1:jdim+1, 1))
-  !  allocate(mesh% iface(1:idim+1, 1:jdim,   1))
-  !  allocate(mesh% jface(1:idim,   1:jdim+1, 1))
-  !  nullify(mesh%kface)
-  !  allocate(mesh%volume(1:idim,   1:jdim,   1))
-  !endif
-  !nullify(mesh%facevtex)
-  !nullify(mesh%cellvtex)
-  !nullify(mesh%facecell)
-  !nullify(mesh%cellface)
 
 endsubroutine new_ustmesh
 
@@ -160,7 +136,7 @@ type(st_ustmesh) :: umesh
   umesh%ncell = 0 ; umesh%ncell_int = 0 ; umesh%ncell_lim = 0
   umesh%nface = 0 ; umesh%nface_int = 0 ; umesh%nface_lim = 0 ; umesh%nface_intsvm = 0 
   umesh%nboco = 0
-  call init_cellvtex(umesh%cellvtex)
+  call new_genelemvtex(umesh%cellvtex, 0)   ! initialization
   nullify(umesh%face_Ltag%fils)
   nullify(umesh%face_Rtag%fils)
 
@@ -180,7 +156,7 @@ integer          :: i
   call delete(mesh%mesh)
   call delete(mesh%facevtex)
   call delete(mesh%facecell)
-  call delete(mesh%cellvtex)
+  call delete_genelemvtex(mesh%cellvtex)
   do i = 1, mesh%nboco 
     call delete(mesh%boco(i))
   enddo
@@ -263,102 +239,6 @@ integer          :: i
   if (bc%idefboco <= 0) call delete(bc%gridcon)
 
 endsubroutine delete_ustboco
-
-
-!------------------------------------------------------------------------------!
-! Procedure : Initialization of CELLVTEX structure
-!------------------------------------------------------------------------------!
-subroutine init_cellvtex(cellvtex)
-implicit none
-type(st_cellvtex) :: cellvtex
-
-  cellvtex%nbar   = 0
-  cellvtex%ntri   = 0
-  cellvtex%nquad  = 0
-  cellvtex%ntetra = 0
-  cellvtex%npyra  = 0
-  cellvtex%npenta = 0
-  cellvtex%nhexa  = 0
-
-endsubroutine init_cellvtex
-
-
-!------------------------------------------------------------------------------!
-! Procedure : allocation des tableaux d'une structure CELLVTEX
-!------------------------------------------------------------------------------!
-subroutine new_cellvtex(conn)
-implicit none
-type(st_cellvtex) :: conn
-
-  if (conn%nbar   /= 0) then
-    call new(conn%bar, conn%nbar, 2)
-    allocate(conn%ibar(conn%nbar))
-  endif
-  if (conn%ntri   /= 0) then
-    call new(conn%tri, conn%ntri, 3)
-    allocate(conn%itri(conn%ntri))
-  endif
-  if (conn%nquad  /= 0) then
-    call new(conn%quad, conn%nquad, 4)
-    allocate(conn%iquad(conn%nquad))
-  endif
-  if (conn%ntetra /= 0) then
-    call new(conn%tetra, conn%ntetra, 4)
-    allocate(conn%itetra(conn%ntetra))
-  endif
-  if (conn%npyra  /= 0) then
-    call new(conn%pyra, conn%npyra, 5)
-    allocate(conn%ipyra(conn%npyra))
-  endif
-  if (conn%npenta /= 0) then
-    call new(conn%penta, conn%npenta, 6)
-    allocate(conn%ipenta(conn%npenta))
-  endif
-  if (conn%nhexa  /= 0) then
-    call new(conn%hexa, conn%nhexa, 8)
-    allocate(conn%ihexa(conn%nhexa))
-  endif
-
-endsubroutine new_cellvtex
-
-
-!------------------------------------------------------------------------------!
-! Procedure :desallocation d'une structure CELLVTEX
-!------------------------------------------------------------------------------!
-subroutine delete_cellvtex(conn)
-implicit none
-type(st_cellvtex) :: conn
-
-  if (conn%nbar   /= 0) then
-    call delete(conn%bar)
-    deallocate(conn%ibar)
-  endif
-  if (conn%ntri   /= 0) then
-    call delete(conn%tri)
-    deallocate(conn%itri)
-  endif
-  if (conn%nquad  /= 0) then
-    call delete(conn%quad)
-    deallocate(conn%iquad)
-  endif
-  if (conn%ntetra /= 0) then
-    call delete(conn%tetra)
-    deallocate(conn%itetra)
-  endif
-  if (conn%npyra  /= 0) then
-    call delete(conn%pyra)
-    deallocate(conn%ipyra)
-  endif
-  if (conn%npenta /= 0) then
-    call delete(conn%penta)
-    deallocate(conn%ipenta)
-  endif
-  if (conn%nhexa  /= 0) then
-    call delete(conn%hexa)
-    deallocate(conn%ihexa)
-  endif
-
-endsubroutine delete_cellvtex
 
 
 !------------------------------------------------------------------------------!
@@ -561,6 +441,7 @@ endmodule USTMESH
 ! juil 2003 : suppression des structures USTCONNECT, definition dans CONNECTIVITY
 !             creation d'une structure de connectivite CELLVTEX
 ! sept 2007: new routines from createface_fromcgns (traitface, face_exist, same_face)
+! Apr  2008: change CELLVTEX description, cf ELEMVTEX module
 !------------------------------------------------------------------------------!
 
 

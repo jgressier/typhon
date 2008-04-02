@@ -33,6 +33,7 @@ type(st_ustboco), pointer &
 integer(kip)          :: i, if, ic, ic1, ic2, iv, ivf, if2, nicl, nf, ib, new_ib, new_bcface
 integer(kip)          :: nface_int, nface_lim, nface_cut
 integer(kip)          :: ncell_int, ncell_tot, nvtex
+integer(kip)          :: ielem, nelem
 integer(kip)          :: ncomm, maxcom
 integer(kip), allocatable, dimension(:) &
                       :: new_icell, new_iface, new_ivtex, facepart, cutface, cutcell
@@ -284,78 +285,26 @@ enddo
 
 ! -- cell->vtex --
 
-partgrid%umesh%cellvtex%nbar   = count(partition(fullgrid%umesh%cellvtex%ibar  (1:fullgrid%umesh%cellvtex%nbar))  ==ipart)
-partgrid%umesh%cellvtex%ntri   = count(partition(fullgrid%umesh%cellvtex%itri  (1:fullgrid%umesh%cellvtex%ntri))  ==ipart)
-partgrid%umesh%cellvtex%nquad  = count(partition(fullgrid%umesh%cellvtex%iquad (1:fullgrid%umesh%cellvtex%nquad)) ==ipart)
-partgrid%umesh%cellvtex%ntetra = count(partition(fullgrid%umesh%cellvtex%itetra(1:fullgrid%umesh%cellvtex%ntetra))==ipart)
-partgrid%umesh%cellvtex%npyra  = count(partition(fullgrid%umesh%cellvtex%ipyra (1:fullgrid%umesh%cellvtex%npyra)) ==ipart)
-partgrid%umesh%cellvtex%npenta = count(partition(fullgrid%umesh%cellvtex%ipenta(1:fullgrid%umesh%cellvtex%npenta))==ipart)
-partgrid%umesh%cellvtex%nhexa  = count(partition(fullgrid%umesh%cellvtex%ihexa (1:fullgrid%umesh%cellvtex%nhexa)) ==ipart)
+call new_genelemvtex(partgrid%umesh%cellvtex, 0)
 
-call new(partgrid%umesh%cellvtex)
+do ielem = 1, fullgrid%umesh%cellvtex%ntype
 
-ic2 = 0
-do i = 1, fullgrid%umesh%cellvtex%nbar
-  ic = fullgrid%umesh%cellvtex%ibar(i)
-  if (partition(ic) == ipart) then
-    ic2 = ic2 +1
-    partgrid%umesh%cellvtex%ibar(ic2)       = new_icell(ic)
-    partgrid%umesh%cellvtex%bar%fils(ic2,:) = new_ivtex(fullgrid%umesh%cellvtex%bar%fils(i,:))
-  endif
-enddo
-ic2 = 0
-do i = 1, fullgrid%umesh%cellvtex%ntri
-  ic = fullgrid%umesh%cellvtex%itri(i)
-  if (partition(ic) == ipart) then
-    ic2 = ic2 +1
-    partgrid%umesh%cellvtex%itri(ic2)       = new_icell(ic)
-    partgrid%umesh%cellvtex%tri%fils(ic2,:) = new_ivtex(fullgrid%umesh%cellvtex%tri%fils(i,:))
-  endif
-enddo
-ic2 = 0
-do i = 1, fullgrid%umesh%cellvtex%nquad
-  ic = fullgrid%umesh%cellvtex%iquad(i)
-  if (partition(ic) == ipart) then
-    ic2 = ic2 +1
-    partgrid%umesh%cellvtex%iquad(ic2)       = new_icell(ic)
-    partgrid%umesh%cellvtex%quad%fils(ic2,:) = new_ivtex(fullgrid%umesh%cellvtex%quad%fils(i,:))
-  endif
-enddo
-ic2 = 0
-do i = 1, fullgrid%umesh%cellvtex%ntetra
-  ic = fullgrid%umesh%cellvtex%itetra(i)
-  if (partition(ic) == ipart) then
-    ic2 = ic2 +1
-    partgrid%umesh%cellvtex%itetra(ic2)       = new_icell(ic)
-    partgrid%umesh%cellvtex%tetra%fils(ic2,:) = new_ivtex(fullgrid%umesh%cellvtex%tetra%fils(i,:))
-  endif
-enddo
-ic2 = 0
-do i = 1, fullgrid%umesh%cellvtex%npenta
-  ic = fullgrid%umesh%cellvtex%ipenta(i)
-  if (partition(ic) == ipart) then
-    ic2 = ic2 +1
-    partgrid%umesh%cellvtex%ipenta(ic2)       = new_icell(ic)
-    partgrid%umesh%cellvtex%penta%fils(ic2,:) = new_ivtex(fullgrid%umesh%cellvtex%penta%fils(i,:))
-  endif
-enddo
-ic2 = 0
-do i = 1, fullgrid%umesh%cellvtex%npyra
-  ic = fullgrid%umesh%cellvtex%ipyra(i)
-  if (partition(ic) == ipart) then
-    ic2 = ic2 +1
-    partgrid%umesh%cellvtex%ipyra(ic2)       = new_icell(ic)
-    partgrid%umesh%cellvtex%pyra%fils(ic2,:) = new_ivtex(fullgrid%umesh%cellvtex%pyra%fils(i,:))
-  endif
-enddo
-ic2 = 0
-do i = 1, fullgrid%umesh%cellvtex%nhexa
-  ic = fullgrid%umesh%cellvtex%ihexa(i)
-  if (partition(ic) == ipart) then
-    ic2 = ic2 +1
-    partgrid%umesh%cellvtex%ihexa(ic2)       = new_icell(ic)
-    partgrid%umesh%cellvtex%hexa%fils(ic2,:) = new_ivtex(fullgrid%umesh%cellvtex%hexa%fils(i,:))
-  endif
+  nelem = count(partition(fullgrid%umesh%cellvtex%elem(ielem)%ielem(1:fullgrid%umesh%cellvtex%elem(ielem)%nelem)) == ipart)
+  nvtex = fullgrid%umesh%cellvtex%elem(ielem)%nvtex
+
+  call addelem_genelemvtex(partgrid%umesh%cellvtex)
+  call new_elemvtex(partgrid%umesh%cellvtex%elem(ielem), nelem, fullgrid%umesh%cellvtex%elem(ielem)%elemtype)
+
+  ic2 = 0
+  do i = 1, fullgrid%umesh%cellvtex%elem(ielem)%nelem
+    ic = fullgrid%umesh%cellvtex%elem(ielem)%ielem(i)
+    if (partition(ic) == ipart) then
+      ic2 = ic2 +1
+      partgrid%umesh%cellvtex%elem(ielem)%ielem(ic2)            = new_icell(ic)
+      partgrid%umesh%cellvtex%elem(ielem)%elemvtex(ic2,1:nvtex) = new_ivtex(fullgrid%umesh%cellvtex%elem(ielem)%elemvtex(i,1:nvtex))
+    endif
+  enddo
+
 enddo
 
 ! ---------------------------------------------
