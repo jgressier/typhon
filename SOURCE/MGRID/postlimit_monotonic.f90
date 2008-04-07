@@ -48,10 +48,10 @@ do isca = 1, fprim%nscal
   smin(1:nf) = min( fprim%tabscal(isca)%scal(icl(1:nf)), fprim%tabscal(isca)%scal(icr(1:nf)) )
   smax(1:nf) = max( fprim%tabscal(isca)%scal(icl(1:nf)), fprim%tabscal(isca)%scal(icr(1:nf)) )
 
-  if (isca==2) then
-  do i = 1, nf
-    if ((icl(i)==40).or.(icr(i)==40)) print'(2i4,4f8.1)',icl(i),icr(i),smin(i),smax(i),cell_L%tabscal(isca)%scal(i),cell_R%tabscal(isca)%scal(i)
-  enddo ; endif
+  !if (isca==2) then
+  !do i = 1, nf
+  !  if ((icl(i)==40).or.(icr(i)==40)) print'(2i4,4f8.1)',icl(i),icr(i),smin(i),smax(i),cell_L%tabscal(isca)%scal(i),cell_R%tabscal(isca)%scal(i)
+  !enddo ; endif
 
   where (cell_L%tabscal(isca)%scal > smax) cell_L%tabscal(isca)%scal = smax
   where (cell_R%tabscal(isca)%scal > smax) cell_R%tabscal(isca)%scal = smax

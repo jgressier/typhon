@@ -65,7 +65,7 @@ do ielem = 1, ust_mesh%cellvtex%ntype
 
   nvtex = ust_mesh%cellvtex%elem(ielem)%nvtex
   do i = 1, ust_mesh%cellvtex%elem(ielem)%nelem
-    write(uf,'(i3,2I9)') nvtex, ust_mesh%cellvtex%elem(ielem)%elemvtex(i,1:nvtex)-1
+    write(uf,'(i3,'//strof(nvtex+1)//'I9)') nvtex, ust_mesh%cellvtex%elem(ielem)%elemvtex(i,1:nvtex)-1
   enddo
 
 enddo
@@ -83,6 +83,8 @@ do ielem = 1, ust_mesh%cellvtex%ntype
     vtktype = 5    ! VTK_TRIANGLE
   case(elem_quad4)
     vtktype = 9    ! VTK_QUAD
+  case(elem_ngon)
+    vtktype = 7    ! VTK_POLYGON
   case(elem_tetra4)
     vtktype = 10   ! VTK_TETRA
   case(elem_pyra5)
@@ -95,7 +97,9 @@ do ielem = 1, ust_mesh%cellvtex%ntype
     call erreur("VTK writer", "do not known how to write this element type")
   endselect
 
-  write(uf,'(I2)') vtktype
+  do i = 1, ust_mesh%cellvtex%elem(ielem)%nelem
+    write(uf,'(I2)') vtktype
+  enddo
 
 enddo
 
