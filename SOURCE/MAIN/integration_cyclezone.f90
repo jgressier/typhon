@@ -16,6 +16,7 @@ use VARCOM
 use DEFZONE
 use DEFFIELD
 use GEO3D
+use MENU_GEN
 
 implicit none
 
@@ -50,16 +51,16 @@ lzone%info%end_cycle   = .false.
 
 ! -- CYCLE header --
 
-select case(lzone%info%typ_temps)
+select case(lzone%info%time_model)
 
-case(stationnaire)
+case(time_steady)
   write(str_w,'(a,i5)') "  zone",lzone%id
 
-case(instationnaire)
+case(time_unsteady)
   write(str_w,'(a,i5,a,g10.4)') "  zone",lzone%id," at local t =",lzone%info%cycle_time
 
-case(periodique)
-
+case default
+  call erreur("Developement", "unknown time model")
 endselect
 
 call print_info(7,str_w)
@@ -73,13 +74,13 @@ do while (.not.lzone%info%end_cycle)
   lzone%info%iter_loc = lzone%info%iter_loc + 1
   lzone%info%iter_tot = lzone%info%iter_tot + 1
 
-  select case(lzone%info%typ_temps)
-  case(stationnaire)
+  select case(lzone%info%time_model)
+  case(time_steady)
     dtmax = huge(dtmax)
-  case(instationnaire)
+  case(time_unsteady)
     dtmax = lzone%info%cycle_dt - lzone%info%cycle_time
-  case(periodique)
-    call erreur("Development","periodic case not implemented")
+  case default
+    call erreur("internal error (integration_cyclezone)", "unknown time model")
   endselect
 
   !----------------------------------
@@ -90,15 +91,15 @@ do while (.not.lzone%info%end_cycle)
   !----------------------------------
   ! ecriture d'informations et gestion
 
-  select case(lzone%info%typ_temps)
-  case(stationnaire)
-  case(instationnaire)
+  select case(lzone%info%time_model)
+  case(time_steady)
+  case(time_unsteady)
     if (dt >= (lzone%info%cycle_dt - lzone%info%cycle_time)) then
       lzone%info%end_cycle = .true.
       dt  = lzone%info%cycle_dt - lzone%info%cycle_time
     endif
-  case(periodique)
-    call erreur("Development","periodic case not implemented")
+  case default
+    call erreur("Development", "unknown time model")
   endselect
 
   !-- DEV (coupling) -------------------------------------------------------

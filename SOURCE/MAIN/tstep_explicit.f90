@@ -18,6 +18,7 @@ use USTMESH
 use DEFFIELD
 use MENU_ZONECOUPLING
 use MATRIX_ARRAY
+use MENU_GEN
 
 implicit none
 
@@ -63,7 +64,7 @@ call flux_to_res(dtloc, umesh, flux, field%residu, .false., jacL, jacR)
 ! -- calcul pour correction en couplage --
 
 select case(typtemps)
- case(instationnaire) ! corrections de flux seulement en instationnaire
+ case(time_unsteady) ! corrections de flux seulement en instationnaire
 
  ! Calcul de l'"energie" a l'interface, en vue de la correction de flux, pour 
  ! le couplage avec echanges espaces

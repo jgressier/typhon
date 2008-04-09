@@ -1,13 +1,10 @@
 !------------------------------------------------------------------------------!
-! Procedure : integration                 Auteur : J. Gressier
-!                                         Date   : Juillet 2002
-! Fonction                                Modif  : (cf historique)
-!   Integration totale jusqu'au critere d'arret du calcul
+! Procedure : integration  
 !
-! Defauts/Limitations/Divers :
+! Fonction 
+!   Full integration of all cycles and zones
 !
 !------------------------------------------------------------------------------!
-
 subroutine integration(lworld)
 
 use TYPHMAKE
@@ -18,14 +15,10 @@ use MODWORLD
 
 implicit none
 
-! -- Declaration des entrees/sorties --
+! -- INPUTS/OUTPUTS --
 type(st_world) :: lworld
 
-! -- Declaration des entrees --
-
-! -- Declaration des sorties --
-
-! -- Declaration des variables internes --
+! -- Internal variables --
 type(st_grid), pointer :: pgrid
 real(krp)              :: cpu_start, cpu_end
 integer, dimension(:), allocatable &
@@ -35,7 +28,7 @@ integer                :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
 
 ! -- BODY --
 
-! initialisation
+! initialization
 
 lworld%info%icycle          = 0
 lworld%info%curtps          = 0._krp
@@ -70,15 +63,17 @@ do while (.not. lworld%info%fin_integration)
 
   ! -- ecriture d'informations en debut de cycle --
 
-  select case(lworld%prj%typ_temps)
-  case(stationnaire)
+  select case(lworld%prj%time_model)
+  case(time_steady)
     str_w = "* CYCLE "//strof(lworld%info%icycle)
     !write(str_w,'(a,a)') "* CYCLE ",strof(lworld%info%icycle,3)
-  case(instationnaire)
+  case(time_unsteady)
     write(str_w,'(a,i5,a,g10.4)') "* CYCLE", lworld%info%icycle, &
                                   " : t = ",  lworld%info%curtps
-  case(periodique)
-    write(str_w,'(a,i5)') "* CYCLE", lworld%info%icycle
+  !case(periodique)
+  !  write(str_w,'(a,i5)') "* CYCLE", lworld%info%icycle
+  case default
+    call erreur("internal error (integration)", "unknown time model")
   endselect
 
   call print_info(6,str_w)
@@ -97,9 +92,9 @@ do while (.not. lworld%info%fin_integration)
 
   ! -- ecriture d'informations en fin de cycle --
 
-  select case(lworld%prj%typ_temps)
+  select case(lworld%prj%time_model)
 
-  case(stationnaire)
+  case(time_steady)
     write(str_w,'(a,g10.4)') "  Residue in cycle = ", log10(lworld%info%cur_res/lworld%info%residu_ref)
     if (lworld%info%cur_res/lworld%info%residu_ref <= lworld%prj%residumax) then
       lworld%info%fin_integration = .true.
@@ -112,13 +107,15 @@ do while (.not. lworld%info%fin_integration)
     endif
     call print_info(6,str_w)
 
-  case(instationnaire)
+  case(time_unsteady)
     lworld%info%curtps = lworld%info%curtps + lworld%prj%dtbase
     if (lworld%info%icycle == lworld%prj%ncycle) lworld%info%fin_integration = .true.
 
-  case(periodique)
-    lworld%info%fin_integration = .true.
+  !case(periodique)
+  !  lworld%info%fin_integration = .true.
 
+  case default
+    call erreur("Development", "unknown TIME integration model")
   endselect
 
   call output_result(lworld, end_cycle)

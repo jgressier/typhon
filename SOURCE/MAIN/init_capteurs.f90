@@ -15,6 +15,7 @@ subroutine init_capteurs(zone)
 use TYPHMAKE
 use OUTPUT
 use DEFZONE
+use MENU_GEN
 
 implicit none
 
@@ -30,38 +31,35 @@ integer :: i             ! index de domaine/capteurs
 
 ! -- Debut de la procedure --
 
-print*,'capteurs:',zone%info%typ_temps
-select case(zone%info%typ_temps)
+select case(zone%info%time_model)
 
-case(stationnaire)
+case(time_steady)
   !!! DEV : GESTION des entrees/sorties et numeros d'unites par MODULE
   open(unit=uf_monres, file="monres."//strof_full_int(1,3), form = "formatted")
   write(uf_monres,'(a)') "@variables: it residual"
 
-case(instationnaire)
+case(time_unsteady)
   !!! DEV : GESTION des entrees/sorties et numeros d'unites par MODULE
   open(unit=uf_monphy, file="monphy."//strof_full_int(1,3), form = "formatted")
   write(uf_monphy,'(a)') "@variables: time"
   
-case(periodique)
 case default
-  call erreur("incoherence interne","mode inconnu pour l'initialisation des capteurs")
+   call erreur("internal error (init_capteurs)", "unknown time model")
+ 
 endselect
 
 do i = 1, zone%defsolver%nprobe
 
-  select case(zone%info%typ_temps)
+  select case(zone%info%time_model)
 
-  case(stationnaire)
+  case(time_steady)
     call erreur("developpement","mode non traite l'initialisation des capteurs")
 
-  case(instationnaire)
+  case(time_unsteady)
     call erreur("developpement","mode non traite l'initialisation des capteurs")
   
-  case(periodique)
-    call erreur("incoherence interne","mode non traite l'initialisation des capteurs")
   case default
-    call erreur("incoherence interne","mode inconnu pour l'initialisation des capteurs")
+   call erreur("internal error (init_capteurs)", "unknown time model")
   endselect
 
 enddo

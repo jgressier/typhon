@@ -12,6 +12,7 @@ use TYPHMAKE
 use OUTPUT
 use VARCOM
 use MODINFO
+use MENU_GEN
 
 implicit none
 
@@ -28,9 +29,9 @@ integer :: ierr
 
 ! -- BODY --
 
-select case(zinfo%typ_temps)
+select case(zinfo%time_model)
 
-case(stationnaire)
+case(time_steady)
   zinfo%residu_ref = max(zinfo%residu_ref, zinfo%cur_res)
   if (zinfo%cur_res/zinfo%residu_ref <= zinfo%residumax) zinfo%end_cycle = .true.
   ! -- header --
@@ -40,7 +41,7 @@ case(stationnaire)
       write(str_w,'(i7,g11.4)') zinfo%iter_loc, log10(zinfo%cur_res) !   log10(zinfo%cur_res/zinfo%residu_ref)
       !if (mod(zinfo%iter_loc,itfreq) == 0) call print_info(9,str_w)
 
-case(instationnaire)
+case(time_unsteady)
   zinfo%cycle_time = zinfo%cycle_time + dt
   ! -- header --
   if (mod(zinfo%iter_loc, itfreq*nlines) == 1) call print_info(9,'     it time')
@@ -48,7 +49,8 @@ case(instationnaire)
   if (mod(zinfo%iter_loc,itfreq) == 0) &      !    if (zinfo%end_cycle) &
       write(str_w,'(i7,g11.4)') zinfo%iter_loc, zinfo%cycle_time
   
-case(periodique)
+case default
+   call erreur("internal error (check_end_cycle)", "unknown time model")
 
 endselect
 

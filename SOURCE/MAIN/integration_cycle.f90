@@ -51,9 +51,9 @@ do ir = 1, ncoupling
     ! appel procedure d'echange
     call echange_zonedata(lworld,ir, iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2)
 
-    select case(lworld%prj%typ_temps)
+    select case(lworld%prj%time_model)
      
-     case(instationnaire)
+     case(time_unsteady)
      ! reinitialisation a 0 des tableaux de cumul de flux pour la correction 
      ! de flux
      !print*, "correction de flux", lworld%zone(iz1)%coupling(ncoupl1)%zcoupling%etatcons%tabscal(1)%scal(1), &
@@ -90,21 +90,21 @@ do izone = 1, lworld%prj%nzone
  
   ! -- Initialisation des infos pour le cycle
 
-  lworld%zone(izone)%info%iter_tot  = 0
-  lworld%zone(izone)%info%typ_temps = lworld%prj%typ_temps
+  lworld%zone(izone)%info%iter_tot   = 0
+  lworld%zone(izone)%info%time_model = lworld%prj%time_model
 
-  select case(lworld%prj%typ_temps)
+  select case(lworld%prj%time_model)
 
-  case(stationnaire)
+  case(time_steady)
     lworld%zone(izone)%info%residumax  = lworld%zone(izone)%defsolver%deftime%maxres
     lworld%zone(izone)%info%residu_ref = lworld%info%cur_res
 
-  case(instationnaire)
+  case(time_unsteady)
    lworld%zone(izone)%info%cycle_start = lworld%info%curtps
    lworld%zone(izone)%info%cycle_dt    = lworld%prj%dtbase
 
-  case(periodique)
-
+  case default
+    call erreur("Development", "unknown TIME model")
   endselect
 
   !-------------------------------------
@@ -119,12 +119,11 @@ do izone = 1, lworld%prj%nzone
 
   ! -- Retour d'informations d'integration du cycle
 
-  lworld%zone(izone)%info%typ_temps = lworld%prj%typ_temps
+  lworld%zone(izone)%info%time_model = lworld%prj%time_model
 
-  select case(lworld%prj%typ_temps)
+  select case(lworld%prj%time_model)
 
-  case(stationnaire)
-
+  case(time_steady)
    
   ! On attribue les residus courant et de reference de la zone la moins avancee, c'est-a-dire
   ! celle dont le rapport (residu courant/residu de reference (d'origine)) est le plus grand.
@@ -137,11 +136,11 @@ do izone = 1, lworld%prj%nzone
       lworld%info%residu_ref = lworld%zone(izone)%info%residu_reforigine !max(lworld%info%residu_ref, lworld%zone(izone)%info%residu_ref)
     endif
 
-  case(instationnaire)
+  case(time_unsteady)
     lworld%zone(izone)%info%cycle_dt = lworld%prj%dtbase
 
-  case(periodique)
-
+  case default
+    call erreur("internal error (integration_cycle)","unknown time model")
   endselect
   ! do if = 1, lworld%zone(izone)%ndom
   !   call dealloc_res(lworld%zone(izone)%field(if))

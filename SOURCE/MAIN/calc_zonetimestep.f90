@@ -66,16 +66,16 @@ case(solKDIF, solNS)
     case(stab_cond, loc_stab_cond)  ! -- Calcul par condition de stabilite (deftim%stabnb) --
       select case(lzone%defsolver%typ_solver)
       case(solNS)
-        select case(lzone%defsolver%deftime%temps)
-        case(stationnaire)
+        select case(lzone%defsolver%deftime%time_model)
+        case(time_steady)
           cfl = lzone%defsolver%deftime%stabnb*max(1._krp, 1._krp-log10(lzone%info%cur_res/ &
                                       lzone%info%residu_ref)- &
                                       log10(wcur_res/ wres_ref) )
           cfl = min(cfl, lzone%defsolver%deftime%stabnb_max)
-        case(instationnaire)
+        case(time_unsteady)
           cfl = lzone%defsolver%deftime%stabnb
         case default
-          call erreur("internal error", "unknown temporal parameter")
+          call erreur("internal error (calc_zonetimestep)", "unknown time model")
         endselect
         call calc_ns_timestep(cfl, lzone%defsolver%defns%properties(1), &
                               pgrid%umesh, pgrid%info%field_loc, pgrid%dtloc(1:ncell), ncell)

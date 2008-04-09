@@ -15,7 +15,7 @@ use TYPHMAKE   ! machine accuracy definition
 
 ! -- Variables globales du module -------------------------------------------
 
-character(len=6), parameter :: version = "0.3.2"
+character(len=6), parameter :: version = "0.4.0"
 
 logical        :: mpi_run              ! calcul parallele MPI ou non
 character      :: memory_mode          ! mode d'economie memoire
@@ -69,12 +69,6 @@ integer, parameter   :: solKDIF   = 20    ! Equation  de la chaleur    (EQKDIF)
 integer, parameter   :: solVORTEX = 30    ! Methode integrale et lagrangienne VORTEX
 
 !definitino de solVORTEX dans MENU_SOLVER
-
-! -- Constantes pour le choix du parametre "temps" (mnu_project)
-
-character, parameter :: stationnaire   = 'S'
-character, parameter :: instationnaire = 'I'
-character, parameter :: periodique     = 'P'
 
 ! -- Constantes pour le choix du parametre "typ_coord" (mnu_projMODCOM/VARCOM.f90ect)
 

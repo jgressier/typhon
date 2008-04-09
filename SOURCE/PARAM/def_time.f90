@@ -41,7 +41,7 @@ call print_info(5,"- Definition of time integration parameters")
 
 ! -- Recherche du BLOCK:TIME_PARAM
 
-deftime%temps = prj%typ_temps
+deftime%time_model = prj%time_model
 
 pblock => block
 call seekrpmblock(pblock, "TIME_PARAM", 0, pcour, nkey)

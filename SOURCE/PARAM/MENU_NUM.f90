@@ -19,11 +19,6 @@ implicit none
 
 ! -- Variables globales du module -------------------------------------------
 
-! -- Constantes pour le choix du parametre "temps"
-!character, parameter :: stationnaire   = 'S'
-!character, parameter :: instationnaire = 'I'
-!character, parameter :: periodique     = 'P'
-
 ! -- Constantes pour le calcul du pas de temps
 integer(kpp), parameter :: given_dt      = 1
 integer(kpp), parameter :: stab_cond     = 2
@@ -136,7 +131,7 @@ endtype mnu_imp
 ! structure MNU_TIME : options numeriques pour l'integration temporelle
 !------------------------------------------------------------------------------!
 type mnu_time
-  character       :: temps      ! (S)tationnaire, (I)nstationnaire, (P)eriodique
+  character       :: time_model ! Steady, Unsteady... (cf MENU_GEN)
   integer(kpp)    :: tps_meth   ! methode d'integration temporelle
   integer(kpp)    :: stab_meth  ! methode de calcul de la stabilite
   real(krp)       :: dt         ! constant time step (if selected)

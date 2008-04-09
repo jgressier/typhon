@@ -19,6 +19,7 @@ use DEFZONE
 use DEFFIELD
 use GEO3D
 use TYPHMAKE
+use MENU_GEN
 
 implicit none
 
@@ -92,7 +93,7 @@ endif
 
 select case(typtemps)
 
-  case(instationnaire) ! On applique des corrections de flux entre les echanges
+  case(time_unsteady) ! On applique des corrections de flux entre les echanges
     call choixcorrection(zone1, zone2, placement, corcoef, typ_cor1, nfacelim,&
                          nbc1, nbc2, ncoupl2)
 
@@ -167,7 +168,7 @@ call echange(zone1%coupling(ncoupl1)%zcoupling%echdata, &
 
 select case(typtemps)
 
-  case(instationnaire) ! On applique des corrections de flux entre les echanges
+  case(time_unsteady) ! On applique des corrections de flux entre les echanges
 
     if (placement == apres) then
 ! DEBUG

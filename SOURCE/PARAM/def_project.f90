@@ -80,14 +80,15 @@ endselect
 
 call rpmgetkeyvalstr(pcour, "TIME", str)
 
-prj%typ_temps = ' '
-if (samestring(str, "STEADY" ))   prj%typ_temps = stationnaire
-if (samestring(str, "UNSTEADY" )) prj%typ_temps = instationnaire
-if (samestring(str, "PERIODIC"))  prj%typ_temps = periodique
+prj%time_model = ' '
+if (samestring(str, "STEADY" ))   prj%time_model = time_steady
+if (samestring(str, "UNSTEADY" )) prj%time_model = time_unsteady
+if (samestring(str, "PERIODIC"))  prj%time_model = time_unsteady_periodic
+if (samestring(str, "INVERSE"))   prj%time_model = time_unsteady_inverse
 
-select case(prj%typ_temps)
+select case(prj%time_model)
 
-case(stationnaire) ! Evolution pseudo-instationnaire
+case(time_steady) ! Evolution pseudo-instationnaire
 
   call print_info(10,"STEADY computation (pseudo unsteady convergence)")
   if (.not.(rpm_existkey(pcour,"RESIDUALS").or.rpm_existkey(pcour,"NCYCLE"))) then
@@ -97,7 +98,7 @@ case(stationnaire) ! Evolution pseudo-instationnaire
   call rpmgetkeyvalint (pcour, "NCYCLE",    prj%ncycle, huge(prj%ncycle))
   ! DEV : TRAITER LES MOTS CLEFS INTERDITS
   
-case(instationnaire) ! Evolution instationnaire
+case(time_unsteady, time_unsteady_inverse) ! Evolution instationnaire
 
   call print_info(10,"UNSTEADY computation")
   call rpmgetkeyvalreal(pcour, "DURATION", prj%duration)
@@ -117,9 +118,9 @@ case(instationnaire) ! Evolution instationnaire
   endif
   ! DEV : TRAITER LES MOTS CLEFS INTERDITS
 
-case(periodique) ! Evolution periodique
+case(time_unsteady_periodic) ! Evolution periodique
 
-  call print_info(10,"calcul cyclique")
+  call print_info(10,"UNSTEADY AND PERIODICAL computation")
   call rpmgetkeyvalreal(pcour, "PERIOD", prj%duration)
   call rpmgetkeyvalint (pcour, "NCYCLE", prj%ncycle)
   prj%dtbase = prj%duration / prj%ncycle
@@ -127,7 +128,7 @@ case(periodique) ! Evolution periodique
   call erreur("Developpement","calcul periodique non implemente")
 
 case default
-  call erreur("parameter parsing","type d'integration temporelle inconnu")
+  call erreur("parameter parsing","unknown TIME model")
 endselect
 
 ! ----------------------------------------------------------------------------

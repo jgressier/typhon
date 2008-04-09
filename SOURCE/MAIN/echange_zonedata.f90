@@ -48,7 +48,7 @@ dtexch = lworld%coupling(ir)%n_tpsbase*lworld%prj%dtbase
 call echange_zonematch(lworld%zone(iz1), lworld%zone(iz2), &
                        lworld%coupling(ir)%typ_interpol, &
                        lworld%zone(iz1)%gridlist%first%umesh%boco(nbc1)%nface, &
-                       nbc1, nbc2, ncoupl1, ncoupl2, lworld%prj%typ_temps, &
+                       nbc1, nbc2, ncoupl1, ncoupl2, lworld%prj%time_model, &
                        dtexch)
   
 case(mesh_nonmatch)

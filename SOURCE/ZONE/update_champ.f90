@@ -14,6 +14,7 @@ use TYPHMAKE
 use MODINFO
 use VARCOM
 use OUTPUT
+use MENU_GEN
 use DEFFIELD
 
 implicit none
@@ -48,7 +49,7 @@ call xeqxpy(field%etatcons, field%residu)
 
 ! -- Calcul de residus dans le cas pseudo-stationnaire
 
-if (info%typ_temps == stationnaire) then
+if (info%time_model == time_steady) then
 
   info%cur_res = 0._krp
 

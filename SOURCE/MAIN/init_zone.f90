@@ -30,7 +30,7 @@ type(st_zone) :: zone
 
 ! -- Debut de la procedure --
 
-zone%info%typ_temps =  prj%typ_temps
+zone%info%time_model =  prj%time_model
 
 endsubroutine init_zone
 

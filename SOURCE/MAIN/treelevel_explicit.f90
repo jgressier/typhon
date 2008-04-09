@@ -65,7 +65,7 @@ pgrid => gridlist%first
 do while (associated(pgrid))
 
   ! DEV : changer les structures de couplages dans MGRID
-  call integration_grid(dt, info%typ_temps, defsolver, &
+  call integration_grid(dt, info%time_model, defsolver, &
                         pgrid, coupling, ncoupling)
 
   ! Desallocation des eventuelles listes chainees de champ generique utilisees

@@ -32,20 +32,28 @@ character, parameter   :: fmt_VIGIE   = 'V'   ! format VIGIE
 character, parameter   :: fmt_VTK     = 'K'   ! format VTK
 character, parameter   :: fmt_VTKBIN  = 'I'   ! format VTK Binary
 
+! -- Constants for TIME INEGRATION management
+
+character, parameter :: time_steady            = 'S'
+character, parameter :: time_unsteady          = 'I'
+character, parameter :: time_harmonic          = 'H'
+character, parameter :: time_unsteady_periodic = 'P'
+character, parameter :: time_unsteady_inverse  = 'V'
+
 ! -- DECLARATIONS -----------------------------------------------------------
 
 
 !------------------------------------------------------------------------------!
-! structure MNU_PROJECT : Parametres du projet
+! structure MNU_PROJECT : Project Parameters
 !------------------------------------------------------------------------------!
 type mnu_project
-  integer(kip)    :: nzone      ! nombre de zones
-  integer(kip)    :: ncoupling  ! nombre de couplages entre zones
-  character       :: typ_coord  ! type de repere
-  character       :: typ_temps  ! (S)tationnaire, (I)nstationnaire, (P)eriodique
-  real(krp)       :: duration   ! duree de l'integration ou de la periode
+  integer(kip)    :: nzone      ! number of zones
+  integer(kip)    :: ncoupling  ! number of coupling conditions between zones
+  character       :: typ_coord  ! type of framework
+  character       :: time_model ! (S)tationnaire, (I)nstationnaire, (P)eriodique
+  real(krp)       :: duration   ! time duration (if unsteady)
   real(krp)       :: tpsbase    ! pas de temps de base du couplage
-  integer(kip)    :: ncycle     ! nombre de cycle (en stationnaire ou periodique)
+  integer(kip)    :: ncycle     ! number of cycles (steady)
   real(krp)       :: residumax  ! valeur maximale du residu admise (stationnaire)
   real(krp)       :: dtbase     ! pas de temps de base d'un cycle
   integer(kpp)    :: action     ! give main action to do
@@ -74,8 +82,6 @@ endtype mnu_OUTPUT
 
 
 endmodule MENU_GEN
-
-
 
 !------------------------------------------------------------------------------!
 ! Changes history

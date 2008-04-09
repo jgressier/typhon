@@ -40,7 +40,7 @@ endtype st_info
 ! Definition de la structure ST_INFOZONE : informations sur la zone
 !------------------------------------------------------------------------------!
 type st_infozone
-  character :: typ_temps            ! (S)tationnaire, (I)nstationnaire, (P)eriodique
+  character :: time_model           ! (S)tationnaire, (I)nstationnaire, (P)eriodique
   logical   :: end_cycle            ! end of cycle
   integer   :: iter_tot             ! nombre d'iteration total
   integer   :: iter_loc             ! nombre d'iteration local dans le cycle
