@@ -1,0 +1,82 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON 
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+  COORD     = 3D     
+  TIME      = UNSTEADY 
+  DURATION  = 5000
+  NCYCLE    = 500
+ENDBLOCK               
+
+BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+  FORMAT = VTK-BIN
+  FILE   = "plate" 
+  PERIOD = 1
+ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "PLATE"  
+  SOLVER = HEAT      
+ENDBLOCK
+
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = CGNS
+  FILE   = "plate50.cgns"  ! wget http://typhon.sourceforge.net/mesh/plate50.cgns
+ENDBLOCK
+
+BLOCK:MODEL
+  MATERIAL = DEFINITION   ! proche du Titane
+  CONDUCT  = 20.
+  HEATCAPA = 2.E6
+ENDBLOCK
+
+BLOCK:TIME_PARAM
+  METHOD    = EXPLICIT
+  INVERSION = CGS
+  FOURIER   = 0.5
+ENDBLOCK
+
+BLOCK:SPAT_PARAM
+  DISSIPATIVE_FLUX = FULL
+ENDBLOCK
+
+BLOCK:INIT
+  TEMP = 300.
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY    = ZMIN
+  TYPE      = FLUXSET_WALL
+  WALL_FLUX = 10000.*exp(-(sqr(x-.2*cos(6.2831853*t/1000))+sqr(y-.2*sin(6.2831853*t/1000)))/sqr(.1))
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY      = ZMAX
+  TYPE        = ADIABATIC_WALL
+  WALL_FLUX   = 
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY      = XMIN
+  TYPE        = ADIABATIC_WALL
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY      = XMAX
+  TYPE        = ADIABATIC_WALL
+ENDBLOCK
+BLOCK:BOCO
+  FAMILY      = YMIN
+  TYPE        = ADIABATIC_WALL
+ENDBLOCK
+BLOCK:BOCO
+  FAMILY      = YMAX
+  TYPE        = ADIABATIC_WALL
+ENDBLOCK
+
+
