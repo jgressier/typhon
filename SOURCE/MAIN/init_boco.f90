@@ -40,7 +40,7 @@ case(solNS)
   enddo
 
 case(solKDIF)
-  if (zone%gridlist%nbgrid /= 1) call erreur("Init BOCO","une seule grille acceptee")
+  if (zone%gridlist%nbgrid /= 1) call erreur("Init BOCO","only one grid allowed")
   call init_boco_kdif(zone%defsolver, zone%gridlist%first%umesh)
 
 case(solVORTEX)

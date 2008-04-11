@@ -37,7 +37,8 @@ do iboco = 1, grid%umesh%nboco
 
   idef = grid%umesh%boco(iboco)%idefboco
   if (defsolver%boco(idef)%typ_calc == bc_calc_singpanel) then 
-    bcfield => newbocofield(grid, grid%umesh%boco(iboco)%nface+1, 1, 0, 0)
+    call erreur("DEV", "no longer available")
+    !!! DEV!!!    bcfield => newbocofield(grid, grid%umesh%boco(iboco)%nface+1, 1, 0, 0)
   endif
 
 enddo

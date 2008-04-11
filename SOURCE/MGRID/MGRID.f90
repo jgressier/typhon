@@ -118,9 +118,9 @@ type st_grid
   type(st_field), pointer :: field      ! chained list of field (cons, prim, grad, residuals)
 
   integer                 :: nbocofield ! nombre de champs generiques
-  type(st_genericfield), pointer &
-                          :: bocofield  ! chained list of generic fields (sca, vec, tens)
-                                        !   for boundary conditions
+  !type(st_genericfield), pointer &
+  !                        :: bocofield  ! chained list of generic fields (sca, vec, tens)
+  !                                      !   for boundary conditions
   type(st_grd_optmem)     :: optmem     ! 
   real(krp), pointer      :: dtloc(:)   ! array of local timestep
   type(st_gridconnect), pointer :: gdcon_send
@@ -397,26 +397,26 @@ endfunction name_grid
 ! Procedure : ajout avec allocation d'une structure champ generique
 ! (par insertion)
 !------------------------------------------------------------------------------!
-function newbocofield(grid,dim,nscal,nvect,ntens) result(pbocofield)
-implicit none
-type(st_genericfield), pointer :: pbocofield
-type(st_grid)                  :: grid
-integer                        :: dim, nscal, nvect, ntens
-
-  grid%nbocofield = grid%nbocofield + 1
-
-  if (grid%nbocofield == 1) then
-   allocate(pbocofield)
-   call new(pbocofield,dim,nscal,nvect,ntens)
-   nullify(pbocofield%next)
-   call init_genericfield(pbocofield,0._krp,v3d(0._krp,0._krp,0._krp))
-  else
-    pbocofield => insert_newgfield(grid%bocofield,dim,nscal,nvect,ntens)
-    call init_genericfield(pbocofield,0._krp,v3d(0._krp,0._krp,0._krp))
-  endif
-  grid%bocofield => pbocofield
-
-endfunction newbocofield
+!!$function newbocofield(grid,dim,nscal,nvect,ntens) result(pbocofield)
+!!$implicit none
+!!$type(st_genericfield), pointer :: pbocofield
+!!$type(st_grid)                  :: grid
+!!$integer                        :: dim, nscal, nvect, ntens
+!!$
+!!$  grid%nbocofield = grid%nbocofield + 1
+!!$
+!!$  if (grid%nbocofield == 1) then
+!!$   allocate(pbocofield)
+!!$   call new(pbocofield,dim,nscal,nvect,ntens)
+!!$   nullify(pbocofield%next)
+!!$   call init_genericfield(pbocofield,0._krp,v3d(0._krp,0._krp,0._krp))
+!!$  else
+!!$    pbocofield => insert_newgfield(grid%bocofield,dim,nscal,nvect,ntens)
+!!$    call init_genericfield(pbocofield,0._krp,v3d(0._krp,0._krp,0._krp))
+!!$  endif
+!!$  grid%bocofield => pbocofield
+!!$
+!!$endfunction newbocofield
 
 
 !------------------------------------------------------------------------------!

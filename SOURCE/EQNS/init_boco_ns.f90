@@ -38,6 +38,19 @@ do iboco = 1, ustdom%nboco
 
   if (idef > 0) then
 
+    select case(defsolver%boco(idef)%typ_boco) 
+    case(bc_inlet_sub, bc_inlet_sup, bc_outlet_sub, bc_outlet_sup)
+      ! nothing to do
+    case(bc_wall_isoth)
+      ! nothing to do
+    case(bc_wall_flux, bc_wall_hconv, bc_wall_hgen)
+      ustdom%boco(iboco)%bocofield => insert_newgfield(ustdom%boco(iboco)%bocofield, ustdom%boco(iboco)%nface, 1, 0, 0)
+    !case default
+    !  call erreur("Internal error","unknown boundary condition (init_boco_ns)")
+    endselect
+
+  !!! DEV !!! must locate array in ustdom%boco instead of defsolver
+
   !-------------------------------------------------
   ! Condition de Dirichlet 
   !-------------------------------------------------

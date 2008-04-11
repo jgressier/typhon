@@ -220,8 +220,8 @@ integer,          intent(in)  :: n
   bc%family = nom
   bc%nface  = n
   allocate(bc%iface(n))
-  nullify(bc%bocofield)
-
+  nullify(bc%bocofield)  
+ 
   call init_gridconnect(bc%gridcon)
 
 endsubroutine new_ustboco
@@ -237,6 +237,7 @@ integer          :: i
 
   deallocate(bc%iface)
   if (bc%idefboco <= 0) call delete(bc%gridcon)
+  call delete_chainedgfield(bc%bocofield)
 
 endsubroutine delete_ustboco
 

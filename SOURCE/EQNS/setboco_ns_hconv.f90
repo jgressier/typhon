@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine setboco_ns_hconv(defns, unif, ustboco, ustdom, fld, flux, defsolver, bcns)
+subroutine setboco_ns_hconv(defns, unif, ustboco, ustdom, fld, defsolver, bcns)
 
 use TYPHMAKE
 use OUTPUT
@@ -29,8 +29,6 @@ type(st_boco_ns)   :: bcns           ! parameters and fluxes (field or constant)
 
 ! -- Declaration des sorties --
 type(st_field)   :: fld            ! champ des etats
-real(krp), dimension(ustboco%nface) &
-                 :: flux             ! flux
 
 ! -- Declaration des variables internes --
 integer          :: ifb, if, ip      ! index de liste, index de face limite et parametres
@@ -95,9 +93,10 @@ do ifb = 1, ustboco%nface
            ( fld%etatprim%tabscal(1)%scal(ic) * r_PG ) + gTdc ) + &
            bcns%tconv_nunif(ifb)*bcns%h_nunif(ifb) ) / &
          (conduct/d+bcns%h_nunif(ifb))
-
+ 
   ! Heat flux
-  flux(ifb) = flux(ifb) + bcns%h_nunif(ifb)*(temp - bcns%tconv_nunif(ifb))
+  ustboco%bocofield%tabscal(1)%scal(ifb) = ustboco%bocofield%tabscal(1)%scal(ifb) &
+                                          + bcns%h_nunif(ifb)*(temp - bcns%tconv_nunif(ifb))
 
   ! pressure
   gPdc = fld%gradient%tabvect(2)%vect(ic) .scal. dc

@@ -20,20 +20,19 @@ use DEFFIELD
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(mnu_boco)   :: defboco          ! parametres de conditions aux limites
 type(st_ustboco) :: ustboco          ! lieu d'application des conditions aux limites
 type(mnu_solver) :: defsolver        ! type d'equation a resoudre
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 type(st_grid)    :: grid             ! mise a jour du champ (maillage en entree)
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 integer          :: ifb, if, ip      ! index de liste, index de face limite et parametres
 integer          :: icell, ighost    ! index de cellule interieure, et de cellule fictive
-type(st_genericfield), pointer :: pbcf
 
-! -- Debut de la procedure --
+! -- BODY --
 
 select case(defboco%typ_boco) 
 
@@ -57,29 +56,24 @@ case(bc_wall_isoth)
   call setboco_ns_isoth(defsolver%defns,defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, defboco%boco_ns)
 
 case(bc_wall_flux)
-  pbcf => newbocofield(grid,ustboco%nface,1,0,0)  
+  call init_genericfield(ustboco%bocofield, 0._krp, v3d(0._krp, 0._krp, 0._krp))
   call setboco_ns_flux(defsolver%defns, defboco%boco_unif, ustboco, &
-      grid%umesh, grid%info%field_loc, pbcf%tabscal(1)%scal, defboco%boco_ns)
-  ustboco%bocofield => pbcf
-  !call setboco_ns_flux(defsolver%defns, defboco%boco_unif, ustboco, &
-  !    grid%umesh, grid%info%field_loc, defboco%boco_ns)
+      grid%umesh, grid%info%field_loc, defboco%boco_ns)
 
 case(bc_wall_hconv)
-  pbcf => newbocofield(grid,ustboco%nface,1,0,0) 
-  call setboco_ns_hconv(defsolver%defns, defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, pbcf%tabscal(1)%scal, &
+  call init_genericfield(ustboco%bocofield, 0._krp, v3d(0._krp, 0._krp, 0._krp))
+  call setboco_ns_hconv(defsolver%defns, defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, &
                           defsolver, defboco%boco_ns)
-  ustboco%bocofield => pbcf
 
 case(bc_wall_hgen)
-  pbcf => newbocofield(grid,ustboco%nface,1,0,0)
+  call init_genericfield(ustboco%bocofield, 0._krp, v3d(0._krp, 0._krp, 0._krp))
   call setboco_ns_flux(defsolver%defns, defboco%boco_unif, ustboco, &
-      grid%umesh, grid%info%field_loc, pbcf%tabscal(1)%scal, defboco%boco_ns) 
-  call setboco_ns_hconv(defsolver%defns, defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, pbcf%tabscal(1)%scal, &
+                          grid%umesh, grid%info%field_loc, defboco%boco_ns) 
+  call setboco_ns_hconv(defsolver%defns, defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, &
                           defsolver, defboco%boco_ns)
-  ustboco%bocofield => pbcf
 
 case default
-  call erreur("Developpement","Condition limite inconnu a ce niveau (calcboco_ns)")
+  call erreur("Internal error","unknown boundary condition (calcboco_ns)")
 
 endselect
 

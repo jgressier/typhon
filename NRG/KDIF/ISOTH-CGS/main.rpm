@@ -9,7 +9,7 @@ BLOCK:PROJECT           ! DEFINITION DU PROJET
 ENDBLOCK               
 
 BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
-  FORMAT = TECPLOT      ! format du fichier de sortie : RAW / TECPLOT / VIGIE
+  FORMAT = VTK
   FILE   = "typhon.dat" ! nom du fichier de sortie
 ENDBLOCK
 
@@ -34,13 +34,13 @@ BLOCK:MODEL
 ENDBLOCK
 
 BLOCK:TIME_PARAM 
-  FOURIER   = 0.2
+  FOURIER   = 20.
   METHOD    = IMPLICIT
-  INVERSION = LU
+  INVERSION = CGS
 ENDBLOCK
 
 BLOCK:SPAT_PARAM  ! Bloc nécessaire mais vide
-  VAR=1           ! variable bidon
+  DISSIPATIVE_FLUX=FULL
 ENDBLOCK
 
 BLOCK:INIT

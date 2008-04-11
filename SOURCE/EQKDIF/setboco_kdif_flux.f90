@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine setboco_kdif_flux(curtime, unif, ustboco, ustdom, champ, flux, defsolver, bckdif, defspat)
+subroutine setboco_kdif_flux(curtime, unif, ustboco, ustdom, champ, defsolver, bckdif, defspat)
 
 use TYPHMAKE
 use OUTPUT
@@ -33,8 +33,6 @@ type(mnu_spat)     :: defspat
 
 ! -- Outputs --
 type(st_field)   :: champ            ! field
-real(krp), dimension(ustboco%nface) &
-                 :: flux             ! flux
 
 ! -- Internal variables --
 integer          :: ifb, if, ip   ! index of list, index de boundary face and parameters
@@ -96,7 +94,7 @@ do ifb = 1, nface
   conduct = valeur_loi(defsolver%defkdif%materiau%Kd, champ%etatprim%tabscal(1)%scal(ic))
 
   ! Heat flux
-  flux(ifb) = flux(ifb) + lflux(ifb)
+  ustboco%bocofield%tabscal(1)%scal(ifb) = ustboco%bocofield%tabscal(1)%scal(ifb) + lflux(ifb)
 
   ! Approximated temperature in factice cell, for computation of gradients
   dc = (cgface - cg) - ( (cgface - cg).scal.normale ) * normale

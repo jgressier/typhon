@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine setboco_kdif_hconv(curtime, unif, ustboco, ustdom, champ, flux, defsolver, bckdif, defspat)
+subroutine setboco_kdif_hconv(curtime, unif, ustboco, ustdom, champ, defsolver, bckdif, defspat)
 
 use TYPHMAKE
 use OUTPUT
@@ -33,8 +33,6 @@ type(mnu_spat)     :: defspat
 
 ! -- Outputs --
 type(st_field)   :: champ            ! field
-real(krp), dimension(ustboco%nface) &
-                 :: flux             ! flux
 
 ! -- Internal variables --
 integer          :: ifb, if, ip   ! index of list, boundary face and parameters
@@ -113,7 +111,8 @@ do ifb = 1, ustboco%nface
   endif
 
   ! Heat flux
-  flux(ifb) = flux(ifb) + hloc(ifb)*(champ%etatprim%tabscal(1)%scal(ighost) - tloc(ifb))
+  ustboco%bocofield%tabscal(1)%scal(ifb) = ustboco%bocofield%tabscal(1)%scal(ifb) &
+                                          + hloc(ifb)*(champ%etatprim%tabscal(1)%scal(ighost) - tloc(ifb))
 
 enddo
 

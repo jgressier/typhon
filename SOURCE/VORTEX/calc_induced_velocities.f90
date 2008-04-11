@@ -66,8 +66,9 @@ do ib = 1, defsolver%nboco  ! boucle sur boco / rech. de cond. singularites
       iv2  = pgrid%umesh%facevtex%fils(if,2)
       x1   = pgrid%umesh%mesh%vertex(iv1, 1, 1)
       x2   = pgrid%umesh%mesh%vertex(iv2, 1, 1)
-      c1   = pgrid%bocofield%tabscal(1)%scal(iv1)
-      c2   = pgrid%bocofield%tabscal(1)%scal(iv2)
+      call erreur("DEV", "no longer available")
+      !!! DEV!!! c1   = pgrid%bocofield%tabscal(1)%scal(iv1)
+      !!! DEV!!! c2   = pgrid%bocofield%tabscal(1)%scal(iv2)
 
       do ipos = 1, dim
         ! DEV : generalisation au calcul d'un tableau

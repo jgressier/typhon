@@ -7,8 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine setboco_ns_flux(defns,unif, ustboco, ustdom, fld, flux, bcns)
-!subroutine setboco_ns_flux(defns,unif, ustboco, ustdom, fld, bcns)
+subroutine setboco_ns_flux(defns,unif, ustboco, ustdom, fld, bcns)
 
 use TYPHMAKE
 use OUTPUT
@@ -28,8 +27,6 @@ type(st_boco_ns)   :: bcns             ! parameters and temperature (field or co
 
 ! -- Declaration des sorties --
 type(st_field)   :: fld            ! fields
-real(krp), dimension(ustboco%nface) &
-                 :: flux             ! flux
 
 ! -- Declaration des variables internes --
 integer    :: ifb, if, ip  ! index de liste, index de face limite et parametres
@@ -91,7 +88,8 @@ if (unif == uniform) then
            ( fld%etatprim%tabscal(1)%scal(ic) * r_PG ) + gTdc - &
            2._krp*bcns%flux*abs( (cgface - cg).scal.normale )/conduct
     ! heat flux
-    flux(ifb) = flux(ifb) + bcns%flux
+    ustboco%bocofield%tabscal(1)%scal(ifb) = ustboco%bocofield%tabscal(1)%scal(ifb) &
+                                             + bcns%flux
 
     ! pressure
     !fld%etatprim%tabscal(2)%scal(ighost) = fld%etatprim%tabscal(2)%scal(ic)
@@ -153,7 +151,8 @@ else
            2._krp*bcns%flux_nunif(ifb)*abs( (cgface - cg).scal.normale )/conduct
 
     ! heat flux
-    flux(ifb) = flux(ifb) + bcns%flux_nunif(ifb)
+    ustboco%bocofield%tabscal(1)%scal(ifb) = ustboco%bocofield%tabscal(1)%scal(ifb) &
+                                             + bcns%flux_nunif(ifb)
 
     ! pressure
     !fld%etatprim%tabscal(2)%scal(ighost) = fld%etatprim%tabscal(2)%scal(ic)

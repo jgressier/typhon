@@ -69,10 +69,11 @@ do while (associated(pgrid))
                         pgrid, coupling, ncoupling)
 
   ! Desallocation des eventuelles listes chainees de champ generique utilisees
-  if (pgrid%nbocofield .ne. 0) then
-    call delete_chainedgfield(pgrid%bocofield)
-    pgrid%nbocofield = 0
-  endif
+  !!! DEV !!! removed in r606
+  !if (pgrid%nbocofield .ne. 0) then
+  !  call delete_chainedgfield(pgrid%bocofield)
+  !  pgrid%nbocofield = 0
+  !endif
 
   pgrid => pgrid%next
 
