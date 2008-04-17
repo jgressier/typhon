@@ -40,15 +40,15 @@ character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- Debut de la procedure --
 
-call print_info(5,"- Definition des conditions aux limites")
+call print_info(5,"* Definition of Boundary Conditions (BOCO)")
 
 ! -- Recherche du BLOCK:BOCO
 
 pblock => block
 call seekrpmblock(pblock, "BOCO", 0, pcour, nboco)
 
-if (nboco < 1) call erreur("lecture de menu", &
-                           "Pas de definition de conditions aux limites (BOCO)")
+if (nboco < 1) call erreur("menu reading", &
+                           "no boundary condition found (BOCO block)")
 
 defsolver%nboco = nboco
 allocate(defsolver%boco(nboco))
@@ -99,9 +99,9 @@ do ib = 1, nboco
   defsolver%boco(ib)%typ_boco = bocotype(str)
 
   if (defsolver%boco(ib)%typ_boco /= inull) then
-    call print_info(8,"    famille "//defsolver%boco(ib)%family(1:12)//": condition "//trim(str))
+    call print_info(8,"    family name "//defsolver%boco(ib)%family(1:12)//": condition "//trim(str))
   else
-    call erreur("lecture de menu (def_boco)",trim(str)//" condition aux limites inconnue")
+    call erreur("lecture de menu (def_boco)",trim(str)//" unknown boundary condition")
   endif
 
   ! -- Traitement du couplage
@@ -271,10 +271,21 @@ do ib = 1, nboco
                            defsolver%boco(ib)%boco_vortex, &
                            defsolver%boco(ib)%boco_unif)
        case default
-         call erreur("incoherence interne (def_boco)","solveur inconnu")
+         call erreur("Internal error (def_boco)","unknown solver")
       endselect
 
     endselect
+
+    call rpmgetkeyvalstr(pcour, "SAVE_HISTORY", str, "NONE")
+    defsolver%boco(ib)%save_history = -1
+    if (samestring(str, "NONE" ))           defsolver%boco(ib)%save_history = bchisto_none
+    if (samestring(str, "QUANTITY" ))       defsolver%boco(ib)%save_history = bchisto_quantity
+    if (samestring(str, "FLUX" ))           defsolver%boco(ib)%save_history = bchisto_flux
+    if (samestring(str, "QUANTITY-FLUX" ))  defsolver%boco(ib)%save_history = bchisto_quantity + bchisto_flux
+    if (defsolver%boco(ib)%save_history == -1) then
+        call erreur("Internal error (def_boco)","unknown SAVE_HISTORY option")
+    endif
+    
 
     ! Initialisation de l'implementation de la condition aux limites
     defsolver%boco(ib)%typ_calc = bctype_of_boco(isolver, defsolver%boco(ib)%typ_boco)
@@ -286,10 +297,11 @@ endsubroutine def_boco
 
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes History
 !
 ! mars 2003 : creation de la routine
 ! fev  2004 : ajout des CL propres au solveur VORTEX (cf MENU_VORTEX)
+! Apr  2008: boundary condition history
 !------------------------------------------------------------------------------!
 
 

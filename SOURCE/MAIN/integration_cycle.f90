@@ -111,6 +111,8 @@ do izone = 1, lworld%prj%nzone
   call integration_cyclezone(lworld%zone(izone), lworld%info%residu_ref, wcur_res)
   !-------------------------------------
 
+  call write_bocohisto(lworld%info%icycle, lworld%zone(izone))
+
   ! -- Initialisation de residu_reforigine : valeur du residu de reference 
   !    du premier cycle pour chaque zone.
   if(lworld%info%icycle.eq.1) then

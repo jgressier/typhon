@@ -156,7 +156,7 @@ do while (.not.lzone%info%end_cycle)
 
   call check_end_cycle(lzone%info, dt)
 
-  call capteurs(lzone)
+  call write_monitors(lzone)
 
 enddo
 

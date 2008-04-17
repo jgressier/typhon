@@ -17,47 +17,12 @@ use MESHBASE      ! geometrical basic elements
 use CONNECTIVITY  ! lists & connectivity 
 use ELEMVTEX      ! Cell (vtex) definition
 use DEFFIELD
-use GRID_CONNECT  ! definition of connectivity between grids
+use USTBOCO
 
 implicit none
 
-! -- Variables globales du module -------------------------------------------
-
-integer, parameter :: defboco_connect = -1       
 
 ! -- DECLARATIONS -----------------------------------------------------------
-
-
-!------------------------------------------------------------------------------!
-! structure ST_CELLVTEX : Definition de connectivite CELL -> VERTEX
-!   une connectivite speciale est definie pour une meilleure gestions des
-!   actions selon le type des elements.
-!------------------------------------------------------------------------------!
-!!$type st_cellvtex
-!!$  integer          :: dim                      ! dimension spatiale des elements (2D/3D)
-!!$  integer          :: nbar, ntri, nquad, &     ! nombre d'elements par famille
-!!$                      ntetra, npyra, npenta, nhexa  
-!!$  type(st_connect) :: bar, tri, quad,    &     ! definition des elements
-!!$                      tetra, pyra, penta, hexa
-!!$  integer, dimension(:), pointer &
-!!$                   :: ibar, itri, iquad, &     ! redirection d'index vers "icell" de ustmesh
-!!$                      itetra, ipyra, ipenta, ihexa 
-!!$endtype st_cellvtex
-
-
-!------------------------------------------------------------------------------!
-! Definition de la structure ST_USTBOCO : Definition des conditions aux limites
-!------------------------------------------------------------------------------!
-type st_ustboco
-  character(len=strlen)          :: family     ! nom de famille
-  integer                        :: idefboco   ! index pointer to defsolver boco definition
-                                               !   if <= 0 then other definition (cf defboco_* constants)
-  integer                        :: nface      ! nombre de faces concernees
-  integer, dimension(:), pointer :: iface      ! liste des faces concernees par
-                                               ! les conditions aux limites
-  type(st_genericfield), pointer :: bocofield  ! pointer to chained list of boco fields (in MGRID)
-  type(st_gridconnect)           :: gridcon    ! connectivity to grid
-endtype st_ustboco
 
 
 !------------------------------------------------------------------------------!
@@ -93,11 +58,11 @@ endtype st_ustmesh
 ! -- INTERFACES -------------------------------------------------------------
 
 interface new
-  module procedure new_ustmesh, new_ustboco
+  module procedure new_ustmesh
 endinterface
 
 interface delete
-  module procedure delete_ustmesh, delete_ustboco
+  module procedure delete_ustmesh
 endinterface
 
 
@@ -207,39 +172,6 @@ integer :: i, info
   
 endfunction pboco_ustmesh
 
-
-!------------------------------------------------------------------------------!
-! Procedure : allocation d'une structure USTBOCO
-!------------------------------------------------------------------------------!
-subroutine new_ustboco(bc, nom, n)
-implicit none
-type(st_ustboco), intent(out) :: bc
-character(len=*), intent(in)  :: nom
-integer,          intent(in)  :: n
-
-  bc%family = nom
-  bc%nface  = n
-  allocate(bc%iface(n))
-  nullify(bc%bocofield)  
- 
-  call init_gridconnect(bc%gridcon)
-
-endsubroutine new_ustboco
-
-
-!------------------------------------------------------------------------------!
-! Procedure : desallocation d'une structure USTBOCO
-!------------------------------------------------------------------------------!
-subroutine delete_ustboco(bc)
-implicit none
-type(st_ustboco) :: bc
-integer          :: i
-
-  deallocate(bc%iface)
-  if (bc%idefboco <= 0) call delete(bc%gridcon)
-  call delete_chainedgfield(bc%bocofield)
-
-endsubroutine delete_ustboco
 
 
 !------------------------------------------------------------------------------!
@@ -443,6 +375,7 @@ endmodule USTMESH
 !             creation d'une structure de connectivite CELLVTEX
 ! sept 2007: new routines from createface_fromcgns (traitface, face_exist, same_face)
 ! Apr  2008: change CELLVTEX description, cf ELEMVTEX module
+! Apr  2008: split USTMESH with BOCO definition in USTBOCO
 !------------------------------------------------------------------------------!
 
 

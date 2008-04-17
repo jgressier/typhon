@@ -1,13 +1,13 @@
 !------------------------------------------------------------------------------!
-! Procedure : capteurs                    Auteur : J. Gressier
+! Procedure : write_monitors                    Auteur : J. Gressier
 !                                         Date   : Mai 2003
 ! Fonction                                Modif  : (cf historique)
-!   Calcul des quantites definis par les capteurs
+!   Calcul des quantites definis par les write_monitors
 !
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine capteurs(zone)
+subroutine write_monitors(zone)
 
 use TYPHMAKE
 use OUTPUT
@@ -44,11 +44,12 @@ enddo
 write(uf_monres,*) zone%info%iter_tot, log10(zone%info%cur_res)
 
 !-----------------------------
-endsubroutine capteurs
+endsubroutine write_monitors
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! mai 2003 : creation de la procedure (test pour debuggage)
 ! nov 2003 : redirection selon type de capteur
+! Apr 2008: change name into write_monitors.f90
 !------------------------------------------------------------------------------!

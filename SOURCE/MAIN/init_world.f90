@@ -90,6 +90,14 @@ do icoupling = 1,  world%prj%ncoupling
 enddo
 
 !--------------------------------------------------------------------
+! Initialization BOCO history
+
+call print_info(5,"* Initializing BOCO history")
+do izone = 1, world%prj%nzone
+  call init_bocohisto(world%zone(izone))
+enddo
+
+!--------------------------------------------------------------------
 ! Initialisation des capteurs
 
 call print_info(5,"* Initializing probes & monitors")

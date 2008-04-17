@@ -1,14 +1,11 @@
 !------------------------------------------------------------------------------!
-! Procedure : tstep_explicit               Auteur : J. Gressier
-!                                         Date   : Avril 2004
-! Fonction                                Modif  : (cf historique)
+! Procedure : tstep_explicit 
+!
+! Fonction
 !   Integration explicit de domaine
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
-subroutine tstep_explicit(dtloc, typtemps, defsolver, &
-                         umesh, field, coupling, ncp)
+subroutine tstep_explicit(dtloc, typtemps, defsolver, umesh, field, coupling, ncp)
 
 use TYPHMAKE
 use OUTPUT
@@ -22,23 +19,23 @@ use MENU_GEN
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 character        :: typtemps   ! type d'integration (stat, instat, period)
 type(mnu_solver) :: defsolver  ! type d'equation a resoudre
 type(st_ustmesh) :: umesh      ! domaine non structure a integrer
 real(krp)        :: dtloc(1:umesh%ncell)         ! pas de temps CFL
 integer          :: ncp        ! nombre de couplages de la zone
 
-! -- Declaration des entrees/sorties --
+! -- INPUTS/OUTPUTS --
 type(st_field)   :: field            ! champ des valeurs et residus
 type(mnu_zonecoupling), dimension(1:ncp) &
                  :: coupling ! donnees de couplage
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 type(st_genericfield) :: flux             ! tableaux des flux
 type(st_mattab)       :: jacL, jacR       ! tableaux FICTIFS de jacobiennes des flux
 
-! -- Debut de la procedure --
+! -- BODY --
 
 
 ! -- allocation des flux et termes sources (structure equivalente a field%etatcons) --
@@ -61,7 +58,15 @@ endselect
 
 call flux_to_res(dtloc, umesh, flux, field%residu, .false., jacL, jacR)
 
-! -- calcul pour correction en couplage --
+!-----------------------------------------------------------------------
+! BOCO HISTORY
+!-----------------------------------------------------------------------
+
+call integ_ustboco(umesh, field, flux) 
+
+!-----------------------------------------------------------------------
+! COUPLING SPECIFIC actions
+!-----------------------------------------------------------------------
 
 select case(typtemps)
  case(time_unsteady) ! corrections de flux seulement en instationnaire

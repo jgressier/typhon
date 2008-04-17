@@ -19,7 +19,6 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            calcdifflux.o            \
            calc_zonetimestep.o      \
            calcul_raccord.o         \
-           capteurs.o               \
            check_end_cycle.o        \
            choixcorrection.o        \
            conditions_limites.o     \
@@ -31,6 +30,7 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            flux_to_res.o            \
            implicit_solve.o         \
            init_boco.o              \
+           init_bocohisto.o         \
            init_capteurs.o          \
            init_champ.o             \
            init_connect.o           \
@@ -54,7 +54,9 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            treelevel_rungekutta.o   \
            tstep_explicit.o         \
            tstep_implicit.o         \
-           update_couplingboco.o      
+           update_couplingboco.o    \
+           write_bocohisto.o        \
+           write_monitors.o         \
 
 D_MAIN_OBJ = $(MAIN_OBJ:%=$(PRJOBJ)/%)
 

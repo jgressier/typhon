@@ -202,7 +202,7 @@ endsubroutine delete_genericfield
 function insert_newgfield(gfield,dim,nscal,nvect,ntens) result(pgfield)
 implicit none
 type(st_genericfield), pointer :: pgfield
-type(st_genericfield), target  :: gfield
+type(st_genericfield), pointer :: gfield
 integer                        :: dim,nscal,nvect,ntens
 
   allocate(pgfield)
@@ -217,7 +217,7 @@ endfunction insert_newgfield
 !------------------------------------------------------------------------------!
 subroutine delete_chainedgfield(gfield)
 implicit none
-type(st_genericfield), target  :: gfield
+type(st_genericfield), pointer :: gfield
 type(st_genericfield), pointer :: pgfield, dgfield
 
   pgfield => gfield

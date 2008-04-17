@@ -27,8 +27,11 @@ implicit none
 integer, parameter :: uniform    = 10   
 integer, parameter :: nonuniform = 20 
 
-! -- Definition des entiers caracteristiques pour le type de solveur --
+! -- Constants for saving boco history (can be mixed) --
 
+integer, parameter :: bchisto_none           = 0
+integer, parameter :: bchisto_quantity       = 1
+integer, parameter :: bchisto_flux           = 2
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
@@ -46,6 +49,8 @@ type mnu_boco
                                          !   EXTRAPOLATION : ordre d'extrapolation?!
   integer               :: boco_unif     ! condition aux limites uniforme ou non  
   integer               :: order_extrap  ! ordre d'extrapolation : A INCLURE dans typ_calc
+  integer               :: save_history  ! save history of quantity and flux
+  integer               :: histoflux_unit, histoquant_unit  ! file units for flux and quantity histo
 
   type(st_boco_kdif)    :: boco_kdif     ! condition aux limites propre au solveur KDIF
   type(st_boco_vort)    :: boco_vortex   ! condition aux limites propre au solveur VORTEX

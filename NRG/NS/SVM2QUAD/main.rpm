@@ -5,8 +5,9 @@
 BLOCK:PROJECT           ! DEFINITION DU PROJET
   NZONE     = 1       
   COORD     = 2D      
-  TIME      = STEADY 
-  RESIDUALS = 1.e-2
+  TIME      = UNSTEADY 
+  DURATION  = .01
+  NCYCLE    = 10
 ENDBLOCK               
 
 BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
@@ -16,7 +17,7 @@ BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
 ENDBLOCK
 
 BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
-  NAME   = "flat" 
+  NAME   = "Fluid" 
   SOLVER = EULER  
 ENDBLOCK
 
@@ -62,6 +63,7 @@ BLOCK:BOCO
   FAMILY = BOTTOM
   TYPE   = SUBSONIC_OUTLET 
   P      = 1.E5
+  SAVE_HISTORY = QUANTITY
 ENDBLOCK
 
 BLOCK:BOCO
