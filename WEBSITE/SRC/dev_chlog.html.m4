@@ -14,6 +14,21 @@ define([writedev],  [<tr class=orange><td align=center>$1</td><td width=10><td>$
 define([writebug],  [<tr class=red><td align=center>$1</td><td width=10><td>$2</td></tr>])
 
 dnl -------------------------------------------------------------
+sectionlr([release 0.4.0], [2008/03/21])
+beginlist
+writefunc([NS],     [spectral Volume Method (2nd order) (r597-599)])
+writefunc([NS],     [Runge Kutta integration (RK2, RK3-SSP) (r592,594)])
+writefunc([NS],     [Miscellaneous initialization modes (r591,594)])
+writefunc([Mesh],   [SVM2QUAD splitting for all methods (r589-590)])
+writefunc([MPI],    [portage (r576,578)])
+writefunc([Input],  [Improve CGNS reading (unused marks, volume marks) (r590-591)])
+writedev([Input],   [Intel fortran 9.1 portage (CGNS reading) (r593)])
+writefunc([Ouput],  [Screen outputs enhancement (r582,586)])
+writefunc([Ouput],  [Miscellaneous translations (r570-575,577)])
+writedev([Core],    [tree/list structure of unstructured grids (r562)])
+endlist
+
+dnl -------------------------------------------------------------
 sectionlr([release 0.3.2], [2007/02/06])
 beginlist
 writefunc([NS],     [Basic MUSCL method (MUSCL-UNS)])

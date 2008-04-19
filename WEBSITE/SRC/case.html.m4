@@ -26,29 +26,46 @@ function show_main(image,title) {
 </script>
 ]
 
+include_javascript([showhide.js])
+
 dnl -------------------------------------------------------------
 
-section([Examples and application news])
+section([List of Themes])
 
-item([11/2005 : new two-cylinder case in inviscid hypersonic flow 
-                (hyperlink([shock-waves], [case_shock.html]) [section])])
+item([m4_showitem([2D],[2D examples])])
+item([m4_showitem([Inviscid],[Inviscid examples])])
+item([m4_showitem([Shock-Waves],[Shock-Waves examples])])
+item([m4_showitem([Supersonic],[Supersonic examples])])
+
 
 skip_line
 
 dnl -------------------------------------------------------------
 
-section([List of cases])
+<span class="ghostitem" id="subitem_2D">
+section([2D examples])
+item([hyperlink([Hypersonic-BiCylinders], [example_Hypersonic-BiCylinders.html]): Hypersonic flow around two cylinders ])
+item([hyperlink([Diamond], [example_Diamond.html]): Shock diffraction over a Pyramid ])
+<BR>
+</span>
+<span class="ghostitem" id="subitem_Inviscid">
+section([Inviscid examples])
+item([hyperlink([Hypersonic-BiCylinders], [example_Hypersonic-BiCylinders.html]): Hypersonic flow around two cylinders ])
+<BR>
+</span>
+<span class="ghostitem" id="subitem_Shock-Waves">
+section([Shock-Waves examples])
+item([hyperlink([Diamond], [example_Diamond.html]): Shock diffraction over a Pyramid ])
+<BR>
+</span>
+<span class="ghostitem" id="subitem_Supersonic">
+section([Supersonic examples])
+item([hyperlink([Hypersonic-BiCylinders], [example_Hypersonic-BiCylinders.html]): Hypersonic flow around two cylinders ])
+<BR>
+</span>
 
-<div align=center>
 
-add_thumbnail([hypers-bicyl-density-small.png], [2 cylinders in hypersonic flow])
 
-skip_line
-
-<div id=main_txt></div>
-<img border=1 width=80% id=main_img style="display:none"/>
-<br>
-</div>
 
 
 skip_line

@@ -1,0 +1,5 @@
+TYPE: png
+WIDTH: 500
+IMGTITLE:Temperature contours of shock interaction
+IMGDESC:mesh: x quads
+IMGDESC:numerical method: HLLC MUSCL

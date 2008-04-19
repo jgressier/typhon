@@ -48,9 +48,11 @@ FIC  = index.html         \
        get_install.html   \
        get_faq.html       \
 
+include SRC/source-case.make
+
 INC  = general.m4 header.m4 footer.m4 menu.m4
 DIR  = HTML
-DEST = $(FIC:%=$(DIR)/%)
+DEST = $(FIC:%=$(DIR)/%) $(CASEFIC:%=$(DIR)/%)
 DINC = $(INC:%=$(SRC)/%)
 
 # Options obligatoires
@@ -65,7 +67,7 @@ site: $(DIR) $(DEST)
 	@echo "---------------------------"
 	@mkdir -p $(DIR)
 	cp -r FILES/* $(DIR)
-	-find $(DIR) -type d -name CVS | xargs rm -r
+	-find $(DIR) -type d -name .svn | xargs rm -rf
 
 img:
 

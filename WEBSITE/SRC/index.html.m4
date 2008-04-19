@@ -19,18 +19,14 @@ a finite volume solver for heat transfer.] (see hyperlink([Presentation], [index
 dnl -------------------------------------------------------------
 section([Web site news])
 
+  item([2008/03/21 : version 0.4.0 released (Runge Kutta, 2nd order Spectral Volume Method)])
+  item([2007/09/11 : CVS to SVN migration])
   item([2007/02/06 : version 0.3.2 released (development organization, initialization and outputs)])
   item([2006/08/26 : version 0.3.1 released (bug correction, enhancement & optimization)])
   item([2006/03/05 : version 0.3.0 released (development branches merged)])
   item([2006/01/16 : version 0.2.2 released (MUSCL improvement)])
   item([2005/11/06 : Added documentation about numerical schemes in 
                      hyperlink([User guide], [doc_scheme.html]) [section]])
-  item([2005/11/06 : Release Candidate 1 of core 0.3 released (based on release 0.2.1)])
-  item([2005/10/13 : version 0.2.1 released])
-  item([2005/09/04 : version 0.2.0 released (implicit second order compressible Navier-Stokes)])
-  item([2005/07/12 : version 0.1.7 released])
-  item([2005/03/11 : News and Change log tabs])
-  item([2005/03/15 : Development tabs])
 [Detailed news are given in section] hyperlink([News], [index_news.html])
 skip_line
 
