@@ -12,6 +12,7 @@
 module MENU_GEN
 
 use TYPHMAKE   ! Definition de la precision
+use MENU_INVERSE
 
 implicit none
 
@@ -57,6 +58,7 @@ type mnu_project
   real(krp)       :: residumax  ! valeur maximale du residu admise (stationnaire)
   real(krp)       :: dtbase     ! pas de temps de base d'un cycle
   integer(kpp)    :: action     ! give main action to do
+  type(mnu_inv)   :: inverse    ! parameters for inverse method
 endtype mnu_project
 
 !------------------------------------------------------------------------------!

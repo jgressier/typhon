@@ -1,13 +1,10 @@
 !------------------------------------------------------------------------------!
-! Procedure : init_world                  Auteur : J. Gressier
-!                                         Date   : Novembre 2002
-! Fonction                                Modif  :
+! Procedure : init_world 
+!
+! Fonction
 !   Initialisation des structures et contenus
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
-
 subroutine init_world(world)
 
 use TYPHMAKE
@@ -16,16 +13,14 @@ use MODWORLD
 
 implicit none
 
-! -- Declaration des entrees/sorties --
+! -- INPUTS/OUTPUTS --
 type(st_world) :: world
 
-! -- Declaration des sorties --
-
-! -- Declaration des variables internes --
+! -- Private Data --
 integer :: izone, icoupling
 integer :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
 
-! -- Debut de la procedure --
+! -- BODY --
 
 !--------------------------------------------------------------------
 ! Initialization of zone parameters
@@ -90,6 +85,14 @@ do icoupling = 1,  world%prj%ncoupling
 enddo
 
 !--------------------------------------------------------------------
+! Initialization INVERSE specific mode
+
+if (world%prj%time_model == time_unsteady_inverse) then
+  call print_info(5,"* Initializing INVERSE solver")
+  call init_inverse(world)
+endif
+
+!--------------------------------------------------------------------
 ! Initialization BOCO history
 
 call print_info(5,"* Initializing BOCO history")
@@ -106,9 +109,8 @@ do izone = 1, world%prj%nzone
 enddo
 
 endsubroutine init_world
-
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! nov   2002 : creation de la procedure
 ! jan   2004 : initialisation des capteurs

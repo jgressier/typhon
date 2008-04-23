@@ -41,6 +41,7 @@ EQKDIF_OBJ := $(EQKDIF_MOD:.$(MOD)=.o)        \
               init_boco_kdif.o                \
               init_kdif_ust.o                 \
               init_viewfactor.o               \
+              inverse_get_tmes.o              \
               integration_kdif_ust.o          \
               setboco_kdif_flux.o             \
               setboco_kdif_hconv.o            \

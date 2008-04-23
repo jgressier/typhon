@@ -14,6 +14,7 @@ PARAM_MOD = MENU_AMR.$(MOD)      \
             MENU_GEN.$(MOD)      \
             MENU_INIT.$(MOD)     \
             MENU_INTEG.$(MOD)    \
+            MENU_INVERSE.$(MOD)  \
             MENU_MESH.$(MOD)     \
             MENU_MPI.$(MOD)      \
             MENU_NUM.$(MOD)      \
@@ -26,6 +27,7 @@ PARAM_OBJ := $(PARAM_MOD:.$(MOD)=.o)  \
             def_capteurs.o     \
             def_check.o        \
             def_init.o         \
+            def_inverse.o      \
             def_mesh.o         \
             def_mpi.o          \
             def_other.o        \

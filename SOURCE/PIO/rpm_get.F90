@@ -202,7 +202,7 @@ character(len=*)           :: key    ! clef à rechercher
 character(len=*), optional :: defval ! valeur par défaut
 
 ! -- Declaration des sorties --
-character(len=dimrpmlig)   :: res    ! resultat, valeur de la clef
+character(len=*), intent(out) :: res    ! resultat, valeur de la clef
 
 ! -- Declaration des variables internes --
 integer ntot, ilig

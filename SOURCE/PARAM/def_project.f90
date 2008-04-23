@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
-! Procedure : def_project                              Authors : J. Gressier
-!                                                      Created : November 2002
-! Fonction                                             Modif  : cf history
+! Procedure : def_project 
+!
+! Fonction
 !   Parse main file parameters / main parameters for the project
 !
 !------------------------------------------------------------------------------!
@@ -98,7 +98,7 @@ case(time_steady) ! Evolution pseudo-instationnaire
   call rpmgetkeyvalint (pcour, "NCYCLE",    prj%ncycle, huge(prj%ncycle))
   ! DEV : TRAITER LES MOTS CLEFS INTERDITS
   
-case(time_unsteady, time_unsteady_inverse) ! Evolution instationnaire
+case(time_unsteady) ! Evolution instationnaire
 
   call print_info(10,"UNSTEADY computation")
   call rpmgetkeyvalreal(pcour, "DURATION", prj%duration)
@@ -116,6 +116,17 @@ case(time_unsteady, time_unsteady_inverse) ! Evolution instationnaire
   else
     call erreur("parameter parsing","NCYCLE (or BASETIME) parameter not found (def_project)")
   endif
+  ! DEV : TRAITER LES MOTS CLEFS INTERDITS
+
+case(time_unsteady_inverse) ! Evolution unsteady + inverse method
+
+  call print_info(10,"UNSTEADY computation with INVERSE computation")
+  call rpmgetkeyvalreal(pcour, "DURATION", prj%duration)
+  call rpmgetkeyvalint(pcour, "NCYCLE",    prj%ncycle)
+  prj%dtbase = prj%duration / prj%ncycle
+
+  call def_inverse(prj, block, prj%inverse)
+
   ! DEV : TRAITER LES MOTS CLEFS INTERDITS
 
 case(time_unsteady_periodic) ! Evolution periodique

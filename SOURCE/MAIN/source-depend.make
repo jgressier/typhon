@@ -35,16 +35,19 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            init_champ.o             \
            init_connect.o           \
            init_coupling.o          \
+           init_inverse.o           \
            init_maillage.o          \
            init_world.o             \
            init_zone.o              \
            integration.o            \
            integration_cycle.o      \
+           integration_cycle_inverse.o \
            integration_cyclezone.o  \
            integration_grid.o       \
            integzone_tstep_lagrange.o \
            integzone_tstep_usttree.o  \
            integ_treelevel.o        \
+           inverse_calc_sensi.o     \
            lecture_maillage.o       \
            lectzone_mesh.o          \
            mpi_strategy_pre.o       \

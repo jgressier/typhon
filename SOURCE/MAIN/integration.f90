@@ -67,7 +67,7 @@ do while (.not. lworld%info%fin_integration)
   case(time_steady)
     str_w = "* CYCLE "//strof(lworld%info%icycle)
     !write(str_w,'(a,a)') "* CYCLE ",strof(lworld%info%icycle,3)
-  case(time_unsteady)
+  case(time_unsteady, time_unsteady_inverse)
     write(str_w,'(a,i5,a,g10.4)') "* CYCLE", lworld%info%icycle, &
                                   " : t = ",  lworld%info%curtps
   !case(periodique)
@@ -81,7 +81,14 @@ do while (.not. lworld%info%fin_integration)
   !--------------------------------------------------------
   ! cycle integration of all zones
 
-  call integration_cycle(lworld, exchcycle, lworld%prj%ncoupling)
+  select case(lworld%prj%time_model)
+  case(time_steady, time_unsteady)
+    call integration_cycle(lworld, exchcycle, lworld%prj%ncoupling)
+  case(time_unsteady_inverse)
+    call integration_cycle_inverse(lworld, exchcycle, lworld%prj%ncoupling)
+  case default
+    call erreur("internal error (integration)", "unknown time model")
+  endselect
 
   ! -- Actualisation des conditions aux limites au raccord
   do ic = 1, lworld%prj%ncoupling
@@ -107,12 +114,9 @@ do while (.not. lworld%info%fin_integration)
     endif
     call print_info(6,str_w)
 
-  case(time_unsteady)
+  case(time_unsteady, time_unsteady_inverse)
     lworld%info%curtps = lworld%info%curtps + lworld%prj%dtbase
     if (lworld%info%icycle == lworld%prj%ncycle) lworld%info%fin_integration = .true.
-
-  !case(periodique)
-  !  lworld%info%fin_integration = .true.
 
   case default
     call erreur("Development", "unknown TIME integration model")
@@ -128,6 +132,9 @@ do while (.not. lworld%info%fin_integration)
   endif
 
 enddo
+!--------------------------------------------------------
+! END OF INTEGRATION
+!--------------------------------------------------------
 
 call cpu_time(cpu_end)
 
