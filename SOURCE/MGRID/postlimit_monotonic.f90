@@ -35,31 +35,39 @@ real(krp)                 :: smin(nf), smax(nf)
 
 ! -- BODY --
 
+icl(1:nf)  = umesh%facecell%fils(ideb:ideb+nf, 1)
+icr(1:nf)  = umesh%facecell%fils(ideb:ideb+nf, 2)
 
 !------------------------------------------------------------------------------
 ! SCALAR computations
 !------------------------------------------------------------------------------
 
-icl(1:nf)  = umesh%facecell%fils(ideb:ideb+nf, 1)
-icr(1:nf)  = umesh%facecell%fils(ideb:ideb+nf, 2)
-
 do isca = 1, fprim%nscal
 
-  smin(1:nf) = min( fprim%tabscal(isca)%scal(icl(1:nf)), fprim%tabscal(isca)%scal(icr(1:nf)) )
-  smax(1:nf) = max( fprim%tabscal(isca)%scal(icl(1:nf)), fprim%tabscal(isca)%scal(icr(1:nf)) )
+  select case(defspat%postlimiter)
+  case(postlim_monotonic0)
+    do i = 1, nf
+      call monotonic0(cell_L%tabscal(isca)%scal(i), cell_R%tabscal(isca)%scal(i), &
+                   fprim%tabscal(isca)%scal(icl(i)), fprim%tabscal(isca)%scal(icr(i)))
 
-  !if (isca==2) then
-  !do i = 1, nf
-  !  if ((icl(i)==40).or.(icr(i)==40)) print'(2i4,4f8.1)',icl(i),icr(i),smin(i),smax(i),cell_L%tabscal(isca)%scal(i),cell_R%tabscal(isca)%scal(i)
-  !enddo ; endif
+    enddo
+  case(postlim_monotonic1)
+    do i = 1, nf
+      call monotonic1(cell_L%tabscal(isca)%scal(i), cell_R%tabscal(isca)%scal(i), &
+                   fprim%tabscal(isca)%scal(icl(i)), fprim%tabscal(isca)%scal(icr(i)))
 
-  where (cell_L%tabscal(isca)%scal > smax) cell_L%tabscal(isca)%scal = smax
-  where (cell_R%tabscal(isca)%scal > smax) cell_R%tabscal(isca)%scal = smax
-  where (cell_L%tabscal(isca)%scal < smin) cell_L%tabscal(isca)%scal = smin
-  where (cell_R%tabscal(isca)%scal < smin) cell_R%tabscal(isca)%scal = smin
+    enddo
+  case(postlim_monotonic2)
+    do i = 1, nf
+      call monotonic2(cell_L%tabscal(isca)%scal(i), cell_R%tabscal(isca)%scal(i), &
+                   fprim%tabscal(isca)%scal(icl(i)), fprim%tabscal(isca)%scal(icr(i)))
+
+    enddo
+  case default
+    call erreur("flux computation","unknown POST-LIMITATION method")
+  endselect
 
 enddo ! scalar loop
-
 
 !------------------------------------------------------------------------------
 ! VECTOR computations
@@ -67,33 +75,28 @@ enddo ! scalar loop
 
 do ivec = 1, fprim%nvect
 
-  do i = 1, nf
+  select case(defspat%postlimiter)
+  case(postlim_monotonic0)
+    do i = 1, nf
+      call monotonic0(cell_L%tabvect(ivec)%vect(i), cell_R%tabvect(ivec)%vect(i), &
+                   fprim%tabvect(ivec)%vect(icl(i)), fprim%tabvect(ivec)%vect(icr(i)))
 
-    smin(i) = min( fprim%tabvect(ivec)%vect(icl(i))%x, fprim%tabvect(ivec)%vect(icr(i))%x )
-    smax(i) = max( fprim%tabvect(ivec)%vect(icl(i))%x, fprim%tabvect(ivec)%vect(icr(i))%x )
+    enddo
+  case(postlim_monotonic1)
+    do i = 1, nf
+      call monotonic1(cell_L%tabvect(ivec)%vect(i), cell_R%tabvect(ivec)%vect(i), &
+                   fprim%tabvect(ivec)%vect(icl(i)), fprim%tabvect(ivec)%vect(icr(i)))
 
-    if (cell_L%tabvect(ivec)%vect(i)%x > smax(i)) cell_L%tabvect(ivec)%vect(i)%x = smax(i)
-    if (cell_R%tabvect(ivec)%vect(i)%x > smax(i)) cell_R%tabvect(ivec)%vect(i)%x = smax(i)
-    if (cell_L%tabvect(ivec)%vect(i)%x < smin(i)) cell_L%tabvect(ivec)%vect(i)%x = smin(i)
-    if (cell_R%tabvect(ivec)%vect(i)%x < smin(i)) cell_R%tabvect(ivec)%vect(i)%x = smin(i)
+    enddo
+  case(postlim_monotonic2)
+    do i = 1, nf
+      call monotonic2(cell_L%tabvect(ivec)%vect(i), cell_R%tabvect(ivec)%vect(i), &
+                   fprim%tabvect(ivec)%vect(icl(i)), fprim%tabvect(ivec)%vect(icr(i)))
 
-    smin(i) = min( fprim%tabvect(ivec)%vect(icl(i))%y, fprim%tabvect(ivec)%vect(icr(i))%y )
-    smax(i) = max( fprim%tabvect(ivec)%vect(icl(i))%y, fprim%tabvect(ivec)%vect(icr(i))%y )
-
-    if (cell_L%tabvect(ivec)%vect(i)%y > smax(i)) cell_L%tabvect(ivec)%vect(i)%y = smax(i)
-    if (cell_R%tabvect(ivec)%vect(i)%y > smax(i)) cell_R%tabvect(ivec)%vect(i)%y = smax(i)
-    if (cell_L%tabvect(ivec)%vect(i)%y < smin(i)) cell_L%tabvect(ivec)%vect(i)%y = smin(i)
-    if (cell_R%tabvect(ivec)%vect(i)%y < smin(i)) cell_R%tabvect(ivec)%vect(i)%y = smin(i)
-
-    smin(i) = min( fprim%tabvect(ivec)%vect(icl(i))%z, fprim%tabvect(ivec)%vect(icr(i))%z )
-    smax(i) = max( fprim%tabvect(ivec)%vect(icl(i))%z, fprim%tabvect(ivec)%vect(icr(i))%z )
-
-    if (cell_L%tabvect(ivec)%vect(i)%z > smax(i)) cell_L%tabvect(ivec)%vect(i)%z = smax(i)
-    if (cell_R%tabvect(ivec)%vect(i)%z > smax(i)) cell_R%tabvect(ivec)%vect(i)%z = smax(i)
-    if (cell_L%tabvect(ivec)%vect(i)%z < smin(i)) cell_L%tabvect(ivec)%vect(i)%z = smin(i)
-    if (cell_R%tabvect(ivec)%vect(i)%z < smin(i)) cell_R%tabvect(ivec)%vect(i)%z = smin(i)
-
-  enddo
+    enddo
+  case default
+    call erreur("flux computation","unknown POST-LIMITATION method")
+  endselect
 
 enddo ! vector loop
 

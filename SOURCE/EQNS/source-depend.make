@@ -8,7 +8,6 @@ LDIR := EQNS
 EQNS_LIB = $(PRJLIB)/libt_eqns.a
 
 EQNS_MOD = EQNS.$(MOD)      \
-           LIMITER.$(MOD)   \
            MENU_NS.$(MOD)
 
 

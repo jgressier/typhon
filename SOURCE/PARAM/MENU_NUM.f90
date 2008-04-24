@@ -74,8 +74,10 @@ character, parameter :: lim_sbee      = 'S'
 character, parameter :: lim_kim3      = 'K'
 
 ! -- Constants for post-limitation --
-integer(kpp), parameter :: postlim_none       = 0
-integer(kpp), parameter :: postlim_monotonic  = 10
+integer(kpp), parameter :: postlim_none        = 0
+integer(kpp), parameter :: postlim_monotonic0  = 10
+integer(kpp), parameter :: postlim_monotonic1  = 11
+integer(kpp), parameter :: postlim_monotonic2  = 12
 
 ! -- Constants for SVM splitting
 integer(kpp), parameter :: svm_2tri    = 21

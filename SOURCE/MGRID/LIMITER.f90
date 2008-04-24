@@ -39,6 +39,17 @@ interface kim3
   module procedure kim3, kim3_t, kim3_v, kim3_vt
 endinterface
 
+interface monotonic0
+  module procedure monotonic0, monotonic0_v
+endinterface
+
+interface monotonic1
+  module procedure monotonic1, monotonic1_v
+endinterface
+
+interface monotonic2
+  module procedure monotonic2, monotonic2_v
+endinterface
 
 
 ! -- Fonctions et Operateurs ------------------------------------------------
@@ -320,6 +331,105 @@ integer :: i
 
 end function kim3_vt
 
+
+!-----------------------------------------------------------------------
+! MONOTONIC LIMITERS of x1, x2 between a and b
+!     (a)      x1 | x2       (b)
+! (0): x1 and x2 are always in [a, b] range
+! (1): (0) and a, x1, x2, b variation is monotonic ; otherwise x1 and x2 set to average
+! (2): (1) and |x1-a|, |x2-b| < .5*|b-a|
+! Remarks: 
+! - monotonic0 is close to superbee
+! - monotonic2 is close to minmod
+!-----------------------------------------------------------------------
+subroutine monotonic0(x1, x2, a, b)
+implicit none
+real(krp), intent(inout) :: x1, x2   ! value to check
+real(krp), intent(in)    :: a, b     ! range 
+real(krp)                :: mid
+
+  mid = 0.5_krp*(x1+x2)
+  if (a < b) then
+    x1 = max(a, min(x1, b))
+    x2 = min(b, max(x2, a))
+  else
+    x1 = min(a, max(x1, b))
+    x2 = max(b, min(x2, a))
+  endif
+
+endsubroutine monotonic0
+
+subroutine monotonic1(x1, x2, a, b)
+implicit none
+real(krp), intent(inout) :: x1, x2   ! value to check
+real(krp), intent(in)    :: a, b     ! range 
+real(krp)                :: midx
+
+  midx = 0.5_krp*(x1+x2)
+  if (a < b) then
+    x1 = max(a, min(x1, midx, b))
+    x2 = min(b, max(x2, midx, a))
+  else
+    x1 = min(a, max(x1, midx, b))
+    x2 = max(b, min(x2, midx, a))
+  endif
+
+endsubroutine monotonic1
+
+!-----------------------------------------------------------------------
+subroutine monotonic2(x1, x2, a, b)
+implicit none
+real(krp), intent(inout) :: x1, x2   ! value to check
+real(krp), intent(in)    :: a, b     ! range 
+real(krp)                :: midx, mid
+
+  mid  = 0.5_krp*( a+ b)
+  if (a < b) then
+    x1 = max(a, min(x1, mid))
+    x2 = min(b, max(x2, mid))
+  else
+    x1 = min(a, max(x1, mid))
+    x2 = max(b, min(x2, mid))
+  endif
+
+endsubroutine monotonic2
+
+!-----------------------------------------------------------------------
+subroutine monotonic0_v(x1, x2, a, b)
+implicit none
+type(v3d), intent(inout) :: x1, x2   ! value to check
+type(v3d), intent(in)    :: a, b     ! range 
+
+  call monotonic0(x1%x, x2%x, a%x, b%x)
+  call monotonic0(x1%y, x2%y, a%y, b%y)
+  call monotonic0(x1%z, x2%z, a%z, b%z)
+
+end subroutine monotonic0_v
+
+
+!-----------------------------------------------------------------------
+subroutine monotonic1_v(x1, x2, a, b)
+implicit none
+type(v3d), intent(inout) :: x1, x2   ! value to check
+type(v3d), intent(in)    :: a, b     ! range 
+
+  call monotonic1(x1%x, x2%x, a%x, b%x)
+  call monotonic1(x1%y, x2%y, a%y, b%y)
+  call monotonic1(x1%z, x2%z, a%z, b%z)
+
+end subroutine monotonic1_v
+
+!-----------------------------------------------------------------------
+subroutine monotonic2_v(x1, x2, a, b)
+implicit none
+type(v3d), intent(inout) :: x1, x2   ! value to check
+type(v3d), intent(in)    :: a, b     ! range 
+
+  call monotonic2(x1%x, x2%x, a%x, b%x)
+  call monotonic2(x1%y, x2%y, a%y, b%y)
+  call monotonic2(x1%z, x2%z, a%z, b%z)
+
+end subroutine monotonic2_v
 
 
 

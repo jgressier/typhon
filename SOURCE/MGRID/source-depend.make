@@ -10,6 +10,7 @@ MGRID_LIB = $(PRJLIB)/libt_mgrid.a
 MGRID_MOD = BASEFIELD.$(MOD)    \
             DEFFIELD.$(MOD)     \
             GENFIELD.$(MOD)     \
+            LIMITER.$(MOD)      \
             MGRID.$(MOD)
 
 MGRID_OBJ = $(MGRID_MOD:.$(MOD)=.o)    \

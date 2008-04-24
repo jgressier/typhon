@@ -1,0 +1,66 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON 
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+  NZONE     = 1       
+  COORD     = 2D      
+  TIME      = UNSTEADY 
+  DURATION  = 0.02
+  NCYCLE    = 10
+ENDBLOCK               
+
+BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+  FILE   = "typhon.vtk" 
+  FORMAT = VTK-BIN
+ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "" 
+  SOLVER = EULER  
+ENDBLOCK
+
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+ ! wget http://typhon.sf.net/mesh/covortex-tri-a1.cgns.gz
+  FORMAT = CGNS
+  FILE   = "covortex-tri-a1.cgns" 
+  SPLIT  = SVM2QUAD
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS = EULER
+  GAS      = AIR
+ENDBLOCK
+
+BLOCK:TIME_PARAM 
+  METHOD    = RK2
+  CFL       = 1.
+ENDBLOCK
+
+BLOCK:SPAT_PARAM  
+  SCHEME   = HLLC
+  HIGHRES  = MUSCL
+  POST-LIMITER = MONOTONIC1
+ENDBLOCK
+
+BLOCK:INIT
+  P        = 1.E5 - 1.161*900/2*exp(1-(X*X+Y*Y)/4)
+  TI       = 300
+  VELOCITY = 30*sqrt(X*X+Y*Y)/2*exp(0.5*(1-(X*X+Y*Y)/4))
+  DIR_X    = -Y
+  DIR_Y    = X
+  DIR_Z    = 0.
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = C50
+  TYPE   = SYMMETRY ! SUPERSONIC_OUTLET ! extrapolation
+ENDBLOCK
+
+
+
+

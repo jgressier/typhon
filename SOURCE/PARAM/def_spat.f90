@@ -192,7 +192,7 @@ case(solNS)
     !  defspat%svm%nb_facepoints  = 1  ! number of integration points by face
 
     case default
-      call erreur("parameters parsing","unknown numerical scheme")
+      call erreur("parameters parsing","unknown SVM method")
     endselect
     
     defmesh%splitmesh = split_svm2quad
@@ -206,8 +206,10 @@ case(solNS)
   ! --- Post-Limitation method ---
  
   call rpmgetkeyvalstr(pcour, "POST-LIMITER", str, "NONE")
-  if (samestring(str,"NONE"))       defspat%postlimiter = postlim_none
-  if (samestring(str,"MONOTONIC"))  defspat%postlimiter = postlim_monotonic
+  if (samestring(str,"NONE"))        defspat%postlimiter = postlim_none
+  if (samestring(str,"MONOTONIC0"))  defspat%postlimiter = postlim_monotonic0
+  if (samestring(str,"MONOTONIC1"))  defspat%postlimiter = postlim_monotonic1
+  if (samestring(str,"MONOTONIC2"))  defspat%postlimiter = postlim_monotonic2
   call print_info(7,"    post-limiter: "//trim(str))
 
 case(solKDIF)

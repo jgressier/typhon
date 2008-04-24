@@ -111,7 +111,7 @@ do ib = 1, nbloc
   select case(defspat%postlimiter)
   case(postlim_none)
     ! NOTHING TO DO
-  case(postlim_monotonic)
+  case(postlim_monotonic0, postlim_monotonic1, postlim_monotonic2)
     call postlimit_monotonic(defspat, nfb, ideb, domaine, &
                              field%etatprim, cell_l, cell_r)
   case default
