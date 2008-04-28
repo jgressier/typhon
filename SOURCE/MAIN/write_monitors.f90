@@ -13,6 +13,7 @@ use TYPHMAKE
 use OUTPUT
 use VARCOM
 use DEFZONE
+use MENU_GEN
 
 implicit none
 
@@ -24,7 +25,7 @@ type(st_zone) :: zone            ! zone
 ! -- Declaration des variables internes --
 integer    :: ic                 ! index de capteur
 
-! -- Debut de la procedure --
+! -- BODY --
 
 do ic = 1, zone%defsolver%nprobe
 
@@ -41,7 +42,10 @@ do ic = 1, zone%defsolver%nprobe
 
 enddo
 
-write(uf_monres,*) zone%info%iter_tot, log10(zone%info%cur_res)
+select case(zone%info%time_model)
+case(time_steady)
+  write(uf_monres,*) zone%info%iter_tot, log10(zone%info%cur_res)
+endselect
 
 !-----------------------------
 endsubroutine write_monitors

@@ -6,7 +6,7 @@ BLOCK:PROJECT           ! DEFINITION DU PROJET
   NZONE     = 1       
   COORD     = 2D      
   TIME      = STEADY 
-  RESIDUALS = 1.e-6
+  RESIDUALS = 1.e-12
 ENDBLOCK               
 
 BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
@@ -25,7 +25,7 @@ ENDBLOCK
 
 BLOCK:MESH
   FORMAT = CGNS
-  FILE   = "rect4x1-triraf.cgns"
+  FILE   = "rect4x1.cgns"
 ENDBLOCK
 
 BLOCK:MODEL
@@ -34,7 +34,10 @@ BLOCK:MODEL
 ENDBLOCK
 
 BLOCK:TIME_PARAM 
-  CFL = 2.3
+  METHOD     = IMPLICIT
+  RESIDUALS  = .1
+  CFL        = 2.
+  CFL_MAX    = 50.
 ENDBLOCK
 
 BLOCK:SPAT_PARAM  

@@ -1,10 +1,8 @@
 !------------------------------------------------------------------------------!
-! MODULE : MODINFO                        Auteur : J. Gressier
-!                                         Date   : Mars 2003
-! Fonction                                Modif  : cf historique
+! MODULE : MODINFO
+! 
+! Fonction
 !   Definition des structures de donnees generales pour l'integration (gestion)
-!
-! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
 

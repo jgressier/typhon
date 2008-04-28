@@ -35,7 +35,8 @@ export LD_LIBRARY_PATH=$EXEDIR/Lib:$LD_LIBRARY_PATH
 
 # --- print parameter ---
 #
-ncol=60 ; col="\\033[${ncol}G"
+ncol1=50 ; col1="\\033[${ncol1}G"
+ncol2=75 ; col2="\\033[${ncol2}G"
 mkdir $TMPDIR
 trap "rm -Rf $TMPDIR" 0 2
 
@@ -78,22 +79,22 @@ for CONF in $LISTCONFS ; do
     seq) $EXEDIR/Typhon-$TYPE_EXE >> $HOMEDIR/check.log 2>&1 ;;
     mpi) mpirun -np ${MPIPROCS:-2} \
          $EXEDIR/Typhon-$TYPE_EXE >> $HOMEDIR/check.log 2>&1 ;;
-    *)   echo -e ${col}$fic unknown typhon executable ;;
+    *)   echo -e ${col1}$fic unknown typhon executable ;;
   esac
   if [ $? -eq 0 ] ; then
     for fic in $TO_CHECK ; do
       if [ -f "$fic" ] ; then
         $DIFFCOM $fic $DIR/$fic >> $HOMEDIR/diff.log 2>&1
         case $? in
-          0) echo -e ${col}$fic identical ;;
-          1) echo -e ${col}$fic changed ;;
-          *) echo -e ${col}$fic comparison failed ;;
+          0) echo -e ${col1}$fic ${col2}identical ;;
+          1) echo -e ${col1}$fic ${col2}changed ;;
+          *) echo -e ${col1}$fic ${col2}comparison failed ;;
         esac
       else
-        echo -e ${col}$fic missing
+        echo -e ${col1}$fic ${col2}missing
       fi
     done
   else
-    echo -e ${col}computation failed
+    echo -e ${col2}computation failed
   fi
 done

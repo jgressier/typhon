@@ -90,9 +90,6 @@ do izone = 1, lworld%prj%nzone
  
   ! -- Initialisation des infos pour le cycle
 
-  lworld%zone(izone)%info%iter_tot   = 0
-  lworld%zone(izone)%info%time_model = lworld%prj%time_model
-
   select case(lworld%prj%time_model)
 
   case(time_steady)

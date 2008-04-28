@@ -43,6 +43,10 @@ exchcycle(:) = 1 ! initialisation a 1 : 1er echange au 1er cycle, a partir des c
 ! allocation des champs de residus et gradients
 
 do izone = 1, lworld%prj%nzone
+
+  lworld%zone(izone)%info%iter_tot   = 0
+  lworld%zone(izone)%info%time_model = lworld%prj%time_model
+
   pgrid => lworld%zone(izone)%gridlist%first
   do while (associated(pgrid))
     call alloc_res(pgrid%info%field_loc)
