@@ -15,10 +15,12 @@ EQNS_OBJ := $(EQNS_MOD:.$(MOD)=.o)    \
             calc_flux_ausmm.o         \
             calc_flux_hlle.o          \
             calc_flux_hllc.o          \
+            calc_flux_rusanov.o       \
             calc_flux_inviscid.o      \
             calc_flux_viscous.o       \
             calc_jac_hll.o            \
             calc_jac_hlldiag.o        \
+            calc_jac_rusanov.o        \
             calc_jacflux.o            \
             calc_ns_timestep.o        \
             calc_roe_states.o         \

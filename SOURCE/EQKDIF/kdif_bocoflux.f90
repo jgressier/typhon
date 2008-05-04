@@ -1,10 +1,8 @@
 !------------------------------------------------------------------------------!
-! Procedure : kdif_bocoflux                    Authors : J. Gressier/E. Radenac
-!                                              Created : June 2004
-! Fonction                                     Modif   : (cf History)
+! Procedure : kdif_bocoflux  
+!                            
+! Fonction                   
 !  Flux aux faces limites quand necessaire
-!
-! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
 subroutine kdif_bocoflux(defsolver, domaine, flux, stprim, calc_jac, jacL, jacR)
@@ -35,6 +33,7 @@ type(st_mattab)         :: jacL, jacR       ! jacobian matrix of the flux
 
 ! -- Internal variables --
 integer    :: ifb, if, ib, idef ! index de liste, index de face limite et parametres
+integer    :: dim
 logical    :: coupled
 
 ! -- Body --
@@ -53,6 +52,25 @@ do ib = 1, domaine%nboco
       flux%tabscal(1)%scal(if) = domaine%boco(ib)%bocofield%tabscal(1)%scal(ifb)
     enddo
   endselect
+
+  !---------------------------------------------------------------------
+  ! JACOBIAN treatment
+
+  if (calc_jac) then
+
+    dim = jacL%dim
+    select case(defsolver%boco(idef)%typ_boco)
+    case(bc_wall_isoth)
+      ! nothing to do 
+    case(bc_wall_adiab, bc_wall_flux) 
+      do ifb = 1, domaine%boco(ib)%nface
+        if = domaine%boco(ib)%iface(ifb)
+        jacL%mat(1:dim,1:dim,if) = jacL%mat(1:dim,1:dim,if) + jacR%mat(1:dim,1:dim,if)
+        jacR%mat(1:dim,1:dim,if) = 0._krp
+      enddo
+    endselect
+
+  endif
 
 enddo
 
@@ -91,4 +109,5 @@ endsubroutine kdif_bocoflux
 ! june 2004 : created
 ! apr  2005 : renamed (fluxlimite->kdif_bocoflux)
 ! apr  2005 : modification of fluxes by radiative transfer
+! Apr  2008 : boco implicitation
 !------------------------------------------------------------------------------!

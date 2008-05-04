@@ -60,6 +60,10 @@ case(sch_ausmm)
   call calc_flux_ausmm(defsolver, defspat, nflux, face,        &
                        QL, QR, flux, ideb,                     &
                        calc_jac, jacL, jacR)
+case(sch_rusanov)
+  call calc_flux_rusanov(defsolver, defspat, nflux, face,      &
+                      QL, QR, flux, ideb,                      &
+                      calc_jac, jacL, jacR)
 case(sch_hlle)
   call calc_flux_hlle(defsolver, defspat, nflux, face,         &
                       QL, QR, flux, ideb,                      &

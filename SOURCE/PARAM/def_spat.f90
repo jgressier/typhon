@@ -63,6 +63,7 @@ case(solNS)
   call rpmgetkeyvalstr(pcour, "SCHEME", str, "HLLC")
   defspat%sch_hyp = inull
 
+  if (samestring(str,"RUSANOV"))         defspat%sch_hyp = sch_rusanov
   if (samestring(str,"ROE"))             defspat%sch_hyp = sch_roe
   if (samestring(str,"OSHER-NO"))        defspat%sch_hyp = sch_osher_no
   if (samestring(str,"OSHER-IO"))        defspat%sch_hyp = sch_osher_io
@@ -81,6 +82,8 @@ case(solNS)
   if (samestring(str,"AUSMM"))           defspat%sch_hyp = sch_ausmm
 
   select case(defspat%sch_hyp)
+  case(sch_rusanov)
+    call print_info(7,"  numerical flux : Rusanov")
   case(sch_roe)
     call print_info(7,"  numerical flux : Roe")
   case(sch_hlle)
@@ -103,6 +106,7 @@ case(solNS)
 
   if (samestring(str,"HLL"))        defspat%jac_hyp = jac_hll
   if (samestring(str,"HLL-DIAG"))   defspat%jac_hyp = jac_hlldiag
+  if (samestring(str,"RUSANOV"))    defspat%jac_hyp = jac_rusanov
   if (samestring(str,"EFM"))        defspat%jac_hyp = jac_efm
 
   if (defspat%jac_hyp == inull) &

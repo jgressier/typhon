@@ -34,6 +34,7 @@ integer(kpp), parameter :: tps_rk3ssp = 33   ! Runge Kutta explicit
 integer(kpp), parameter :: tps_rk4    = 35   ! Runge Kutta explicit 
 
 ! -- Constantes pour schema de calcul des flux hyperboliques (sch_hyp)
+integer(kpp), parameter :: sch_rusanov  = 05
 integer(kpp), parameter :: sch_roe      = 10
 integer(kpp), parameter :: sch_osher_no = 15
 integer(kpp), parameter :: sch_osher_io = 16
@@ -52,6 +53,7 @@ integer(kpp), parameter :: sch_ausmm    = 50
 ! -- Constants for jacobian expression of flux (jac_hyp) --
 integer(kpp), parameter :: jac_hll     = 10
 integer(kpp), parameter :: jac_hlldiag = 15
+integer(kpp), parameter :: jac_rusanov = 16
 integer(kpp), parameter :: jac_efm     = 20
 
 
