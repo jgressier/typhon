@@ -19,8 +19,8 @@ type(st_world) :: world
 
 ! -- Internal Variables --
 integer :: iz, ib, io
-integer :: ndct, nmes
-integer :: im, ifut
+integer :: ndct, nmes, nq
+integer :: im, ifut, ic
 
 ! -- BODY --
 
@@ -81,23 +81,29 @@ world%prj%inverse%tmes_funit = io
 
 open(unit=io, file=trim(world%prj%inverse%tmes_file), form='formatted')
 
-!!read...
+do ifut = 1, world%prj%inverse%ncyc_futur
+   read(io,*) (world%prj%inverse%tmes_expe(ic,ifut), ic=1,world%prj%inverse%nmes)
+enddo
 
 !---------------------------------------
-! READ DCT MODES
+! READ MODES
 
 io = 402
-world%prj%inverse%dct_funit = io
+world%prj%inverse%mode_funit = io
 
-open(unit=io, file=trim(world%prj%inverse%dct_file), form='formatted')
+open(unit=io, file=trim(world%prj%inverse%mode_file), form='formatted')
+ 
+read(io,*) ndct, nq        ! number of DCT modes and size of each mode
 
-!!read .... ndct
+if (nq /= world%prj%inverse%nflux) &
+  call erreur("Inverse initialization", "mode definition size is incompatible with BOCO size")
 
-world%prj%inverse%ndctmode = ndct
-allocate(world%prj%inverse%modes(1:ndct, 1:2))
+world%prj%inverse%defmode%nmode = ndct
+world%prj%inverse%defmode%nq    = nq
+allocate(world%prj%inverse%defmode%modes(1:ndct, 1:nq))
 
 do im = 1, ndct
-   !!read ...
+   read(io,*) (world%prj%inverse%defmode%modes(im, ic), ic=1,nq)
 enddo
 
 allocate(world%prj%inverse%sensi(1:ndct, 1:nmes, 1:world%prj%inverse%ncyc_futur))

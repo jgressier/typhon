@@ -49,7 +49,7 @@ call rpmgetkeyvalreal(pcour, "REF_FLUX",        definverse%ref_flux,  1._krp)
 call rpmgetkeyvalstr(pcour, "BOCO_UNKNOWN", definverse%bc_unknown)
 call rpmgetkeyvalstr(pcour, "BOCO_MEASURE", definverse%bc_tmes)
 
-call rpmgetkeyvalstr(pcour, "FILE_MODES", definverse%dct_file,  "modes.def")
+call rpmgetkeyvalstr(pcour, "FILE_MODES", definverse%mode_file, "modes.def")
 call rpmgetkeyvalstr(pcour, "FILE_TMES",  definverse%tmes_file, "tmes.dat")
 
 endsubroutine def_inverse

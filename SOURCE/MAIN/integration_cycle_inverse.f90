@@ -14,6 +14,7 @@ use OUTPUT
 use VARCOM
 use MODWORLD
 use MENU_INVERSE
+use MATRIX
 
 implicit none
 
@@ -30,7 +31,7 @@ type(st_world) :: lworld
 ! -- Internal variables --
 integer   :: izone, ir
 integer   :: ifut, ic, im, im2, izflux, ibflux, ibdefflux
-integer   :: ndct, nmes, nfut, nflux
+integer   :: nmode, nmes, nfut, nflux
 real(krp) :: wcur_res
 real(krp), allocatable :: tmes_ref(:,:)     ! computed tmes(1:nmes, 1:nfut) without flux
 real(krp), allocatable :: mat(:,:), rhs(:)  ! algebric problem
@@ -55,7 +56,7 @@ if (lworld%prj%nzone /= 1) then
   call erreur("Internal error (integration_cycle_inverse)","ONLY ONE zone allowed")
 endif
 
-ndct  = lworld%prj%inverse%ndctmode
+nmode  = lworld%prj%inverse%defmode%nmode
 nfut  = lworld%prj%inverse%ncyc_futur
 nmes  = lworld%prj%inverse%nmes
 nflux = lworld%prj%inverse%nflux
@@ -110,7 +111,7 @@ enddo
 ! computation of sensivity matrix if necessary
 
 if (mod(lworld%info%icycle-1, lworld%prj%inverse%ncyc_sensi) == 0) then
-  call inverse_calc_sensi(lworld, exchcycle, ncoupling)
+  call inverse_calc_sensi(lworld, lworld%prj%inverse, exchcycle, ncoupling, flux, tmes_ref)
 endif
 
 !-------------------------------------------------------------------------------------
@@ -127,37 +128,33 @@ enddo
 !------------------------------------------------
 ! Solve LSQ problem to obtain magnitude of FLUX DCT MODES
 
-allocate(rhs(ndct))
-allocate(mat(ndct, ndct))
+allocate(rhs(nmode))
+allocate(mat(nmode, nmode))
 
 ! --- computation of RHS in (S^t * S).dQ = S^t * dT ---
 
-do im = 1, ndct
-  rhs(im) = sum((lworld%prj%inverse%tmes_expe(1:nmes,1:nfut)-tmes_ref(1:nmes,1:nfut))*lworld%prj%inverse%sensi(im,1:nmes,1:nfut))
+do im = 1, nmode
+  rhs(im) = sum( (lworld%prj%inverse%tmes_expe(1:nmes,1:nfut)-tmes_ref(1:nmes,1:nfut))  &
+                 *lworld%prj%inverse%sensi(im,1:nmes,1:nfut) )
 enddo
 
 ! --- computation of MATRIX in (S^t * S).dQ = S^t * dT ---
 
-do im = 1, ndct
-  do im2 = 1, ndct
+do im = 1, nmode
+  do im2 = 1, nmode
+    mat(im, im2) = sum(  lworld%prj%inverse%sensi(im, 1:nmes,1:nfut) &
+                       * lworld%prj%inverse%sensi(im2,1:nmes,1:nfut) )
   enddo
 enddo
 
-
 ! --- SOLVE ---
 
+call cholesky_decomp(mat, nmode)
+call cholesky_solve (mat, nmode, rhs, 1)
 
-
-!---- Mise a jour du flux recherché à t+1
-!call calc_dcti_gene(dqs, dq)
-!qfront(:) = qfront(:) + dq(:)
-!!!!!!!zone%defsolver%boco(idef)%boco_kdif
-
-!---- Mise à jour de la condition aux limites face mesure
-!call calc_flux(num, boco%rear,  t, Tn, lworld%prj%nz+1, 1, qrear)
-
-lworld%zone(izflux)%defsolver%boco(ibdefflux)%boco_kdif%flux_nunif(1:nflux) = &
-  lworld%zone(izflux)%defsolver%boco(ibdefflux)%boco_kdif%flux_nunif(1:nflux) + flux(1:nflux)
+call add_invmodes(lworld%prj%inverse%defmode, &
+                  lworld%zone(izflux)%defsolver%boco(ibdefflux)%boco_kdif%flux_nunif(1:nflux), &
+                  rhs)
 
 !-----------------------------------------------
 !---- integration d'1 cycle : calcul à t+1 -----

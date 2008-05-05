@@ -4,7 +4,7 @@
 ! Fonction
 !
 !------------------------------------------------------------------------------!
-subroutine inverse_calc_sensi(lworld, exchcycle, ncoupling)
+subroutine inverse_calc_sensi(lworld, inverse, exchcycle, ncoupling, flux, tref)
  
 use TYPHMAKE
 use OUTPUT
@@ -15,9 +15,11 @@ use MENU_INVERSE
 implicit none
 
 ! -- INPUTS --
-integer                         :: ncoupling  ! nombre de couplages
-integer, dimension(1:ncoupling) :: exchcycle  ! indice du cycle d'echange
-                                              ! (pour les differents couplages de zones)
+type(mnu_inv)         :: inverse
+integer               :: ncoupling     ! nombre de couplages
+integer               :: exchcycle(*)  !
+real(krp), intent(in) :: flux(inverse%nflux)                    ! ref. flux at "unknown" flux BOCO
+real(krp), intent(in) :: tref(inverse%nmes, inverse%ncyc_futur) ! ref. temperature
 
 ! -- INPUTS/OUTPUTS --
 type(st_world) :: lworld
@@ -26,14 +28,13 @@ type(st_world) :: lworld
 
 ! -- Internal variables --
 integer   :: izone, ir
-integer   :: ifut, im
+integer   :: ifut, nfut, im, nmode
+integer   :: nmes, nflux, izflux, ibflux, ibdefflux
 real(krp) :: wcur_res
 real(krp), allocatable :: tmes_calc(:,:)     ! computed tmes(1:nmes, 1:nfut) without flux
+real(krp), allocatable :: unitmode(:)
 
 ! -- BODY --
-
-! verification calcul inverse
-
 
 ! -- CHECK parameters
 
@@ -49,14 +50,22 @@ if (lworld%prj%nzone /= 1) then
   call erreur("Internal error (inverse_calc_sensi)","ONLY ONE zone allowed")
 endif
 
+nflux     = inverse%nflux
+izflux    = inverse%iz_unknown
+ibflux    = inverse%ib_unknown
+ibdefflux = lworld%zone(izflux)%gridlist%first%umesh%boco(ibflux)%idefboco
 
 !-------------------------------------------------------------------------------------
 ! computation of REFERENCE TEMPERATURE in future timesteps (with original fluxes) 
 !-------------------------------------------------------------------------------------
 
-allocate(tmes_calc(lworld%prj%inverse%nmes, lworld%prj%inverse%ncyc_futur))
+nmode = inverse%defmode%nmode
+nfut  = inverse%ncyc_futur
 
-do im = 1, lworld%prj%inverse%ndctmode
+allocate(tmes_calc(lworld%prj%inverse%nmes, nfut))
+allocate(unitmode(1:nmode))
+
+do im = 1, nmode
 
    ! -- RESTORE FIELD Qn --
 
@@ -66,10 +75,18 @@ do im = 1, lworld%prj%inverse%ndctmode
 
    ! -- Apply Flux mode dQ --
 
+   lworld%zone(izflux)%defsolver%boco(ibdefflux)%boco_kdif%flux_nunif(1:nflux) = flux(1:nflux)
+    
+   unitmode(1:nmode) = 0._krp
+   unitmode(im)      = lworld%prj%inverse%ref_flux    ! define ( 0 ..., 1, 0 ... 0)
+
+   call add_invmodes(inverse%defmode, &
+                     lworld%zone(izflux)%defsolver%boco(ibdefflux)%boco_kdif%flux_nunif(1:nflux), &
+                     unitmode)
 
    ! -- Compute nfut cycle to obtain tmes(dQ) --
 
-   do ifut = 1, lworld%prj%inverse%ncyc_futur
+   do ifut = 1, nfut
 
       do izone = 1, lworld%prj%nzone
          call integration_cyclezone(lworld%zone(izone), lworld%info%residu_ref, wcur_res)
@@ -79,6 +96,9 @@ do im = 1, lworld%prj%inverse%ndctmode
            tmes_calc)
 
    enddo
+
+   lworld%prj%inverse%sensi(im, 1:nmes, 1:nfut) = (tmes_calc(1:nmes, 1:nfut) - tref(1:nmes, 1:nfut))&
+                                                  / lworld%prj%inverse%ref_flux
 
 enddo
 

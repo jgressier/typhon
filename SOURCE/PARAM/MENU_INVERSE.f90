@@ -19,6 +19,16 @@ implicit none
 
 
 !------------------------------------------------------------------------------!
+! structure MNU_INVMODE
+!------------------------------------------------------------------------------!
+type mnu_invmode
+  ! DCT modes
+  integer(kip)           :: nmode                  ! number of DCT modes
+  integer(kip)           :: nq                     ! number of value for each mode definition
+  integer(kip), pointer  :: modes(:,:)              ! mode definition
+endtype mnu_invmode
+
+!------------------------------------------------------------------------------!
 ! structure MNU_INV : options numeriques du calcul inverse
 !------------------------------------------------------------------------------!
 type mnu_inv
@@ -28,23 +38,21 @@ type mnu_inv
   character (len=strlen) :: bc_unknown                ! name of BOCO of unknown FLUX
   character (len=strlen) :: bc_tmes                   ! name of BOCO of MEASURES
 
-  character (len=strlen) :: dct_file                  ! filename
+  character (len=strlen) :: mode_file                 ! filename
   character (len=strlen) :: tmes_file                 ! filename
-  integer                ::  dct_funit                ! File Unit of DCT modes
+  integer                :: mode_funit                ! File Unit of DCT modes
   integer                :: tmes_funit                ! File Unit of Measured Quantities
   integer                :: iz_tmes, iz_unknown       ! zone index where there are tmes/unknown BOCO
   integer                :: ib_tmes, ib_unknown       ! boco index where there are tmes/unknown BOCO
   integer(kip)           :: nflux                     ! size of flux array
 
-  ! DCT modes
-  integer(kip)           :: ndctmode                  ! number of DCT modes
-  real(krp)              :: xlim(2), ylim(2)          ! dimensions of DCT frame
-  integer(kip), pointer  :: modes(:,:)                ! list of I and J DCT modes (1:ndctmode, 1:2)
-
   ! Measured quantities
   integer(kip)           :: nmes                      ! nombre de points de mesure
   real(krp), pointer     :: tmes_expe(:,:)            ! temperature de paroi mesuree
   real(krp), pointer     :: sensi(:,:,:)              ! matrice de sensibilite (nmode, nmes, nfut)
+
+  ! DCT data
+  type(mnu_invmode)      :: defmode
 endtype mnu_inv
 
 
@@ -67,11 +75,31 @@ subroutine delete_mnu_inv(definv)
 implicit none
 type(mnu_inv)  :: definv
 
-  deallocate(definv%modes)
+  deallocate(definv%defmode%modes)
   deallocate(definv%tmes_expe)
   deallocate(definv%sensi)
 
 endsubroutine delete_mnu_inv
+
+
+!------------------------------------------------------------------------------!
+! Procedure : Add modes 
+!------------------------------------------------------------------------------!
+subroutine add_invmodes(defmode, q, qmode)
+implicit none
+type(mnu_invmode)        :: defmode
+real(krp), intent(inout) :: q(defmode%nq)
+real(krp), intent(in)    :: qmode(defmode%nmode)
+integer :: i
+
+do i = 1, defmode%nmode
+  q(1:defmode%nq) = q(1:defmode%nq) + qmode(i)*defmode%modes(i, 1:defmode%nq)
+enddo
+
+endsubroutine add_invmodes
+
+
+
 
 endmodule MENU_INVERSE
 
