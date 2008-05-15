@@ -11,6 +11,7 @@ use TYPHMAKE
 use OUTPUT
 use MODWORLD
 use MENU_INVERSE
+!use MENU_BOCO
 
 implicit none
 
@@ -18,7 +19,7 @@ implicit none
 type(st_world) :: world
 
 ! -- Internal Variables --
-integer :: iz, ib, io
+integer :: iz, ib, io, ibdef
 integer :: ndct, nmes, nq
 integer :: im, ifut, ic
 
@@ -52,15 +53,21 @@ if (world%prj%inverse%iz_tmes * world%prj%inverse%iz_unknown &
   call erreur("Inverse Solver", "one BOCO has not been found")
 endif
 
+call print_info(10,"  FLUX unknown boco found: zone"//strof(world%prj%inverse%iz_unknown, 2)//&
+                                            ", boco"//strof(world%prj%inverse%ib_unknown, 3))
+call print_info(10,"  T target     boco found: zone"//strof(world%prj%inverse%iz_tmes, 2)//&
+                                            ", boco"//strof(world%prj%inverse%ib_tmes, 3))
+
 !---------------------------------------
 ! MEASURE face treatment
 
 iz = world%prj%inverse%iz_tmes
 ib = world%prj%inverse%ib_tmes
 
-world%prj%inverse%nmes  = world%zone(iz)%gridlist%first%umesh%boco(ib)%nface
+nmes                   = world%zone(iz)%gridlist%first%umesh%boco(ib)%nface
+world%prj%inverse%nmes = nmes
 
-allocate(world%prj%inverse%tmes_expe(world%prj%inverse%nmes, world%prj%inverse%ncyc_futur))
+allocate(world%prj%inverse%tmes_expe(nmes, world%prj%inverse%ncyc_futur))
 
 !---------------------------------------
 ! FLUX face treatment
@@ -70,8 +77,12 @@ ib = world%prj%inverse%ib_unknown
 
 world%prj%inverse%nflux  = world%zone(iz)%gridlist%first%umesh%boco(ib)%nface
 
-!!make flux non uniform and set bckdif%flux_nunif to 0
+! -- define boco as non uniform flux  --
 
+ibdef =  world%zone(iz)%gridlist%first%umesh%boco(ib)%idefboco
+world%zone(iz)%defsolver%boco(ibdef)%boco_unif           = nonuniform 
+world%zone(iz)%defsolver%boco(ibdef)%boco_kdif%allocflux = .true.
+allocate(world%zone(iz)%defsolver%boco(ibdef)%boco_kdif%flux_nunif(1:world%prj%inverse%nflux))
 
 !---------------------------------------
 ! READ TMES
@@ -82,7 +93,7 @@ world%prj%inverse%tmes_funit = io
 open(unit=io, file=trim(world%prj%inverse%tmes_file), form='formatted')
 
 do ifut = 1, world%prj%inverse%ncyc_futur
-   read(io,*) (world%prj%inverse%tmes_expe(ic,ifut), ic=1,world%prj%inverse%nmes)
+   read(io,*) (world%prj%inverse%tmes_expe(ic,ifut), ic=1,nmes)
 enddo
 
 !---------------------------------------

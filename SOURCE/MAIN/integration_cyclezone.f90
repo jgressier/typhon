@@ -55,15 +55,18 @@ select case(lzone%info%time_model)
 
 case(time_steady)
   write(str_w,'(a,i5)') "  zone",lzone%id
+  call print_info(7,str_w)
 
 case(time_unsteady)
-  write(str_w,'(a,i5,a,g10.4)') "  zone",lzone%id," at local t =",lzone%info%cycle_time
+  write(str_w,'(a,i5,a,g10.4)') "  zone",lzone%id," at time =",lzone%info%cycle_start
+  call print_info(7,str_w)
+
+case(time_unsteady_inverse)
 
 case default
-  call erreur("Developement", "unknown time model")
+  call erreur("internal error (integration_cyclezone)", "unknown time model")
 endselect
 
-call print_info(7,str_w)
 
 !----------------------------------
 ! integration loop on timesteps
@@ -77,7 +80,7 @@ do while (.not.lzone%info%end_cycle)
   select case(lzone%info%time_model)
   case(time_steady)
     dtmax = huge(dtmax)
-  case(time_unsteady)
+  case(time_unsteady, time_unsteady_inverse)
     dtmax = lzone%info%cycle_dt - lzone%info%cycle_time
   case default
     call erreur("internal error (integration_cyclezone)", "unknown time model")
@@ -93,13 +96,14 @@ do while (.not.lzone%info%end_cycle)
 
   select case(lzone%info%time_model)
   case(time_steady)
-  case(time_unsteady)
+  case(time_unsteady, time_unsteady_inverse)
+    
     if (dt >= (lzone%info%cycle_dt - lzone%info%cycle_time)) then
       lzone%info%end_cycle = .true.
       dt  = lzone%info%cycle_dt - lzone%info%cycle_time
     endif
   case default
-    call erreur("Development", "unknown time model")
+    call erreur("internal error (integration_cyclezone)", "unknown time model")
   endselect
 
   !-- DEV (coupling) -------------------------------------------------------

@@ -61,8 +61,9 @@ ibdefflux = lworld%zone(izflux)%gridlist%first%umesh%boco(ibflux)%idefboco
 
 nmode = inverse%defmode%nmode
 nfut  = inverse%ncyc_futur
+nmes  = lworld%prj%inverse%nmes
 
-allocate(tmes_calc(lworld%prj%inverse%nmes, nfut))
+allocate(tmes_calc(nmes, nfut))
 allocate(unitmode(1:nmode))
 
 do im = 1, nmode

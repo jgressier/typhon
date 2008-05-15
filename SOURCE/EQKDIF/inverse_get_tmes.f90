@@ -33,7 +33,8 @@ ib   = definv%ib_tmes
 nmes = definv%nmes
 
 tmes(1:nmes, ifut) = zone%gridlist%first%info%field_loc%etatprim%tabscal(1)%scal( &
-                     zone%gridlist%first%umesh%boco(ib)%iface(1:nmes))
+                       zone%gridlist%first%umesh%facecell%fils(                        &
+                         zone%gridlist%first%umesh%boco(ib)%iface(1:nmes), 2))
 
 
 !-------------------------------------

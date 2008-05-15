@@ -324,7 +324,7 @@ type(st_field) :: field
 
 if (.not.field%allocqref) call alloc_qref(field)
 
-call transfer_gfield(field%etatcons, field%qref)
+call transfer_gfield(field%qref, field%etatcons)
   
 endsubroutine field_cons2ref
 
@@ -335,7 +335,7 @@ subroutine field_ref2cons(field)
 implicit none
 type(st_field) :: field
 
-call transfer_gfield(field%qref, field%etatcons)
+call transfer_gfield(field%etatcons, field%qref)
   
 endsubroutine field_ref2cons
 

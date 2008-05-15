@@ -56,10 +56,13 @@ if (lworld%prj%nzone /= 1) then
   call erreur("Internal error (integration_cycle_inverse)","ONLY ONE zone allowed")
 endif
 
-nmode  = lworld%prj%inverse%defmode%nmode
+nmode = lworld%prj%inverse%defmode%nmode
 nfut  = lworld%prj%inverse%ncyc_futur
 nmes  = lworld%prj%inverse%nmes
 nflux = lworld%prj%inverse%nflux
+
+write(str_w,'(a,g10.4)') "  inverse computation at time =",lworld%info%curtps
+call print_info(7,str_w)
 
 !-------------------------------------------------------------------------------------
 ! UPDATE TMES FIELD (shift and read)
@@ -84,6 +87,8 @@ enddo
 
 ! -- save flux --
 
+allocate(flux(nflux))
+
 izflux    = lworld%prj%inverse%iz_unknown
 ibflux    = lworld%prj%inverse%ib_unknown
 ibdefflux = lworld%zone(izflux)%gridlist%first%umesh%boco(ibflux)%idefboco
@@ -96,9 +101,12 @@ flux(1:nflux) = lworld%zone(izflux)%defsolver%boco(ibdefflux)%boco_kdif%flux_nun
 
 allocate(tmes_ref(nmes, nfut))
 
+call print_info(10, ". prospection ("//trim(strof(nfut))//" cycles)")
+
 do ifut = 1, nfut
 
   do izone = 1, lworld%prj%nzone
+    lworld%zone(izone)%info%cycle_dt = lworld%prj%dtbase
     call integration_cyclezone(lworld%zone(izone), lworld%info%residu_ref, wcur_res)
   enddo
 
@@ -111,6 +119,7 @@ enddo
 ! computation of sensivity matrix if necessary
 
 if (mod(lworld%info%icycle-1, lworld%prj%inverse%ncyc_sensi) == 0) then
+  call print_info(10, ". sensitivity computation")
   call inverse_calc_sensi(lworld, lworld%prj%inverse, exchcycle, ncoupling, flux, tmes_ref)
 endif
 
@@ -152,13 +161,15 @@ enddo
 call cholesky_decomp(mat, nmode)
 call cholesky_solve (mat, nmode, rhs, 1)
 
-call add_invmodes(lworld%prj%inverse%defmode, &
-                  lworld%zone(izflux)%defsolver%boco(ibdefflux)%boco_kdif%flux_nunif(1:nflux), &
-                  rhs)
+!call add_invmodes(lworld%prj%inverse%defmode, &
+!                  lworld%zone(izflux)%defsolver%boco(ibdefflux)%boco_kdif%flux_nunif(1:nflux), &
+!                  rhs)
 
 !-----------------------------------------------
 !---- integration d'1 cycle : calcul à t+1 -----
 !-----------------------------------------------
+
+call print_info(10, ". actual cycle")
 
 do izone = 1, lworld%prj%nzone
  
@@ -185,7 +196,8 @@ enddo
 
 
 !-----------------------------------------------
-deallocate(tmes_ref, mat, rhs)
+deallocate(mat, rhs)
+deallocate(tmes_ref, flux)
 
 
 !-------------------------------------

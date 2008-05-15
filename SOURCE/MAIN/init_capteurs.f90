@@ -38,7 +38,7 @@ case(time_steady)
   open(unit=uf_monres, file="monres."//strof_full_int(1,3), form = "formatted")
   write(uf_monres,'(a)') "@variables: it residual"
 
-case(time_unsteady)
+case(time_unsteady, time_unsteady_inverse)
   !!! DEV : GESTION des entrees/sorties et numeros d'unites par MODULE
   open(unit=uf_monphy, file="monphy."//strof_full_int(1,3), form = "formatted")
   write(uf_monphy,'(a)') "@variables: time"
