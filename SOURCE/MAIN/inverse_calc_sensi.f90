@@ -100,7 +100,8 @@ do im = 1, nmode
 
    lworld%prj%inverse%sensi(im, 1:nmes, 1:nfut) = (tmes_calc(1:nmes, 1:nfut) - tref(1:nmes, 1:nfut))&
                                                   / lworld%prj%inverse%ref_flux
-
+   print*,"  mode",im," sensitivity:",maxval(abs(lworld%prj%inverse%sensi(im, 1:nmes, 1:nfut)))
+   
 enddo
 
 !-----------------------------------------------

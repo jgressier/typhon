@@ -25,7 +25,7 @@ type mnu_invmode
   ! DCT modes
   integer(kip)           :: nmode                  ! number of DCT modes
   integer(kip)           :: nq                     ! number of value for each mode definition
-  integer(kip), pointer  :: modes(:,:)              ! mode definition
+  real(krp), pointer     :: modes(:,:)              ! mode definition
 endtype mnu_invmode
 
 !------------------------------------------------------------------------------!

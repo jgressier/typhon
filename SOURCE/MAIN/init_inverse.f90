@@ -114,7 +114,10 @@ world%prj%inverse%defmode%nq    = nq
 allocate(world%prj%inverse%defmode%modes(1:ndct, 1:nq))
 
 do im = 1, ndct
-   read(io,*) (world%prj%inverse%defmode%modes(im, ic), ic=1,nq)
+  ! read(io,*) (world%prj%inverse%defmode%modes(im, ic), ic=1,nq)
+  do ic = 1, nq
+    read(io,*) world%prj%inverse%defmode%modes(im, ic)
+  enddo
 enddo
 
 allocate(world%prj%inverse%sensi(1:ndct, 1:nmes, 1:world%prj%inverse%ncyc_futur))

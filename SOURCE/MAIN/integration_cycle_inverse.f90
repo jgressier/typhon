@@ -112,7 +112,6 @@ do ifut = 1, nfut
 
   call inverse_get_tmes(ifut, lworld%prj%inverse, lworld%zone(lworld%prj%inverse%iz_tmes), &
                         tmes_ref)
-
 enddo
 
 !------------------------------------------------
@@ -161,9 +160,9 @@ enddo
 call cholesky_decomp(mat, nmode)
 call cholesky_solve (mat, nmode, rhs, 1)
 
-!call add_invmodes(lworld%prj%inverse%defmode, &
-!                  lworld%zone(izflux)%defsolver%boco(ibdefflux)%boco_kdif%flux_nunif(1:nflux), &
-!                  rhs)
+call add_invmodes(lworld%prj%inverse%defmode, &
+                  lworld%zone(izflux)%defsolver%boco(ibdefflux)%boco_kdif%flux_nunif(1:nflux), &
+                  rhs)
 
 !-----------------------------------------------
 !---- integration d'1 cycle : calcul à t+1 -----
