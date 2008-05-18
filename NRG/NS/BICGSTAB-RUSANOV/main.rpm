@@ -6,17 +6,16 @@ BLOCK:PROJECT           ! DEFINITION DU PROJET
   NZONE     = 1       
   COORD     = 2D      
   TIME      = STEADY 
-  RESIDUALS = 1.e-6
+  RESIDUALS = 1.e-12
 ENDBLOCK               
 
 BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
-  FORMAT = VTK-BIN       
+  FORMAT = VTK         
   FILE   = "typhon.vtk" 
-  PERIOD = 1
 ENDBLOCK
 
 BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
-  NAME   = "bicyl" 
+  NAME   = "NS" 
   SOLVER = EULER  
 ENDBLOCK
 
@@ -26,7 +25,7 @@ ENDBLOCK
 
 BLOCK:MESH
   FORMAT = CGNS
-  FILE   = "bicyl.cgns"
+  FILE   = "rect4x1.cgns"
 ENDBLOCK
 
 BLOCK:MODEL
@@ -34,55 +33,51 @@ BLOCK:MODEL
   GAS      = AIR
 ENDBLOCK
 
-BLOCK:TIME_PARAM
-  RESIDUALS = 0.999
-  DTCALC    = LOCAL_STABILITY_CONDITION 
-  !METHOD    = IMPLICIT
-  INVERSION = BICGSTAB
-  INV_RES   = 1.e-1
-  MAX_IT    = 100
-  CFL       = 0.1
-  !CFL_MAX   = 1.
+BLOCK:TIME_PARAM 
+  METHOD     = IMPLICIT
+  RESIDUALS  = .3
+  CFL        = 2.
+  CFL_MAX    = 50.
 ENDBLOCK
 
 BLOCK:SPAT_PARAM  
-  SCHEME   = HLLC
-  JACOBIAN = HLL
-  HIGHRES  = MUSCL
-  LIMITER  = MINMOD
-  POST-LIMITER = MONOTONIC1
+  SCHEME   = RUSANOV
+  JACOBIAN = RUSANOV
 ENDBLOCK
 
 BLOCK:INIT
   PI      = 1.E5
   TI      = 300.
-  MACH    = 10.*(1-exp(-.01*(x*x+y*y)))
+  MACH    = 4.
   DIRECTION = (1., 0., 0.)
 ENDBLOCK
 
 BLOCK:BOCO
-  FAMILY    = UPSTREAM
-  TYPE      = SUPERSONIC_INLET
-  PI        = 1.E5
-  TI        = 300.
-  MACH      = 10.
-  DIRECTION = (1., 0., 0.)
-ENDBLOCK
-
-BLOCK:BOCO
-  FAMILY = CYL1
+  FAMILY = DOWN
   TYPE   = SYMMETRY
+  SAVE_HISTORY=QUANTITY
 ENDBLOCK
 
 BLOCK:BOCO
-  FAMILY = CYL2
-  TYPE   = SYMMETRY
-ENDBLOCK
-
-BLOCK:BOCO
-  FAMILY = DOWNSTREAM
+  FAMILY = RIGHT
   TYPE   = SUPERSONIC_OUTLET 
 ENDBLOCK
 
+BLOCK:BOCO
+  FAMILY    = LEFT
+  TYPE      = SUPERSONIC_INLET
+  PI        = 1.E5
+  TI        = 300.
+  MACH      = 4.
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
 
+BLOCK:BOCO  ! inlet conditions for a shock wave sigma=-18.43495°, impinges at x=3
+  FAMILY    = UP
+  TYPE      = SUPERSONIC_INLET
+  PI        = 98497.053              ! p1/p0 = 1.7
+  TI        = 300.
+  MACH      = 3.60110
+  DIRECTION = (1., -0.0967742, 0.)   ! theta = -5.52754°
+ENDBLOCK
 

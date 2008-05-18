@@ -1,0 +1,7 @@
+TITLE: Inviscid flow over multi-element airfoil (Suddhoo-Hall)
+NAME: Suddhoo-Hall
+SECTION: Airfoils
+KEYWORDS: Low-Speed 2D Inviscid Airfoils
+DESCR:<p>This inviscid flow on a multi-element airfoil is interesting
+DESCR:since this geometry has been defined through a conformal transformation
+DESCR:of four cylinders. Thus, a theoretical solution can be computed.</p>

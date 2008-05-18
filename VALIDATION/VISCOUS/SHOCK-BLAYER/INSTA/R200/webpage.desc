@@ -1,0 +1,15 @@
+TITLE: Shock-Boundary layer interaction in shock tube (Reynolds 200)
+NAME: ShockTube-R200
+SECTION: viscous
+KEYWORDS: Shock-Waves 2D Viscous Unsteady
+DESCR:<p>This is an unsteady viscous computation of a shock tube problem
+DESCR:in a closed 1x1 box. The initial conditions are set with two gases at
+DESCR:rest, same temperature but pressure and density ratio of 100 
+DESCR:(left over right values). The Reynolds number (200) is based on the initial speed 
+DESCR:of sound and the box length. This test case has been proposed by 
+DESCR:Daru and Tenaud.</p>
+DESCR:<p>Due to the initial pressure discontinuity, a shock wave travels from
+DESCR:left to right while accelerating the flow and creating a boundary layer on the
+DESCR:bottom wall. Then the shock hits the right wall, crosses the initial gas interface
+DESCR:and travels back to the left. The shock wave makes the boundary layer separate into
+DESCR:a complex vortical flow.</p>

@@ -48,9 +48,17 @@ for dir in $(find . -type d | grep -v \.svn) ; do
 
     cp $m4filename $tmpfile
     cat $tmpfile | sed -e "s/!!TITLE!!/${desc_TITLE}/" -e "s/!!NAME!!/${desc_NAME}/" -e "s/!!SECTION!!/${desc_SECTION}/" > $m4filename
-    #
-    # LOOP OVER IMAGES
-    #
+
+    # --- ADD CASE DESCRIPTION ---
+
+    grep ^DESCR: $descfile | sed "s/^DESCR: *//" > $tmpfile2
+    #echo skip_line >> $tmpfile2
+    cp $m4filename $tmpfile
+    cat $tmpfile | sed "/!!INSERT-IMG!!/ { r $tmpfile2
+                           N } ; " > $m4filename
+
+    # --- LOOP OVER IMAGES ---
+
     for imgdescfile in $dir/*.imgdesc ; do
       imgdesc_TYPE=$(    grep TYPE:     $imgdescfile | sed "s/TYPE: *//" )
       imgdesc_IMGTITLE=$(grep IMGTITLE: $imgdescfile | sed "s/IMGTITLE: *//" )
@@ -59,8 +67,8 @@ for dir in $(find . -type d | grep -v \.svn) ; do
       imgdesc_IMGFILE=${imgfile##*/}
  
       #cp $imgfile $IMGDIR/
-      convert $imgfile -resize ${imgdesc_WIDTH}x $IMGDIR/$(basename $imgfile)
-      convert $imgfile -resize x150              $IMGDIR/thumbnail-$(basename $imgfile)
+      convert $imgfile -interlace line -resize ${imgdesc_WIDTH}x $IMGDIR/$(basename $imgfile)
+      convert $imgfile                 -resize x150              $IMGDIR/thumbnail-$(basename $imgfile)
       cp $m4imgtemplate $tmpimg
  
       cp $tmpimg $tmpfile
@@ -81,12 +89,17 @@ for dir in $(find . -type d | grep -v \.svn) ; do
                            N } ; " > $m4filename
 
     done
+
+    # --- REMOVE "INSERT-IMG" FROM TEMPLATE ---
+
     cp $m4filename $tmpfile
     cat $tmpfile | sed "s/!!INSERT-IMG!!//" > $m4filename
     
+    # --- ADD FILE TO M4 SOURCE LIST ---
+
     echo $(basename ${m4filename%.m4}) \\ >> $caselist
 
-    # KEYWORDS management
+    # --- KEYWORDS management ---
 
     for key in $desc_KEYWORDS ; do
       keyfile=$SRCM4/key_$key.list

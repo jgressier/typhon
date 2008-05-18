@@ -5,19 +5,19 @@
 BLOCK:PROJECT           ! DEFINITION DU PROJET
   NZONE     = 1       
   COORD     = 2D      
-  TIME      = STEADY 
-  RESIDUALS = 1.e-6
+  TIME      = UNSTEADY 
+  DURATION  = 1.
+  BASETIME  = .01
 ENDBLOCK               
 
 BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
-  FORMAT = VTK-BIN       
-  FILE   = "typhon.vtk" 
-  PERIOD = 1
+  FORMAT = VTK-BIN         
+  FILE   = "typhon" 
 ENDBLOCK
 
 BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
-  NAME   = "bicyl" 
-  SOLVER = EULER  
+  NAME   = "cyl" 
+  SOLVER = EULER
 ENDBLOCK
 
 !------------------------------------------------------------------------------!
@@ -26,63 +26,45 @@ ENDBLOCK
 
 BLOCK:MESH
   FORMAT = CGNS
-  FILE   = "bicyl.cgns"
+  FILE   = "rect1x.5-800x400.cgns"  
+  ! wget http://typhon.sf.net/mesh/rect1x.5-400x200.cgns.gz ; gunzip rect1x.5-400x200.cgns.gz
 ENDBLOCK
 
 BLOCK:MODEL
-  DYNAMICS = EULER
-  GAS      = AIR
+  DYNAMICS  = LAMINAR
+  GAS       = AIR
+  VISCOSITY = CONSTANT
+  DYN_VISC  = .005
 ENDBLOCK
 
-BLOCK:TIME_PARAM
-  RESIDUALS = 0.999
-  DTCALC    = LOCAL_STABILITY_CONDITION 
-  !METHOD    = IMPLICIT
-  INVERSION = BICGSTAB
-  INV_RES   = 1.e-1
-  MAX_IT    = 100
-  CFL       = 0.1
-  !CFL_MAX   = 1.
+BLOCK:TIME_PARAM 
+  !METHOD = RK2
+  CFL    = 0.2
 ENDBLOCK
 
 BLOCK:SPAT_PARAM  
   SCHEME   = HLLC
-  JACOBIAN = HLL
-  HIGHRES  = MUSCL
+  HIGHRES  = MUSCL-FAST
   LIMITER  = MINMOD
-  POST-LIMITER = MONOTONIC1
 ENDBLOCK
 
 BLOCK:INIT
-  PI      = 1.E5
-  TI      = 300.
-  MACH    = 10.*(1-exp(-.01*(x*x+y*y)))
+  DENSITY   =  120. + step(x-0.5)*(1.2-120.)
+  P         = (120. + step(x-0.5)*(1.2-120.))/1.4
+  VELOCITY  =  0.
   DIRECTION = (1., 0., 0.)
 ENDBLOCK
 
 BLOCK:BOCO
-  FAMILY    = UPSTREAM
-  TYPE      = SUPERSONIC_INLET
-  PI        = 1.E5
-  TI        = 300.
-  MACH      = 10.
-  DIRECTION = (1., 0., 0.)
-ENDBLOCK
-
-BLOCK:BOCO
-  FAMILY = CYL1
+  FAMILY = SYM
   TYPE   = SYMMETRY
 ENDBLOCK
 
-BLOCK:BOCO
-  FAMILY = CYL2
-  TYPE   = SYMMETRY
-ENDBLOCK
 
 BLOCK:BOCO
-  FAMILY = DOWNSTREAM
-  TYPE   = SUPERSONIC_OUTLET 
+  FAMILY     = WALL
+  TYPE       = FLUXSET_WALL
+  WALL_FLUX  = 0.
 ENDBLOCK
-
 
 

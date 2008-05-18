@@ -1,0 +1,5 @@
+TYPE: png
+WIDTH: 500
+IMGTITLE:Mesh description and METIS parttion
+IMGDESC:Mesh partition (with METIS library)
+IMGDESC:20822 triangular elements
