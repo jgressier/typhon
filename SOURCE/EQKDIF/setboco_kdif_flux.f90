@@ -98,17 +98,17 @@ do ifb = 1, nface
 
   ! Approximated temperature in factice cell, for computation of gradients
   dc = (cgface - cg) - ( (cgface - cg).scal.normale ) * normale
-  if (defspat%calc_grad) then
-    gradT = champ%gradient%tabvect(1)%vect(ic)
-    gTdc = gradT .scal. dc
-    champ%etatprim%tabscal(1)%scal(ighost) = &
-           champ%etatprim%tabscal(1)%scal(ic) + gTdc - lflux(ifb)*d/conduct
-  else
+  !if (defspat%calc_grad) then
+  !  gradT = champ%gradient%tabvect(1)%vect(ic)
+  !  gTdc = gradT .scal. dc
+  !  champ%etatprim%tabscal(1)%scal(ighost) = &
+  !         champ%etatprim%tabscal(1)%scal(ic) + gTdc - lflux(ifb)*d/conduct
+  !else
     d = (cgface - cg) .scal. (cgface - cg) / (abs((cgface - cg).scal.normale))
     champ%etatprim%tabscal(1)%scal(ighost) = &
            champ%etatprim%tabscal(1)%scal(ic) - lflux(ifb)*d/conduct
 
-  endif
+  !endif
 
 
 enddo
@@ -124,4 +124,5 @@ endsubroutine setboco_kdif_flux
 ! june 2004 : creation 
 ! july 2004 : merge of uniform and non-uniform boco settings
 ! Mar  2008 : use of FCT function
+! May  2008 : delete use of gradient in temperature estimate
 !------------------------------------------------------------------------------!

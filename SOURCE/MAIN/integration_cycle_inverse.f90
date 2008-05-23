@@ -137,7 +137,7 @@ enddo
 ! Solve LSQ problem to obtain magnitude of FLUX DCT MODES
 
 allocate(rhs(nmode))
-allocate(mat(nmode, nmode))
+allocate(mat(nmode,nmode))
 
 ! --- computation of RHS in (S^t * S).dQ = S^t * dT ---
 
@@ -145,15 +145,7 @@ do im = 1, nmode
   rhs(im) = sum( (lworld%prj%inverse%tmes_expe(1:nmes,1:nfut)-tmes_ref(1:nmes,1:nfut))  &
                  *lworld%prj%inverse%sensi(im,1:nmes,1:nfut) )
 enddo
-
-! --- computation of MATRIX in (S^t * S).dQ = S^t * dT ---
-
-do im = 1, nmode
-  do im2 = 1, nmode
-    mat(im, im2) = sum(  lworld%prj%inverse%sensi(im, 1:nmes,1:nfut) &
-                       * lworld%prj%inverse%sensi(im2,1:nmes,1:nfut) )
-  enddo
-enddo
+mat(:,:)=lworld%prj%inverse%sensi2(:,:)
 
 ! --- SOLVE ---
 
@@ -184,20 +176,18 @@ do izone = 1, lworld%prj%nzone
   ! -- Initialisation de residu_reforigine : valeur du residu de reference du premier cycle
   if(lworld%info%icycle.eq.1) then
     lworld%zone(izone)%info%residu_reforigine = lworld%zone(izone)%info%residu_ref
+    open(unit=601, file="inverse_flux.dat", form="formatted")
   endif
+  write(601,*) lworld%zone(izflux)%defsolver%boco(ibdefflux)%boco_kdif%flux_nunif(1:nflux)
 
   ! -- Retour d'informations d'integration du cycle
   lworld%zone(izone)%info%time_model = lworld%prj%time_model
   lworld%zone(izone)%info%cycle_dt   = lworld%prj%dtbase
 enddo
 
-!!lworld%info%cur_res = sqrt(sum((Tn(:,nz+1)-tmes(:,1))**2)/nmes)
-
-
 !-----------------------------------------------
 deallocate(mat, rhs)
 deallocate(tmes_ref, flux)
-
 
 !-------------------------------------
 endsubroutine integration_cycle_inverse

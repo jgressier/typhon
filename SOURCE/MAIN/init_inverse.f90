@@ -92,8 +92,8 @@ world%prj%inverse%tmes_funit = io
 
 open(unit=io, file=trim(world%prj%inverse%tmes_file), form='formatted')
 
-do ifut = 1, world%prj%inverse%ncyc_futur
-   read(io,*) (world%prj%inverse%tmes_expe(ic,ifut), ic=1,nmes)
+do ifut = 1, world%prj%inverse%ncyc_futur-1
+   read(io,*) (world%prj%inverse%tmes_expe(ic,ifut+1), ic=1,nmes)
 enddo
 
 !---------------------------------------
@@ -119,8 +119,10 @@ do im = 1, ndct
     read(io,*) world%prj%inverse%defmode%modes(im, ic)
   enddo
 enddo
+close(io)
 
 allocate(world%prj%inverse%sensi(1:ndct, 1:nmes, 1:world%prj%inverse%ncyc_futur))
+allocate(world%prj%inverse%sensi2(1:ndct, 1:ndct))
 
 endsubroutine init_inverse
 !------------------------------------------------------------------------------!

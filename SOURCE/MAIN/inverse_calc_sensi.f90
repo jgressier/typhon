@@ -28,7 +28,7 @@ type(st_world) :: lworld
 
 ! -- Internal variables --
 integer   :: izone, ir
-integer   :: ifut, nfut, im, nmode
+integer   :: ifut, nfut, im, nmode, im1, im2, imes
 integer   :: nmes, nflux, izflux, ibflux, ibdefflux
 real(krp) :: wcur_res
 real(krp), allocatable :: tmes_calc(:,:)     ! computed tmes(1:nmes, 1:nfut) without flux
@@ -95,7 +95,6 @@ do im = 1, nmode
   
       call inverse_get_tmes(ifut, lworld%prj%inverse, lworld%zone(lworld%prj%inverse%iz_tmes), &
            tmes_calc)
-
    enddo
 
    lworld%prj%inverse%sensi(im, 1:nmes, 1:nfut) = (tmes_calc(1:nmes, 1:nfut) - tref(1:nmes, 1:nfut))&
@@ -104,8 +103,18 @@ do im = 1, nmode
    
 enddo
 
+! --- computation of MATRIX in (S^t * S).dQ = S^t * dT ---
+
+do im1 = 1, nmode
+  do im2 = 1, nmode
+    lworld%prj%inverse%sensi2(im1, im2) = sum(  lworld%prj%inverse%sensi(im1,1:nmes,1:nfut) &
+                                              * lworld%prj%inverse%sensi(im2,1:nmes,1:nfut) )
+  enddo
+enddo
+
 !-----------------------------------------------
 deallocate(tmes_calc)
+deallocate(unitmode)
 
 
 !-------------------------------------

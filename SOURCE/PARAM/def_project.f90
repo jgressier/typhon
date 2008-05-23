@@ -126,6 +126,7 @@ case(time_unsteady_inverse) ! Evolution unsteady + inverse method
   prj%dtbase = prj%duration / prj%ncycle
 
   call def_inverse(prj, block, prj%inverse)
+  prj%ncycle = prj%ncycle - prj%inverse%ncyc_futur
 
   ! DEV : TRAITER LES MOTS CLEFS INTERDITS
 

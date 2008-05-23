@@ -50,6 +50,7 @@ type mnu_inv
   integer(kip)           :: nmes                      ! nombre de points de mesure
   real(krp), pointer     :: tmes_expe(:,:)            ! temperature de paroi mesuree
   real(krp), pointer     :: sensi(:,:,:)              ! matrice de sensibilite (nmode, nmes, nfut)
+  real(krp), pointer     :: sensi2(:,:)               ! matrice S^t*S
 
   ! DCT data
   type(mnu_invmode)      :: defmode
@@ -78,7 +79,8 @@ type(mnu_inv)  :: definv
   deallocate(definv%defmode%modes)
   deallocate(definv%tmes_expe)
   deallocate(definv%sensi)
-
+  deallocate(definv%sensi2)
+  
 endsubroutine delete_mnu_inv
 
 
