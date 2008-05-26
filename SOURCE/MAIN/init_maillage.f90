@@ -22,7 +22,7 @@ type(st_zone) :: zone
 ! -- Internal variables --
 type(st_grid), pointer :: pgrid
 type(st_ustmesh)       :: newmesh
-
+real(krp)              :: alpha, beta      ! geometric coefficient for the split
 ! -- BODY --
 
 select case(zone%defsolver%typ_solver)
@@ -42,6 +42,24 @@ case(solVORTEX, solNS)
       ! nothing to do
     case(split_svm2quad)
       call convert_to_svm(zone%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh)
+      call delete(pgrid%umesh)
+      pgrid%umesh = newmesh
+    case(split_svm3wang)
+     alpha= 1._krp /  4._krp
+     beta= 1._krp /  3._krp
+      call convert_to_svm_cub(zone%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh,alpha,beta)
+      call delete(pgrid%umesh)
+      pgrid%umesh = newmesh
+    case(split_svm3kris)
+     alpha= 91._krp /  1000._krp
+     beta= 18._krp /  100._krp
+      call convert_to_svm_cub(zone%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh,alpha,beta)
+      call delete(pgrid%umesh)
+      pgrid%umesh = newmesh
+    case(split_svm3kris2)
+     alpha= 0.1093621117
+     beta= 0.1730022492
+      call convert_to_svm_cub(zone%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh,alpha,beta)
       call delete(pgrid%umesh)
       pgrid%umesh = newmesh
     case default

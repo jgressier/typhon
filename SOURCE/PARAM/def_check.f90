@@ -28,7 +28,23 @@ call print_info(5,"- Check parameters consistency and further initialization")
 select case(zone%defmesh%splitmesh)
 case(split_none)
 case(split_svm2quad)
-  zone%defsolver%defspat%svm%sv_meth = svm_2quad
+  zone%defsolver%defspat%svm%sv_partition = svm_2quad
+  zone%defsolver%defspat%svm%sv_order = svm_2
+  call print_info(10, "  initialize SVM parameters")
+  call init_svmparam(zone%defsolver%defspat%svm)
+case(split_svm3wang)
+  zone%defsolver%defspat%svm%sv_partition = svm_3wang
+  zone%defsolver%defspat%svm%sv_order = svm_3
+  call print_info(10, "  initialize SVM parameters")
+  call init_svmparam(zone%defsolver%defspat%svm)
+case(split_svm3kris)
+  zone%defsolver%defspat%svm%sv_partition = svm_3kris
+  zone%defsolver%defspat%svm%sv_order = svm_3
+  call print_info(10, "  initialize SVM parameters")
+  call init_svmparam(zone%defsolver%defspat%svm)
+case(split_svm3kris2)
+  zone%defsolver%defspat%svm%sv_partition = svm_3kris2
+  zone%defsolver%defspat%svm%sv_order = svm_3
   call print_info(10, "  initialize SVM parameters")
   call init_svmparam(zone%defsolver%defspat%svm)
 case default

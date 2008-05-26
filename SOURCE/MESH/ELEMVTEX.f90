@@ -177,7 +177,7 @@ dim = genelemvtex%ntype
 allocate(tab_elem(dim+1))
 
 if (dim >= 1) then                             ! if existing ELEMVTEX sections
-  tab_elem(1:dim) = genelemvtex%elem(1:dim)
+ tab_elem(1:dim) = genelemvtex%elem(1:dim)
 endif
 
 genelemvtex%elem  => tab_elem

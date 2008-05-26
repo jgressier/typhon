@@ -179,34 +179,77 @@ case(solNS)
     call print_info(7,"  Spectral Volume method")
 
     call rpmgetkeyvalstr(pcour, "SVM", str, "2QUAD")
-    if (samestring(str,"2"))       defspat%svm%sv_meth = svm_2quad
-    if (samestring(str,"2TRI"))    defspat%svm%sv_meth = svm_2tri
-    if (samestring(str,"2QUAD"))   defspat%svm%sv_meth = svm_2quad
-  
-    select case(defspat%svm%sv_meth)
+    if (samestring(str,"2")) then
+       defspat%svm%sv_order = svm_2
+       defspat%svm%sv_partition = svm_2quad
+    endif
+    if (samestring(str,"2TRI"))    then 
+       defspat%svm%sv_order = svm_2
+       defspat%svm%sv_partition = svm_2tri
+    endif
+    if (samestring(str,"2QUAD"))  then
+       defspat%svm%sv_order = svm_2
+       defspat%svm%sv_partition = svm_2quad
+    endif 
+    if (samestring(str,"3"))    then
+       defspat%svm%sv_order = svm_3
+       defspat%svm%sv_partition = svm_3wang
+    endif 
+    if (samestring(str,"3WANG")) then
+       defspat%svm%sv_order = svm_3
+       defspat%svm%sv_partition = svm_3wang
+    endif 
+    if (samestring(str,"3KRIS"))  then
+       defspat%svm%sv_order = svm_3
+       defspat%svm%sv_partition = svm_3kris
+    endif   
+    if (samestring(str,"3KRIS2"))  then
+       defspat%svm%sv_order = svm_3
+       defspat%svm%sv_partition = svm_3kris2
+    endif  
 
+    select case(defspat%svm%sv_partition)
     case(svm_2quad)
       call print_info(7,"    second order, splitted into quads (face split)")
-
-    !case(svm_2tri)
-    !  call print_info(7,"    second order, splitted into tris (vertex split)")
-    !  defspat%svm%intnode        = 1  ! number of internal added nodes for cell splitting
-    !  defspat%svm%internal_faces = 3  ! number of internal faces (by cell)
-    !  defspat%svm%external_faces = 3  ! number of external faces (by cell)
-    !  defspat%svm%nb_facepoints  = 1  ! number of integration points by face
-
+      defmesh%splitmesh = split_svm2quad    
+    case(svm_2tri)
+      call print_info(7,"    second order, splitted into tris (vertex split)")
+    case(svm_3wang)
+      call print_info(7,"    third order, splitted into 3 quads and 3 pentagons: original partition by Wang")
+      defmesh%splitmesh = split_svm3wang
+    case(svm_3kris)
+      call print_info(7,"    third order, splitted into 3 quads and 3 pentagons: 1st optimised partition by Abeele")
+      defmesh%splitmesh = split_svm3kris
+    case(svm_3kris2)
+      call print_info(7,"    third order, splitted into 3 quads and 3 pentagons: 2nd optimised partition by Abeele")
+      defmesh%splitmesh = split_svm3kris2
     case default
       call erreur("parameters parsing","unknown SVM method")
     endselect
     
-    defmesh%splitmesh = split_svm2quad
     call init_svmparam(defspat%svm)
     call init_svmweights(defspat%svm)
+
+    if (defspat%svm%sv_order.ge.3) then
+    call rpmgetkeyvalstr(pcour, "SVMFLUX", str, "QUAD_Q")
+    if (samestring(str,"QUAD_Q"))        defspat%svm%sv_flux = svm_fluxQ
+    if (samestring(str,"QUAD_F"))      defspat%svm%sv_flux = svm_fluxF
+
+  select case(defspat%svm%sv_flux)
+    case(svm_fluxQ)
+      call print_info(7,"  SVM flux on Gauss points: averaged quantities")
+    case(svm_fluxF)
+      call print_info(7,"  SVM flux on Gauss points: averaged fluxes")
+    case default
+      call erreur("parameters parsing","unknown method for SVM flux on Gauss points")
+  endselect
+
+    endif
 
   case default
     call erreur("parameters parsing","unexpected high resolution method (reading limiter)")
   endselect
-  
+
   ! --- Post-Limitation method ---
  
   call rpmgetkeyvalstr(pcour, "POST-LIMITER", str, "NONE")
