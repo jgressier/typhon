@@ -11,9 +11,6 @@ XIO_MOD = REPRISE.$(MOD)
 
 XIO_OBJ = $(XIO_MOD:.$(MOD)=.o)  \
           comp_flux.o            \
-          output_tec_cor.o       \
-          output_tec_flux.o      \
-          output_tec_temp.o      \
           output_tec_str.o       \
           output_tec_ust.o       \
           output_tec_ust_ctr.o   \
@@ -26,6 +23,7 @@ XIO_OBJ = $(XIO_MOD:.$(MOD)=.o)  \
           output_vtkbin_cell.o   \
           output_vtkbin_scal.o   \
           output_vtkbin_vect.o   \
+          output_zone.o          \
           readtyphmsh_dom.o      \
           readtyphmshfile.o      
  
@@ -38,13 +36,13 @@ all: $(XIO_LIB)
 
 $(XIO_LIB): $(D_XIO_OBJ)
 	@echo ---------------------------------------------------------------
-	@echo \* Création de la librairie $(XIO_LIB)
+	@echo \* Creation of library $(XIO_LIB)
 	@touch $(XIO_LIB) ; rm $(XIO_LIB)
 	@$(AR) ruv $(XIO_LIB) $(D_XIO_OBJ)
-	@echo \* Création de l\'index de la librairie
+	@echo \* Creation of library index
 	@$(RAN)    $(XIO_LIB)
 	@echo ---------------------------------------------------------------
-	@echo \* LIBRAIRIE $(XIO_LIB) créée
+	@echo \* LIBRAIRIE $(XIO_LIB) created
 	@echo ---------------------------------------------------------------
 
 XIO_clean:

@@ -1,17 +1,13 @@
 !------------------------------------------------------------------------------!
-! MODULE : MENU_GEN                       Auteur : J. Gressier
-!                                         Date   : Novembre 2002
-! Fonction                                Modif  : cf historique
-!   Definition des structures pour les entrees du programme TYPHON
-!   Structures pour les options generales
-!
-! Defauts/Limitations/Divers :
+! MODULE : MENU_GEN 
+!                   
+! Fonction          
+!   Definition of general/project options 
 !
 !------------------------------------------------------------------------------!
-
 module MENU_GEN
 
-use TYPHMAKE   ! Definition de la precision
+use TYPHMAKE   
 use MENU_INVERSE
 
 implicit none
@@ -21,10 +17,7 @@ implicit none
 integer(kpp), parameter :: act_compute = 1
 integer(kpp), parameter :: act_analyse = 2
 
-integer(kpp), parameter :: write_end   = 10
-integer(kpp), parameter :: write_cycle = 20
-
-! -- Constants for output formats --
+! -- Constants for OUTPUT formats/location --
 
 character, parameter   :: fmt_CGNS    = 'C'   ! format CGNS
 character, parameter   :: fmt_TYPHMSH = 'M'   ! format TYPHON MESH
@@ -33,7 +26,16 @@ character, parameter   :: fmt_VIGIE   = 'V'   ! format VIGIE
 character, parameter   :: fmt_VTK     = 'K'   ! format VTK
 character, parameter   :: fmt_VTKBIN  = 'I'   ! format VTK Binary
 
-! -- Constants for TIME INEGRATION management
+integer(kpp), parameter :: write_end   = 1
+integer(kpp), parameter :: write_cycle = 2
+
+integer(kpp), parameter :: dataset_node     = 05
+integer(kpp), parameter :: dataset_cell     = 10
+integer(kpp), parameter :: dataset_svcell   = 11
+integer(kpp), parameter :: dataset_bococell = 15
+integer(kpp), parameter :: dataset_boconode = 16
+
+! -- Constants for TIME INTEGRATION management
 
 character, parameter :: time_steady            = 'S'
 character, parameter :: time_unsteady          = 'I'
@@ -62,15 +64,16 @@ type mnu_project
 endtype mnu_project
 
 !------------------------------------------------------------------------------!
-! structure MNU_OUTPUT : Parametres du projet
+! structure MNU_OUTPUT : Output parameters
 !------------------------------------------------------------------------------!
 type mnu_OUTPUT
-  character       :: format     ! format de la sortie
-  character(len=strlen) &
-                  :: fichier    ! nom du fichier de sortie
-  integer         :: type       ! type de sortie (cf. VARCOM)
-  integer(kpp)    :: write      ! writing moment
-  integer         :: period     ! writing period
+  integer(kpp)          :: dataset       ! data set to save
+  integer(kpp)          :: location      ! data location
+  character             :: format        ! output format
+  character(len=strlen) :: filename      ! file name or base name
+  integer               :: iunit         ! IO unit
+  integer(kpp)          :: write         ! writing instant (end, cycle...)
+  integer               :: period        ! writing period (if "cycle")
 endtype mnu_OUTPUT
 
 ! -- INTERFACES -------------------------------------------------------------
@@ -88,7 +91,8 @@ endmodule MENU_GEN
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! nov  2002 : creation du module
+! nov  2002: creation
+! May  2008: enhances output structure
 !------------------------------------------------------------------------------!
 
 

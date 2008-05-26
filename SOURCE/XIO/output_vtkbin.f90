@@ -1,31 +1,30 @@
 !------------------------------------------------------------------------------!
-! Procedure : output_vtkbin                     Authors : J. Gressier
-!                                               Created : April 2006
+! Procedure : output_vtkbin
+!                          
 ! Function
 !   Write the field of each zone in a VTK Binary file
 !
 !------------------------------------------------------------------------------!
  
-subroutine output_vtkbin(nom, world, outp_typ, position, io) 
+subroutine output_vtkbin(nom, defio, zone)
 
 use TYPHMAKE
 use OUTPUT
 use VARCOM
-use MODWORLD
+use DEFZONE
+use MENU_GEN
 
 implicit none
 
 ! -- INPUTS --
-character(len=strlen) :: nom       ! nom du fichier
-type(st_world)        :: world
-integer               :: outp_typ
-integer               :: position 
-integer               :: io       !DEV2602
+character(len=strlen) :: nom       ! filename
+type(mnu_output)      :: defio     ! output parameter
+type(st_zone)         :: zone      ! zone
 
 ! -- OUPUTS --
 
 ! -- Internal variables --
-integer               :: izone, i, dim, ufc, ir
+integer               :: dim, ufc, ir
 integer               :: info
 type(st_genericfield) :: vfield
 character(len=10)     :: suffix
@@ -38,52 +37,37 @@ else
   suffix = ".vtk"
 endif
 
-select case(position)
-case(end_calc, end_cycle)
+open(unit=uf_chpresu, file=trim(nom)//trim(suffix), form='binary', iostat = info)
 
-  if ((outp_typ == outp_NODE).or.(outp_typ == outp_CENTER)) then
+select case(zone%defsolver%typ_solver)
 
-    ! DEVELOPPEMENT PROVISOIRE
-    open(unit=uf_chpresu, file=trim(nom)//trim(suffix), form='binary', iostat = info)
+case(solNS)
+  call writestr(uf_chpresu, '# vtk DataFile Version 2.0')
+  call writestr(uf_chpresu, 'TYPHON-NS')
+  call writestr(uf_chpresu, 'BINARY')
+  call output_vtkbin_cell(uf_chpresu, zone%defsolver, &
+       zone%gridlist%first%umesh, zone%gridlist%first%info%field_loc)
 
-    do izone = 1, world%prj%nzone
+case(solKDIF)
 
-      select case(world%zone(izone)%defsolver%typ_solver)
+  call writestr(uf_chpresu, '# vtk DataFile Version 2.0')
+  call writestr(uf_chpresu, 'TYPHON-KDIF')
+  call writestr(uf_chpresu, 'BINARY')
+  call output_vtkbin_cell(uf_chpresu, zone%defsolver, &
+       zone%gridlist%first%umesh, zone%gridlist%first%info%field_loc)
 
-      case(solNS)
-        call writestr(uf_chpresu, '# vtk DataFile Version 2.0')
-        call writestr(uf_chpresu, 'TYPHON-NS')
-        call writestr(uf_chpresu, 'BINARY')
-        call output_vtkbin_cell(uf_chpresu, world%zone(izone)%defsolver, &
-                             world%zone(izone)%gridlist%first%umesh, world%zone(izone)%gridlist%first%info%field_loc)
+case(solVORTEX)
 
-      case(solKDIF)
-
-        call writestr(uf_chpresu, '# vtk DataFile Version 2.0')
-        call writestr(uf_chpresu, 'TYPHON-KDIF')
-        call writestr(uf_chpresu, 'BINARY')
-        call output_vtkbin_cell(uf_chpresu, world%zone(izone)%defsolver, &
-                             world%zone(izone)%gridlist%first%umesh, world%zone(izone)%gridlist%first%info%field_loc)
-
-      case(solVORTEX)
-
-        call erreur("Developpement","les sorties VORTEX ne sont pas prevues dans ce format")
-
-      case default
-
-        call erreur("Developpement","solveur inconnu (output_vtkbin)")
-
-      endselect
-
-    enddo ! fin boucle : zone
-
-    close(uf_chpresu)
-
-  endif
+  call erreur("Developpement","les sorties VORTEX ne sont pas prevues dans ce format")
 
 case default
-  !print*,"!DEV! blanked output_vtkbin"
+
+  call erreur("Developpement","solveur inconnu (output_vtkbin)")
+
 endselect
+
+close(uf_chpresu)
+
 
 endsubroutine output_vtkbin
 !------------------------------------------------------------------------------!

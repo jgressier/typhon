@@ -76,14 +76,6 @@ character, parameter :: c2dplan  = 'P'
 character, parameter :: c2daxi   = 'X'
 character, parameter :: c3dgen   = 'G'
 
-! -- Constantes pour le choix du type de sortie des donnees (centres ou noeuds)
-
-integer, parameter :: outp_NODE         = 01
-integer, parameter :: outp_CENTER       = 02
-integer, parameter :: outp_COR          = 03 !DEV2602
-integer, parameter :: outp_FLUX         = 04 !DEV2602
-integer, parameter :: outp_TEMPINTER    = 05 !DEV1404
-
 ! -- Constantes pour l'etat d'avancement du calcul
 integer, parameter :: end_calc          = 01
 integer, parameter :: in_cycle          = 02
