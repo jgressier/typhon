@@ -36,7 +36,8 @@ integer             :: maxvtex, maxface      ! nombre de sommets/face, face/cell
 integer             :: nface                 ! estimation du nombre de faces
 integer             :: iconn, icell, ivtex   ! indices courants
 integer             :: ielem, nelem , nvtex    
-integer             :: ista, iend, itype         
+integer             :: ista, iend, itype 
+integer             :: iv, if     
 
 ! -- BODY --
 
@@ -67,7 +68,9 @@ mesh%mesh%nvtex  = cgnszone%mesh%ni                  ! nb of vertices
 
 mesh%nvtex       = mesh%mesh%nvtex                   ! nb of vertices (redundant)
 allocate(mesh%mesh%vertex(mesh%mesh%nvtex, 1, 1))
-mesh%mesh%vertex = cgnszone%mesh%vertex              ! copy vertex cloud
+do iv = 1, mesh%mesh%nvtex   ! loop because of stack size problems
+  mesh%mesh%vertex(iv, 1, 1) = cgnszone%mesh%vertex(iv, 1, 1)   ! copy vertex cloud
+enddo
 
 !--------------------------------------------------------------------------
 ! compute arrays APPROXIMATE sizes and copy of CELL->VTEX connectivity
@@ -164,8 +167,11 @@ do iconn = 1, cgnszone%ncellfam          ! boucle sur les sections de cellules
   nvtex = mesh%cellvtex%elem(ielem)%nvtex
   ista  = cgnszone%cellfam(iconn)%ideb
   iend  = cgnszone%cellfam(iconn)%ifin
-  mesh%cellvtex%elem(ielem)%elemvtex(1:nelem,1:nvtex) = cgnszone%cellfam(iconn)%fils(ista:iend,1:nvtex)
-  mesh%cellvtex%elem(ielem)%ielem   (1:nelem)         = (/ (icell, icell = ista, iend ) /)
+
+  do icell = 1, nelem  ! loop because of stack size problems
+    mesh%cellvtex%elem(ielem)%elemvtex(icell, 1:nvtex) = cgnszone%cellfam(iconn)%fils(ista-1+icell, 1:nvtex)
+    mesh%cellvtex%elem(ielem)%ielem   (icell)          = ista-1+icell
+  enddo
 
 enddo
 
@@ -211,15 +217,19 @@ nface          = face_vtex%nbnodes     ! meme valeur que face_cell%nbnodes aussi
 mesh%nface     = nface
 mesh%ncell_int = ntotcell
 
-call print_info(8,"  >"//strof(nface,8)//" created faces")
+call print_info(8,"  >"//strof(nface,9)//" created faces")
 
 call new(mesh%facevtex, nface, maxvtex)
-mesh%facevtex%fils(1:nface,1:maxvtex) = face_vtex%fils(1:nface,1:maxvtex)
+do if = 1, nface   ! loop because of stack size problem
+  mesh%facevtex%fils(if,1:maxvtex) = face_vtex%fils(if,1:maxvtex)
+enddo
 
 call new(mesh%facecell, nface, 2)
-mesh%facecell%fils(1:nface,1:2)       = face_cell%fils(1:nface,1:2)
+do if = 1, nface   ! loop because of stack size problem
+  mesh%facecell%fils(if,1:2)       = face_cell%fils(if,1:2)
+enddo
 
-call print_info(8,"  >"//strof(count(mesh%facecell%fils(1:nface,2)==0),8)//" external faces")
+call print_info(8,"  >"//strof(count(mesh%facecell%fils(1:nface,2)==0),9)//" external faces")
 
 if (defmesh%splitmesh /= split_none) then
   call new_connect(mesh%face_Ltag, nface, 1)

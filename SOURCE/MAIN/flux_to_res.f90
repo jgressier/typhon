@@ -52,8 +52,11 @@ enddo
 ! -- flux surfaciques -> flux de surfaces --
 
 do ip = 1, flux%nscal
-  flux%tabscal(ip)%scal(:) = surf(:) * flux%tabscal(ip)%scal(:)
+  do if = 1, umesh%nface
+    flux%tabscal(ip)%scal(if) = surf(if) * flux%tabscal(ip)%scal(if)
+  enddo
 enddo
+
 do ip = 1, flux%nvect
   !flux%tabvect(ip)%vect(:) = surf(:) * flux%tabvect(ip)%vect(:)
   call scale(flux%tabvect(ip)%vect, surf(:))

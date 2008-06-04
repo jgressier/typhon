@@ -217,8 +217,11 @@ subroutine scaf_scale(x, a)
 implicit none
 type(st_scafield) :: x
 real(krp)         :: a
+integer           :: i
 
-  x%scal(1:x%dim) = a*x%scal(1:x%dim) 
+do i = 1, x%dim
+  x%scal(i) = a*x%scal(i) 
+enddo
 
 endsubroutine scaf_scale
 
@@ -255,8 +258,11 @@ endsubroutine tenf_scale
 subroutine scaf_xeqxpy(x, y)
 implicit none
 type(st_scafield) :: x, y
+integer           :: i
 
-  x%scal(1:x%dim) = x%scal(1:x%dim) + y%scal(1:x%dim) 
+do i = 1, x%dim
+  x%scal(i) = x%scal(i) + y%scal(i) 
+enddo
 
 endsubroutine scaf_xeqxpy
 
@@ -292,8 +298,11 @@ subroutine scaf_xeqxpay(x, a, y)
 implicit none
 type(st_scafield) :: x, y
 real(krp)         :: a
+integer           :: i
 
-  x%scal(1:x%dim) = x%scal(1:x%dim) + a*y%scal(1:x%dim) 
+do i = 1, x%dim
+  x%scal(i) = x%scal(i) + a*y%scal(i) 
+enddo
 
 endsubroutine scaf_xeqxpay
 
@@ -304,8 +313,12 @@ subroutine vecf_xeqxpay(x, a, y)
 implicit none
 type(st_vecfield) :: x, y
 real(krp)         :: a
+integer           :: i
 
-  call shift_add(x%vect(1:x%dim), a*y%vect(1:x%dim))
+do i = 1, x%dim
+  x%vect(i) = x%vect(i) + a*y%vect(i)
+enddo
+!call shift_add(x%vect(1:x%dim), a*y%vect(1:x%dim))
 
 endsubroutine vecf_xeqxpay
 
@@ -330,7 +343,7 @@ endsubroutine tenf_xeqxpay
 endmodule BASEFIELD
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! oct  2002 : creation du module
 ! juin 2003 : structuration des champs par type (scalaire, vecteur...)

@@ -172,13 +172,16 @@ function copy_connect(source)
 implicit none
 type(st_connect) :: copy_connect, source
 integer          :: nnodes, nfils
+integer          :: in
 
   nnodes = source%nbnodes
   nfils  = source%nbfils
   copy_connect%nbnodes = source%nbnodes
   copy_connect%nbfils  = source%nbfils
   allocate(copy_connect%fils(nnodes, nfils))
-  copy_connect%fils(1:nnodes, 1:nfils) = source%fils(1:nnodes, 1:nfils)
+  do in = 1, nnodes
+    copy_connect%fils(in, 1:nfils) = source%fils(in, 1:nfils)
+  enddo
 
 endfunction copy_connect
 
