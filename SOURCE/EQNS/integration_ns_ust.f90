@@ -7,7 +7,7 @@
 !   - high order interpolation
 !
 !------------------------------------------------------------------------------!
-subroutine integration_ns_ust(defsolver, defspat, domaine, field, flux, &
+subroutine integration_ns_ust(defsolver, defspat, umesh, field, flux, &
                               calc_jac, jacL, jacR)
 
 use TYPHMAKE
@@ -25,7 +25,7 @@ implicit none
 ! -- INPUTS --
 type(mnu_solver) :: defsolver        ! type d'equation a resoudre
 type(mnu_spat)   :: defspat          ! parametres d'integration spatiale
-type(st_ustmesh) :: domaine          ! domaine non structure a integrer
+type(st_ustmesh) :: umesh          ! umesh non structure a integrer
 logical          :: calc_jac         ! choix de calcul de la jacobienne
 
 ! -- INPUTS/OUTPUTS --
@@ -37,35 +37,34 @@ type(st_mattab)         :: jacL, jacR  ! jacobiennes associees (gauche et droite
 
 ! -- Internal variables --
 logical :: gradneeded           ! use gradients or not
-integer :: if, nfb              ! index de face et taille de bloc courant
-integer :: nbuf                 ! taille de buffer 
-integer :: ib, nbloc            ! index de bloc et nombre de blocs
-integer :: ideb, ifin           ! index de debut et fin de bloc
+integer :: if, buf              ! index de face et taille de bloc courant
+integer :: dimbuf, dimbuf1      ! buffer size (cregular and first)
+integer :: ib, nblock           ! block index and number of blocks
+integer :: ista, iend           ! starting and ending index
 integer :: it                   ! index de tableau
 integer :: icl, icr             ! index de cellule a gauche et a droite
 type(st_genericfield) :: cell_l, cell_r       ! buffer sized, state extrapolation at face
-type(st_genericfield) :: gradL, gradR         ! block size arrays of gradients
+type(st_genericfield) :: gradL, gradR         ! nblock size arrays of gradients
 type(v3d), dimension(:), allocatable &
                       :: cg_l, cg_r           ! tableau des centres de cellules a gauche et a droite   
 
 ! -- BODY --
 
-! On peut ici decouper la maillage complet en blocs de taille fixe pour optimiser
-! l'encombrement memoire et la vectorisation
+call calc_buffer(umesh%nface, cell_buffer, nblock, dimbuf, dimbuf1)
 
-call calc_buffer(domaine%nface, cell_buffer, nbloc, nbuf, nfb)
+call new(cell_l, umesh%nface, field%etatprim%nscal, field%etatprim%nvect, field%etatprim%ntens)
+call new(cell_r, umesh%nface, field%etatprim%nscal, field%etatprim%nvect, field%etatprim%ntens)
 
-call new(cell_l, nbuf, field%etatprim%nscal, field%etatprim%nvect, field%etatprim%ntens)
-call new(cell_r, nbuf, field%etatprim%nscal, field%etatprim%nvect, field%etatprim%ntens)
-allocate(  cg_l(nbuf),   cg_r(nbuf))
-call new(gradL, nbuf, field%gradient%nscal, field%gradient%nvect, field%gradient%ntens)
-call new(gradR, nbuf, field%gradient%nscal, field%gradient%nvect, field%gradient%ntens)
+allocate(  cg_l(dimbuf),   cg_r(dimbuf))
+call new(gradL, dimbuf, field%gradient%nscal, field%gradient%nvect, field%gradient%ntens)
+call new(gradR, dimbuf, field%gradient%nscal, field%gradient%nvect, field%gradient%ntens)
 
-ideb = 1
+ista = 1
+buf  = dimbuf1
 
-do ib = 1, nbloc
+do ib = 1, nblock
 
-  ifin = ideb+nfb-1
+  iend = ista+buf-1
 
   select case(defspat%method)
 
@@ -73,8 +72,8 @@ do ib = 1, nbloc
     
     ! -- no extrapolation, only direct copy of cell values --
 
-    call distrib_field(field%etatprim, domaine%facecell, ideb, ifin, &
-                       cell_l, cell_r, 1)
+    call distrib_field(field%etatprim, umesh%facecell, ista, iend, &
+                       cell_l, cell_r, ista)
   
  
   !----------------------------------------------------------------------
@@ -82,29 +81,45 @@ do ib = 1, nbloc
   !----------------------------------------------------------------------
   case(hres_muscl)
 
-    call hres_ns_muscl(defspat, nfb, ideb, domaine,      &
+    call hres_ns_muscl(defspat, buf, ista, umesh,      &
                        field%etatprim, field%gradient,   &
-                       cell_l, cell_r)
+                       cell_l, cell_r, ista)
 
   case(hres_musclfast)
 
-    call hres_ns_musclfast(defspat, nfb, ideb, domaine,      &
+    call hres_ns_musclfast(defspat, buf, ista, umesh,      &
                            field%etatprim, field%gradient,   &
-                           cell_l, cell_r)
+                           cell_l, cell_r, ista)
 
   case(hres_muscluns)
 
-    call hres_ns_muscluns(defspat, nfb, ideb, domaine,      &
+    call hres_ns_muscluns(defspat, buf, ista, umesh,      &
                           field%etatprim, field%gradient,   &
-                          cell_l, cell_r)
+                          cell_l, cell_r, ista)
 
   case(hres_svm)
 
-    call hres_ns_svm(defspat, nfb, ideb, domaine, field%etatprim, cell_l, cell_r)
+    call hres_ns_svm(defspat, buf, ista, umesh, field%etatprim, cell_l, cell_r, ista)
 
   case default
     call erreur("flux computation","unknown high resolution method")
   endselect
+
+
+  !----------------------------------------------------------------------
+  ! end of nblock
+
+  ista = ista + buf
+  buf  = dimbuf         ! tous les nblocks suivants sont de taille dimbuf
+  
+enddo
+
+ista = 1
+buf  = dimbuf1
+
+do ib = 1, nblock
+
+  iend = ista+buf-1
 
   ! --- POST-LIMITATION ---
 
@@ -112,7 +127,7 @@ do ib = 1, nbloc
   case(postlim_none)
     ! NOTHING TO DO
   case(postlim_monotonic0, postlim_monotonic1, postlim_monotonic2)
-    call postlimit_monotonic(defspat, nfb, ideb, domaine, &
+    call postlimit_monotonic(defspat, buf, ista, umesh, &
                              field%etatprim, cell_l, cell_r)
   case default
     call erreur("flux computation","unknown POST-LIMITATION method")
@@ -120,11 +135,26 @@ do ib = 1, nbloc
 
 
   !----------------------------------------------------------------------
+  ! end of nblock
+
+  ista = ista + buf
+  buf  = dimbuf         ! tous les nblocks suivants sont de taille dimbuf
+  
+enddo
+
+ista = 1
+buf  = dimbuf1
+
+do ib = 1, nblock
+
+  iend = ista+buf-1
+
+  !----------------------------------------------------------------------
   ! computation of INVISCID fluxes
   !----------------------------------------------------------------------
 
   call calc_flux_inviscid(defsolver, defspat,                             &
-                          nfb, ideb, domaine%mesh%iface(ideb:ifin, 1, 1), &
+                          buf, ista, umesh%mesh%iface(ista:iend, 1, 1), &
                           cell_l, cell_r, flux, calc_jac, jacL, jacR)
 
   !----------------------------------------------------------------------
@@ -137,14 +167,14 @@ do ib = 1, nbloc
 
   case(eqNSLAM)
     ! -- redirection of cell centers 
-    cg_l(1:nfb) = domaine%mesh%centre(domaine%facecell%fils(ideb:ifin,1), 1, 1)
-    cg_r(1:nfb) = domaine%mesh%centre(domaine%facecell%fils(ideb:ifin,2), 1, 1)
+    cg_l(1:buf) = umesh%mesh%centre(umesh%facecell%fils(ista:iend,1), 1, 1)
+    cg_r(1:buf) = umesh%mesh%centre(umesh%facecell%fils(ista:iend,2), 1, 1)
 
     ! -- redirection of gradients
-    call distrib_field(field%gradient, domaine%facecell, ideb, ifin, &
+    call distrib_field(field%gradient, umesh%facecell, ista, iend, &
                        gradL, gradR, 1)
     call calc_flux_viscous(defsolver, defspat,                        &
-                           nfb, ideb, domaine%mesh%iface(ideb:ifin, 1, 1), &
+                           buf, ista, umesh%mesh%iface(ista:iend, 1, 1), &
                            cg_l, cg_r,                                &
                            cell_l, cell_r, gradL, gradR, flux,        &
                            calc_jac, jacL, jacR)
@@ -156,17 +186,17 @@ do ib = 1, nbloc
   endselect
 
   !----------------------------------------------------------------------
-  ! end of block
+  ! end of nblock
 
-  ideb = ideb + nfb
-  nfb  = nbuf         ! tous les blocs suivants sont de taille nbuf
+  ista = ista + buf
+  buf  = dimbuf         ! tous les nblocks suivants sont de taille dimbuf
   
 enddo
 
 !-------------------------------------------------------------
 ! flux assignment or modification on boundary conditions
 
-call ns_bocoflux(defsolver, domaine, flux, field, defspat)
+call ns_bocoflux(defsolver, umesh, flux, field, defspat)
 
 call delete(cell_l)
 call delete(cell_r)

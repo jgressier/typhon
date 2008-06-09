@@ -5,7 +5,7 @@
 !   MUSCL interpolation of primitive quantities
 !
 !------------------------------------------------------------------------------!
-subroutine hres_ns_muscluns(defspat, nf, ideb, umesh, fprim, fgrad, cell_l, cell_r)
+subroutine hres_ns_muscluns(defspat, nf, ideb, umesh, fprim, fgrad, cell_l, cell_r, ic0)
 
 use TYPHMAKE
 use OUTPUT
@@ -24,12 +24,13 @@ type(mnu_spat)        :: defspat          ! parametres d'integration spatiale
 integer               :: nf, ideb         ! face number and first index
 type(st_ustmesh)      :: umesh            ! unstructured mesh definition
 type(st_genericfield) :: fprim, fgrad     ! primitive variables & gradients fields
+integer(kip)          :: ic0              ! cell field offset
 
 ! -- OUTPUTS --
 type(st_genericfield) :: cell_l, cell_r   ! champs des valeurs primitives
 
 ! -- Internal variables --
-integer                   :: i, if, isca, ivec
+integer                   :: i, if, ic, isca, ivec
 integer                   :: icl, icr
 type(t3d), allocatable    :: tgradL(:), tgradR(:)
 type(v3d), allocatable    :: vgradL(:), vgradR(:)
@@ -130,19 +131,16 @@ deallocate(LRvec, tgradL, tgradR)
 !------------------------------------------
 do i = 1, nf
   if  = ideb+i-1
+  ic  = ic0 +i-1
   icl = umesh%facecell%fils(if,1)
   icr = umesh%facecell%fils(if,2)
-  cell_l%tabscal(1)%scal(i) = fprim%tabscal(1)%scal(icl) + gprimL%tabscal(1)%scal(i)
-  cell_r%tabscal(1)%scal(i) = fprim%tabscal(1)%scal(icr) + gprimR%tabscal(1)%scal(i)
-  cell_l%tabscal(2)%scal(i) = fprim%tabscal(2)%scal(icl) + gprimL%tabscal(2)%scal(i)
-  cell_r%tabscal(2)%scal(i) = fprim%tabscal(2)%scal(icr) + gprimR%tabscal(2)%scal(i)
-  cell_l%tabvect(1)%vect(i) = fprim%tabvect(1)%vect(icl) + gprimL%tabvect(1)%vect(i)
-  cell_r%tabvect(1)%vect(i) = fprim%tabvect(1)%vect(icr) + gprimR%tabvect(1)%vect(i)
+  cell_l%tabscal(1)%scal(ic) = fprim%tabscal(1)%scal(icl) + gprimL%tabscal(1)%scal(i)
+  cell_r%tabscal(1)%scal(ic) = fprim%tabscal(1)%scal(icr) + gprimR%tabscal(1)%scal(i)
+  cell_l%tabscal(2)%scal(ic) = fprim%tabscal(2)%scal(icl) + gprimL%tabscal(2)%scal(i)
+  cell_r%tabscal(2)%scal(ic) = fprim%tabscal(2)%scal(icr) + gprimR%tabscal(2)%scal(i)
+  cell_l%tabvect(1)%vect(ic) = fprim%tabvect(1)%vect(icl) + gprimL%tabvect(1)%vect(i)
+  cell_r%tabvect(1)%vect(ic) = fprim%tabvect(1)%vect(icr) + gprimR%tabvect(1)%vect(i)
 enddo
-
-!------------------------------------------
-! Multi-dimensional limitation
-!------------------------------------------
 
 !------------------------------------------
 deallocate(uLR, dLR, LF, RF)

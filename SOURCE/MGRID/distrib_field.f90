@@ -17,19 +17,19 @@ use GENFIELD
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(st_genericfield) :: field      ! cell field
 type(st_connect)      :: facecell   ! face to cell connectivity
 integer               :: ideb, ifin ! connectivity index for distribution
 integer               :: istart     ! starting index for fieldL and fieldR
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 type(st_genericfield) :: fieldL, fieldR        ! left and right fields
 
-! -- Declaration des variables internes --
+! -- Internal Variables --
 integer :: if, k, icl, icr, iv
 
-! -- Debut de la procedure --
+! -- BODY --
 
 do if = ideb, ifin
   k   = istart-ideb + if

@@ -22,7 +22,7 @@ use MATRIX_ARRAY
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(mnu_solver)      :: defsolver        ! parametres de definition du solveur
 type(mnu_spat)        :: defspat          ! parametres d'integration spatiale
 integer               :: nflux            ! nombre de flux (face) a calculer
@@ -36,11 +36,11 @@ type(st_genericfield) :: gradL, gradR     ! left & right gradients
 logical               :: calc_jac         ! should compute jacobian matrices or not
 
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 type(st_genericfield) :: flux
 type(st_mattab)       :: jacL, jacR       ! jac associees
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 real(krp), parameter      :: theta = 1._krp
 real(krp), dimension(taille_buffer) :: dHR, dHL   ! cell to face distance
 type(v3d), dimension(taille_buffer) :: vLR        ! cell to cell vector
@@ -59,7 +59,7 @@ real(krp)  :: r_PG, cp, conduct
 real(krp)  :: id
 integer    :: if, i
 
-! -- Debut de la procedure --
+! -- BODY --
 
 !allocate( kH(nflux))    ! conductivite en H, centre de face
 !allocate(dHR(nflux))    ! distance HR, rapportee a HL+HR
@@ -68,12 +68,12 @@ integer    :: if, i
 !allocate(vLR(nflux))    ! vecteur  LR
 
 ! pointers links
-cell_L%density  => gcell_l%tabscal(1)%scal
-cell_R%density  => gcell_r%tabscal(1)%scal
-cell_L%pressure => gcell_l%tabscal(2)%scal
-cell_R%pressure => gcell_r%tabscal(2)%scal
-cell_L%velocity => gcell_l%tabvect(1)%vect
-cell_R%velocity => gcell_r%tabvect(1)%vect
+cell_L%density  => gcell_l%tabscal(1)%scal(ideb:)
+cell_R%density  => gcell_r%tabscal(1)%scal(ideb:)
+cell_L%pressure => gcell_l%tabscal(2)%scal(ideb:)
+cell_R%pressure => gcell_r%tabscal(2)%scal(ideb:)
+cell_L%velocity => gcell_l%tabvect(1)%vect(ideb:)
+cell_R%velocity => gcell_r%tabvect(1)%vect(ideb:)
 
 ! -- Calculs preliminaires --
 r_PG = defsolver%defns%properties(1)%r_const        ! perfect gas constant

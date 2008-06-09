@@ -35,8 +35,8 @@ real(krp)                 :: smin(nf), smax(nf)
 
 ! -- BODY --
 
-icl(1:nf)  = umesh%facecell%fils(ideb:ideb+nf, 1)
-icr(1:nf)  = umesh%facecell%fils(ideb:ideb+nf, 2)
+icl(1:nf)  = umesh%facecell%fils(ideb:ideb-1+nf, 1)
+icr(1:nf)  = umesh%facecell%fils(ideb:ideb-1+nf, 2)
 
 !------------------------------------------------------------------------------
 ! SCALAR computations
@@ -47,19 +47,19 @@ do isca = 1, fprim%nscal
   select case(defspat%postlimiter)
   case(postlim_monotonic0)
     do i = 1, nf
-      call monotonic0(cell_L%tabscal(isca)%scal(i), cell_R%tabscal(isca)%scal(i), &
+      call monotonic0(cell_L%tabscal(isca)%scal(ideb-1+i), cell_R%tabscal(isca)%scal(ideb-1+i), &
                    fprim%tabscal(isca)%scal(icl(i)), fprim%tabscal(isca)%scal(icr(i)))
 
     enddo
   case(postlim_monotonic1)
     do i = 1, nf
-      call monotonic1(cell_L%tabscal(isca)%scal(i), cell_R%tabscal(isca)%scal(i), &
+      call monotonic1(cell_L%tabscal(isca)%scal(ideb-1+i), cell_R%tabscal(isca)%scal(ideb-1+i), &
                    fprim%tabscal(isca)%scal(icl(i)), fprim%tabscal(isca)%scal(icr(i)))
 
     enddo
   case(postlim_monotonic2)
     do i = 1, nf
-      call monotonic2(cell_L%tabscal(isca)%scal(i), cell_R%tabscal(isca)%scal(i), &
+      call monotonic2(cell_L%tabscal(isca)%scal(ideb-1+i), cell_R%tabscal(isca)%scal(ideb-1+i), &
                    fprim%tabscal(isca)%scal(icl(i)), fprim%tabscal(isca)%scal(icr(i)))
 
     enddo
@@ -78,19 +78,19 @@ do ivec = 1, fprim%nvect
   select case(defspat%postlimiter)
   case(postlim_monotonic0)
     do i = 1, nf
-      call monotonic0(cell_L%tabvect(ivec)%vect(i), cell_R%tabvect(ivec)%vect(i), &
+      call monotonic0(cell_L%tabvect(ivec)%vect(ideb-1+i), cell_R%tabvect(ivec)%vect(ideb-1+i), &
                    fprim%tabvect(ivec)%vect(icl(i)), fprim%tabvect(ivec)%vect(icr(i)))
 
     enddo
   case(postlim_monotonic1)
     do i = 1, nf
-      call monotonic1(cell_L%tabvect(ivec)%vect(i), cell_R%tabvect(ivec)%vect(i), &
+      call monotonic1(cell_L%tabvect(ivec)%vect(ideb-1+i), cell_R%tabvect(ivec)%vect(ideb-1+i), &
                    fprim%tabvect(ivec)%vect(icl(i)), fprim%tabvect(ivec)%vect(icr(i)))
 
     enddo
   case(postlim_monotonic2)
     do i = 1, nf
-      call monotonic2(cell_L%tabvect(ivec)%vect(i), cell_R%tabvect(ivec)%vect(i), &
+      call monotonic2(cell_L%tabvect(ivec)%vect(ideb-1+i), cell_R%tabvect(ivec)%vect(ideb-1+i), &
                    fprim%tabvect(ivec)%vect(icl(i)), fprim%tabvect(ivec)%vect(icr(i)))
 
     enddo

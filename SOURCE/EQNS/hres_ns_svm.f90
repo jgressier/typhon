@@ -5,7 +5,7 @@
 !   SVM interpolation of primitive quantities
 !
 !------------------------------------------------------------------------------!
-subroutine hres_ns_svm(defspat, nf, ideb, umesh, fprim, cell_l, cell_r)
+subroutine hres_ns_svm(defspat, nf, ideb, umesh, fprim, cell_l, cell_r, ic0)
 
 use TYPHMAKE
 use OUTPUT
@@ -24,12 +24,13 @@ type(mnu_spat)        :: defspat          ! parametres d'integration spatiale
 integer               :: nf, ideb         ! face number and first index
 type(st_ustmesh)      :: umesh            ! unstructured mesh definition
 type(st_genericfield) :: fprim            ! primitive variables fields
+integer(kip)          :: ic0              ! cell field offset
 
 ! -- OUTPUTS --
 type(st_genericfield) :: cell_l, cell_r   ! champs des valeurs primitives
 
 ! -- Internal variables --
-integer                   :: i, if, isca, ivec, ig
+integer                   :: i, if, ic, isca, ivec, ig
 integer                   :: isv, icv1, icv2, ncv
 integer                   :: isvface
 real(krp)                 :: weights(1:defspat%svm%cv_split)
@@ -53,7 +54,8 @@ do isca = 1, fprim%nscal
 
   do i = 1, nf      ! indirection loop on faces (index in packet)
 
-    if  = ideb+i-1                    ! (face index)
+    if = ideb-1+i                    ! (face index)
+    ic = ic0 -1+i
 
     ! -- left side --
 
@@ -62,7 +64,7 @@ do isca = 1, fprim%nscal
     icv2 = isv*ncv
     do ig = 1, defspat%svm%nb_facepoints     ! loop on gauss points
       weights(1:ncv) = defspat%svm%interp_weights(umesh%face_Ltag%fils(if, ig), 1:ncv)
-      cell_l%tabscal(isca)%scal(i) = sum(weights(1:ncv) * fprim%tabscal(isca)%scal(icv1:icv2))
+      cell_l%tabscal(isca)%scal(ic) = sum(weights(1:ncv) * fprim%tabscal(isca)%scal(icv1:icv2))
     enddo
 
     ! -- right side --
@@ -74,10 +76,10 @@ do isca = 1, fprim%nscal
     if (umesh%face_Rtag%fils(if, 1) /= 0) then
        do ig = 1, defspat%svm%nb_facepoints     ! loop on gauss points
          weights(1:ncv) = defspat%svm%interp_weights(umesh%face_Rtag%fils(if, ig), 1:ncv)
-         cell_r%tabscal(isca)%scal(i) = sum(weights(1:ncv) * fprim%tabscal(isca)%scal(icv1:icv2))
+         cell_r%tabscal(isca)%scal(ic) = sum(weights(1:ncv) * fprim%tabscal(isca)%scal(icv1:icv2))
        enddo
     else
-      cell_r%tabscal(isca)%scal(i) = fprim%tabscal(isca)%scal(umesh%facecell%fils(if,2))
+      cell_r%tabscal(isca)%scal(ic) = fprim%tabscal(isca)%scal(umesh%facecell%fils(if,2))
     endif
   enddo
 
@@ -90,7 +92,8 @@ do ivec = 1, fprim%nvect
 
   do i = 1, nf      ! indirection loop on faces (index in packet)
 
-    if  = ideb+i-1                    ! (face index)
+    if = ideb-1+i                    ! (face index)
+    ic = ic0 -1+i
 
     ! -- left side --
 
@@ -100,7 +103,7 @@ do ivec = 1, fprim%nvect
 
     do ig = 1, defspat%svm%nb_facepoints     ! loop on gauss points
       weights(1:ncv) = defspat%svm%interp_weights(umesh%face_Ltag%fils(if, ig), 1:ncv)
-      cell_l%tabvect(ivec)%vect(i) = sum(weights(1:ncv) * fprim%tabvect(ivec)%vect(icv1:icv2))
+      cell_l%tabvect(ivec)%vect(ic) = sum(weights(1:ncv) * fprim%tabvect(ivec)%vect(icv1:icv2))
     enddo
 
     ! -- right side --
@@ -112,10 +115,10 @@ do ivec = 1, fprim%nvect
     if (umesh%face_Rtag%fils(if, 1) /= 0) then
        do ig = 1, defspat%svm%nb_facepoints     ! loop on gauss points
          weights(1:ncv) = defspat%svm%interp_weights(umesh%face_Rtag%fils(if, ig), 1:ncv)
-         cell_r%tabvect(ivec)%vect(i) = sum(weights(1:ncv) * fprim%tabvect(ivec)%vect(icv1:icv2))
+         cell_r%tabvect(ivec)%vect(ic) = sum(weights(1:ncv) * fprim%tabvect(ivec)%vect(icv1:icv2))
        enddo
     else
-      cell_r%tabvect(ivec)%vect(i) = fprim%tabvect(ivec)%vect(umesh%facecell%fils(if,2))
+      cell_r%tabvect(ivec)%vect(ic) = fprim%tabvect(ivec)%vect(umesh%facecell%fils(if,2))
     endif
 
   enddo
@@ -133,14 +136,15 @@ do isca = 1, fprim%nscal
 
   do i = 1, nf      ! indirection loop on faces (index in packet)
 
-    if  = ideb+i-1                    ! (face index)
+    if = ideb-1+i                    ! (face index)
+    ic = ic0 -1+i
 
     ! -- left side --
 
     isv  = (umesh%facecell%fils(if,1)-1) / ncv + 1
     icv1 = (isv-1)*ncv + 1
     icv2 = isv*ncv
-      cell_l%tabscal(isca)%scal(i) = 1._krp / 2._krp * &
+      cell_l%tabscal(isca)%scal(ic) = .5_krp * &
 (sum(defspat%svm%interp_weights(2*umesh%face_Ltag%fils(if, 1)-1, 1:ncv) * fprim%tabscal(isca)%scal(icv1:icv2))&
 + sum(defspat%svm%interp_weights(2*umesh%face_Ltag%fils(if, 1), 1:ncv) * fprim%tabscal(isca)%scal(icv1:icv2)))
 
@@ -150,12 +154,12 @@ do isca = 1, fprim%nscal
     icv2 = isv*ncv
 
     if (umesh%face_Rtag%fils(if, 1) /= 0) then
-         cell_r%tabscal(isca)%scal(i) = 1._krp / 2._krp * &
+         cell_r%tabscal(isca)%scal(ic) = .5_krp * &
 (sum(defspat%svm%interp_weights(2*umesh%face_Rtag%fils(if, 1)-1, 1:ncv) * fprim%tabscal(isca)%scal(icv1:icv2))&
 + sum(defspat%svm%interp_weights(2*umesh%face_Rtag%fils(if, 1), 1:ncv) * fprim%tabscal(isca)%scal(icv1:icv2)))
 
     else
-      cell_r%tabscal(isca)%scal(i) = fprim%tabscal(isca)%scal(umesh%facecell%fils(if,2))
+      cell_r%tabscal(isca)%scal(ic) = fprim%tabscal(isca)%scal(umesh%facecell%fils(if,2))
     endif
   enddo
 
@@ -168,14 +172,14 @@ do ivec = 1, fprim%nvect
 
   do i = 1, nf      ! indirection loop on faces (index in packet)
 
-    if  = ideb+i-1                    ! (face index)
-
+    if = ideb-1+i                    ! (face index)
+    ic = ic0 -1+i
 
     ! -- left side --
     isv  = (umesh%facecell%fils(if,1)-1) / ncv + 1
     icv1 = (isv-1)*ncv + 1
     icv2 = isv*ncv
-      cell_l%tabvect(ivec)%vect(i) = 1._krp / 2._krp * &
+      cell_l%tabvect(ivec)%vect(ic) = .5_krp * &
 (sum(defspat%svm%interp_weights(2*umesh%face_Ltag%fils(if, 1)-1, 1:ncv) * fprim%tabvect(ivec)%vect(icv1:icv2))&
 + sum(defspat%svm%interp_weights(2*umesh%face_Ltag%fils(if, 1), 1:ncv) * fprim%tabvect(ivec)%vect(icv1:icv2)))
 
@@ -186,12 +190,12 @@ do ivec = 1, fprim%nvect
     icv2 = isv*ncv
 
     if (umesh%face_Rtag%fils(if, 1) /= 0) then
-         cell_r%tabvect(ivec)%vect(i) = 1._krp / 2._krp * &
+         cell_r%tabvect(ivec)%vect(ic) = .5_krp * &
 (sum(defspat%svm%interp_weights(2*umesh%face_Rtag%fils(if, 1)-1, 1:ncv) * fprim%tabvect(ivec)%vect(icv1:icv2))&
 + sum(defspat%svm%interp_weights(2*umesh%face_Rtag%fils(if, 1), 1:ncv) * fprim%tabvect(ivec)%vect(icv1:icv2)))
 
     else
-      cell_r%tabvect(ivec)%vect(i) = fprim%tabvect(ivec)%vect(umesh%facecell%fils(if,2))
+      cell_r%tabvect(ivec)%vect(ic) = fprim%tabvect(ivec)%vect(umesh%facecell%fils(if,2))
     endif
 
   enddo
@@ -202,7 +206,7 @@ enddo
 !  SVM Unknown
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     case default!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      call erreur("parameters parsing","unknown SVM method")
+      call erreur("Internal Error","unknown SVM method")
     endselect
 endsubroutine hres_ns_svm
 

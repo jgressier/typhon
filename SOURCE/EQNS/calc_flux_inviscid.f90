@@ -41,19 +41,20 @@ integer               :: icell(nflux)
 
 ! -- BODY --
 
+ifin = ideb+nflux-1
+
 ! pointers links
-QL%density  => cell_l%tabscal(1)%scal
-QR%density  => cell_r%tabscal(1)%scal
-QL%pressure => cell_l%tabscal(2)%scal
-QR%pressure => cell_r%tabscal(2)%scal
-QL%velocity => cell_l%tabvect(1)%vect
-QR%velocity => cell_r%tabvect(1)%vect
+QL%density  => cell_l%tabscal(1)%scal(ideb:ifin)
+QR%density  => cell_r%tabscal(1)%scal(ideb:ifin)
+QL%pressure => cell_l%tabscal(2)%scal(ideb:ifin)
+QR%pressure => cell_r%tabscal(2)%scal(ideb:ifin)
+QL%velocity => cell_l%tabvect(1)%vect(ideb:ifin)
+QR%velocity => cell_r%tabvect(1)%vect(ideb:ifin)
 
 !----------------------------------------------------------------------
 ! computation of INVISCID fluxes
 !----------------------------------------------------------------------
 
-ifin = ideb+nflux-1
 
 select case(defspat%sch_hyp)
 case(sch_ausmm)
