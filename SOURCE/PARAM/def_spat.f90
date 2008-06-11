@@ -252,11 +252,15 @@ case(solNS)
 
   ! --- Post-Limitation method ---
  
+  defspat%postlimiter = -1
   call rpmgetkeyvalstr(pcour, "POST-LIMITER", str, "NONE")
   if (samestring(str,"NONE"))        defspat%postlimiter = postlim_none
   if (samestring(str,"MONOTONIC0"))  defspat%postlimiter = postlim_monotonic0
   if (samestring(str,"MONOTONIC1"))  defspat%postlimiter = postlim_monotonic1
   if (samestring(str,"MONOTONIC2"))  defspat%postlimiter = postlim_monotonic2
+  if (samestring(str,"BARTH"))       defspat%postlimiter = postlim_barth
+  if (defspat%postlimiter == -1) &
+       call erreur("parameters parsing","unexpected post limiter")
   call print_info(7,"    post-limiter: "//trim(str))
 
 case(solKDIF)

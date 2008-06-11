@@ -37,8 +37,8 @@ type(st_mattab)         :: jacL, jacR  ! jacobiennes associees (gauche et droite
 
 ! -- Internal variables --
 logical :: gradneeded           ! use gradients or not
-integer :: if, buf              ! index de face et taille de bloc courant
-integer :: dimbuf, dimbuf1      ! buffer size (cregular and first)
+integer :: if                   ! face index
+integer :: buf, dimbuf, dimbuf1 ! buffer size (current, regular and first)
 integer :: ib, nblock           ! block index and number of blocks
 integer :: ista, iend           ! starting and ending index
 integer :: it                   ! index de tableau
@@ -114,33 +114,24 @@ do ib = 1, nblock
   
 enddo
 
-ista = 1
-buf  = dimbuf1
+!----------------------------------------------------------------------
+! POST-LIMITATION
+!----------------------------------------------------------------------
 
-do ib = 1, nblock
+select case(defspat%postlimiter)
+case(postlim_none)
+  ! NOTHING TO DO
 
-  iend = ista+buf-1
+case(postlim_barth)
+  call postlimit_barth(defspat, umesh, field%etatprim, cell_l, cell_r)
 
-  ! --- POST-LIMITATION ---
+case(postlim_monotonic0, postlim_monotonic1, postlim_monotonic2)
+  call postlimit_monotonic(defspat, umesh, field%etatprim, cell_l, cell_r)
 
-  select case(defspat%postlimiter)
-  case(postlim_none)
-    ! NOTHING TO DO
-  case(postlim_monotonic0, postlim_monotonic1, postlim_monotonic2)
-    call postlimit_monotonic(defspat, buf, ista, umesh, &
-                             field%etatprim, cell_l, cell_r)
-  case default
-    call erreur("flux computation","unknown POST-LIMITATION method")
-  endselect
+case default
+  call erreur("flux computation","unknown POST-LIMITATION method")
+endselect
 
-
-  !----------------------------------------------------------------------
-  ! end of nblock
-
-  ista = ista + buf
-  buf  = dimbuf         ! tous les nblocks suivants sont de taille dimbuf
-  
-enddo
 
 ista = 1
 buf  = dimbuf1
