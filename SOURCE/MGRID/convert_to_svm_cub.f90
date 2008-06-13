@@ -29,7 +29,6 @@ integer                :: ic, ic0, icn, if, ifn, iv ,icnp,icnq ! cell, face, vte
 integer                :: iv0, ic1, ic2, fnv, cnv, nRface, icv
 integer                :: i, iif, ifR, ifl, iv1, iv2, ib, ifb, ibdef, ifsv
 integer                :: cellv(8)         ! cell/vtex definition
-integer                :: cellv1(8)
 integer                :: facev(8)         ! CV face vtex definition
 integer                :: face (2), CVface(2), SVface(2)         ! face definition
 integer                :: intv(8)          ! internal vtex definition
@@ -276,8 +275,6 @@ do ic = 1, umesh%ncell_int
   intv(2)    = umesh%nvtex + umesh%ncell_int + (ic-1) * (defspat%svm%intnode - 1) + 1                         ! other internal vertices
   intv(3)    = umesh%nvtex + umesh%ncell_int + (ic-1) * (defspat%svm%intnode - 1) + 2
   intv(4)    = umesh%nvtex + umesh%ncell_int + (ic-1) * (defspat%svm%intnode - 1) + 3
-                                        ! centroids
-  cellv(1:3) = umesh%cellvtex%elem(ielem)%elemvtex(ic, 1:3)           ! original vertices
   facev(1:cell_fvtex%nbfils) = cell_fvtex%fils(ic, 1:cell_fvtex%nbfils)     ! CV face  vertices
 
   ! internal face 1 (separate CV 1 & 4)
@@ -486,6 +483,7 @@ do if = newmesh%nface_int+1, newmesh%nface
   newmesh%boco(ib)%nface = newmesh%boco(ib)%nface + 1
   newmesh%boco(ib)%iface(newmesh%boco(ib)%nface) = if
 enddo
+
 
 endsubroutine convert_to_svm_cub
 

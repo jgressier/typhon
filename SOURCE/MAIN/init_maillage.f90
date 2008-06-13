@@ -62,6 +62,10 @@ case(solVORTEX, solNS)
       call convert_to_svm_cub(zone%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh,alpha,beta)
       call delete(pgrid%umesh)
       pgrid%umesh = newmesh
+    case(split_svm4wang)
+      call convert_to_svm_4wang(zone%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh)
+      call delete(pgrid%umesh)
+      pgrid%umesh = newmesh
     case default
       call erreur('Development','unknown splitting method (init_maillage)')
     endselect

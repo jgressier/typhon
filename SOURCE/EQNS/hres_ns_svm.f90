@@ -42,11 +42,11 @@ real(krp)                 :: weights(1:defspat%svm%cv_split)
 ncv = defspat%svm%cv_split
 
 
-    select case(defspat%svm%sv_order)
+    select case(defspat%svm%nb_facepoints)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !  SVM 2 : Only one Gauss point per CV face
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    case(svm_2)
+    case(1)
 !------------------------------------------------------------------------------
 ! SCALAR interpolation
 !------------------------------------------------------------------------------
@@ -126,12 +126,13 @@ do ivec = 1, fprim%nvect
 enddo
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!  SVM 3 : Two Gauss points per CV face
+!  SVM 3 & 4: Two Gauss points per CV face
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    case((svm_3))
+    case(2)
 !------------------------------------------------------------------------------
 ! SCALAR interpolation
 !------------------------------------------------------------------------------
+
 do isca = 1, fprim%nscal
 
   do i = 1, nf      ! indirection loop on faces (index in packet)
@@ -147,7 +148,6 @@ do isca = 1, fprim%nscal
       cell_l%tabscal(isca)%scal(ic) = .5_krp * &
 (sum(defspat%svm%interp_weights(2*umesh%face_Ltag%fils(if, 1)-1, 1:ncv) * fprim%tabscal(isca)%scal(icv1:icv2))&
 + sum(defspat%svm%interp_weights(2*umesh%face_Ltag%fils(if, 1), 1:ncv) * fprim%tabscal(isca)%scal(icv1:icv2)))
-
     ! -- right side --
     isv  = (umesh%facecell%fils(if,2)-1) / ncv + 1
     icv1 = (isv-1)*ncv + 1

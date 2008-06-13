@@ -21,6 +21,7 @@ integer(kpp), parameter :: split_svm2tri  = 22
 integer(kpp), parameter :: split_svm3wang = 31
 integer(kpp), parameter :: split_svm3kris = 32
 integer(kpp), parameter :: split_svm3kris2 = 33
+integer(kpp), parameter :: split_svm4wang = 41
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
@@ -33,7 +34,6 @@ type mnu_mesh
   character(len=strlen) :: fichier     ! nom de fichier
   real(krp)             :: scale       ! scale factor
   integer(kpp)          :: splitmesh   ! split method
-  !type(mnu_svmmesh)     :: svm         ! svm specific parameters (moved to defspat)
 endtype mnu_mesh
 
 

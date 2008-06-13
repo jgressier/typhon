@@ -66,19 +66,22 @@ if (samestring(str,"SVM2TRI"))   defmesh%splitmesh = split_svm2tri
 if (samestring(str,"SVM2QUAD"))  defmesh%splitmesh = split_svm2quad
 if (samestring(str,"SVM3WANG"))  defmesh%splitmesh = split_svm3wang
 if (samestring(str,"SVM3KRIS"))  defmesh%splitmesh = split_svm3kris
-if (samestring(str,"SVM3KRIS2"))  defmesh%splitmesh = split_svm3kris2
+if (samestring(str,"SVM3KRIS2")) defmesh%splitmesh = split_svm3kris2
+if (samestring(str,"SVM4WANG"))  defmesh%splitmesh = split_svm4wang
 
 select case(defmesh%splitmesh)
 case(split_none)
   ! nothing to write
 case(split_svm2quad)
-  call print_info(20, "  . split mesh : SVM based (3 quads)")
+  call print_info(20, "  . split mesh : SVM2 based (3 quads)")
 case(split_svm3wang)
-  call print_info(20, "  . split mesh : SVM WANG ORIGINAL")
+  call print_info(20, "  . split mesh : SVM3 WANG ORIGINAL")
 case(split_svm3kris)
-  call print_info(20, "  . split mesh : SVM KRIS OPTIMISED")
+  call print_info(20, "  . split mesh : SVM3 KRIS OPTIMISED")
 case(split_svm3kris2)
-  call print_info(20, "  . split mesh : SVM KRIS OPTIMISED 2")
+  call print_info(20, "  . split mesh : SVM3 KRIS OPTIMISED 2")
+case(split_svm4wang)
+  call print_info(20, "  . split mesh : SVM4 WANG ORIGINAL")
 case default
   call erreur("Development", "unknown splitmesh parameter (def_mesh)")
 endselect

@@ -207,6 +207,14 @@ case(solNS)
        defspat%svm%sv_order = svm_3
        defspat%svm%sv_partition = svm_3kris2
     endif  
+    if (samestring(str,"4"))    then
+       defspat%svm%sv_order = svm_4
+       defspat%svm%sv_partition = svm_4wang
+    endif 
+    if (samestring(str,"4WANG")) then
+       defspat%svm%sv_order = svm_4
+       defspat%svm%sv_partition = svm_4wang
+    endif 
 
     select case(defspat%svm%sv_partition)
     case(svm_2quad)
@@ -223,6 +231,9 @@ case(solNS)
     case(svm_3kris2)
       call print_info(7,"    third order, splitted into 3 quads and 3 pentagons: 2nd optimised partition by Abeele")
       defmesh%splitmesh = split_svm3kris2
+    case(svm_4wang)
+      call print_info(7,"    fourth order, splitted into 9 quads and 1 tri (defined as hexa) : original partition by Wang")
+      defmesh%splitmesh = split_svm4wang
     case default
       call erreur("parameters parsing","unknown SVM method")
     endselect
