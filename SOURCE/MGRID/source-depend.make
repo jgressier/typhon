@@ -19,6 +19,7 @@ MGRID_OBJ = $(MGRID_MOD:.$(MOD)=.o)    \
             convert_to_svm.o           \
             convert_to_svm_cub.o       \
             convert_to_svm_4wang.o     \
+            convert_to_svm_4kris.o     \
             distrib_field.o            \
             extractpart_grid.o         \
             getpart_grid.o             \

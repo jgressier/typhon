@@ -22,7 +22,7 @@ type(st_zone) :: zone
 ! -- Internal variables --
 type(st_grid), pointer :: pgrid
 type(st_ustmesh)       :: newmesh
-real(krp)              :: alpha, beta      ! geometric coefficient for the split
+real(krp)              :: alpha, beta,gamma,delta      ! geometric coefficient for the split
 ! -- BODY --
 
 select case(zone%defsolver%typ_solver)
@@ -45,25 +45,41 @@ case(solVORTEX, solNS)
       call delete(pgrid%umesh)
       pgrid%umesh = newmesh
     case(split_svm3wang)
-     alpha= 1._krp /  4._krp
-     beta= 1._krp /  3._krp
+     alpha = 1._krp /  4._krp
+     beta  = 1._krp /  3._krp
       call convert_to_svm_cub(zone%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh,alpha,beta)
       call delete(pgrid%umesh)
       pgrid%umesh = newmesh
     case(split_svm3kris)
-     alpha= 91._krp /  1000._krp
-     beta= 18._krp /  100._krp
+     alpha = 91._krp /  1000._krp
+     beta  = 18._krp /  100._krp
       call convert_to_svm_cub(zone%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh,alpha,beta)
       call delete(pgrid%umesh)
       pgrid%umesh = newmesh
     case(split_svm3kris2)
-     alpha= 0.1093621117
-     beta= 0.1730022492
+     alpha = 0.1093621117
+     beta  = 0.1730022492
       call convert_to_svm_cub(zone%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh,alpha,beta)
       call delete(pgrid%umesh)
       pgrid%umesh = newmesh
     case(split_svm4wang)
       call convert_to_svm_4wang(zone%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh)
+      call delete(pgrid%umesh)
+      pgrid%umesh = newmesh
+    case(split_svm4kris)
+     alpha = 78._krp / 1000._krp
+     beta  = 104._krp / 1000._krp
+     gamma = 52._krp / 1000._krp
+     delta = 351._krp / 1000._krp
+      call convert_to_svm_4kris(zone%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh,alpha,beta,gamma,delta)
+      call delete(pgrid%umesh)
+      pgrid%umesh = newmesh
+    case(split_svm4kris2)
+     alpha = 0.0326228301
+     beta  = 0.042508082
+     gamma = 0.0504398911
+     delta = 0.1562524902
+      call convert_to_svm_4kris(zone%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh,alpha,beta,gamma,delta)
       call delete(pgrid%umesh)
       pgrid%umesh = newmesh
     case default

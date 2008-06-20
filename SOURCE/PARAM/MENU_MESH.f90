@@ -15,13 +15,16 @@ implicit none
 
 ! -- Variables globales du module -------------------------------------------
 
-integer(kpp), parameter :: split_none     = 0
-integer(kpp), parameter :: split_svm2quad = 21
-integer(kpp), parameter :: split_svm2tri  = 22
-integer(kpp), parameter :: split_svm3wang = 31
-integer(kpp), parameter :: split_svm3kris = 32
+integer(kpp), parameter :: split_none      = 0
+integer(kpp), parameter :: split_svm2quad  = 21
+integer(kpp), parameter :: split_svm2tri   = 22
+integer(kpp), parameter :: split_svm3wang  = 31
+integer(kpp), parameter :: split_svm3kris  = 32
 integer(kpp), parameter :: split_svm3kris2 = 33
-integer(kpp), parameter :: split_svm4wang = 41
+integer(kpp), parameter :: split_svm4wang  = 41
+integer(kpp), parameter :: split_svm4kris  = 42
+integer(kpp), parameter :: split_svm4kris2 = 43
+
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
