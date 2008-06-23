@@ -113,20 +113,20 @@ implicit none
 ! -- INPUTS --
 type(st_espece) :: fluid
 integer         :: n
-type(v3d)       :: dir
-real(krp)       :: pi, ti, mach
+type(v3d)       :: dir(n)
+real(krp)       :: pi(n), ti(n), mach(n)
 ! -- OUTPUTS --
 type(st_nsetat) :: nspri
 ! -- internal variables --
-real(krp)       :: g1, fm, ts, a
+real(krp)       :: g1, fm(n), ts(n), a(n)
 
   g1 = fluid%gamma -1._krp
-  fm = 1._krp / (1._krp + .5_krp*g1*mach**2)
-  ts = ti *fm
-  a  = sqrt(fluid%gamma*fluid%r_const*ts)
+  fm(1:n) = 1._krp / (1._krp + .5_krp*g1*mach(1:n)**2)
+  ts(1:n) = ti(1:n) *fm(1:n)
+  a(1:n)  = sqrt(fluid%gamma*fluid%r_const*ts(1:n))
   nspri%pressure(1:n) = pi *(fm**(fluid%gamma/g1))
-  nspri%density(1:n)  = nspri%pressure(1:n) / (fluid%r_const * ts)
-  nspri%velocity(1:n) = (mach*a)*dir       ! product of scalars before
+  nspri%density(1:n)  = nspri%pressure(1:n) / (fluid%r_const * ts(1:n))
+  nspri%velocity(1:n) = (mach(1:n)*a(1:n))*dir(1:n)       ! product of scalars before
 
 end subroutine pi_ti_mach_dir2nspri
 

@@ -4,8 +4,6 @@
 ! Fonction                                Modif  : (cf Historique)
 !   Computation of supersonic inlet boundary conditions
 !   
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
 subroutine setboco_ns_outlet_sub(defns, unif, bc_ns, ustboco, umesh, fld)
 
@@ -15,17 +13,19 @@ use VARCOM
 use MENU_BOCO
 use USTMESH
 use DEFFIELD 
+use FCT_EVAL
+use FCT_ENV
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(mnu_ns)     :: defns            ! solver parameters
 integer          :: unif             ! uniform or not
 type(st_boco_ns) :: bc_ns            ! parameters (field or constant)
 type(st_ustboco) :: ustboco          ! lieu d'application des conditions aux limites
 type(st_ustmesh) :: umesh            ! maillage non structure
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 type(st_field)   :: fld              ! fld des etats
 
 ! -- Declaration des variables internes --
@@ -38,6 +38,8 @@ type(v3d), allocatable :: dir(:)
 ! -- Body --
 
 if (unif /= uniform) call erreur("Developpement","Condition non uniforme non implementee")
+
+call new_fct_env(blank_env)      ! temporary environment from FCT_EVAL
 
 nf = ustboco%nface
 call new(nspri, nf)
@@ -57,7 +59,14 @@ allocate(mach(nf))
 allocate(dir(nf))
 
 call nspri2pi_ti_mach_dir(defns%properties(1), nf, nspri, pi, ti, mach, dir) 
-ps(1:nf) = bc_ns%pstat
+
+do ifb = 1, nf
+  if   = ustboco%iface(ifb)
+  call fct_env_set_real(blank_env, "x", umesh%mesh%iface(if,1,1)%centre%x)
+  call fct_env_set_real(blank_env, "y", umesh%mesh%iface(if,1,1)%centre%y)
+  call fct_env_set_real(blank_env, "z", umesh%mesh%iface(if,1,1)%centre%z)
+  call fct_eval_real(blank_env, bc_ns%pstat, ps(ifb))
+enddo
 
 call pi_ti_ps_dir2nspri(defns%properties(1), nf, pi(1:nf), ti(1:nf), ps(1:nf), dir(1:nf), nspri) 
 

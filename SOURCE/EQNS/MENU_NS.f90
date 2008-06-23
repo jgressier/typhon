@@ -50,12 +50,12 @@ type mnu_ns
 endtype mnu_ns
 
 !------------------------------------------------------------------------------!
-! structure ST_BOCO_NS : Definition des conditions aux limites
+! structure ST_BOCO_NS : Boundary conditions parameters
 !------------------------------------------------------------------------------!
 type st_boco_ns
   ! definir un etat
-  real(krp) :: pstat, ptot, ttot, mach ! old definition
-  !type(st_fct_node) :: pstat, ptot, ttot, mach         ! FCT functions
+  !real(krp) :: pstat, ptot, ttot, mach ! old definition
+  type(st_fct_node) :: pstat, ptot, ttot, mach         ! FCT functions
   real(krp) :: temp_wall
   type(v3d) :: wall_velocity
   type(v3d) :: direction
@@ -83,8 +83,8 @@ endtype st_boco_ns
 type st_init_ns
   ! multiple ways to define a state
   logical :: is_density, is_pstat, is_tstat, is_velocity
-  type(st_fct_node) :: density, pstat, ptot, tstat, ttot, mach, velocity   ! FCT functions
-  type(st_fct_node) :: dir_x, dir_y, dir_z                                 ! FCT functions
+  type(st_fct_node) :: density, pstat, ptot, tstat, ttot, mach, velocity    ! FCT functions
+  type(st_fct_node) :: dir_x, dir_y, dir_z, vx, vy, vz                      ! FCT functions
 endtype st_init_ns
 
 

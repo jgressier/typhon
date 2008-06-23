@@ -16,6 +16,7 @@ use VARCOM
 use OUTPUT
 use MENU_NS
 use MENU_BOCO
+use FCT_PARSER
 
 implicit none
 
@@ -90,8 +91,14 @@ case(bc_wall_flux)
 
 case(bc_inlet_sub)
   typ = bc_inlet_sub
-  call rpmgetkeyvalreal(pblock, "PI",        boco%ptot)
-  call rpmgetkeyvalreal(pblock, "TI",        boco%ttot)
+  call rpmgetkeyvalstr(pblock, "PI", str)
+  call convert_to_funct(str, boco%ptot, info)  
+  if (info /= 0) &
+       call erreur("menu definition","problem when parsing PI (NS boundary condition)") 
+  call rpmgetkeyvalstr(pblock, "TI", str)
+  call convert_to_funct(str, boco%ttot, info)  
+  if (info /= 0) &
+       call erreur("menu definition","problem when parsing TI (NS boundary condition)") 
   call rpmgetkeyvalstr (pblock, "DIRECTION", str)
   boco%direction = v3d_of(str, info)
   if (info /= 0) &
@@ -101,9 +108,18 @@ case(bc_inlet_sub)
 
 case(bc_inlet_sup)
   typ = bc_inlet_sup
-  call rpmgetkeyvalreal(pblock, "PI",        boco%ptot)
-  call rpmgetkeyvalreal(pblock, "TI",        boco%ttot)
-  call rpmgetkeyvalreal(pblock, "MACH",      boco%mach)
+  call rpmgetkeyvalstr(pblock, "PI", str)
+  call convert_to_funct(str, boco%ptot, info)  
+  if (info /= 0) &
+       call erreur("menu definition","problem when parsing PI (NS boundary condition)") 
+  call rpmgetkeyvalstr(pblock, "TI", str)
+  call convert_to_funct(str, boco%ttot, info)  
+  if (info /= 0) &
+       call erreur("menu definition","problem when parsing TI (NS boundary condition)") 
+  call rpmgetkeyvalstr(pblock, "MACH", str)
+  call convert_to_funct(str, boco%mach, info)  
+  if (info /= 0) &
+       call erreur("menu definition","problem when parsing MACH (NS boundary condition)") 
   call rpmgetkeyvalstr (pblock, "DIRECTION", str)
   boco%direction = v3d_of(str, info)
   if (info /= 0) &
@@ -113,7 +129,10 @@ case(bc_inlet_sup)
 
 case(bc_outlet_sub)
   typ = bc_outlet_sub
-  call rpmgetkeyvalreal(pblock, "P",         boco%pstat)
+  call rpmgetkeyvalstr(pblock, "P", str)
+  call convert_to_funct(str, boco%pstat, info)  
+  if (info /= 0) &
+       call erreur("menu definition","problem when parsing (static pressure) P (NS boundary condition)") 
   !call erreur("Development","'bc_outlet_sub' : Case not implemented")
 
 case(bc_outlet_sup)

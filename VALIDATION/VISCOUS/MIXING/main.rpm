@@ -1,0 +1,94 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON 
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+  NZONE     = 1       
+  COORD     = 2D      
+  TIME      = UNSTEADY
+  DURATION  = .1
+  NCYCLE    = 100
+ENDBLOCK               
+
+BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+  FORMAT = VTK-BIN         
+  FILE   = "svm3k" 
+  PERIOD = 1
+ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "" 
+  SOLVER = EULER  
+ENDBLOCK
+
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = CGNS
+  FILE   = "mixing-tri-a.cgns"
+  SCALE  = 1.
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS  = EULER
+  GAS       = AIR
+  !VISCOSITY = CONSTANT
+  !DYN_VISC  = 0.1
+ENDBLOCK
+
+BLOCK:TIME_PARAM 
+  CFL    = 1.
+  METHOD = EXPLICIT
+ENDBLOCK
+
+BLOCK:SPAT_PARAM  
+  SCHEME  = HLLC
+  HIGHRES = SVM
+  SVM     = 4KRIS
+ENDBLOCK
+
+BLOCK:INIT
+  P         = 1.E5
+  TI        = 300.
+  MACH      = .3+.2*tanh(Y/.05)
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = OUTLET
+  TYPE   = SUBSONIC_OUTLET 
+  P      = 1.E5
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY    = INLET-TOP
+  TYPE      = SUBSONIC_INLET
+  MACH      = .3+.2*tanh(Y/.05)
+  PI        = 1.E5*(1+.2*sqr(.3+.2*tanh(Y/.05)))^3.5
+  TI        = 300.
+  MACH      = .2
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY    = INLET-BOTTOM
+  TYPE      = SUBSONIC_INLET
+  MACH      = .3+.2*tanh(Y/.05)
+  PI        = 1.E5*(1+.2*sqr(.3+.2*tanh(Y/.05)))^3.5
+  TI        = 300.
+  MACH      = .2
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO  
+  FAMILY    = TOP
+  TYPE      = SYMMETRY !ADIABATIC_WALL
+ENDBLOCK
+
+BLOCK:BOCO  
+  FAMILY    = BOTTOM
+  TYPE      = SYMMETRY !ADIABATIC_WALL
+ENDBLOCK
+
