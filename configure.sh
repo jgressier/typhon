@@ -243,6 +243,8 @@ done
 echo Writing Makefile configuration...
 rm $MAKECONF 2> /dev/null
 {
+  echo "# This file was created by $(basename $0)"
+  echo
   echo "SHELL       = $SHELL"
   echo "MAKEDEPENDS = Util/make_depends $F90modcase"
   echo "MOD         = $F90modext"

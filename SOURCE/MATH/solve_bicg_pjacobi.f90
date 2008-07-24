@@ -35,7 +35,7 @@ integer(kpp)          :: info
 
 select case(mat%type)
 case(mat_dlu)
-  call dlu_bicg_pjacobi(deftime%implicite, mat%dlu, rhs, rhs, info)
+  call dlu_bicg_pjacobi(deftime%implicite, mat%dlu, rhs, info)
 
 case(mat_bdlu)
   call erreur("development","BICG/Jacobi method not implemented with BDLU storage")

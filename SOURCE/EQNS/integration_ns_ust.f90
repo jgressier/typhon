@@ -99,7 +99,8 @@ do ib = 1, nblock
 
   case(hres_svm)
 
-    call hres_ns_svm(defspat, buf, ista, umesh, field%etatprim, cell_l, cell_r, ista)
+    call hres_ns_svm(defspat, buf, ista, umesh, field%etatprim, &
+                     cell_l, cell_r, ista)
 
   case default
     call erreur("flux computation","unknown high resolution method")

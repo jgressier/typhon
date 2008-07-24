@@ -1,13 +1,13 @@
 !------------------------------------------------------------------------------!
-! MODULE : MENU_GEN 
-!                   
-! Fonction          
-!   Definition of general/project options 
+! MODULE : MENU_GEN
+!
+! Fonction
+!   Definition of general/project options
 !
 !------------------------------------------------------------------------------!
 module MENU_GEN
 
-use TYPHMAKE   
+use TYPHMAKE
 use MENU_INVERSE
 
 implicit none
@@ -23,7 +23,7 @@ character, parameter   :: fmt_CGNS    = 'C'   ! format CGNS
 character, parameter   :: fmt_TYPHMSH = 'M'   ! format TYPHON MESH
 character, parameter   :: fmt_TECPLOT = 'T'   ! format TECPLOT (ascii)
 character, parameter   :: fmt_VIGIE   = 'V'   ! format VIGIE
-character, parameter   :: fmt_VTK     = 'K'   ! format VTK
+character, parameter   :: fmt_VTK     = 'K'   ! format VTK (ascii)
 character, parameter   :: fmt_VTKBIN  = 'I'   ! format VTK Binary
 
 integer(kpp), parameter :: write_end   = 1

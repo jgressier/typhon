@@ -85,7 +85,7 @@ $(PRGNAME)-seq : $(MAIN) $(D_LIBSEQ) $(MAKEFILE)
 	@echo LINKING $(PRGNAME)-seq ---
 	@echo external Libraries: $(EXTLIBS)
 	@echo TYPHON   Libraries: $(LIBSEQ)
-	@(cd $(PRJLIB) ; $(LINKER) $(LINKFB) ../$(MAIN) $(LIBSEQ) $(EXTLIBS) -o ../$(PRGNAME)-seq)
+	(cd $(PRJLIB) ; $(LINKER) $(LINKFB) ../$(MAIN) $(LIBSEQ) $(EXTLIBS) -o ../$(PRGNAME)-seq)
 	@echo --- Creation of $(PRGNAME)-seq done ---
 
 $(PRGNAME)-mpi : $(MAIN) $(D_LIBMPI) $(MAKEFILE)
@@ -93,7 +93,7 @@ $(PRGNAME)-mpi : $(MAIN) $(D_LIBMPI) $(MAKEFILE)
 	@echo  LINKING $(PRGNAME)-mpi ---
 	@echo external Libraries: $(EXTLIBS) $(MPILIB)
 	@echo TYPHON   Libraries: $(LIBMPI)
-	@(cd $(PRJLIB) ; $(LINKER) $(LINKFB) ../$(MAIN) $(LIBMPI) $(EXTLIBS) $(MPILIB) -o ../$(PRGNAME)-mpi)
+	(cd $(PRJLIB) ; $(LINKER) $(LINKFB) ../$(MAIN) $(LIBMPI) $(EXTLIBS) $(MPILIB) -o ../$(PRGNAME)-mpi)
 	@echo --- Creation of $(PRGNAME)-mpi done ---
 
 clean:

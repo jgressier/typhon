@@ -24,4 +24,4 @@ call cpu_time(t)
 
 print*, sum(abs(x-b))/sum(abs(x)), t-it
 
-endprogram
+end program cholesky

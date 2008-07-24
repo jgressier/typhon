@@ -4,9 +4,10 @@
 ! Fonction
 !   Resolution of linear system : mat.sol = rhs
 !     mat type(st_bdlu)
-!     non stationnary iterative method BICGSTAB 
+!     non stationary iterative method BICGSTAB
 !
 ! Defauts/Limitations/Divers :
+!   - Array sol(*) contains rhs as input
 !
 !------------------------------------------------------------------------------!
 subroutine bdlu_bicgstab(def_impli, mat, sol, info)
@@ -23,7 +24,7 @@ type(mnu_imp) :: def_impli
 type(st_bdlu) :: mat
 
 ! -- Inputs/Outputs --
-real(krp)     :: sol(1:mat%dim*mat%dimblock) ! contains RHS as INPUT, SOLUTION as OUTPUT
+real(krp)     :: sol(1:mat%dim*mat%dimblock)  ! RHS as input, SOLUTION as output
 
 ! -- Outputs --
 integer(kip)  :: info
@@ -75,16 +76,16 @@ do while ((erreur >= ref*def_impli%maxres).and.(nit <= def_impli%max_it))
     p(1:dim) = r1(1:dim)
   else
     beta = (rho1 / rho0)*(alpha/omega)
-    p(1:dim) = p (1:dim) - omega* v(1:dim) 
-    p(1:dim) = r1(1:dim) + beta * p(1:dim) 
+    p(1:dim) = p (1:dim) - omega* v(1:dim)
+    p(1:dim) = r1(1:dim) + beta * p(1:dim)
   endif
 
   ! no preconditioning
 
   call bdlu_yeqax (v(1:dim), mat, p(1:dim))
-  
+
   alpha = rho1 / dot_product(r2(1:dim), v(1:dim))
-  s(1:dim) = r1(1:dim) - alpha*v(1:dim) 
+  s(1:dim) = r1(1:dim) - alpha*v(1:dim)
 
   ! no preconditioning
 
@@ -92,7 +93,6 @@ do while ((erreur >= ref*def_impli%maxres).and.(nit <= def_impli%max_it))
   omega = dot_product(t(1:dim), s(1:dim)) / sum(t(1:dim)**2)
 
   ! error computation & update
-
   erreur  = sum(abs(alpha*p(1:dim) + omega*s(1:dim)))
   sol(1:dim) = sol(1:dim) + alpha*p(1:dim) + omega*s(1:dim)
   !print*,'conv bicgstab',nit,log10(erreur/ref), rho1
@@ -101,7 +101,7 @@ do while ((erreur >= ref*def_impli%maxres).and.(nit <= def_impli%max_it))
   r1(1:dim) = s(1:dim) - omega*t(1:dim)
   !print*,'   r',abs(sum(r1(1:dim))), '   s',abs(sum(s(1:dim)))
   rho0 = rho1
-  
+
   nit     = nit + 1
 
 enddo

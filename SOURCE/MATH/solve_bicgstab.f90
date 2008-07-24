@@ -49,9 +49,10 @@ case default
   call erreur("Internal error","unknown storage method for sparse matrix")
 endselect
 
+
 endsubroutine solve_bicgstab
 !------------------------------------------------------------------------------!
 ! Change History
 !
-! Aug  2005 : creation 
+! Aug  2005 : creation
 !------------------------------------------------------------------------------!

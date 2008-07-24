@@ -1,16 +1,16 @@
 !------------------------------------------------------------------------------!
-! Procedure : dlu_gmres                               Authors : G. Grondin
+! Procedure : bdlu_gmres                              Authors : G. Grondin
 !                                                     Created : July 2008
 ! Fonction
 !   Resolution of linear system : mat.sol = rhs
-!     mat type(st_dlu)
+!     mat type(st_bdlu)
 !     Generalized Minimum Residual method (GMRES)
 !
 ! Defauts/Limitations/Divers :
 !   - Array sol(*) contains rhs as input
 !
 !------------------------------------------------------------------------------!
-subroutine dlu_gmres(def_impli, mat, sol, info)
+subroutine bdlu_gmres(def_impli, mat, sol, info)
 
 use TYPHMAKE
 use SPARSE_MAT
@@ -21,10 +21,10 @@ implicit none
 
 ! -- Inputs --
 type(mnu_imp) :: def_impli
-type(st_dlu)  :: mat
+type(st_bdlu) :: mat
 
 ! -- Inputs/Outputs --
-real(krp)     :: sol(1:mat%dim)  ! RHS as input, SOLUTION as output
+real(krp)     :: sol(1:mat%dim*mat%dimblock)  ! RHS as input, SOLUTION as output
 
 ! -- Outputs --
 integer(kip)  :: info
@@ -36,7 +36,7 @@ integer(kip)                         :: nit, dim
 real(krp)                            :: errgmres, ref
 real(krp)                            :: beta, fact, tmp, normp1
 
-integer(kip)                         :: ik, jk, nk
+integer(kip)                         :: ik, jk, nk, i, ib, is
 integer(kip)                         :: nkrylov
 
 !!! integer :: debug_flag
@@ -46,7 +46,7 @@ integer(kip)                         :: nkrylov
 
 nkrylov = 10_kip
 
-dim = mat%dim
+dim = mat%dim*mat%dimblock
 
 ! initialisation
 
@@ -68,13 +68,17 @@ p1 (1:dim) = sol(1:dim)  ! save RHS
 
 ! -- initial guess --
 
-sol(1:dim) = p1(1:dim) / mat%diag(1:dim)  ! initial guess
-
+do i = 1, mat%dim
+  is = (i-1)*mat%dimblock
+  do ib = 1, mat%dimblock
+    sol(is+ib) = p1(is+ib) / mat%diag(ib,ib,i)  ! initial guess
+  enddo
+enddo
 ref = sum(abs(sol(1:dim)))
 
 normp1 = sqrt(dot_product(p1(1:dim),p1(1:dim)))
 
-!call sort_dlu(mat)
+!call sort_bdlu(mat)
 
 do while ((errgmres >= ref*def_impli%maxres).and.(nit <= def_impli%max_it*2))
 
@@ -85,7 +89,7 @@ do while ((errgmres >= ref*def_impli%maxres).and.(nit <= def_impli%max_it*2))
 
   ! r0 = M^(-1) . ( b - A.x0 )
   r1(1:dim) = -sol(1:dim)
-  call dlu_xeqaxpy(r1(1:dim), mat, p1(1:dim), r2(1:dim))       ! R1 = RHS - MAT.SOL
+  call bdlu_xeqaxpy(r1(1:dim), mat, p1(1:dim), r2(1:dim))       ! R1 = RHS - MAT.SOL
 
   beta = sqrt(dot_product(r1(1:dim),r1(1:dim)))                 ! beta = ||r0||_2
   fact = 1.0_krp/beta
@@ -99,7 +103,7 @@ do while ((errgmres >= ref*def_impli%maxres).and.(nit <= def_impli%max_it*2))
 
   do jk = 1,nkrylov
 
-    call dlu_yeqax (w1(jk,1:dim), mat, v1(jk,1:dim))           ! wj = M^(-1).A.vj
+    call bdlu_yeqax (w1(jk,1:dim), mat, v1(jk,1:dim))           ! wj = M^(-1).A.vj
 
     do ik = 1,jk
       hh(ik,jk) = dot_product(w1(jk,1:dim),v1(ik,1:dim))        ! hij = (wj,vi)
@@ -172,7 +176,7 @@ do while ((errgmres >= ref*def_impli%maxres).and.(nit <= def_impli%max_it*2))
   enddo
 
   r1(1:dim) = -sol(1:dim)
-  call dlu_xeqaxpy(r1(1:dim), mat, p1(1:dim), r2(1:dim))       ! R1 = RHS - MAT.SOL
+  call bdlu_xeqaxpy(r1(1:dim), mat, p1(1:dim), r2(1:dim))       ! R1 = RHS - MAT.SOL
   ss(nk+1) =  sqrt(dot_product(r1(1:dim),r1(1:dim)))
 
   errgmres = ss(nk+1)/normp1
@@ -203,7 +207,7 @@ endif
 
 deallocate(r1, r2, p1, qc, qs, ss, yy, hh, w1, v1)
 
-endsubroutine dlu_gmres
+endsubroutine bdlu_gmres
 
 !------------------------------------------------------------------------------!
 ! Changes history

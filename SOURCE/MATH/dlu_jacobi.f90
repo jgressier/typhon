@@ -1,18 +1,17 @@
 !------------------------------------------------------------------------------!
-! Procedure : dlu_jacobi                  Auteur : J. Gressier
-!                                         Date   : Avril 2004
-! Fonction                                Modif  : (cf historique)
-!   Resolution d'un systeme lineaire mat.sol = rhs
-!     mat sous forme type(st_dlu)
-!     methode iterative JACOBI : mat = D + L + U
+! Procedure : dlu_jacobi                          Authors : J. Gressier
+!                                                 Created : Avril 2004
+! Fonction
+!   Resolution of linear system : mat.sol = rhs
+!     mat type(st_dlu)
+!     iterative method JACOBI : mat = D + L + U
 !       sol(n+1) = D^(-1).-(L+U).sol(n) + D^(-1).rhs
 !
 ! Defauts/Limitations/Divers :
-!   - le tableau sol(*) est cense etre deja alloue
-!   - la resolution passe par l'allocation d'une matrice pleine (dim*dim)
+!   - Array sol(*) contains rhs as input
 !
 !------------------------------------------------------------------------------!
-subroutine dlu_jacobi(def_impli, mat, rhs, sol, info)
+subroutine dlu_jacobi(def_impli, mat, sol, info)
 
 use TYPHMAKE
 use SPARSE_MAT
@@ -21,76 +20,81 @@ use MENU_NUM
 
 implicit none
 
-! -- Declaration des entrees --
+! -- Inputs --
 type(mnu_imp) :: def_impli
 type(st_dlu)  :: mat
-real(krp)     :: rhs(1:mat%dim)
 
-! -- Declaration des sorties --
-real(krp)     :: sol(1:mat%dim)
+! -- Inputs/Outputs --
+real(krp)     :: sol(1:mat%dim)  ! RHS as input, SOLUTION as output
+
+! -- Outputs --
 integer(kip)  :: info
 
-! -- Declaration des variables internes --
-real(krp), dimension(:), allocatable :: vec, soln
-integer(kip)                         :: nit, ic, if, imin, imax
+! -- Internal variables --
+real(krp), dimension(:), allocatable :: vec, p1
+integer(kip)                         :: nit, dim, if, imin, imax
 real(krp)                            :: erreur, ref
 
-! -- Debut de la procedure --
+! -- Body --
+
+dim = mat%dim
 
 ! initialisation
 
 nit    = 0
 erreur = huge(erreur)    ! maximal real number in machine representation (to ensure 1st iteration)
 
-allocate( vec(mat%dim))
-allocate(soln(mat%dim))
+allocate( vec(dim))
+allocate(p1(dim))
 
-soln(1:mat%dim) = rhs(1:mat%dim) / mat%diag(1:mat%dim)
-ref = sum(abs(soln(:)))
+! -- initialization --
+
+p1 (1:dim) = sol(1:dim)  ! save RHS
+sol(1:dim) = p1(1:dim) / mat%diag(1:dim)  ! initial guess
+ref = sum(abs(sol(1:dim)))
 
 !call sort_dlu(mat)
 
 do while ((erreur >= ref*def_impli%maxres).and.(nit <= def_impli%max_it))
 
-  vec(1:mat%dim) = rhs(1:mat%dim)
+  vec(1:dim) = p1(1:dim)
 
   ! multiplication par (L + U)
 
   do if = 1, mat%ncouple
     imin = mat%couple%fils(if,1) ! ic1 cell is supposed to be the lowest index
     imax = mat%couple%fils(if,2) ! ic2 cell is supposed to be the highest index
-    if (imax <= mat%dim) then
-      vec(imax) = vec(imax) - mat%lower(if)*soln(imin)
-      vec(imin) = vec(imin) - mat%upper(if)*soln(imax)
+    if (imax <= dim) then
+      vec(imax) = vec(imax) - mat%lower(if)*sol(imin)
+      vec(imin) = vec(imin) - mat%upper(if)*sol(imax)
     endif
   enddo
 
   ! division par D (coef par coef)
 
-  vec(1:mat%dim) = vec(1:mat%dim) / mat%diag(1:mat%dim)
+  vec(1:dim) = vec(1:dim) / mat%diag(1:dim)
 
-  ! calcul de l'erreur
-
-  erreur  = sum(abs(soln(:)-vec(:)))
+  ! error computation & update
+  erreur  = sum(abs(sol(1:dim)-vec(1:dim)))
   !print*,'conv jacobi',nit,log10(erreur/ref)
-  soln(:) = vec(:)   
+  sol(1:dim) = vec(1:dim)
+
   nit     = nit + 1
 
 enddo
 
-sol(:) = soln(:)
 if (nit <= def_impli%max_it) then
   info = nit - 1
 else
   info = -1
 endif
 
-deallocate(vec, soln)
+deallocate(vec, p1)
 
 endsubroutine dlu_jacobi
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
-! avr  2004 : creation de la procedure
+! Apr  2004 : creation
 !------------------------------------------------------------------------------!

@@ -44,10 +44,10 @@ case(time_unsteady, time_unsteady_inverse)
   write(uf_monres,'(a)') "@variables: it residual"
   open(unit=uf_monphy, file="monphy."//strof_full_int(1,3), form = "formatted")
   write(uf_monphy,'(a)') "@variables: time"
-  
+
 case default
-   call erreur("internal error (init_capteurs)", "unknown time model")
- 
+  call erreur("internal error (init_capteurs)", "unknown time model")
+
 endselect
 
 do i = 1, zone%defsolver%nprobe
@@ -55,13 +55,13 @@ do i = 1, zone%defsolver%nprobe
   select case(zone%info%time_model)
 
   case(time_steady)
-    call erreur("developpement","mode non traite l'initialisation des capteurs")
+    call erreur("developpement", "mode non traite pour l'initialisation des capteurs")
 
   case(time_unsteady)
-    call erreur("developpement","mode non traite l'initialisation des capteurs")
-  
+    call erreur("developpement", "mode non traite pour l'initialisation des capteurs")
+
   case default
-   call erreur("internal error (init_capteurs)", "unknown time model")
+    call erreur("internal error (init_capteurs)", "unknown time model")
   endselect
 
 enddo

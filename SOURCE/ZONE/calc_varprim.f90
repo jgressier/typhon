@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_varprim                Auteur : J. Gressier
 !                                         Date   : Juin 2003
-! Fonction                                Modif  : Juin 2003 (cf historique)
+! Fonction
 !   Calcul des variables primitives a partir des variables conservatives
 !   Reroutage vers des procedures specifiques aux solveurs
 !
@@ -31,15 +31,15 @@ type(st_field)   :: field            ! champ primitives->conservatives
 
 
 select case(def_solver%typ_solver)
-case(solNS)
-  call calc_varprim_ns(def_solver%defns, field)
 case(solKDIF)
   call calc_varprim_kdif(def_solver%defkdif, field)
+case(solNS)
+  call calc_varprim_ns(def_solver%defns, field)
 case(solVORTEX)
   ! rien a faire
 case default
   call erreur("Incoherence interne (calc_varprim)","type de solveur inconnu")
-endselect 
+endselect
 
 
 !-----------------------------

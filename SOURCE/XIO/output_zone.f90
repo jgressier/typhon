@@ -1,11 +1,11 @@
 !------------------------------------------------------------------------------!
 ! Procedure : output_zone
-!    
+!
 ! Function
 !   Write the field of each zone
 !
 !------------------------------------------------------------------------------!
- 
+
 subroutine output_zone(nom, defio, zone)
 
 use TYPHMAKE

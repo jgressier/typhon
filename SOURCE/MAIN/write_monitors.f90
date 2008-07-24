@@ -2,7 +2,7 @@
 ! Procedure : write_monitors                    Auteur : J. Gressier
 !                                         Date   : Mai 2003
 ! Fonction                                Modif  : (cf historique)
-!   Calcul des quantites definis par les write_monitors
+!   Calcul des quantites definies par les write_monitors
 !
 ! Defauts/Limitations/Divers :
 !
@@ -17,12 +17,12 @@ use MENU_GEN
 
 implicit none
 
-! -- Declaration des entrees --
-type(st_zone) :: zone            ! zone 
+! -- Inputs --
+type(st_zone) :: zone            ! zone
 
-! -- Declaration des sorties --
+! -- Outputs --
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 integer    :: ic                 ! index de capteur
 
 ! -- BODY --

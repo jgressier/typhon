@@ -1,5 +1,5 @@
 !------------------------------------------------------------------------------!
-! Procedure : tstep_explicit 
+! Procedure : tstep_explicit
 !
 ! Fonction
 !   Integration explicit de domaine
@@ -46,10 +46,10 @@ call new(flux, umesh%nface, field%nscal, field%nvect, 0)
 ! l'encombrement memoire et la vectorisation
 
 select case(defsolver%typ_solver)
-case(solNS)
-  call integration_ns_ust(defsolver, defsolver%defspat, umesh, field, flux, .false., jacL, jacR)
 case(solKDIF)
   call integration_kdif_ust(defsolver, defsolver%defspat, umesh, field, flux, .false., jacL, jacR)
+case(solNS)
+  call integration_ns_ust(defsolver, defsolver%defspat, umesh, field, flux, .false., jacL, jacR)
 case default
   call erreur("incoherence interne (tstep_explicit)", "solveur inconnu")
 endselect
@@ -62,7 +62,7 @@ call flux_to_res(dtloc, umesh, flux, field%residu, .false., jacL, jacR)
 ! BOCO HISTORY
 !-----------------------------------------------------------------------
 
-call integ_ustboco(umesh, field, flux) 
+call integ_ustboco(umesh, field, flux)
 
 !-----------------------------------------------------------------------
 ! COUPLING SPECIFIC actions
@@ -71,8 +71,8 @@ call integ_ustboco(umesh, field, flux)
 select case(typtemps)
  case(time_unsteady) ! corrections de flux seulement en instationnaire
 
- ! Calcul de l'"energie" a l'interface, en vue de la correction de flux, pour 
- ! le couplage avec echanges espaces
+ ! Calcul de l'"energie" a l'interface, en vue de la correction de flux,
+ ! pour le couplage avec echanges espaces
  !DVT : flux%tabscal(1) !
  if (ncp>0) then
    call accumulfluxcorr(dtloc, defsolver, umesh%nboco, umesh%boco, &

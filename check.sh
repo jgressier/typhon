@@ -2,7 +2,7 @@
 #
 # Check non-regression of all NRG cases containing nrgconf.sh
 #
-bar=------------------------------------------------------------------
+bar=----------------------------------------------------------------
 
 echo $bar
 echo TYPHON non regression check
@@ -10,18 +10,21 @@ echo $bar
 
 # --- directory initialization ---
 #
+ORIGDIR=$PWD
+HOMEDIR=$(dirname $0)
+cd $HOMEDIR
 export HOMEDIR=$PWD
-export  EXEDIR=$PWD/SOURCE
-export  BINDIR=$PWD/bin
-export  NRGDIR=$PWD/NRG
-export MESHDIR=$PWD/NRG/COMMON
+export  EXEDIR=$HOMEDIR/SOURCE
+export  BINDIR=$HOMEDIR/bin
+export  NRGDIR=$HOMEDIR/NRG
+export MESHDIR=$HOMEDIR/NRG/COMMON
 export  TMPDIR=/tmp/typhon.$$
 
 # --- directory check ---
 #
 if [ ! -d $MESHDIR ] ; then
   echo directory $MESHDIR not found
-  echo you must cd into a typhon directory
+  echo $HOMEDIR/$(basename $0) is not in a valid typhon directory
   exit 1
 fi
 
@@ -42,19 +45,47 @@ trap "rm -Rf $TMPDIR" 0 2
 
 rm diff.log check.log 2> /dev/null
 
+# --- check options ---
+#
+if [ ${#} -eq 1 ] && [ $1 = "-h" ] ; then
+  echo "Usage: $(basename $0) [-h] [-l] [<pattern>]"
+  echo
+  echo "       -h: prints this help"
+  echo "       -l: prints list of cases"
+  echo "       <pattern>: selects cases with name matching <pattern>"
+  echo "       default: runs cases"
+  echo
+  exit 0
+fi
+list=0
+if [ ${#} -ge 1 ] && [ $1 = "-l" ] ; then
+  list=1
+  shift
+fi
+
 # --- get list of cases ---
 #
 cd $NRGDIR
-if [ ${#} -eq 0 ] ; then
-  LISTCONFS=$(find . -name $REFCONF)
-else
+grepargs=.
+if [ ${#} -gt 0 ] ; then
   grepargs=$(for i in $@ ; do echo "-e $i" ; done)
-  LISTCONFS=$(find . -name $REFCONF | grep $grepargs)
+fi
+LISTCONFS=$(find * -name $REFCONF | grep $grepargs)
+
+# --- print list of cases ---
+#
+if [ $list -eq 1 ] ; then
+  echo LISTCONFS =
+  for CONF in ${LISTCONFS[*]} ; do
+    echo "    ${CONF%/$REFCONF}/"
+  done
+  exit 0
 fi
 
 # --- tests ---
 #
-echo diffing with $DIFF
+echo diffing with : $DIFF
+echo $bar
 
 for CONF in $LISTCONFS ; do
   # init
@@ -64,12 +95,9 @@ for CONF in $LISTCONFS ; do
   echo -n checking $CASE...
   rm -f $TMPDIR/* 2> /dev/null
   # configure
-  cd $NRGDIR
-  . $CONF
-  cd $MESHDIR
-  cp $MESHFILE $TMPDIR
-  cd $DIR
-  cp $INPUTFILE $TMPDIR
+  . $NRGDIR/$CONF
+  cp $MESHDIR/$MESHFILE $TMPDIR
+  cp $DIR/$INPUTFILE $TMPDIR
   cd $TMPDIR
   echo $bar  >> $HOMEDIR/check.log
   echo $CASE >> $HOMEDIR/check.log
@@ -98,3 +126,13 @@ for CONF in $LISTCONFS ; do
     echo -e ${col2}computation failed
   fi
 done
+
+echo $bar
+if [ $HOMEDIR = $ORIGDIR ] ; then
+  echo check.log diff.log
+else
+  echo $HOMEDIR/check.log
+  echo $HOMEDIR/diff.log
+fi
+
+cd $ORIGDIR

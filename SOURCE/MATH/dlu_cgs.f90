@@ -4,14 +4,13 @@
 ! Fonction
 !   Resolution of linear system : mat.sol = rhs
 !     mat type(st_dlu)
-!     non stationnary iterative method CGS 
+!     non stationary iterative method CGS
 !
 ! Defauts/Limitations/Divers :
-!   - le tableau sol(*) est cense etre deja alloue
-!   - la resolution passe par l'allocation d'une matrice pleine (dim*dim)
+!   - Array sol(*) contains rhs as input
 !
 !------------------------------------------------------------------------------!
-subroutine dlu_cgs(def_impli, mat, rhs, sol, info)
+subroutine dlu_cgs(def_impli, mat, sol, info)
 
 use TYPHMAKE
 use SPARSE_MAT
@@ -23,19 +22,20 @@ implicit none
 ! -- Inputs --
 type(mnu_imp) :: def_impli
 type(st_dlu)  :: mat
-real(krp)     :: rhs(1:mat%dim)
+
+! -- Inputs/Outputs --
+real(krp)     :: sol(1:mat%dim)  ! RHS as input, SOLUTION as output
 
 ! -- Outputs --
-real(krp)     :: sol(1:mat%dim)
 integer(kip)  :: info
 
 ! -- Internal variables --
-real(krp), dimension(:), allocatable :: r1, r2, p1, q1, u , v 
-integer(kip)                         :: nit, ic, if, imin, imax, dim
+real(krp), dimension(:), allocatable :: r1, r2, p1, q1, u , v
+integer(kip)                         :: nit, dim
 real(krp)                            :: erreur, ref
 real(krp)                            :: rho0, rho1, beta, alpha
 
-! -- Debut de la procedure --
+! -- Body --
 
 dim = mat%dim
 
@@ -53,7 +53,7 @@ allocate(v (dim))
 
 ! -- initialization --
 
-p1(1:dim) = rhs(1:dim)  ! SAVE RHS BECAUSE SOL CAN OVERWRITE RHS
+p1 (1:dim) = sol(1:dim)  ! save RHS
 sol(1:dim) = p1(1:dim) / mat%diag(1:dim)  ! initial guess
 ref = sum(abs(sol(1:dim)))
 
@@ -76,23 +76,23 @@ do while ((erreur >= ref*def_impli%maxres).and.(nit <= def_impli%max_it))
     v (1:dim) = q1(1:dim) + beta*p1(1:dim)
     p1(1:dim) = u (1:dim) + beta*v (1:dim)
   endif
- 
-  call dlu_yeqax (v (1:dim), mat, p1(1:dim))
-  alpha = rho1 / dot_product(r2(1:dim), v (1:dim))
-  q1(1:dim) = u (1:dim) - alpha*v (1:dim) 
 
+  call dlu_yeqax (v (1:dim), mat, p1(1:dim))
+
+  alpha = rho1 / dot_product(r2(1:dim), v (1:dim))
+  q1(1:dim) = u (1:dim) - alpha*v (1:dim)
   v (1:dim) = u (1:dim) + q1(1:dim)
 
-  ! error computation
+  ! error computation & update
   erreur  = abs(alpha)*sum(abs(v (1:dim)))
   sol(1:dim) = sol(1:dim) + alpha*v (1:dim)
   !print*,'conv cgs',nit,log10(erreur/ref), rho1
 
   ! prepare next iteration
   call dlu_yeqax (u (1:dim), mat, v (1:dim))
-  r1(1:dim) = r1(1:dim) - alpha*u (1:dim) 
+  r1(1:dim) = r1(1:dim) - alpha*u (1:dim)
   rho0 = rho1
-  
+
   nit     = nit + 1
 
 enddo

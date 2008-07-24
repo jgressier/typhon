@@ -43,7 +43,7 @@ call packst(rhsfield, tabres, size_tot(rhsfield))
 
 select case(deftime%implicite%methode)
 case(alg_lu)
-  call dlu_lu(mat%dlu, tabres, tabres)
+  call dlu_lu(mat%dlu, tabres)
 
 case(alg_jac)
   call solve_jacobi(deftime, mat, tabres, info)
@@ -54,7 +54,7 @@ case(alg_gs)
 
 case(alg_sor)
   call erreur("development","SOR method not implemented")
-  
+
 case(alg_bicg)
   call solve_bicg(deftime, mat, tabres, info)
   if (info < 0) call print_warning("BICG iterative method not converged")
@@ -72,7 +72,7 @@ case(alg_bicgstab)
   if (info < 0) call print_warning("BICG-Stabilized iterative method not converged")
 
 case(alg_gmres)
-  !call solve_gmres(deftime, mat, tabres, info)
+  call solve_gmres(deftime, mat, tabres, info)
   if (info < 0) call print_warning("GMRES iterative method not converged")
 
 case default

@@ -1,5 +1,5 @@
 !------------------------------------------------------------------------------!
-! Procedure : solve_gmres                              Authors : J. Gressier
+! Procedure : solve_gmres                             Authors : J. Gressier
 !                                                     Created : August 2005
 ! Fonction
 !   Solve implicit system with Bi-Conjugate Gradient iterative method
@@ -54,5 +54,5 @@ endsubroutine solve_gmres
 !------------------------------------------------------------------------------!
 ! Change History
 !
-! Aug  2005 : creation 
+! Aug  2005 : creation
 !------------------------------------------------------------------------------!

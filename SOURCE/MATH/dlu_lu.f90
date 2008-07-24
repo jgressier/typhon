@@ -1,17 +1,17 @@
 !------------------------------------------------------------------------------!
-! Procedure : dlu_lu                      Auteur : J. Gressier
-!                                         Date   : Avril 2004
-! Fonction                                Modif  : (cf historique)
+! Procedure : dlu_lu                      Authors : J. Gressier
+!                                         Created : Avril 2004
+! Fonction
 !   Resolution d'un systeme lineaire mat.sol = rhs
 !     mat sous forme type(st_dlu)
 !     methode directe : decomposition LU et resolution
 !
 ! Defauts/Limitations/Divers :
-!   - le tableau sol(*) est cense etre deja alloue
-!   - la resolution passe par l'allocation d'une matrice pleine (dim*dim)
+!   - Array sol(*) contains rhs as input
+!   - Resolution needs allocation of a full (dim*dim) matrice
 !
 !------------------------------------------------------------------------------!
-subroutine dlu_lu(mat, rhs, sol)
+subroutine dlu_lu(mat, sol)
 
 use TYPHMAKE
 use SPARSE_MAT
@@ -19,17 +19,18 @@ use LAPACK
 
 implicit none
 
-! -- Declaration des entrees --
-type(st_dlu)            :: mat
-real(krp), dimension(*) :: rhs
+! -- Inputs --
+type(st_dlu)  :: mat
 
-! -- Declaration des sorties --
-real(krp), dimension(*) :: sol
+! -- Inputs/Outputs --
+real(krp)     :: sol(1:mat%dim)  ! RHS as input, SOLUTION as output
 
-! -- Declaration des variables internes --
-real(krp),    dimension(:,:), allocatable :: pmat, pvec
-integer(kip), dimension(:),   allocatable :: piv
-integer(kip)                              :: i, imin, imax, info
+! -- Outputs --
+
+! -- Internal variables --
+real(krp),  dimension(:,:), allocatable :: pmat, pvec
+integer(kip), dimension(:), allocatable :: piv
+integer(kip)                            :: i, imin, imax, info
 
 ! -- Debut de la procedure --
 
@@ -56,7 +57,7 @@ enddo
 ! -- reconstruction du vecteur rhs --
 
 allocate(pvec(1:mat%dim, 1))
-pvec(1:mat%dim, 1) = rhs(1:mat%dim)
+pvec(1:mat%dim, 1) = sol(1:mat%dim)
 
 ! -- resolution --
 
@@ -91,6 +92,6 @@ endsubroutine dlu_lu
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! avr  2004 : creation de la procedure
+! Apr  2004 : creation
 ! oct  2006 : stopped in order to avoid LAPACK library (dense LU not efficient)
 !------------------------------------------------------------------------------!

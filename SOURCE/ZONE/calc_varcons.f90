@@ -1,7 +1,7 @@
- !------------------------------------------------------------------------------!
+!------------------------------------------------------------------------------!
 ! Procedure : calc_varcons                Auteur : J. Gressier
 !                                         Date   : Juin 2003
-! Fonction                                Modif  : (cf historique)
+! Fonction
 !   Calcul des variables conservatives a partir des variables primitives
 !   Reroutage vers des procedures specifiques aux solveurs
 !
@@ -31,10 +31,10 @@ type(st_field)   :: field            ! champ primitives->conservatives
 
 
 select case(def_solver%typ_solver)
-case(solNS)
-  call calc_varcons_ns(def_solver%defns, field)
 case(solKDIF)
   call calc_varcons_kdif(def_solver%defkdif, field)
+case(solNS)
+  call calc_varcons_ns(def_solver%defns, field)
 case default
   call erreur("Incoherence interne (calc_varcons)","type de solveur inconnu")
 endselect 

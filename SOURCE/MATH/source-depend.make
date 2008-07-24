@@ -29,16 +29,19 @@ MATH_MOD = FCT_CONTAINER.$(MOD) \
 MATH_OBJ = $(MATH_MOD:.$(MOD)=.o)  \
            bdlu_bicg.o             \
            bdlu_bicgstab.o         \
+           bdlu_gmres.o            \
            dlu_bicg.o              \
            dlu_bicg_pjacobi.o      \
            dlu_cgs.o               \
            dlu_jacobi.o            \
+           dlu_gmres.o             \
            dlu_lu.o                \
            solve_bicg.o            \
            solve_bicg_pjacobi.o    \
            solve_bicgstab.o        \
            solve_cgs.o             \
            solve_jacobi.o          \
+           solve_gmres.o           \
 
 D_MATH_OBJ = $(MATH_OBJ:%=$(PRJOBJ)/%)
 

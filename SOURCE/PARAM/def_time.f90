@@ -105,7 +105,7 @@ select case(deftime%tps_meth)
 !-------------------------------------------------------
 case(tps_expl)
   call print_info(7,"  . EXPLICIT integration")
-  
+
 !------------------------------------------------------
 ! RUNGE-KUTTA METHODs
 !-------------------------------------------------------
@@ -144,6 +144,7 @@ case(tps_impl)
     if (samestring(str,"BICG-JACOBI"))  deftime%implicite%methode = alg_bicgpjac
     if (samestring(str,"CGS"))          deftime%implicite%methode = alg_cgs
     if (samestring(str,"BICGSTAB"))     deftime%implicite%methode = alg_bicgstab
+    if (samestring(str,"GMRES"))        deftime%implicite%methode = alg_gmres
   endif
 
   select case(deftime%implicite%methode)
@@ -186,6 +187,11 @@ case(tps_impl)
     call print_info(9,"    Bi-Conjugate Gradient Stabilized iterative inversion (BiCG-Stab)")
     call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 50_kpp)
     call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-1_krp)
+
+  case(alg_gmres)
+    call print_info(9,"    Generalized Minimum Residual iterative inversion (GMRES)")
+    call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 50_kpp)
+    call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-4_krp)
 
   case default
     call erreur("algebra","unknown inversion method")

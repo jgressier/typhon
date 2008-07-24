@@ -1,5 +1,5 @@
 ############################################################
-##   Compilation de la librairie MODZONE
+##   Compilation de la librairie EQKDIF
 
 LDIR := EQKDIF
 
@@ -71,15 +71,12 @@ $(EQKDIF_LIB): $(D_EQKDIF_OBJ)
 EQKDIF_clean:
 	-rm  $(EQKDIF_LIB) $(D_EQKDIF_OBJ) $(EQKDIF_MOD) EQKDIF/depends.make
 
-
 ####### Dependencies
-
 
 EQKDIF/depends.make: $(D_EQKDIF_SRC)
 	(cd EQKDIF ; ../$(MAKEDEPENDS))
 
 include EQKDIF/depends.make
-
 
 
 
