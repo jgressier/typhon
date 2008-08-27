@@ -68,10 +68,10 @@ do io = 1, world%noutput
   select case(world%output(io)%format)
   case(fmt_VTK, fmt_VTKBIN)
     ic = index(str, ".vtk")
-    if (ic == len(trim(str))-3) str = str(1:ic-1)//"    "
+    if ((ic /= 0).and.(ic == len(trim(str))-3)) str = str(1:ic-1)//"    "
   case(fmt_TECPLOT)
     ic = index(str, ".dat")
-    if (ic == len(trim(str))-3) str = str(1:ic-1)//"    "
+    if ((ic /= 0).and.(ic == len(trim(str))-3)) str = str(1:ic-1)//"    "
   case default
     call erreur("internal error (def_output)", "unknown format")
   endselect
