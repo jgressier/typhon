@@ -4,6 +4,28 @@
 #
 bar=----------------------------------------------------------------
 
+# --- print usage ---
+#
+function usage() {
+  if [ $1 = 1 ] ; then
+    echo $bar
+    echo "ERROR"
+    echo $bar
+  fi
+  echo
+  echo "Usage: $SCRIPTNAME [-h] [-l] [--] [<pattern> ...]"
+  echo
+  echo "       -h: prints this help"
+  echo "       -l: prints list of cases"
+  echo "       --: end of options"
+  echo
+  echo "       <pattern>: selects cases with name matching <pattern>"
+  echo
+  echo "       default: runs cases"
+  echo
+  exit $1
+}
+
 echo $bar
 echo TYPHON non regression check
 echo $bar
@@ -11,25 +33,56 @@ echo $bar
 # --- directory initialization ---
 #
 ORIGDIR=$PWD
-HOMEDIR=$(dirname $0)
-cd $HOMEDIR
-export HOMEDIR=$PWD
+SCRIPTNAME=$(basename $0)
+export HOMEDIR=$(dirname $0)
 export  EXEDIR=$HOMEDIR/SOURCE
 export  BINDIR=$HOMEDIR/bin
 export  NRGDIR=$HOMEDIR/NRG
 export MESHDIR=$HOMEDIR/NRG/COMMON
 export  TMPDIR=/tmp/typhon.$$
+trap "rm -Rf $TMPDIR ; cd $ORIGDIR" 0 2
 
 # --- directory check ---
 #
 if [ ! -d $MESHDIR ] ; then
   echo directory $MESHDIR not found
-  echo $HOMEDIR/$(basename $0) is not in a valid typhon directory
+  echo $HOMEDIR/$SCRIPTNAME is not in a valid typhon directory
   exit 1
+fi
+
+# --- get options ---
+#
+OPTS=$(getopt -o hl -n "$SCRIPTNAME" -- "$@")
+[[ $? != 0 ]] && usage 1
+eval set -- "$OPTS"
+
+# --- parse options ---
+#
+list=0
+patlist=()
+while true ; do
+  case "$1" in
+    -h) usage 0 ;;
+    -l) list=1 ;;
+    --) shift ; break ;;
+  esac
+  shift
+done
+
+# --- check patterns ---
+#
+if [ ${#} -gt 0 ] ; then
+  for pat in "$@" ; do
+    if [ -n "$pat" ] ; then
+      patlist+=("-e" "$pat")
+    fi
+  done
+  shift ${#}
 fi
 
 # --- initialization ---
 #
+cd $HOMEDIR
 . bin/shconf.sh
 #
 export REFCONF=nrgconf.sh
@@ -41,43 +94,20 @@ export LD_LIBRARY_PATH=$EXEDIR/Lib:$LD_LIBRARY_PATH
 ncol1=50 ; col1="\\033[${ncol1}G"
 ncol2=75 ; col2="\\033[${ncol2}G"
 mkdir $TMPDIR
-trap "rm -Rf $TMPDIR" 0 2
 
 rm diff.log check.log 2> /dev/null
-
-# --- check options ---
-#
-if [ ${#} -eq 1 ] && [ $1 = "-h" ] ; then
-  echo "Usage: $(basename $0) [-h] [-l] [<pattern>]"
-  echo
-  echo "       -h: prints this help"
-  echo "       -l: prints list of cases"
-  echo "       <pattern>: selects cases with name matching <pattern>"
-  echo "       default: runs cases"
-  echo
-  exit 0
-fi
-list=0
-if [ ${#} -ge 1 ] && [ $1 = "-l" ] ; then
-  list=1
-  shift
-fi
 
 # --- get list of cases ---
 #
 cd $NRGDIR
-grepargs=.
-if [ ${#} -gt 0 ] ; then
-  grepargs=$(for i in $@ ; do echo "-e $i" ; done)
-fi
-LISTCONFS=$(find * -name $REFCONF | grep $grepargs)
+LISTCONFS=$(find * -name $REFCONF | xargs -n 1 dirname | grep "${patlist[@]:-.}")
 
 # --- print list of cases ---
 #
 if [ $list -eq 1 ] ; then
   echo LISTCONFS =
   for CONF in ${LISTCONFS[*]} ; do
-    echo "    ${CONF%/$REFCONF}/"
+    echo "    ${CONF}/"
   done
   exit 0
 fi
@@ -134,5 +164,3 @@ else
   echo $HOMEDIR/check.log
   echo $HOMEDIR/diff.log
 fi
-
-cd $ORIGDIR

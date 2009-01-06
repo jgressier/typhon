@@ -16,7 +16,8 @@ function js_showitem(id) {
   var d = document.getElementById(id);
   for (var i = 0; i<nsubitem; i++) {
     var id = 'subitem_'+subitemnames[i];
-    if (document.getElementById(id)) { document.getElementById(id).style.display='none'; }
+    var d = document.getElementById(id);
+    if (d) { d.style.display='none'; }
   }
   if (d) {d.style.display='block';}
 }

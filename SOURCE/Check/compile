@@ -26,7 +26,7 @@ localdir=$(pwd)
 
 echoerr
 
-[[ "$absdir" != "$localdir" ]] && echodo "cd $dir"
+[[ "$absdir" != "$localdir" ]] && echodo "cd $dir" || :
 [[ $? -ne 0 ]] && echoerr "ERROR: cannot cd" && exit 1
 
 listfail=""

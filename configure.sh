@@ -128,7 +128,7 @@ check_f90prof() {
 check_library() {
   local    name=$1
   local     ext=$2
-  local pathlib="$F90LIB /usr/lib /usr/local/lib /opt/lib /opt/local/lib"
+  local pathlib="$F90LIB /usr/lib /usr/local/lib /opt/lib /opt/local/lib /opt/aero/lib"
   local fullname
   for dir in $pathlib ; do
     if [ -r "$dir/lib$name.$ext" ] ; then
