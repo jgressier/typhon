@@ -2,7 +2,7 @@
 #
 # Check non-regression of all NRG cases containing nrgconf.sh
 #
-bar=----------------------------------------------------------------
+bar=------------------------------------------------------------------------
 
 # --- print usage ---
 #
@@ -34,7 +34,7 @@ echo $bar
 #
 ORIGDIR=$PWD
 SCRIPTNAME=$(basename $0)
-export HOMEDIR=$(dirname $0)
+export HOMEDIR=$(cd $(dirname $0) ; pwd)
 export  EXEDIR=$HOMEDIR/SOURCE
 export  BINDIR=$HOMEDIR/bin
 export  NRGDIR=$HOMEDIR/NRG
@@ -89,10 +89,6 @@ export REFCONF=nrgconf.sh
 export DIFFCOM=$DIFF
 export LD_LIBRARY_PATH=$EXEDIR/Lib:$LD_LIBRARY_PATH
 
-# --- print parameter ---
-#
-ncol1=50 ; col1="\\033[${ncol1}G"
-ncol2=75 ; col2="\\033[${ncol2}G"
 mkdir $TMPDIR
 
 rm diff.log check.log 2> /dev/null
@@ -100,35 +96,45 @@ rm diff.log check.log 2> /dev/null
 # --- get list of cases ---
 #
 cd $NRGDIR
-LISTCONFS=$(find * -name $REFCONF | xargs -n 1 dirname | grep "${patlist[@]:-.}")
+LISTCASES=$(find * -name $REFCONF | xargs -n 1 dirname | grep "${patlist[@]:-.}")
 
 # --- print list of cases ---
 #
 if [ $list -eq 1 ] ; then
-  echo LISTCONFS =
-  for CONF in ${LISTCONFS[*]} ; do
-    echo "    ${CONF}/"
+  echo LISTCASES =
+  for CASE in ${LISTCASES[*]} ; do
+    echo "    ${CASE}"
   done
   exit 0
 fi
+
+typeset -i ncol0=1
+for CASE in ${LISTCASES[*]} ; do
+  i=$(echo $CASE | wc -c)
+  if [ $i -gt $ncol0 ] ; then ncol0=i ; fi
+done
+
+# --- print parameter ---
+#
+typeset -i ncol1=ncol0+20 ; col1="\\033[${ncol1}G"
+typeset -i ncol2=ncol1+25 ; col2="\\033[${ncol2}G"
 
 # --- tests ---
 #
 echo diffing with : $DIFF
 echo $bar
 
-for CONF in $LISTCONFS ; do
+cd $TMPDIR
+for CASE in $LISTCASES ; do
   # init
-  CASE=${CONF%/$REFCONF}
-  DIR=$NRGDIR/$CASE
+  CASEDIR=$NRGDIR/$CASE
   #
   echo -n checking $CASE...
   rm -f $TMPDIR/* 2> /dev/null
   # configure
-  . $NRGDIR/$CONF
+  . $CASEDIR/$REFCONF
   cp $MESHDIR/$MESHFILE $TMPDIR
-  cp $DIR/$INPUTFILE $TMPDIR
-  cd $TMPDIR
+  cp $CASEDIR/$INPUTFILE $TMPDIR
   echo $bar  >> $HOMEDIR/check.log
   echo $CASE >> $HOMEDIR/check.log
   echo $bar  >> $HOMEDIR/diff.log
@@ -142,7 +148,7 @@ for CONF in $LISTCONFS ; do
   if [ $? -eq 0 ] ; then
     for fic in $TO_CHECK ; do
       if [ -f "$fic" ] ; then
-        $DIFFCOM $fic $DIR/$fic >> $HOMEDIR/diff.log 2>&1
+        $DIFFCOM $fic $CASEDIR/$fic >> $HOMEDIR/diff.log 2>&1
         case $? in
           0) echo -e ${col1}$fic ${col2}identical ;;
           1) echo -e ${col1}$fic ${col2}changed ;;
