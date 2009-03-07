@@ -35,7 +35,7 @@ real(krp)  :: scellgrad(1:nf)
 scellgrad(:) = vgrad(:).scal.uLR(:)
 
 select case(tvdlimiter)
-case(lim_none)
+case(lim_none,lim_minmax)
   scellgrad(:) = LRsca(:) - scellgrad(:)
 case(lim_minmod)
   scellgrad(:) = minmod(2._krp*scellgrad(:)-LRsca(:), LRsca(:)) - scellgrad(:)

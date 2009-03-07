@@ -30,7 +30,8 @@ MGRID_OBJ = $(MGRID_MOD:.$(MOD)=.o)    \
             interpface_gradn_vect.o    \
             postlimit_monotonic.o      \
             postlimit_barth.o          \
-            precalc_grad_lsq.o 
+            precalc_grad_lsq.o         \
+            #minmax_limiter.o
 
 D_MGRID_OBJ = $(MGRID_OBJ:%=$(PRJOBJ)/%)
 

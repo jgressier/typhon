@@ -73,6 +73,10 @@ case(sch_hllc)
   call calc_flux_hllc(defsolver, defspat, nflux, face,         &
                       QL, QR, flux, ideb,                      &
                       calc_jac, jacL, jacR)
+case(sch_efm)
+  call calc_flux_efm(defsolver, defspat, nflux, face,         &
+                     QL, QR, flux, ideb,                      &
+                     calc_jac, jacL, jacR)
 case default
   call erreur("error","numerical scheme not implemented (flux computation)")
 endselect

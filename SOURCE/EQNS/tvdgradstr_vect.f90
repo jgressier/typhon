@@ -36,7 +36,7 @@ type(v3d)  :: vcellgrad(1:nf)
 vcellgrad(:) = tgrad(:).scal.uLR(:)
 
 select case(tvdlimiter)
-case(lim_none)
+case(lim_none,lim_minmax)
   vcellgrad(:) = LRvec(:) - vcellgrad(:)
 case(lim_minmod)
   vcellgrad(:) = minmod(2._krp*vcellgrad(:)-LRvec(:), LRvec(:)) - vcellgrad(:)

@@ -74,6 +74,7 @@ character, parameter :: lim_albada    = 'A'
 character, parameter :: lim_vleer     = 'V'
 character, parameter :: lim_sbee      = 'S'
 character, parameter :: lim_kim3      = 'K'
+character, parameter :: lim_minmax    = 'B'
 
 ! -- Constants for post-limitation --
 integer(kpp), parameter :: postlim_none        = 0

@@ -59,6 +59,13 @@ allocate(  cg_l(dimbuf),   cg_r(dimbuf))
 call new(gradL, dimbuf, field%gradient%nscal, field%gradient%nvect, field%gradient%ntens)
 call new(gradR, dimbuf, field%gradient%nscal, field%gradient%nvect, field%gradient%ntens)
 
+!!$! Limit gradient using minmax limiter
+!!$! All other limiters are applied below.
+!!$select case(defspat%muscl%limiter)
+!!$case(lim_minmax)
+!!$  call minmax_limiter(defspat, umesh, field%etatprim, field%gradient, cell_l, cell_r)
+!!$end select
+
 ista = 1
 buf  = dimbuf1
 

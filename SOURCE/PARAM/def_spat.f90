@@ -94,6 +94,8 @@ case(solNS)
     call print_info(7,"  numerical flux : Van Leer")
   case(sch_ausmm)
     call print_info(7,"  numerical flux : AUSM (original scheme, Mach weighting)")
+  case(sch_efm)
+    call print_info(7,"  numerical flux : EFM/KFVS)")
   case default
     call erreur("parameters parsing","unknown numerical scheme")
   endselect
@@ -108,6 +110,7 @@ case(solNS)
   if (samestring(str,"HLL-DIAG"))   defspat%jac_hyp = jac_hlldiag
   if (samestring(str,"RUSANOV"))    defspat%jac_hyp = jac_rusanov
   if (samestring(str,"EFM"))        defspat%jac_hyp = jac_efm
+  if (samestring(str,"KFVS"))       defspat%jac_hyp = jac_efm
 
   if (defspat%jac_hyp == inull) &
     call erreur("parameters parsing","unknown numerical scheme for jacobian matrices")
@@ -168,6 +171,7 @@ case(solNS)
     if (samestring(str,"VANLEER"))     defspat%muscl%limiter = lim_vleer
     if (samestring(str,"SUPERBEE"))    defspat%muscl%limiter = lim_sbee
     if (samestring(str,"KIM3"))        defspat%muscl%limiter = lim_kim3
+    !if (samestring(str,"MINMAX"))      defspat%muscl%limiter = lim_minmax
     call print_info(7,"    limiter     : "//trim(str))
 
     if (defspat%muscl%limiter == cnull) &
@@ -258,8 +262,8 @@ case(solNS)
 
     if (defspat%svm%sv_order.ge.3) then
     call rpmgetkeyvalstr(pcour, "SVMFLUX", str, "QUAD_Q")
-    if (samestring(str,"QUAD_Q"))        defspat%svm%sv_flux = svm_fluxQ
-    if (samestring(str,"QUAD_F"))      defspat%svm%sv_flux = svm_fluxF
+    if (samestring(str,"QUAD_Q"))    defspat%svm%sv_flux = svm_fluxQ
+    if (samestring(str,"QUAD_F"))    defspat%svm%sv_flux = svm_fluxF
 
   select case(defspat%svm%sv_flux)
     case(svm_fluxQ)
