@@ -11,7 +11,7 @@ include_header
 [TYPHON is a project which aims to offer a development platform for many computational methods
 for gas dynamics. It is structured as a multi-solver platform where it could be easily added a
 new solver. For now, it provides a finite volume solver for compressible inviscid equations and
-a finite volume solver for heat transfer.]
+a finite volume solver for heat transfer (with BC inverse capabality).]
 </p>
 
 dnl -------------------------------------------------------------
@@ -37,14 +37,14 @@ section([Compressible fluid solver])
 [This solver is based on full compressibility Navier-Stokes equations. It has been mainly used and 
 validated on high speed aerodynamics or high compressibility effects such as unsteady shock waves 
 interactions. One can point out these following features]<br>
-item([robust upwind schemes (HLL, HLLC, AUSM)])
+item([robust upwind schemes (HLL, HLLC, AUSM, EFM, Rusanov)])
 item([2nd and 3rd order MUSCL type extension])
+item([2nd to 4rd order Spectral Volume Method (only for 2D tri grids)])
 </p>
 
 <p align=justify>
 [Contributors are welcomed to add some methods to the existing solver. Some of further developments 
 could be]<br>
-item([high-order methods (spectral volume methods or others)])
 item([turbulence modelling (RANS), Large eddy simulation (LES)])
 item([Multigrid and implicit method for convergence acceleration])
 item([Dual time stepping])
@@ -72,7 +72,8 @@ item([lagrangian vortex solver and/or surface panel method])
 item([output format to post-processing softwares])
 </p>
 
-
+<p align=justify>
+[It is planned to separate most of geometric pre/post processing in another sourceforge project: CFDTOOLS.]<br>
 
 
 skip_line

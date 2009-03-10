@@ -9,6 +9,28 @@ include_header
 
 dnl -------------------------------------------------------------
 
+section([March 2009, 9th : version 0.5.0 released])
+item([3rd and 4th order Spectral Volume Method])
+item([GMRES iterative solver for implicit formulations])
+item([Inverse solver for Heat Transfer])
+item([New inviscid numerical fluxes (EFM, Rusanov)])
+item([New limiters for state extrapolation (Barth and variants)])
+See hyperlink([Change log], [dev_chlog.html]) for details <br>
+<br>
+
+
+section([March 2008, 21st : version 0.4.0 released])
+item([Runge-Kutta time integration (2nd and 3rd order)])
+item([2nd order Spectral Volume Method])
+item([Various initialization modes])
+See hyperlink([Change log], [dev_chlog.html]) for details <br>
+<br>
+
+section([September 2007, 11th : CVS to SVN migration])
+The new command to get the current developed release is<br>
+<tt><big>svn export https://typhon.svn.sourceforge.net/svnroot/typhon/trunk</big></tt>
+<br>
+
 section([February 2007, 6th : version 0.3.2 released])
 item([Symbolic function initialization (P/Pi, T/Ti, Mach/Velocity)])
 item([New binary VTK output])

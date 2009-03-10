@@ -48,10 +48,10 @@ dnl -------------------------------------------------------------
 
 <span class="ghostitem" id="subitem_2D">
 section([2D examples])
-item([hyperlink([ShockTube-R200], [example_ShockTube-R200.html]): Shock-Boundary layer interaction in shock tube (Reynolds 200) ])
-item([hyperlink([Hypersonic-BiCylinders], [example_Hypersonic-BiCylinders.html]): Hypersonic flow around two cylinders ])
-item([hyperlink([Suddhoo-Hall], [example_Suddhoo-Hall.html]): Inviscid flow over multi-element airfoil (Suddhoo-Hall) ])
 item([hyperlink([Diamond], [example_Diamond.html]): Shock diffraction over a Pyramid ])
+item([hyperlink([Suddhoo-Hall], [example_Suddhoo-Hall.html]): Inviscid flow over multi-element airfoil (Suddhoo-Hall) ])
+item([hyperlink([Hypersonic-BiCylinders], [example_Hypersonic-BiCylinders.html]): Hypersonic flow around two cylinders ])
+item([hyperlink([ShockTube-R200], [example_ShockTube-R200.html]): Shock-Boundary layer interaction in shock tube (Reynolds 200) ])
 <BR>
 </span>
 <span class="ghostitem" id="subitem_Airfoils">
@@ -61,8 +61,8 @@ item([hyperlink([Suddhoo-Hall], [example_Suddhoo-Hall.html]): Inviscid flow over
 </span>
 <span class="ghostitem" id="subitem_Inviscid">
 section([Inviscid examples])
-item([hyperlink([Hypersonic-BiCylinders], [example_Hypersonic-BiCylinders.html]): Hypersonic flow around two cylinders ])
 item([hyperlink([Suddhoo-Hall], [example_Suddhoo-Hall.html]): Inviscid flow over multi-element airfoil (Suddhoo-Hall) ])
+item([hyperlink([Hypersonic-BiCylinders], [example_Hypersonic-BiCylinders.html]): Hypersonic flow around two cylinders ])
 <BR>
 </span>
 <span class="ghostitem" id="subitem_Low-Speed">
@@ -72,8 +72,8 @@ item([hyperlink([Suddhoo-Hall], [example_Suddhoo-Hall.html]): Inviscid flow over
 </span>
 <span class="ghostitem" id="subitem_Shock-Waves">
 section([Shock-Waves examples])
-item([hyperlink([ShockTube-R200], [example_ShockTube-R200.html]): Shock-Boundary layer interaction in shock tube (Reynolds 200) ])
 item([hyperlink([Diamond], [example_Diamond.html]): Shock diffraction over a Pyramid ])
+item([hyperlink([ShockTube-R200], [example_ShockTube-R200.html]): Shock-Boundary layer interaction in shock tube (Reynolds 200) ])
 <BR>
 </span>
 <span class="ghostitem" id="subitem_Supersonic">

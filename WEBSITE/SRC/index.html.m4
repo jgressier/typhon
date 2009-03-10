@@ -19,36 +19,41 @@ a finite volume solver for heat transfer.] (see hyperlink([Presentation], [index
 dnl -------------------------------------------------------------
 section([Web site news])
 
+  item([2009/03/10 : version 0.5.0 released (3rd and 4th order SVM, GMRES, Heat inverse solver)])
   item([2008/03/21 : version 0.4.0 released (Runge Kutta, 2nd order Spectral Volume Method)])
   item([2007/09/11 : CVS to SVN migration])
   item([2007/02/06 : version 0.3.2 released (development organization, initialization and outputs)])
-  item([2006/08/26 : version 0.3.1 released (bug correction, enhancement & optimization)])
-  item([2006/03/05 : version 0.3.0 released (development branches merged)])
-  item([2006/01/16 : version 0.2.2 released (MUSCL improvement)])
-  item([2005/11/06 : Added documentation about numerical schemes in 
-                     hyperlink([User guide], [doc_scheme.html]) [section]])
+dnl  item([2006/08/26 : version 0.3.1 released (bug correction, enhancement & optimization)])
+dnl  item([2006/03/05 : version 0.3.0 released (development branches merged)])
+dnl  item([2006/01/16 : version 0.2.2 released (MUSCL improvement)])
+dnl   item([2005/11/06 : Added documentation about numerical schemes in 
+dnl                     hyperlink([User guide], [doc_scheme.html]) [section]])
+
 [Detailed news are given in section] hyperlink([News], [index_news.html])
 skip_line
 
 dnl -------------------------------------------------------------
 section([TYPHON solver])
 
-<p align=justify>
-[The current released version is 0.3.2 which newly features automatic splitting and parallel 
-computations. Future developments will focus on automatic and local mesh refinement (core 0.4).]
-</p>
 
 dnl -------------------------------------------------------------
-section([Users])
-[<p align=justify>
-The current release is 0.3.0 and is available as a package. Release 0.3.2 contains some
-improvements and is available on the CVS server. 
+dnl section([Users])
 
-See] hyperlink([Presentation], [index_pres.html]) [to find a description of this
+[<p align=justify>
+The current release is 0.5.0. Best way to obtain it is to use subversion<br>
+<tt><big>svn export https://typhon.svn.sourceforge.net/svnroot/typhon/tags/rel-0-5-0 typhon</big></tt><br>
+</p>]
+
+[<p align=justify>See] hyperlink([Presentation], [index_pres.html]) [to find a short description of this
 release or] hyperlink([[Features section]], [feat.html]) [to get more details.]
 
 [To be regularly informed, you are encouraged to subscribe]
 hyperlink([typhon-users],[http://lists.sourceforge.net/lists/listinfo/typhon-users])</p>
+
+[<p align=justify>
+Please contact ]hyperlink([me], [mailto:gressier at users.sf.net])[ if you would like to provide an example
+of Typhon computation (a mesh, some pictures and comments)
+</p>]
 
 dnl -------------------------------------------------------------
 section([Developpers])
@@ -56,7 +61,7 @@ section([Developpers])
 developments or proposing other features.]skip_line
 
 [Future developments include:]<br>
-item([compressible Navier-Stokes solver enhancements])
+item([compressible Navier-Stokes solver enhancements (implicit, SVM)])
 item([dynamic refinement])
 item([parallelization])
 <br>
@@ -73,8 +78,8 @@ item([whatever you are interested in])
 
 skip_line
 
-[For all remarks about this website, please send me an email:]
-hyperlink([gressier at supaero.fr], [mailto:gressier at supaero.fr]).
+[For all remarks about this website, please send ] 
+hyperlink([me], [mailto:gressier at users.sf.net])[ an email:].
 
 dnl -------------------------------------------------------------
 include_footer

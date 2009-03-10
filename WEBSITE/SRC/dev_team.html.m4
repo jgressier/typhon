@@ -16,13 +16,15 @@ item([J. Gressier])
 
 section([Main Developers])
 
-item([J. Gressier (Supaero/ONERA)])
-item([G. Grondin (Supaero)])
-item([E. Radenac])
+item([J. Gressier (ISAE/ONERA)])
+item([G. Grondin (ISAE)])
 <br>
 
 section([Contributors])
 
+item([O. Chikhaoui])
+item([E. Radenac (as PhD student)])
+item([Praveen])
 item([A. Blay, J. Rodriguez, N. Morbieu, M. Betoule (as Supaero students)])
 
 

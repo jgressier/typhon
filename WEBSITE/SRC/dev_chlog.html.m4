@@ -14,9 +14,27 @@ define([writedev],  [<tr class=orange><td align=center>$1</td><td width=10><td>$
 define([writebug],  [<tr class=red><td align=center>$1</td><td width=10><td>$2</td></tr>])
 
 dnl -------------------------------------------------------------
-sectionlr([release 0.4.0], [2008/03/21])
+sectionlr([release 0.5.0 (r632)], [2009/03/10])
 beginlist
-writefunc([NS],     [spectral Volume Method (2nd order) (r597-599)])
+writefunc([NS],     [Spectral Volume Method (3rd & 4th order, VTK output) (r602-603,618-619,624-625)])
+writefunc([NS],     [Kinetic flux function (EFM/KFVS) (r631) and Rusanov flux (r612)])
+writefunc([NS],     [Post-limitation (Barth, Monotonic) (r610,623)])
+writefunc([Mesh],   [SVM-like mesh splitting (r618-619,624-625)])
+writefunc([KDIF],   [Unsteady non uniform boundary conditions (symbolic functions) (r601)])
+writefunc([KDIF],   [Implicitation of Flux and Thermal conditions (r612)])
+writefunc([KDIF],   [Inverse boundary condition solver (r606,607,609,613-615,617,620)])
+writefunc([Core],   [GMRES solver (NS or KDIF) (r627)])
+writefunc([Core],   [Improvement of memory management (r621)])
+writedev([Input],   [Improve CGNS reading (r601)])
+writedev([Core],    [translations of comments (r627)])
+writedev([Core],    [generalized element connectivity (r602)])
+writebug([Ouput],   [remove NODE based Tecplot output (r602)])
+endlist
+
+dnl -------------------------------------------------------------
+sectionlr([release 0.4.0 (r600)], [2008/03/21])
+beginlist
+writefunc([NS],     [Spectral Volume Method (2nd order) (r597-599)])
 writefunc([NS],     [Runge Kutta integration (RK2, RK3-SSP) (r592,594)])
 writefunc([NS],     [Miscellaneous initialization modes (r591,594)])
 writefunc([Mesh],   [SVM2QUAD splitting for all methods (r589-590)])
@@ -29,7 +47,7 @@ writedev([Core],    [tree/list structure of unstructured grids (r562)])
 endlist
 
 dnl -------------------------------------------------------------
-sectionlr([release 0.3.2], [2007/02/06])
+sectionlr([release 0.3.2 (r559)], [2007/02/06])
 beginlist
 writefunc([NS],     [Basic MUSCL method (MUSCL-UNS)])
 writefunc([NS],     [Initialization with symbolic functions])
@@ -42,7 +60,7 @@ writefunc([Core],   [Automatic non regression test cases])
 endlist
 
 dnl -------------------------------------------------------------
-sectionlr([release 0.3.1], [2006/08/26])
+sectionlr([release 0.3.1 (r479))], [2006/08/26])
 beginlist
 writefunc([NS],     [Kim's 3rd order limiter extended to MUSCL method])
 writefunc([Output], [display CPU time])
@@ -55,7 +73,7 @@ writebug([MPI],     [Bug correction in automatic splitting])
 endlist
 
 dnl -------------------------------------------------------------
-sectionlr([release 0.3.0], [2006/03/05])
+sectionlr([release 0.3.0 (r406)], [2006/03/05])
 beginlist
 writefunc([MPI],  [automatic mesh splitting (Metis)])
 writefunc([MPI],  [NS first order computation (up to 20 procs at least)])

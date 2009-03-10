@@ -87,6 +87,6 @@ install: site
 	@echo "Install Web Site"
 	@echo "---------------------------"
 	chmod -R ugo+rX HTML/*
-	rsync -av ./HTML/* shell.sourceforge.net:/home/groups/t/ty/typhon/htdocs
+	rsync --rsh=ssh -avz ./HTML/* gressier,typhon@web.sourceforge.net:htdocs
 
 

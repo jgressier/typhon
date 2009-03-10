@@ -20,7 +20,7 @@ skip_line
 section([Main Features])
 item([Multi-Zone solver])
 item([Finite Volume Heat Transfer solver (linear, non-linear, anisotropic) (implicit)])
-item([Finite Volume Compressible Flow solver (inviscid, laminar) (explicit/implicit HLLE/HLLC)])
+item([Finite Volume hyperlink([Compressible Flow], [feat_ns.html]) solver (inviscid, laminar) (explicit/implicit HLLE/HLLC and others)])
 item([Fully unstructured mesh (2d, 3d) (tri, quad, tetra, hexa, prism, pyramid, etc)])
 item([CGNS input])
 item([Tecplot, VTK outputs])
@@ -30,7 +30,6 @@ section([Upcoming Features])
 item([history outputs])
 item([CGNS outputs])
 item([Mesh refinement])
-item([Spectral high order interpolation])
 
 skip_line
 
