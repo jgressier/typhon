@@ -27,6 +27,7 @@ CGNS_OBJ := $(CGNS_MOD:.$(MOD)=.o)   \
             seek_bcface_face.o       \
             seek_bcface_vtex.o       \
 	    writecgns_ustmesh.o      \
+	    writecgns_sol.o          \
 	    writecgns_zone.o
 
 

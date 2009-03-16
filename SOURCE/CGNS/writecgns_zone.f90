@@ -25,7 +25,7 @@ type(st_zone)         :: zone
 
 ! -- Internal variables --
 integer                :: ibase, izone     ! CGNS base and zone index
-integer                :: isize(3,3)       ! tableau d'informations de la zone
+integer                :: isize(3)         ! tableau d'informations de la zone
 integer                :: info
 type(st_genericfield)  :: vfield
 type(st_grid), pointer :: pgrid
@@ -42,10 +42,10 @@ if (zone%gridlist%nbgrid /= 1) call erreur("Write CGNS","only one grid allowed")
 
 do while (associated(pgrid))
 
-  izone      = izone + 1
-  isize(1,1) = pgrid%umesh%nvtex       ! vertex size 
-  isize(1,2) = pgrid%umesh%ncell_int   ! cell size
-  isize(1,3) = 0                       ! boundary vertex size (zero if elements not sorted)
+  izone    = izone + 1
+  isize(1) = pgrid%umesh%nvtex       ! vertex size 
+  isize(2) = pgrid%umesh%ncell_int   ! cell size
+  isize(3) = 0                       ! boundary vertex size (zero if elements not sorted)
 
   ! -- create CGNS zone --
 
@@ -55,8 +55,8 @@ do while (associated(pgrid))
 
   call writecgns_ustmesh(cgnsunit, ibase, izone, pgrid%umesh)
 
-  !call writecgns_cell(cgnsunit, ibase, izone, &
-  !                    zone%defsolver, pgrid%info%field_loc)
+  call writecgns_sol(cgnsunit, ibase, izone, &
+                      zone%defsolver, pgrid%umesh, pgrid%info%field_loc)
 
   pgrid => pgrid%next
 
