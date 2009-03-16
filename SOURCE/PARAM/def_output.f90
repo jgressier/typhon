@@ -52,6 +52,7 @@ do io = 1, world%noutput
   call rpmgetkeyvalstr(pcour, "FORMAT", str)
   world%output(io)%format = cnull
 
+  if (samestring(str,"CGNS"))       world%output(io)%format = fmt_CGNS
   if (samestring(str,"TECPLOT"))    world%output(io)%format = fmt_TECPLOT
   if (samestring(str,"VIGIE"))      world%output(io)%format = fmt_VIGIE
   if (samestring(str,"VTK"))        world%output(io)%format = fmt_VTK
@@ -66,6 +67,9 @@ do io = 1, world%noutput
 
   call rpmgetkeyvalstr(pcour, "FILE", str)
   select case(world%output(io)%format)
+  case(fmt_CGNS)
+    ic = index(str, ".cgns")
+    if (ic == len(trim(str))-4) str = str(1:ic-1)//"     "
   case(fmt_VTK, fmt_VTKBIN)
     ic = index(str, ".vtk")
     if ((ic /= 0).and.(ic == len(trim(str))-3)) str = str(1:ic-1)//"    "
@@ -107,4 +111,5 @@ endsubroutine def_output
 ! oct  2003 : choix des sorties NODE ou CENTER pour Tecplot
 ! fev  2007 : correction du nom de fichier pour VTK[BIN] et TECPLOT
 ! fev  2007 : Traduction en anglais
+! Mar  2009 : CGNS file
 !------------------------------------------------------------------------------!

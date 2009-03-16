@@ -64,6 +64,7 @@ endsubroutine output_result
 !------------------------------------------------------------------------------!
 ! Changes history
 !
+! dec  2002 : creation de la procedure
 ! fev  2007 : correction du nom de fichier pour TECPLOT
 ! May  2008 : split routine into itself & output_zone
 !------------------------------------------------------------------------------!

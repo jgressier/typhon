@@ -111,6 +111,26 @@ endsubroutine init_ustmesh
 
 
 !------------------------------------------------------------------------------!
+! Fonction : dimgeo : dimension de la geometrie du maillage
+!------------------------------------------------------------------------------!
+integer function dimgeo(umesh)
+  implicit none
+  type(st_ustmesh) :: umesh
+  
+  dimgeo = 0
+  select case(typgeo(umesh))
+  case(msh_1Dcurv)
+    dimgeo = 1
+  case(msh_2Dplan, msh_2Dcurv)
+    dimgeo = 2
+  case(msh_3D)
+    dimgeo = 3
+  endselect
+  
+endfunction dimgeo
+
+
+!------------------------------------------------------------------------------!
 ! Procedure : desallocation d'une structure USTMESH
 !------------------------------------------------------------------------------!
 subroutine delete_ustmesh(mesh)

@@ -11,6 +11,7 @@ XIO_MOD = REPRISE.$(MOD)
 
 XIO_OBJ = $(XIO_MOD:.$(MOD)=.o)  \
           comp_flux.o            \
+          output_cgns.o          \
           output_tec_str.o       \
           output_tec_ust.o       \
           output_tec_ust_ctr.o   \

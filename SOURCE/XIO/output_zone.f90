@@ -61,7 +61,9 @@ case(fmt_VIGIE)
   call erreur("Development","VIGIE format not implemented")
 
 case(fmt_CGNS)
-  call erreur("Development","CGNS format not implemented")
+  call print_info(2,"* write CGNS file: " // trim(nom))
+  call output_cgns(nom, defio, zone) 
+
 
 case default
   call erreur("Internal error (output_zone)","unknown output format parameter")

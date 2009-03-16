@@ -31,7 +31,7 @@ integer                :: i, iif, ifR, ifl, iv1, iv2, ib, ifb, ibdef, ifsv
 integer                :: cellv(8)         ! cell/vtex definition
 integer                :: facev(9)         ! CV face vtex definition
 integer                :: face (2), CVface(2), SVface(2)         ! face definition
-integer                :: intv(8)          ! internal vtex definition
+integer                :: intv(9)          ! internal vtex definition
 integer                :: nfgauss          ! number of integration points per face (defspat%svm)
 integer                :: ielem, ielemquad, nquad, ielempent,npent,ielemhexa, nhexa
 type(st_connect)       :: cell_fvtex       ! cell to face.midpoint connectivity
