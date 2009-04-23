@@ -32,13 +32,12 @@ type(st_grid), pointer :: pgrid
 
 ! -- BODY --
 
-
 pgrid => zone%gridlist%first 
 izone = 0
 
 call cg_base_write_f(cgnsunit, zone%name, dimgeo(pgrid%umesh), 3, ibase, info)
 
-if (zone%gridlist%nbgrid /= 1) call erreur("Write CGNS","only one grid allowed")
+!if (zone%gridlist%nbgrid /= 1) call erreur("Write CGNS","only one grid allowed")
 
 do while (associated(pgrid))
 
@@ -49,7 +48,7 @@ do while (associated(pgrid))
 
   ! -- create CGNS zone --
 
-  call cg_zone_write_f(cgnsunit, ibase, "USTMESH", isize, Unstructured, izone, info)
+  call cg_zone_write_f(cgnsunit, ibase, "ustmesh", isize, Unstructured, izone, info)
 
   ! -- write TYPHON ustmesh to CGNS zone --
 

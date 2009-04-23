@@ -30,7 +30,7 @@ type(st_field)        :: field
 ! -- Internal variables --
 integer               :: i, dim, ufc, ir, istart, iend, isol, ifield
 integer               :: info, cgnstype, ielem, nvtex, nelem, icoord
-real(4), allocatable  :: v(:)      ! temporary array for sol writing (type CGNS RealDouble)
+real(8), allocatable  :: v(:)      ! temporary array for sol writing (type CGNS RealDouble)
 character(len=32)     :: solname
 
 ! -- BODY --
@@ -66,9 +66,8 @@ do ielem = 1, umesh%cellvtex%ntype
    enddo
    istart = istart +  umesh%cellvtex%elem(ielem)%nelem
 enddo
-print*,cgnsunit, ibase, izone, isol, nelem, size(v)
 
-call cg_field_write_f(cgnsunit, ibase, izone, isol, RealSingle, 'Density', v(1:nelem), ifield, info)
+call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, 'Density', v(1:nelem), ifield, info)
 if (info /=0) call erreur("CGNS output", "writing Density solution...")
 
 ! -- reindex PRESSURE --
