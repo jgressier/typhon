@@ -21,9 +21,14 @@ use MENU_GEN    ! general parameters for the project
 implicit none
 
 ! -- Variables locale --
+
 type(st_world) :: loc_world      ! structure encapsulant toutes les donnees TYPHON
 
-! -- Debut de la procedure --
+character(len=6), parameter :: version = "0.5.0"
+
+include 'svnrev.h'
+
+! -- BODY --
 
 call init_exch_protocol(loc_world%info)
 call init_output()
@@ -32,7 +37,7 @@ call init_output()
 
 call print_info(0,"")
 call print_info(0,"******************************************************")
-write(str_w,*)    "* TYPHON V ",version,"                                    *"
+write(str_w,*)    "  TYPHON V ",version,' (',trim(svnrev),')'
 call print_info(0,adjustl(str_w))
 call print_info(0,"******************************************************")
 

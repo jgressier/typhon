@@ -1,6 +1,20 @@
 ############################################################
 ##   Compilation du code TYPHON
 
+help:
+	@echo "-----------------------------------------------------------------"
+	@echo "TYPHON compilation"
+	@echo "-----------------------------------------------------------------"
+	@echo "Targets:"
+	@echo "  all       -> seq & mpi targets"
+	@echo "  seq       -> sequential   Typhon executable 'Typhon-seq'"
+	@echo "  mpi       -> MPI parallel Typhon executable 'Typhon-mpi'"
+	@echo "Options:"
+	@echo "  OPT=opt   -> Optimized options (default)"
+	@echo "  OPT=debug -> Debugging options"
+	@echo "  OPT=prof  -> Profiling options"
+	@echo "-----------------------------------------------------------------"
+
 all: seq mpi
 
 ####### Compiler, tools and options
