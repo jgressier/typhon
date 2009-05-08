@@ -1,0 +1,2 @@
+#!/bin/sh
+rsync -av --rsh=ssh squelettes gressier,typhon@web.sourceforge.net:htdocs/spip/

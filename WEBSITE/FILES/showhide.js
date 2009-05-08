@@ -15,9 +15,9 @@ function js_additem(strname, title) {
 function js_showitem(id) {
   var d = document.getElementById(id);
   for (var i = 0; i<nsubitem; i++) {
-    var id = 'subitem_'+subitemnames[i];
-    var d = document.getElementById(id);
-    if (d) { d.style.display='none'; }
+    var idloop = 'subitem_'+subitemnames[i];
+    var dloop = document.getElementById(idloop);
+    if (dloop) { dloop.style.display='none'; }
   }
   if (d) {d.style.display='block';}
 }
