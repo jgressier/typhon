@@ -11,24 +11,28 @@ use RPM
 use TYPHMAKE
 use OUTPUT
 use VARCOM
+use STRING
+use MATH
+use GEO3D
 use MENU_MESH
 use MENU_GEN
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(rpmblock), target :: block
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 type(mnu_mesh) :: defmesh
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nkey           ! nombre de clefs
-integer                  :: i
+integer                  :: i, ip, info
+real(krp)                :: x
 character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
-! -- Debut de la procedure --
+! -- BODY --
 
 call print_info(5,"- mesh definition")
 
@@ -91,6 +95,56 @@ case(split_svm4kris2)
 case default
   call erreur("Development", "unknown splitmesh parameter (def_mesh)")
 endselect
+
+! ----------------------------------------------------------------------------
+! Periodicity BLOCKS
+
+pblock => block
+call seekrpmblock(pblock, "PERIODICITY", 0, pcour, defmesh%nperiodicity)
+
+if (defmesh%nperiodicity >= 1) then
+
+  allocate(defmesh%periodicity(defmesh%nperiodicity))
+
+  do ip = 1, defmesh%nperiodicity
+
+    call rpmgetkeyvalstr(pcour, "NAME", str)
+    defmesh%periodicity(ip)%name = trim(str)
+
+    call rpmgetkeyvalstr(pcour, "TYPE", str)
+
+    defmesh%periodicity(ip)%type = inull
+    if (samestring(str, "TRANSLATION" )) defmesh%periodicity(ip)%type = per_trans
+    if (samestring(str, "ROTATION" ))    defmesh%periodicity(ip)%type = per_rot
+
+    call print_info(20, "  . periodicity definition, type "//str(1:12)//": "//trim(defmesh%periodicity(ip)%name))
+
+    select case(defmesh%periodicity(ip)%type)
+
+    case(per_trans)
+      call rpmgetkeyvalstr(pcour, "TRANSLATION", str)
+      defmesh%periodicity(ip)%distance = v3d_of(str, info)  
+
+    case(per_rot)
+      call rpmgetkeyvalstr (pcour, "ROTATION_CENTER", str, "(0., 0., 0.)")
+      defmesh%periodicity(ip)%origin = v3d_of(str, info)  
+      call rpmgetkeyvalstr (pcour, "ROTATION_AXIS", str)
+      defmesh%periodicity(ip)%axis = v3d_of(str, info)  
+      defmesh%periodicity(ip)%axis = defmesh%periodicity(ip)%axis / abs(defmesh%periodicity(ip)%axis)
+      if (rpm_existkey(pblock, "ROTATION_ANGLE")) then
+       call rpmgetkeyvalreal(pcour, "ROTATION_ANGLE", x)
+       defmesh%periodicity(ip)%angle = x/180._krp*pi
+      else
+       call rpmgetkeyvalreal(pcour, "ROTATION_NUMBER", x)
+       defmesh%periodicity(ip)%angle = 2._krp*pi/x
+      endif
+    case default
+      call erreur("parameters parsing","periodicity model")
+    endselect
+
+  enddo
+endif
+
 
 endsubroutine def_mesh
 

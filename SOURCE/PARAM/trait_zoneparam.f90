@@ -38,7 +38,7 @@ character(len=dimrpmlig):: str            ! chaine RPM intermediaire
 ! -------------------------
 ! MESH definition
 
-call def_mesh(block, zone%defmesh)
+call def_mesh(block, zone%defsolver%defmesh)
 
 ! -------------------------
 ! MODEL definition
@@ -65,7 +65,7 @@ endselect
 
 call def_time(prj, block, solver, zone%defsolver%deftime)
 
-call def_spat(block, zone%defsolver, zone%defsolver%defspat, zone%defmesh)
+call def_spat(block, zone%defsolver, zone%defsolver%defspat, zone%defsolver%defmesh)
 
 call def_amr(block, solver, zone%defsolver%defamr)
 
@@ -106,6 +106,11 @@ zone%ncoupling = nzr
 ! Conditions aux limites
 
 call def_boco(block, solver, zone%defsolver, zone%coupling, zone%ncoupling)
+
+! -------------------------
+! CONNECTION definition
+
+call def_connect(block, zone%defsolver)
 
 ! -------------------------
 ! Definition de l'initialisation

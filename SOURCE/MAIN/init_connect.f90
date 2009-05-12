@@ -1,13 +1,10 @@
 !------------------------------------------------------------------------------!
 ! Procedure : init_connect                Auteur : J. Gressier
 !                                         Date   : Mars 2003
-! Fonction                                Modif  : (cf historique)
+! Fonction 
 !   Initialisation des connectivites des conditions limites
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
-
 subroutine init_connect(zone)
 
 use TYPHMAKE
@@ -17,17 +14,17 @@ use DEFZONE
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 
-! -- Declaration des entrees/sorties --
+! -- INPUTS/OUTPUTS --
 type(st_zone) :: zone
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 type(st_grid), pointer :: pgrid
 
-! -- Debut de la procedure --
+! -- BODY --
 
 pgrid => zone%gridlist%first
 

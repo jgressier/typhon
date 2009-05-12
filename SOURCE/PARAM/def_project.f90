@@ -12,19 +12,20 @@ use TYPHMAKE
 use OUTPUT
 use VARCOM
 use MENU_GEN
+use GEO3D
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(rpmblock), target :: block
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 type(mnu_project) :: prj
 
-! -- Declaration des variables internes --
+! -- Internal Variables --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nkey, nkey2    ! nombre de clefs
-integer                  :: i
+integer                  :: i, info
 character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- BODY --
@@ -142,6 +143,7 @@ case(time_unsteady_periodic) ! Evolution periodique
 case default
   call erreur("parameter parsing","unknown TIME model")
 endselect
+
 
 ! ----------------------------------------------------------------------------
 ! Read time integration process (default: ACTION = COMPUTE)

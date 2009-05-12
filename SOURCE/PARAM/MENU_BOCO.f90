@@ -27,6 +27,12 @@ implicit none
 integer, parameter :: uniform    = 10   
 integer, parameter :: nonuniform = 20 
 
+! -- Constants for connection type
+
+integer, parameter :: bccon_connect_match   = 10
+integer, parameter :: bccon_connect_nomatch = 11
+integer, parameter :: bccon_periodic        = 20
+
 ! -- Constants for saving boco history (can be mixed) --
 
 integer, parameter :: bchisto_none           = 0
@@ -36,7 +42,18 @@ integer, parameter :: bchisto_flux           = 2
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! structure MNU_BOCO : options numeriques les solveurs 
+! structure MNU_CONECT: options numeriques les solveurs 
+!------------------------------------------------------------------------------!
+type mnu_connect
+  character(len=strlen) :: fam1, fam2   ! involved family names
+  integer(kpp)          :: type         ! type of connection
+  character(len=strlen) :: link         ! string of link to other definition (ie:periodicity)
+  integer(kip)          :: ilink        ! link to 'connection' index (ie: defmesh%periodicity)
+endtype mnu_connect
+
+
+!------------------------------------------------------------------------------!
+! structure MNU_BOCO : boundary condition
 !------------------------------------------------------------------------------!
 type mnu_boco
   character(len=strlen) :: family        ! nom de famille de la condition aux limites
@@ -56,13 +73,6 @@ type mnu_boco
   type(st_boco_vort)    :: boco_vortex   ! condition aux limites propre au solveur VORTEX
   type(st_boco_ns)      :: boco_ns       ! condition aux limites propre au solveur NS
 
-  !integer               :: np_int    ! nombre de parametres entiers
-  !integer               :: np_real   ! nombre de parametres reels
-  !integer, dimension(:), pointer &
-  !                      :: iparam    ! parametres entiers
-  !real(krp), dimension(:), pointer &
-  !                      :: rparam    ! parametres reels
-  !type(st_boco_ns)    :: boco_ns     ! condition aux limites propre au solveur NS
 endtype mnu_boco
 
 

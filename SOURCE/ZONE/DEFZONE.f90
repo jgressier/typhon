@@ -14,7 +14,6 @@ module DEFZONE
 use TYPHMAKE      ! Definition de la precision/donnees informatiques
 use MODINFO       ! Information pour la gestion de l'integration
 use MENU_SOLVER   ! Definition des solveurs
-use MENU_MESH     ! Definition du maillage
 use MGRID         ! Definition des grilles
 use STRMESH       ! Definition des maillages structures
 use USTMESH       ! Definition des maillages non structures
@@ -42,11 +41,10 @@ type st_zone
   type(st_infozone)     :: info       ! information sur l'integration
   type(mnu_solver)      :: defsolver  ! type de solveur a utiliser 
                                       !   cf definitions variables globales
-  type(mnu_mesh)        :: defmesh    ! type de maillage
-  character             :: typ_mesh   ! type de maillage (cf VARCOM)
-                                      !   S : multibloc structure
-                                      !   U : non structure
-                                      !   H : hybride
+  !character             :: typ_mesh   ! type de maillage (cf VARCOM)
+  !                                    !   S : multibloc structure
+  !                                    !   U : non structure
+  !                                    !   H : hybride
   integer               :: mpi_cpu    ! numero de CPU charge du calcul
 
   !integer                :: ngrid      ! nombre de grilles (mesh + field)

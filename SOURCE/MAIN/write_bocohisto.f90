@@ -38,6 +38,8 @@ do ib = 1, zone%gridlist%first%umesh%nboco       ! for all BOCO in USTMESH
   pboco => zone%gridlist%first%umesh%boco(ib)
   idef = pboco%idefboco                    ! link to boco definition in DEFSOLVER
 
+  if (idef <= 0) cycle
+
   if (iand(zone%defsolver%boco(idef)%save_history, bchisto_quantity) /= 0) then
 
     uio = zone%defsolver%boco(idef)%histoquant_unit

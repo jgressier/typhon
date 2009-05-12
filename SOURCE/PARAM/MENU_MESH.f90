@@ -10,6 +10,7 @@
 module MENU_MESH
 
 use TYPHMAKE   ! Definition de la precision
+use GEO3D
 
 implicit none
 
@@ -25,8 +26,24 @@ integer(kpp), parameter :: split_svm4wang  = 41
 integer(kpp), parameter :: split_svm4kris  = 42
 integer(kpp), parameter :: split_svm4kris2 = 43
 
+! -- Constants for PERIODICITY defintion
+
+integer(kpp), parameter :: per_trans = 2
+integer(kpp), parameter :: per_rot   = 3
+
 
 ! -- DECLARATIONS -----------------------------------------------------------
+
+
+!------------------------------------------------------------------------------!
+! structure MNU_PERIODICITY : Periodicity parameters
+!------------------------------------------------------------------------------!
+type mnu_periodicity
+  character(len=strlen) :: name
+  integer(kpp)          :: type
+  type(v3d)             :: origin, axis, distance
+  real(krp)             :: angle
+endtype mnu_periodicity
 
 
 !------------------------------------------------------------------------------!
@@ -37,6 +54,8 @@ type mnu_mesh
   character(len=strlen) :: fichier     ! nom de fichier
   real(krp)             :: scale       ! scale factor
   integer(kpp)          :: splitmesh   ! split method
+  integer(kip)          :: nperiodicity ! number of periodicity
+  type(mnu_periodicity), pointer :: periodicity(:) 
 endtype mnu_mesh
 
 
@@ -48,7 +67,32 @@ endtype mnu_mesh
 
 
 ! -- IMPLEMENTATION ---------------------------------------------------------
-!contains
+contains
+
+!------------------------------------------------------------------------------!
+! transloc_per: transfer location according to periodicity definition
+!------------------------------------------------------------------------------!
+subroutine transloc_per(defper, vec, dir)
+implicit none
+! --- INPUTS ---
+type(mnu_periodicity) :: defper
+real(krp)             :: dir
+! --- IN/OUTPUTS ---
+type(v3d)             :: vec(:)
+! --- private data ---
+integer :: i, n
+
+n = size(vec)
+
+select case(defper%type)
+case(per_trans)
+  call shift_add(vec(1:n), dir*defper%distance)
+case default
+  print*,'unknown type of periodicity (internal)'
+  stop
+endselect
+
+endsubroutine transloc_per
 
 
 

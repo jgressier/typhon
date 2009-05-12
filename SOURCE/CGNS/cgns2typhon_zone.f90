@@ -51,12 +51,12 @@ do i = 1, cgnsbase%nzone
   case(Structured)
     call erreur("Development","CGNS Structured mesh not implemented")
     ist = ist + 1
-    typhonzone%typ_mesh = mshSTR
+    !typhonzone%typ_mesh = mshSTR
     !call cgns2typhon_strmesh(cgnsbase%zone(i), typhonzone%str_mesh(ist))
 
   case(Unstructured)
     call print_info(5, "  unstructured mesh")
-    typhonzone%typ_mesh = mshUST
+    !typhonzone%typ_mesh = mshUST
 
     call cgns2typhon_ustmesh(defmesh, cgnsbase%zone(i), pgrid%umesh)
 

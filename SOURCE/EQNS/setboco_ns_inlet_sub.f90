@@ -82,5 +82,5 @@ endsubroutine setboco_ns_inlet_sub
 ! Changes history
 !
 ! july 2004 : creation
-! June 2008 : FCT function for pi, ti, mach
+! June 2008 : FCT function for pi, ti, mach (function of X, Y, Z)
 !------------------------------------------------------------------------------!

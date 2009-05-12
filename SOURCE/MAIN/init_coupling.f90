@@ -1,14 +1,11 @@
 !------------------------------------------------------------------------------!
 ! Procedure : init_coupling               Auteur : E. Radenac
 !                                         Date   : Juin 2003
-! Fonction                                Modif  :
+! Fonction 
 !   Initialisation des structures de donnees d'echange et de resultats de
 !   couplage
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
-
 subroutine init_coupling(zone1, zone2, nbc1, nbc2, ncoupl1, ncoupl2, raccord)
 
 use TYPHMAKE

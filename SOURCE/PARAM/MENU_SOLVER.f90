@@ -13,6 +13,7 @@
 module MENU_SOLVER
 
 use TYPHMAKE      ! Definition de la precision
+use MENU_MESH
 use MENU_NUM      ! Definition des parametres numeriques d'integration
 use MENU_NS       ! Definition des solveurs type NS
 use MENU_KDIF     ! Definition des solveurs type Equation de diffusion
@@ -51,6 +52,7 @@ type mnu_solver
   integer            :: nsca, nvec      ! scalar and vector numbers
   real(krp), pointer :: refsca(:)       ! reference value for scalars
   real(krp), pointer :: refvec(:)       ! reference value for vectors
+  type(mnu_mesh)  :: defmesh         ! mesh / geometry parameters
   type(mnu_time)  :: deftime         ! parametres d'integration temporelle
   type(mnu_spat)  :: defspat         ! parametres d'integration spatiale
   type(mnu_ns)    :: defns           ! options si solveur NS
@@ -58,15 +60,14 @@ type mnu_solver
   type(mnu_vort)  :: defvort         ! options si solveur VORTEX
   type(mnu_amr)   :: defamr          ! options si AMR
   type(mnu_mpi)   :: defmpi          ! options si MPI
-  integer         :: nboco           ! nombre de conditions aux limites
-  type(mnu_boco), dimension(:), pointer &
-                     :: boco            ! definitions des conditions aux limites
-  integer            :: ninit           ! nombre de conditions initiales
-  type(mnu_init), dimension(:), pointer &
-                     :: init            ! definitions des conditions initiales
-  integer            :: nprobe          ! nombre de capteurs
-  type(mnu_capteur), dimension(:), pointer &
-                     :: probe           ! definitions des capteurs
+  integer(kip)    :: ninit           ! number of initialization
+  integer(kip)    :: nboco           ! number of boundary conditions
+  integer(kip)    :: nconnect        ! number of connections
+  integer(kip)    :: nprobe          ! nombre de capteurs
+  type(mnu_init),    pointer :: init(:)      ! definitions des conditions initiales
+  type(mnu_boco),    pointer :: boco(:)      ! definitions des conditions aux limites
+  type(mnu_connect), pointer :: connect(:)   ! definitions des conditions aux limites
+  type(mnu_capteur), pointer :: probe(:)     ! definitions des capteurs
 endtype mnu_solver
 
 

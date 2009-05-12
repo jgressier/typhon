@@ -30,12 +30,12 @@ type(st_cgns_world) :: cgnsworld      ! structure des donnees CGNS
 ! read and convert mesh to typhon zone
 !------------------------------------------------------------------------
 
-select case(zone%defmesh%format)
+select case(zone%defsolver%defmesh%format)
 
 case(fmt_CGNS) ! Format de fichier CGNS
 
   ! DEV : numero d'unite inutile
-  call readcgnsfile(zone%defmesh%fichier, cgnsworld)
+  call readcgnsfile(zone%defsolver%defmesh%fichier, cgnsworld)
   call print_info(2, "* CGNS -> TYPHON CONVERSION")
   if (cgnsworld%nbase /= 1) call erreur("CGNS -> TYPHON",&
                                         "too many CGNS bases in structure CGNS")
@@ -44,12 +44,12 @@ case(fmt_CGNS) ! Format de fichier CGNS
   !  coordonnees de sommets
   !  connectivites face->cellules
   !  connectivites face->sommets
-  call cgns2typhon_zone(zone%defsolver, zone%defmesh, cgnsworld%base(1), zone)
+  call cgns2typhon_zone(zone%defsolver, zone%defsolver%defmesh, cgnsworld%base(1), zone)
   call delete_cgns_world(cgnsworld)
 
 case(fmt_TYPHMSH) ! Format de fichier CGNS
 
-  call readtyphmshfile(15, zone%defmesh%fichier, zone)
+  call readtyphmshfile(15, zone%defsolver%defmesh%fichier, zone)
 
 case default
   call erreur("reading mesh","unknown mesh format")

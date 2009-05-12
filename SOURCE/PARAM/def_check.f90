@@ -25,7 +25,7 @@ call print_info(5,"- Check parameters consistency and further initialization")
 ! -------------------------------------------------
 ! define mesh splitting parameters
 
-select case(zone%defmesh%splitmesh)
+select case(zone%defsolver%defmesh%splitmesh)
 case(split_none)
 case(split_svm2quad)
   zone%defsolver%defspat%svm%sv_partition = svm_2quad

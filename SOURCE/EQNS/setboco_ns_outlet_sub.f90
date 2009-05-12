@@ -88,4 +88,5 @@ endsubroutine setboco_ns_outlet_sub
 !
 ! july 2004 : creation
 ! mar  2006 : array computation (optimization)
+! June 2008 : FCT function for static pressure (function of X, Y, Z)
 !------------------------------------------------------------------------------!

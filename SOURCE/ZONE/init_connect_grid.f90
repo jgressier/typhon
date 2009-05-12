@@ -4,8 +4,6 @@
 ! Fonction
 !   Calcul des connectivites supplementaires (conditions limites)
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
 subroutine init_connect_grid(defsolver, grid)
 
@@ -15,24 +13,29 @@ use VARCOM
 use OUTPUT
 use MGRID
 use MENU_SOLVER
+use MENU_MESH
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(mnu_solver) :: defsolver            ! parametres du solveur
 
-! -- Declaration des entrees/sorties --
+! -- INPUTS/OUTPUTS --
 type(st_grid)    :: grid                 ! maillage et connectivites
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 
-! -- Declaration des variables internes --
-integer :: ib, idef                      ! index de conditions aux limites et index de definition
-logical :: same_name
+! -- Internal variables --
+type(v3d), allocatable :: v1(:), v2(:)
+integer,   allocatable :: i1(:), i2(:)
+integer                :: ib, ib2, idef, nf, nf2     ! index de conditions aux limites et index de definition
+integer                :: iface, ic1, ic2, icp, if
+logical                :: same_name
+type(st_ustboco), pointer :: boco
 
-! -- Debut de la procedure --
+! -- BODY --
 
-call print_info(10,"  Grid "//name(grid))
+call print_info(10,"- Grid "//name(grid))
 
 write(str_w,'(a,i8,a,i8,a,i7,a)') "  connectivity :",grid%umesh%ncell," cells included",&
                                   grid%umesh%ncell_int," internal cells &",&
@@ -43,19 +46,27 @@ write(str_w,'(a,i8,a,i8,a,i7,a)') "  connectivity :",grid%umesh%nface," faces in
                                   grid%umesh%nface_lim," boundary faces"
 call print_info(10, str_w)
 
+!------------------------------------------------------------------------
+! computing CONNECTIVITY of boundary conditions
+
 call print_info(8, ". initializing boundary faces to ghost cells")
 
 ! -- Definition des connectivites faces limites -> cellules limites
 
 grid%umesh%ncell_lim = 0     ! initialisation du compteur de cellules limites
 
-! Boucle sur les conditions aux limites
 
+!---------------------------------------------------------------------------------------
+! Loop on all grid boco 
+!---------------------------------------------------------------------------------------
 do ib = 1, grid%umesh%nboco
 
   if (grid%umesh%boco(ib)%nface == 0) cycle
 
-  ! recherche d'une definition (boco) par nom de famille
+  grid%umesh%boco(ib)%idefboco = inull         ! initialization to bad value
+
+  !---------------------------------------------------------------------------------------
+  ! ----- looking for predefined classical boco parameters ------
 
   same_name = .false.
   idef      = 0
@@ -63,30 +74,170 @@ do ib = 1, grid%umesh%nboco
     idef      = idef + 1
     same_name = samestring(grid%umesh%boco(ib)%family, defsolver%boco(idef)%family)
   enddo
+
   if (same_name) then
+
     grid%umesh%boco(ib)%idefboco = idef
-  else
+
+    select case(defsolver%boco(idef)%typ_calc)
+    case(bc_calc_ghostcell)
+      call init_ustboco_ghostcell(ib, defsolver%boco(idef), grid%umesh)
+    case(bc_calc_ghostface)
+      call init_ustboco_ghostface(ib, defsolver%boco(idef), grid%umesh)
+    case(bc_calc_singpanel)
+      call init_ustboco_singpanel(ib, defsolver%boco(idef), grid)
+    case(bc_calc_kutta)
+      call init_ustboco_kutta(ib, defsolver%boco(idef), grid)
+    case default
+      call erreur("Internal error (init_connect_grid)","unknown type of boundary conditions")
+    endselect
+
+  endif
+
+  !---------------------------------------------------------------------------------------
+  ! ----- looking for predefined CONNECTION parameters (if not classical BOCO) ------
+
+  if (grid%umesh%boco(ib)%idefboco == inull) then !(if not yet found)
+
+    same_name = .false.
+    idef      = 0
+    do while ((.not.same_name).and.(idef+1 <= defsolver%nconnect))
+      idef      = idef + 1
+      same_name = samestring(grid%umesh%boco(ib)%family, defsolver%connect(idef)%fam1).or.&
+                  samestring(grid%umesh%boco(ib)%family, defsolver%connect(idef)%fam2)
+    enddo
+    if (same_name) then
+      grid%umesh%boco(ib)%idefboco        = defboco_connect
+      grid%umesh%boco(ib)%gridcon%contype = gdcon_per_match
+      grid%umesh%boco(ib)%gridcon%ilink   = idef            ! index in CONNECTION array
+      if (samestring(grid%umesh%boco(ib)%family, defsolver%connect(idef)%fam1)) then
+        grid%umesh%boco(ib)%gridcon%rlink   = 1._krp
+      else
+        grid%umesh%boco(ib)%gridcon%rlink   = -1._krp
+      endif
+    endif
+
+  endif
+
+  ! ----- not found ? ------
+
+  if (grid%umesh%boco(ib)%idefboco == inull) then
     call erreur("Error in matching family names", &
                 "impossible to find "//trim(grid%umesh%boco(ib)%family)// &
                 " in the parameter definition")
   endif
 
-  ! affectation 
+enddo
 
-  select case(defsolver%boco(idef)%typ_calc)
-  case(bc_calc_ghostcell)
-    call init_ustboco_ghostcell(ib, defsolver%boco(idef), grid%umesh)
-  case(bc_calc_ghostface)
-    call init_ustboco_ghostface(ib, defsolver%boco(idef), grid%umesh)
-  case(bc_calc_singpanel)
-    call init_ustboco_singpanel(ib, defsolver%boco(idef), grid)
-  case(bc_calc_kutta)
-    call init_ustboco_kutta(ib, defsolver%boco(idef), grid)
-  case default
-    call erreur("Internal error (init_connect_grid)","unknown type of boundary conditions")
-  endselect 
+!------------------------------------------------------------------------
+! computing CONNECTIVITY between grids
+!------------------------------------------------------------------------
+!
+call print_info(8, ". initializing connections")
+
+do ib = 1, grid%umesh%nboco
+
+  boco => grid%umesh%boco(ib)
+  nf = boco%nface
+  if (nf == 0) cycle
+
+  if (boco%idefboco == defboco_connect) then      ! if boco type is CONNECTION
+    select case(boco%gridcon%contype)
+
+    case(gdcon_per_match)
+
+      allocate(v1(nf))
+
+      ! -- get BOCO1 centers and transfer via periodicity --
+
+      call get_bocofacecenter(boco, grid%umesh, v1)
+      call transloc_per(defsolver%defmesh%periodicity(defsolver%connect(boco%gridcon%ilink)%ilink), v1(1:nf), boco%gridcon%rlink)
+
+      ! -- look for BOCO2 index --
+
+       idef = 0
+      do ib2 = 1, grid%umesh%nboco
+        if (grid%umesh%boco(ib2)%idefboco /= defboco_connect) cycle
+        if ((boco%gridcon%ilink == grid%umesh%boco(ib2)%gridcon%ilink).and. &         ! if same CONNECTION
+            (boco%gridcon%rlink * grid%umesh%boco(ib2)%gridcon%rlink < 0)) then       ! and inverse direction
+          if (idef == 0) then
+            idef = ib2
+          else
+            call erreur("Error (init_connect_grid)", "too many matching families")
+          endif
+        endif
+      enddo
+      if (idef == 0) &
+           call erreur("Error (init_connect_grid)", "no matching boco connection")
+
+      ! -- get BOCO2 centers --
+
+      ib2 = idef
+      nf2 = grid%umesh%boco(ib2)%nface
+      if (nf2 /= nf) &
+           call erreur("Error (init_connect_grid)", "different number of faces for matching periodic conditions")
+
+      allocate(v2(nf2))
+      call get_bocofacecenter(grid%umesh%boco(ib2), grid%umesh, v2)
+
+      allocate(i1(nf))
+      allocate(i2(nf2))
+      call matching_index(v1, v2, i1, i2)   ! 
+
+!!$      ! instead of keeping matching index, 
+!!$      ! one can only reorder one connectivity 
+!!$      ! so that they automatically match
+!!$
+!!$      !grid%umesh%boco(ib2)%iface(1:nf2) = grid%umesh%boco(ib2)%iface(i2(1:nf2))
+
+      ! -- init facecell connectivity (same as in init_ustboco_ghostcell) --
+
+      do if = 1, boco%nface     
+        grid%umesh%ncell_lim = grid%umesh%ncell_lim + 1     ! new ghost cell
+        iface = grid%umesh%boco(ib)%iface(if)               ! face index
+        ic1   = grid%umesh%facecell%fils(iface,1)           ! internal/reference cell index
+        ic2   = grid%umesh%ncell_int + grid%umesh%ncell_lim ! ghost cell index
+
+        if (grid%umesh%facecell%fils(iface,2) == 0) then
+          grid%umesh%facecell%fils(iface,2) = ic2        ! affectation de la cellule fictive
+        else
+          call erreur("Error in computing connectivity", "Ghost cell has been already affected")
+          
+        endif   
+      enddo
+      
+      ! -- for direct periodic connection inside a zone, one directly use internal cell index
+      
+      allocate(boco%gridcon%i_param(1:nf))
+      boco%gridcon%i_param(1:nf) = grid%umesh%facecell%fils(grid%umesh%boco(ib2)%iface(i1(1:nf)),1)
+
+      ! -- define ghost cells centers
+
+      do if = 1, boco%nface     
+        iface = grid%umesh%boco(ib)%iface(if)               ! face index
+        ic1   = grid%umesh%facecell%fils(iface,1)           ! internal/reference cell index
+        ic2   = grid%umesh%ncell_int + grid%umesh%ncell_lim ! ghost cell index
+        icp   = boco%gridcon%i_param(if)
+        grid%umesh%mesh%volume(ic2,1,1) = grid%umesh%mesh%volume(ic1,1,1)
+        grid%umesh%mesh%centre(ic2,1,1) = grid%umesh%mesh%centre(ic1,1,1) + grid%umesh%mesh%centre(icp,1,1) &
+                                          - grid%umesh%mesh%iface(grid%umesh%boco(ib2)%iface(i1(if)),1,1)%centre
+      enddo
+
+      ! -- 
+      deallocate(i1, i2)
+      deallocate(v1, v2)
+
+      call print_info(8, "  - computed matching periodic connection: "&
+                         //trim(boco%family)//"->"//trim(grid%umesh%boco(ib2)%family))
+
+    case default 
+      call erreur("Internal error (init_connect_grid)","unknown type of connection")
+    endselect
+  endif
 
 enddo
+
+
 
 
 endsubroutine init_connect_grid
@@ -95,4 +246,5 @@ endsubroutine init_connect_grid
 ! Changes history
 !
 ! Mar 2004 : creation  (copied from init_connect_ust)
+! Mar 2009 : initialization of connections (periodic)
 !------------------------------------------------------------------------------!

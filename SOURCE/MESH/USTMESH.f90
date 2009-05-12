@@ -383,6 +383,31 @@ logical function same_face(nsom, face1, face2)
 endfunction same_face
 
 
+!------------------------------------------------------------------------------!
+! Procedure : get_bocofacecenter
+!   Extract array of V3D centers of faces indexed by boco list
+!------------------------------------------------------------------------------!
+subroutine get_bocofacecenter(boco, umesh, center)
+implicit none
+! -- INPUTS --
+type(st_ustboco) :: boco
+type(st_ustmesh) :: umesh
+
+! -- OUTPUTS --
+type(v3d), dimension(1:boco%nface) :: center
+
+! -- Private data --
+integer :: if, iface
+
+! --- BODY ---
+
+do if = 1, boco%nface
+  iface = boco%iface(if)
+  center(if) = umesh%mesh%iface(iface,1,1)%centre
+enddo
+
+endsubroutine get_bocofacecenter
+
 
 
 endmodule USTMESH
@@ -396,6 +421,7 @@ endmodule USTMESH
 ! sept 2007: new routines from createface_fromcgns (traitface, face_exist, same_face)
 ! Apr  2008: change CELLVTEX description, cf ELEMVTEX module
 ! Apr  2008: split USTMESH with BOCO definition in USTBOCO
+! Aug  2008: include "extract_centre" as "get_bocofacecenter"
 !------------------------------------------------------------------------------!
 
 

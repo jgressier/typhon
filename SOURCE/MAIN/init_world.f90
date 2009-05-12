@@ -66,7 +66,7 @@ do izone = 1, world%prj%nzone
 enddo
 
 !--------------------------------------------------------------------
-! Initialisation des conditions limites
+! Initialization of boundary conditions
 
 call print_info(5,"* Initializing boundary conditions")
 do izone = 1, world%prj%nzone
@@ -101,7 +101,7 @@ do izone = 1, world%prj%nzone
 enddo
 
 !--------------------------------------------------------------------
-! Initialisation des capteurs
+! Initialization of probes
 
 call print_info(5,"* Initializing probes & monitors")
 do izone = 1, world%prj%nzone

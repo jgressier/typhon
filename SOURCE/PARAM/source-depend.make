@@ -26,6 +26,7 @@ PARAM_OBJ := $(PARAM_MOD:.$(MOD)=.o)  \
             def_boco.o         \
             def_capteurs.o     \
             def_check.o        \
+            def_connect.o      \
             def_init.o         \
             def_inverse.o      \
             def_mesh.o         \

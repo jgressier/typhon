@@ -39,12 +39,25 @@ select case(boco%gridcon%contype)
 
 case(gdcon_match)
 
+  ! send and receive data of this grid (from other grids)
+  ! 
   call calcboco_connect_match(defsolver, grid%umesh, grid%field%etatprim, boco)
 
 case(gdcon_nomatch)
   call erreur("Development","non matching connection not implemented")
+
+case(gdcon_per_match)
+
+  ! compute periodic matching conditions (only available for periodic def. inside a grid)
+  ! 
+  call calcboco_connect_per_match(defsolver, grid%umesh, grid%field%etatprim, boco)
+
+case(gdcon_per_nomatch)
+  call erreur("Development","periodic non matching connection not implemented")
+
 case(gdcon_coarse_fine)
   call erreur("Development","coarse/fine connection not implemented")
+
 case(gdcon_fine_coarse)
   call erreur("Development","fine/coarse connection not implemented")
 

@@ -42,7 +42,7 @@ type(st_grid), pointer :: pgrid
 
 call print_info(5, "* reading TYPHMSH mesh : "//trim(nom))
 
-zone%typ_mesh = mshUST
+!zone%typ_mesh = mshUST
 
 call print_info(8, "Ouverture du fichier "//trim(nom))
 

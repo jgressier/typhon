@@ -14,61 +14,42 @@ use TYPHMAKE
 use GEO3D
 use OUTPUT
 use USTMESH
+use GRID_CONNECT
 
 implicit none
 
-! -- Declaration des entrees --
-type(st_ustmesh) :: m1, m2      ! maillage 1 et 2 connectees (non structures)
-type(st_ustboco) :: b1, b2      ! conditions aux limites concernees par la connection
+! -- INPUTS --
+type(st_ustmesh), intent(in) :: m1, m2      ! maillage 1 et 2 connectees (non structures)
+type(st_ustboco), intent(in)  :: b1, b2      ! conditions aux limites concernees par la connection
 
-! -- Declaration des entrees/sorties --
+! -- OUTPUTS --
 integer, dimension(1:b1%nface) :: connface1
 integer, dimension(1:b2%nface) :: connface2
 
-! -- Declaration des sorties --
-
-
-! -- Declaration des variables internes --
+! --- Private data ---
 type(v3d), dimension(:), allocatable :: centre1, centre2
 real(krp)                            :: mincentre
 integer                              :: if1, if2, ind_assoc
 
-! -- Debut de la procedure --
+! -- BODY --
 
 allocate(centre1(b1%nface))
 allocate(centre2(b2%nface))
 
 ! creation de la liste des centres des faces concernees des deux zones
-call extract_centre(b1, m1, centre1)
-call extract_centre(b2, m2, centre2)
+call get_bocofacecenter(b1, m1, centre1)
+call get_bocofacecenter(b2, m2, centre2)
 
-! calcul pour chaque centre de la zone 1 du centre le plus proche de la zone 2
-! et affectation des indices aux connectivites de faces
-do if1 = 1, b1%nface
-  mincentre = abs( centre1(if1) - centre2(1) )
-  ind_assoc = 1
-  if ( b2%nface .gt. 1 ) then
-    do if2 = 2, b2%nface
-      if ( abs( centre1(if1) - centre2(if2) ) .lt. mincentre) then
-        mincentre = abs( centre1(if1) - centre2(if2) )
-        ind_assoc = if2
-      endif
-    enddo
-  endif
-  connface1(if1) = ind_assoc
-  connface2(ind_assoc) = if1
-
-enddo
+call matching_index(centre1, centre2, connface1, connface2)
 
 deallocate(centre1, centre2)
 
 endsubroutine calc_connface
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
-! Juin 2003 (v0.0.1b): creation de la procedure
-! Fevrier 2004       : connectivites determinees par la coincidence des centres
-!                      de faces
-! 
+! June 2003: creation
+! Feb  2004: connectivites determinees par la coincidence des centres  de faces
+! Sept 2008: transfer matching algorithm to GRID_CONNECT module
 !------------------------------------------------------------------------------!
