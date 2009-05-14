@@ -2,6 +2,9 @@
 	Un cache plus court, pour la boucle syndic_articles
 ]#CACHE{3600}
 <BOUCLE_principale(RUBRIQUES) {id_rubrique}>
+<BOUCLE_test_article_edito(ARTICLES){id_rubrique}{titre='Presentation'}{0,1}>
+  <INCLURE{fond=article}{id_article}>
+</BOUCLE_test_article_edito>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="#LANG" lang="#LANG" dir="#LANG_DIR">
 <head>
@@ -61,13 +64,13 @@
 
         [<div class="#EDIT{texte} chapo">(#TEXTE)</div>]
 
-        [(#REM) Articles de la rubrique ]
+        [(#REM) Articles de la rubrique ET SOUS RUBRIQUES ]
         <B_articles>
         <div class="menu articles">
             #ANCRE_PAGINATION
             <h2><:articles_rubrique:></h2>
             <ul>
-                <BOUCLE_articles(ARTICLES) {id_rubrique} {par date}{inverse} {pagination}>
+                <BOUCLE_articles(ARTICLES){branche}{doublons}{par date}{inverse} {pagination}>
                 <li>
                     [(#LOGO_ARTICLE|#URL_ARTICLE|image_reduire{150,100})]
                     <h3><a href="#URL_ARTICLE">#TITRE</a></h3>
@@ -174,4 +177,5 @@
 </div><!--#page-->
 </body>
 </html>
+<//B_test_article_edito>
 </BOUCLE_principale>

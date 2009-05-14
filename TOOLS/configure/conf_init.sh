@@ -1,7 +1,9 @@
 
 configure_help() {
   echo "TYPHON configuration help"
-  echo "  set F90LIB to help finding external libraries (i.e. export F90LIB=/opt/aero/lib)"
+  echo "  set TYPHONPATH to help finding external libraries and include files (i.e. export TYPHONPATH=/my_usr:/opt/aero)"
+  echo "  . libraries     will be searched in \$TYPHONPATH/lib"
+  echo "  . include files will be searched in \$TYPHONPATH/include"
   }
 
 check() {

@@ -100,9 +100,9 @@ print_t1([get])
   print_t2([get], [install])
   print_t2([get], [faq])
 skip_row
-<tr><td align=center><A href="http://sourceforge.net"> 
-          <IMG src="http://sourceforge.net/sflogo.php?group_id=132321&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net" />
-        </A></td></tr>
+<tr><td align=center>
+<a href="http://sourceforge.net/projects/typhon"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=132321&type=10" width="80" height="15" border="0" alt="Get TYPHON at SourceForge.net. Fast, secure and Free Open Source software downloads" /></a>
+</td></tr>
 skip_row
 </table>
 

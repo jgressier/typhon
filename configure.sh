@@ -14,6 +14,7 @@ SHELLCONF=bin/shconf.sh
 . $TOOLSCONF/conf_init.sh
 
 ALLMPILIB="mpi mpich lampi mpi_f90"
+ALLPATH="(echo $TYPHONPATH | sed 's/:/ /g' ) /usr /usr/local /opt /opt/local"
 
 # CHECK system tools
 
@@ -90,7 +91,7 @@ check_f90conformance() {
 
 check_f90opti() {
   case $SYS-$F90C in
-    *ifc|*ifort) F90_OPTI="-implicitnone -convert big_endian -O3" ;;
+    *ifc|*ifort) F90_OPTI="-fPIC -implicitnone -convert big_endian -O3" ;;
     *pgf90)      F90_OPTI="-fastsse -Munroll=n:4 -Mipa=fast,inline" ;;
     *pathf90)    F90_OPTI="-Ofast" ;;
     *gfortran)   F90_OPTI="-ffast-math -funroll-loops -O3" ;;
@@ -108,7 +109,7 @@ check_f90opti() {
 
 check_f90debug() {
   case $SYS-$F90C in
-    *ifc|*ifort) F90_DEBUG="-implicitnone -convert big_endian -g -traceback -CB" ;;
+    *ifc|*ifort) F90_DEBUG="-fPIC -implicitnone -convert big_endian -g -traceback -CB" ;;
     *)           F90_DEBUG="-g" ;;
   esac
   export F90_DEBUG
@@ -128,17 +129,36 @@ check_f90prof() {
 check_library() {
   local    name=$1
   local     ext=$2
-  local pathlib="$F90LIB /usr/lib /usr/local/lib /opt/lib /opt/local/lib /opt/aero/lib"
+  local pathlib=$ALLPATH
   local fullname
   for dir in $pathlib ; do
-    if [ -r "$dir/lib$name.$ext" ] ; then
-      fullname=$dir/lib$name.$ext
+    if [ -r "$dir/lib/lib$name.$ext" ] ; then
+      fullname=$dir/lib/lib$name.$ext
       break
     fi
   done
   if [ -n "$fullname" ] ; then
     success $fullname
     export LIB_$name=$fullname
+  else
+    fail "not found"
+  fi
+  }
+
+check_include() {
+  local    name=$1
+  local pathlib=$ALLPATH
+  local fullname
+  for dir in $pathlib ; do
+    if [ -r "$dir/include/$name" ] ; then
+      fullname=$dir/include/$name
+      break
+    fi
+  done
+  if [ -n "$fullname" ] ; then
+    success $fullname
+    rm SOURCE/Include/$name 2> /dev/null
+    ln -s $fullname SOURCE/Include
   else
     fail "not found"
   fi
@@ -207,6 +227,10 @@ check "fortran 90 compiler"         f90compiler
 EXTLIBS="cgns metis $ALLMPILIB"
 for lib in $EXTLIBS ; do
   check "static library $lib" library $lib a
+done
+EXTINC="cgnslib_f.h mpif.h"
+for inc in $EXTINC ; do
+  check "include file $inc" include $inc
 done
 check "MPI library"                 mpilib
 check "$F90C optimization options"  f90opti

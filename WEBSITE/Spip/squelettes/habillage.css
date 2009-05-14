@@ -11,7 +11,7 @@ body { font-size: 0.8125em; font-family: "Luxi sans", "Lucida Grande", Lucida, "
 
 /* Titraille / Intertitres */
 h1,h2,h3,h4,h5,h6 { margin: 0; padding: 0; font-weight: normal; font-size: 1em; font-family: Georgia, Times, serif; }
-h1 { font-size: 1.70em; color: #000; }
+h1 { font-size: 1.70em; font-weight: bold; color: #000080; border-bottom: 2px solid #000080; padding: 2px; }
 h2 { font-size: 1.40em; font-weight: normal; }
 h2, h2 a, h2 a:focus, h2 a:hover, h2 a:active { color: #003; }
 h3 { font-size: 1.20em; font-weight: bold; }
@@ -103,7 +103,7 @@ body { background: #FFF url(typhon-header.png) repeat-x; margin: 0; padding: 0; 
 .cartouche .soustitre { margin-top: 0.50em; margin-bottom: 0.30em; }
 .cartouche .traductions { font-size: 0.90em; }
 
-.chapo { margin-bottom: 1.50em; line-height: 1.40em; font-weight: bold; color: #669; }
+/* .chapo { margin-bottom: 1.50em; line-height: 1.40em; font-weight: bold; color: #669; } */
 .texte { line-height: 1.60em; }
 .hyperlien { display: block; background: #EEE; padding: 0.50em 1em; font-weight: bold; color: #8B6F92; }
 .ps, .notes { margin-bottom: 2em; line-height: 1.40em; }
@@ -173,10 +173,17 @@ ul ul ul ul ul .forum-chapo { background: #FFF; }
 .menu p { margin: 0.20em 0; padding: 0.20em 0.10em; }
 .menu h2 { font-size: 1.1em; }
 .menu ul { margin: 0; padding: 0; list-style: none; border-bottom: 1px solid #DDD; }
-.menu ul li { margin: 0.20em 0; padding: 0.20em; border-top: 1px solid #DDD; }
-.menu ul li ul { margin-left: 1em; border: 0; }
-.menu ul li li { padding: 0; border: 0; }
-.rubriques .on { display: block; background:#FFF4B7; border-bottom:1px solid #000080; border-top:1px solid #000080; }
+.menu ul li { margin: 0.0em 0; padding: 0.0em; }
+.menu ul li ul { margin-left: 0em; border: 0; }
+.menu ul li ul li { padding: 0; border: 0; }
+/*.rubriques .on { display: block; background:#FFF4B7; border-bottom:1px solid #000080; border-top:1px solid #000080; }*/
+
+#navigation .menu { background:none; text-align: center; }
+#navigation .menu ul li { display:block; background:none; font-size: 1.1em; margin-top: .5em;  }
+#navigation .menu ul li .on { display: block; background:#FFF4B7; border-bottom:1px solid #000080; border-top:1px solid #000080; }
+#navigation .menu ul li ul {  font-size: 1em; margin-top: .2em; background:#9CCFEF; }
+#navigation .menu ul li ul li { font-size: .9em;  margin-top: 0em;}
+#navigation .menu ul li ul li .on { display: block; background:#D7E6EF; border-bottom:none; border-top:none; }
 
 /* Pagination */
 .pagination { clear: both; text-align: right; font-size: 0.90em; color: #666; }
@@ -185,13 +192,12 @@ ul ul ul ul ul .forum-chapo { background: #FFF; }
 /* Rubriques */
 .rubriques ul { border: 0; }
 .rubriques ul li { background: #EEE; border: 0; }
-.rubriques ul li { background: #EEE; border: 0; }
 
 .formulaire_recherche { margin-bottom: 2em; } /*Cf.: spip_formulaires.css*/
 
 /* Listes d'articles et extraits introductifs */
 .articles ul li { clear: both; padding: 0.40em 0.20em; }
-.articles ul li h3 { margin: 0.30em 0; }
+.articles ul li h3 { margin: 0.0em 0; }
 .articles .spip_logos { float: right; clear: right; margin: 0 0 4px 16px; }
 .articles ul li .enclosures { float: right; text-align: right; max-width: 60%; margin: 0; }
 .articles ul li .introduction { margin-top: 0.30em; line-height: 1.40em; }
