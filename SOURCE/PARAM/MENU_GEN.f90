@@ -19,7 +19,8 @@ integer(kpp), parameter :: act_analyse = 2
 
 ! -- Constants for OUTPUT formats/location --
 
-character, parameter   :: fmt_CGNS    = 'C'   ! format CGNS
+character, parameter   :: fmt_CGNS        = 'C'   ! format CGNS
+character, parameter   :: fmt_CGNS_linked = 'D'   ! format CGNS with common linked mesh
 character, parameter   :: fmt_TYPHMSH = 'M'   ! format TYPHON MESH
 character, parameter   :: fmt_TECPLOT = 'T'   ! format TECPLOT (ascii)
 character, parameter   :: fmt_VIGIE   = 'V'   ! format VIGIE

@@ -60,7 +60,7 @@ case(fmt_TECPLOT)
 case(fmt_VIGIE)
   call erreur("Development","VIGIE format not implemented")
 
-case(fmt_CGNS)
+case(fmt_CGNS, fmt_CGNS_linked)
   call print_info(2,"* write CGNS file: " // trim(nom))
   call output_cgns(nom, defio, zone) 
 

@@ -52,13 +52,14 @@ do io = 1, world%noutput
   call rpmgetkeyvalstr(pcour, "FORMAT", str)
   world%output(io)%format = cnull
 
-  if (samestring(str,"CGNS"))       world%output(io)%format = fmt_CGNS
-  if (samestring(str,"TECPLOT"))    world%output(io)%format = fmt_TECPLOT
-  if (samestring(str,"VIGIE"))      world%output(io)%format = fmt_VIGIE
-  if (samestring(str,"VTK"))        world%output(io)%format = fmt_VTK
-  if (samestring(str,"VTK-ASCII"))  world%output(io)%format = fmt_VTK
-  if (samestring(str,"VTK-BIN"))    world%output(io)%format = fmt_VTKBIN
-  if (samestring(str,"VTK-BINARY")) world%output(io)%format = fmt_VTKBIN
+  if (samestring(str,"CGNS"))        world%output(io)%format = fmt_CGNS
+  if (samestring(str,"CGNS-LINKED")) world%output(io)%format = fmt_CGNS_linked
+  if (samestring(str,"TECPLOT"))     world%output(io)%format = fmt_TECPLOT
+  if (samestring(str,"VIGIE"))       world%output(io)%format = fmt_VIGIE
+  if (samestring(str,"VTK"))         world%output(io)%format = fmt_VTK
+  if (samestring(str,"VTK-ASCII"))   world%output(io)%format = fmt_VTK
+  if (samestring(str,"VTK-BIN"))     world%output(io)%format = fmt_VTKBIN
+  if (samestring(str,"VTK-BINARY"))  world%output(io)%format = fmt_VTKBIN
   if (world%output(io)%format == cnull) call erreur("parameter reading","unknown format <"//trim(str)//">")
 
   call print_info(10,"  . file"//strof(io,3)//": "//trim(str)//" format")
@@ -67,7 +68,7 @@ do io = 1, world%noutput
 
   call rpmgetkeyvalstr(pcour, "FILE", str)
   select case(world%output(io)%format)
-  case(fmt_CGNS)
+  case(fmt_CGNS, fmt_CGNS_linked)
     ic = index(str, ".cgns")
     if (ic == len(trim(str))-4) str = str(1:ic-1)//"     "
   case(fmt_VTK, fmt_VTKBIN)

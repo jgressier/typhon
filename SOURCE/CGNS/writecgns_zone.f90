@@ -44,7 +44,7 @@ do while (associated(pgrid))
   izone    = izone + 1
   isize(1) = pgrid%umesh%nvtex       ! vertex size 
   isize(2) = pgrid%umesh%ncell_int   ! cell size
-  isize(3) = 0                       ! boundary vertex size (zero if elements not sorted)
+  isize(3) = 0                       ! boundary vertex size (zero if vertices not sorted)
 
   ! -- create CGNS zone --
 
@@ -53,6 +53,8 @@ do while (associated(pgrid))
   ! -- write TYPHON ustmesh to CGNS zone --
 
   call writecgns_ustmesh(cgnsunit, ibase, izone, pgrid%umesh)
+
+  call writecgns_bocomesh(cgnsunit, ibase, izone, pgrid%umesh)
 
   call writecgns_sol(cgnsunit, ibase, izone, &
                       zone%defsolver, pgrid%umesh, pgrid%info%field_loc)
