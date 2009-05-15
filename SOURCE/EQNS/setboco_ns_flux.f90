@@ -18,17 +18,17 @@ use DEFFIELD
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(mnu_ns)       :: defns            ! solver parameters
 integer            :: unif             ! uniform or not
 type(st_ustboco)   :: ustboco          ! boundary condition location
 type(st_ustmesh)   :: ustdom           ! unstructured mesh
 type(st_boco_ns)   :: bcns             ! parameters and temperature (field or constant)
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 type(st_field)   :: fld            ! fields
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 integer    :: ifb, if, ip  ! index de liste, index de face limite et parametres
 integer    :: ic, ighost   ! index de cellule interieure, et de cellule fictive
 real(krp)  :: r_PG, cp     ! perfect gas constant, heat capacity
@@ -39,7 +39,8 @@ type(v3d)  :: cgface, cg, normale ! face, cell center, face normale
 type(v3d)  :: gradT        ! temperature gradient
 type(v3d)  :: dc           ! vector cell center - its projection 
                            ! on the face normale
-! -- Debut de la procedure --
+! -- BODY --
+
 r_PG = defns%properties(1)%r_const        ! perfect gas constant
 cp = defns%properties(1)%gamma * r_PG / &
      (defns%properties(1)%gamma - 1)      ! heat capacity
@@ -57,21 +58,10 @@ if (unif == uniform) then
     d    = (cgface - cg) .scal. (cgface - cg) / &
            (abs((cgface - cg).scal.normale))
 
-    ! temperature
-    select case(defns%typ_visc)
-    case(visc_suth)
-      TH(1) = fld%etatprim%tabscal(2)%scal(ic) / (r_PG * &
-              fld%etatprim%tabscal(1)%scal(ic) )
-      call calc_visc_suther(defns, 1, TH, mu, 1)
-    case(visc_cst)
-      mu(1) = defns%properties(1)%visc_dyn
-    case(visc_lin)
-      TH(1) = fld%etatprim%tabscal(2)%scal(ic) / (r_PG * &
-              fld%etatprim%tabscal(1)%scal(ic) )
-      mu(1) = defns%properties(1)%visc_dyn*TH(1)
-    case default
-      call erreur("viscosity computation","unknown kind of computation")
-    endselect
+    TH(1) = fld%etatprim%tabscal(2)%scal(ic) / (r_PG * fld%etatprim%tabscal(1)%scal(ic) )
+
+    call calc_viscosity(defns%properties(1), fld%etatprim%tabscal(1)%scal(ic:ic), TH(1:1), mu(1:1))
+
     conduct = mu(1) * cp / defns%properties(1)%prandtl
 
     !temp = fld%etatprim%tabscal(2)%scal(ic) / &
@@ -120,20 +110,9 @@ else
            (abs((cgface - cg).scal.normale))
 
     ! temperature
-    select case(defns%typ_visc)
-    case(visc_suth)
-      TH(1) = fld%etatprim%tabscal(2)%scal(ic) / (r_PG * &
-              fld%etatprim%tabscal(1)%scal(ic) )
-      call calc_visc_suther(defns, 1, TH, mu, 1)
-    case(visc_cst)
-      mu(1) = defns%properties(1)%visc_dyn
-    case(visc_lin)
-      TH(1) = fld%etatprim%tabscal(2)%scal(ic) / (r_PG * &
-              fld%etatprim%tabscal(1)%scal(ic) )
-      mu(1) = defns%properties(1)%visc_dyn*TH(1)
-    case default
-      call erreur("viscosity computation","unknown kind of computation")
-    endselect
+
+    call calc_viscosity(defns%properties(1), fld%etatprim%tabscal(1)%scal(ic:ic), TH(1:1), mu(1:1))
+
     conduct = mu(1) * cp / defns%properties(1)%prandtl
 
     !temp = fld%etatprim%tabscal(2)%scal(ic) / &

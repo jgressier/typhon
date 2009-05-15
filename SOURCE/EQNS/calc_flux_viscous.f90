@@ -50,7 +50,9 @@ type(v3d), dimension(taille_buffer) :: velH       ! face (H) velocity
 type(v3d), dimension(taille_buffer) :: vL, vR     ! left, right velocities
 type(v3d), dimension(taille_buffer) :: gradTL, gradTR  ! left, right temp grad
 real(krp), dimension(taille_buffer) :: TL, TR     ! left, right temperatures
-real(krp), dimension(taille_buffer) :: TH, mu, gradTH ! temperature en H
+real(krp), dimension(taille_buffer) :: TH, gradTH ! temperature at face center
+real(krp), dimension(taille_buffer) :: rhoH       ! density     at face center
+real(krp), dimension(taille_buffer) :: mu         ! viscosity   at face center
 type(st_nsetat)                     :: cell_L, cell_R
 type(t3d)  :: sigma                               ! viscous tensor
 type(v3d)  :: sigma_n
@@ -95,9 +97,10 @@ do if = 1, nflux
   vR(if) = cell_r%velocity(if)
   velH(if) = dHR(if)*vL(if) + dHL(if)*vR(if)
 
-  TL(if) = cell_l%pressure(if) / (cell_l%density(if) * r_PG)
-  TR(if) = cell_r%pressure(if) / (cell_r%density(if) * r_PG)
-  TH(if) = dHR(if)*TL(if) + dHL(if)*TR(if)
+  TL(if)   = cell_l%pressure(if) / (cell_l%density(if) * r_PG)
+  TR(if)   = cell_r%pressure(if) / (cell_r%density(if) * r_PG)
+  TH(if)   = dHR(if)*TL(if) + dHL(if)*TR(if)
+  rhoH(if) = dHR(if)*cell_l%density(if) + dHL(if)*cell_r%density(if)
 
   ! computation of temperature gradient : 
   ! grad(T) = 1 / (density * r) * grad(P) - P/(r * density**2) * grad(density)
@@ -110,16 +113,7 @@ do if = 1, nflux
 
 enddo
 
-select case(defsolver%defns%typ_visc)
-case(visc_suth)
-  call calc_visc_suther(defsolver%defns, nflux, TH, mu, 1)
-case(visc_cst)
-  mu(1:nflux) = defsolver%defns%properties(1)%visc_dyn
-case(visc_lin)
-  mu(1:nflux) = defsolver%defns%properties(1)%visc_dyn*TH(1:nflux)
-case default
-  call erreur("viscosity computation","unknown kind of computation")
-endselect
+call calc_viscosity(defsolver%defns%properties(1), rhoH(1:nflux), TH(1:nflux), mu(1:nflux))
 
 ! velocity gradient at the face
 call interp_facegradient_vect(nflux,defspat%sch_dis,dHL,dHR,vLR,vL,vR,&

@@ -27,7 +27,6 @@ EQNS_OBJ := $(EQNS_MOD:.$(MOD)=.o)    \
             calc_roe_states.o         \
             calc_varcons_ns.o         \
             calc_varprim_ns.o         \
-	    calc_visc_suther.o        \
             calcboco_ns.o             \
             def_boco_ns.o             \
             def_init_ns.o             \

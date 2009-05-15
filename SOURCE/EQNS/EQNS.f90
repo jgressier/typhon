@@ -13,9 +13,31 @@ use TYPHMAKE   ! Definition de la precision
 use GEO3D      ! Compilation conditionnelle ? avec GEO3D_dp
 use OUTPUT 
 
+
 ! -- DECLARATIONS -----------------------------------------------------------
 
-integer(kpp), parameter :: perfect_gas = 10
+
+real(krp), parameter :: perfect_gas_cst = 8.314472_krp
+
+! -- Variables globales du module -------------------------------------------
+
+! -- Type de solveur (menu_ns%typ_fluid)--
+integer, parameter :: eqEULER = 10
+integer, parameter :: eqNSLAM = 11 
+integer, parameter :: eqRANS  = 12
+
+! -- Type de gaz (menu_ns%typ_gaz) --
+integer, parameter :: gas_AIR     = 10
+integer, parameter :: gas_PERFECT = 5
+
+! -- Viscosity : computation
+integer, parameter :: visc_no      = 10
+integer, parameter :: visc_suth    = 11
+integer, parameter :: visc_dyncst  = 13
+integer, parameter :: visc_kincst  = 14
+integer, parameter :: visc_lin     = 15
+
+
 
 !------------------------------------------------------------------------------!
 ! Definition de la structure ST_NSETAT : etat physique
@@ -34,8 +56,10 @@ type st_espece
   integer(kpp) :: fluid_type    ! type of fluid
   real(krp)    :: gamma         ! rapport de chaleurs specifiques
   real(krp)    :: r_const       ! constante du gaz
+  integer      :: typ_visc      ! kind of computation of viscosity
   real(krp)    :: prandtl       ! nombre de Prandtl
-  real(krp)    :: visc_dyn      ! viscosite dynamique (faire evoluer en loi)
+  real(krp)    :: visc_kin      ! kinematic viscosity (constant)
+  real(krp)    :: visc_dyn      ! dynamic   viscosity (constant or sutherland)
   real(krp)    :: tref          ! Sutherland's formula : reference temperature
   real(krp)    :: tsuth         ! Sutherland's formula : Sutherland's constant
 endtype st_espece
@@ -188,6 +212,52 @@ real(krp), dimension(n) :: fmv    ! automatic array
   ti        = nspri%pressure(1:n)/fluid%r_const/nspri%density(1:n)*fmv(1:n)
 
 endsubroutine nspri2pi_ti_mach_dir
+
+
+!------------------------------------------------------------------------------!
+! Fonction : conversion de parametres en variables primitives
+!------------------------------------------------------------------------------!
+subroutine calc_viscosity(fluid, density, temperature, dynvisc)
+implicit none
+! -- INPUTS --
+type(st_espece)       :: fluid
+real(krp), intent(in) :: density(:), temperature(:)
+! -- OUTPUTS --
+real(krp), intent(out) :: dynvisc(size(temperature))
+
+! -- internal variables 
+integer               :: i, n
+real(krp)             :: mu0, T0, S
+
+! -- BODY --
+
+n = size(temperature)
+
+select case(fluid%typ_visc)
+
+case(visc_suth)
+  mu0 = fluid%visc_dyn   ! dynamic viscosity at reference temperature 
+  T0  = fluid%tref       ! reference temperature
+  S   = fluid%tsuth      ! Sutherland's constant
+  do i = 1, n
+    dynvisc(i) = mu0 * (temperature(i)/T0)**(1.5_krp)*(T0+S)/(temperature(i)+S)
+  enddo
+
+case(visc_dyncst)
+  dynvisc(1:n) = fluid%visc_dyn
+
+case(visc_kincst)
+  dynvisc(1:n) = fluid%visc_kin * density(1:n)
+
+case(visc_lin)
+  dynvisc(1:n) = fluid%visc_dyn*temperature(1:n)
+
+case default
+  call erreur("viscosity computation","unknown kind of computation")
+endselect
+
+endsubroutine calc_viscosity
+
 
 
 endmodule EQNS

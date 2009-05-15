@@ -92,17 +92,12 @@ do i=1, zone1%gridlist%first%umesh%boco(nbc1)%nface
        (zone1%defsolver%defns%properties(1)%gamma - 1)      ! heat capacity
     ! Temperature :
     TH(1) = zone1%gridlist%first%field%etatprim%tabscal(2)%scal(icl1) / (zone1%gridlist%first%field%etatprim%tabscal(1)%scal(icl1) * r_PG)
+
     ! Viscosity :
-    select case(zone1%defsolver%defns%typ_visc)
-    case(visc_suth)
-      call calc_visc_suther(zone1%defsolver%defns, 1, TH, mu, 1)
-    case(visc_cst)
-      mu(1)=zone1%defsolver%defns%properties(1)%visc_dyn
-    case(visc_lin)
-      mu(1)=zone1%defsolver%defns%properties(1)%visc_dyn*TH(1)
-    case default
-      call erreur("viscosity computation","unknown kind of computation")
-    endselect
+
+    call calc_viscosity(zone1%defsolver%defns%properties(1), &
+         zone1%gridlist%first%field%etatprim%tabscal(1)%scal(icl1:icl1), TH(1:1), mu(1:1))
+
     conduct = mu(1) * cp / zone1%defsolver%defns%properties(1)%prandtl
 
     ! Exchange data of zone 1
@@ -165,17 +160,12 @@ do i=1, zone1%gridlist%first%umesh%boco(nbc1)%nface
        (zone2%defsolver%defns%properties(1)%gamma - 1)      ! heat capacity
     ! Temperature :
     TH(1) = zone2%gridlist%first%field%etatprim%tabscal(2)%scal(icl2) / (zone2%gridlist%first%field%etatprim%tabscal(1)%scal(icl2) * r_PG)
+
     ! Viscosity :
-    select case(zone2%defsolver%defns%typ_visc)
-    case(visc_suth)
-      call calc_visc_suther(zone2%defsolver%defns, 1, TH, mu, 1)
-    case(visc_cst)
-      mu(1)=zone2%defsolver%defns%properties(1)%visc_dyn
-    case(visc_lin)
-      mu(1)=zone2%defsolver%defns%properties(1)%visc_dyn*TH(1)
-    case default
-      call erreur("viscosity computation","unknown kind of computation")
-    endselect
+
+    call calc_viscosity(zone2%defsolver%defns%properties(1), &
+         zone2%gridlist%first%field%etatprim%tabscal(1)%scal(icl2:icl2), TH(1:1), mu(1:1))
+
     conduct = mu(1) * cp / zone2%defsolver%defns%properties(1)%prandtl
 
     ! Exchange data of zone 2

@@ -31,11 +31,13 @@ type(st_genericfield)   :: flux             ! physical flux
 
 ! -- Internal variables --
 integer                 :: ifb, if, ib, idef ! index de liste, index de face limite et parametres
+integer                 :: icl, icr
 real(krp), dimension(1) :: dHR, dHL          ! cell to face distance
 type(v3d), dimension(1) :: vLR               ! cell to cell vector
 type(v3d), dimension(1) :: gradTL, gradTR    ! left, right temp grad
 real(krp), dimension(1) :: TL, TR            ! left, right temperatures
 real(krp), dimension(1) :: TH, mu, gradTH    ! temperature at H
+real(krp), dimension(1) :: rhoL, rhoR, rhoH  ! densities
 type(st_face), dimension(1) :: face          ! geomtrical face array
 real(krp)                   :: r_PG, cp, conduct
 real(krp)                   :: id  
@@ -51,58 +53,46 @@ do ib = 1, domaine%nboco
   ! assign flux as already computed flux in bocofield
 
   select case(defsolver%boco(idef)%typ_boco)
+
   case(bc_wall_adiab, bc_wall_flux, bc_wall_hconv, bc_wall_hgen) 
+
     do ifb = 1, domaine%boco(ib)%nface
-      if = domaine%boco(ib)%iface(ifb)
+      if  = domaine%boco(ib)%iface(ifb)
+      icl = domaine%facecell%fils(if,1)
+      icr = domaine%facecell%fils(if,2)
 
       r_PG = defsolver%defns%properties(1)%r_const  ! perfect gas constant
       cp = defsolver%defns%properties(1)%gamma * r_PG / &
            (defsolver%defns%properties(1)%gamma - 1)    ! heat capacity
 
       dHL(1) = abs(domaine%mesh%iface(if,1,1)%centre - &
-                  domaine%mesh%centre(domaine%facecell%fils(if,1),1,1))
+                  domaine%mesh%centre(icl,1,1))
       dHR(1) = abs(domaine%mesh%iface(if,1,1)%centre - &
-                  domaine%mesh%centre(domaine%facecell%fils(if,2),1,1))
+                  domaine%mesh%centre(icr,1,1))
       id      = 1._krp/(dHL(1) + dHR(1))
       dHL(1) = id*dHL(1)
       dHR(1) = id*dHR(1)
-      vLR(1) = domaine%mesh%centre(domaine%facecell%fils(if,2),1,1) - &
-               domaine%mesh%centre(domaine%facecell%fils(if,1),1,1)
+      vLR(1) = domaine%mesh%centre(icr,1,1) - &
+               domaine%mesh%centre(icl,1,1)
       ! DEV / OPT : calcul de distance au carre si c'est la seule utilisee
       ! pour eviter sqrt()**2
       !dLR = abs(vLR)
 
-      TL(1) = field%etatprim%tabscal(2)%scal(domaine%facecell%fils(if,1))/ &
-         (field%etatprim%tabscal(1)%scal(domaine%facecell%fils(if,1)) * r_PG)
-      TR(1) = field%etatprim%tabscal(2)%scal(domaine%facecell%fils(if,2))/ &
-         (field%etatprim%tabscal(1)%scal(domaine%facecell%fils(if,2)) * r_PG)
-      TH(1) = dHR(1)*TL(1) + dHL(1)*TR(1)
+      rhoL(1) = field%etatprim%tabscal(1)%scal(icl)
+      rhoR(1) = field%etatprim%tabscal(1)%scal(icr)
+      TL(1)   = field%etatprim%tabscal(2)%scal(icl)/ (rhoL(1) * r_PG)
+      TR(1)   = field%etatprim%tabscal(2)%scal(icr)/ (rhoR(1) * r_PG)
+      TH(1)   = dHR(1)*TL(1)   + dHL(1)*TR(1)
+      rhoH(1) = dHR(1)*rhoL(1) + dHL(1)*rhoR(1)
 
       ! computation of temperature gradient : 
       ! grad(T) = 1/(density*r)*grad(P) - P/(r*density**2)*grad(density)
-      gradTL(1) = 1._krp/ &
-       (field%etatprim%tabscal(1)%scal(domaine%facecell%fils(if,1)) * r_PG) * &
-       field%gradient%tabvect(2)%vect(domaine%facecell%fils(if,1)) - &
-       field%etatprim%tabscal(2)%scal(domaine%facecell%fils(if,1)) / &
-       (field%etatprim%tabscal(1)%scal(domaine%facecell%fils(if,1))**2 *r_PG) &
-       * field%gradient%tabvect(1)%vect(domaine%facecell%fils(if,1))
-      gradTR(1) = 1._krp/ &
-       (field%etatprim%tabscal(1)%scal(domaine%facecell%fils(if,2)) * r_PG) * &
-       field%gradient%tabvect(2)%vect(domaine%facecell%fils(if,2)) - &
-       field%etatprim%tabscal(2)%scal(domaine%facecell%fils(if,2)) / &
-       (field%etatprim%tabscal(1)%scal(domaine%facecell%fils(if,2))**2 *r_PG) &
-       * field%gradient%tabvect(1)%vect(domaine%facecell%fils(if,2))
+      gradTL(1) = 1._krp/ (rhoL(1) * r_PG) * field%gradient%tabvect(2)%vect(icl) - &
+           field%etatprim%tabscal(2)%scal(icl) / (rhoL(1)**2 *r_PG) * field%gradient%tabvect(1)%vect(icl)
+      gradTR(1) = 1._krp/ (rhoR(1) * r_PG) * field%gradient%tabvect(2)%vect(icr) - &
+           field%etatprim%tabscal(2)%scal(icr) / (rhoR(1)**2 *r_PG) * field%gradient%tabvect(1)%vect(icr)
 
-      select case(defsolver%defns%typ_visc)
-      case(visc_suth)
-        call calc_visc_suther(defsolver%defns, 1, TH, mu, 1)
-      case(visc_cst)
-        mu(1)=defsolver%defns%properties(1)%visc_dyn
-      case(visc_lin)
-        mu(1) = defsolver%defns%properties(1)%visc_dyn*TH(1)
-      case default
-        call erreur("viscosity computation","unknown kind of computation")
-      endselect
+      call calc_viscosity(defsolver%defns%properties(1), rhoH(1:1), TH(1:1), mu(1:1))
 
       ! temperature gradient at the face
       face(1) = domaine%mesh%iface(if,1,1)

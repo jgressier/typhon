@@ -63,22 +63,12 @@ do ifb = 1, ustboco%nface
 !  d    = (cgface - cg) .scal. (cgface - cg) / (abs((cgface - cg).scal.normale))
   dc = (cgface - cg) - ( (cgface - cg).scal.normale ) * normale
 
-  ! Temperature
-  ! Computation of conductivity
-  select case(defns%typ_visc)
-  case(visc_suth)
-    TH(1) = fld%etatprim%tabscal(2)%scal(ic) / (r_PG * &
-            fld%etatprim%tabscal(1)%scal(ic) )
-    call calc_visc_suther(defns, 1, TH, mu, 1)
-  case(visc_cst)
-    mu(1) = defns%properties(1)%visc_dyn
-  case(visc_lin)
-    TH(1) = fld%etatprim%tabscal(2)%scal(ic) / (r_PG * &
-            fld%etatprim%tabscal(1)%scal(ic) )
-    mu(1) = defns%properties(1)%visc_dyn*TH(1)
-  case default
-    call erreur("viscosity computation","unknown kind of computation")
-  endselect
+  ! Temperature, viscosity, conductivity
+
+  TH(1) = fld%etatprim%tabscal(2)%scal(ic) / (r_PG * fld%etatprim%tabscal(1)%scal(ic) )
+
+  call calc_viscosity(defns%properties(1), fld%etatprim%tabscal(1)%scal(ic:ic), TH(1:1), mu(1:1))
+
   conduct = mu(1) * cp / defns%properties(1)%prandtl
 
   ! Approximate computation of temperature in factice cells

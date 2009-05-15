@@ -47,6 +47,7 @@ type(v3d), dimension(1) :: vLR        ! cell to cell vector
 type(v3d), dimension(1) :: gradTL, gradTR  ! left, right temp grad
 real(krp), dimension(1) :: TL, TR     ! left, right temperatures
 real(krp), dimension(1) :: TH, mu, gradTH ! temperature at H
+real(krp), dimension(1) :: rhoL, rhoR, rhoH
 type(st_face), dimension(1) :: face       ! geomtrical face array
 real(krp)                           :: r_PG, cp, conduct
 real(krp)                           :: id
@@ -90,37 +91,24 @@ do ic =1, ncoupling
           ! pour eviter sqrt()**2
           !dLR = abs(vLR)
 
-          TL(1) = field%etatprim%tabscal(2)%scal(umesh%facecell%fils(if,1))/ &
-             (field%etatprim%tabscal(1)%scal(umesh%facecell%fils(if,1)) * r_PG)
-          TR(1) = field%etatprim%tabscal(2)%scal(umesh%facecell%fils(if,2))/ &
-             (field%etatprim%tabscal(1)%scal(umesh%facecell%fils(if,2)) * r_PG)
-          TH(1) = dHR(1)*TL(1) + dHL(1)*TR(1)
+          rhoL(1) = field%etatprim%tabscal(1)%scal(umesh%facecell%fils(if,1))
+          TL(1)   = field%etatprim%tabscal(2)%scal(umesh%facecell%fils(if,1)) / (rhoL(1) * r_PG)
+          rhoR(1) = field%etatprim%tabscal(1)%scal(umesh%facecell%fils(if,2))
+          TR(1)   = field%etatprim%tabscal(2)%scal(umesh%facecell%fils(if,2)) / (rhoR(1) * r_PG)
+
+          TH(1)   = dHR(1)*TL(1)   + dHL(1)*TR(1)
+          rhoH(1) = dHR(1)*rhoL(1) + dHL(1)*rhoR(1)
 
           ! computation of temperature gradient : 
           ! grad(T) = 1/(density*r)*grad(P) - P/(r*density**2)*grad(density)
-          gradTL(1) = 1._krp/ &
-         (field%etatprim%tabscal(1)%scal(umesh%facecell%fils(if,1)) * r_PG) * &
-         field%gradient%tabvect(2)%vect(umesh%facecell%fils(if,1)) - &
-         field%etatprim%tabscal(2)%scal(umesh%facecell%fils(if,1)) / &
-         (field%etatprim%tabscal(1)%scal(umesh%facecell%fils(if,1))**2 *r_PG) &
-         * field%gradient%tabvect(1)%vect(umesh%facecell%fils(if,1))
-          gradTR(1) = 1._krp/ &
-         (field%etatprim%tabscal(1)%scal(umesh%facecell%fils(if,2)) * r_PG) * &
-         field%gradient%tabvect(2)%vect(umesh%facecell%fils(if,2)) - &
-         field%etatprim%tabscal(2)%scal(umesh%facecell%fils(if,2)) / &
-         (field%etatprim%tabscal(1)%scal(umesh%facecell%fils(if,2))**2 *r_PG) &
+          gradTL(1) = 1._krp/(rhoL(1) * r_PG) * field%gradient%tabvect(2)%vect(umesh%facecell%fils(if,1)) - &
+               field%etatprim%tabscal(2)%scal(umesh%facecell%fils(if,1)) / (rhoL(1)**2 *r_PG) &
+               * field%gradient%tabvect(1)%vect(umesh%facecell%fils(if,1))
+          gradTR(1) = 1._krp/(rhoR(1) * r_PG) * field%gradient%tabvect(2)%vect(umesh%facecell%fils(if,2)) - &
+         field%etatprim%tabscal(2)%scal(umesh%facecell%fils(if,2)) / (rhoR(1)**2 *r_PG) &
          * field%gradient%tabvect(1)%vect(umesh%facecell%fils(if,2))
 
-        select case(def_solver%defns%typ_visc)
-        case(visc_suth)
-          call calc_visc_suther(def_solver%defns, 1, TH, mu, 1)
-        case(visc_cst)
-          mu(1) = def_solver%defns%properties(1)%visc_dyn
-        case(visc_lin)
-          mu(1) = def_solver%defns%properties(1)%visc_dyn*TH(1)
-        case default
-          call erreur("viscosity computation","unknown kind of computation")
-        endselect
+          call calc_viscosity(def_solver%defns%properties(1), rhoH(1:1), TH(1:1), mu(1:1))
 
         ! temperature gradient at the face
         face(1) = umesh%mesh%iface(if,1,1)

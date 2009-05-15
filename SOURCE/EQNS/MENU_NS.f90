@@ -17,21 +17,6 @@ use FCT_NODE
 
 implicit none
 
-! -- Variables globales du module -------------------------------------------
-
-! -- Type de solveur (menu_ns%typ_fluid)--
-integer, parameter :: eqEULER = 10
-integer, parameter :: eqNSLAM = 11 
-integer, parameter :: eqRANS  = 12
-
-! -- Type de gaz (menu_ns%typ_gaz) --
-integer, parameter :: gas_AIR = 10
-
-! -- Viscosity : computation
-integer, parameter :: visc_no   = 10
-integer, parameter :: visc_suth = 11
-integer, parameter :: visc_cst  = 12
-integer, parameter :: visc_lin  = 13
 
 
 ! -- DECLARATIONS -----------------------------------------------------------
@@ -43,7 +28,6 @@ integer, parameter :: visc_lin  = 13
 type mnu_ns
   integer         :: typ_fluid         ! type de fluide (cf definitions parameter) 
   integer         :: typ_gas           ! type de gaz    (cf definitions parameter)
-  integer         :: typ_visc          ! kind of computation of viscosity
   integer         :: nb_species        ! nombre d'especes resolues
   type(st_espece), dimension(:), pointer &
                   :: properties        ! proprietes des differentes especes
