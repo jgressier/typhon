@@ -28,7 +28,7 @@ type(st_field)        :: field
 ! -- OUPUTS --
 
 ! -- Internal variables --
-integer               :: i, dim, ufc, ir, istart, iend, isol, ifield
+integer               :: i, dim, ufc, ir, istart, iend, isol, ifield, isca, ivec
 integer               :: info, cgnstype, ielem, nvtex, nelem, icoord
 real(8), allocatable  :: v(:)      ! temporary array for sol writing (type CGNS RealDouble)
 character(len=32)     :: solname
@@ -57,70 +57,61 @@ enddo
 
 allocate(v(nelem))
 
-! -- reindex DENSITY --
+! -- reindex and write SCALAR --
 
-istart = 0
-do ielem = 1, umesh%cellvtex%ntype
-   do i = 1, umesh%cellvtex%elem(ielem)%nelem
-      v(istart+i) = field%etatprim%tabscal(1)%scal(umesh%cellvtex%elem(ielem)%ielem(i))
-   enddo
-   istart = istart +  umesh%cellvtex%elem(ielem)%nelem
+do isca = 1, field%etatprim%nscal
+
+  istart = 0
+  do ielem = 1, umesh%cellvtex%ntype
+    do i = 1, umesh%cellvtex%elem(ielem)%nelem
+      v(istart+i) = field%etatprim%tabscal(isca)%scal(umesh%cellvtex%elem(ielem)%ielem(i))
+    enddo
+    istart = istart +  umesh%cellvtex%elem(ielem)%nelem
+  enddo
+
+call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, trim(defsolver%namesca(isca)), v(1:nelem), ifield, info)
+if (info /=0) call erreur("CGNS output", "writing "//trim(defsolver%namesca(isca))//" solution...")
+
 enddo
 
-call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, 'Density', v(1:nelem), ifield, info)
-if (info /=0) call erreur("CGNS output", "writing Density solution...")
+! -- reindex and write VECTOR --
 
-! -- reindex PRESSURE --
+do ivec = 1, field%etatprim%nvect
 
-istart = 0
-do ielem = 1, umesh%cellvtex%ntype
-   do i = 1, umesh%cellvtex%elem(ielem)%nelem
-      v(istart+i) = field%etatprim%tabscal(2)%scal(umesh%cellvtex%elem(ielem)%ielem(i))
+  istart = 0
+  do ielem = 1, umesh%cellvtex%ntype
+    do i = 1, umesh%cellvtex%elem(ielem)%nelem
+      v(istart+i) = field%etatprim%tabvect(ivec)%vect(umesh%cellvtex%elem(ielem)%ielem(i))%x
    enddo
    istart = istart +  umesh%cellvtex%elem(ielem)%nelem
-enddo
+ enddo
 
-call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, 'Pressure', v(1:nelem), ifield, info)
-if (info /=0) call erreur("CGNS output", "writing Pressure solution...")
+ call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, trim(defsolver%namesca(ivec))//'X', v, ifield, info)
+ if (info /=0) call erreur("CGNS output", "writing "//trim(defsolver%namesca(ivec))//'X'//" solution...")
 
-! -- reindex VELOCITY X --
-
-istart = 0
-do ielem = 1, umesh%cellvtex%ntype
-   do i = 1, umesh%cellvtex%elem(ielem)%nelem
-      v(istart+i) = field%etatprim%tabvect(1)%vect(umesh%cellvtex%elem(ielem)%ielem(i))%x
+  istart = 0
+  do ielem = 1, umesh%cellvtex%ntype
+    do i = 1, umesh%cellvtex%elem(ielem)%nelem
+      v(istart+i) = field%etatprim%tabvect(ivec)%vect(umesh%cellvtex%elem(ielem)%ielem(i))%y
    enddo
    istart = istart +  umesh%cellvtex%elem(ielem)%nelem
-enddo
+ enddo
 
-call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, 'VelocityX', v, ifield, info)
-if (info /=0) call erreur("CGNS output", "writing VelocityX solution...")
+ call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, trim(defsolver%namesca(ivec))//'Y', v, ifield, info)
+ if (info /=0) call erreur("CGNS output", "writing "//trim(defsolver%namesca(ivec))//'Y'//" solution...")
 
-! -- reindex VELOCITY Y --
-
-istart = 0
-do ielem = 1, umesh%cellvtex%ntype
-   do i = 1, umesh%cellvtex%elem(ielem)%nelem
-      v(istart+i) = field%etatprim%tabvect(1)%vect(umesh%cellvtex%elem(ielem)%ielem(i))%y
+  istart = 0
+  do ielem = 1, umesh%cellvtex%ntype
+    do i = 1, umesh%cellvtex%elem(ielem)%nelem
+      v(istart+i) = field%etatprim%tabvect(ivec)%vect(umesh%cellvtex%elem(ielem)%ielem(i))%z
    enddo
    istart = istart +  umesh%cellvtex%elem(ielem)%nelem
+ enddo
+
+ call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, trim(defsolver%namesca(ivec))//'Z', v, ifield, info)
+ if (info /=0) call erreur("CGNS output", "writing "//trim(defsolver%namesca(ivec))//'Z'//" solution...")
+
 enddo
-
-call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, 'VelocityY', v, ifield, info)
-if (info /=0) call erreur("CGNS output", "writing VelocityY solution...")
-
-! -- reindex VELOCITY Z --
-
-istart = 0
-do ielem = 1, umesh%cellvtex%ntype
-   do i = 1, umesh%cellvtex%elem(ielem)%nelem
-      v(istart+i) = field%etatprim%tabvect(1)%vect(umesh%cellvtex%elem(ielem)%ielem(i))%z
-   enddo
-   istart = istart +  umesh%cellvtex%elem(ielem)%nelem
-enddo
-
-call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, 'VelocityZ', v, ifield, info)
-if (info /=0) call erreur("CGNS output", "writing VelocityZ solution...")
 
 
 deallocate(v)

@@ -19,13 +19,13 @@ use MENU_NS
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(rpmblock), target :: block
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 type(mnu_solver)       :: defsolver
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nkey           ! nombre de clefs
 integer                  :: i
@@ -58,19 +58,24 @@ if (samestring(str, "LAMINAR"))  defsolver%defns%typ_fluid = eqNSLAM
 if (samestring(str, "DNS"))      defsolver%defns%typ_fluid = eqNSLAM
 if (samestring(str, "RANS"))     defsolver%defns%typ_fluid = eqRANS
 
+defsolver%nequat = 5
+defsolver%nsca   = 2
+defsolver%nvec   = 1
+allocate(defsolver%namesca(defsolver%nsca))
+allocate(defsolver%namevec(defsolver%nvec))
+defsolver%namesca(1) = 'Density'
+defsolver%namesca(2) = 'Pressure'
+defsolver%namevec(1) = 'Velocity'
+
 select case(defsolver%defns%typ_fluid)
 case(eqEULER)
   call print_info(10,"    Inviscid (Euler) equations")
   
-  defsolver%nequat = 5
-
   ! no viscosity
   defsolver%defns%properties(1)%typ_visc = visc_no
 
 case(eqNSLAM)
   call print_info(10,"    Laminar Navier-Stokes equations")
-
-  defsolver%nequat = 5
 
   ! -- Reading of viscosity properties
   call rpmgetkeyvalstr(pcour, "VISCOSITY", str, "SUTHERLAND")

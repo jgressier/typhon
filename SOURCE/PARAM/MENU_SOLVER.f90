@@ -52,6 +52,8 @@ type mnu_solver
   integer            :: nsca, nvec      ! scalar and vector numbers
   real(krp), pointer :: refsca(:)       ! reference value for scalars
   real(krp), pointer :: refvec(:)       ! reference value for vectors
+  character(len=32), pointer :: namesca(:)       ! names for primitive scalars 
+  character(len=32), pointer :: namevec(:)       ! names for primitive vectors 
   type(mnu_mesh)  :: defmesh         ! mesh / geometry parameters
   type(mnu_time)  :: deftime         ! parametres d'integration temporelle
   type(mnu_spat)  :: defspat         ! parametres d'integration spatiale
@@ -105,6 +107,9 @@ subroutine delete_mnu_solver(defsolver)
 implicit none
 type(mnu_solver)  :: defsolver
 integer           :: ib
+
+  if (associated(defsolver%namesca)) deallocate(defsolver%namesca)
+  if (associated(defsolver%namevec)) deallocate(defsolver%namevec)
 
   call delete(defsolver%defamr)
 

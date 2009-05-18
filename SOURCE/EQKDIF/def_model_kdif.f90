@@ -32,7 +32,7 @@ character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- Debut de la procedure --
 
-call print_info(5,"- Definition du modele de conduction de la chaleur")
+call print_info(5,"- Definition of Heat Transfer model")
 
 ! -- Recherche du BLOCK:MODEL
 
@@ -43,6 +43,11 @@ if (nkey /= 1) call erreur("lecture de menu", &
                            "bloc MODEL inexistant ou surnumeraire")
 
 defsolver%nequat = 1
+defsolver%nsca   = 1
+defsolver%nvec   = 0
+allocate(defsolver%namesca(defsolver%nsca))
+allocate(defsolver%namevec(defsolver%nvec))
+defsolver%namesca(1) = 'Temperature'
 
 ! -- lecture du type de materiau
 
@@ -57,13 +62,13 @@ if (samestring(str,"DEFINITION")) then
 
   select case(defsolver%defkdif%materiau%type)
   case(mat_LIN)
-    call print_info(10,"    materiau lineaire")
+    call print_info(10,"    material with constant properties")
     defsolver%defkdif%materiau%Kd%type = LOI_CST
     call rpmgetkeyvalreal(pcour, "CONDUCT",  defsolver%defkdif%materiau%Kd%valeur)
     call rpmgetkeyvalreal(pcour, "HEATCAPA", defsolver%defkdif%materiau%Cp)
 
   case(mat_KNL)
-    call print_info(10,"    materiau a conductivite non constante")
+    call print_info(10,"    material with constant capacity and variable conductivity")
     call rpmgetkeyvalstr(pcour, "CONDUCT_TYPE", str)
     if (samestring(str, "CST"))  defsolver%defkdif%materiau%Kd%type = LOI_CST
     if (samestring(str, "POLY")) defsolver%defkdif%materiau%Kd%type = LOI_POLY
@@ -71,7 +76,7 @@ if (samestring(str,"DEFINITION")) then
     
     select case(defsolver%defkdif%materiau%Kd%type)
     case(LOI_CST)
-      call print_info(10,"    conductivite constante")
+      call print_info(10,"    constant conductivity")
       call rpmgetkeyvalreal(pcour, "CONDUCT",  defsolver%defkdif%materiau%Kd%valeur)
 
     case(LOI_POLY)
