@@ -4,10 +4,7 @@
 ! Fonction                                Modif  : (cf historique)
 !   Initialisation des champs
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
-
 subroutine init_champ(zone)
 
 use TYPHMAKE
@@ -16,18 +13,18 @@ use DEFZONE
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 
-! -- Declaration des entrees/sorties --
+! -- INPUTS/OUTPUTS --
 type(st_zone) :: zone
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 type(st_grid), pointer :: pgrid 
 integer                :: id  
 
-! -- Debut de la procedure --
+! -- BODY --
 
 !zone%champ%idim = 1
 
@@ -35,9 +32,9 @@ pgrid => zone%gridlist%first
 
 do while (associated(pgrid))
   allocate(pgrid%field)
-  !call init_champ_ust(zone%defsolver, pgrid%umesh, pgrid%field, pgrid)
-  call init_champ_ust(zone%defsolver, pgrid%umesh, pgrid)
-  !allocate(pgrid%info%field_loc)
+
+  call init_gridfield_ust(zone%defsolver, pgrid%umesh, pgrid)
+
   pgrid%info%field_loc => pgrid%field
   pgrid => pgrid%next
 enddo

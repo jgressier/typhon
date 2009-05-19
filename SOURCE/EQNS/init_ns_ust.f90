@@ -8,10 +8,11 @@
 !   CAUTION : only initialization of primitive variables
 !
 !------------------------------------------------------------------------------!
-subroutine init_ns_ust(defns, initns, champ, mesh, init_type, initfile, ncell)
+subroutine init_ns_ust(defns, initns, field, umesh, init_type, initfile)
 
 use TYPHMAKE
 use DEFFIELD
+use USTMESH
 use EQNS
 use MENU_NS
 use MENU_INIT
@@ -23,16 +24,16 @@ implicit none
 ! -- INPUTS --
 type(mnu_ns)     :: defns
 type(st_init_ns) :: initns
-type(st_mesh)    :: mesh
+type(st_ustmesh) :: umesh
 integer(kpp)     :: init_type
 character(len=strlen) :: initfile
-integer(kip)     :: ncell
 
 ! -- OUTPUTS --
-type(st_field) :: champ
+type(st_field) :: field
 
 ! -- Internal variables --
-integer                           :: ip, ifirst, iend, ic, i, ib, ierr, nc
+integer(kip)                      :: ncell
+integer                           :: ip, ifirst, iend, ic, i, ib, ier, nc
 integer                           :: nb, maxbuf, buf       ! block number, buffers
 type(st_nsetat)                   :: nspri
 character(len=50)                 :: charac
@@ -41,8 +42,11 @@ real(krp), dimension(cell_buffer) :: ptot, pstat, ttot, tstat, density, vel, mac
 type(v3d), dimension(cell_buffer) :: velocity
 logical                           :: is_x, is_y, is_z
 real(krp)                         :: gamma
+integer                           :: cgnsunit
 
 ! -- BODY --
+
+ncell = umesh%ncell_int
 
 !!! DEV !!! should not directly use gamma
 gamma = defns%properties(1)%gamma
@@ -69,9 +73,9 @@ case(init_def)  ! --- initialization through FCT functions ---
 
       i = ic - ifirst+1
      
-      call fct_env_set_real(blank_env, "x", mesh%centre(ic,1,1)%x)
-      call fct_env_set_real(blank_env, "y", mesh%centre(ic,1,1)%y)
-      call fct_env_set_real(blank_env, "z", mesh%centre(ic,1,1)%z)
+      call fct_env_set_real(blank_env, "x", umesh%mesh%centre(ic,1,1)%x)
+      call fct_env_set_real(blank_env, "y", umesh%mesh%centre(ic,1,1)%y)
+      call fct_env_set_real(blank_env, "z", umesh%mesh%centre(ic,1,1)%z)
 
       if (initns%is_pstat) then
         call fct_eval_real(blank_env, initns%pstat, pstat(i))
@@ -145,39 +149,42 @@ case(init_def)  ! --- initialization through FCT functions ---
     endif
     
     ! -- compute density --
-    champ%etatprim%tabscal(1)%scal(ifirst:iend) = density(1:buf)
+    field%etatprim%tabscal(1)%scal(ifirst:iend) = density(1:buf)
 
     ! -- pressure --
-    champ%etatprim%tabscal(2)%scal(ifirst:iend) = pstat(1:buf)
+    field%etatprim%tabscal(2)%scal(ifirst:iend) = pstat(1:buf)
 
     ! -- velocity vector --
-    champ%etatprim%tabvect(1)%vect(ifirst:iend) = (vel(1:buf)/abs(velocity(1:buf)))*velocity(1:buf)
+    field%etatprim%tabvect(1)%vect(ifirst:iend) = (vel(1:buf)/abs(velocity(1:buf)))*velocity(1:buf)
 
     ifirst = ifirst + buf
     buf    = maxbuf
   enddo
   
   call delete(nspri)
-  !!if (champ%allocgrad) champ%gradient(:,:,:,:,:) = 0._krp
+  !!if (field%allocgrad) field%gradient(:,:,:,:,:) = 0._krp
 
 case(init_udf)
-  print*,"   UDF initialization"
-  call udf_ns_init(defns, ncell, mesh%centre(1:ncell, 1, 1), champ%etatprim)
+  call print_info(5,"   UDF initialization")
+  call udf_ns_init(defns, ncell, umesh%mesh%centre(1:ncell, 1, 1), field%etatprim)
 
 case(init_file)
-  print*,"   File initialization"
+  call print_info(5,"   user file initialization")
   open(unit=1004, file = initfile, form="formatted")
   read(1004,'(a)') charac
   read(1004,'(a)') charac
   do ic=1, ncell
-    read(1004,'(8e18.8)') xx, yy, zz, champ%etatprim%tabvect(1)%vect(ic)%x, &
-                                      champ%etatprim%tabvect(1)%vect(ic)%y, &
-                                      champ%etatprim%tabvect(1)%vect(ic)%z, &
-                                      champ%etatprim%tabscal(2)%scal(ic), temp
-    champ%etatprim%tabscal(1)%scal(ic) = champ%etatprim%tabscal(2)%scal(ic) / &
+    read(1004,'(8e18.8)') xx, yy, zz, field%etatprim%tabvect(1)%vect(ic)%x, &
+                                      field%etatprim%tabvect(1)%vect(ic)%y, &
+                                      field%etatprim%tabvect(1)%vect(ic)%z, &
+                                      field%etatprim%tabscal(2)%scal(ic), temp
+    field%etatprim%tabscal(1)%scal(ic) = field%etatprim%tabscal(2)%scal(ic) / &
                   ( temp * defns%properties(1)%r_const )
   enddo
   close(1004)
+
+case(init_cgns)
+  call erreur("internal error", "should be called here")
 
 case default
   call erreur("internal error", "unknown initialization method (init_ns_ust)")

@@ -23,8 +23,8 @@ ZONE_OBJ := $(ZONE_MOD:.$(MOD)=.o)       \
             calcboco_ust_extrapol.o      \
             calcboco_ust_sym.o           \
             donnees_echange.o            \
-            init_champ_ust.o             \
             init_connect_grid.o          \
+            init_gridfield_ust.o         \
             init_ustboco_ghostcell.o     \
             init_ustboco_ghostface.o     \
             init_ustboco_kutta.o         \

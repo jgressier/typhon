@@ -51,11 +51,13 @@ endtype mnu_periodicity
 !------------------------------------------------------------------------------!
 type mnu_mesh
   character             :: format      ! cf VARCOM
-  character(len=strlen) :: fichier     ! nom de fichier
+  character(len=strlen) :: filename    ! nom de fichier
   real(krp)             :: scale       ! scale factor
   integer(kpp)          :: splitmesh   ! split method
   integer(kip)          :: nperiodicity ! number of periodicity
   type(mnu_periodicity), pointer :: periodicity(:) 
+  integer               :: icgnsbase   ! original base index in CGNS file
+  integer               :: icgnszone   ! original zone index in CGNS file
 endtype mnu_mesh
 
 

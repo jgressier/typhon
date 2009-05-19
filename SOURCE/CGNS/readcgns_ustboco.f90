@@ -52,7 +52,9 @@ case default
   call cg_goto_f(unit, ib, ier, 'Zone_t', iz, 'ZoneBC_t', 1, 'BC_t',ibc, 'end')
   if (ier /= 0) call erreur("Lecture CGNS","Probleme lors du parcours ADF")
   call cg_famname_read_f(boco%family, ier)
-  if (ier /= 0) call erreur("Lecture CGNS","Probleme a la lecture du nom de famille")
+  if (ier /= 0) then
+     boco%family = boco%nom
+  endif
   call cg_gridlocation_read_f(boco%gridlocation, ier)
   if (ier /= 0) then
     call print_warning("Lecture CGNS : type de connectivite non defini (VERTEX par defaut)")

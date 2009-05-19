@@ -24,6 +24,7 @@ CGNS_OBJ := $(CGNS_MOD:.$(MOD)=.o)   \
             readcgnsfile.o           \
             readcgnsvtex.o           \
             readcgnszone.o           \
+            readcgns_sol.o           \
             seek_bcface_face.o       \
             seek_bcface_vtex.o       \
 	    writecgns_bocomesh.o     \

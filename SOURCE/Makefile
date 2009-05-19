@@ -43,8 +43,8 @@ EXTLIBS   = $(CGNSLIB) $(LAPACKLIB) $(METISLIB)
 
 LIB1 = libt_main.a   \
        libt_xio.a    \
+       libt_zone.a   \
        libt_cgns.a   \
-       libt_zone.a 
 
 LIB2 = libt_param.a  \
        libt_vortex.a \

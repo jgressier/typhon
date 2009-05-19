@@ -29,17 +29,17 @@ integer                  :: n_init         ! nombre de definition d'initialisati
 integer                  :: i, nkey
 character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
-! -- Debut de la procedure --
+! -- BODY --
 
-call print_info(5,"- Definition de l'initialisation des champs")
+call print_info(5,"- Definition of Initial Conditions")
 
 ! -- Recherche du BLOCK:INIT
 
 pblock => block
 call seekrpmblock(pblock, "INIT", 0, pcour, n_init)
 
-if (n_init < 1) call erreur("lecture de menu", &
-                            "Pas de definition de l'initialisation (INIT)")
+if (n_init < 1) call erreur("Parameter parsing", &
+                            "no block definition found (BLOCK:INIT)")
 
 defsolver%ninit = n_init
 allocate(defsolver%init(n_init))
@@ -56,6 +56,7 @@ do i = 1, n_init
 
   call rpmgetkeyvalstr(pcour, "TYPE", str, "DEFINITION")
   if (samestring(str, "DEFINITION"))  defsolver%init(i)%type = init_def
+  if (samestring(str, "CGNS"))        defsolver%init(i)%type = init_cgns
   if (samestring(str, "FILE"))        defsolver%init(i)%type = init_file
   if (samestring(str, "UDF"))         defsolver%init(i)%type = init_udf
 
@@ -92,7 +93,7 @@ do i = 1, n_init
     call rpmgetkeyvalstr(pcour, "INIT_FILE", str) 
     defsolver%init(i)%file = trim(str)
 
-  case(init_udf)
+  case(init_udf, init_cgns)
     ! nothing to do
 
   case default

@@ -53,10 +53,13 @@ if (samestring(str,"CGNS"))    defmesh%format = fmt_CGNS
 if (samestring(str,"TYPHMSH")) defmesh%format = fmt_TYPHMSH
 if (defmesh%format == cnull) call erreur("lecture de menu","format de maillage inconnu")
 
+defmesh%icgnsbase = 1
+defmesh%icgnszone = 1
+
 ! -- lecture du nom de fichier
 
 call rpmgetkeyvalstr(pcour, "FILE", str)
-defmesh%fichier = str
+defmesh%filename = str
 
 ! -- read scale factor (default 1.)
 

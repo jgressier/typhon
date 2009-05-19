@@ -9,32 +9,35 @@
 !   ATTENTION : initialisation des variables primitives
 !
 !------------------------------------------------------------------------------!
-subroutine init_kdif_ust(kdif, champ, unif, mesh, init_type, initfile, ncell)
+subroutine init_kdif_ust(kdif, champ, unif, umesh, init_type, initfile)
 
 use TYPHMAKE
 use DEFFIELD
+use USTMESH
 use MENU_KDIF
 use MENU_INIT
 
 implicit none
 
-! -- Declaration des entrees --
-type(st_init_kdif) :: kdif
-integer            :: unif ! uniformite de la condition initiale
-type(st_mesh)      :: mesh
+! -- INPUTS --
+type(st_init_kdif)    :: kdif
+integer               :: unif ! uniformite de la condition initiale
+type(st_ustmesh)      :: umesh
 integer(kip)     :: init_type
 character(len=strlen) :: initfile
-integer(kip)     :: ncell
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 type(st_field) :: champ
 
-! -- Declaration des variables internes --
-integer :: ip, ic
-character(len=50):: charac
-real(krp) :: x,y,z
+! -- Internal Variables --
+integer(kip)          :: ncell
+integer               :: ip, ic
+character(len=50)     :: charac
+real(krp)             :: x,y,z
 
-! -- Debut de la procedure --
+! -- BODY --
+
+ncell = umesh%ncell_int 
 
 select case(init_type)
 
@@ -47,10 +50,10 @@ case(init_def)
   else !provisoire
     do ip = 1, champ%nscal
       do ic=1, champ%ncell
-       champ%etatprim%tabscal(ip)%scal(ic)=kdif%coef(1)*mesh%centre(ic,1,1)%x+&
-                                          kdif%coef(2)*mesh%centre(ic,1,1)%y+&
-                                          kdif%coef(3)*mesh%centre(ic,1,1)%z+&
-                                          kdif%coef(4)
+       champ%etatprim%tabscal(ip)%scal(ic)=kdif%coef(1)*umesh%mesh%centre(ic,1,1)%x+&
+                                           kdif%coef(2)*umesh%mesh%centre(ic,1,1)%y+&
+                                           kdif%coef(3)*umesh%mesh%centre(ic,1,1)%z+&
+                                           kdif%coef(4)
       enddo
     enddo
   endif
@@ -73,7 +76,7 @@ endselect
 endsubroutine init_kdif_ust
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes History
 !
 ! mars 2003 (v0.0.1b) : creation de la routine
 ! juin 2003           : maj pour variables conservatives et primitives

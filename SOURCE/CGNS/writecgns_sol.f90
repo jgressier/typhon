@@ -70,7 +70,7 @@ do isca = 1, field%etatprim%nscal
   enddo
 
 call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, trim(defsolver%namesca(isca)), v(1:nelem), ifield, info)
-if (info /=0) call erreur("CGNS output", "writing "//trim(defsolver%namesca(isca))//" solution...")
+if (info /=0) call erreur("Fatal CGNS output", "writing "//trim(defsolver%namesca(isca))//" solution...")
 
 enddo
 
@@ -87,7 +87,7 @@ do ivec = 1, field%etatprim%nvect
  enddo
 
  call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, trim(defsolver%namesca(ivec))//'X', v, ifield, info)
- if (info /=0) call erreur("CGNS output", "writing "//trim(defsolver%namesca(ivec))//'X'//" solution...")
+ if (info /=0) call erreur("Fatal CGNS output", "writing "//trim(defsolver%namesca(ivec))//'X'//" solution...")
 
   istart = 0
   do ielem = 1, umesh%cellvtex%ntype

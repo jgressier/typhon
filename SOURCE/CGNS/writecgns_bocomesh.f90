@@ -106,8 +106,16 @@ do ib = 1, umesh%nboco
    call cg_boco_write_f(cgnsunit, ibase, izone, umesh%boco(ib)%family, UserDefined, ElementList,&
      umesh%boco(ib)%nface, iface, ibc, info)  ! ibc is an ouput index
 
-   if (info /= 0) &
-        call erreur("Fatal error writing CGNS boco tags", "cgnslib IO error")
+   ! write family name
+
+   call cg_goto_f(cgnsunit, ibase, info, 'Zone_t', izone, 'ZoneBC_t', 1, 'BC_t',ibc, 'end')
+   if (info /= 0) then
+      call print_warning("CGNS navigation: cannot find BOCO node to write family name")
+   else
+      call cg_famname_write_f(umesh%boco(ib)%family, info)
+      if (info /= 0) &
+           call erreur("Fatal error writing CGNS boco tags", "cgnslib IO error")
+    endif
 
    deallocate(iface)
 
