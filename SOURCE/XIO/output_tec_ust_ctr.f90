@@ -9,7 +9,7 @@
 !
 !------------------------------------------------------------------------------!
 
-subroutine output_tec_ust_ctr(uf, ust_mesh, field, defsolver)
+subroutine output_tec_ust_ctr(uf, umesh, field, defsolver)
 
 use TYPHMAKE
 use OUTPUT
@@ -23,7 +23,7 @@ implicit none
 
 ! -- Declaration des entrees --
 integer          :: uf            ! unite d'ecriture
-type(st_ustmesh) :: ust_mesh      ! maillage a ecrire
+type(st_ustmesh) :: umesh         ! unstructured mesh
 type(st_field)   :: field         ! champ de valeurs
 type(mnu_solver) :: defsolver     ! solver parameters
 
@@ -37,13 +37,13 @@ real(krp) :: temperature
 
 ! -- Debut de la procedure --
 
-write(uf,*) 'ZONE T="USTMESH"' !, F=FEPOINT, N=',ust_mesh%nvtex,',E=',ncell
+write(uf,*) 'ZONE T="USTMESH"' !, F=FEPOINT, N=',umesh%nvtex,',E=',ncell
 
 ! attention : il faut recalculer les points au sommets ou
 ! ecrire le maillage des centres de cellule
 
-do i = 1, ust_mesh%ncell
-  vtex = ust_mesh%mesh%centre(i,1,1)
+do i = 1, umesh%ncell
+  vtex = umesh%mesh%centre(i,1,1)
 
   select case(defsolver%typ_solver)
 
@@ -67,8 +67,8 @@ enddo
 
 ! calcul de la connectivite sommets -> sommets
 
-!do i = 1, ust_mesh%ncell
-!  vtex = ust_mesh%mesh%vertex(i)
+!do i = 1, umesh%ncell
+!  vtex = umesh%mesh%vertex(i)
 !  write(uf_chpresu,'(4e15.8)') vtex%x, vtex%y, vtex%z, 1._krp
 !enddo
 

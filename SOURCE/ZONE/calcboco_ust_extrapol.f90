@@ -10,7 +10,7 @@
 !     variables primitives
 !
 !------------------------------------------------------------------------------!
-subroutine calcboco_ust_extrapol(defboco, ustboco, ustdom, champ)
+subroutine calcboco_ust_extrapol(defboco, ustboco, umesh, champ)
 
 use TYPHMAKE
 use OUTPUT
@@ -24,7 +24,7 @@ implicit none
 ! -- Declaration des entrees --
 type(mnu_boco)   :: defboco          ! parametres de conditions aux limites
 type(st_ustboco) :: ustboco          ! lieu d'application des conditions aux limites
-type(st_ustmesh) :: ustdom           ! maillage non structure
+type(st_ustmesh) :: umesh            ! unstructured mesh
 
 ! -- Declaration des sorties --
 type(st_field)   :: champ            ! champ des etats
@@ -43,8 +43,8 @@ case(extrap_quantity)
 
   do ifb = 1, ustboco%nface
     if     = ustboco%iface(ifb)
-    icell  = ustdom%facecell%fils(if,1)
-    ighost = ustdom%facecell%fils(if,2)
+    icell  = umesh%facecell%fils(if,1)
+    ighost = umesh%facecell%fils(if,2)
     do ip = 1, champ%nscal
       champ%etatprim%tabscal(ip)%scal(ighost) = champ%etatprim%tabscal(ip)%scal(icell) 
     enddo

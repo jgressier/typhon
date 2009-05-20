@@ -9,7 +9,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine init_ustboco_ghostface(ib, defboco, ust_mesh)
+subroutine init_ustboco_ghostface(ib, defboco, umesh)
 
 use TYPHMAKE
 !use VARCOM
@@ -24,7 +24,7 @@ integer        :: ib                     ! numero de condition aux limites
 type(mnu_boco) :: defboco                ! parametres du solveur
 
 ! -- Declaration des entrees/sorties --
-type(st_ustmesh) :: ust_mesh             ! maillage et connectivites
+type(st_ustmesh) :: umesh                ! unstructured mesh
 
 ! -- Declaration des sorties --
 
@@ -35,29 +35,29 @@ integer :: icell, iface                  ! index de cellule et de face
 ! -- Debut de la procedure --
 
 ! affectation de connectivite face limites -> cellules fictives
-! la variable ust_mesh%ncell_lim contient le nombre courant de cellules limites affectees
+! la variable umesh%ncell_lim contient le nombre courant de cellules limites affectees
 
 ! le tableau de cellules est cense pouvoir contenir le nombre de cellules fictives (test)
 
-if ((ust_mesh%ncell_lim+ust_mesh%boco(ib)%nface)>(ust_mesh%ncell-ust_mesh%ncell_int)) then
+if ((umesh%ncell_lim+umesh%boco(ib)%nface)>(umesh%ncell-umesh%ncell_int)) then
   call erreur("Allocation","Pas assez de cellules allouees pour les cellules fictives")
 endif
 
 ! -- boucle sur la liste des faces de la condition limite --
 
-do if = 1, ust_mesh%boco(ib)%nface    
+do if = 1, umesh%boco(ib)%nface    
   
   ! affectation de connectivite face limites -> cellules fictives
-  ust_mesh%ncell_lim = ust_mesh%ncell_lim + 1     ! nouvelle cellule limite
-  icell = ust_mesh%ncell_int + ust_mesh%ncell_lim ! index de cellule limite
-  iface = ust_mesh%boco(ib)%iface(if)             ! index de face
+  umesh%ncell_lim = umesh%ncell_lim + 1     ! nouvelle cellule limite
+  icell = umesh%ncell_int + umesh%ncell_lim ! index de cellule limite
+  iface = umesh%boco(ib)%iface(if)          ! index de face
 
   ! definition geometrique de la cellule fictive
-  ust_mesh%mesh%volume(icell,1,1) = 0._krp
-  ust_mesh%mesh%centre(icell,1,1) = ust_mesh%mesh%iface(iface,1,1)%centre
+  umesh%mesh%volume(icell,1,1) = 0._krp
+  umesh%mesh%centre(icell,1,1) = umesh%mesh%iface(iface,1,1)%centre
   
-  if (ust_mesh%facecell%fils(iface,2) == 0) then
-    ust_mesh%facecell%fils(iface,2) = icell        ! affectation de la cellule fictive
+  if (umesh%facecell%fils(iface,2) == 0) then
+    umesh%facecell%fils(iface,2) = icell    ! affectation de la cellule fictive
   else
     call erreur("Initialisation de connectivite", &
                 "Connectivite deja affectee sur face limite")

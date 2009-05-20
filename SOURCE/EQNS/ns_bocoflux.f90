@@ -5,7 +5,7 @@
 !   Computation of VISCOUS flux for NS equations
 !
 !------------------------------------------------------------------------------!
-subroutine ns_bocoflux(defsolver, domaine, flux, field, defspat)
+subroutine ns_bocoflux(defsolver, umesh, flux, field, defspat)
 use TYPHMAKE
 use OUTPUT
 use VARCOM
@@ -22,7 +22,7 @@ implicit none
 
 ! -- Inputs --
 type(mnu_solver)        :: defsolver        ! solver
-type(st_ustmesh)        :: domaine          ! unstructured domain
+type(st_ustmesh)        :: umesh            ! unstructured mesh
 type(st_field)          :: field            
 type(mnu_spat)          :: defspat          ! spatial integration parameters
 
@@ -44,9 +44,9 @@ real(krp)                   :: id
 
 ! -- BODY --
 
-do ib = 1, domaine%nboco
+do ib = 1, umesh%nboco
 
-  idef = domaine%boco(ib)%idefboco   ! index of boco definition in defsolver structure
+  idef = umesh%boco(ib)%idefboco   ! index of boco definition in defsolver structure
   if (idef <= 0) cycle               ! if index <= 0, internal boco (connection...)
 
   !---------------------------------------------------------------------
@@ -56,24 +56,24 @@ do ib = 1, domaine%nboco
 
   case(bc_wall_adiab, bc_wall_flux, bc_wall_hconv, bc_wall_hgen) 
 
-    do ifb = 1, domaine%boco(ib)%nface
-      if  = domaine%boco(ib)%iface(ifb)
-      icl = domaine%facecell%fils(if,1)
-      icr = domaine%facecell%fils(if,2)
+    do ifb = 1, umesh%boco(ib)%nface
+      if  = umesh%boco(ib)%iface(ifb)
+      icl = umesh%facecell%fils(if,1)
+      icr = umesh%facecell%fils(if,2)
 
       r_PG = defsolver%defns%properties(1)%r_const  ! perfect gas constant
       cp = defsolver%defns%properties(1)%gamma * r_PG / &
            (defsolver%defns%properties(1)%gamma - 1)    ! heat capacity
 
-      dHL(1) = abs(domaine%mesh%iface(if,1,1)%centre - &
-                  domaine%mesh%centre(icl,1,1))
-      dHR(1) = abs(domaine%mesh%iface(if,1,1)%centre - &
-                  domaine%mesh%centre(icr,1,1))
+      dHL(1) = abs(umesh%mesh%iface(if,1,1)%centre - &
+                  umesh%mesh%centre(icl,1,1))
+      dHR(1) = abs(umesh%mesh%iface(if,1,1)%centre - &
+                  umesh%mesh%centre(icr,1,1))
       id      = 1._krp/(dHL(1) + dHR(1))
       dHL(1) = id*dHL(1)
       dHR(1) = id*dHR(1)
-      vLR(1) = domaine%mesh%centre(icr,1,1) - &
-               domaine%mesh%centre(icl,1,1)
+      vLR(1) = umesh%mesh%centre(icr,1,1) - &
+               umesh%mesh%centre(icl,1,1)
       ! DEV / OPT : calcul de distance au carre si c'est la seule utilisee
       ! pour eviter sqrt()**2
       !dLR = abs(vLR)
@@ -95,7 +95,7 @@ do ib = 1, domaine%nboco
       call calc_viscosity(defsolver%defns%properties(1), rhoH(1:1), TH(1:1), mu(1:1))
 
       ! temperature gradient at the face
-      face(1) = domaine%mesh%iface(if,1,1)
+      face(1) = umesh%mesh%iface(if,1,1)
       call interp_facegradn_scal(1,defspat%sch_dis,dHL,dHR,vLR,&
                                face,TL,TR,gradTL,gradTR,gradTH)
  
@@ -104,7 +104,7 @@ do ib = 1, domaine%nboco
       conduct = mu(1) * cp / defsolver%defns%properties(1)%prandtl
 
       flux%tabscal(2)%scal(if) = flux%tabscal(2)%scal(if) + &
-         conduct * gradTH(1) + domaine%boco(ib)%bocofield%tabscal(1)%scal(ifb)
+         conduct * gradTH(1) + umesh%boco(ib)%bocofield%tabscal(1)%scal(ifb)
     enddo
   endselect
 

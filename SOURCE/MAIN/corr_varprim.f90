@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine corr_varprim(field, domaine, def_solver, dif_enflux, nb, part_cor, &
+subroutine corr_varprim(field, umesh, def_solver, dif_enflux, nb, part_cor, &
                         typ_cor, fincycle)
  
 use TYPHMAKE
@@ -21,8 +21,8 @@ use MENU_ZONECOUPLING
 implicit none
 
 ! -- Declaration des entrees --
-type(st_ustmesh)      :: domaine          ! domaine non structure a integrer
-type(mnu_solver)      :: def_solver     ! proprietes du solver
+type(st_ustmesh)      :: umesh            ! unstructured mesh
+type(mnu_solver)      :: def_solver       ! proprietes du solver
 type(st_genericfield) :: dif_enflux       ! energie a ajouter, pour correction de flux
 integer               :: nb               ! index de la condition aux limites
 real(krp)             :: part_cor         ! coefficient donnant la part de la 
@@ -39,7 +39,7 @@ type(st_field)   :: field            ! champ des valeurs et residus
 
 select case(def_solver%typ_solver)
 case(solKDIF)
-  call corr_varprim_kdif(field, domaine, def_solver, dif_enflux, nb, &
+  call corr_varprim_kdif(field, umesh, def_solver, dif_enflux, nb, &
                          part_cor, typ_cor, fincycle)
 case(solNS)
 

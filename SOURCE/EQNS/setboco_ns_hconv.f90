@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine setboco_ns_hconv(defns, unif, ustboco, ustdom, fld, defsolver, bcns)
+subroutine setboco_ns_hconv(defns, unif, ustboco, umesh, fld, defsolver, bcns)
 
 use TYPHMAKE
 use OUTPUT
@@ -23,7 +23,7 @@ implicit none
 type(mnu_ns)       :: defns            ! solver parameters
 integer            :: unif             ! uniform or not
 type(st_ustboco)   :: ustboco          ! lieu d'application des conditions aux limites
-type(st_ustmesh)   :: ustdom           ! maillage non structure
+type(st_ustmesh)   :: umesh            ! unstructured mesh
 type(mnu_solver)   :: defsolver        ! type d'equation a resoudre
 type(st_boco_ns)   :: bcns           ! parameters and fluxes (field or constant)
 
@@ -52,13 +52,13 @@ cp = defns%properties(1)%gamma * r_PG / &
 
 do ifb = 1, ustboco%nface
   if     = ustboco%iface(ifb)
-  ic     = ustdom%facecell%fils(if,1)
-  ighost = ustdom%facecell%fils(if,2)
+  ic     = umesh%facecell%fils(if,1)
+  ighost = umesh%facecell%fils(if,2)
 
   ! Computation of "distance" cell center - face center
-  cgface = ustdom%mesh%iface(if,1,1)%centre
-  cg     = ustdom%mesh%centre(ic,1,1)
-  normale= ustdom%mesh%iface(if,1,1)%normale
+  cgface = umesh%mesh%iface(if,1,1)%centre
+  cg     = umesh%mesh%centre(ic,1,1)
+  normale= umesh%mesh%iface(if,1,1)%normale
   d = abs((cgface - cg).scal.normale)
 !  d    = (cgface - cg) .scal. (cgface - cg) / (abs((cgface - cg).scal.normale))
   dc = (cgface - cg) - ( (cgface - cg).scal.normale ) * normale

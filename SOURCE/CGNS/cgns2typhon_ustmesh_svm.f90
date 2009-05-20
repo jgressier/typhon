@@ -8,7 +8,7 @@
 !
 !------------------------------------------------------------------------------!
 
-subroutine cgns2typhon_ustmeshsvm(defsolver, defmesh, cgnszone, mesh) 
+subroutine cgns2typhon_ustmeshsvm(defsolver, defmesh, cgnszone, umesh) 
 
 use CGNS_STRUCT   ! Definition des structures CGNS
 use DEFZONE       ! Definition des structures ZONE
@@ -25,7 +25,7 @@ type(mnu_mesh)     :: defmesh           ! mesh parameters
 type(st_cgns_zone) :: cgnszone          ! structure ZONE des donnees CGNS
 
 ! -- OUTPUTS --
-type(st_ustmesh)   :: mesh           ! structure USTMESH des donnees TYPHON
+type(st_ustmesh)   :: umesh           ! unstructured mesh
 
 ! -- Internal variables --
 integer, parameter  :: nmax_cell = 20   ! nb max de cellules dans la connectivite vtex->cell
@@ -46,9 +46,9 @@ endif
 
 select case(cgnszone%imesh)    ! transfer mesh dimension 
 case(2)
-  mesh%mesh%info%geom = msh_2dplan
+  umesh%mesh%info%geom = msh_2dplan
 case(3)
-  mesh%mesh%info%geom = msh_3d
+  umesh%mesh%info%geom = msh_3d
 endselect
 
 !--------------------------------------------------------------------------
@@ -60,7 +60,7 @@ maxvtex  = 0    ! max. number of vtex  by cell
 maxface  = 0    ! max. number of faces by cell
 nface    = 0    ! estimate of face number
 
-call init(mesh%cellvtex)
+call init(umesh%cellvtex)
 
 do iconn = 1, cgnszone%ncellfam          ! boucle sur les sections de cellules
  
@@ -76,32 +76,32 @@ do iconn = 1, cgnszone%ncellfam          ! boucle sur les sections de cellules
     maxvtex = max(maxvtex, 2)
     maxface = max(maxface, 3)
     nface   = nface + 3*cgnszone%cellfam(iconn)%nbnodes
-    mesh%cellvtex%ntri = mesh%cellvtex%ntri + cgnszone%cellfam(iconn)%nbnodes
+    umesh%cellvtex%ntri = umesh%cellvtex%ntri + cgnszone%cellfam(iconn)%nbnodes
   case(QUAD_4,QUAD_8,QUAD_9)
     maxvtex = max(maxvtex, 2)
     maxface = max(maxface, 4)
     nface   = nface + 4*cgnszone%cellfam(iconn)%nbnodes
-    mesh%cellvtex%nquad = mesh%cellvtex%nquad + cgnszone%cellfam(iconn)%nbnodes
+    umesh%cellvtex%nquad = umesh%cellvtex%nquad + cgnszone%cellfam(iconn)%nbnodes
   case(TETRA_4,TETRA_10)
     maxvtex = max(maxvtex, 3)
     maxface = max(maxface, 4)
     nface   = nface + 4*cgnszone%cellfam(iconn)%nbnodes
-    mesh%cellvtex%ntetra = mesh%cellvtex%ntetra + cgnszone%cellfam(iconn)%nbnodes
+    umesh%cellvtex%ntetra = umesh%cellvtex%ntetra + cgnszone%cellfam(iconn)%nbnodes
   case(PYRA_5,PYRA_14)
     maxvtex = max(maxvtex, 4)
     maxface = max(maxface, 5)
     nface   = nface + 5*cgnszone%cellfam(iconn)%nbnodes
-    mesh%cellvtex%npyra = mesh%cellvtex%npyra + cgnszone%cellfam(iconn)%nbnodes
+    umesh%cellvtex%npyra = umesh%cellvtex%npyra + cgnszone%cellfam(iconn)%nbnodes
   case(PENTA_6,PENTA_15,PENTA_18)
     maxvtex = max(maxvtex, 4)
     maxface = max(maxface, 5)
     nface   = nface + 5*cgnszone%cellfam(iconn)%nbnodes
-    mesh%cellvtex%npenta = mesh%cellvtex%npenta + cgnszone%cellfam(iconn)%nbnodes
+    umesh%cellvtex%npenta = umesh%cellvtex%npenta + cgnszone%cellfam(iconn)%nbnodes
   case(HEXA_8,HEXA_20,HEXA_27)
     maxvtex = max(maxvtex, 4)
     maxface = max(maxface, 6)
     nface   = nface + 6*cgnszone%cellfam(iconn)%nbnodes
-    mesh%cellvtex%nhexa = mesh%cellvtex%nhexa + cgnszone%cellfam(iconn)%nbnodes
+    umesh%cellvtex%nhexa = umesh%cellvtex%nhexa + cgnszone%cellfam(iconn)%nbnodes
   case(MIXED, NGON_n)
     call erreur("Development", "MIXED & NGON_n elements not yet handled")
   case default
@@ -118,17 +118,17 @@ call print_info(8,"  mesh points coordinates")
 
 ! -- estimation of the number of vertices --
 
-mesh%mesh%nvtex  = cgnszone%mesh%ni + ntotcell*defsolver%defspat%svm%sub_node               ! nb of vertices
-allocate(mesh%mesh%vertex(mesh%mesh%nvtex, 1, 1))
-mesh%mesh%vertex(1:cgnszone%mesh%ni, 1, 1) = cgnszone%mesh%vertex(1:cgnszone%mesh%ni, 1, 1) ! copy vertex cloud
-mesh%nvtex       = mesh%mesh%nvtex                                                          ! nb of vertices (redundant)
+umesh%mesh%nvtex  = cgnszone%mesh%ni + ntotcell*defsolver%defspat%svm%sub_node               ! nb of vertices
+allocate(umesh%mesh%vertex(umesh%mesh%nvtex, 1, 1))
+umesh%mesh%vertex(1:cgnszone%mesh%ni, 1, 1) = cgnszone%mesh%vertex(1:cgnszone%mesh%ni, 1, 1) ! copy vertex cloud
+umesh%nvtex       = umesh%mesh%nvtex                                                          ! nb of vertices (redundant)
 
 
 !--------------------------------------------------------------------------
 ! copy of CELL->VTEX connectivity
 !--------------------------------------------------------------------------
 
-call new(mesh%cellvtex)
+call new(umesh%cellvtex)
 
 do iconn = 1, cgnszone%ncellfam          ! boucle sur les sections de cellules
  
@@ -141,47 +141,47 @@ do iconn = 1, cgnszone%ncellfam          ! boucle sur les sections de cellules
     call erreur("Development", "Unexpected type of cell (BAR)")
 
   case(TRI_3)
-    mesh%cellvtex%tri%fils(:,1:3) = cgnszone%cellfam(iconn)%fils(:,1:3)
-    mesh%cellvtex%itri(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
+    umesh%cellvtex%tri%fils(:,1:3) = cgnszone%cellfam(iconn)%fils(:,1:3)
+    umesh%cellvtex%itri(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
                                                cgnszone%cellfam(iconn)%ifin  ) /)
   case(TRI_6)
     call erreur("Development", "Unexpected type of cell (TRI_6)")
-    !mesh%cellvtex%tri%fils(:,1:3) = cgnszone%cellfam(iconn)%fils(:,1:3)
+    !umesh%cellvtex%tri%fils(:,1:3) = cgnszone%cellfam(iconn)%fils(:,1:3)
 
   case(QUAD_4)
-    mesh%cellvtex%quad%fils(:,1:4) = cgnszone%cellfam(iconn)%fils(:,1:4)
-    mesh%cellvtex%iquad(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
+    umesh%cellvtex%quad%fils(:,1:4) = cgnszone%cellfam(iconn)%fils(:,1:4)
+    umesh%cellvtex%iquad(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
                                                 cgnszone%cellfam(iconn)%ifin  ) /)
 
   case(QUAD_8,QUAD_9)
     call erreur("Development", "Unexpected type of cell (QUAD_8/9)")
 
   case(TETRA_4)
-    mesh%cellvtex%tetra%fils(:,1:4) = cgnszone%cellfam(iconn)%fils(:,1:4)
-    mesh%cellvtex%itetra(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
+    umesh%cellvtex%tetra%fils(:,1:4) = cgnszone%cellfam(iconn)%fils(:,1:4)
+    umesh%cellvtex%itetra(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
                                                  cgnszone%cellfam(iconn)%ifin  ) /)
 
   case(TETRA_10)
     call erreur("Development", "Unexpected type of cell (TETRA_10)")
 
   case(PYRA_5)
-    mesh%cellvtex%pyra%fils(:,1:5) = cgnszone%cellfam(iconn)%fils(:,1:5)
-    mesh%cellvtex%ipyra(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
+    umesh%cellvtex%pyra%fils(:,1:5) = cgnszone%cellfam(iconn)%fils(:,1:5)
+    umesh%cellvtex%ipyra(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
                                                 cgnszone%cellfam(iconn)%ifin  ) /)
   case(PYRA_14)
     call erreur("Development", "Unexpected type of cell (PYRA_14)")
 
   case(PENTA_6)
-    mesh%cellvtex%penta%fils(:,1:6) = cgnszone%cellfam(iconn)%fils(:,1:6)
-    mesh%cellvtex%ipenta(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
+    umesh%cellvtex%penta%fils(:,1:6) = cgnszone%cellfam(iconn)%fils(:,1:6)
+    umesh%cellvtex%ipenta(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
                                                  cgnszone%cellfam(iconn)%ifin  ) /)
 
   case(PENTA_15,PENTA_18)
     call erreur("Development", "Unexpected type of cell (PENTA_15/18)")
 
   case(HEXA_8)
-    mesh%cellvtex%hexa%fils(:,1:8) = cgnszone%cellfam(iconn)%fils(:,1:8)
-    mesh%cellvtex%ihexa(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
+    umesh%cellvtex%hexa%fils(:,1:8) = cgnszone%cellfam(iconn)%fils(:,1:8)
+    umesh%cellvtex%ihexa(:) = (/ (icell, icell = cgnszone%cellfam(iconn)%ideb, &
                                                 cgnszone%cellfam(iconn)%ifin  ) /)
   case(HEXA_20,HEXA_27)
     call erreur("Development", "Unexpected type of cell (HEXA_20/27)")
@@ -201,8 +201,8 @@ enddo
 
 ! initialize face array
 
-nullify(mesh%mesh%iface)
-mesh%mesh%nface = 0
+nullify(umesh%mesh%iface)
+umesh%mesh%nface = 0
 
 call print_info(8,"  creating faces and associated connectivity")
 
@@ -220,22 +220,22 @@ face_cell%fils(:,:) = 0                     ! initialisation de la connectivite
 
 ! -- creation des faces et des connectivites --
 
-call createface_fromcgns(mesh%nvtex, cgnszone, face_cell, face_vtex)
+call createface_fromcgns(umesh%nvtex, cgnszone, face_cell, face_vtex)
 
 ! Recopie des connectivites dans la structure TYPHON
 ! avec le nombre exact de faces reconstruites
 
 nface          = face_vtex%nbnodes     ! meme valeur que face_cell%nbnodes aussi
-mesh%nface     = nface
-mesh%ncell_int = ntotcell
+umesh%nface     = nface
+umesh%ncell_int = ntotcell
 write(str_w,'(i10,a)') nface,"created faces"
 call print_info(8,str_w)
 
-call new(mesh%facevtex, nface, maxvtex)
-call new(mesh%facecell, nface, 2)
+call new(umesh%facevtex, nface, maxvtex)
+call new(umesh%facecell, nface, 2)
 
-mesh%facevtex%fils(1:nface,1:maxvtex) = face_vtex%fils(1:nface,1:maxvtex)
-mesh%facecell%fils(1:nface,1:2)       = face_cell%fils(1:nface,1:2)
+umesh%facevtex%fils(1:nface,1:maxvtex) = face_vtex%fils(1:nface,1:maxvtex)
+umesh%facecell%fils(1:nface,1:2)       = face_cell%fils(1:nface,1:2)
 
 ! desallocation
 
@@ -246,14 +246,14 @@ call delete(face_vtex)
 
 ! -- Renumerotation des faces --
 
-call reorder_ustconnect(0, mesh)    ! action sur les connectivites uniquement
+call reorder_ustconnect(0, umesh)    ! action sur les connectivites uniquement
 
 ! -- Converting boundary conditions --
 
-call cgns2typhon_ustboco(cgnszone, mesh)
+call cgns2typhon_ustboco(cgnszone, umesh)
 
-mesh%ncell_lim = mesh%nface_lim
-mesh%ncell     = mesh%ncell_int + mesh%ncell_lim
+umesh%ncell_lim = umesh%nface_lim
+umesh%ncell     = umesh%ncell_int + umesh%ncell_lim
 
 !-------------------------
 endsubroutine cgns2typhon_ustmesh

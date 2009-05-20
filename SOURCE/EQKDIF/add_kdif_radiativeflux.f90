@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine add_kdif_radiativeflux(defsolver, idef, domain, ib, flux, stprim)
+subroutine add_kdif_radiativeflux(defsolver, idef, umesh, ib, flux, stprim)
 
 use TYPHMAKE
 use OUTPUT
@@ -25,7 +25,7 @@ implicit none
 type(mnu_solver)        :: defsolver        ! solver parameters
 integer                 :: idef             ! boco defintion (defsolver%boco)
 integer                 :: ib               ! domain boco definition
-type(st_ustmesh)        :: domain           ! unstructured domain (cell, face, connectivity)
+type(st_ustmesh)        :: umesh            ! unstructured mesh (cell, face, connectivity)
 type(st_genericfield)   :: stprim           ! primitive state
 
 ! -- Outputs --
@@ -43,9 +43,9 @@ Tfar4 = defsolver%boco(idef)%boco_kdif%rad_Tinf**4
 !---------------------------------------------------------------------
 ! add radiative term to flux (should eventually be initialized)
 
-do ifb = 1, domain%boco(ib)%nface
-  if = domain%boco(ib)%iface(ifb)
-  ic = domain%facecell%fils(if,2)    ! ghost cell is always right cell
+do ifb = 1, umesh%boco(ib)%nface
+  if = umesh%boco(ib)%iface(ifb)
+  ic = umesh%facecell%fils(if,2)    ! ghost cell is always right cell
   flux%tabscal(1)%scal(if) = flux%tabscal(1)%scal(if) + cst*(stprim%tabscal(1)%scal(ic)**4 -Tfar4)
 enddo
 

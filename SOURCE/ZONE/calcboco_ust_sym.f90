@@ -9,7 +9,7 @@
 !     variables primitives
 !
 !------------------------------------------------------------------------------!
-subroutine calcboco_ust_sym(defboco, ustboco, ustdom, champ)
+subroutine calcboco_ust_sym(defboco, ustboco, umesh, champ)
 
 use TYPHMAKE
 use OUTPUT
@@ -23,7 +23,7 @@ implicit none
 ! -- Declaration des entrees --
 type(mnu_boco)   :: defboco          ! parametres de conditions aux limites
 type(st_ustboco) :: ustboco          ! lieu d'application des conditions aux limites
-type(st_ustmesh) :: ustdom           ! maillage non structure
+type(st_ustmesh) :: umesh            ! unstructured mesh
 
 ! -- Declaration des sorties --
 type(st_field)   :: champ            ! champ des etats
@@ -38,14 +38,14 @@ real(krp)  :: rap
 
 do ifb = 1, ustboco%nface
   if     = ustboco%iface(ifb)
-  icell  = ustdom%facecell%fils(if,1)
-  ighost = ustdom%facecell%fils(if,2)
+  icell  = umesh%facecell%fils(if,1)
+  ighost = umesh%facecell%fils(if,2)
   do ip = 1, champ%nscal
     champ%etatprim%tabscal(ip)%scal(ighost) = champ%etatprim%tabscal(ip)%scal(icell) 
   enddo
-  fn  = ustdom%mesh%iface(if,1,1)%normale                                ! normale face
-  dfc = ustdom%mesh%iface(if,1,1)%centre - ustdom%mesh%centre(icell,1,1) ! dist ctr. face - cell
-  dgc = ustdom%mesh%centre(ighost,1,1)   - ustdom%mesh%centre(icell,1,1) ! dist ghostcell - cell
+  fn  = umesh%mesh%iface(if,1,1)%normale                               ! normale face
+  dfc = umesh%mesh%iface(if,1,1)%centre - umesh%mesh%centre(icell,1,1) ! dist ctr. face - cell
+  dgc = umesh%mesh%centre(ighost,1,1)   - umesh%mesh%centre(icell,1,1) ! dist ghostcell - cell
   rap = (dgc.scal.fn)/(dfc.scal.fn)
   do ip = 1, champ%nvect
     vc = champ%etatprim%tabvect(ip)%vect(icell)

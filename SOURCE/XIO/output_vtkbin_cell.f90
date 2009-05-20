@@ -9,7 +9,7 @@
 !
 !------------------------------------------------------------------------------!
 
-subroutine output_vtkbin_cell(uf, defsolver, ust_mesh, field)
+subroutine output_vtkbin_cell(uf, defsolver, umesh, field)
 
 use TYPHMAKE
 use OUTPUT
@@ -24,7 +24,7 @@ implicit none
 ! -- INPUTS --
 integer         , intent(in) :: uf            ! unite d'ecriture
 type(mnu_solver), intent(in) :: defsolver     ! parametres du solveur
-type(st_ustmesh), intent(in) :: ust_mesh      ! maillage a ecrire
+type(st_ustmesh), intent(in) :: umesh         ! unstructured mesh
 type(st_field),   intent(in) :: field         ! champ de valeurs
 
 ! -- OUTPUTS --
@@ -40,35 +40,35 @@ type(v3d) :: vtex
 ! ecriture du maillage
 
 call writestr(uf,'DATASET UNSTRUCTURED_GRID')
-write(str_w,'(A,I9,A)') 'POINTS ', ust_mesh%nvtex, ' double'
+write(str_w,'(A,I9,A)') 'POINTS ', umesh%nvtex, ' double'
 call writestr(uf, trim(str_w))
 
 ! coordonnees
 
-do i = 1, ust_mesh%nvtex
-  vtex = ust_mesh%mesh%vertex(i,1,1)
+do i = 1, umesh%nvtex
+  vtex = umesh%mesh%vertex(i,1,1)
   write(uf) real(vtex%x, kind=8), real(vtex%y, kind=8), real(vtex%z, kind=8)
 enddo
 call writereturn(uf)
 
 ! CELLVTEX connectivity
 
-ncellint       = ust_mesh%ncell_int
+ncellint       = umesh%ncell_int
 ntot           = 0                       ! number of written integer in CELLVTEX connectivity
 
-do ielem = 1, ust_mesh%cellvtex%ntype
-  nvtex = ust_mesh%cellvtex%elem(ielem)%nvtex
-  ntot  = ntot + (nvtex+1)*ust_mesh%cellvtex%elem(ielem)%nelem
+do ielem = 1, umesh%cellvtex%ntype
+  nvtex = umesh%cellvtex%elem(ielem)%nvtex
+  ntot  = ntot + (nvtex+1)*umesh%cellvtex%elem(ielem)%nelem
 enddo
 
 write(str_w,'(A,2I10)') 'CELLS ', ncellint, ntot
 call writestr(uf, trim(str_w))
 
-do ielem = 1, ust_mesh%cellvtex%ntype
+do ielem = 1, umesh%cellvtex%ntype
 
-  nvtex = ust_mesh%cellvtex%elem(ielem)%nvtex
-  do i = 1, ust_mesh%cellvtex%elem(ielem)%nelem
-    write(uf) nvtex, ust_mesh%cellvtex%elem(ielem)%elemvtex(i,1:nvtex)-1
+  nvtex = umesh%cellvtex%elem(ielem)%nvtex
+  do i = 1, umesh%cellvtex%elem(ielem)%nelem
+    write(uf) nvtex, umesh%cellvtex%elem(ielem)%elemvtex(i,1:nvtex)-1
   enddo
 
 enddo
@@ -78,9 +78,9 @@ enddo
 write(str_w,'(A,I9,A)') 'CELL_TYPES ', ncellint, ' int'
 call writestr(uf, trim(str_w))
 
-do ielem = 1, ust_mesh%cellvtex%ntype
+do ielem = 1, umesh%cellvtex%ntype
 
-  select case(ust_mesh%cellvtex%elem(ielem)%elemtype)
+  select case(umesh%cellvtex%elem(ielem)%elemtype)
   case(elem_bar2)
     vtktype = 3    ! VTK_LINE 
   case(elem_tri3)
@@ -101,7 +101,7 @@ do ielem = 1, ust_mesh%cellvtex%ntype
     call erreur("VTK writer", "do not known how to write this element type")
   endselect
 
-  do i = 1, ust_mesh%cellvtex%elem(ielem)%nelem
+  do i = 1, umesh%cellvtex%elem(ielem)%nelem
     write(uf) vtktype
   enddo
 
@@ -117,14 +117,14 @@ select case(defsolver%typ_solver)
 case(solNS)
   write(str_w,'(A,I9)') 'CELL_DATA ', ncellint
   call writestr(uf, trim(str_w))
-  call output_vtkbin_scal(uf, ust_mesh, "DENSITY",  field%etatprim%tabscal(1))
-  call output_vtkbin_scal(uf, ust_mesh, "PRESSURE", field%etatprim%tabscal(2))
-  call output_vtkbin_vect(uf, ust_mesh, "VELOCITY", field%etatprim%tabvect(1))
+  call output_vtkbin_scal(uf, umesh, "DENSITY",  field%etatprim%tabscal(1))
+  call output_vtkbin_scal(uf, umesh, "PRESSURE", field%etatprim%tabscal(2))
+  call output_vtkbin_vect(uf, umesh, "VELOCITY", field%etatprim%tabvect(1))
 
 case(solKDIF)
   write(str_w,'(A,I9)') 'CELL_DATA ', ncellint
   call writestr(uf, trim(str_w))
-  call output_vtkbin_scal(uf, ust_mesh, "TEMPERATURE",  field%etatprim%tabscal(1))
+  call output_vtkbin_scal(uf, umesh, "TEMPERATURE",  field%etatprim%tabscal(1))
 
 case(solVORTEX)
 case default

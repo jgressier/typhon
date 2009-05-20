@@ -5,12 +5,9 @@
 !   Echange des donnees entre deux zones
 !
 ! Defauts/Limitations/Divers : pour l'instant, une methode de calcul commune 
-!				aux deux zones
+!                               aux deux zones
 !------------------------------------------------------------------------------!
 
-! -----------------PROVISOIRE-----------------------------------------------
-!subroutine echange_zonematch(zone1, zone2, typcalc, nfacelim, nbc1, nbc2, ncoupl1, ncoupl2, icycle, typtemps, dtexch)
-! --------------------------------------------------------------------------
 subroutine echange_zonematch(zone1, zone2, typcalc, nfacelim, nbc1, nbc2, ncoupl1, ncoupl2, typtemps, dtexch)
  
 use OUTPUT
@@ -23,7 +20,7 @@ use MENU_GEN
 
 implicit none
 
-! -- Declaration des entrees --
+! -- Inputs --
 type(st_zone)              :: zone1, zone2
 integer                    :: typcalc             ! type d'interpolation
 integer                    :: nfacelim            ! nombre de faces limites
@@ -35,20 +32,14 @@ character                  :: typtemps
 real(krp)                  :: dtexch             ! pas de temps entre 
                                                  ! deux echanges
 
-! -----------------PROVISOIRE-----------------------------------------------
-!integer     :: icycle
-!---------------------------------------------------------------------------
+! -- Outputs --
 
-
-
-! -- Declaration des sorties --
-
-! -- Declaration des variables internes --
+! -- Internal variables --
 integer                        :: i, if, ic, if2, ifield, ic1, ic2, ip
 type(v3d), dimension(nfacelim) :: normale ! normales a l'interface
 type(v3d), dimension(nfacelim) :: vecinter ! vecteurs inter-cellule
-    real(krp), dimension(nfacelim) :: d1, d2  ! distance centre de cellule - centre de face
-  				                 ! (gauche, droite)  
+real(krp), dimension(nfacelim) :: d1, d2  ! distance centre de cellule - centre de face
+                                          ! (gauche, droite)  
 integer                        :: typmethod
 type(v3d)                      :: cg1, cg2, cgface ! centres des cellules des zones 1 et 2, et des faces
 integer                        :: typsolver1, typsolver2
@@ -63,22 +54,7 @@ real(krp)                      :: part_cor1, part_cor2 ! part de correction a
                                                   ! apporter, dans les 2 zones
 integer                        :: typ_cor1, typ_cor2 ! type de correction
 
-! -----------------PROVISOIRE-----------------------------------------------
-!integer     :: uf
-!---------------------------------------------------------------------------
-
-! -- Debut de la procedure --
-
-! -----------------PROVISOIRE------------------------------------------------
-!  uf = 556
-!if ((icycle.lt.10)) then
-!  open(unit = uf, file = "t"//trim(adjustl(strof(icycle,3)))//".dat", form = 'formatted')
-!  write(uf, '(a)') 'VARIABLES="X","Y","Z", "T"'
-!
-!  call output_field(uf, zone1%ust_mesh, zone2%ust_mesh, zone1%field, &
-!                    zone2%field,"FIN DU CYCLE PRECEDENT")
-!endif
-!-----------------------------------------------------------------------------
+! -- Body --
 
 typ_cor1 = zone1%coupling(ncoupl1)%typ_cor
 typ_cor2 = zone2%coupling(ncoupl2)%typ_cor
@@ -107,14 +83,6 @@ print*, "CORRECTION AVANT"
     endif
 
 endselect
-
-! -----------------PROVISOIRE------------------------------------------------
-!if ((icycle.lt.10)) then
-!  call output_field(uf, zone1%ust_mesh, zone2%ust_mesh, zone1%field, &
-!                    zone2%field,"APRES CORRECTION")
-!endif
-!-----------------------------------------------------------------------------
-
 
 typsolver1 = zone1%defsolver%typ_solver
 typsolver2 = zone2%defsolver%typ_solver

@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine calcboco_kdif_coupling_face(ustboco, ustdom, champ, condrac)
+subroutine calcboco_kdif_coupling_face(ustboco, umesh, champ, condrac)
 
 use TYPHMAKE
 use OUTPUT
@@ -20,7 +20,7 @@ implicit none
 
 ! -- Declaration des entrees --
 type(st_ustboco) :: ustboco           ! lieu d'application des conditions aux limites
-type(st_ustmesh) :: ustdom            ! maillage non structure
+type(st_ustmesh) :: umesh             ! unstructured mesh
 type(st_genericfield) :: condrac ! stockage des conditions limites de couplage
 
 ! -- Declaration des sorties --
@@ -33,7 +33,7 @@ integer          :: ighostface        ! index de cellule fictive
 ! -- Debut de la procedure --
   do ifb = 1, ustboco%nface 
     if = ustboco%iface(ifb)
-    ighostface = ustdom%facecell%fils(if,2) 
+    ighostface = umesh%facecell%fils(if,2) 
     champ%etatprim%tabscal(1)%scal(ighostface) = condrac%tabscal(1)%scal(ifb)
    !champ%etatprim%tabscal(2)%scal(ighostface) = condrac%tabscal(2)%scal(ifb)
   enddo

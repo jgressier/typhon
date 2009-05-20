@@ -8,7 +8,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine init_boco_ns(defsolver, ustdom)
+subroutine init_boco_ns(defsolver, umesh)
 
 use TYPHMAKE
 use DEFFIELD
@@ -20,7 +20,7 @@ use VARCOM
 implicit none
 
 ! -- Declaration des entrees --
-type(st_ustmesh)  :: ustdom
+type(st_ustmesh)  :: umesh
 
 ! -- Declaration des entrees/sorties --
 type(mnu_solver)  :: defsolver
@@ -32,9 +32,9 @@ integer :: iboco, i, idef
 
 ! On parcourt toutes les conditions limites du domaine
 
-do iboco = 1, ustdom%nboco 
+do iboco = 1, umesh%nboco 
 
-  idef = ustdom%boco(iboco)%idefboco
+  idef = umesh%boco(iboco)%idefboco
 
   if (idef > 0) then
 
@@ -44,24 +44,24 @@ do iboco = 1, ustdom%nboco
     case(bc_wall_isoth)
       ! nothing to do
     case(bc_wall_flux, bc_wall_hconv, bc_wall_hgen)
-      ustdom%boco(iboco)%bocofield => insert_newgfield(ustdom%boco(iboco)%bocofield, ustdom%boco(iboco)%nface, 1, 0, 0)
+      umesh%boco(iboco)%bocofield => insert_newgfield(umesh%boco(iboco)%bocofield, umesh%boco(iboco)%nface, 1, 0, 0)
     !case default
     !  call erreur("Internal error","unknown boundary condition (init_boco_ns)")
     endselect
 
-  !!! DEV !!! must locate array in ustdom%boco instead of defsolver
+  !!! DEV !!! must locate array in umesh%boco instead of defsolver
 
   !-------------------------------------------------
   ! Condition de Dirichlet 
   !-------------------------------------------------
   ! Cas d'existence d'un tableau de temperatures
   if(defsolver%boco(idef)%boco_ns%alloctemp) then
-    allocate(defsolver%boco(idef)%boco_ns%temp(ustdom%boco(iboco)%nface))
+    allocate(defsolver%boco(idef)%boco_ns%temp(umesh%boco(iboco)%nface))
 
     ! Cas d'existence d'un fichier de temperatures limites :
     if(defsolver%boco(idef)%boco_ns%tempfile .ne. cnull) then
       open(unit=1002, file = trim(defsolver%boco(idef)%boco_ns%tempfile), form="formatted")
-      read(1002,*)  (defsolver%boco(idef)%boco_ns%temp(i),i = 1, ustdom%boco(iboco)%nface) 
+      read(1002,*)  (defsolver%boco(idef)%boco_ns%temp(i),i = 1, umesh%boco(iboco)%nface) 
       close(1002)
     endif
 
@@ -72,12 +72,12 @@ do iboco = 1, ustdom%nboco
   !-------------------------------------------------
   ! Cas d'existence d'un tableau de flux
   if(defsolver%boco(idef)%boco_ns%allocflux) then
-    allocate(defsolver%boco(idef)%boco_ns%flux_nunif(ustdom%boco(iboco)%nface))
+    allocate(defsolver%boco(idef)%boco_ns%flux_nunif(umesh%boco(iboco)%nface))
 
     ! Cas d'existence d'un fichier de flux limites :
     if(defsolver%boco(idef)%boco_ns%fluxfile .ne. cnull) then
       open(unit=1002, file = trim(defsolver%boco(idef)%boco_ns%fluxfile), form="formatted")
-      read(1002,*)  (defsolver%boco(idef)%boco_ns%flux_nunif(i),i = 1, ustdom%boco(iboco)%nface) 
+      read(1002,*)  (defsolver%boco(idef)%boco_ns%flux_nunif(i),i = 1, umesh%boco(iboco)%nface) 
       close(1002)
       ! convention de flux sortant dans le code / CL : flux entrant pour l'utilisateur
       defsolver%boco(idef)%boco_ns%flux_nunif(:) = &
@@ -90,8 +90,8 @@ do iboco = 1, ustdom%nboco
   !-------------------------------------------------
   ! Cas d'existence de tableaux de coefficients et temperatures de convection
   if(defsolver%boco(idef)%boco_ns%allochconv) then
-    allocate(defsolver%boco(idef)%boco_ns%h_nunif(ustdom%boco(iboco)%nface))
-    allocate(defsolver%boco(idef)%boco_ns%tconv_nunif(ustdom%boco(iboco)%nface))
+    allocate(defsolver%boco(idef)%boco_ns%h_nunif(umesh%boco(iboco)%nface))
+    allocate(defsolver%boco(idef)%boco_ns%tconv_nunif(umesh%boco(iboco)%nface))
 
   endif
 

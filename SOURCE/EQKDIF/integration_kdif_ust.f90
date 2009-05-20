@@ -7,7 +7,7 @@
 !   - jacobian matrices (if needed)
 !
 !------------------------------------------------------------------------------!
-subroutine integration_kdif_ust(defsolver, defspat, domaine, field, flux, &
+subroutine integration_kdif_ust(defsolver, defspat, umesh, field, flux, &
                                 calc_jac, jacL, jacR)
 
 use TYPHMAKE
@@ -25,7 +25,7 @@ implicit none
 ! -- Declaration des entrees --
 type(mnu_solver) :: defsolver        ! type d'equation a resoudre
 type(mnu_spat)   :: defspat          ! parametres d'integration spatiale
-type(st_ustmesh) :: domaine          ! domaine non structure a integrer
+type(st_ustmesh) :: umesh            ! unstructured mesh
 logical          :: calc_jac         ! choix de calcul de la jacobienne
 
 ! -- Declaration des entrees/sorties --
@@ -54,12 +54,12 @@ type(v3d), dimension(:), allocatable &
 ! On peut ici decouper la maillage complet en blocs de taille fixe pour optimiser
 ! l'encombrement memoire et la vectorisation
 
-! nombre de blocs (<= taille_buffer) necessaires pour domaine%nface
-nbloc = 1 + (domaine%nface-1) / taille_buffer
-nbuf  = 1 + (domaine%nface-1) / nbloc          ! taille de bloc buffer
-nfb   = 1 + mod(domaine%nface-1, nbuf)         ! taille de 1er bloc peut etre <> de nbuf
+! nombre de blocs (<= taille_buffer) necessaires pour umesh%nface
+nbloc = 1 + (umesh%nface-1) / taille_buffer
+nbuf  = 1 + (umesh%nface-1) / nbloc          ! taille de bloc buffer
+nfb   = 1 + mod(umesh%nface-1, nbuf)         ! taille de 1er bloc peut etre <> de nbuf
 
-!print*,"!!! DEBUG integration kdif", domaine%nface, nbloc, nbuf, nfb, taille_buffer
+!print*,"!!! DEBUG integration kdif", umesh%nface, nbloc, nbuf, nfb, taille_buffer
 
 ! il sera a tester l'utilisation de tableaux de champs generiques plutôt que
 ! des definitions type d'etat specifiques (st_kdifetat)
@@ -74,14 +74,14 @@ do ib = 1, nbloc
 
   do it = 1, nfb
     if  = ideb+it-1
-    icl = domaine%facecell%fils(if,1)
-    icr = domaine%facecell%fils(if,2)
+    icl = umesh%facecell%fils(if,1)
+    icr = umesh%facecell%fils(if,2)
     grad_l(it) = field%gradient%tabvect(1)%vect(icl)
     grad_r(it) = field%gradient%tabvect(1)%vect(icr)
     cell_l(it) = field%etatprim%tabscal(1)%scal(icl)
     cell_r(it) = field%etatprim%tabscal(1)%scal(icr)
-    cg_l(it)   = domaine%mesh%centre(icl, 1, 1)
-    cg_r(it)   = domaine%mesh%centre(icr, 1, 1)
+    cg_l(it)   = umesh%mesh%centre(icl, 1, 1)
+    cg_r(it)   = umesh%mesh%centre(icr, 1, 1)
   enddo
 
   ! - dans une version ulterieure, il sera necessaire de faire intervenir les gradients
@@ -92,7 +92,7 @@ do ib = 1, nbloc
   ! ATTENTION : le flux n'est passe ici que pour UN SEUL scalaire
 
   call calc_kdif_flux(defsolver, defspat,                             &
-                      nfb, domaine%mesh%iface(ideb:ifin, 1, 1),       &
+                      nfb, umesh%mesh%iface(ideb:ifin, 1, 1),       &
                       cg_l, cell_l, grad_l, cg_r, cell_r, grad_r,     &
                       flux%tabscal(1)%scal(ideb:ifin), ideb,          &
                       calc_jac, jacL, jacR)
@@ -104,7 +104,7 @@ enddo
 !-------------------------------------------------------------
 ! flux assignment or modification on boundary conditions
 
-call kdif_bocoflux(defsolver, domaine, flux, field%etatprim,          &
+call kdif_bocoflux(defsolver, umesh, flux, field%etatprim,          &
                    calc_jac, jacL, jacR)
 
 !-------------------------------------------------------------

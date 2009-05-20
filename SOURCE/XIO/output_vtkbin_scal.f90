@@ -9,7 +9,7 @@
 !
 !------------------------------------------------------------------------------!
 
-subroutine output_vtkbin_scal(uf, ust_mesh, name, scafld)
+subroutine output_vtkbin_scal(uf, umesh, name, scafld)
 
 use TYPHMAKE
 use OUTPUT
@@ -22,7 +22,7 @@ implicit none
 
 ! -- Declaration des entrees --
 integer           :: uf            ! unite d'ecriture
-type(st_ustmesh)  :: ust_mesh      ! maillage a ecrire
+type(st_ustmesh)  :: umesh         ! unstructured mesh
 type(st_scafield) :: scafld        ! champ de valeurs
 character(len=*)  :: name          ! nom de la variable
 
@@ -36,10 +36,10 @@ integer   :: i, ielem
 call writestr(uf, 'SCALARS '//trim(name)//' double')
 call writestr(uf, 'LOOKUP_TABLE default')
 
-do ielem = 1, ust_mesh%cellvtex%ntype
+do ielem = 1, umesh%cellvtex%ntype
 
-  do i = 1, ust_mesh%cellvtex%elem(ielem)%nelem
-    write(uf) real(scafld%scal(ust_mesh%cellvtex%elem(ielem)%ielem(i)), kind=8)
+  do i = 1, umesh%cellvtex%elem(ielem)%nelem
+    write(uf) real(scafld%scal(umesh%cellvtex%elem(ielem)%ielem(i)), kind=8)
   enddo
 
 enddo

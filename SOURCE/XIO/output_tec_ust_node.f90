@@ -9,7 +9,7 @@
 !
 !------------------------------------------------------------------------------!
 
-subroutine output_tec_ust_node(uf, ust_mesh, field)
+subroutine output_tec_ust_node(uf, umesh, field)
 
 use TYPHMAKE
 use OUTPUT
@@ -22,7 +22,7 @@ implicit none
 
 ! -- Declaration des entrees --
 integer          :: uf            ! unite d'ecriture
-type(st_ustmesh) :: ust_mesh      ! maillage a ecrire
+type(st_ustmesh) :: umesh         ! unstructured mesh
 type(st_field)   :: field         ! champ de valeurs
 
 ! -- Declaration des sorties --
@@ -41,25 +41,25 @@ real(krp) :: a, b, L, T0, T1, alpha, beta, temp
 
 ! -- Calcul de la connectivite CELL->VTEX --
 
-call calc_cellvtex(typgeo(ust_mesh), cellvtex, ust_mesh%ncell, ust_mesh%ncell_int, &
-                   ust_mesh%facecell, ust_mesh%facevtex)
+call calc_cellvtex(typgeo(umesh), cellvtex, umesh%ncell, umesh%ncell_int, &
+                   umesh%facecell, umesh%facevtex)
 
-call verify_cellvtex(ust_mesh%mesh, cellvtex)
+call verify_cellvtex(umesh%mesh, cellvtex)
 
 ! -- Entete de fichier ---
 
-write(uf,*) 'ZONE T="USTMESH", F=FEPOINT, N=',ust_mesh%nvtex, &
+write(uf,*) 'ZONE T="USTMESH", F=FEPOINT, N=',umesh%nvtex, &
                     ',E=',cellvtex%nquad,',ET=QUADRILATERAL'
 
 ! -- Calcul des valeurs aux sommets --
 
-call new(vtexfield, ust_mesh%nvtex, field%etatprim%nscal, field%etatprim%nvect, 0)
-!!allocate(nsum(ust_mesh%nvtex))
+call new(vtexfield, umesh%nvtex, field%etatprim%nscal, field%etatprim%nvect, 0)
+!!allocate(nsum(umesh%nvtex))
 
 call interpol_onvtex(0, cellvtex, field%etatprim, vtexfield)
 
 do i = 1, vtexfield%dim
-  vtex = ust_mesh%mesh%vertex(i,1,1)
+  vtex = umesh%mesh%vertex(i,1,1)
   write(uf,'(4e18.8)') vtex%x, vtex%y, vtex%z, vtexfield%tabscal(1)%scal(i)
 enddo
 

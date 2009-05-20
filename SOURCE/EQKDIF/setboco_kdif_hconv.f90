@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine setboco_kdif_hconv(curtime, unif, ustboco, ustdom, champ, defsolver, bckdif, defspat)
+subroutine setboco_kdif_hconv(curtime, unif, ustboco, umesh, champ, defsolver, bckdif, defspat)
 
 use TYPHMAKE
 use OUTPUT
@@ -26,7 +26,7 @@ implicit none
 real(krp)          :: curtime          ! current time
 integer            :: unif             ! uniform or not
 type(st_ustboco)   :: ustboco          ! boundary conditions
-type(st_ustmesh)   :: ustdom           ! unstructured mesh
+type(st_ustmesh)   :: umesh            ! unstructured mesh
 type(mnu_solver)   :: defsolver        ! solver
 type(st_boco_kdif) :: bckdif           ! parameters and fluxes (field or constant)
 type(mnu_spat)     :: defspat
@@ -59,9 +59,9 @@ case(uniform)
   
   do ifb = 1, nface
      if     = ustboco%iface(ifb)
-     call fct_env_set_real(blank_env, "x", ustdom%mesh%iface(if,1,1)%centre%x)
-     call fct_env_set_real(blank_env, "y", ustdom%mesh%iface(if,1,1)%centre%y)
-     call fct_env_set_real(blank_env, "z", ustdom%mesh%iface(if,1,1)%centre%z)
+     call fct_env_set_real(blank_env, "x", umesh%mesh%iface(if,1,1)%centre%x)
+     call fct_env_set_real(blank_env, "y", umesh%mesh%iface(if,1,1)%centre%y)
+     call fct_env_set_real(blank_env, "z", umesh%mesh%iface(if,1,1)%centre%z)
      call fct_env_set_real(blank_env, "t", curtime)
      call fct_eval_real(blank_env, bckdif%h_conv, hloc(ifb))
   enddo
@@ -80,13 +80,13 @@ endselect
 
 do ifb = 1, ustboco%nface
   if     = ustboco%iface(ifb)
-  ic     = ustdom%facecell%fils(if,1)
-  ighost = ustdom%facecell%fils(if,2)
+  ic     = umesh%facecell%fils(if,1)
+  ighost = umesh%facecell%fils(if,2)
 
   ! Computation of distance cell center - face center
-  cgface = ustdom%mesh%iface(if,1,1)%centre
-  cg     = ustdom%mesh%centre(ic,1,1)
-  normale= ustdom%mesh%iface(if,1,1)%normale
+  cgface = umesh%mesh%iface(if,1,1)%centre
+  cg     = umesh%mesh%centre(ic,1,1)
+  normale= umesh%mesh%iface(if,1,1)%normale
 ! d    = (cgface - cg) .scal. (cgface - cg) / (abs((cgface - cg).scal.normale))
   d = abs((cgface - cg).scal.normale)
   dc = (cgface - cg) - ( (cgface - cg).scal.normale ) * normale

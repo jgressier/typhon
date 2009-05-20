@@ -18,10 +18,10 @@ implicit none
 ! -- INPUTS  --
 type(mnu_mesh)        :: defmesh      ! mesh parameters
 type(mnu_spat)        :: defspat      ! spatial numerical method parameters
-type(st_ustmesh)      :: umesh        ! ust_mesh to convert
+type(st_ustmesh)      :: umesh        ! ustmesh to convert
 
 ! -- OUTPUTS --
-type(st_ustmesh)      :: newmesh      ! new ust_mesh (split and converted)
+type(st_ustmesh)      :: newmesh      ! new ustmesh (split and converted)
 
 ! -- Internal variables --
 type(v3d)              :: node

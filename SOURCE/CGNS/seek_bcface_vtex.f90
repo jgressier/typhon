@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine seek_bcface_vtex(ib, cgnsboco, mesh, listface) 
+subroutine seek_bcface_vtex(ib, cgnsboco, umesh, listface) 
 
 use TYPHMAKE      ! definitions generales 
 use CGNS_STRUCT   ! Definition des structures CGNS
@@ -21,7 +21,7 @@ integer             :: ib              ! indice de condition limite
 type(st_cgns_boco)  :: cgnsboco        ! zone CGNS contenant conditions aux limites
 
 ! -- Entrees/Sorties --
-type(st_ustmesh)    :: mesh            ! connectivites et conditions aux limites
+type(st_ustmesh)    :: umesh           ! unstructured mesh
 
 ! -- Variables internes --
 integer, dimension(*) :: listface      ! tableau de travail
@@ -35,9 +35,9 @@ nf = 0
 
 ! recherche des faces limites concernees
 
-do if = mesh%nface_int+1, mesh%nface_int+mesh%nface_lim
+do if = umesh%nface_int+1, umesh%nface_int+umesh%nface_lim
 
-  if (face_invtexlist(mesh%facevtex%nbfils, mesh%facevtex%fils(if,:), &
+  if (face_invtexlist(umesh%facevtex%nbfils, umesh%facevtex%fils(if,:), &
                       cgnsboco%list%nbfils, cgnsboco%list%fils)) then
     nf = nf + 1
     listface(nf) = if
@@ -45,8 +45,8 @@ do if = mesh%nface_int+1, mesh%nface_int+mesh%nface_lim
 enddo
 
 call print_info(20,'      '//trim(strof(nf))//' mesh faces tagged')
-call new_ustboco(mesh%boco(ib), cgnsboco%family, nf)
-mesh%boco(ib)%iface(1:nf) = listface(1:nf)
+call new_ustboco(umesh%boco(ib), cgnsboco%family, nf)
+umesh%boco(ib)%iface(1:nf) = listface(1:nf)
   
 !-------------------------
 endsubroutine seek_bcface_vtex

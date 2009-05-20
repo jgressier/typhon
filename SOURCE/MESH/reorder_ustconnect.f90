@@ -11,7 +11,7 @@
 !     1: action sur connectivites et maillage
 !
 !------------------------------------------------------------------------------!
-subroutine reorder_ustconnect(iaction, mesh) 
+subroutine reorder_ustconnect(iaction, umesh) 
 
 use USTMESH       ! Definition des structures maillage non structure
 
@@ -21,7 +21,7 @@ implicit none
 integer             :: iaction
 
 ! -- Entrees/Sorties --
-type(st_ustmesh)    :: mesh            ! maillage non structure et connectivite
+type(st_ustmesh)    :: umesh           ! unstructured mesh
 
 ! -- Variables internes --
 type(st_connect)    :: conn            ! temporary connectivity
@@ -38,7 +38,7 @@ if (iaction /= 0) then
   call erreur("Developpement","cas inattendu dans 'reorder_ustconnect'")
 endif
 
-ntotface = mesh%facecell%nbnodes
+ntotface = umesh%facecell%nbnodes
 allocate(trans_index(ntotface))
 
 ! -- renumerotation des faces (faces limites en dernier) --
@@ -48,7 +48,7 @@ nface_lim = 0
 
 ! calcul des nombres de faces et de la transposition d'index
 do if = 1, ntotface
-  if (mesh%facecell%fils(if,2) == 0) then     ! si face(if) est face limite
+  if (umesh%facecell%fils(if,2) == 0) then     ! si face(if) est face limite
     nface_lim = nface_lim + 1
     trans_index(ntotface+1-nface_lim) = if
   else
@@ -59,32 +59,32 @@ enddo
 
 ! --- face reordering ---
 
-conn = copy(mesh%facevtex)
+conn = copy(umesh%facevtex)
 do if = 1, ntotface
-  mesh%facevtex%fils(if,:) = conn%fils(trans_index(if),:)
+  umesh%facevtex%fils(if,:) = conn%fils(trans_index(if),:)
 enddo
 call delete(conn)
 
-conn = copy(mesh%facecell)
+conn = copy(umesh%facecell)
 do if = 1, ntotface
-  mesh%facecell%fils(if,:) = conn%fils(trans_index(if),:)
+  umesh%facecell%fils(if,:) = conn%fils(trans_index(if),:)
 enddo
 call delete(conn)
 
-!print*,st_allocated(mesh%face_Ltag)
-if (st_allocated(mesh%face_Ltag)) then
-  conn = copy(mesh%face_Ltag)
+!print*,st_allocated(umesh%face_Ltag)
+if (st_allocated(umesh%face_Ltag)) then
+  conn = copy(umesh%face_Ltag)
   do if = 1, ntotface
-    mesh%face_Ltag%fils(if,:) = conn%fils(trans_index(if),:)
+    umesh%face_Ltag%fils(if,:) = conn%fils(trans_index(if),:)
   enddo
   call delete(conn)
 endif
 
-!print*,st_allocated(mesh%face_Rtag)
-if (st_allocated(mesh%face_Rtag)) then
-  conn = copy(mesh%face_Rtag)
+!print*,st_allocated(umesh%face_Rtag)
+if (st_allocated(umesh%face_Rtag)) then
+  conn = copy(umesh%face_Rtag)
   do if = 1, ntotface
-    mesh%face_Rtag%fils(if,:) = conn%fils(trans_index(if),:)
+    umesh%face_Rtag%fils(if,:) = conn%fils(trans_index(if),:)
   enddo
   call delete(conn)
 endif
@@ -92,12 +92,12 @@ endif
 !!$do if = 1, ntotface
 !!$  oldf = trans_index(if)
 !!$  newf = if
-!!$  mesh%facecell%fils(newf,:) = f_cell%fils(oldf,:)
-!!$  mesh%facevtex%fils(newf,:) = f_vtex%fils(oldf,:)
+!!$  umesh%facecell%fils(newf,:) = f_cell%fils(oldf,:)
+!!$  umesh%facevtex%fils(newf,:) = f_vtex%fils(oldf,:)
 !!$enddo
 
-mesh%nface_int = nface_int
-mesh%nface_lim = nface_lim
+umesh%nface_int = nface_int
+umesh%nface_lim = nface_lim
 
 ! desallocation
 

@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine setboco_kdif_isoth(curtime, unif, ustboco, ustdom, champ, bckdif)
+subroutine setboco_kdif_isoth(curtime, unif, ustboco, umesh, champ, bckdif)
 
 use TYPHMAKE
 use OUTPUT
@@ -24,7 +24,7 @@ implicit none
 real(krp)          :: curtime          ! current time
 integer            :: unif             ! uniform or not
 type(st_ustboco)   :: ustboco          ! lieu d'application des conditions aux limites
-type(st_ustmesh)   :: ustdom           ! maillage non structure
+type(st_ustmesh)   :: umesh            ! unstructured mesh
 type(st_boco_kdif) :: bckdif           ! parameters and temperature (field or constant)
 
 ! -- OUTPUTS --
@@ -44,10 +44,10 @@ if (unif == uniform) then
 
   do ifb = 1, ustboco%nface
     if     = ustboco%iface(ifb)
-    ighost = ustdom%facecell%fils(if,2)
-    call fct_env_set_real(blank_env, "x", ustdom%mesh%iface(if,1,1)%centre%x)
-    call fct_env_set_real(blank_env, "y", ustdom%mesh%iface(if,1,1)%centre%y)
-    call fct_env_set_real(blank_env, "z", ustdom%mesh%iface(if,1,1)%centre%z)
+    ighost = umesh%facecell%fils(if,2)
+    call fct_env_set_real(blank_env, "x", umesh%mesh%iface(if,1,1)%centre%x)
+    call fct_env_set_real(blank_env, "y", umesh%mesh%iface(if,1,1)%centre%y)
+    call fct_env_set_real(blank_env, "z", umesh%mesh%iface(if,1,1)%centre%z)
     call fct_env_set_real(blank_env, "t", curtime)
     call fct_eval_real(blank_env, bckdif%wall_temp, tloc)
     do ip = 1, champ%nscal
@@ -59,7 +59,7 @@ else
 
   do ifb = 1, ustboco%nface
     if     = ustboco%iface(ifb)
-    ighost = ustdom%facecell%fils(if,2)
+    ighost = umesh%facecell%fils(if,2)
     do ip = 1, champ%nscal
       champ%etatprim%tabscal(ip)%scal(ighost) = bckdif%temp(ifb)
     enddo

@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine int_eqkdif_rungekutta(dt, defsolver, domaine)
+subroutine int_eqkdif_rungekutta(dt, defsolver, umesh)
 
 use TYPHMAKE
 use OUTPUT
@@ -20,10 +20,9 @@ implicit none
 ! -- Declaration des entrees --
 real(krp)        :: dt               ! pas de temps CFL
 type(mnu_solver) :: defsolver        ! type d'equation a resoudre
-type(st_ustmesh) :: domaine          ! domaine non structure a integrer
+type(st_ustmesh) :: umesh            ! unstructured mesh
 
 ! -- Declaration des sorties --
-! domaine
 
 ! -- Declaration des variables internes --
 

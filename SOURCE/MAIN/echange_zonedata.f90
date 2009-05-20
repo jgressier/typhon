@@ -37,14 +37,6 @@ case(mesh_match)
 ! pas de temps entre deux echanges
 dtexch = lworld%coupling(ir)%n_tpsbase*lworld%prj%dtbase 
 
-! ----PROVISOIRE pour affichage des champs avt et apres cor de flux-------------
-!call echange_zonematch(lworld%zone(iz1), lworld%zone(iz2), &
-!                      lworld%coupling(ir)%typ_interpol, &
-!                      lworld%zone(iz1)%ust_mesh%boco(nbc1)%nface,&
-!                      nbc1, nbc2, ncoupl1, ncoupl2, lworld%info%icycle, &
-!                      lworld%prj%typ_temps, lworld%prj%dtbase)
-!-------------------------------------------------------------------------------
-
 call echange_zonematch(lworld%zone(iz1), lworld%zone(iz2), &
                        lworld%coupling(ir)%typ_interpol, &
                        lworld%zone(iz1)%gridlist%first%umesh%boco(nbc1)%nface, &

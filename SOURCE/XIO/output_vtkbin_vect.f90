@@ -9,7 +9,7 @@
 !
 !------------------------------------------------------------------------------!
 
-subroutine output_vtkbin_vect(uf, ust_mesh, name, vecfld)
+subroutine output_vtkbin_vect(uf, umesh, name, vecfld)
 
 use TYPHMAKE
 use OUTPUT
@@ -22,7 +22,7 @@ implicit none
 
 ! -- Declaration des entrees --
 integer           :: uf            ! unite d'ecriture
-type(st_ustmesh)  :: ust_mesh      ! maillage a ecrire
+type(st_ustmesh)  :: umesh         ! unstructured mesh
 type(st_vecfield) :: vecfld        ! champ de valeurs
 character(len=*)  :: name          ! nom de la variable
 
@@ -35,10 +35,10 @@ integer   :: i, ielem
 
 call writestr(uf, 'VECTORS '//trim(name)//' double')
 
-do ielem = 1, ust_mesh%cellvtex%ntype
+do ielem = 1, umesh%cellvtex%ntype
 
-  do i = 1, ust_mesh%cellvtex%elem(ielem)%nelem
-    write(uf) real(tab(vecfld%vect(ust_mesh%cellvtex%elem(ielem)%ielem(i))), kind=8)
+  do i = 1, umesh%cellvtex%elem(ielem)%nelem
+    write(uf) real(tab(vecfld%vect(umesh%cellvtex%elem(ielem)%ielem(i))), kind=8)
   enddo
 
 enddo

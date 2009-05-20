@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine setboco_ns_flux(defns,unif, ustboco, ustdom, fld, bcns)
+subroutine setboco_ns_flux(defns,unif, ustboco, umesh, fld, bcns)
 
 use TYPHMAKE
 use OUTPUT
@@ -22,7 +22,7 @@ implicit none
 type(mnu_ns)       :: defns            ! solver parameters
 integer            :: unif             ! uniform or not
 type(st_ustboco)   :: ustboco          ! boundary condition location
-type(st_ustmesh)   :: ustdom           ! unstructured mesh
+type(st_ustmesh)   :: umesh            ! unstructured mesh
 type(st_boco_ns)   :: bcns             ! parameters and temperature (field or constant)
 
 ! -- OUTPUTS --
@@ -49,12 +49,12 @@ if (unif == uniform) then
 
   do ifb = 1, ustboco%nface
     if     = ustboco%iface(ifb)
-    ighost = ustdom%facecell%fils(if,2)
-    ic     = ustdom%facecell%fils(if,1)
+    ighost = umesh%facecell%fils(if,2)
+    ic     = umesh%facecell%fils(if,1)
 
-    cgface = ustdom%mesh%iface(if,1,1)%centre
-    cg     = ustdom%mesh%centre(ic,1,1)
-    normale= ustdom%mesh%iface(if,1,1)%normale
+    cgface = umesh%mesh%iface(if,1,1)%centre
+    cg     = umesh%mesh%centre(ic,1,1)
+    normale= umesh%mesh%iface(if,1,1)%normale
     d    = (cgface - cg) .scal. (cgface - cg) / &
            (abs((cgface - cg).scal.normale))
 
@@ -100,12 +100,12 @@ else
 
   do ifb = 1, ustboco%nface
     if     = ustboco%iface(ifb)
-    ighost = ustdom%facecell%fils(if,2)
-    ic     = ustdom%facecell%fils(if,1)
+    ighost = umesh%facecell%fils(if,2)
+    ic     = umesh%facecell%fils(if,1)
 
-    cgface = ustdom%mesh%iface(if,1,1)%centre
-    cg     = ustdom%mesh%centre(ic,1,1)
-    normale= ustdom%mesh%iface(if,1,1)%normale
+    cgface = umesh%mesh%iface(if,1,1)%centre
+    cg     = umesh%mesh%centre(ic,1,1)
+    normale= umesh%mesh%iface(if,1,1)%normale
     d    = (cgface - cg) .scal. (cgface - cg) / &
            (abs((cgface - cg).scal.normale))
 

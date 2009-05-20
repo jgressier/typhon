@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine test_ustmesh(ust_mesh)
+subroutine test_ustmesh(umesh)
 
 use TYPHMAKE
 use OUTPUT
@@ -18,7 +18,7 @@ implicit none
 ! -- Declaration des entrees --
 
 ! -- Declaration des entrees/sorties --
-type(st_ustmesh) :: ust_mesh
+type(st_ustmesh) :: umesh
 
 ! -- Declaration des sorties --
 
@@ -27,9 +27,9 @@ type(st_ustmesh) :: ust_mesh
 ! -- Debut de la procedure --
 
 
-!ust_mesh%mesh%nface = ust_mesh%nface                  ! copie du nombre de faces
-!allocate(ust_mesh%mesh%iface(ust_mesh%nface,1,1))     ! allocation des faces
-!allocate(cgface(ust_mesh%nface))                      ! tab. interm. centre G des faces
+!umesh%mesh%nface = umesh%nface                  ! copie du nombre de faces
+!allocate(umesh%mesh%iface(umesh%nface,1,1))     ! allocation des faces
+!allocate(cgface(umesh%nface))                   ! tab. interm. centre G des faces
 
 
 

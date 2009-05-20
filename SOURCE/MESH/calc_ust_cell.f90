@@ -25,7 +25,6 @@ type(v3d), dimension(nface,2) :: cg_elem    ! centres de volume elementaire
 real(krp), dimension(nface,2) :: vol_elem   ! volumes de volume elementaire
 
 ! -- Declaration des entrees/sorties --
-!type(st_ustmesh) :: ust_mesh
 
 ! -- Declaration des sorties --
 type(st_mesh)    :: mesh                

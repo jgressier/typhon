@@ -9,7 +9,7 @@
 !   utilise seek_bcface_vtex
 !
 !------------------------------------------------------------------------------!
-subroutine seek_bcface_face(ib, cgnsboco, nfam, facevtex, mesh, listface) 
+subroutine seek_bcface_face(ib, cgnsboco, nfam, facevtex, umesh, listface) 
 
 use TYPHMAKE      ! definitions generales 
 use CONNECTIVITY
@@ -27,7 +27,7 @@ type(st_cgns_ustconnect), dimension(1:nfam) &
                     :: facevtex
 
 ! -- Entrees/Sorties --
-type(st_ustmesh)    :: mesh            ! connectivites et conditions aux limites
+type(st_ustmesh)    :: umesh          ! unstructured mesh
 
 ! -- Variables internes --
 integer, dimension(*) :: listface      ! tableau de travail
@@ -38,7 +38,7 @@ integer               :: iface, pface, ifam, pfam, iv, ivm, dim, notfound
 
 ! -- BODY --
 
-allocate(mkvtex(mesh%mesh%nvtex))    ! allocation du tableau des vertex marques
+allocate(mkvtex(umesh%mesh%nvtex))    ! allocation du tableau des vertex marques
 mkvtex(:) = .false.                  ! initialisation a "non marque"
 
 notfound = 0
@@ -76,7 +76,7 @@ dim = count(mkvtex)
 
 if (dim == 0) then
   call print_info(20,"      no marked elements havebeen found in CGNS face sections, skipping BOCO mark...")
-  call new_ustboco(mesh%boco(ib), cgboco%family, 0)
+  call new_ustboco(umesh%boco(ib), cgboco%family, 0)
 else
   cgboco%nom    = cgnsboco%nom
   cgboco%family = cgnsboco%family
@@ -92,7 +92,7 @@ else
 
   ! -- contruction de la connectivite boco/face de TYPHON a partir des sommets --
 
-  call seek_bcface_vtex(ib, cgboco, mesh, listface)
+  call seek_bcface_vtex(ib, cgboco, umesh, listface)
 
   call delete(cgboco%list)
 

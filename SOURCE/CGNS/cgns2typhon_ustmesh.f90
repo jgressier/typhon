@@ -9,7 +9,7 @@
 !
 !------------------------------------------------------------------------------!
 
-subroutine cgns2typhon_ustmesh(defmesh, cgnszone, mesh) 
+subroutine cgns2typhon_ustmesh(defmesh, cgnszone, umesh) 
 
 use CGNS_STRUCT   ! Definition des structures CGNS
 use DEFZONE       ! Definition des structures ZONE
@@ -24,7 +24,7 @@ type(mnu_mesh)     :: defmesh           ! mesh parameters
 type(st_cgns_zone) :: cgnszone          ! structure ZONE des donnees CGNS
 
 ! -- OUTPUTS --
-type(st_ustmesh)   :: mesh              ! structure USTMESH des donnees TYPHON
+type(st_ustmesh)   :: umesh             ! unstructured mesh
 
 ! -- Internal variables --
 integer, parameter  :: nmax_cell = 20        ! max nb of cells in vtex->cell connectivity
@@ -41,7 +41,7 @@ integer             :: iv, if
 
 ! -- BODY --
 
-call init_ustmesh(mesh)   ! default values initialization
+call init_ustmesh(umesh)   ! default values initialization
 
 call print_info(8,". converting mesh and computing connectivity")
 
@@ -51,10 +51,10 @@ endif
 
 select case(cgnszone%imesh)    ! transfer mesh dimension 
 case(2)
-  mesh%mesh%info%geom = msh_2dplan
+  umesh%mesh%info%geom = msh_2dplan
   call print_info(8,"    mesh is 2D (planar)")
 case(3)
-  mesh%mesh%info%geom = msh_3d
+  umesh%mesh%info%geom = msh_3d
   call print_info(8,"    mesh is 3D")
 endselect
 
@@ -64,12 +64,12 @@ endselect
 
 call print_info(8,"  mesh points coordinates")
 
-mesh%mesh%nvtex  = cgnszone%mesh%ni                  ! nb of vertices
+umesh%mesh%nvtex  = cgnszone%mesh%ni                  ! nb of vertices
 
-mesh%nvtex       = mesh%mesh%nvtex                   ! nb of vertices (redundant)
-allocate(mesh%mesh%vertex(mesh%mesh%nvtex, 1, 1))
-do iv = 1, mesh%mesh%nvtex   ! loop because of stack size problems
-  mesh%mesh%vertex(iv, 1, 1) = cgnszone%mesh%vertex(iv, 1, 1)   ! copy vertex cloud
+umesh%nvtex       = umesh%mesh%nvtex                   ! nb of vertices (redundant)
+allocate(umesh%mesh%vertex(umesh%mesh%nvtex, 1, 1))
+do iv = 1, umesh%mesh%nvtex   ! loop because of stack size problems
+  umesh%mesh%vertex(iv, 1, 1) = cgnszone%mesh%vertex(iv, 1, 1)   ! copy vertex cloud
 enddo
 
 !--------------------------------------------------------------------------
@@ -156,21 +156,21 @@ do iconn = 1, cgnszone%ncellfam          ! boucle sur les sections de cellules
     call erreur("Gestion CGNS", "Type d'element non reconnu dans CGNSLIB")
   endselect
 
-  call getindex_genelemvtex(mesh%cellvtex, itype, ielem)
+  call getindex_genelemvtex(umesh%cellvtex, itype, ielem)
 
   if (ielem /= 0) call erreur("CGNS to USTMESH","element section already exists")
 
-  call addelem_genelemvtex(mesh%cellvtex)
-  ielem = mesh%cellvtex%ntype
-  call new_elemvtex(mesh%cellvtex%elem(ielem), nelem, itype)
+  call addelem_genelemvtex(umesh%cellvtex)
+  ielem = umesh%cellvtex%ntype
+  call new_elemvtex(umesh%cellvtex%elem(ielem), nelem, itype)
 
-  nvtex = mesh%cellvtex%elem(ielem)%nvtex
+  nvtex = umesh%cellvtex%elem(ielem)%nvtex
   ista  = cgnszone%cellfam(iconn)%ideb
   iend  = cgnszone%cellfam(iconn)%ifin
 
   do icell = 1, nelem  ! loop because of stack size problems
-    mesh%cellvtex%elem(ielem)%elemvtex(icell, 1:nvtex) = cgnszone%cellfam(iconn)%fils(ista-1+icell, 1:nvtex)
-    mesh%cellvtex%elem(ielem)%ielem   (icell)          = ista-1+icell
+    umesh%cellvtex%elem(ielem)%elemvtex(icell, 1:nvtex) = cgnszone%cellfam(iconn)%fils(ista-1+icell, 1:nvtex)
+    umesh%cellvtex%elem(ielem)%ielem   (icell)          = ista-1+icell
   enddo
 
 enddo
@@ -181,8 +181,8 @@ enddo
 
 ! initialize face array
 
-nullify(mesh%mesh%iface)
-mesh%mesh%nface = 0
+nullify(umesh%mesh%iface)
+umesh%mesh%nface = 0
 
 call print_info(8,"  creating faces and associated connectivity")
 
@@ -207,35 +207,35 @@ endif
 ! creation of faces (face->vtex) and connectivities (face->cell)
 !-------------------------------------------------------------------
 
-call createface_fromcgns(defmesh%splitmesh, mesh%nvtex, cgnszone, &
+call createface_fromcgns(defmesh%splitmesh, umesh%nvtex, cgnszone, &
                          face_cell, face_vtex, face_Ltag, face_Rtag)
 
 ! Recopie des connectivites dans la structure TYPHON
 ! avec le nombre exact de faces reconstruites
 
 nface          = face_vtex%nbnodes     ! meme valeur que face_cell%nbnodes aussi
-mesh%nface     = nface
-mesh%ncell_int = ntotcell
+umesh%nface     = nface
+umesh%ncell_int = ntotcell
 
 call print_info(8,"  >"//strof(nface,9)//" created faces")
 
-call new(mesh%facevtex, nface, maxvtex)
+call new(umesh%facevtex, nface, maxvtex)
 do if = 1, nface   ! loop because of stack size problem
-  mesh%facevtex%fils(if,1:maxvtex) = face_vtex%fils(if,1:maxvtex)
+  umesh%facevtex%fils(if,1:maxvtex) = face_vtex%fils(if,1:maxvtex)
 enddo
 
-call new(mesh%facecell, nface, 2)
+call new(umesh%facecell, nface, 2)
 do if = 1, nface   ! loop because of stack size problem
-  mesh%facecell%fils(if,1:2)       = face_cell%fils(if,1:2)
+  umesh%facecell%fils(if,1:2)       = face_cell%fils(if,1:2)
 enddo
 
-call print_info(8,"  >"//strof(count(mesh%facecell%fils(1:nface,2)==0),9)//" external faces")
+call print_info(8,"  >"//strof(count(umesh%facecell%fils(1:nface,2)==0),9)//" external faces")
 
 if (defmesh%splitmesh /= split_none) then
-  call new_connect(mesh%face_Ltag, nface, 1)
-  mesh%face_Ltag%fils(1:nface,1)       = face_Ltag%fils(1:nface,1)
-  call new_connect(mesh%face_Rtag, nface, 1)
-  mesh%face_Rtag%fils(1:nface,1)       = face_Rtag%fils(1:nface,1)
+  call new_connect(umesh%face_Ltag, nface, 1)
+  umesh%face_Ltag%fils(1:nface,1)       = face_Ltag%fils(1:nface,1)
+  call new_connect(umesh%face_Rtag, nface, 1)
+  umesh%face_Rtag%fils(1:nface,1)       = face_Rtag%fils(1:nface,1)
 endif
 
 ! -- desallocation --
@@ -247,14 +247,14 @@ call delete(face_Rtag)
 
 ! -- Renumerotation des faces --
 
-call reorder_ustconnect(0, mesh)    ! action sur les connectivites uniquement
+call reorder_ustconnect(0, umesh)    ! action sur les connectivites uniquement
 
 ! -- Converting boundary conditions --
 
-call cgns2typhon_ustboco(cgnszone, mesh)
+call cgns2typhon_ustboco(cgnszone, umesh)
 
-mesh%ncell_lim = mesh%nface_lim
-mesh%ncell     = mesh%ncell_int + mesh%ncell_lim
+umesh%ncell_lim = umesh%nface_lim
+umesh%ncell     = umesh%ncell_int + umesh%ncell_lim
 
 !-------------------------
 endsubroutine cgns2typhon_ustmesh

@@ -25,7 +25,6 @@ implicit none
 type(rpmblock), target :: block
 integer                :: isolver
 integer                :: ncoupling
-!type(st_ustmesh)       :: ustdom
 
 ! -- Declaration des sorties --
 type(mnu_solver)                             :: defsolver

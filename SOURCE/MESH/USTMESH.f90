@@ -77,9 +77,9 @@ contains
 !------------------------------------------------------------------------------!
 ! Procedure : allocation d'une structure USTMESH
 !------------------------------------------------------------------------------!
-subroutine new_ustmesh(mesh, ncell, nface, nvtex)
+subroutine new_ustmesh(umesh, ncell, nface, nvtex)
 implicit none
-type(st_ustmesh) :: mesh
+type(st_ustmesh) :: umesh
 integer       :: ncell, nface, nvtex
 
   print*,"!!! pas d'allocation dans new_ustmesh !!!"
@@ -133,25 +133,25 @@ endfunction dimgeo
 !------------------------------------------------------------------------------!
 ! Procedure : desallocation d'une structure USTMESH
 !------------------------------------------------------------------------------!
-subroutine delete_ustmesh(mesh)
+subroutine delete_ustmesh(umesh)
 implicit none
-type(st_ustmesh) :: mesh
+type(st_ustmesh) :: umesh
 integer          :: i
 
-  call delete(mesh%mesh)
-  call delete(mesh%facevtex)
-  call delete(mesh%facecell)
-  call delete_genelemvtex(mesh%cellvtex)
-  do i = 1, mesh%nboco 
-    call delete(mesh%boco(i))
+  call delete(umesh%mesh)
+  call delete(umesh%facevtex)
+  call delete(umesh%facecell)
+  call delete_genelemvtex(umesh%cellvtex)
+  do i = 1, umesh%nboco 
+    call delete(umesh%boco(i))
   enddo
-  deallocate(mesh%boco)
-  if (st_allocated(mesh%face_Ltag)) call delete(mesh%face_Ltag)
-  if (st_allocated(mesh%face_Rtag)) call delete(mesh%face_Rtag)
+  deallocate(umesh%boco)
+  if (st_allocated(umesh%face_Ltag)) call delete(umesh%face_Ltag)
+  if (st_allocated(umesh%face_Rtag)) call delete(umesh%face_Rtag)
 
-  !deallocate(mesh%center, mesh%vertex, mesh%volume)
-  !deallocate(mesh%iface, mesh%jface)
-  !if (mesh%kdim /= 1) deallocate(mesh%kface)
+  !deallocate(umesh%center, umesh%vertex, umesh%volume)
+  !deallocate(umesh%iface, umesh%jface)
+  !if (umesh%kdim /= 1) deallocate(umesh%kface)
 
 endsubroutine delete_ustmesh
 
@@ -159,13 +159,13 @@ endsubroutine delete_ustmesh
 !------------------------------------------------------------------------------!
 ! Procedure : creation d'une structure BOCO dans USTMESH
 !------------------------------------------------------------------------------!
-subroutine createboco(mesh, nboco)
+subroutine createboco(umesh, nboco)
 implicit none
-type(st_ustmesh) :: mesh
+type(st_ustmesh) :: umesh
 integer          :: nboco
 
-  mesh%nboco = nboco
-  allocate(mesh%boco(nboco))
+  umesh%nboco = nboco
+  allocate(umesh%boco(nboco))
 
 endsubroutine createboco
 

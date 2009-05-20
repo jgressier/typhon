@@ -6,7 +6,7 @@
 !   the right option
 !
 !------------------------------------------------------------------------------!
-subroutine init_viewfactor(defsolver, ustdom)
+subroutine init_viewfactor(defsolver, umesh)
 
 use TYPHMAKE
 use MENU_KDIF
@@ -19,7 +19,7 @@ use SPARSE_MAT
 implicit none
 
 ! -- Declaration des entrees --
-type(st_ustmesh)  :: ustdom
+type(st_ustmesh)  :: umesh
 
 ! -- Declaration des entrees/sorties --
 type(mnu_solver)  :: defsolver
@@ -38,7 +38,7 @@ type(v3d)              :: dist
 
 ! -- Body --
 
-nbc       = ustdom%nboco
+nbc       = umesh%nboco
 parsed_cp = 0
 kept_cp   = 0
 tol       = defsolver%defkdif%tolerance
@@ -47,12 +47,12 @@ tol       = defsolver%defkdif%tolerance
 
 do ib1 = 1, nbc
 
-  if (defsolver%boco(ustdom%boco(ib1)%idefboco)%boco_kdif%radiating == rad_coupled) then
+  if (defsolver%boco(umesh%boco(ib1)%idefboco)%boco_kdif%radiating == rad_coupled) then
   
     !-----------------------------------------------------
     ! compute view factors on a boco family on itself
 
-    nf1 = ustdom%boco(ib1)%nface
+    nf1 = umesh%boco(ib1)%nface
     ncp = nf1*(nf1-1)/2            ! compute only the strictly upper part of the matrix
 
     call new(loc_vf, ncp, ncp)
@@ -61,14 +61,14 @@ do ib1 = 1, nbc
     do if1 = 1, nf1-1
       do if2 = if1+1, nf1
         icp = icp + 1
-        indf1 = ustdom%boco(ib1)%iface(if1)
-        indf2 = ustdom%boco(ib1)%iface(if2)   ! (!) same boco family
+        indf1 = umesh%boco(ib1)%iface(if1)
+        indf2 = umesh%boco(ib1)%iface(if2)   ! (!) same boco family
         loc_vf%couple%fils(icp, 1) = indf1
         loc_vf%couple%fils(icp, 2) = indf2
-        dist   = ustdom%mesh%iface(indf2,1,1)%centre - ustdom%mesh%iface(indf1,1,1)%centre
+        dist   = umesh%mesh%iface(indf2,1,1)%centre - umesh%mesh%iface(indf1,1,1)%centre
         ndist2 = sqrabs(dist)
-        loc_vf%value(icp) = - max(0._krp, ustdom%mesh%iface(indf1,1,1)%normale.scal.dist) &
-                             *min(0._krp, ustdom%mesh%iface(indf2,1,1)%normale.scal.dist) 
+        loc_vf%value(icp) = - max(0._krp, umesh%mesh%iface(indf1,1,1)%normale.scal.dist) &
+                             *min(0._krp, umesh%mesh%iface(indf2,1,1)%normale.scal.dist) 
         if (loc_vf%value(icp) <= tol*ndist2) loc_vf%value(icp) = 0._krp
         loc_vf%value(icp) = loc_vf%value(icp) / (pi*ndist2**2)
       enddo
@@ -77,8 +77,8 @@ do ib1 = 1, nbc
     icp = count(loc_vf%value > epsilon(tol))
 
     write(str_w,'(a,i6,a,i6,a)') "  ",icp/1000,"k /",ncp/1000,"k face couples for "//     &
-                                 trim(defsolver%boco(ustdom%boco(ib1)%idefboco)%family)//"/"//   &
-                                 trim(defsolver%boco(ustdom%boco(ib1)%idefboco)%family)
+                                 trim(defsolver%boco(umesh%boco(ib1)%idefboco)%family)//"/"//   &
+                                 trim(defsolver%boco(umesh%boco(ib1)%idefboco)%family)
     call print_info(10, str_w)
 
     if (parsed_cp == 0) then
@@ -107,9 +107,9 @@ do ib1 = 1, nbc
 
     do ib2 = ib1+1, nbc
 
-      if (defsolver%boco(ustdom%boco(ib2)%idefboco)%boco_kdif%radiating == rad_coupled) then
+      if (defsolver%boco(umesh%boco(ib2)%idefboco)%boco_kdif%radiating == rad_coupled) then
 
-        nf2 = ustdom%boco(ib2)%nface
+        nf2 = umesh%boco(ib2)%nface
         ncp = nf1*nf2
 
         call new(loc_vf, ncp, ncp)
@@ -118,14 +118,14 @@ do ib1 = 1, nbc
         do if1 = 1, nf1-1
           do if2 = if1+1, nf1
             icp = icp + 1
-            indf1  = ustdom%boco(ib1)%iface(if1)
-            indf2  = ustdom%boco(ib2)%iface(if2)
+            indf1  = umesh%boco(ib1)%iface(if1)
+            indf2  = umesh%boco(ib2)%iface(if2)
             loc_vf%couple%fils(icp, 1) = indf1
             loc_vf%couple%fils(icp, 2) = indf2
-            dist   = ustdom%mesh%iface(indf2,1,1)%centre - ustdom%mesh%iface(indf1,1,1)%centre
+            dist   = umesh%mesh%iface(indf2,1,1)%centre - umesh%mesh%iface(indf1,1,1)%centre
             ndist2 = sqrabs(dist)
-            loc_vf%value(icp) = - max(0._krp, ustdom%mesh%iface(indf1,1,1)%normale.scal.dist) &
-                                 *min(0._krp, ustdom%mesh%iface(indf2,1,1)%normale.scal.dist) 
+            loc_vf%value(icp) = - max(0._krp, umesh%mesh%iface(indf1,1,1)%normale.scal.dist) &
+                                 *min(0._krp, umesh%mesh%iface(indf2,1,1)%normale.scal.dist) 
             if (loc_vf%value(icp) <= tol*ndist2) loc_vf%value(icp) = 0._krp
             loc_vf%value(icp) = loc_vf%value(icp) / (pi*ndist2**2)
           enddo
@@ -134,8 +134,8 @@ do ib1 = 1, nbc
         icp = count(loc_vf%value > epsilon(tol))
 
         write(str_w,'(a,i6,a,i6,a)') "  ",icp/1000,"k /",ncp/1000,"k face couples for "//     &
-                                    trim(defsolver%boco(ustdom%boco(ib1)%idefboco)%family)//"/"//   &
-                                    trim(defsolver%boco(ustdom%boco(ib2)%idefboco)%family)
+                                    trim(defsolver%boco(umesh%boco(ib1)%idefboco)%family)//"/"//   &
+                                    trim(defsolver%boco(umesh%boco(ib2)%idefboco)%family)
         call print_info(10, str_w)
 
         call realloc(defsolver%defkdif%viewfactor, parsed_cp+ncp, kept_cp+icp)

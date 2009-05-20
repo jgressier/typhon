@@ -110,12 +110,6 @@ integer        :: i
   
   call delete(zone%defsolver)
   
-  ! Destruction des structures USTMESH (DEV: dans MGRID)
-  !if (zone%nmesh_ust >= 1) then
-  !  print*,"desallocation ust_mesh" !! DEBUG
-  !  call delete(zone%ust_mesh)
-  !endif
-  
 !  if (zone%ncoupling >= 1) then
     !print*,"desallocation tableau coupling" !! DEBUG
     do i = 1, zone%ncoupling

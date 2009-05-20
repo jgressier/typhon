@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine corr_varprim_kdif(field, domaine, def_solver, dif_enflux, nb, &
+subroutine corr_varprim_kdif(field, umesh, def_solver, dif_enflux, nb, &
                              part_cor, typ_cor, fincycle)
  
 use TYPHMAKE
@@ -21,7 +21,7 @@ use MENU_ZONECOUPLING
 implicit none
 
 ! -- Declaration des entrees --
-type(st_ustmesh)      :: domaine          ! domaine non structure a integrer
+type(st_ustmesh)      :: umesh            ! unstructured mesh
 type(mnu_solver)      :: def_solver       ! proprietes du solver
 type(st_genericfield) :: dif_enflux       ! energie a ajouter, pour correction de flux
 integer               :: nb               ! index de la condition aux limites
@@ -39,12 +39,12 @@ integer               :: ip               ! index de variables
 
 ! -- Debut de la procedure --
 
-do i=1, domaine%boco(nb)%nface
+do i=1, umesh%boco(nb)%nface
 
-  if = domaine%boco(nb)%iface(i)
+  if = umesh%boco(nb)%iface(i)
 
-  ic1 = domaine%facecell%fils(if,1)
-  ic2 = domaine%facecell%fils(if,2)
+  ic1 = umesh%facecell%fils(if,1)
+  ic2 = umesh%facecell%fils(if,2)
 
   ! -- calcul des residus --
   ! Choix selon les types de correction
@@ -179,20 +179,20 @@ do i=1, domaine%boco(nb)%nface
   ! -- residus
   do ip = 1, field%nscal
     field%residu%tabscal(ip)%scal(ic1) =  field%residu%tabscal(ip)%scal(ic1) &
-                                            / domaine%mesh%volume(ic1,1,1)
+                                            / umesh%mesh%volume(ic1,1,1)
     field%residu%tabscal(ip)%scal(ic2) =  field%residu%tabscal(ip)%scal(ic2) &
-                                            / domaine%mesh%volume(ic1,1,1)
+                                            / umesh%mesh%volume(ic1,1,1)
   enddo
   do ip = 1, field%nvect
     field%residu%tabvect(ip)%vect(ic1) =  field%residu%tabvect(ip)%vect(ic1)  &
-                                            / domaine%mesh%volume(ic1,1,1)
+                                            / umesh%mesh%volume(ic1,1,1)
     field%residu%tabvect(ip)%vect(ic2) =  field%residu%tabvect(ip)%vect(ic2)  &
-                                            / domaine%mesh%volume(ic1,1,1)
+                                            / umesh%mesh%volume(ic1,1,1)
   enddo
 
   if (typ_cor == bocoT2) then
-    def_solver%boco(domaine%boco(nb)%idefboco)%boco_kdif%temp(i)= &
-      def_solver%boco(domaine%boco(nb)%idefboco)%boco_kdif%temp(i)&
+    def_solver%boco(umesh%boco(nb)%idefboco)%boco_kdif%temp(i)= &
+      def_solver%boco(umesh%boco(nb)%idefboco)%boco_kdif%temp(i)&
       +(field%residu%tabscal(ip)%scal(ic2)/def_solver%defkdif%materiau%Cp)
 
   else
