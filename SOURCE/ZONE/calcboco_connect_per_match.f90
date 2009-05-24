@@ -32,9 +32,8 @@ real(krp), allocatable :: bocodata(:) ! array of packed data
 
 ! -- BODY --
 
-if (mpi_run) call erreur("Critical error", "Periodic conditions must not be used in parallel computations")
+if (mpi_run) call erreur("Critical error", "Periodic conditions cannot be used in parallel computations")
 
-!print*,umesh%facecell%fils(boco%iface(1:boco%nface), 2)
 do if = 1, boco%nface
   ic   = umesh%facecell%fils(boco%iface(if), 2)     ! ghost cell
   ic2  = boco%gridcon%i_param(if)                   ! periodic cell equivalent to ghostcell
@@ -43,6 +42,8 @@ do if = 1, boco%nface
   enddo
   do var = 1, prim%nvect
     prim%tabvect(var)%vect(ic) = prim%tabvect(var)%vect(ic2)
+    call transvec_per(defsolver%defmesh%periodicity(defsolver%connect(boco%gridcon%ilink)%ilink), &
+                      prim%tabvect(var)%vect(ic:ic), -boco%gridcon%rlink)
   enddo
 enddo
 

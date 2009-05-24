@@ -28,8 +28,9 @@ type(st_grid)    :: grid                 ! maillage et connectivites
 ! -- Internal variables --
 type(v3d), allocatable :: v1(:), v2(:)
 integer,   allocatable :: i1(:), i2(:)
+type(v3d)              :: dfc(1)
 integer                :: ib, ib2, idef, nf, nf2     ! index de conditions aux limites et index de definition
-integer                :: iface, ic1, ic2, icp, if
+integer                :: iface, ic1, ic2, icper, if, ifper
 logical                :: same_name
 type(st_ustboco), pointer :: boco
 
@@ -214,13 +215,20 @@ do ib = 1, grid%umesh%nboco
       ! -- define ghost cells centers
 
       do if = 1, boco%nface     
-        iface = grid%umesh%boco(ib)%iface(if)               ! face index
+        iface = grid%umesh%boco(ib)%iface(if)               ! local face index
+        ifper = grid%umesh%boco(ib2)%iface(i1(if))          ! periodic face index
         ic1   = grid%umesh%facecell%fils(iface,1)           ! internal/reference cell index
         ic2   = grid%umesh%ncell_int + grid%umesh%ncell_lim ! ghost cell index
-        icp   = boco%gridcon%i_param(if)
-        grid%umesh%mesh%volume(ic2,1,1) = grid%umesh%mesh%volume(ic1,1,1)
-        grid%umesh%mesh%centre(ic2,1,1) = grid%umesh%mesh%centre(ic1,1,1) + grid%umesh%mesh%centre(icp,1,1) &
-                                          - grid%umesh%mesh%iface(grid%umesh%boco(ib2)%iface(i1(if)),1,1)%centre
+        icper = boco%gridcon%i_param(if)                    ! index of periodic cell
+
+        ! face to cell vector on periodic face
+        dfc   = grid%umesh%mesh%centre(icper,1,1) - grid%umesh%mesh%iface(ifper,1,1)%centre
+        ! transform vector
+        call transvec_per(defsolver%defmesh%periodicity(defsolver%connect(boco%gridcon%ilink)%ilink), dfc, -boco%gridcon%rlink)
+
+        grid%umesh%mesh%volume(ic2,1,1) = grid%umesh%mesh%volume(icper,1,1)
+        grid%umesh%mesh%centre(ic2,1,1) = grid%umesh%mesh%iface(iface,1,1)%centre + dfc(1)
+ 
       enddo
 
       ! -- 

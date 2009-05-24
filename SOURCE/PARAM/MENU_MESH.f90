@@ -80,7 +80,7 @@ implicit none
 type(mnu_periodicity) :: defper
 real(krp)             :: dir
 ! --- IN/OUTPUTS ---
-type(v3d)             :: vec(:)
+type(v3d), intent(inout) :: vec(:)
 ! --- private data ---
 integer :: i, n
 
@@ -95,6 +95,31 @@ case default
 endselect
 
 endsubroutine transloc_per
+
+!------------------------------------------------------------------------------!
+! transvec_per: transfer vector according to periodicity definition
+!------------------------------------------------------------------------------!
+subroutine transvec_per(defper, vec, dir)
+implicit none
+! --- INPUTS ---
+type(mnu_periodicity) :: defper
+real(krp)             :: dir
+! --- IN/OUTPUTS ---
+type(v3d), intent(inout) :: vec(:)
+! --- private data ---
+integer :: i, n
+
+n = size(vec)
+
+select case(defper%type)
+case(per_trans)
+  ! nothing to do !
+case default
+  print*,'unknown type of periodicity (internal)'
+  stop
+endselect
+
+endsubroutine transvec_per
 
 
 
