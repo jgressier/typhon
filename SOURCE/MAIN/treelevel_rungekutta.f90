@@ -75,7 +75,7 @@ rkstage: do istage = 1, nstage
 
   ! --- compute RHS(istage-1) ---
 
-  call treelevel_explicit(dt, info, defsolver, gridlist, coupling, ncoupling)
+  call calc_rhs(dt, info, defsolver, gridlist, coupling, ncoupling)
 
   ! --- get RHS(istage-1) ---
 

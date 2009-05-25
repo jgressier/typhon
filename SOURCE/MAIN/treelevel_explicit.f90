@@ -30,54 +30,10 @@ type(mnu_zonecoupling), dimension(1:ncoupling) &
 ! retour des residus a travers le champ field de la structure zone
 
 ! -- Internal variables --
-type(st_grid), pointer :: pgrid
-integer                :: if
 
-! -- Body --
+! -- BODY --
 
-! -- Preparation du calcul --
-
-pgrid => gridlist%first
-do while (associated(pgrid))
-  call calc_varprim(defsolver, pgrid%info%field_loc)     ! calcul des var. primitives
-  pgrid => pgrid%next
-enddo
-
-! -- calcul des conditions aux limites pour tous les domaines --
-
-call conditions_limites(info, defsolver, gridlist)
-    
-! -- gradients are computed only if necessary (by selected methods)
-
-if (defsolver%defspat%calc_grad) then
-  pgrid => gridlist%first
-  do while (associated(pgrid))
-    call calc_gradient(defsolver, defsolver%defspat, pgrid,                 &
-                       pgrid%info%field_loc%etatprim, pgrid%info%field_loc%gradient)
-    call calc_gradient_limite(defsolver, pgrid%umesh, pgrid%info%field_loc%gradient)
-    pgrid => pgrid%next
-  enddo
-endif
-
-! -- integration des domaines --
-
-pgrid => gridlist%first
-do while (associated(pgrid))
-
-  ! DEV : changer les structures de couplages dans MGRID
-  call integration_grid(dt, info%time_model, defsolver, &
-                        pgrid, coupling, ncoupling)
-
-  ! Desallocation des eventuelles listes chainees de champ generique utilisees
-  !!! DEV !!! removed in r606
-  !if (pgrid%nbocofield .ne. 0) then
-  !  call delete_chainedgfield(pgrid%bocofield)
-  !  pgrid%nbocofield = 0
-  !endif
-
-  pgrid => pgrid%next
-
-enddo
+call calc_rhs(dt, info, defsolver, gridlist, coupling, ncoupling)
 
 
 !-----------------------------
@@ -86,6 +42,5 @@ endsubroutine treelevel_explicit
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! Mar  2006: created from integzone_tstep_usttree
-! Nov  2007: only compute RHS, updating is done by calling routine, changed name
+! May  2009: transfer treelevel_explicit to calc_rhs, replaced by call
 !------------------------------------------------------------------------------!
