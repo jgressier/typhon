@@ -30,7 +30,7 @@ real(krp)     :: sol(1:mat%dim*mat%dimblock)  ! RHS as input, SOLUTION as output
 integer(kip)  :: info
 
 ! -- Internal variables --
-real(krp), dimension(:), allocatable :: r1, r2, p1, qc, qs, ss, yy
+real(krp), dimension(:), allocatable :: r1, p1, qc, qs, ss, yy
 real(krp), dimension(:,:), allocatable :: hh, w1, v1
 integer(kip)                         :: nit, dim
 real(krp)                            :: errgmres, ref
@@ -53,7 +53,7 @@ dim = mat%dim*mat%dimblock
 nit    = 0
 errgmres = huge(errgmres)    ! maximal real number in machine representation (to ensure 1st iteration)
 
-allocate(r1(dim)) ;     allocate(r2(dim))
+allocate(r1(dim))
 allocate(p1(dim))
 allocate(qc(dim)) ;     allocate(qs(dim))
 allocate(ss(dim)) ;     allocate(yy(dim))
@@ -88,8 +88,7 @@ do while ((errgmres >= ref*def_impli%maxres).and.(nit <= def_impli%max_it*2))
 !!! endif
 
   ! r0 = M^(-1) . ( b - A.x0 )
-  r1(1:dim) = -sol(1:dim)
-  call bdlu_xeqaxpy(r1(1:dim), mat, p1(1:dim), r2(1:dim))       ! R1 = RHS - MAT.SOL
+  call bdlu_yeqmaxpz(r1(1:dim), mat, sol(1:dim), p1(1:dim))      ! R1 = RHS - MAT.SOL
 
   beta = sqrt(dot_product(r1(1:dim),r1(1:dim)))                 ! beta = ||r0||_2
   fact = 1.0_krp/beta
@@ -175,8 +174,7 @@ do while ((errgmres >= ref*def_impli%maxres).and.(nit <= def_impli%max_it*2))
     sol(1:dim) = sol(1:dim)+yy(jk)*v1(jk,1:dim)                   ! sol = sol + Vm.ym
   enddo
 
-  r1(1:dim) = -sol(1:dim)
-  call bdlu_xeqaxpy(r1(1:dim), mat, p1(1:dim), r2(1:dim))       ! R1 = RHS - MAT.SOL
+  call bdlu_yeqmaxpz(r1(1:dim), mat, sol(1:dim), p1(1:dim))       ! R1 = RHS - MAT.SOL
   ss(nk+1) =  sqrt(dot_product(r1(1:dim),r1(1:dim)))
 
   errgmres = ss(nk+1)/normp1
@@ -205,7 +203,7 @@ else
   info = -1
 endif
 
-deallocate(r1, r2, p1, qc, qs, ss, yy, hh, w1, v1)
+deallocate(r1, p1, qc, qs, ss, yy, hh, w1, v1)
 
 endsubroutine bdlu_gmres
 

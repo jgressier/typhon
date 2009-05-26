@@ -97,7 +97,7 @@ MAIN/main.f90: make_svnrev
 SVNREV=$(shell svnversion 2> /dev/null || echo unknown)
 
 make_svnrev:
-	@echo ..... got revision number : $(SVNREV)
+	@echo ..... revision number : $(SVNREV)
 	@echo 'character(len=20), parameter :: svnrev = "'$(SVNREV)'"' > Include/svnrev.h
 
 include MAIN/depends.make

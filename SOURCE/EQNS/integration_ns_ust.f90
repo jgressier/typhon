@@ -22,16 +22,16 @@ use MATRIX_ARRAY
 
 implicit none
 
-! -- INPUTS --
+! -- Inputs --
 type(mnu_solver) :: defsolver        ! type d'equation a resoudre
 type(mnu_spat)   :: defspat          ! parametres d'integration spatiale
-type(st_ustmesh) :: umesh          ! umesh non structure a integrer
+type(st_ustmesh) :: umesh            ! umesh non structure a integrer
 logical          :: calc_jac         ! choix de calcul de la jacobienne
 
-! -- INPUTS/OUTPUTS --
+! -- Inputs/Outputs --
 type(st_field)   :: field            ! champ des valeurs et residus
 
-! -- OUTPUTS --
+! -- Outputs --
 type(st_genericfield)   :: flux        ! flux physiques
 type(st_mattab)         :: jacL, jacR  ! jacobiennes associees (gauche et droite)
 
@@ -48,7 +48,7 @@ type(st_genericfield) :: gradL, gradR         ! nblock size arrays of gradients
 type(v3d), dimension(:), allocatable &
                       :: cg_l, cg_r           ! tableau des centres de cellules a gauche et a droite   
 
-! -- BODY --
+! -- Body --
 
 call calc_buffer(umesh%nface, cell_buffer, nblock, dimbuf, dimbuf1)
 
@@ -208,8 +208,8 @@ endsubroutine integration_ns_ust
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! july 2004 : created, basic calls
-! nov  2004 : high order interpolation
-! feb  2005 : call to viscous flux computation
-! Nov  2007 : add post limitation
+! Jul 2004: created, basic calls
+! Nov 2004: high order interpolation
+! Feb 2005: call to viscous flux computation
+! nov 2007: add post limitation
 !------------------------------------------------------------------------------!

@@ -22,20 +22,20 @@ use MATRIX_ARRAY
 
 implicit none
 
-! -- Declaration des entrees --
+! -- Inputs --
 type(mnu_solver) :: defsolver        ! type d'equation a resoudre
 type(mnu_spat)   :: defspat          ! parametres d'integration spatiale
 type(st_ustmesh) :: umesh            ! unstructured mesh
 logical          :: calc_jac         ! choix de calcul de la jacobienne
 
-! -- Declaration des entrees/sorties --
+! -- Inputs/Outputs --
 type(st_field)   :: field            ! champ des valeurs et residus
 
-! -- Declaration des sorties --
+! -- Outputs --
 type(st_genericfield)   :: flux        ! flux physiques
 type(st_mattab)         :: jacL, jacR  ! jacobiennes associees (gauche et droite)
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 integer :: if, nfb              ! index de face et taille de bloc courant
 integer :: nbuf                 ! taille de buffer 
 integer :: ib, nbloc            ! index de bloc et nombre de blocs
@@ -49,7 +49,7 @@ type(v3d), dimension(:), allocatable &
 type(v3d), dimension(:), allocatable &
         :: cg_l, cg_r           ! tableau des centres de cellules a gauche et a droite   
 
-! -- Debut de la procedure --
+! -- Body --
 
 ! On peut ici decouper la maillage complet en blocs de taille fixe pour optimiser
 ! l'encombrement memoire et la vectorisation
@@ -115,8 +115,8 @@ endsubroutine integration_kdif_ust
 !------------------------------------------------------------------------------!
 ! Change history
 !
-! apr  2003 : created
-! june 2003 : update management of conservative and primitive variables
-! oct  2003 : gradients added in left and right distribution
-! apr  2004 : jacobian matrices computation for implicit solver
+! Apr 2003: created
+! Jun 2003: update management of conservative and primitive variables
+! Oct 2003: gradients added in left and right distribution
+! Apr 2004: jacobian matrices computation for implicit solver
 !------------------------------------------------------------------------------!

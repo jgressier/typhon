@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------!
-! Procedure : dlu_cgs                             Authors : J. Gressier
-!                                                    Created : August 2005
+! Procedure : dlu_cgs                              Authors : J. Gressier
+!                                                  Created : August 2005
 ! Fonction
 !   Resolution of linear system : mat.sol = rhs
 !     mat type(st_dlu)
@@ -54,13 +54,15 @@ allocate(v (dim))
 ! -- initialization --
 
 p1 (1:dim) = sol(1:dim)  ! save RHS
+
+! -- initial guess --
+
 sol(1:dim) = p1(1:dim) / mat%diag(1:dim)  ! initial guess
 ref = sum(abs(sol(1:dim)))
 
 !call sort_dlu(mat)
 
-r1(1:dim) = - sol(1:dim)
-call dlu_xeqaxpy(r1(1:dim), mat, p1(1:dim), r2(1:dim))    ! R1 = RHS - MAT.SOL
+call dlu_yeqmaxpz(r1(1:dim), mat, sol(1:dim), p1(1:dim))  ! R1 = RHS - MAT.SOL
 r2(1:dim) = r1(1:dim)                                     ! R2 = R1
 
 do while ((erreur >= ref*def_impli%maxres).and.(nit <= def_impli%max_it))

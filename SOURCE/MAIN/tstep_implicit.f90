@@ -2,11 +2,11 @@
 ! Procedure : tstep_implicit                            Auteur : J. Gressier
 !                                                      Date   : Avril 2004
 ! Fonction
-!   Implicit Integration of the domain
+!   Implicit integration of the domain
 !
 !------------------------------------------------------------------------------!
 subroutine tstep_implicit(dtloc, typtemps, defsolver, &
-                         umesh, field, coupling, ncp)
+                          umesh, field, coupling, ncp)
 
 use TYPHMAKE
 use OUTPUT
@@ -33,11 +33,9 @@ type(mnu_zonecoupling), dimension(1:ncp) &
                  :: coupling ! donnees de couplage
 
 ! -- Internal variables --
-type(st_spmat)         :: mat
-type(st_genericfield)  :: flux             ! tableaux des flux
-type(st_mattab)        :: jacL, jacR       ! tableaux de jacobiennes des flux
-real(krp), allocatable :: tabres(:)        ! collect residuals
-integer(kip)           :: if, ic1, ic2, ic, info, dim
+type(st_spmat)        :: mat
+type(st_genericfield) :: flux       ! tableaux des flux
+type(st_mattab)       :: jacL, jacR ! tableaux de jacobiennes des flux
 
 ! -- BODY --
 
@@ -48,7 +46,7 @@ call new(jacR, umesh%nface, defsolver%nequat)
 ! phase explicite : right hand side computation
 !--------------------------------------------------
 
-! -- allocation des flux et termes sources --
+! -- source terms and flux allocation (structure similar to field%etatcons) --
 
 call new(flux, umesh%nface, field%nscal, field%nvect, 0)
 
@@ -69,7 +67,9 @@ call flux_to_res(dtloc, umesh, flux, field%residu, .true., jacL, jacR)
 ! BOCO HISTORY
 !-----------------------------------------------------------------------
 
-call integ_ustboco(umesh, field, flux) 
+call integ_ustboco(umesh, field, flux)
+
+! -- source terms and flux deletion --
 
 call delete(flux)
 
@@ -97,9 +97,9 @@ endsubroutine tstep_implicit
 !------------------------------------------------------------------------------!
 ! Change History
 !
-! Apr  2004 : creation
-! Aug  2005 : split / call build_implicit to handle different structures
-!           : split / call implicit_solve 
-! sept 2005 : local time stepping
-! Nov  2007 : new name "tstep_implicit"
+! Apr 2004 : creation
+! Aug 2005 : split / call build_implicit to handle different structures
+!            split / call implicit_solve 
+! Sep 2005 : local time stepping
+! Nov 2007 : new name "tstep_implicit"
 !------------------------------------------------------------------------------!

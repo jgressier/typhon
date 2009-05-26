@@ -198,14 +198,14 @@ endsubroutine bdlu_yeqatx
 
 
 !------------------------------------------------------------------------------!
-! bdlu_xeqaxpy : x = A.x + y
+! bdlu_yeqmaxpz : y = - A.x + z
 !------------------------------------------------------------------------------!
-subroutine bdlu_xeqaxpy(x, mat, y, p)
+subroutine bdlu_yeqmaxpz(y, mat, x, z)
 implicit none
 ! -- parameters --
 type(st_bdlu)                  :: mat
 real(krp), dimension(mat%dim*mat%dimblock) &
-                               :: x, y, p  ! p is a transient variable
+                               :: x, y, z
 ! -- internal --
 integer(kip)  :: if, imin, imax, db
 
@@ -213,22 +213,20 @@ integer(kip)  :: if, imin, imax, db
 
 db = mat%dimblock
 
-p(1:mat%dim*db) = x(1:mat%dim*db)
-
 do if = 1, mat%dim
   imin = (if-1)*db
-  x(imin+1:imin+db) = y(imin+1:imin+db) + matmul(mat%diag(1:db,1:db, if), p(imin+1:imin+db))
+  y(imin+1:imin+db) = z(imin+1:imin+db) - matmul(mat%diag(1:db,1:db, if), x(imin+1:imin+db))
 enddo
 
 do if = 1, mat%ncouple
   imin = (mat%couple%fils(if,1)-1)*db    ! ic1 cell is supposed to be the lowest index
   imax = (mat%couple%fils(if,2)-1)*db    ! ic2 cell is supposed to be the highest index
   !!! no test that the index is lower than dim !!!
-  x(imax+1:imax+db) = x(imax+1:imax+db) + matmul(mat%lower(1:db,1:db, if), p(imin+1:imin+db))
-  x(imin+1:imin+db) = x(imin+1:imin+db) + matmul(mat%upper(1:db,1:db, if), p(imax+1:imax+db))
+  y(imax+1:imax+db) = y(imax+1:imax+db) - matmul(mat%lower(1:db,1:db, if), x(imin+1:imin+db))
+  y(imin+1:imin+db) = y(imin+1:imin+db) - matmul(mat%upper(1:db,1:db, if), x(imax+1:imax+db))
 enddo
 
-endsubroutine bdlu_xeqaxpy
+endsubroutine bdlu_yeqmaxpz
 
 
 

@@ -64,8 +64,7 @@ ref = sum(abs(sol(1:dim)))
 
 !call sort_bdlu(mat)
 
-r1(1:dim) = - sol(1:dim)
-call bdlu_xeqaxpy(r1(1:dim), mat, p1(1:dim), r2(1:dim))    ! R1 = RHS - MAT.SOL
+call bdlu_yeqmaxpz(r1(1:dim), mat, sol(1:dim), p1(1:dim))  ! R1 = RHS - MAT.SOL
 r2(1:dim) = r1(1:dim)                                      ! R2 = R1
 
 do while ((erreur >= ref*def_impli%maxres).and.(nit <= def_impli%max_it))
