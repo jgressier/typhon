@@ -14,6 +14,7 @@ use MGRID
 use MENU_SOLVER
 use MODINFO
 use MENU_ZONECOUPLING
+use MATRIX_ARRAY
 
 implicit none
 
@@ -30,8 +31,8 @@ type(mnu_zonecoupling), dimension(1:ncoupling) &
 ! retour des residus a travers le champ field de la structure zone
 
 ! -- Internal variables --
+type(st_mattab)        :: jacL, jacR       ! tableaux de jacobiennes des flux
 type(st_grid), pointer :: pgrid
-integer                :: if
 
 ! -- Body --
 
@@ -66,7 +67,7 @@ do while (associated(pgrid))
 
   ! DEV : changer les structures de couplages dans MGRID
   call integration_grid(dt, info%time_model, defsolver, &
-                        pgrid, coupling, ncoupling)
+                        pgrid, coupling, ncoupling, jacL, jacR)
 
   ! Desallocation des eventuelles listes chainees de champ generique utilisees
   !!! DEV !!! removed in r606
@@ -75,8 +76,21 @@ do while (associated(pgrid))
   !  pgrid%nbocofield = 0
   !endif
 
-  pgrid => pgrid%next
+  ! -- implicit resolution --
 
+  select case(defsolver%deftime%tps_meth)
+
+  !case(tps_expl, tps_rk2, tps_rk2ssp, tps_rk3ssp, tps_rk4)
+
+  case(tps_impl, tps_dualt)
+
+      call tstep_implicit(pgrid%dtloc, info%time_model, defsolver, &
+                          pgrid%umesh, pgrid%info%field_loc, &
+                          coupling, ncoupling, jacL, jacR)
+
+  endselect
+
+  pgrid => pgrid%next
 enddo
 
 

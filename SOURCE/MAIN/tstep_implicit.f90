@@ -1,12 +1,12 @@
 !------------------------------------------------------------------------------!
 ! Procedure : tstep_implicit                            Auteur : J. Gressier
-!                                                      Date   : Avril 2004
+!                                                       Date   : Avril 2004
 ! Fonction
 !   Implicit integration of the domain
 !
 !------------------------------------------------------------------------------!
 subroutine tstep_implicit(dtloc, typtemps, defsolver, &
-                          umesh, field, coupling, ncp)
+                          umesh, field, coupling, ncoupling, jacL, jacR)
 
 use TYPHMAKE
 use OUTPUT
@@ -25,53 +25,19 @@ character        :: typtemps   ! type d'integration (stat, instat, period)
 type(mnu_solver) :: defsolver  ! type d'equation a resoudre
 type(st_ustmesh) :: umesh      ! domaine non structure a integrer
 real(krp)        :: dtloc(1:umesh%ncell)         ! pas de temps CFL
-integer          :: ncp        ! nombre de couplages de la zone
+integer          :: ncoupling  ! nombre de couplages de la zone
 
-! -- Input/output --
+! -- Inputs/Outputs --
 type(st_field)   :: field            ! champ des valeurs et residus
-type(mnu_zonecoupling), dimension(1:ncp) &
+type(mnu_zonecoupling), dimension(1:ncoupling) &
                  :: coupling ! donnees de couplage
 
 ! -- Internal variables --
 type(st_spmat)        :: mat
-type(st_genericfield) :: flux       ! tableaux des flux
-type(st_mattab)       :: jacL, jacR ! tableaux de jacobiennes des flux
+type(st_genericfield) :: flux             ! tableaux des flux
+type(st_mattab)       :: jacL, jacR       ! tableaux de jacobiennes des flux
 
-! -- BODY --
-
-call new(jacL, umesh%nface, defsolver%nequat)
-call new(jacR, umesh%nface, defsolver%nequat)
-
-!--------------------------------------------------
-! phase explicite : right hand side computation
-!--------------------------------------------------
-
-! -- source terms and flux allocation (structure similar to field%etatcons) --
-
-call new(flux, umesh%nface, field%nscal, field%nvect, 0)
-
-select case(defsolver%typ_solver)
-case(solKDIF)
-  call integration_kdif_ust(defsolver, defsolver%defspat, umesh, field, flux, .true., jacL, jacR)
-case(solNS)
-  call integration_ns_ust(defsolver, defsolver%defspat, umesh, field, flux, .true., jacL, jacR)
-case default
-  call erreur("internal error (tstep_implicit)", "unknown or unexpected solver")
-endselect
-
-! -- flux surfaciques -> flux de surfaces et calcul des residus  --
-
-call flux_to_res(dtloc, umesh, flux, field%residu, .true., jacL, jacR)
-
-!-----------------------------------------------------------------------
-! BOCO HISTORY
-!-----------------------------------------------------------------------
-
-call integ_ustboco(umesh, field, flux)
-
-! -- source terms and flux deletion --
-
-call delete(flux)
+! -- Body --
 
 !--------------------------------------------------
 ! build implicit system
@@ -99,7 +65,7 @@ endsubroutine tstep_implicit
 !
 ! Apr 2004 : creation
 ! Aug 2005 : split / call build_implicit to handle different structures
-!            split / call implicit_solve 
+!            split / call implicit_solve
 ! Sep 2005 : local time stepping
 ! Nov 2007 : new name "tstep_implicit"
 !------------------------------------------------------------------------------!

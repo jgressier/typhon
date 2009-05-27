@@ -4,9 +4,9 @@ use FCT_PARSER
 use FCT_EVAL
 use FCT_ENV
 
-integer, parameter     :: prec = 8
-character(len=100)     :: str
-real(prec)              :: x
+integer, parameter :: prec = 8
+character(len=128) :: str
+real(prec)         :: x
 
 x  = 4.2_prec
 str="4.2"
@@ -149,21 +149,22 @@ str="(((3^2+2)*5+4./2.)*3-(3-2./4.)*4)/(2-4)^2"
 call test_real(str, x)
 
 
-str=" 1.E-9 + (.9622504-1.E-9)*step(-2-x)"
+str=" 1.E-9 + (.9622504E-0-1.E-009)*step(-2-X)"
 call test_parse(str)
 
 contains
 
 subroutine test_real(str, x)
 implicit none
-character(len=100)     :: str
+character(len=128)     :: str
 type(st_fct_node)      :: func
 type(st_fct_container) :: cont
 real(prec)             :: x
-character(len=20)  :: form="(a30,2g16.8,2x,a8)"
-character(len=20)  :: err
+character(len=32)  :: form="(a30,2g16.8,2x,a8)"
+character(len=16)  :: err
+integer            :: ierr
 
-call string_to_node(str, func)
+call string_to_funct(str, func, ierr)
 call fct_node_eval(blank_env, func, cont)
 if ((abs(cont%r-x)/x) > 10*sqrt(epsilon(x))) then
   err = "FAUX"
@@ -180,11 +181,9 @@ endsubroutine
 
 subroutine test_parse(str)
 implicit none
-character(len=*)     :: str
-character(len=100)   :: str2
-type(st_fct_node)      :: func
-character(len=20)  :: form="(a30,2g16.8,2x,a8)"
-character(len=20)  :: err
+character(len=*)   :: str
+character(len=128) :: str2
+type(st_fct_node)  :: func
 integer            :: ierr
 
 call string_to_funct(str, func, ierr)

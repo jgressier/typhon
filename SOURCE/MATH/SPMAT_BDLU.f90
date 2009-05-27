@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------!
-! MODULE : SPMAT_BDLU                                 Authors : J. Gressier
-!                                                     Created : June 2005
+! MODULE : SPMAT_BDLU                               Authors : J. Gressier
+!                                                   Created : June 2005
 ! Fonction
 !   Definition des structures de stockage de matrices creuses
 !
@@ -25,15 +25,15 @@ implicit none
 ! structure BDLU : matrice a REMPLISSAGE symetrique
 !------------------------------------------------------------------------------!
 type st_bdlu
-  logical                          :: sort
-  logical                          :: diaginvert
-  integer(kip)                     :: dim
-  integer(kip)                     :: dimblock
-  integer(kip)                     :: ncouple
+  logical            :: sort
+  logical            :: diaginvert
+  integer(kip)       :: dim
+  integer(kip)       :: dimblock
+  integer(kip)       :: ncouple
   real(krp), dimension(:,:,:), pointer :: diag     ! coefficient de la diagonale
   real(krp), dimension(:,:,:), pointer :: lower    ! coefficient triang. inf
   real(krp), dimension(:,:,:), pointer :: upper    ! coefficient triang. inf
-  type(st_connect)                     :: couple   ! liste (dim) des couples
+  type(st_connect)   :: couple   ! liste (dim) des couples
 endtype st_bdlu
 
 
@@ -61,7 +61,6 @@ implicit none
 type(st_bdlu) :: mat
 integer(kip) :: dimblock, dim, ncouple
 
-  !print*,"allocation bdlu", dimblock, dim, ncouple
   mat%sort       = .false.
   mat%diaginvert = .false.
   mat%dimblock = dimblock
@@ -71,7 +70,6 @@ integer(kip) :: dimblock, dim, ncouple
   allocate(mat%lower(dimblock, dimblock, ncouple))! ;   mat%lower(:,:,:) = 0._krp
   allocate(mat%upper(dimblock, dimblock, ncouple))! ;   mat%upper(:,:,:) = 0._krp
   call new(mat%couple, ncouple, 2)
-  !print*,"  fin allocation"
 
 endsubroutine new_bdlu
 
@@ -83,10 +81,12 @@ implicit none
 ! - parametres
 type(st_bdlu) :: mat
 
-  deallocate(mat%diag)
-  deallocate(mat%lower)
-  deallocate(mat%upper)
-  call delete(mat%couple)
+  if (associated(mat%diag)) then
+    deallocate(mat%diag)
+    deallocate(mat%lower)
+    deallocate(mat%upper)
+    call delete(mat%couple)
+  endif
 
 endsubroutine delete_bdlu
 
@@ -131,7 +131,6 @@ real(krp)    :: x(mat%dimblock, mat%dimblock)
 integer      :: i, if
 
 
-
 endsubroutine invertdiag_bdlu
 
 
@@ -141,11 +140,11 @@ endsubroutine invertdiag_bdlu
 subroutine bdlu_yeqax(y, mat, x)
 implicit none
 ! -- parameters --
-type(st_bdlu)                 :: mat
-real(krp), dimension(mat%dim*mat%dimblock) &
-                              :: x, y
+type(st_bdlu)                 , intent(in)  :: mat
+real(krp), dimension(mat%dim*mat%dimblock), intent(in)  :: x
+real(krp), dimension(mat%dim*mat%dimblock), intent(out) :: y
 ! -- internal --
-integer(kip)   :: if, imin, imax, db
+integer(kip) :: if, imin, imax, db
 
 db  = mat%dimblock
 
@@ -171,11 +170,11 @@ endsubroutine bdlu_yeqax
 subroutine bdlu_yeqatx(y, mat, x)
 implicit none
 ! -- parameters --
-type(st_bdlu)                 :: mat
-real(krp), dimension(mat%dim*mat%dimblock) &
-                              :: x, y
+type(st_bdlu)                 , intent(in)  :: mat
+real(krp), dimension(mat%dim*mat%dimblock), intent(in)  :: x
+real(krp), dimension(mat%dim*mat%dimblock), intent(out) :: y
 ! -- internal --
-integer(kip)      :: if, imin, imax, db
+integer(kip) :: if, imin, imax, db
 
 ! -- body --
 
@@ -198,16 +197,51 @@ endsubroutine bdlu_yeqatx
 
 
 !------------------------------------------------------------------------------!
+! bdlu_xeqaxpy : x = A.x + y
+!------------------------------------------------------------------------------!
+subroutine bdlu_xeqaxpy(x, mat, y, p)
+implicit none
+! -- parameters --
+type(st_bdlu)                 , intent(in)    :: mat
+real(krp), dimension(mat%dim*mat%dimblock), intent(in)    :: y
+real(krp), dimension(mat%dim*mat%dimblock), intent(out)   :: p  ! p is a transient variable
+real(krp), dimension(mat%dim*mat%dimblock), intent(inout) :: x
+! -- internal --
+integer(kip) :: if, imin, imax, db
+
+! -- body --
+
+db = mat%dimblock
+
+p(1:mat%dim*db) = x(1:mat%dim*db)
+
+do if = 1, mat%dim
+  imin = (if-1)*db
+  x(imin+1:imin+db) = y(imin+1:imin+db) + matmul(mat%diag(1:db,1:db, if), p(imin+1:imin+db))
+enddo
+
+do if = 1, mat%ncouple
+  imin = (mat%couple%fils(if,1)-1)*db    ! ic1 cell is supposed to be the lowest index
+  imax = (mat%couple%fils(if,2)-1)*db    ! ic2 cell is supposed to be the highest index
+  !!! no test that the index is lower than dim !!!
+  x(imax+1:imax+db) = x(imax+1:imax+db) + matmul(mat%lower(1:db,1:db, if), p(imin+1:imin+db))
+  x(imin+1:imin+db) = x(imin+1:imin+db) + matmul(mat%upper(1:db,1:db, if), p(imax+1:imax+db))
+enddo
+
+endsubroutine bdlu_xeqaxpy
+
+
+!------------------------------------------------------------------------------!
 ! bdlu_yeqmaxpz : y = - A.x + z
 !------------------------------------------------------------------------------!
 subroutine bdlu_yeqmaxpz(y, mat, x, z)
 implicit none
 ! -- parameters --
-type(st_bdlu)                  :: mat
-real(krp), dimension(mat%dim*mat%dimblock) &
-                               :: x, y, z
+type(st_bdlu)                 , intent(in)  :: mat
+real(krp), dimension(mat%dim*mat%dimblock), intent(in)  :: x, z
+real(krp), dimension(mat%dim*mat%dimblock), intent(out) :: y
 ! -- internal --
-integer(kip)  :: if, imin, imax, db
+integer(kip) :: if, imin, imax, db
 
 ! -- body --
 
@@ -229,14 +263,13 @@ enddo
 endsubroutine bdlu_yeqmaxpz
 
 
-
 endmodule SPMAT_BDLU
 
 
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! avr  2004 : created, scalar terms
-! dec  2004 : from SPMATH_DLU, extension to block terms
-! aug  2005 : switch indexes order / internal operations
+! Apr 2004 : created, scalar terms
+! Dec 2004 : from SPMATH_DLU, extension to block terms
+! Aug 2005 : switch indexes order / internal operations
 !------------------------------------------------------------------------------!

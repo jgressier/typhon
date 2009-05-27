@@ -56,7 +56,6 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            output_result.o          \
            treelevel_explicit.o     \
            treelevel_rungekutta.o   \
-           tstep_explicit.o         \
            tstep_implicit.o         \
            update_couplingboco.o    \
            write_bocohisto.o        \

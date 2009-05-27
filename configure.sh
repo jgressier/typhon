@@ -131,9 +131,10 @@ check_library() {
   local     ext=$2
   local pathlib=$ALLPATH
   local fullname
+  local libname=lib$name.$ext
   for dir in $pathlib ; do
-    if [ -r "$dir/lib/lib$name.$ext" ] ; then
-      fullname=$dir/lib/lib$name.$ext
+    if [ -r "$dir/lib/$libname" ] ; then
+      fullname=$dir/lib/$libname
       break
     fi
   done
@@ -141,7 +142,7 @@ check_library() {
     success $fullname
     export LIB_$name=$fullname
   else
-    fail "not found"
+    fail "not found: $libname"
   fi
   }
 
@@ -173,7 +174,7 @@ check_mpilib() {
       break
     fi
   done
-  if [ -n "$MPILIB" ] ; then
+  if [ -z "$MPILIB" ] ; then
     fail "not found"
   fi
   }

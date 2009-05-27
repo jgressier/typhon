@@ -8,10 +8,11 @@ type(st_fct_env)       :: env
 type(st_fct_node)      :: func
 type(st_fct_container) :: cont
 integer, parameter     :: prec = 8
-character(len=100)     :: str
+character(len=128)     :: str
 integer                :: i, n
 real                   :: t1, t0
 real(prec), pointer    :: x(:), t(:)
+integer                :: ierr
 
 call new_fct_env(env)
 
@@ -26,7 +27,7 @@ enddo
 call cpu_time(t1)
 print*,"computation loop - cpu:",t1-t0
 
-call string_to_node("ln(x)/x", func)
+call string_to_funct("ln(x)/x", func, ierr)
 call cpu_time(t0)
 do i = 1, n
   x(i) = real(i)
@@ -40,7 +41,7 @@ print*,"fct         loop - cpu:",t1-t0
 call delete(cont)
 call delete(func)
 
-call string_to_node("10.", func)
+call string_to_funct("10.", func, ierr)
 call cpu_time(t0)
 do i = 1, n
   x(i) = real(i)

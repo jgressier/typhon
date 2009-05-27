@@ -118,19 +118,44 @@ integer       :: pos, endpos
 integer       :: ierr            ! error code
 real(rprc)    :: x               ! temporary real
 logical       :: found
+integer       :: dot
+logical       :: fig
 
-! -- body --
+! -- Body --
 
 found = .false.                 ! skip all seeking process once found something
 lstr  = len(trim(str))
 
 !-------------------------------------------------------
-! remove brackets enclosing the whole string
+! check for unmatched parentheses
+ierr = 0
+istr = 0
+do while ((istr < lstr).and.(ierr >= 0))
+  pos = scan(str(istr+1:lstr), '()')
+  if (pos == 0) exit
+  istr = istr + pos
+  pos = index('()', str(istr:istr))
+  if     (pos == 1) then
+    ierr = ierr + 1
+  elseif (pos == 2) then
+    ierr = ierr - 1
+  else
+    call set_fct_error(istr, "(string_to_node) internal error")
+  endif
+enddo
+if (ierr /= 0) then
+  call fct_warning("string: "//trim(str))
+  if (ierr > 0) call set_fct_error(-1, "unmatched '(' in the processed string")
+  if (ierr < 0) call set_fct_error(-1, "unmatched ')' in the processed string")
+endif
 
-if (str(1:1) == '(') then
+!-------------------------------------------------------
+! remove brackets enclosing the whole string
+if ((.not.found).and.(str(1:1) == '(')) then
   istr = index_oper(str(2:lstr), ")")
   if (istr == 0) then           ! ------ ")" not found
-    call set_fct_error(-1, "unmatched ')' in the processed string")
+    call fct_warning("string: "//trim(str))
+    call set_fct_error(-1, "unmatched '(' in the processed string")
   elseif (istr == lstr-1) then  ! ------ end of processed string
     call string_to_node(str(2:lstr-1), node)
     found = .true.
@@ -141,7 +166,6 @@ endif
 
 !-------------------------------------------------------
 ! look for constants
-!print*,found,trim(str),is_real(str)
 if ((.not.found).and.(is_real(str))) then
   read(str, *, iostat=ierr) x
   if (ierr == 0) then
@@ -160,7 +184,7 @@ do while ((.not.found).and.(iop <= max_op))  ! ---------- loop on binary operato
 
   !-------------------------------------------------------
   ! look for LAST binary operator in string 
-  ! this is to handle unexpected effect of non-symmetric operators : - and /
+  ! this is to handle unexpected effect of non-symmetric operators: - and /
 
   istr   = 0
   pos    = lstr        ! force first loop
@@ -177,6 +201,7 @@ do while ((.not.found).and.(iop <= max_op))  ! ---------- loop on binary operato
   !-------------------------------------------------------
   ! operator (iop) found but at end of string
   elseif (istr == lstr) then  
+    call fct_warning("string: "//trim(str))
     call set_fct_error(-1, "unexpected ending position of binary operator")
 
   !-------------------------------------------------------
@@ -192,16 +217,53 @@ do while ((.not.found).and.(iop <= max_op))  ! ---------- loop on binary operato
       call string_to_node(str(2:lstr), node%left)
       found = .true.
     case default
+      call fct_warning("string: "//trim(str))
       call set_fct_error(-1, "unexpected beginning position of binary operator")
     endselect
 
-  elseif ((istr >= 2).and.(istr <= lstr-1)) then ! --------- found at consistent position
+  !-------------------------------------------------------
+  ! operator (iop) found at consistent position
+  elseif ((istr >= 2).and.(istr <= lstr-1)) then
 
-    ! -- if found, create node, split string and parse substrings
-    call new_fct_node(node, node_opbin, "", iop)
-    call string_to_node(str(1:istr-1),                          node%left)
-    call string_to_node(str(istr+len(trim(op2name(iop))):lstr), node%right)
-    found = .true.
+    ! -- check xx.yyE-zz floating point number
+    if ((index(        "eE", str(istr-1:istr-1)) > 0).and.& ! Exponent symbol (R4,R8,R16)
+        (index(        "-+", str(istr  :istr  )) > 0).and.& ! Exponent sign
+        (index("0123456789", str(istr+1:istr+1)) > 0)) then ! Exponent leading figure
+      pos = istr-1
+      fig = .false.
+      dot = 0
+      do while ((dot<2).and.(pos>1))
+        if (index("0123456789", str(pos-1:pos-1)) > 0) then
+          fig = .true.
+        elseif (index(     ".", str(pos-1:pos-1)) > 0) then
+          dot = dot+1
+        else
+          pos = 2
+        endif
+        pos = pos-1
+!print*, 'v:"',str(1:lstr),':',pos,':',str(pos:pos),'"'
+      enddo
+      if (fig.and.(pos==1).and.(dot<2)) then
+        pos = istr
+        do while (index("0123456789", str(pos+1:pos+1)) > 0)
+          pos = pos+1
+!print*, 'w:"',str(pos:pos),'"'
+        enddo
+        if (index(str(istr:istr),"-") > 0) & ! replace xx.yyE-zz by xx.yy/1Ezz
+          call string_to_node(str(1:istr-2)//"/1E"//str(istr+1:lstr), node)
+        if (index(str(istr:istr),"+") > 0) & ! replace xx.yyE+zz by xx.yyEzz
+          call string_to_node(str(1:istr-2)//  "E"//str(istr+1:lstr), node)
+        found = .true.
+      endif
+    endif
+
+    ! -- if xx.yyE-zz floating point number not found, create node, split string and parse substrings
+    if (.not.found) then
+      call new_fct_node(node, node_opbin, "", iop)
+      call string_to_node(str(1:istr-1),                          node%left)
+      call string_to_node(str(istr+len(trim(op2name(iop))):lstr), node%right)
+      found = .true.
+    endif
 
   else
     call set_fct_error(istr, "(string_to_node) internal error")
@@ -232,7 +294,7 @@ do while ((.not.found).and.(iop <= max_fct))      ! ---------- loop on unary ope
 
   elseif ((istr >= 2).and.(istr <= lstr)) then  ! --------- found but unexpected position
     !call set_fct_error(-1, "unexpected position of unary operator") 
-    ! it often means that current operator is part of another name : no error at the moment
+    ! it often means that current operator is part of another name: no error at the moment
     iop = iop + 1
   else
     call set_fct_error(istr, "(string_to_node) internal error")
@@ -241,12 +303,13 @@ do while ((.not.found).and.(iop <= max_fct))      ! ---------- loop on unary ope
 enddo
 
 !-------------------------------------------------------
-! then : variables
-! DEV : should add some consistency checks of variable names
+! then: variables
+! DEV: should add some consistency checks of variable names
 
 if (.not.found) then
-  if (index("abcdefghiklmnopkrstuvwxyz_", str(1:1)) == 0) then    ! check first letter
-    call set_fct_error(istr, "(string_to_node) internal error : bad variable name")
+  if (index("abcdefghijklmnopkrstuvwxyz_ABCDEFGHIJKLMNOPKRSTUVWXYZ", str(1:1)) == 0) then    ! check first letter
+    call fct_warning("string: "//trim(str))
+    call set_fct_error(istr, "(string_to_node) internal error: bad variable name")
   else
     call new_fct_node(node, node_var, str)
   endif
@@ -264,9 +327,9 @@ recursive function index_oper(str, strop) result (ind)
 implicit none
 
 ! -- parameters --
-character(len=*)  :: str          ! string to look in
-character(len=*)  :: strop        ! string to look for
-integer           :: ind          ! result index
+character(len=*) :: str          ! string to look in
+character(len=*) :: strop        ! string to look for
+integer          :: ind          ! result index
 
 ! -- internal variables --
 integer :: lstr, lstrop           ! string lengths
@@ -291,7 +354,10 @@ elseif (iop < ibk1) then  ! -------- manage oper first ----------
 elseif (iop > ibk1) then  ! -------- manage '('  first ----------
 
   ibk2 = ibk1 + index_oper(str(ibk1+1:lstr), ")")      ! looking for ending bracket
-  if (ibk1 == ibk2) call set_fct_error(ibk1, "did not find ending bracket")
+  if (ibk1 == ibk2) then
+    call fct_warning("string: "//trim(str))
+    call set_fct_error(ibk1, "did not find ending bracket")
+  endif
 
   ! recursive search of "oper" after ending bracket
   ind  = ibk2 + index_oper(str(ibk2+1:lstr), strop)    ! look for oper after brackets
@@ -307,5 +373,5 @@ endmodule FCT_PARSER
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! Feb  2006 : module creation
+! Feb  2006: module creation
 !------------------------------------------------------------------------------!

@@ -67,7 +67,7 @@ endtype mnu_project
 !------------------------------------------------------------------------------!
 ! structure MNU_OUTPUT : Output parameters
 !------------------------------------------------------------------------------!
-type mnu_OUTPUT
+type mnu_output
   integer(kpp)          :: dataset       ! data set to save
   integer(kpp)          :: location      ! data location
   character             :: format        ! output format
@@ -75,7 +75,7 @@ type mnu_OUTPUT
   integer               :: iunit         ! IO unit
   integer(kpp)          :: write         ! writing instant (end, cycle...)
   integer               :: period        ! writing period (if "cycle")
-endtype mnu_OUTPUT
+endtype mnu_output
 
 ! -- INTERFACES -------------------------------------------------------------
 

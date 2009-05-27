@@ -6,9 +6,14 @@ configure_help() {
   echo "  . include files will be searched in \$TYPHONPATH/include"
   }
 
+check_column=60
+
 check() {
   local com
-  echo -n checking $1...
+  local str len
+  str="checking $1..." ; len=$(echo "$str" | wc -c)
+  echo -n "$str"
+  if [ $len -ge $check_column ] ; then echo ; fi
   shift
   com=$1
   shift
@@ -16,19 +21,16 @@ check() {
   }
 
 success() {
-  local col
-  col=60
-  echo -e \\033[${col}G$1
+  echo -e \\033[${check_column}G$1
   }
 
 fail()    {
-  local col
-  col=60
-  echo -e \\033[${col}G$1
+  echo -e \\033[${check_column}G$1
   }
 
 warning()    {
   echo -e "!!! warning !!!" "$*"
+  configure_help
   }
 
 error()    {

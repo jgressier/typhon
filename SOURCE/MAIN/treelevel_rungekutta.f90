@@ -45,7 +45,7 @@ allocate(rhs(1:nstage, 1:ngrid))
 allocate( u0(1:ngrid))
 
 !--------------------------------------------
-! copy U0 states
+! copy cons field to U0
 
 pgrid => gridlist%first
 do igrid = 1, ngrid

@@ -47,7 +47,7 @@ case(tps_dualt)
   call erreur("development","DUAL TIME method  not yet implemented")
 
 case default
-  call erreur("Development","unknown integration method (integration_grid)")
+  call erreur("Development","unknown integration method (integ_treelevel)")
 endselect
 
 ! -- update main field of each grid with (last) RHS --

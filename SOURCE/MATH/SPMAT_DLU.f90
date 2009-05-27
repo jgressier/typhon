@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! MODULE : SPMAT_DLU                                Authors : J. Gressier
 !                                                   Created : Avril 2004
-! Fonction                                
+! Fonction
 !   Definition des structures de stockage de matrices creuses
 !
 ! Defauts/Limitations/Divers :
@@ -29,10 +29,10 @@ type st_dlu
   logical            :: diaginvert
   integer(kip)       :: dim
   integer(kip)       :: ncouple
-  real(krp), pointer :: diag (:)    ! coefficient de la diagonale
-  real(krp), pointer :: lower(:)    ! coefficient triang. inf
-  real(krp), pointer :: upper(:)    ! coefficient triang. inf
-  type(st_connect)   :: couple      ! liste (dim) des couples
+  real(krp), dimension(:), pointer :: diag     ! coefficient de la diagonale
+  real(krp), dimension(:), pointer :: lower    ! coefficient triang. inf
+  real(krp), dimension(:), pointer :: upper    ! coefficient triang. inf
+  type(st_connect)   :: couple   ! liste (dim) des couples
 endtype st_dlu
 
 
@@ -43,9 +43,6 @@ endinterface
 
 interface delete
   module procedure delete_dlu
-endinterface
-
-interface
 endinterface
 
 ! -- Fonctions et Operateurs ------------------------------------------------
@@ -140,11 +137,12 @@ endsubroutine invertdiag_dlu
 !------------------------------------------------------------------------------!
 subroutine dlu_yeqax(y, mat, x)
 implicit none
-! - parameters
-type(st_dlu)                  :: mat
-real(krp), dimension(mat%dim) :: x, y
-! - internal
-integer      :: if, imin, imax
+! -- parameters --
+type(st_dlu)                 , intent(in)  :: mat
+real(krp), dimension(mat%dim), intent(in)  :: x
+real(krp), dimension(mat%dim), intent(out) :: y
+! -- internal --
+integer(kip) :: if, imin, imax
 
 y(1:mat%dim) = mat%diag(1:mat%dim)*x(1:mat%dim)
 
@@ -164,11 +162,14 @@ endsubroutine dlu_yeqax
 !------------------------------------------------------------------------------!
 subroutine dlu_yeqatx(y, mat, x)
 implicit none
-! - parameters
-type(st_dlu)                  :: mat
-real(krp), dimension(mat%dim) :: x, y
-! - internal
-integer      :: if, imin, imax
+! -- parameters --
+type(st_dlu)                 , intent(in)  :: mat
+real(krp), dimension(mat%dim), intent(in)  :: x
+real(krp), dimension(mat%dim), intent(out) :: y
+! -- internal --
+integer(kip) :: if, imin, imax
+
+! -- body --
 
 y(1:mat%dim) = mat%diag(1:mat%dim)*x(1:mat%dim)
 
@@ -184,15 +185,46 @@ endsubroutine dlu_yeqatx
 
 
 !------------------------------------------------------------------------------!
+! dlu_xeqaxpy : x = A.x + y
+!------------------------------------------------------------------------------!
+subroutine dlu_xeqaxpy(x, mat, y, p)
+implicit none
+! -- parameters --
+type(st_dlu)                 , intent(in)    :: mat
+real(krp), dimension(mat%dim), intent(in)    :: y
+real(krp), dimension(mat%dim), intent(out)   :: p  ! p is a transient variable
+real(krp), dimension(mat%dim), intent(inout) :: x
+! -- internal --
+integer(kip) :: if, imin, imax
+
+! -- body --
+
+p(1:mat%dim) = x(1:mat%dim)
+x(1:mat%dim) = y(1:mat%dim) + mat%diag(1:mat%dim)*p(1:mat%dim) 
+do if = 1, mat%ncouple
+  imin = mat%couple%fils(if,1)    ! ic1 cell is supposed to be the lowest index
+  imax = mat%couple%fils(if,2)    ! ic2 cell is supposed to be the highest index
+  !!! no test that the index is lower than dim !!!
+  x(imax) = x(imax) + mat%lower(if)*p(imin)
+  x(imin) = x(imin) + mat%upper(if)*p(imax)
+enddo
+
+endsubroutine dlu_xeqaxpy
+
+
+!------------------------------------------------------------------------------!
 ! dlu_yeqmaxpz : y = - A.x + z
 !------------------------------------------------------------------------------!
 subroutine dlu_yeqmaxpz(y, mat, x, z)
 implicit none
-! - parameters
-type(st_dlu)                  :: mat
-real(krp), dimension(mat%dim) :: x, y, z
-! - internal
-integer      :: if, imin, imax
+! -- parameters --
+type(st_dlu)                 , intent(in)  :: mat
+real(krp), dimension(mat%dim), intent(in)  :: x, z
+real(krp), dimension(mat%dim), intent(out) :: y
+! -- internal --
+integer(kip) :: if, imin, imax
+
+! -- body --
 
 y(1:mat%dim) = z(1:mat%dim) - mat%diag(1:mat%dim)*x(1:mat%dim) 
 do if = 1, mat%ncouple
@@ -207,10 +239,12 @@ endsubroutine dlu_yeqmaxpz
 
 
 endmodule SPMAT_DLU
+
+
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Change History
 !
-! avr  2004 : created, scalar terms
-! dec  2004 : extension to block terms
-! july 2005 : internal operations
+! Apr 2004 : created, scalar terms
+! Dec 2004 : extension to block terms
+! Jul 2005 : internal operations
 !------------------------------------------------------------------------------!

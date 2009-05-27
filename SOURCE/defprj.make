@@ -20,10 +20,10 @@ MAKE        = make
 .SUFFIXES: .f .f90 .$(MOD) .o
 
 
-$(PRJINC)/%.$(MOD):
+$(PRJINC)/%.$(MOD): ${$*.source}
 	@echo -n "MODULE: "
-	$(CF) $(FF) -c ${$*.source} -o $(PRJOBJ)/${$*.objet}
-	@mv $*.$(MOD) $(PRJINC)
+	$(CF) $(FF) -c $< -o $(PRJOBJ)/${$*.objet}
+	mv $*.$(MOD) $(PRJINC)
 
 $(PRJOBJ)/%.o: %.f90
 	@echo -n "OBJECT: "
@@ -34,5 +34,4 @@ $(PRJOBJ)/%.o: %.f90
 #	@echo - compilation du fichier $*
 #	$(CF) $(FF) -c $< -o $(PRJOBJ)/$*.o
 #	@touch $*.dep
-
 
