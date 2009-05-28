@@ -28,20 +28,22 @@ implicit none
 !------------------------------------------------------------------------------!
 
 type st_field
-  integer                 :: id            ! numero de champ
-  type(st_field), pointer :: next          ! pointeur pour liste chaînée
-  integer                 :: nscal, nvect  ! dimension de base des champs
-  integer                 :: ncell, nface  ! nombre de cellules et faces
-  logical                 :: allocQref     ! allocation of Qref field
-  logical                 :: allocgrad     ! allocation  des gradients ou non
-  logical                 :: allocres      ! allocation  des residus
-  logical                 :: allocprim     ! allocation  des valeurs primitives
-  logical                 :: calcgrad      ! utilisation des gradients ou non
-  type(st_genericfield)   :: Qref          ! reference field
-  type(st_genericfield)   :: etatcons      ! champ des valeurs physiques, conservatives
-  type(st_genericfield)   :: etatprim      ! champ des valeurs physiques, primitives
-  type(st_genericfield)   :: gradient      ! champ des gradients
-  type(st_genericfield)   :: residu        ! champ des residus (valeurs conservatives)
+  integer                 :: id              ! numero de champ
+  type(st_field), pointer :: next            ! pointeur pour liste chaînée
+  integer                 :: nscal, nvect    ! dimension de base des champs
+  integer                 :: ncell, nface    ! nombre de cellules et faces
+  logical                 :: allocQref       ! allocation of Qref field
+  logical                 :: allocgrad       ! allocation of gradients
+  logical                 :: allocres        ! allocation of residuals
+  logical                 :: allocprim       ! allocation of primitives variables
+  logical                 :: allocqhres      ! allocation of high order extrapolated states
+  logical                 :: calcgrad        ! use gradients of not
+  type(st_genericfield)   :: Qref            ! reference field
+  type(st_genericfield)   :: etatcons        !          conservartive variables
+  type(st_genericfield)   :: etatprim        !              primitive variables
+  type(st_genericfield)   :: gradient        ! gradients of primitive variables
+  type(st_genericfield)   :: cell_l, cell_r  ! high order extrapolated states
+  type(st_genericfield)   :: residu          ! residuals of conservative variables
 endtype st_field
 
 
@@ -107,7 +109,7 @@ subroutine alloc_res(field)
 implicit none
 type(st_field) :: field
 integer        :: i
-!print*, "DEBUG ALLOC_RES"
+
   if (field%allocres) then
     call print_info(90,"!!! Tableau de residus deja alloue !!!")
   else
@@ -177,7 +179,46 @@ endsubroutine dealloc_prim
 
 
 !------------------------------------------------------------------------------!
-! Procedure : allocation des variables Qrefitives
+! Procedure : allocation of high order extrapolated states
+!------------------------------------------------------------------------------!
+subroutine alloc_hres_states(field, nf)
+implicit none
+type(st_field) :: field
+integer       :: nf
+
+  if (field%allocqhres) then
+    if (nf /= field%cell_l%dim) call erreur("Fatal allocation error", &
+                                            "high order extrapolated array already allocated with bad size")
+  else
+    field%allocqhres = .true.
+    call new(field%cell_l, nf,   field%etatcons%nscal, field%etatcons%nvect, field%etatcons%ntens)
+    call new(field%cell_r, nf,   field%etatcons%nscal, field%etatcons%nvect, field%etatcons%ntens)
+  endif
+
+endsubroutine alloc_hres_states
+
+
+!------------------------------------------------------------------------------!
+! Procedure : deallocation of high order extrapolated states
+!------------------------------------------------------------------------------!
+subroutine dealloc_hres_states(field)
+implicit none
+type(st_field) :: field
+integer       :: i
+
+  if (field%allocqhres) then
+    field%allocqhres = .false.
+    call delete(field%cell_l)
+    call delete(field%cell_r)
+  else
+    call print_info(90,"!!! unable to deallocate : high order extrapolated array not allocated !!!")
+  endif
+
+endsubroutine dealloc_hres_states
+
+
+!------------------------------------------------------------------------------!
+! Procedure : allocation des variables Qref
 !------------------------------------------------------------------------------!
 subroutine alloc_Qref(field)
 implicit none
@@ -196,7 +237,7 @@ endsubroutine alloc_Qref
 
 
 !------------------------------------------------------------------------------!
-! Procedure : deallocation des variables Qrefitives
+! Procedure : deallocation des variables Qref
 !------------------------------------------------------------------------------!
 subroutine dealloc_Qref(field)
 implicit none
@@ -231,10 +272,11 @@ integer        :: id                ! numero de champ
   field%nvect     = n_vect
 
   call new(field%etatcons, ncell, n_scal, n_vect, 0)
-  field%allocgrad = .false.
-  field%allocres  = .false.
-  field%allocprim = .false.
-  field%allocQref = .false.
+  field%allocgrad  = .false.
+  field%allocres   = .false.
+  field%allocprim  = .false.
+  field%allocQref  = .false.
+  field%allocQhres = .false.
 
 endsubroutine new_field
 
@@ -248,10 +290,11 @@ type(st_field) :: field             ! champ a creer
 
   call delete(field%etatcons)
  
-  if (field%allocgrad) call dealloc_grad(field)
-  if (field%allocres)  call dealloc_res (field)
-  if (field%allocprim) call dealloc_prim(field)
-  if (field%allocqref) call dealloc_qref(field)
+  if (field%allocgrad)  call dealloc_grad(field)
+  if (field%allocres)   call dealloc_res (field)
+  if (field%allocprim)  call dealloc_prim(field)
+  if (field%allocqref)  call dealloc_qref(field)
+  if (field%allocqhres) call dealloc_hres_states(field)
 
 endsubroutine delete_field
 
@@ -305,10 +348,13 @@ rfield%allocgrad = ifield%allocgrad
 rfield%allocres  = ifield%allocres
 rfield%allocprim = ifield%allocprim
 rfield%allocqref = ifield%allocqref
+rfield%allocqhres = ifield%allocqhres
 rfield%calcgrad  = ifield%calcgrad
 call transfer_gfield(rfield%etatcons,ifield%etatcons)
 call transfer_gfield(rfield%etatprim,ifield%etatprim)
 call transfer_gfield(rfield%qref,ifield%qref)
+call transfer_gfield(rfield%cell_l,ifield%cell_l)
+call transfer_gfield(rfield%cell_r,ifield%cell_r)
 call transfer_gfield(rfield%gradient,ifield%gradient)
 call transfer_gfield(rfield%residu,ifield%residu)
   
@@ -354,5 +400,6 @@ endmodule DEFFIELD
 ! oct  2004 : field chained list
 ! nov  2004 : split DEFFIELD -> DEFFIELD / GENFIELD
 ! Apr  2008: create Qref and routines to copy to/from Qcons
+! May  2009: add cell_l and cell_r states
 !------------------------------------------------------------------------------!
 

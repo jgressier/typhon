@@ -194,16 +194,16 @@ endtype mnu_svm
 ! structure MNU_SPAT : Options for numerical spatial parameters
 !------------------------------------------------------------------------------!
 type mnu_spat
-  !integer(kpp)    :: order        ! not used
-  integer(kpp)    :: sch_hyp      ! type de schema pour les flux hyperboliques
-  integer(kpp)    :: jac_hyp      ! type of jacobian for hyperbolic fluxes
-  integer(kpp)    :: sch_dis      ! type de schema pour les flux dissipatifs
-  character       :: method       ! methode d'ordre eleve (M)USCL, (E)NO ...
-  integer(kpp)    :: gradmeth     ! methode de calcul des gradients
+  integer(kpp)    :: sch_hyp      ! Numerical scheme for hyperbolic part (waves)
+  integer(kpp)    :: jac_hyp      ! Jacobian Model for hyperbolic fluxes
+  integer(kpp)    :: sch_dis      ! Numerical scheme for diffusive part
+  character       :: method       ! State extrapolation method (M)USCL, (E)NO ...
+  integer(kpp)    :: gradmeth     ! Numerical method for GRADIENT computation
   integer(kpp)    :: postlimiter  ! Limitation method after reconstruction/extrapolation
-  logical         :: calc_grad    ! necessite le calcul des gradients
-  type(mnu_muscl) :: muscl        ! parametres de la methode MUSCL
-  type(mnu_svm)   :: svm          ! parametres de la methode SVM
+  logical         :: calc_grad    ! internal: needs gradient computation
+  logical         :: calc_hresQ   ! internal: needs high order extrapolation
+  type(mnu_muscl) :: muscl        ! specific parameters for MUSCL method
+  type(mnu_svm)   :: svm          ! specific parameters for SVM   method
 endtype mnu_spat
 
 

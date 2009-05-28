@@ -16,6 +16,7 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            build_implicit.o         \
            calc_cpl_flux.o          \
            calc_cpl_temp.o          \
+           calc_hres_states.o       \
            calc_rhs.o               \
            calcdifflux.o            \
            calc_zonetimestep.o      \

@@ -60,6 +60,8 @@ case(solNS)
   !-----------------------------------------
   ! Euler numerical Scheme
 
+  defspat%calc_hresQ = .true.
+
   call rpmgetkeyvalstr(pcour, "SCHEME", str, "HLLC")
   defspat%sch_hyp = inull
 
@@ -294,6 +296,8 @@ case(solNS)
   call print_info(7,"    post-limiter: "//trim(str))
 
 case(solKDIF)
+
+  defspat%calc_hresQ = .false.
 
   ! -- Methode de calcul des flux dissipatifs --
   call get_dissipmethod(pcour, "DISSIPATIVE_FLUX", defspat)

@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------!
-! Procedure : calc_rhs                    Auteur : J. Gressier
-!                                                Date   : March 2006
+! Procedure : calc_rhs 
+! 
 ! Fonction                                       Modif  : (cf history)
 !   Time Integration during one timestep of ONE LEVEL of UST grid TREE structure
 !
@@ -34,7 +34,7 @@ type(mnu_zonecoupling), dimension(1:ncoupling) &
 type(st_mattab)        :: jacL, jacR       ! tableaux de jacobiennes des flux
 type(st_grid), pointer :: pgrid
 
-! -- Body --
+! -------------------------------- BODY --------------------------------
 
 ! -- Preparation du calcul --
 
@@ -48,7 +48,8 @@ enddo
 
 call conditions_limites(info, defsolver, gridlist)
     
-! -- gradients are computed only if necessary (by selected methods)
+! -------------------------------------------------------------------------------
+! GRADIENTS OF EACH GRID OF ONE LEVEL (only if necessary)
 
 if (defsolver%defspat%calc_grad) then
   pgrid => gridlist%first
@@ -60,7 +61,19 @@ if (defsolver%defspat%calc_grad) then
   enddo
 endif
 
-! -- integration des domaines --
+! -------------------------------------------------------------------------------
+! HIGH ORDER EXTRAPOLATION
+
+if (defsolver%defspat%calc_hresQ) then
+  pgrid => gridlist%first
+  do while (associated(pgrid))
+    call calc_hres_states(defsolver, defsolver%defspat, pgrid, pgrid%info%field_loc)
+    pgrid => pgrid%next
+  enddo
+endif
+
+! -------------------------------------------------------------------------------
+! INTEGRATION OF EACH GRID OF ONE LEVEL
 
 pgrid => gridlist%first
 do while (associated(pgrid))
