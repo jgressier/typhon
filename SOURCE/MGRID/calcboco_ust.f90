@@ -6,7 +6,7 @@
 !   Aiguillage des appels selon le type (general ou par solveur)
 !
 !------------------------------------------------------------------------------!
-subroutine calcboco_ust(curtime, defsolver, grid, defspat)
+subroutine calcboco_ust(curtime, defsolver, defspat, grid)
 
 use TYPHMAKE
 use OUTPUT
@@ -19,34 +19,23 @@ use DEFZONE
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 real(krp)              :: curtime
 type(mnu_solver)       :: defsolver        ! type d'equation a resoudre
 type(mnu_spat)         :: defspat
 
-! -- Declaration des entree/sorties --
+! -- INPUTS/OUTPUTS --
 type(st_grid)          :: grid             ! maillage en entree, champ en sortie
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 integer :: ib, ir                    ! index de conditions aux limites et de couplage
 integer :: idef                      ! index de definitions des conditions aux limites
 integer :: nrac                      ! numero de raccord
 
-! -- Debut de la procedure --
-
-
-!-----------------------------------------------------------
-! compute connections first (idef <= 0)
-
-do ib = 1, grid%umesh%nboco
-
-  idef = grid%umesh%boco(ib)%idefboco
-  if (idef <= 0) call calcboco_connect(defsolver, grid, defspat, grid%umesh%boco(ib))
-
-enddo
+! ----------------------------------- BODY -----------------------------------
 
 !-----------------------------------------------------------
-! compute physical boundary conditions (idef >= 1)
+! only compute physical boundary conditions (idef >= 1)
 
 do ib = 1, grid%umesh%nboco
 

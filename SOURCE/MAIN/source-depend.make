@@ -23,7 +23,6 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            calcul_raccord.o         \
            check_end_cycle.o        \
            choixcorrection.o        \
-           conditions_limites.o     \
            correction.o             \
            corr_varprim.o           \
            echange.o                \

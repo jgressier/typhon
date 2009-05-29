@@ -20,7 +20,7 @@ type(st_world) :: lworld
 
 ! -- Internal variables --
 type(st_grid), pointer :: pgrid
-real(krp)              :: cpu_start, cpu_end
+real(krp)              :: cpu_start, cpu_end, curtime
 integer, dimension(:), allocatable &
                        :: exchcycle ! indices des cycles d'echange pour les differents couplages de zones
 integer                :: ir, izone, if, ib, ic, ierr
@@ -163,7 +163,19 @@ if (lworld%prj%ncoupling > 0) then
 endif
 
 do izone = 1, lworld%prj%nzone
- call conditions_limites(lworld%zone(izone)%info, lworld%zone(izone)%defsolver, lworld%zone(izone)%gridlist)
+
+ curtime = lworld%zone(izone)%info%cycle_start + lworld%zone(izone)%info%cycle_time
+
+ pgrid => lworld%zone(izone)%gridlist%first
+
+ do while(associated(pgrid))
+
+   call calcboco_connect(     lworld%zone(izone)%defsolver, lworld%zone(izone)%defsolver%defspat, pgrid)
+   call calcboco_ust(curtime, lworld%zone(izone)%defsolver, lworld%zone(izone)%defsolver%defspat, pgrid)
+   pgrid => pgrid%next
+
+ enddo
+
 enddo
 
 !-----------------------------------------------------------------------------------------------------------------------

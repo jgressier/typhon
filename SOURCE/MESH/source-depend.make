@@ -26,6 +26,10 @@ MESH_OBJ = $(MESH_MOD:.$(MOD)=.o)  \
            calc_ust_checkface.o    \
            calc_ust_face.o         \
            calc_ustmesh.o          \
+           interpface_gradient_scal.o \
+           interpface_gradient_vect.o \
+           interpface_gradn_scal.o    \
+           interpface_gradn_vect.o    \
            reorder_ustconnect.o    \
            scale_mesh.o            \
            test_ustmesh.o          \

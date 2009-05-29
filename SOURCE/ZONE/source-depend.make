@@ -16,12 +16,6 @@ ZONE_MOD = BOUND.$(MOD)                  \
 ZONE_OBJ := $(ZONE_MOD:.$(MOD)=.o)       \
             calc_varcons.o               \
             calc_varprim.o               \
-            calcboco_connect.o           \
-            calcboco_connect_match.o     \
-            calcboco_connect_per_match.o \
-            calcboco_ust.o               \
-            calcboco_ust_extrapol.o      \
-            calcboco_ust_sym.o           \
             donnees_echange.o            \
             init_connect_grid.o          \
             init_gridfield_ust.o         \

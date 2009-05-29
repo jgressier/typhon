@@ -33,6 +33,7 @@ type(mnu_zonecoupling), dimension(1:ncoupling) &
 ! -- Internal variables --
 type(st_mattab)        :: jacL, jacR       ! tableaux de jacobiennes des flux
 type(st_grid), pointer :: pgrid
+real(krp)              :: curtime
 
 ! -------------------------------- BODY --------------------------------
 
@@ -44,9 +45,23 @@ do while (associated(pgrid))
   pgrid => pgrid%next
 enddo
 
-! -- calcul des conditions aux limites pour tous les domaines --
+    
+! -------------------------------------------------------------------------------
+! BOUNDARY CONDITIONS OF EACH GRID OF ONE LEVEL
 
-call conditions_limites(info, defsolver, gridlist)
+curtime = info%cycle_start + info%cycle_time
+
+pgrid => gridlist%first
+
+do while(associated(pgrid))
+
+  call calcboco_connect(     defsolver, defsolver%defspat, pgrid)
+  call calcboco_ust(curtime, defsolver, defsolver%defspat, pgrid)
+
+  pgrid => pgrid%next
+
+enddo
+
     
 ! -------------------------------------------------------------------------------
 ! GRADIENTS OF EACH GRID OF ONE LEVEL (only if necessary)
@@ -78,16 +93,8 @@ endif
 pgrid => gridlist%first
 do while (associated(pgrid))
 
-  ! DEV : changer les structures de couplages dans MGRID
   call integration_grid(dt, info%time_model, defsolver, &
                         pgrid, coupling, ncoupling, jacL, jacR)
-
-  ! Desallocation des eventuelles listes chainees de champ generique utilisees
-  !!! DEV !!! removed in r606
-  !if (pgrid%nbocofield .ne. 0) then
-  !  call delete_chainedgfield(pgrid%bocofield)
-  !  pgrid%nbocofield = 0
-  !endif
 
   ! -- implicit resolution --
 

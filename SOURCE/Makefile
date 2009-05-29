@@ -44,13 +44,13 @@ EXTLIBS   = $(CGNSLIB) $(LAPACKLIB) $(METISLIB)
 LIB1 = libt_main.a   \
        libt_xio.a    \
        libt_zone.a   \
+       libt_mgrid.a  \
        libt_cgns.a   \
 
 LIB2 = libt_param.a  \
        libt_vortex.a \
        libt_eqns.a   \
        libt_eqkdif.a \
-       libt_mgrid.a  \
        libt_udf.so   \
        libt_mesh.a   \
        libt_pio.a    \

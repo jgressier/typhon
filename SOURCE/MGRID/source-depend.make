@@ -13,7 +13,13 @@ MGRID_MOD = BASEFIELD.$(MOD)    \
             LIMITER.$(MOD)      \
             MGRID.$(MOD)
 
-MGRID_OBJ = $(MGRID_MOD:.$(MOD)=.o)    \
+MGRID_OBJ = $(MGRID_MOD:.$(MOD)=.o)      \
+            calcboco_connect.o           \
+            calcboco_connect_match.o     \
+            calcboco_connect_per_match.o \
+            calcboco_ust.o               \
+            calcboco_ust_extrapol.o      \
+            calcboco_ust_sym.o           \
             calc_gradient.o            \
             calc_gradient_limite.o     \
             convert_to_svm.o           \
@@ -24,10 +30,6 @@ MGRID_OBJ = $(MGRID_MOD:.$(MOD)=.o)    \
             extractpart_grid.o         \
             getpart_grid.o             \
             integ_ustboco.o            \
-            interpface_gradient_scal.o \
-            interpface_gradient_vect.o \
-            interpface_gradn_scal.o    \
-            interpface_gradn_vect.o    \
             postlimit_monotonic.o      \
             postlimit_barth.o          \
             precalc_grad_lsq.o         \
