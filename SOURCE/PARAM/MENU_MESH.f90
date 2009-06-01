@@ -11,6 +11,7 @@ module MENU_MESH
 
 use TYPHMAKE   ! Definition de la precision
 use GEO3D
+use TENSOR3
 
 implicit none
 
@@ -120,6 +121,31 @@ case default
 endselect
 
 endsubroutine transvec_per
+
+!------------------------------------------------------------------------------!
+! transvec_per: transfer vector according to periodicity definition
+!------------------------------------------------------------------------------!
+subroutine transten_per(defper, ten, dir)
+implicit none
+! --- INPUTS ---
+type(mnu_periodicity) :: defper
+real(krp)             :: dir
+! --- IN/OUTPUTS ---
+type(t3d), intent(inout) :: ten(:)
+! --- private data ---
+integer :: i, n
+
+n = size(ten)
+
+select case(defper%type)
+case(per_trans)
+  ! nothing to do !
+case default
+  print*,'unknown type of periodicity (internal)'
+  stop
+endselect
+
+endsubroutine transten_per
 
 
 

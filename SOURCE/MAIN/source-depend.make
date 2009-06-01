@@ -92,6 +92,7 @@ MAIN/depends.make: $(D_MAIN_SRC)
 	(cd MAIN ; ../$(MAKEDEPENDS))
 
 MAIN/main.f90: make_svnrev
+	@touch MAIN/main.f90
 
 SVNREV=$(shell svnversion 2> /dev/null || echo unknown)
 

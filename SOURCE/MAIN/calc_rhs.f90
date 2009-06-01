@@ -15,6 +15,7 @@ use MENU_SOLVER
 use MODINFO
 use MENU_ZONECOUPLING
 use MATRIX_ARRAY
+use GRID_CONNECT
 
 implicit none
 
@@ -55,7 +56,7 @@ pgrid => gridlist%first
 
 do while(associated(pgrid))
 
-  call calcboco_connect(     defsolver, defsolver%defspat, pgrid)
+  call calcboco_connect(defsolver, defsolver%defspat, pgrid, bccon_cell_state)
   call calcboco_ust(curtime, defsolver, defsolver%defspat, pgrid)
 
   pgrid => pgrid%next
@@ -72,6 +73,8 @@ if (defsolver%defspat%calc_grad) then
     call calc_gradient(defsolver, defsolver%defspat, pgrid,                 &
                        pgrid%info%field_loc%etatprim, pgrid%info%field_loc%gradient)
     call calc_gradient_limite(defsolver, pgrid%umesh, pgrid%info%field_loc%gradient)
+
+    call calcboco_connect(defsolver, defsolver%defspat, pgrid, bccon_cell_grad)
     pgrid => pgrid%next
   enddo
 endif

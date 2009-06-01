@@ -15,12 +15,22 @@ implicit none
 
 ! -- GLOBAL DEFINITION -------------------------------------------
 
+! -- contants for grid connection method --
+
 integer(kpp), parameter :: gdcon_match        = 01
 integer(kpp), parameter :: gdcon_nomatch      = 05
 integer(kpp), parameter :: gdcon_per_match    = 11
 integer(kpp), parameter :: gdcon_per_nomatch  = 15
 integer(kpp), parameter :: gdcon_coarse_fine  = 20
 integer(kpp), parameter :: gdcon_fine_coarse  = 21
+
+! -- contants for data exchange method --
+
+integer(kpp), parameter :: bccon_cell_state        = 10
+integer(kpp), parameter :: bccon_cell_grad         = 15
+integer(kpp), parameter :: bccon_face_state        = 20
+integer(kpp), parameter :: bccon_face_grad         = 25
+
 
 
 ! -- DECLARATIONS -----------------------------------------------------------

@@ -41,6 +41,7 @@ logical    :: coupled
 do ib = 1, umesh%nboco
 
   idef = umesh%boco(ib)%idefboco
+  if (idef <= 0) cycle
 
   !---------------------------------------------------------------------
   ! assign flux as already computed flux in bocofield
@@ -80,7 +81,9 @@ enddo
 coupled = .false.
 
 do ib = 1, umesh%nboco
+
   idef = umesh%boco(ib)%idefboco
+  if (idef <= 0) cycle
 
   select case(defsolver%boco(idef)%typ_boco)
   case(bc_wall_adiab, bc_wall_flux, bc_wall_hconv, bc_wall_hgen) 

@@ -36,7 +36,12 @@ integer(kip)          :: ncell_int, ncell_tot, nvtex
 integer(kip)          :: ielem, nelem
 integer(kip)          :: ncomm, maxcom
 integer(kip), allocatable, dimension(:) &
-                      :: new_icell, new_iface, new_ivtex, facepart, cutface, cutcell
+                      :: new_icell, &
+                         new_iface, &
+                         new_ivtex, &
+                         facepart,  &   ! partition index of the face connection
+                         cutface,   &   ! face index in the original mesh
+                         cutcell        ! index of original cell in fullgrid
 
 ! -- BODY --
 
@@ -149,8 +154,6 @@ do if = 1, fullgrid%umesh%nface_int
   endif
 enddo
 
-!print*,"info :", if2, " faces in the partition"
-
 ! ---------------------------------------------
 ! compute size of the mesh & re-indexation of vtex
 
@@ -243,8 +246,6 @@ partgrid%umesh%nface     = nface_int + nface_lim + nface_cut
 call new(partgrid%umesh%facecell, partgrid%umesh%nface, 2)
 partgrid%umesh%facecell%fils(1:partgrid%umesh%nface, 1:2) = 0
 
-!print*,"check:",count(0)," errors"
-
 do if = 1, fullgrid%umesh%nface
   if(new_iface(if) > 0) then        ! if the face is in the partition
     ! -- copy face/cell connectivity while renumbering cells --
@@ -267,8 +268,6 @@ do if = 1, nface_cut
     partgrid%umesh%facecell%fils(nface_int+nface_lim+if, 2) = ncell_int + nface_lim + if
   endif
 enddo
-
-!print*,"check new face/cell connectivity:",count(partgrid%umesh%facecell%fils(1:partgrid%umesh%nface, 1:2)==0)," errors"
 
 ! -- face->vtex --
 
@@ -320,16 +319,6 @@ do if = 1, nface_cut
   endif
 enddo
 
-!do if = 1, nface_int
-!  print*,"facecell int",if,partgrid%umesh%facecell%fils(if,:)
-!enddo
-!do if = nface_int+1, nface_int+nface_lim
-!  print*,"facecell lim",if,partgrid%umesh%facecell%fils(if,:)
-!enddo
-!do if = nface_int+nface_lim+1, nface_int+nface_lim+nface_cut
-!  print*,"facecell cut",if,partgrid%umesh%facecell%fils(if,:)
-!enddo
-
 ! ---------------------------------------------
 ! extract/copy ustmesh boco connectivity
 
@@ -354,7 +343,6 @@ do ib = 1, fullgrid%umesh%nboco   ! loop on original bocos
         boco(new_ib)%iface(if2) = new_bcface
       endif
     enddo
-    !print*,"check",if2,nf
   endif
 enddo
 
@@ -367,14 +355,12 @@ do ib = 1, maxcom   ! loop on all needed parts
 
   nf = count(facepart(1:nface_cut) == ib)
 
-  if (nf /= 0) then  
-    ! if it exists faces then
-    ! define a new boco
+  if (nf /= 0) then   ! ---- if there are faces, then create a new boco ----
+    !call print_info()
     new_ib = new_ib + 1
     call new(boco(new_ib), "", nf)
     boco(new_ib)%idefboco = defboco_connect  ! not a reference to defsolver boco but internal connection
 
-    !print*,"create connectivity boco",new_ib," :",nf, " faces"
     if2 = 0
     do if = 1, nface_cut
       if (facepart(if) == ib) then
@@ -395,7 +381,6 @@ enddo
 ! ---------------------------------------------
 ! pack boco array
 
-!print*,"pack", new_ib, "boco conditions"
 partgrid%umesh%nboco = new_ib
 allocate(partgrid%umesh%boco(new_ib))
 partgrid%umesh%boco(1:new_ib) = boco(1:new_ib)

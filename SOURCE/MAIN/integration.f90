@@ -12,6 +12,7 @@ use STRING
 use OUTPUT
 use VARCOM
 use MODWORLD
+use GRID_CONNECT
 
 implicit none
 
@@ -170,7 +171,7 @@ do izone = 1, lworld%prj%nzone
 
  do while(associated(pgrid))
 
-   call calcboco_connect(     lworld%zone(izone)%defsolver, lworld%zone(izone)%defsolver%defspat, pgrid)
+   call calcboco_connect(     lworld%zone(izone)%defsolver, lworld%zone(izone)%defsolver%defspat, pgrid, bccon_cell_state)
    call calcboco_ust(curtime, lworld%zone(izone)%defsolver, lworld%zone(izone)%defsolver%defspat, pgrid)
    pgrid => pgrid%next
 

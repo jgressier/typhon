@@ -202,7 +202,7 @@ do ib = 1, grid%umesh%nboco
         if (grid%umesh%facecell%fils(iface,2) == 0) then
           grid%umesh%facecell%fils(iface,2) = ic2        ! affectation de la cellule fictive
         else
-          call erreur("Error in computing connectivity", "Ghost cell has been already affected")
+          call erreur("Error in computing connectivity", "Ghost cell has already been affected")
           
         endif   
       enddo
@@ -212,13 +212,13 @@ do ib = 1, grid%umesh%nboco
       allocate(boco%gridcon%i_param(1:nf))
       boco%gridcon%i_param(1:nf) = grid%umesh%facecell%fils(grid%umesh%boco(ib2)%iface(i1(1:nf)),1)
 
-      ! -- define ghost cells centers
+      ! -- define ghost cells centers, volumes...
 
       do if = 1, boco%nface     
         iface = grid%umesh%boco(ib)%iface(if)               ! local face index
         ifper = grid%umesh%boco(ib2)%iface(i1(if))          ! periodic face index
         ic1   = grid%umesh%facecell%fils(iface,1)           ! internal/reference cell index
-        ic2   = grid%umesh%ncell_int + grid%umesh%ncell_lim ! ghost cell index
+        ic2   = grid%umesh%facecell%fils(iface,2)           ! ghost cell index
         icper = boco%gridcon%i_param(if)                    ! index of periodic cell
 
         ! face to cell vector on periodic face
@@ -228,7 +228,7 @@ do ib = 1, grid%umesh%nboco
 
         grid%umesh%mesh%volume(ic2,1,1) = grid%umesh%mesh%volume(icper,1,1)
         grid%umesh%mesh%centre(ic2,1,1) = grid%umesh%mesh%iface(iface,1,1)%centre + dfc(1)
- 
+        print*, ic2, grid%umesh%mesh%centre(ic2,1,1)
       enddo
 
       ! -- 
@@ -244,9 +244,6 @@ do ib = 1, grid%umesh%nboco
   endif
 
 enddo
-
-
-
 
 endsubroutine init_connect_grid
 

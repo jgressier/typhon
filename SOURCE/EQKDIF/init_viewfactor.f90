@@ -45,7 +45,9 @@ tol       = defsolver%defkdif%tolerance
 
 ! all couple of bc families will be parsed (one time)
 
-do ib1 = 1, nbc
+BC1: do ib1 = 1, nbc
+
+  if (umesh%boco(ib1)%idefboco <= 0) cycle BC1
 
   if (defsolver%boco(umesh%boco(ib1)%idefboco)%boco_kdif%radiating == rad_coupled) then
   
@@ -105,8 +107,10 @@ do ib1 = 1, nbc
     !-----------------------------------------------------
     ! compute view factors between different boco families
 
-    do ib2 = ib1+1, nbc
+    BC2: do ib2 = ib1+1, nbc
 
+      if (umesh%boco(ib2)%idefboco <= 0) cycle BC2
+      
       if (defsolver%boco(umesh%boco(ib2)%idefboco)%boco_kdif%radiating == rad_coupled) then
 
         nf2 = umesh%boco(ib2)%nface
@@ -156,11 +160,11 @@ do ib1 = 1, nbc
 
       endif
 
-    enddo
+    enddo BC2
 
   endif
 
-enddo
+enddo BC1
 
 write(str_w,'(a,i6,a,i6,a)') "  total number of face couples : ",kept_cp/1000," k/",parsed_cp/1000,"k"
 call print_info(10, str_w)

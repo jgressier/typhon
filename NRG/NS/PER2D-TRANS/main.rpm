@@ -1,0 +1,88 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON 
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+  NZONE     = 1       
+  COORD     = 2D      
+  TIME      = UNSTEADY 
+  DURATION  = .01
+  NCYCLE    = 100
+  RESIDUALS = 1.e-4
+ENDBLOCK               
+
+BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+  FORMAT = VTK-BIN
+  FILE   = "typhon"
+  PERIOD = 1 
+ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "NS" 
+  SOLVER = EULER  
+ENDBLOCK
+
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = CGNS
+  FILE   = "square-tri10.cgns"
+ENDBLOCK
+
+BLOCK:PERIODICITY
+  NAME  = TRANSY
+  TYPE  = TRANSLATION ! or ROTATION
+  TRANSLATION = (0, 2, 0)
+  !ROTATION_CENTER = (vector)
+  !ROTATION_AXIS   = (vector)
+  !ROTATION_ANGLE  = (degree) or ROTATION_NUMBER = (n) (angle = 360/n)
+ENDBLOCK
+
+BLOCK:CONNECTION
+  FAMILY1     = BOTTOM
+  FAMILY2     = TOP
+  TYPE        = PERIODIC
+  PERIODICITY = TRANSY
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS = EULER
+  GAS      = AIR
+ENDBLOCK
+
+BLOCK:TIME_PARAM 
+  CFL       = 0.6
+ENDBLOCK
+
+BLOCK:SPAT_PARAM 
+  HIGHRES  = MUSCL
+  LIMITER  = ALBADA
+  SCHEME   = HLLC
+ENDBLOCK
+
+BLOCK:INIT
+  P        = 1.E5
+  T        = 300.*(1+2*exp(-40*(sqr(x)+sqr(y))))
+  VELOCITY = 200.
+  DIRECTION = (0, 1., 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = LEFT-UP
+  TYPE   = SYMMETRY
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = LEFT-DOWN
+  TYPE   = SYMMETRY
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = RIGHT
+  TYPE   = SYMMETRY
+  SAVE_HISTORY = QUANTITY
+ENDBLOCK
+
+
