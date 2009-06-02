@@ -83,13 +83,18 @@ real(krp)             :: dir
 ! --- IN/OUTPUTS ---
 type(v3d), intent(inout) :: vec(:)
 ! --- private data ---
-integer :: i, n
+integer                :: i, n
+type(v3d), allocatable :: dv(:)
 
 n = size(vec)
 
 select case(defper%type)
 case(per_trans)
   call shift_add(vec(1:n), dir*defper%distance)
+case(per_rot)
+  call shift_sub(vec(1:n), defper%origin)
+  call rot(vec(1:n), defper%axis, dir*defper%angle)
+  call shift_add(vec(1:n), defper%origin)
 case default
   print*,'unknown type of periodicity (internal)'
   stop
@@ -115,6 +120,8 @@ n = size(vec)
 select case(defper%type)
 case(per_trans)
   ! nothing to do !
+case(per_rot)
+  call rot(vec(1:n), defper%axis, dir*defper%angle)
 case default
   print*,'unknown type of periodicity (internal)'
   stop
@@ -140,6 +147,8 @@ n = size(ten)
 select case(defper%type)
 case(per_trans)
   ! nothing to do !
+case(per_rot)
+  call rot(ten(1:n), defper%axis, dir*defper%angle)
 case default
   print*,'unknown type of periodicity (internal)'
   stop

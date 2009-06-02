@@ -45,6 +45,10 @@ interface operator(/)
   module procedure t3d_division
 endinterface
 
+interface rot
+  module procedure t3d_rot, t3d_rot_t
+endinterface
+
 interface operator(.scal.)
   module procedure t3d_scalar_product, t3d_scalar_product_t
 endinterface
@@ -303,6 +307,43 @@ integer :: i
   enddo
 
 endfunction t3d_tensorial_product_t
+
+!------------------------------------------------------------------------------!
+! Assignment : rotation t
+!------------------------------------------------------------------------------!
+subroutine t3d_rot(t, axis, angle)
+implicit none
+type(v3d), intent(in)    :: axis
+real(krp), intent(in)    :: angle
+type(t3d), intent(inout) :: t
+real(krp) :: rot(3,3)
+
+  call calc_rot(rot, axis, angle)
+  rot = transpose(rot)
+
+  t%mat = matmul(t%mat, rot)
+
+end subroutine t3d_rot
+
+!------------------------------------------------------------------------------!
+! Assignment : rotation t(:) 
+!------------------------------------------------------------------------------!
+subroutine t3d_rot_t(t, axis, angle)
+implicit none
+type(v3d), intent(in)    :: axis
+real(krp), intent(in)    :: angle
+type(t3d), intent(inout) :: t(:)
+integer   :: i
+real(krp) :: rot(3,3)
+
+  call calc_rot(rot, axis, angle)
+  rot = transpose(rot)
+
+  do i = 1, size(t)
+    t(i)%mat = matmul(t(i)%mat, rot)
+  enddo
+
+end subroutine t3d_rot_t
 
 !------------------------------------------------------------------------------!
 ! Fonction : trace

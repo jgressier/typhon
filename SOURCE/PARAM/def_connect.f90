@@ -71,7 +71,6 @@ do ib = 1, nconnect
     ! --- look for periodicity definition ---
     idef      = 0
     same_name = .false.
-    print*,defsolver%defmesh%nperiodicity
     do while ((.not.same_name).and.(idef+1 <= defsolver%defmesh%nperiodicity))
       idef = idef + 1
       same_name = samestring(str, defsolver%defmesh%periodicity(idef)%name)

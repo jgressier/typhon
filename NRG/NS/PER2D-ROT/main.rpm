@@ -1,0 +1,85 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON 
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+  NZONE     = 1       
+  COORD     = 2D      
+  TIME      = UNSTEADY 
+  DURATION  = .01
+  NCYCLE    = 100
+  RESIDUALS = 1.e-4
+ENDBLOCK               
+
+BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+  FORMAT = VTK-BIN
+  FILE   = "typhon"
+  PERIOD = 1 
+ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "NS" 
+  SOLVER = EULER  
+ENDBLOCK
+
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = CGNS
+  FILE   = "perrot2d.cgns"
+ENDBLOCK
+
+BLOCK:PERIODICITY
+  NAME  = ROT
+  TYPE  = ROTATION
+  ROTATION_CENTER = (0, 0, 0)
+  ROTATION_AXIS   = (0, 0, 1)
+  ROTATION_ANGLE  = 30.       !  ROTATION_NUMBER = (n) (angle = 360/n)
+ENDBLOCK
+
+BLOCK:CONNECTION
+  FAMILY1     = RIGHT
+  FAMILY2     = LEFT
+  TYPE        = PERIODIC
+  PERIODICITY = ROT
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS = EULER
+  GAS      = AIR
+ENDBLOCK
+
+BLOCK:TIME_PARAM 
+  CFL       = 0.6
+ENDBLOCK
+
+BLOCK:SPAT_PARAM 
+  HIGHRES  = MUSCL
+  LIMITER  = ALBADA
+  SCHEME   = HLLC
+ENDBLOCK
+
+BLOCK:INIT
+  !P        = 1.E5*(1+.5*sin(12*atan(y/x)))
+  P        = 1.E5*(1+3*exp(-abs(sqr(x)+sqr(y)-10)))
+  T        = 300.
+  VELOCITY = 0.
+  DIRECTION = (0, 1., 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = RMIN
+  TYPE   = SYMMETRY
+  SAVE_HISTORY = QUANTITY
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = RMAX
+  TYPE   = SYMMETRY
+  SAVE_HISTORY = QUANTITY
+ENDBLOCK
+
+
+

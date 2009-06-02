@@ -228,7 +228,6 @@ do ib = 1, grid%umesh%nboco
 
         grid%umesh%mesh%volume(ic2,1,1) = grid%umesh%mesh%volume(icper,1,1)
         grid%umesh%mesh%centre(ic2,1,1) = grid%umesh%mesh%iface(iface,1,1)%centre + dfc(1)
-        print*, ic2, grid%umesh%mesh%centre(ic2,1,1)
       enddo
 
       ! -- 

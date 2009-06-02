@@ -134,7 +134,7 @@ if (defmesh%nperiodicity >= 1) then
       call rpmgetkeyvalstr (pcour, "ROTATION_AXIS", str)
       defmesh%periodicity(ip)%axis = v3d_of(str, info)  
       defmesh%periodicity(ip)%axis = defmesh%periodicity(ip)%axis / abs(defmesh%periodicity(ip)%axis)
-      if (rpm_existkey(pblock, "ROTATION_ANGLE")) then
+      if (rpm_existkey(pcour, "ROTATION_ANGLE")) then
        call rpmgetkeyvalreal(pcour, "ROTATION_ANGLE", x)
        defmesh%periodicity(ip)%angle = x/180._krp*pi
       else

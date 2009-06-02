@@ -54,6 +54,10 @@ interface shift_sub
   module procedure v3d_shiftopp, v3d_shiftopp_t, v3d_shiftopp_tt
 endinterface
 
+interface rot
+  module procedure v3d_rot, v3d_rot_t
+endinterface
+
 interface sum
   module procedure v3d_sum
 endinterface
@@ -608,6 +612,69 @@ integer :: i
   enddo
 
 endfunction v3d_sum
+
+!------------------------------------------------------------------------------!
+! Assignment : rotation v  
+!------------------------------------------------------------------------------!
+subroutine v3d_rot(v, axis, angle)
+implicit none
+type(v3d), intent(in)    :: axis
+real(krp), intent(in)    :: angle
+type(v3d), intent(inout) :: v
+real(krp) :: costh, sinth
+
+  costh = cos(angle)
+  sinth = sin(angle)
+  v = costh*v + sinth*(axis.vect.v) + ((1._krp-costh)*(axis.scal.v))*axis
+
+end subroutine v3d_rot
+
+
+!------------------------------------------------------------------------------!
+! computation of rotation matrix
+!------------------------------------------------------------------------------!
+subroutine calc_rot(rot, axis, angle)
+implicit none
+type(v3d), intent(in)  :: axis
+real(krp), intent(in)  :: angle
+real(krp), intent(out) :: rot(3,3)
+real(krp) :: costh, sinth
+
+  costh = cos(angle)
+  sinth = sin(angle)
+  rot(1,1)   = costh
+  rot(2,2)   = costh
+  rot(3,3)   = costh
+  rot(1,2)   = - axis%z*sinth
+  rot(1,3)   = + axis%y*sinth
+  rot(2,1)   = + axis%z*sinth
+  rot(2,3)   = - axis%x*sinth
+  rot(3,1)   = - axis%y*sinth
+  rot(3,2)   = + axis%x*sinth
+  rot(1,1:3) = rot(1,1:3) + (1._krp-costh)*axis%x*tab(axis)
+  rot(2,1:3) = rot(2,1:3) + (1._krp-costh)*axis%y*tab(axis)
+  rot(3,1:3) = rot(3,1:3) + (1._krp-costh)*axis%z*tab(axis)
+
+end subroutine calc_rot
+
+!------------------------------------------------------------------------------!
+! Assignment : rotation v(:) 
+!------------------------------------------------------------------------------!
+subroutine v3d_rot_t(v, axis, angle)
+implicit none
+type(v3d), intent(in)    :: axis
+real(krp), intent(in)    :: angle
+type(v3d), intent(inout) :: v(:)
+integer   :: i
+real(krp) :: rot(3,3)
+
+  call calc_rot(rot, axis, angle)
+
+  do i = 1, size(v)
+    v(i) = v3d_of(matmul(rot, tab(v(i))))
+  enddo
+
+end subroutine v3d_rot_t
 
 
 
