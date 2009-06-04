@@ -36,7 +36,7 @@ integer(kmpi) :: mpitag
 
 mpitag = 1000*mpitag_field + bccon_mode
 
-dim = field%nscal + 3*field%nvect + 9**field%ntens
+dim = field%nscal + 3*field%nvect + 9*field%ntens
 
 allocate(bocodata(boco%nface*dim))
 

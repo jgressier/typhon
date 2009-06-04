@@ -145,7 +145,7 @@ do if = 1, fullgrid%umesh%nface_int
     if2           = if2 + 1
     new_iface(if) = if2
     cutface(nf)   = if
-    facepart(nf)  = partition(ic1)+partition(ic2)-ipart
+    facepart(nf)  = partition(ic1)+partition(ic2)-ipart   ! the other part id
     if (partition(ic1) == ipart) then
       cutcell(nf) = ic2
     else
@@ -327,7 +327,7 @@ new_ib = 0
 
 do ib = 1, fullgrid%umesh%nboco   ! loop on original bocos
   nf = count(new_iface(fullgrid%umesh%boco(ib)%iface(1:fullgrid%umesh%boco(ib)%nface))/=0)
-  write(str_w,*) "extract boco",ib," - "//fullgrid%umesh%boco(ib)%family(1:20)//":",nf, " faces"
+  write(str_w,'(a,i3,a,i6,a)') "  extract boco",ib," - "//fullgrid%umesh%boco(ib)%family(1:20)//":",nf, " faces"
   call print_info(10, trim(str_w))
   if (nf /= 0) then               ! new boco (at least one face) in extracted part
     new_ib = new_ib + 1
@@ -356,8 +356,9 @@ do ib = 1, maxcom   ! loop on all needed parts
   nf = count(facepart(1:nface_cut) == ib)
 
   if (nf /= 0) then   ! ---- if there are faces, then create a new boco ----
-    !call print_info()
     new_ib = new_ib + 1
+    write(str_w,'(a,i3,a,i4,a,i6,a)') "  create  boco",new_ib," connection to part",ib,":",nf," faces"
+    call print_info(10, trim(str_w))
     call new(boco(new_ib), "", nf)
     boco(new_ib)%idefboco = defboco_connect  ! not a reference to defsolver boco but internal connection
 

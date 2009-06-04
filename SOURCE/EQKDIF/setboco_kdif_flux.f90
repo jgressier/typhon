@@ -45,7 +45,7 @@ type(v3d)        :: gradT         ! temperature gradient
 type(v3d)        :: dc            ! vector cell center - its projection 
                                   ! on the face normale
 real(krp)        :: gTdc          ! scalar product gradT.dc
-real(krp), pointer :: lflux(:)
+real(krp), allocatable :: lflux(:)
 
 ! -- BODY --
 
@@ -71,7 +71,7 @@ case(nonuniform)
   lflux(1:nface) = bckdif%flux_nunif(1:nface)
 
 case default
-  call erreur("boco flux computation","unknown definition")
+  call error_stop("unknown definition of boco flux computation (kdif)")
 endselect
 
 !-------------------------------------------------------------
