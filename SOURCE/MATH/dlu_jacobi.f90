@@ -33,7 +33,7 @@ integer(kip)  :: info
 ! -- Internal variables --
 real(krp), dimension(:), allocatable :: vec, p1
 integer(kip)                         :: nit, dim, if, imin, imax
-real(krp)                            :: erreur, ref
+real(krp)                            :: err, ref
 
 ! -- Body --
 
@@ -42,7 +42,7 @@ dim = mat%dim
 ! initialisation
 
 nit    = 0
-erreur = huge(erreur)    ! maximal real number in machine representation (to ensure 1st iteration)
+err = huge(err)    ! maximal real number in machine representation (to ensure 1st iteration)
 
 allocate( vec(dim))
 allocate(p1(dim))
@@ -55,7 +55,7 @@ ref = sum(abs(sol(1:dim)))
 
 !call sort_dlu(mat)
 
-do while ((erreur >= ref*def_impli%maxres).and.(nit <= def_impli%max_it))
+do while ((err >= ref*def_impli%maxres).and.(nit <= def_impli%max_it))
 
   vec(1:dim) = p1(1:dim)
 
@@ -75,8 +75,8 @@ do while ((erreur >= ref*def_impli%maxres).and.(nit <= def_impli%max_it))
   vec(1:dim) = vec(1:dim) / mat%diag(1:dim)
 
   ! error computation & update
-  erreur  = sum(abs(sol(1:dim)-vec(1:dim)))
-  !print*,'conv jacobi',nit,log10(erreur/ref)
+  err  = sum(abs(sol(1:dim)-vec(1:dim)))
+  !print*,'conv jacobi',nit,log10(err/ref)
   sol(1:dim) = vec(1:dim)
 
   nit     = nit + 1

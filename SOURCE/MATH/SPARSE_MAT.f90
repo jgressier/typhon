@@ -11,6 +11,7 @@
 module SPARSE_MAT
 
 use TYPHMAKE       ! Definition de la precision
+use OUTPUT
 use SPMAT_DLU
 use SPMAT_SDLU
 use SPMAT_CRS

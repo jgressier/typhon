@@ -11,6 +11,7 @@
 module SPMAT_SDLU
 
 use TYPHMAKE       ! Definition de la precision
+use OUTPUT
 use CONNECTIVITY   
 
 implicit none

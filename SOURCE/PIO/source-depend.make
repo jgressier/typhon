@@ -12,7 +12,6 @@ PIO_MOD = OUTPUT.$(MOD)   \
 
 
 PIO_OBJ = $(PIO_MOD:.$(MOD)=.o)  \
-          erreur.o               \
           rpm_output.o
 
 D_PIO_OBJ = $(PIO_OBJ:%=$(PRJOBJ)/%)

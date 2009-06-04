@@ -8,6 +8,7 @@
 module MENU_KDIF
 
 use TYPHMAKE     ! Definition de la precision
+use OUTPUT
 use VARCOM
 use MATERIAU     ! Definition du materiau
 use SPMAT_SDLU

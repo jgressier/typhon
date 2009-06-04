@@ -9,6 +9,7 @@ subroutine sendtogrid(grid_id, dim, data, tag)
 
 use TYPHMAKE
 use VARCOM
+use OUTPUT
 use COMMTAG
 
 implicit none

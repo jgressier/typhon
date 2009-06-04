@@ -32,7 +32,7 @@ integer(kip)  :: info
 ! -- Internal variables --
 real(krp), dimension(:), allocatable :: r1, r2, p1, q1, u , v
 integer(kip)                         :: nit, dim
-real(krp)                            :: erreur, ref
+real(krp)                            :: err, ref
 real(krp)                            :: rho0, rho1, beta, alpha
 
 ! -- Body --
@@ -42,7 +42,7 @@ dim = mat%dim
 ! initialisation
 
 nit    = 0
-erreur = huge(erreur)    ! maximal real number in machine representation (to ensure 1st iteration)
+err = huge(err)    ! maximal real number in machine representation (to ensure 1st iteration)
 
 allocate(r1(dim)) ;     allocate(r2(dim))
 allocate(p1(dim))
@@ -65,7 +65,7 @@ ref = sum(abs(sol(1:dim)))
 call dlu_yeqmaxpz(r1(1:dim), mat, sol(1:dim), p1(1:dim))  ! R1 = RHS - MAT.SOL
 r2(1:dim) = r1(1:dim)                                     ! R2 = R1
 
-do while ((erreur >= ref*def_impli%maxres).and.(nit <= def_impli%max_it))
+do while ((err >= ref*def_impli%maxres).and.(nit <= def_impli%max_it))
 
   rho1 = dot_product(r1(1:dim), r2(1:dim))
 
@@ -86,9 +86,9 @@ do while ((erreur >= ref*def_impli%maxres).and.(nit <= def_impli%max_it))
   v (1:dim) = u (1:dim) + q1(1:dim)
 
   ! error computation & update
-  erreur  = abs(alpha)*sum(abs(v (1:dim)))
+  err  = abs(alpha)*sum(abs(v (1:dim)))
   sol(1:dim) = sol(1:dim) + alpha*v (1:dim)
-  !print*,'conv cgs',nit,log10(erreur/ref), rho1
+  !print*,'conv cgs',nit,log10(err/ref), rho1
 
   ! prepare next iteration
   call dlu_yeqax (u (1:dim), mat, v (1:dim))

@@ -13,6 +13,7 @@ module OUTPUT
 
 use TYPHMAKE   ! Definition de la precision
 use VARCOM
+use STRING
 
 implicit none
 
@@ -63,6 +64,9 @@ character, parameter :: carriage_char = char(13)
 
 ! -- INTERFACES -------------------------------------------------------------
 
+interface erreur   ! for backward compatibility
+  module procedure old_error
+endinterface
 
 ! -- Fonctions et Operateurs ------------------------------------------------
 
@@ -156,58 +160,90 @@ endsubroutine print_warning
 
 
 !------------------------------------------------------------------------------!
-! Procedure : print_info                  Auteur : J. Gressier
-!                                         Date   : November 2002
-! Fonction                                Modif  :
-!   Ecriture en sortie standard et dans le fichier log selon niveaux
-!
+! Procedure : print_master 
+! Fonction  : only master proc can write text
+!------------------------------------------------------------------------------!
+subroutine print_master(n, str)
+implicit none
+! -- INPUTS --
+integer          n     ! niveau requis de l'ecriture
+character(len=*) str   ! chaine a ecrire
+! -- BODY --
+if ((.not.mpi_run).or.(myprocid == 1)) then
+  if (n <= std_maxlevel) then
+    write(uf_stdout,'(a)') trim(str)
+    write(uf_log,'(a,a)')    str_std, trim(str)
+  elseif (n <= log_maxlevel) then
+    write(uf_log,'(a,a)')    str_log, trim(str)
+  endif
+endif
+
+endsubroutine print_master
+
+!------------------------------------------------------------------------------!
+! Procedure : print_info
+! Fonction  : Write text on standart input with PROC number if necessary
 !------------------------------------------------------------------------------!
 subroutine print_info(n, str)
 implicit none
+! -- INPUTS --
+integer          n        ! niveau requis de l'ecriture
+character(len=*) str      ! chaine a ecrire
+character(len=6) mpipre   ! chaine a ecrire
+! -- BODY --
 
-! -- Declaration des entrees --
-  integer          n     ! niveau requis de l'ecriture
-  character(len=*) str   ! chaine a ecrire
+if (mpi_run) then
+  mpipre = '['//strof_full_int(myprocid, 3)//'] '
+else
+  mpipre = ''
+endif
 
-! -- Debut de la procedure --
-
-  if ((.not.mpi_run).or.(myprocid == 1)) then
-    if (n <= std_maxlevel) then
-      write(uf_stdout,'(a)') trim(str)
-      write(uf_log,'(a,a)')    str_std, trim(str)
-    elseif (n <= log_maxlevel) then
-      write(uf_log,'(a,a)')    str_log, trim(str)
-    endif
+if ((.not.mpi_run).or.(myprocid == 1)) then
+  if (n <= std_maxlevel) then
+    write(uf_stdout,'(a)') trim(str)
+    write(uf_log,'(a,a)')    mpipre, trim(str)
+  elseif (n <= log_maxlevel) then
+    write(uf_log,'(a,a)')    str_log, trim(str)
   endif
+endif
 
 endsubroutine print_info
 
 
 !------------------------------------------------------------------------------!
-! Procedure : print_stdout                Auteur : J. Gressier
-!                                         Date   : Juillet 2002
-! Fonction                                Modif  :
-!   Ecriture en sortie standart et dans le fichier log
-!
+! Procedure : error
+! Fonction  : write error and stop executation
 !------------------------------------------------------------------------------!
-subroutine print_std(str)
+subroutine error_stop(str)
 implicit none
+! -- INPUTS --
+character(len=*):: str
+! -- BODY --
 
-! -- Declaration des entrees/sorties --
-  character(len=*) str
+call print_info(1, str)
+stop 1
 
-! -- Debut de la procedure --
+endsubroutine error_stop
 
-  call erreur("internal","print_std subroutine obsolete")
-  write(uf_stdout,'(a)') trim(str)
-  write(uf_log,'(a,a)')    "[OUT] ",trim(str)
+!------------------------------------------------------------------------------!
+! Procedure : error (backward compatibility)
+! Fonction  : write error and stop executation
+!------------------------------------------------------------------------------!
+subroutine old_error(str1, str2)
+implicit none
+! -- INPUTS --
+character(len=*):: str1            ! chaine 1
+character(len=*):: str2            ! chaine 2
+! -- BODY --
 
-endsubroutine print_std
+call error_stop(trim(str1)//": "//trim(str2))
+
+endsubroutine old_error
 
 
 !------------------------------------------------------------------------------!
 ! Procedure : print_log                   Auteur : J. Gressier
-!                                         Date   : Juillet 2002
+ !                                         Date   : Juillet 2002
 ! Fonction                                Modif  :
 !   Ecriture en sortie standart et dans le fichier log
 !

@@ -13,6 +13,7 @@ module MENU_NUM
 
 use TYPHMAKE   ! Definition de la precision
 use VARCOM
+use OUTPUT
 use RPM
 
 implicit none
