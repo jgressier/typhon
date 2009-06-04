@@ -1,13 +1,14 @@
 #!/bin/sh -u
 
-SCRIPTDIR=$(dirname $0)
+SCRIPTDIR=$(cd $(dirname $0) ; pwd)
 SCRIPTNAME=$(basename $0)
 SCRIPTVOID=${SCRIPTNAME//?/ }
 
 ########################################################################
 # --- print usage ---
 ########################################################################
-bar=----------------------------------------------------------------
+bar="================================================================"
+
 function usage() {
   if [ $1 = 1 ] ; then
     echo $bar
@@ -15,16 +16,17 @@ function usage() {
     echo $bar
   fi
   echo
-  echo "Usage: $SCRIPTNAME [-h] [-p [-r] [-n <nbcols>]] \\"
-  echo "       $SCRIPTVOID [-l <nblevl>] [-o <outfile>] \\"
+  echo "Usage: $SCRIPTNAME [-h] [-l <nblevl>] [-d <srcdir>] \\"
+  echo "       $SCRIPTVOID [-p [-r] [-n <nbcols>]] [-o <outfile>] \\"
   echo "       $SCRIPTVOID [-x <patlist>] [-X] \\"
   echo "       $SCRIPTVOID [--] <subroutinename> [...]"
   echo
   echo "       -h: prints this help"
+  echo "       -l <nblevl>:  levels of descent (default is all)"
+  echo "       -d <srcdir>: typhon directory (default is $SCRIPTNAME dir)"
   echo "       -p: postscript output (default is utf-8)"
   echo "       -r: landscape (default portrait) (only if postscript output)"
   echo "       -n <nbcols>:  number of postscript columns"
-  echo "       -l <nblevl>:  levels of descent (default is all)"
   echo "       -o <outfile>: prints in <outputfile> (default is stdout)"
   echo "                     (required if postscript output)"
   echo "       -x <patlist>: excludes comma-separated pattern list"
@@ -33,7 +35,24 @@ function usage() {
   echo
   echo "       <subroutinename>: to be processed"
   echo
+  if [ $1 = 1 ] ; then
+    echo $bar
+    echo "ERROR"
+    echo $bar
+  fi
   exit $1
+}
+
+function warning() {
+  echo "$SCRIPTNAME: warning"
+  [[ $# -gt 0 ]] && printf "$SCRIPTVOID  %s\n" "$@"
+  echo "$bar"
+}
+
+function error() {
+  echo "$SCRIPTNAME: ERROR"
+  [[ $# -gt 0 ]] && printf "$SCRIPTVOID  %s\n" "$@"
+  usage 1
 }
 
 ########################################################################
@@ -90,39 +109,46 @@ typeset -i lev
 # --- definition of arbo function ---
 ########################################################################
 function arbo() {
-  local myhead myname islast n list tabl f i
+  local myhead myname islast n file list tabl f i isdone ok
   myhead="$1" ; shift
   myname="$1" ; shift
   islast="$1" ; shift
 #
 # -- check if subroutine already done --
 #
-  isdone=""
   for h in "${alreadydone[@]:-}" ; do
     if [ "$h" = $myname ] ; then
       isdone=1
       break
     fi
   done
-  ok=""
 #
 # -- check calls if level not too high --
 #
   if [ $lev -lt $nblevl ] ; then
-    list=( $(grep '^ *call ' $SCRIPTDIR/*/${myname}.f90 2>/dev/null | \
-             sed 's/(.*//' | awk '{print $2}' | \
-             grep -v "${excludeargs[@]}") )
+    file=$(echo $SOURCEDIR/*/${myname}.f90)
+    if [ -f "$file" ] ; then
+      list=( $(grep '^\([^!]*[) ]\)*call ' $file 2>/dev/null | sed 's/"[^"]*"//g' | \
+               sed 's/(/ (/g;s/call /\ncall /g' | grep call | awk '{print $2}' | \
+               grep -v "${excludeargs[@]}") )
 #
 # -- add (*) if subroutine already done and wrappable --
 #
-    if [ ${#list[@]} -gt 0 ] ; then
-      ok=${isdone:+" (*)"}
+      if [ ${#list[@]} -gt 0 ] ; then
+        ok=${isdone:+" (*)"}
+      fi
+    else
+#
+# -- add (?) if subroutine was not found --
+#
+      list=()
+      ok=" (?)"
     fi
   fi
 #
 # -- add subroutine to table of already done subroutines --
 #
-  if [ -z $isdone ] ; then
+  if [ -z ${isdone:-} ] ; then
     alreadydone+=("$myname")
   fi
 #
@@ -134,11 +160,11 @@ function arbo() {
 #
 # -- subroutine name print --
 #
-  echo "$myname$ok"
+  echo "$myname${ok:-}"
 #
 # -- check called subroutines if current subroutine not already done --
 #
-  if [ $lev -lt $nblevl ] && [ ${#list[@]} -gt 0 ] && [ -z $isdone ] ; then
+  if [ $lev -lt $nblevl ] && [ ${#list[@]} -gt 0 ] && [ -z ${isdone:-} ] ; then
 #
 # -- remove duplicate subroutine names --
 #
@@ -164,7 +190,7 @@ function arbo() {
 ########################################################################
 # --- get options ---
 ########################################################################
-OPTS=$(getopt -o hprn:l:o:x:X -n "$SCRIPTNAME" -- "$@")
+OPTS=$(getopt -o hl:d:prn:o:x:X -n "$SCRIPTNAME" -- "$@")
 [[ $? != 0 ]] && usage 1
 eval set -- "$OPTS"
 
@@ -174,16 +200,15 @@ eval set -- "$OPTS"
 print=0
 nbcols=1 ; nbcl=0
 nblevl=1 ; dlev=0
-output=""
-postopt=""
 nopexc=0
 while true ; do
   case "$1" in
     -h) usage 0 ;;
-    -p) print=1 ;;
-    -r) postopt="$postopt -r" ;;
-    -n) shift ; nbcols=$1 ; nbcl=1 ;;
     -l) shift ; nblevl=$1 ; dlev=1 ;;
+    -d) shift ; srcdir=$1 ;;
+    -p) print=1 ;;
+    -r) psopt="-r" ;;
+    -n) shift ; nbcols=$1 ; nbcl=1 ;;
     -o) shift ; output=$1 ;;
     -x) shift ; for pat in $(eval echo '{'"$1"',}') ; do
                   excludeargs+=("-e" "$pat")
@@ -194,6 +219,27 @@ while true ; do
   shift
 done
 
+if [ ! -z "${srcdir:-}" ] ; then
+  if [ ! -d "$srcdir" ] ; then
+    error "<srcdir> does not exist :" \
+          "\"$srcdir\""
+  fi
+  d=.
+  for i in $(seq 4) ; do
+    dd="$srcdir/$d/SOURCE"
+    [[ -d "$dd" ]] && SOURCEDIR=$(cd $dd ; pwd) && break
+    d=../$d
+  done
+  if [ -z "${SOURCEDIR:-}" ] ; then
+    error "<srcdir> is not in a valid typhon directory" \
+          "\"$srcdir\""
+  fi
+fi
+
+if [ -z "${SOURCEDIR:-}" ] ; then
+  SOURCEDIR=$SCRIPTDIR
+fi
+
 if [ $nopexc = 0 ] ; then
   for exclude in $excludelist ; do
     excludeargs+=("-e" "^$exclude$")
@@ -201,21 +247,16 @@ if [ $nopexc = 0 ] ; then
 fi
 
 if [ $nbcl = 1 ] && [ $print = 0 ] ; then
-  echo "$SCRIPTNAME: <nbcols> is ignored in default output"
-  echo $bar
+  warning "<nbcols> is ignored in default output"
 fi
-if [ $print = 1 ] && [ -z "$output" ] ; then
-  echo "$SCRIPTNAME: <outfile> must be provided for postscript output"
-  usage 1
+if [ $print = 1 ] && [ -z "${output:-}" ] ; then
+  error "<outfile> must be provided for postscript output"
 fi
-if [ ! -z "$output" ] ; then
-  if [ $print = 1 ] ; then
-    output="${output%.ps}.ps"
-  fi
+if [ ! -z "${output:-}" ] ; then
+  [[ $print = 1 ]] && output="${output%.ps}.ps"
   if [ -f "$output" ] ; then
-    echo "$SCRIPTNAME: <outfile> already exists :"
-    echo "$SCRIPTVOID  \"$output\""
-    usage 1
+    error "<outfile> already exists :" \
+          "\"$output\""
   fi
 fi
 tmpout="/tmp/$SCRIPTNAME.tmpout.$$"
@@ -227,22 +268,30 @@ if [ ${#} -eq 0 ] ; then
   usage 0
 fi
 
+listsub=$(grep 'subroutine ' */*.f90 | grep '.f90: *subroutine ')
+
+listsub=( $(echo "$listsub" | sed 's/\.f90:/.f90 /;s/ *(.*//' | awk '{print $3,$1}' | sort | awk '{print $1}') )
+
+listcal=( $(echo "$listsub" | sed 's/\.f90:/.f90 /;s/ *(.*//' | awk '{print $3,$1}' | sort | awk '{print $2}') )
+
 for i in $(seq 20) ; do
   sep=$(printf "%s%s" "${sep:-}" "${separ[$print]}")
 done
-printf "$sep\n"
-echo $SCRIPTDIR :
-for g in "$@" ; do
-########################################################################
-# --- initialize table of already done subroutines ---
-########################################################################
-  alreadydone=()
-  lev=0
+{
   printf "$sep\n"
-  arbo "" "$g" 2
-done > "$tmpout"
+  echo $SOURCEDIR :
+  for g in "$@" ; do
+  ########################################################################
+  # --- initialize table of already done subroutines ---
+  ########################################################################
+    alreadydone=()
+    lev=0
+    printf "$sep\n"
+    arbo "" "$g" 2
+  done
+} > "$tmpout"
 
-if [ -z "$output" ] ; then
+if [ -z "${output:-}" ] ; then
   cat "$tmpout"
   rm "$tmpout"
   exit 0
@@ -253,11 +302,10 @@ if [ $print = 0 ] ; then
   exit 0
 fi
 
-enscript $postopt -B --columns=$nbcols --mark-wrapped-lines=plus -o \
+enscript ${psopt:-} -B --columns=$nbcols --mark-wrapped-lines=plus -o \
          "$output" "$tmpout" ; mv "$output" "$tmpout"
 if [ $? != 0 ] ; then
-  echo "$SCRIPTNAME: enscript error"
-  usage 1
+  error "enscript error"
 fi
 
 sep=""
@@ -265,23 +313,25 @@ for i in $islast0 $islast1 ; do
   sep="$sep\|${header[$print1$i]}"
   sep="$sep\|${headnx[$print1$i]}"
 done
-sep=$(echo "$sep" | sed 's/\\|$//')
+sep=$(echo "$sep" | sed 's/^\\|//')
 sed "s:^(\(\($sep\)\+\):\1(:g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
 sed "s:^(\(\(${separ[$print1]}\)\+\):\1(:g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
 
 # Postscript macros
 sed 's:%%EndSetup$:%\n'\
-'/bgr { gsave currentpoint translate\n'\
-'       (M) stringwidth pop dup scale 0 -0.5 translate\n'\
+'/bgr { gsave currentpoint translate 0.7 0.7 0.9 setrgbcolor\n'\
+'       (M) stringwidth pop dup scale 0 -0.6 translate\n'\
 '       exec grestore (MMMM) stringwidth rmoveto } def\n'\
-'/vertfull { 0.5 0 moveto 0.5 2 lineto } def\n'\
-'/verthlfu { 0.5 1 moveto 0.5 2 lineto } def\n'\
-'/horifull { 0.5 1 moveto 3   1 lineto } def\n'\
-'/lasthd { { 0.05 setlinewidth verthlfu horifull stroke } bgr } def\n'\
-'/nexthd { { 0.05 setlinewidth vertfull horifull stroke } bgr } def\n'\
-'/passhd { { 0.05 setlinewidth vertfull          stroke } bgr } def\n'\
-'/voidhd { { 0.05 setlinewidth                   stroke } bgr } def\n'\
-'/linehd { { 0.05 setlinewidth 0 1 moveto 4 1 lineto stroke } bgr } def\n'\
+'/slw { 0.05 setlinewidth } def\n'\
+'/vertfull { slw 0.5 0 moveto 0.5 2 lineto stroke } def\n'\
+'/verthlfu { slw 0.5 1 moveto 0.5 2 lineto stroke } def\n'\
+'/horifull { slw 0.5 1 moveto 3   1 lineto stroke } def\n'\
+'/horiline { slw 0   1 moveto 4   1 lineto stroke } def\n'\
+'/lasthd { { verthlfu horifull } bgr } def\n'\
+'/nexthd { { vertfull horifull } bgr } def\n'\
+'/passhd { { vertfull          } bgr } def\n'\
+'/voidhd { {                   } bgr } def\n'\
+'/linehd { { horiline          } bgr } def\n'\
 '%EndSetup:'           "$tmpout" > "$output" ; mv "$output" "$tmpout"
 
 for i in $islast0 $islast1 ; do
@@ -291,3 +341,10 @@ done
 sed "s:${separ[1]}:${separ[2]} :g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
 
 mv "$tmpout" "$output"
+
+#'/slw { 0.10 setlinewidth } def\n'\
+#'/dlw { 0.20 setlinewidth } def\n'\
+#'/vertfull { dlw 0.3 0    moveto 0.3 2   lineto stroke } def\n'\
+#'/verthlfu { dlw 0.3 0.85 moveto 0.3 2   lineto stroke } def\n'\
+#'/horifull { slw 0.3 0.9  moveto 3.5 0.9 lineto stroke } def\n'\
+#'/horiline { dlw 0   1    moveto 4   1   lineto stroke } def\n'\

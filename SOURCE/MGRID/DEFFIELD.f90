@@ -35,12 +35,12 @@ type st_field
   logical                 :: allocQref       ! allocation of Qref field
   logical                 :: allocgrad       ! allocation of gradients
   logical                 :: allocres        ! allocation of residuals
-  logical                 :: allocprim       ! allocation of primitives variables
+  logical                 :: allocprim       ! allocation of primitive variables
   logical                 :: allocqhres      ! allocation of high order extrapolated states
-  logical                 :: calcgrad        ! use gradients of not
+  logical                 :: calcgrad        ! use of gradients
   type(st_genericfield)   :: Qref            ! reference field
-  type(st_genericfield)   :: etatcons        !          conservartive variables
-  type(st_genericfield)   :: etatprim        !              primitive variables
+  type(st_genericfield)   :: etatcons        ! conservative variables
+  type(st_genericfield)   :: etatprim        ! primitive variables
   type(st_genericfield)   :: gradient        ! gradients of primitive variables
   type(st_genericfield)   :: cell_l, cell_r  ! high order extrapolated states
   type(st_genericfield)   :: residu          ! residuals of conservative variables
@@ -72,7 +72,6 @@ contains
 subroutine alloc_grad(field)
 implicit none
 type(st_field) :: field
-integer        :: i
 
   if (field%allocgrad) then
     call print_info(90,"!!! Tableau de gradients deja alloue !!!")
@@ -90,7 +89,6 @@ endsubroutine alloc_grad
 subroutine dealloc_grad(field)
 implicit none
 type(st_field) :: field
-integer        :: i
 
   if (field%allocgrad) then
     call delete(field%gradient)
@@ -108,7 +106,6 @@ endsubroutine dealloc_grad
 subroutine alloc_res(field)
 implicit none
 type(st_field) :: field
-integer        :: i
 
   if (field%allocres) then
     call print_info(90,"!!! Tableau de residus deja alloue !!!")
@@ -127,7 +124,6 @@ endsubroutine alloc_res
 subroutine dealloc_res(field)
 implicit none
 type(st_field) :: field
-integer        :: i
 
   if (field%allocres) then
     call delete(field%residu)
@@ -146,7 +142,6 @@ endsubroutine dealloc_res
 subroutine alloc_prim(field)
 implicit none
 type(st_field) :: field
-integer       :: i
 
   if (field%allocprim) then
     call print_info(90,"!!! Tableau de variables primitives deja alloue !!!")
@@ -165,7 +160,6 @@ endsubroutine alloc_prim
 subroutine dealloc_prim(field)
 implicit none
 type(st_field) :: field
-integer       :: i
 
   if (field%allocprim) then
     field%allocprim = .false.
@@ -223,7 +217,6 @@ endsubroutine dealloc_hres_states
 subroutine alloc_Qref(field)
 implicit none
 type(st_field) :: field
-integer       :: i
 
   if (field%allocQref) then
     call print_info(90,"!!! Tableau de variables reference deja alloue !!!")
@@ -242,7 +235,6 @@ endsubroutine alloc_Qref
 subroutine dealloc_Qref(field)
 implicit none
 type(st_field) :: field
-integer       :: i
 
   if (field%allocQref) then
     field%allocQref = .false.

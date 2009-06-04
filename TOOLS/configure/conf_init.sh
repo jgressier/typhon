@@ -17,24 +17,24 @@ check() {
   shift
   com=$1
   shift
-  check_$com $*
+  check_$com "$@"
   }
 
 success() {
-  echo -e \\033[${check_column}G$1
+  echo -e "\\033[${check_column}G$1"
   }
 
 fail()    {
-  echo -e \\033[${check_column}G$1
+  echo -e "\\033[${check_column}G$1"
   }
 
 warning()    {
-  echo -e "!!! warning !!!" "$*"
+  echo -e "!!! warning !!! $@"
   configure_help
   }
 
 error()    {
-  echo -e "!!!  ERROR  !!!" "$*"
+  echo -e "!!!  ERROR  !!! $@"
   configure_help
   exit 1
   }
