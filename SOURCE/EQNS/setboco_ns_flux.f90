@@ -45,6 +45,7 @@ real(krp), allocatable :: lflux(:)
 ! -- BODY --
 
 nface = ustboco%nface
+allocate(lflux(nface))
 
 r_PG = defns%properties(1)%r_const                                       ! perfect gas constant
 cp   = defns%properties(1)%gamma*r_PG/(defns%properties(1)%gamma-1._krp) ! heat capacity

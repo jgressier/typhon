@@ -171,8 +171,8 @@ character(len=*) str   ! chaine a ecrire
 ! -- BODY --
 if ((.not.mpi_run).or.(myprocid == 1)) then
   if (n <= std_maxlevel) then
-    write(uf_stdout,'(a)') trim(str)
-    write(uf_log,'(a,a)')    str_std, trim(str)
+    write(uf_stdout,'(a)')   trim(str)
+    write(uf_log,   '(a,a)') str_std, trim(str)
   elseif (n <= log_maxlevel) then
     write(uf_log,'(a,a)')    str_log, trim(str)
   endif
@@ -198,13 +198,11 @@ else
   mpipre = ''
 endif
 
-if ((.not.mpi_run).or.(myprocid == 1)) then
-  if (n <= std_maxlevel) then
-    write(uf_stdout,'(a)') trim(str)
-    write(uf_log,'(a,a)')    mpipre, trim(str)
-  elseif (n <= log_maxlevel) then
-    write(uf_log,'(a,a)')    str_log, trim(str)
-  endif
+if (n <= std_maxlevel) then
+  write(uf_stdout,'(a,a)') mpipre, trim(str)
+  write(uf_log,   '(a,a)') mpipre, trim(str)
+elseif (n <= log_maxlevel) then
+  write(uf_log,'(a,a)')    mpipre, trim(str)
 endif
 
 endsubroutine print_info
