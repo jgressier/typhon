@@ -111,6 +111,8 @@ if (defmesh%nperiodicity >= 1) then
 
   do ip = 1, defmesh%nperiodicity
 
+    call seekrpmblock(pblock, "PERIODICITY", ip, pcour, nkey)
+
     call rpmgetkeyvalstr(pcour, "NAME", str)
     defmesh%periodicity(ip)%name = trim(str)
 

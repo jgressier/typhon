@@ -13,7 +13,7 @@ diam8st             345600  345600
 - HLL  MUSCL-FAST superbee CFL 0.5    ok
 - HLL  MUSCL-FAST albada   CFL 0.5    ok
 - HLL  MUSCL-FAST minmod   CFL 0.5         fail(60)                 ok        
-- HLLC MUSCL-FAST albada   CFL 0.5         fail
+- HLLC MUSCL-FAST albada   CFL 0.5         fail                                       ok        
 - HLLC MUSCL-FAST minmod   CFL 0.5         fail                   fail(53)    ok
 - HLLC MUSCL-FAST vanleer  CFL 0.5    ok   fail        ok         fail(53)
 - HLLC MUSCL-FAST vanleer  CFL 0.2         fail

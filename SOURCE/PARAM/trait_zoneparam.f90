@@ -75,14 +75,11 @@ if (mpi_run) call def_mpi(block, solver, zone%defsolver%defmpi)
 ! Definition des conditions aux limites et parametres de couplage
 
 ! -- Determination du nombre de couplages avec d'autres zones
-call print_info(5,"- Nombre de zones couplees")
+call print_info(5,"- Number of coupled zones")
 
 pblock => block
 call seekrpmblock(pblock, "BOCO", 0, pcour, nboco)
 
-if (nboco < 1) call erreur("lecture de menu", &
-                           "Pas de definition de conditions aux limites (BOCO)")
-! Initialisation du nombre de couplages avec d'autres zones
 nzr = 0 
 
 do ib = 1, nboco

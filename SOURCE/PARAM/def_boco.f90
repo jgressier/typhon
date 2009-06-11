@@ -45,9 +45,13 @@ call print_info(5,"* Definition of Boundary Conditions (BOCO)")
 
 pblock => block
 call seekrpmblock(pblock, "BOCO", 0, pcour, nboco)
+defsolver%nboco = nboco
 
-if (nboco < 1) call erreur("menu reading", &
-                           "no boundary condition found (BOCO block)")
+if (nboco < 1) then
+
+  call print_warning("no BLOCK:BOCO found")
+
+else
 
 defsolver%nboco = nboco
 allocate(defsolver%boco(nboco))
@@ -291,6 +295,8 @@ do ib = 1, nboco
   endif
 
 enddo
+
+endif
 
 endsubroutine def_boco
 
