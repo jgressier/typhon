@@ -24,8 +24,8 @@
 #                          $(OD)/ok5.$(o)    \
 #                          $(OD)/ok6.$(o)    \
 #
-# Caution: Some problems had happened with comments containing no basic letters
-# which can be not recognized by regexp wikdcards (.*)
+# Caution: Problems have happened with comments containing no basic letters
+# which can be not recognized by regexp wildcards (.*)
 
 #-----------------------------------------------------------------
 case $1 in

@@ -1,8 +1,10 @@
 !------------------------------------------------------------------------------!
-! Procedure : calc_rhs 
+! Procedure : calc_rhs                          Authors : J. Gressier
 ! 
-! Fonction                                       Modif  : (cf history)
+! Function
 !   Time Integration during one timestep of ONE LEVEL of UST grid TREE structure
+!
+! Defaults/Limitations/Misc :
 !
 !------------------------------------------------------------------------------!
 subroutine calc_rhs(dt, info, defsolver, gridlist, coupling, ncoupling)
@@ -16,6 +18,7 @@ use MODINFO
 use MENU_ZONECOUPLING
 use MATRIX_ARRAY
 use GRID_CONNECT
+use SPARSE_MAT
 
 implicit none
 
@@ -24,21 +27,23 @@ real(krp)         :: dt              ! timestep for this level
 type(st_infozone) :: info            ! zone information structure
 type(mnu_solver)  :: defsolver       ! solver parameters
 type(st_gridlist) :: gridlist        ! list of grids
-integer           :: ncoupling        ! nombre de couplages de la zone
+integer           :: ncoupling       ! number of couplings of the zone
 
 ! -- Outputs --
 type(mnu_zonecoupling), dimension(1:ncoupling) &
-                 :: coupling ! donnees de couplage
-! retour des residus a travers le champ field de la structure zone
+                 :: coupling ! coupling data
+
+! residuals are stored in gridlist%(pgrid)%info%field_loc%residu
+! ?? retour des residus a travers le champ field de la structure zone
 
 ! -- Internal variables --
-type(st_mattab)        :: jacL, jacR       ! tableaux de jacobiennes des flux
 type(st_grid), pointer :: pgrid
 real(krp)              :: curtime
+type(st_spmat)         :: mat
 
-! -------------------------------- BODY --------------------------------
+! -- Body --
 
-! -- Preparation du calcul --
+! -- Pre-processing --
 
 pgrid => gridlist%first
 do while (associated(pgrid))
@@ -96,8 +101,17 @@ endif
 pgrid => gridlist%first
 do while (associated(pgrid))
 
+  select case(defsolver%deftime%tps_meth)
+
+  !case(tps_expl, tps_rk2, tps_rk2ssp, tps_rk3ssp, tps_rk4)
+
+  case(tps_impl, tps_dualt)
+      call init_implicit(pgrid%dtloc, defsolver, pgrid%umesh, mat)
+
+  endselect
+
   call integration_grid(dt, info%time_model, defsolver, &
-                        pgrid, coupling, ncoupling, jacL, jacR)
+                        pgrid, coupling, ncoupling, mat)
 
   ! -- implicit resolution --
 
@@ -109,7 +123,7 @@ do while (associated(pgrid))
 
       call tstep_implicit(pgrid%dtloc, info%time_model, defsolver, &
                           pgrid%umesh, pgrid%info%field_loc, &
-                          coupling, ncoupling, jacL, jacR)
+                          coupling, ncoupling, mat)
 
   endselect
 
@@ -117,13 +131,12 @@ do while (associated(pgrid))
 enddo
 
 
-!-----------------------------
 endsubroutine calc_rhs
 
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! Mar  2006: created from integzone_tstep_usttree
-! Nov  2007: only compute RHS, updating is done by calling routine, changed name
-! May  2009: change name: treelevel_explicit to calc_rhs
+! Mar 2006 : created from integzone_tstep_usttree
+! Nov 2007 : only compute RHS, updating is done by calling routine, changed name
+! May 2009 : change name: treelevel_explicit to calc_rhs
 !------------------------------------------------------------------------------!

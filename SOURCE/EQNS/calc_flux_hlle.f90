@@ -1,14 +1,14 @@
 !------------------------------------------------------------------------------!
-! Procedure : calc_flux_hlle              Auteur : J. Gressier
-!                                         Date   : July 2004
-! Fonction                                Modif  : (cf historique)
+! Procedure : calc_flux_hlle                    Authors : J. Gressier
+!
+! Function
 !   Computation of HLLE flux for Euler equations
 !
-! Defauts/Limitations/Divers :
+! Defaults/Limitations/Misc :
 !
 !------------------------------------------------------------------------------!
-subroutine calc_flux_hlle(defsolver, defspat, nflux, face,        &
-                          cell_l, cell_r, flux, ideb,             &
+subroutine calc_flux_hlle(defsolver, defspat, nflux, face, &
+                          cell_l, cell_r, flux, ideb,      &
                           calc_jac, jacL, jacR)
 use TYPHMAKE
 use OUTPUT
@@ -24,44 +24,45 @@ use MATRIX_ARRAY
 implicit none
 
 ! -- Inputs --
-type(mnu_solver)      :: defsolver        ! parametres de definition du solveur
-type(mnu_spat)        :: defspat          ! parametres d'integration spatiale
-integer               :: nflux            ! nombre de flux (face) a calculer
-integer               :: ideb             ! indice du premier flux a remplir
-type(st_face), dimension(1:nflux) & 
-                      :: face             ! donnees geometriques des faces
-type(st_nsetat)       :: cell_l, cell_r   ! champs des valeurs primitives
-logical               :: calc_jac         ! choix de calcul de la jacobienne
+type(mnu_solver)      :: defsolver        ! solver parameters
+type(mnu_spat)        :: defspat          ! space integration parameters
+integer               :: nflux            ! number of fluxes
+integer               :: ideb             ! index of first flux
+type(st_face), dimension(1:nflux) &
+                      :: face             ! geom. data of faces
+type(st_nsetat)       :: cell_l, cell_r   ! primitive variables array
+logical               :: calc_jac         ! jacobian calculation boolean
 
+! -- Inputs/Outputs --
 
 ! -- Outputs --
 type(st_genericfield) :: flux
-type(st_mattab)       :: jacL, jacR  ! jac associees
+type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 
 ! -- Internal variables --
-integer                     :: if
-type(st_nsetat)             :: roe
+integer                 :: if
+type(st_nsetat)         :: roe
 type(v3d), dimension(taille_buffer) :: fn
 real(krp), dimension(taille_buffer) :: sl, sr, vnl, vnr
-real(krp)                   :: g, ig1, iks, kl, kr, ku
-real(krp)                   :: am, al, ar, vm, rel, rer
+real(krp)               :: g, ig1, iks, kl, kr, ku
+real(krp)               :: am, al, ar, vm, rel, rer
 
-
-! -- Debut de la procedure --
+! -- Body --
 
 g   = defsolver%defns%properties(1)%gamma
 ig1 = 1._krp/(g - 1._krp)
 
-! -- Calculs preliminaires --
+! -- Pre-processing --
 
 call new(roe, nflux)
 
 call calc_roe_states(defsolver%defns%properties(1), nflux, cell_l, cell_r, roe)
 
-! -- Calcul du flux --
+!-------------------------------
+! Flux computation
 
 do if = 1, nflux
-  fn(if)  = face(if)%normale 
+  fn(if)  = face(if)%normale
 enddo
 
 vnl(1:nflux) = cell_l%velocity(1:nflux).scal.fn(1:nflux)       ! face normal velocity (left  state)
@@ -100,7 +101,7 @@ enddo
 call delete(roe)
 
 !--------------------------------------------------------------
-! Calcul des jacobiennes
+! Jacobian calculation
 !--------------------------------------------------------------
 if (calc_jac) then
 
@@ -127,6 +128,6 @@ endsubroutine calc_flux_hlle
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! July 2004 : creation, HLLE flux
-! Aug  2005 : call to jacobian matrices
+! Jul 2004 : creation, HLLE flux
+! Aug 2005 : call to jacobian matrices
 !------------------------------------------------------------------------------!

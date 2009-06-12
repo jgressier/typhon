@@ -18,7 +18,7 @@ function usage() {
   echo
   echo "Usage: $SCRIPTNAME [-h] [-l <nblevl>] [-d <srcdir>] \\"
   echo "       $SCRIPTVOID [-p [-r] [-n <nbcols>]] [-o <outfile>] \\"
-  echo "       $SCRIPTVOID [-x <patlist>] [-X] \\"
+  echo "       $SCRIPTVOID [-x <patlist>] [-X] [-L] \\"
   echo "       $SCRIPTVOID [--] <subroutinename> [...]"
   echo
   echo "       -h: prints this help"
@@ -31,6 +31,7 @@ function usage() {
   echo "                     (required if postscript output)"
   echo "       -x <patlist>: excludes comma-separated pattern list"
   echo "       -X: ignores builtin exclude pattern list"
+  echo "       -L: prints exclude pattern list"
   echo "       --: end of options"
   echo
   echo "       <subroutinename>: to be processed"
@@ -43,13 +44,24 @@ function usage() {
   exit $1
 }
 
+function info() {
+  if [ $# -eq 0 ] ; then
+    echo
+    echo "$SCRIPTNAME:"
+  else
+    printf "$SCRIPTVOID  %s\n" "$@"
+  fi
+}
+
 function warning() {
+  echo
   echo "$SCRIPTNAME: warning"
   [[ $# -gt 0 ]] && printf "$SCRIPTVOID  %s\n" "$@"
   echo "$bar"
 }
 
 function error() {
+  echo
   echo "$SCRIPTNAME: ERROR"
   [[ $# -gt 0 ]] && printf "$SCRIPTVOID  %s\n" "$@"
   usage 1
@@ -59,9 +71,11 @@ function error() {
 # --- list of excluded subroutine names ---
 ########################################################################
   #new_fct_env
-excludelist="
+excludebtin=(
   erreur
+  error_stop
   print_info
+  print_warning
   new
   delete
   new.*
@@ -72,7 +86,7 @@ excludelist="
   realloc
   writestr
   writereturn
-"
+)
 
 excludeargs=()
 
@@ -130,7 +144,7 @@ function arbo() {
     if [ -f "$file" ] ; then
       list=( $(grep '^\([^!]*[) ]\)*call ' $file 2>/dev/null | sed 's/"[^"]*"//g' | \
                sed 's/(/ (/g;s/call /\ncall /g' | grep call | awk '{print $2}' | \
-               grep -v "${excludeargs[@]}") )
+               grep -v "${excludeopts[@]}") )
 #
 # -- add (*) if subroutine already done and wrappable --
 #
@@ -169,7 +183,7 @@ function arbo() {
 # -- remove duplicate subroutine names --
 #
     tabl=()
-    for f in ${list[@]} ; do
+    for f in "${list[@]}" ; do
       for h in "${tabl[@]:-}" ; do
         [[ "$h" = $f ]] && f="" && break
       done
@@ -190,7 +204,7 @@ function arbo() {
 ########################################################################
 # --- get options ---
 ########################################################################
-OPTS=$(getopt -o hl:d:prn:o:x:X -n "$SCRIPTNAME" -- "$@")
+OPTS=$(getopt -o hl:d:prn:o:x:XL -n "$SCRIPTNAME" -- "$@")
 [[ $? != 0 ]] && usage 1
 eval set -- "$OPTS"
 
@@ -201,6 +215,7 @@ print=0
 nbcols=1 ; nbcl=0
 nblevl=1 ; dlev=0
 nopexc=0
+lstexc=0
 while true ; do
   case "$1" in
     -h) usage 0 ;;
@@ -211,9 +226,10 @@ while true ; do
     -n) shift ; nbcols=$1 ; nbcl=1 ;;
     -o) shift ; output=$1 ;;
     -x) shift ; for pat in $(eval echo '{'"$1"',}') ; do
-                  excludeargs+=("-e" "$pat")
+                  excludeargs+=("$pat")
                 done ;;
     -X) nopexc=1 ;;
+    -L) lstexc=1 ;;
     --) shift ; break ;;
   esac
   shift
@@ -240,9 +256,34 @@ if [ -z "${SOURCEDIR:-}" ] ; then
   SOURCEDIR=$SCRIPTDIR
 fi
 
+if [ $lstexc = 1 ] ; then
+  info
+  if [ $nopexc = 1 ] ; then
+    info "builtin exclude patterns (ignored):"
+  else
+    info "builtin exclude patterns:"
+  fi
+  for bat in "${excludebtin[@]}" ; do
+    info "    ^$bat$"
+  done
+  if [ ${#excludeargs[@]} -gt 0 ] ; then
+    info "additional exclude patterns:"
+    for pat in "${excludeargs[@]}" ; do
+      info "    $pat"
+    done
+  fi
+  exit 0
+fi
+
+excludeopts=("-e" "^$")
 if [ $nopexc = 0 ] ; then
-  for exclude in $excludelist ; do
-    excludeargs+=("-e" "^$exclude$")
+  for bat in "${excludebtin[@]}" ; do
+    excludeopts+=("-e" "^$bat$")
+  done
+fi
+if [ ${#excludeargs[@]} -gt 0 ] ; then
+  for pat in "${excludeargs[@]}" ; do
+    excludeopts+=("-e" "$pat")
   done
 fi
 

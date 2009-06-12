@@ -1,5 +1,5 @@
 ############################################################
-##   Compilation du code TYPHON - Partie MAIN
+##   TYPHON code compilation - MAIN
 
 LDIR := MAIN
 
@@ -36,6 +36,7 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            init_champ.o             \
            init_connect.o           \
            init_coupling.o          \
+           init_implicit.o          \
            init_inverse.o           \
            init_maillage.o          \
            init_world.o             \
@@ -72,13 +73,13 @@ all: $(MAIN_LIB)
 
 $(MAIN_LIB): $(D_MAIN_OBJ)
 	@echo ---------------------------------------------------------------
-	@echo \* Création de la librairie $(MAIN_LIB)
+	@echo \* Creation of library : $(MAIN_LIB)
 	@touch $(MAIN_LIB) ; rm $(MAIN_LIB)
 	@$(AR) ruv $(MAIN_LIB) $(D_MAIN_OBJ)
-	@echo \* Création de l\'index de la librairie
+	@echo \* Creation of library index
 	@$(RAN)    $(MAIN_LIB)
 	@echo ---------------------------------------------------------------
-	@echo \* LIBRAIRIE $(MAIN_LIB) créée
+	@echo \* LIBRARY $(MAIN_LIB) created
 	@echo ---------------------------------------------------------------
 
 MAIN_clean: 
@@ -87,22 +88,26 @@ MAIN_clean:
 
 ####### Dependencies
 
+SVNREV=$(shell svnversion 2> /dev/null || echo unknown)
+
+SVNREVSTR=character(len=20), parameter :: svnrev = '$(SVNREV)'
+
+SVNREVFILE=Include/svnrev.h
+
+SVNREVDEP=$(shell echo "$(SVNREVSTR)" | diff - -q $(SVNREVFILE) >/dev/null || echo SVNREV)
 
 MAIN/depends.make: $(D_MAIN_SRC)
 	(cd MAIN ; ../$(MAKEDEPENDS))
 
-MAIN/main.f90: make_svnrev
+MAIN/main.f90: $(SVNREVFILE)
 	@touch MAIN/main.f90
 
-SVNREV=$(shell svnversion 2> /dev/null || echo unknown)
+SVNREV:
+	@:
 
-make_svnrev:
+$(SVNREVFILE): $(SVNREVDEP)
 	@echo ..... revision number : $(SVNREV)
-	@echo 'character(len=20), parameter :: svnrev = "'$(SVNREV)'"' > Include/svnrev.h
+	@echo "$(SVNREVSTR)" > $@
 
 include MAIN/depends.make
-
-
-
-
 

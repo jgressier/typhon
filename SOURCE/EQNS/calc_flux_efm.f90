@@ -1,13 +1,13 @@
 !------------------------------------------------------------------------------!
-! Procedure : calc_flux_efm                        Authors : Praveen. C
-!                                                  Created : 27 July 2008
-! Fonction
+! Procedure : calc_flux_efm                     Authors : Praveen. C
+!
+! Function
 !   Computation of Kinetic flux for Euler equations
 !
-! Defauts/Limitations/Divers :
+! Defaults/Limitations/Misc :
 !
 !------------------------------------------------------------------------------!
-subroutine calc_flux_efm (defsolver, defspat, nflux, face,  &
+subroutine calc_flux_efm (defsolver, defspat, nflux, face, &
                           cell_l, cell_r, flux, ideb,      &
                           calc_jac, jacL, jacR)
 use TYPHMAKE
@@ -23,29 +23,30 @@ use MATRIX_ARRAY
 
 implicit none
 
-! -- INPUTS --
-type(mnu_solver)      :: defsolver        ! parametres de definition du solveur
-type(mnu_spat)        :: defspat          ! parametres d'integration spatiale
-integer               :: nflux            ! nombre de flux (face) a calculer
-integer               :: ideb             ! indice du premier flux a remplir
-type(st_face), dimension(1:nflux) & 
-                      :: face             ! donnees geometriques des faces
-type(st_nsetat)       :: cell_l, cell_r   ! champs des valeurs primitives
-logical               :: calc_jac         ! choix de calcul de la jacobienne
+! -- Inputs --
+type(mnu_solver)      :: defsolver        ! solver parameters
+type(mnu_spat)        :: defspat          ! space integration parameters
+integer               :: nflux            ! number of fluxes
+integer               :: ideb             ! index of first flux
+type(st_face), dimension(1:nflux) &
+                      :: face             ! geom. data of faces
+type(st_nsetat)       :: cell_l, cell_r   ! primitive variables array
+logical               :: calc_jac         ! jacobian calculation boolean
 
+! -- Inputs/Outputs --
 
-! -- OUTPUTS --
+! -- Outputs --
 type(st_genericfield) :: flux
-type(st_mattab)       :: jacL, jacR  ! jac associees
+type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 
 ! -- Internal variables --
-integer                   :: if
-type(v3d)                 :: fn, rvst
+integer                 :: if
+type(v3d)               :: fn, rvst
 real(krp), dimension(taille_buffer) :: sl, sr, vnl, vnr
-real(krp)                 :: g, ig1, iks
-real(krp)                 :: am, al, ar, vm, rel, rer, rqL, rqR
-real(krp)                 :: Sst, rst, pst, rest
-real(krp)                 :: ml, mr, erfl, erfr, expl, expr, f1, f2, PI
+real(krp)               :: g, ig1, iks
+real(krp)               :: al, ar, vm, rel, rer, rqL, rqR
+real(krp)               :: Sst, rst, pst, rest
+real(krp)               :: ml, mr, erfl, erfr, expl, expr, f1, f2, PI
 
 ! -- Body --
 
@@ -55,11 +56,14 @@ PI  = 4.0_krp*atan(1.0_krp)
 f1  = sqrt(0.5_krp*g)
 f2  = 1.0_krp/sqrt(2.0_krp*PI*g)
 
-! -- Calcul du flux --
+! -- Pre-processing --
+
+!-------------------------------
+! Flux computation
 
 do if = 1, nflux
 
-  fn      = face(if)%normale 
+  fn      = face(if)%normale
   vnl(if) = cell_l%velocity(if).scal.fn                ! face normal velocity (left  state)
   vnr(if) = cell_r%velocity(if).scal.fn                !                      (right state)
   al  = sqrt(g*cell_l%pressure(if)/cell_l%density(if)) ! sound speed          (left state)
@@ -94,7 +98,7 @@ do if = 1, nflux
 enddo
 
 !--------------------------------------------------------------
-! Calcul des jacobiennes
+! Jacobian calculation
 !--------------------------------------------------------------
 if (calc_jac) then
 
@@ -106,18 +110,21 @@ if (calc_jac) then
     call erreur("Development", "EFM jacobian matrices not available with EFM flux")
     !call calc_jac_eqns(defsolver, defspat, nflux, face,        &
     !                   cell_l, cell_r, ideb, jacL, jacR))
-  case(jac_hll,jac_hlldiag)
+  case(jac_hll)
     call erreur("Development", "HLL jacobian matrices not available with EFM flux")
+  case(jac_hlldiag)
+    call erreur("Development", "HLL diagonal jacobian matrices not available with EFM flux")
   case default
     call erreur("Internal error", "unknown jacobian expression for Euler hyperbolic fluxes")
   endselect
 
 endif
 
+
 endsubroutine calc_flux_efm
 
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! July 2008 : creation, Kinetic flux
+! Jul 2008 : creation, Kinetic flux
 !------------------------------------------------------------------------------!

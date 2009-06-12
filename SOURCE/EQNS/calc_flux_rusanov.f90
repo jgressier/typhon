@@ -1,14 +1,14 @@
 !------------------------------------------------------------------------------!
-! Procedure : calc_flux_rusanov              Auteur : J. Gressier
-!                                         Date   : July 2004
-! Fonction                                Modif  : (cf historique)
+! Procedure : calc_flux_rusanov                 Authors : J. Gressier
+!
+! Function
 !   Computation of RUSANOV flux for Euler equations
 !
-! Defauts/Limitations/Divers :
+! Defaults/Limitations/Misc :
 !
 !------------------------------------------------------------------------------!
-subroutine calc_flux_rusanov(defsolver, defspat, nflux, face,        &
-                          cell_l, cell_r, flux, ideb,             &
+subroutine calc_flux_rusanov(defsolver, defspat, nflux, face, &
+                          cell_l, cell_r, flux, ideb,      &
                           calc_jac, jacL, jacR)
 use TYPHMAKE
 use OUTPUT
@@ -24,38 +24,39 @@ use MATRIX_ARRAY
 implicit none
 
 ! -- Inputs --
-type(mnu_solver)      :: defsolver        ! parametres de definition du solveur
-type(mnu_spat)        :: defspat          ! parametres d'integration spatiale
-integer               :: nflux            ! nombre de flux (face) a calculer
-integer               :: ideb             ! indice du premier flux a remplir
-type(st_face), dimension(1:nflux) & 
-                      :: face             ! donnees geometriques des faces
-type(st_nsetat)       :: cell_l, cell_r   ! champs des valeurs primitives
-logical               :: calc_jac         ! choix de calcul de la jacobienne
+type(mnu_solver)      :: defsolver        ! solver parameters
+type(mnu_spat)        :: defspat          ! space integration parameters
+integer               :: nflux            ! number of fluxes
+integer               :: ideb             ! index of first flux
+type(st_face), dimension(1:nflux) &
+                      :: face             ! geom. data of faces
+type(st_nsetat)       :: cell_l, cell_r   ! primitive variables array
+logical               :: calc_jac         ! jacobian calculation boolean
 
+! -- Inputs/Outputs --
 
 ! -- Outputs --
 type(st_genericfield) :: flux
-type(st_mattab)       :: jacL, jacR  ! jac associees
+type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 
 ! -- Internal variables --
-integer                     :: if
+integer                 :: if
 type(v3d), dimension(taille_buffer) :: fn
 real(krp), dimension(taille_buffer) :: ray, vnl, vnr
-real(krp)                   :: g, ig1, al, ar, rel, rer
+real(krp)               :: g, ig1, al, ar, rel, rer
 
-! -- BODY --
+! -- Body --
 
 g   = defsolver%defns%properties(1)%gamma
 ig1 = 1._krp/(g - 1._krp)
 
-! -- Calculs preliminaires --
+! -- Pre-processing --
 
-
-! -- Calcul du flux --
+!-------------------------------
+! Flux computation
 
 do if = 1, nflux
-  fn(if)  = face(if)%normale 
+  fn(if)  = face(if)%normale
 enddo
 
 vnl(1:nflux) = cell_l%velocity(1:nflux).scal.fn(1:nflux)       ! face normal velocity (left  state)
@@ -83,7 +84,7 @@ do if = 1, nflux
 enddo
 
 !--------------------------------------------------------------
-! Calcul des jacobiennes
+! Jacobian calculation
 !--------------------------------------------------------------
 if (calc_jac) then
 
@@ -95,9 +96,10 @@ if (calc_jac) then
   case(jac_rusanov)
     call calc_jac_rusanov(defsolver, defspat, nflux, face,          &
                       cell_l, cell_r, ray, vnl, vnr, ideb, jacL, jacR)
-  case(jac_hll, jac_hlldiag)
+  case(jac_hll)
     call erreur("Development", "HLL jacobian matrices not available with RUSANOV flux")
-
+  case(jac_hlldiag)
+    call erreur("Development", "HLL diagonal jacobian matrices not available with RUSANOV flux")
   case default
     call erreur("Internal error", "unknown jacobian expression for Euler hyperbolic fluxes")
   endselect
@@ -108,7 +110,7 @@ endif
 endsubroutine calc_flux_rusanov
 
 !------------------------------------------------------------------------------!
-! Changes history04
+! Changes history
 !
-! Apr  2008 : creation, RUSANOV flux
+! Apr 2008 : creation, RUSANOV flux
 !------------------------------------------------------------------------------!

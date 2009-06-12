@@ -53,10 +53,10 @@ all: $(MATH_LIB)
 
 $(MATH_LIB): $(D_MATH_OBJ)
 	@echo ---------------------------------------------------------------
-	@echo \* Creating library $(MATH_LIB)
+	@echo \* Creation of library : $(MATH_LIB)
 	@touch $(MATH_LIB) ; rm $(MATH_LIB)
 	@$(AR) ruv $(MATH_LIB) $(D_MATH_OBJ)
-	@echo \* Creating library index
+	@echo \* Creation of library index
 	@$(RAN)    $(MATH_LIB)
 	@echo ---------------------------------------------------------------
 	@echo \* LIBRARY $(MATH_LIB) created

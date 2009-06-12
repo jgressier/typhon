@@ -11,6 +11,7 @@ MGRID_MOD = BASEFIELD.$(MOD)    \
             DEFFIELD.$(MOD)     \
             GENFIELD.$(MOD)     \
             LIMITER.$(MOD)      \
+            MATFREE.$(MOD)      \
             MGRID.$(MOD)
 
 MGRID_OBJ = $(MGRID_MOD:.$(MOD)=.o)      \

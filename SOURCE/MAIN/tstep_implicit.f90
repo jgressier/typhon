@@ -1,12 +1,12 @@
 !------------------------------------------------------------------------------!
-! Procedure : tstep_implicit                            Auteur : J. Gressier
-!                                                       Date   : Avril 2004
-! Fonction
+! Procedure : tstep_implicit                    Authors : J. Gressier
+!
+! Function
 !   Implicit integration of the domain
 !
 !------------------------------------------------------------------------------!
 subroutine tstep_implicit(dtloc, typtemps, defsolver, &
-                          umesh, field, coupling, ncoupling, jacL, jacR)
+                          umesh, field, coupling, ncoupling, mat)
 
 use TYPHMAKE
 use OUTPUT
@@ -21,32 +21,21 @@ use MENU_ZONECOUPLING
 implicit none
 
 ! -- Inputs --
-character        :: typtemps   ! type d'integration (stat, instat, period)
-type(mnu_solver) :: defsolver  ! type d'equation a resoudre
-type(st_ustmesh) :: umesh      ! domaine non structure a integrer
-real(krp)        :: dtloc(1:umesh%ncell)         ! pas de temps CFL
-integer          :: ncoupling  ! nombre de couplages de la zone
+character        :: typtemps         ! time model (STEADY, UNSTEADY, PERIODIC)
+type(mnu_solver) :: defsolver        ! solver parameters
+type(st_ustmesh) :: umesh            ! unstructured mesh
+real(krp)        :: dtloc(1:umesh%ncell)         ! CFL time step
+integer          :: ncoupling        ! number of couplings of the zone
 
 ! -- Inputs/Outputs --
-type(st_field)   :: field            ! champ des valeurs et residus
+type(st_field)   :: field            ! field
 type(mnu_zonecoupling), dimension(1:ncoupling) &
-                 :: coupling ! donnees de couplage
+                 :: coupling         ! coupling data
+type(st_spmat)   :: mat
 
 ! -- Internal variables --
-type(st_spmat)        :: mat
-type(st_genericfield) :: flux             ! tableaux des flux
-type(st_mattab)       :: jacL, jacR       ! tableaux de jacobiennes des flux
 
 ! -- Body --
-
-!--------------------------------------------------
-! build implicit system
-!--------------------------------------------------
-
-call build_implicit(dtloc, defsolver%deftime, umesh, jacL, jacR, mat, field%residu)
-
-call delete(jacL)
-call delete(jacR)
 
 !--------------------------------------------------
 ! solve implicit system
@@ -56,12 +45,10 @@ call implicit_solve(defsolver%deftime, mat, field%residu)
 
 call delete(mat)
 
-!--------------------------------------------------
-
 
 endsubroutine tstep_implicit
 !------------------------------------------------------------------------------!
-! Change History
+! Changes history
 !
 ! Apr 2004 : creation
 ! Aug 2005 : split / call build_implicit to handle different structures

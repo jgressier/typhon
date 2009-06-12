@@ -1,14 +1,15 @@
 !------------------------------------------------------------------------------!
-! Procedure : calc_flux_hllc                       Authors : J. Gressier
-!                                                  Created : July 2005
-! Fonction
-!   Computation of HLLC flux for Euler equations (Batten variant)
+! Procedure : calc_flux_hllc                    Authors : J. Gressier
 !
-! Defauts/Limitations/Divers :
+! Function
+!   Computation of HLLC flux for Euler equations
+!   (Batten variant)
+!
+! Defaults/Limitations/Misc :
 !
 !------------------------------------------------------------------------------!
-subroutine calc_flux_hllc(defsolver, defspat, nflux, face,        &
-                          cell_l, cell_r, flux, ideb,             &
+subroutine calc_flux_hllc(defsolver, defspat, nflux, face, &
+                          cell_l, cell_r, flux, ideb,      &
                           calc_jac, jacL, jacR)
 use TYPHMAKE
 use OUTPUT
@@ -23,50 +24,52 @@ use MATRIX_ARRAY
 
 implicit none
 
-! -- INPUTS --
-type(mnu_solver)      :: defsolver        ! parametres de definition du solveur
-type(mnu_spat)        :: defspat          ! parametres d'integration spatiale
-integer               :: nflux            ! nombre de flux (face) a calculer
-integer               :: ideb             ! indice du premier flux a remplir
-type(st_face), dimension(1:nflux) & 
-                      :: face             ! donnees geometriques des faces
-type(st_nsetat)       :: cell_l, cell_r   ! champs des valeurs primitives
-logical               :: calc_jac         ! choix de calcul de la jacobienne
+! -- Inputs --
+type(mnu_solver)      :: defsolver        ! solver parameters
+type(mnu_spat)        :: defspat          ! space integration parameters
+integer               :: nflux            ! number of fluxes
+integer               :: ideb             ! index of first flux
+type(st_face), dimension(1:nflux) &
+                      :: face             ! geom. data of faces
+type(st_nsetat)       :: cell_l, cell_r   ! primitive variables array
+logical               :: calc_jac         ! jacobian calculation boolean
 
+! -- Inputs/Outputs --
 
-! -- OUTPUTS --
+! -- Outputs --
 type(st_genericfield) :: flux
-type(st_mattab)       :: jacL, jacR  ! jac associees
+type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 
 ! -- Internal variables --
-integer                   :: if
-type(st_nsetat)           :: roe
-type(v3d)                 :: fn, rvst
+integer                 :: if
+type(st_nsetat)         :: roe
+type(v3d)               :: fn, rvst
 real(krp), dimension(taille_buffer) :: sl, sr, vnl, vnr
-real(krp)                 :: g, ig1, iks
-real(krp)                 :: am, al, ar, vm, rel, rer, rqL, rqR
-real(krp)                 :: Sst, rst, pst, rest
+real(krp)               :: g, ig1, iks
+real(krp)               :: am, al, ar, vm, rel, rer, rqL, rqR
+real(krp)               :: Sst, rst, pst, rest
 
 ! -- Body --
 
 g   = defsolver%defns%properties(1)%gamma
 ig1 = 1._krp/(g - 1._krp)
 
-! -- Calculs preliminaires --
+! -- Pre-processing --
 
 call new(roe, nflux)
 
 call calc_roe_states(defsolver%defns%properties(1), nflux, cell_l, cell_r, roe)
 
-! -- Calcul du flux --
+!-------------------------------
+! Flux computation
 
 do if = 1, nflux
 
-  fn      = face(if)%normale 
+  fn      = face(if)%normale
   vnl(if) = cell_l%velocity(if).scal.fn                ! face normal velocity (left  state)
   vnr(if) = cell_r%velocity(if).scal.fn                !                      (right state)
   vm  =    roe%velocity(if).scal.fn                    !                      (roe average state)
-  al  = sqrt(g*cell_l%pressure(if)/cell_l%density(if)) ! sound speed          (left state)
+  al  = sqrt(g*cell_l%pressure(if)/cell_l%density(if)) ! speed of sound       (left  state)
   ar  = sqrt(g*cell_r%pressure(if)/cell_r%density(if)) !                      (right state)
   am  = sqrt(g*   roe%pressure(if)/   roe%density(if)) !                      (roe average state)
 
@@ -79,7 +82,7 @@ do if = 1, nflux
 
   !-----------------------------
   ! FULLY UPWIND
-  if (sl(if) >= 0._krp) then 
+  if (sl(if) >= 0._krp) then
     flux%tabscal(1)%scal(ideb-1+if) = vnl(if)*cell_l%density(if)             ! mass flux
     flux%tabscal(2)%scal(ideb-1+if) = vnl(if)*(rel + cell_l%pressure(if))    ! energy flux
     flux%tabvect(1)%vect(ideb-1+if) = (vnl(if)*cell_l%density(if))*cell_l%velocity(if) &
@@ -97,7 +100,7 @@ do if = 1, nflux
     rqL = cell_l%density(if)*(sl(if) - vnl(if))
     rqR = cell_r%density(if)*(sr(if) - vnr(if))
     Sst = (rqR*vnr(if) - rqL*vnl(if) - cell_r%pressure(if) + cell_l%pressure(if))/(rqR - rqL)
-    
+
     if (Sst >= 0._krp) then
       iks  = 1._krp/(sl(if) - Sst)
       rst  = rqL*iks
@@ -122,7 +125,7 @@ enddo
 call delete(roe)
 
 !--------------------------------------------------------------
-! Calcul des jacobiennes
+! Jacobian calculation
 !--------------------------------------------------------------
 if (calc_jac) then
 
@@ -146,11 +149,12 @@ if (calc_jac) then
 
 endif
 
+
 endsubroutine calc_flux_hllc
 
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! July 2005 : creation, HLLC flux
-! Aug  2005 : call to jacobian matrices
+! Jul 2005 : creation, HLLC flux
+! Aug 2005 : call to jacobian matrices
 !------------------------------------------------------------------------------!

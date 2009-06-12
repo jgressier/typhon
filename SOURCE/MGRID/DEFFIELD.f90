@@ -1,30 +1,32 @@
 !------------------------------------------------------------------------------!
-! MODULE : DEFFIELD 
+! MODULE : DEFFIELD                             Authors : J. Gressier
 !
-! Fonction   
+! Function
 !   Library for managing scalar, vector, tensor fields and the derivatives
 !   of variables type (conservative, primitive, residuals, gradients)
+!
+! Defaults/Limitations/Misc :
 !
 !------------------------------------------------------------------------------!
 
 module DEFFIELD
 
-use TYPHMAKE     ! Definition de la precision
+use TYPHMAKE     ! Precision and string size
 use OUTPUT
-use GEO3D        ! 
-use TENSOR3      ! 
+use GEO3D        !
+use TENSOR3      !
 use GENFIELD
 
 implicit none
 
-! -- Variables globales du module -------------------------------------------
+! -- Module global variables ------------------------------------------------
 
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
 
 !------------------------------------------------------------------------------!
-! Definition de la structure ST_FIELD : Champ physique et champs derives
+! ST_FIELD structure definition : physical and derived fields
 !------------------------------------------------------------------------------!
 
 type st_field
@@ -32,13 +34,13 @@ type st_field
   type(st_field), pointer :: next            ! pointeur pour liste chaînée
   integer                 :: nscal, nvect    ! dimension de base des champs
   integer                 :: ncell, nface    ! nombre de cellules et faces
-  logical                 :: allocQref       ! allocation of Qref field
+  logical                 :: allocqref       ! allocation of qref field
   logical                 :: allocgrad       ! allocation of gradients
   logical                 :: allocres        ! allocation of residuals
   logical                 :: allocprim       ! allocation of primitive variables
   logical                 :: allocqhres      ! allocation of high order extrapolated states
   logical                 :: calcgrad        ! use of gradients
-  type(st_genericfield)   :: Qref            ! reference field
+  type(st_genericfield)   :: qref            ! reference field
   type(st_genericfield)   :: etatcons        ! conservative variables
   type(st_genericfield)   :: etatprim        ! primitive variables
   type(st_genericfield)   :: gradient        ! gradients of primitive variables
@@ -59,22 +61,21 @@ interface delete
 endinterface
 
 
-! -- Fonctions et Operateurs ------------------------------------------------
-
+! -- Functions and Operators ------------------------------------------------
 
 
 ! -- IMPLEMENTATION ---------------------------------------------------------
 contains
 
 !------------------------------------------------------------------------------!
-! Procedure : allocation des gradients
+! Procedure : gradients allocation
 !------------------------------------------------------------------------------!
 subroutine alloc_grad(field)
 implicit none
 type(st_field) :: field
 
   if (field%allocgrad) then
-    call print_info(90,"!!! Tableau de gradients deja alloue !!!")
+    call print_info(90,"!!! gradients array already allocated !!!")
   else
     field%allocgrad = .true.
     call new(field%gradient, field%etatcons%dim, 0, field%etatcons%nscal, field%etatcons%nvect)
@@ -84,7 +85,7 @@ endsubroutine alloc_grad
 
 
 !------------------------------------------------------------------------------!
-! Procedure : deallocation des gradients
+! Procedure : gradients deallocation
 !------------------------------------------------------------------------------!
 subroutine dealloc_grad(field)
 implicit none
@@ -94,21 +95,21 @@ type(st_field) :: field
     call delete(field%gradient)
     field%allocgrad = .false.
   else
-    call print_info(90,"!!! desallocation impossible : Tableau de gradients non alloue !!!")
+    call print_info(90,"!!! unable to deallocate : gradients array not allocated !!!")
   endif
 
 endsubroutine dealloc_grad
 
 
 !------------------------------------------------------------------------------!
-! Procedure : allocation des residus
+! Procedure : residuals allocation
 !------------------------------------------------------------------------------!
 subroutine alloc_res(field)
 implicit none
 type(st_field) :: field
 
   if (field%allocres) then
-    call print_info(90,"!!! Tableau de residus deja alloue !!!")
+    call print_info(90,"!!! residuals array already allocated !!!")
   else
     field%allocres = .true.
     call new(field%residu, field%etatcons%dim,   field%etatcons%nscal, &
@@ -119,7 +120,7 @@ endsubroutine alloc_res
 
 
 !------------------------------------------------------------------------------!
-! Procedure : deallocation des residus
+! Procedure : residuals deallocation
 !------------------------------------------------------------------------------!
 subroutine dealloc_res(field)
 implicit none
@@ -129,22 +130,21 @@ type(st_field) :: field
     call delete(field%residu)
     field%allocres = .false.
   else
-    call print_info(90,"!!! desallocation impossible : &
-                       &Tableau de residus non alloue !!!")
+    call print_info(90,"!!! unable to deallocate : residuals array not allocated !!!")
   endif
 
 endsubroutine dealloc_res
 
 
 !------------------------------------------------------------------------------!
-! Procedure : allocation des variables primitives
+! Procedure : primitive variables allocation
 !------------------------------------------------------------------------------!
 subroutine alloc_prim(field)
 implicit none
 type(st_field) :: field
 
   if (field%allocprim) then
-    call print_info(90,"!!! Tableau de variables primitives deja alloue !!!")
+    call print_info(90,"!!! primitive variables array already allocated !!!")
   else
     field%allocprim = .true.
     call new(field%etatprim, field%etatcons%dim,   field%etatcons%nscal, &
@@ -155,7 +155,7 @@ endsubroutine alloc_prim
 
 
 !------------------------------------------------------------------------------!
-! Procedure : deallocation des variables primitives
+! Procedure : primitive variables deallocation
 !------------------------------------------------------------------------------!
 subroutine dealloc_prim(field)
 implicit none
@@ -165,8 +165,7 @@ type(st_field) :: field
     field%allocprim = .false.
     call delete(field%etatprim)
   else
-    call print_info(90,"!!! desallocation impossible : &
-                       &Tableau des variables primitives non alloue !!!")
+    call print_info(90,"!!! unable to deallocate : primitive variables array not allocated !!!")
   endif
 
 endsubroutine dealloc_prim
@@ -205,53 +204,52 @@ integer       :: i
     call delete(field%cell_l)
     call delete(field%cell_r)
   else
-    call print_info(90,"!!! unable to deallocate : high order extrapolated array not allocated !!!")
+    call print_info(90,"!!! unable to deallocate : high order extrapolated states array not allocated !!!")
   endif
 
 endsubroutine dealloc_hres_states
 
 
 !------------------------------------------------------------------------------!
-! Procedure : allocation des variables Qref
+! Procedure : reference variables allocation
 !------------------------------------------------------------------------------!
-subroutine alloc_Qref(field)
+subroutine alloc_qref(field)
 implicit none
 type(st_field) :: field
 
-  if (field%allocQref) then
-    call print_info(90,"!!! Tableau de variables reference deja alloue !!!")
+  if (field%allocqref) then
+    call print_info(90,"!!! reference variables array already allocated !!!")
   else
-    field%allocQref = .true.
-    call new(field%Qref, field%etatcons%dim,   field%etatcons%nscal, &
+    field%allocqref = .true.
+    call new(field%qref, field%etatcons%dim,   field%etatcons%nscal, &
                          field%etatcons%nvect, field%etatcons%ntens)
   endif
 
-endsubroutine alloc_Qref
+endsubroutine alloc_qref
 
 
 !------------------------------------------------------------------------------!
-! Procedure : deallocation des variables Qref
+! Procedure : reference variables deallocation
 !------------------------------------------------------------------------------!
-subroutine dealloc_Qref(field)
+subroutine dealloc_qref(field)
 implicit none
 type(st_field) :: field
 
-  if (field%allocQref) then
-    field%allocQref = .false.
-    call delete(field%Qref)
+  if (field%allocqref) then
+    field%allocqref = .false.
+    call delete(field%qref)
   else
-    call print_info(90,"!!! desallocation impossible : &
-                       &Tableau des variables Qrefitives non alloue !!!")
+    call print_info(90,"!!! unable to deallocate : reference variables array not allocated !!!")
   endif
 
-endsubroutine dealloc_Qref
+endsubroutine dealloc_qref
 
 
 !------------------------------------------------------------------------------!
 ! Procedure : allocation d'une structure FIELD
 !------------------------------------------------------------------------------!
 subroutine new_field(field, id, n_scal, n_vect, ncell, nface)
-implicit none 
+implicit none
 type(st_field) :: field             ! champ a creer
 integer        :: ncell, nface      ! nombre de cellules et faces
 integer        :: n_scal, n_vect    ! nombre de scalaires, vecteurs et tenseurs
@@ -267,7 +265,7 @@ integer        :: id                ! numero de champ
   field%allocgrad  = .false.
   field%allocres   = .false.
   field%allocprim  = .false.
-  field%allocQref  = .false.
+  field%allocqref  = .false.
   field%allocQhres = .false.
 
 endsubroutine new_field
@@ -277,11 +275,11 @@ endsubroutine new_field
 ! Procedure : desallocation d'une structure FIELD
 !------------------------------------------------------------------------------!
 subroutine delete_field(field)
-implicit none 
+implicit none
 type(st_field) :: field             ! champ a creer
 
   call delete(field%etatcons)
- 
+
   if (field%allocgrad)  call dealloc_grad(field)
   if (field%allocres)   call dealloc_res (field)
   if (field%allocprim)  call dealloc_prim(field)
@@ -303,7 +301,7 @@ integer                 :: id
 
   allocate(pfield)
   call new(pfield,id,n_scal,n_vect,ncell,nface)
-  pfield%next => field  
+  pfield%next => field
 
 endfunction insert_newfield
 
@@ -349,12 +347,12 @@ call transfer_gfield(rfield%cell_l,ifield%cell_l)
 call transfer_gfield(rfield%cell_r,ifield%cell_r)
 call transfer_gfield(rfield%gradient,ifield%gradient)
 call transfer_gfield(rfield%residu,ifield%residu)
-  
+
 endsubroutine transfer_field
 
 
 !------------------------------------------------------------------------------
-! field_setref : copy Qcons to Qref
+! field_setref : copy etatcons to qref
 !------------------------------------------------------------------------------
 subroutine field_cons2ref(field)
 implicit none
@@ -363,35 +361,33 @@ type(st_field) :: field
 if (.not.field%allocqref) call alloc_qref(field)
 
 call transfer_gfield(field%qref, field%etatcons)
-  
+
 endsubroutine field_cons2ref
 
 !------------------------------------------------------------------------------
-! field_setref : copy Qcons to Qref
+! field_setref : copy qref to etatcons
 !------------------------------------------------------------------------------
 subroutine field_ref2cons(field)
 implicit none
 type(st_field) :: field
 
 call transfer_gfield(field%etatcons, field%qref)
-  
+
 endsubroutine field_ref2cons
 
 
 endmodule DEFFIELD
 
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! oct  2002 : creation du module
-! juin 2003 : structuration des champs par type (scalaire, vecteur...)
-! DEV: interface champ/tableau
-! DEV: decoupage en MGFIELD et MZFIELD pour fonctions haut et bas niveau
-! juin 2004 : procedures insert_newgfield et delete_chainedgfield
-! oct  2004 : field chained list
-! nov  2004 : split DEFFIELD -> DEFFIELD / GENFIELD
-! Apr  2008: create Qref and routines to copy to/from Qcons
-! May  2009: add cell_l and cell_r states
+! Oct 2002 : creation
+! Jun 2003 : field structure by type (scalar, vector, tensor)
+! DEV: field/array interface
+! DEV: split in MGFIELD and MZFIELD pour low- and high-level functions haut
+! Jun 2004 : procedures insert_newgfield and delete_chainedgfield
+! Oct 2004 : field chained list
+! Nov 2004 : split DEFFIELD -> DEFFIELD/GENFIELD
+! Apr 2008 : create qref and routines to copy to/from etatcons
+! May 2009 : add cell_l and cell_r states
 !------------------------------------------------------------------------------!
-

@@ -1,5 +1,5 @@
 ############################################################
-##   Compilation de la librairie MESH
+##   MESH library compilation
 
 LDIR := MESH
 
@@ -26,6 +26,8 @@ MESH_OBJ = $(MESH_MOD:.$(MOD)=.o)  \
            calc_ust_checkface.o    \
            calc_ust_face.o         \
            calc_ustmesh.o          \
+           init_implicit_bdlu.o    \
+           init_implicit_dlu.o     \
            interpface_gradient_scal.o \
            interpface_gradient_vect.o \
            interpface_gradn_scal.o    \
@@ -45,13 +47,13 @@ all: $(MESH_LIB)
 
 $(MESH_LIB): $(D_MESH_OBJ)
 	@echo ---------------------------------------------------------------
-	@echo \* Création de la librairie $(MESH_LIB)
+	@echo \* Creation of library : $(MESH_LIB)
 	@touch $(MESH_LIB) ; rm $(MESH_LIB)
 	@$(AR) ruv $(MESH_LIB) $(D_MESH_OBJ)
-	@echo \* Création de l\'index de la librairie
+	@echo \* Creation of library index
 	@$(RAN)    $(MESH_LIB)
 	@echo ---------------------------------------------------------------
-	@echo \* LIBRAIRIE $(MESH_LIB) créée
+	@echo \* LIBRARY $(MESH_LIB) created
 	@echo ---------------------------------------------------------------
 
 MESH_clean:

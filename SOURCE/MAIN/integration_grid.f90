@@ -1,12 +1,12 @@
 !------------------------------------------------------------------------------!
-! Procedure : integration_grid
+! Procedure : integration_grid                  Authors : J. Gressier
 !
 ! Function
 !   Time step Integration of one grid : select integration method
 !
 !------------------------------------------------------------------------------!
 subroutine integration_grid(dt, typtemps, defsolver, grid, &
-                            coupling, ncoupling, jacL, jacR)
+                            coupling, ncoupling, mat)
 
 use TYPHMAKE
 use OUTPUT
@@ -16,29 +16,31 @@ use MENU_GEN
 use MGRID
 use MENU_ZONECOUPLING
 use MATRIX_ARRAY
+use SPARSE_MAT
 
 implicit none
 
 ! -- Inputs --
-real(krp)        :: dt               ! pas de temps CFL
-character        :: typtemps         ! type d'integration (stat, instat, period)
-type(mnu_solver) :: defsolver        ! type d'equation a resoudre
-integer          :: ncoupling        ! nombre de couplages de la zone
+real(krp)        :: dt               ! CFL time step
+character        :: typtemps         ! time model (STEADY, UNSTEADY, PERIODIC)
+type(mnu_solver) :: defsolver        ! solver parameters
+integer          :: ncoupling        ! number of couplings of the zone
 
 ! -- Inputs/Outputs --
-type(st_grid)    :: grid             ! domaine non structure a integrer
+type(st_grid)    :: grid             ! grid
 type(mnu_zonecoupling), dimension(1:ncoupling) &
-                 :: coupling ! donnees de couplage
+                 :: coupling         ! coupling data
 
 ! -- Outputs --
-type(st_mattab)       :: jacL, jacR       ! tableaux de jacobiennes des flux
+type(st_spmat)   :: mat
 
 ! -- Internal variables --
-type(st_genericfield) :: flux             ! tableaux des flux
+type(st_mattab)       :: jacL, jacR  ! flux jacobian matrices
+type(st_genericfield) :: flux        ! physical flux
 
 logical :: calc_jac
 
-! -- BODY --
+! -- Body --
 
 
 ! -- jacobians allocation --
@@ -108,16 +110,32 @@ endselect
 
 call delete(flux)
 
+!--------------------------------------------------
+! build implicit system
+!--------------------------------------------------
+select case(defsolver%deftime%tps_meth)
+
+!case(tps_expl, tps_rk2, tps_rk2ssp, tps_rk3ssp, tps_rk4)
+
+case(tps_impl, tps_dualt)
+
+  call build_implicit(grid%dtloc, defsolver%deftime, grid%umesh, jacL, jacR, mat, grid%info%field_loc%residu)
+
+  call delete(jacL)
+  call delete(jacR)
+
+endselect
+
 
 endsubroutine integration_grid
 !------------------------------------------------------------------------------!
-! changes history
+! Changes history
 !
-! avr  2003 : creation de la procedure
-! juil 2003 : ajout corrections de  flux
-! oct  2003 : corrections de flux seulement en instationnaire
-! avr  2004 : changement de nom  integration_ustdomaine -> integration_grid
-!             appel des routines d'integration temporelle
-! oct  2004 : field chained list
-! sept 2005 : local time stepping
+! Apr 2003 : creation
+! Jul 2003 : ajout corrections de  flux
+! Oct 2003 : corrections de flux seulement en instationnaire
+! Apr 2004 : changement de nom  integration_ustdomaine -> integration_grid
+!            appel des routines d'integration temporelle
+! Oct 2004 : field chained list
+! Sep 2005 : local time stepping
 !------------------------------------------------------------------------------!

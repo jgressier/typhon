@@ -1,38 +1,39 @@
 !------------------------------------------------------------------------------!
-! MODULE : GENFIELD                                  Authors : J. Gressier
-!                                                    Created : Octobre 2002
-! Fonction  
-!   Library to manage scalar, vector, tensor fields
-!   of any solver
+! MODULE : GENFIELD                             Authors : J. Gressier
+!
+! Function
+!   Library of generic fields operations for all solvers
+!
+! Defaults/Limitations/Misc :
 !
 !------------------------------------------------------------------------------!
 
 module GENFIELD
 
-use TYPHMAKE     ! Definition de la precision
+use TYPHMAKE     ! Precision and string size
 use OUTPUT
-use GEO3D        ! 
-use TENSOR3      ! 
+use GEO3D        !
+use TENSOR3      !
 use BASEFIELD
 
 implicit none
 
-! -- Variables globales du module -------------------------------------------
+! -- Module global variables ------------------------------------------------
 
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! Definition de la structure ST_GENERICFIELD : Champ physique generique
+! ST_GENERICFIELD structure definition : generic physical field
 !------------------------------------------------------------------------------!
 
 type st_genericfield
-  integer      :: nscal, nvect, ntens        ! dimension de champs
-  integer      :: dim                        ! nombre de valeurs par champ
-  type(st_genericfield),           pointer :: next      ! pointeur de liste chainee
-  type(st_scafield), dimension(:), pointer :: tabscal   ! champs des scalaires
-  type(st_vecfield), dimension(:), pointer :: tabvect   ! champs des vecteurs
-  type(st_tenfield), dimension(:), pointer :: tabtens   ! champs des tenseurs
+  integer      :: nscal, nvect, ntens        ! field dimensions
+  integer      :: dim                        ! number of values
+  type(st_genericfield),           pointer :: next      ! chained list pointer
+  type(st_scafield), dimension(:), pointer :: tabscal   ! scalar fields
+  type(st_vecfield), dimension(:), pointer :: tabvect   ! vector fields
+  type(st_tenfield), dimension(:), pointer :: tabtens   ! tensor fields
 endtype st_genericfield
 
 
@@ -78,7 +79,31 @@ interface xeqxpay
   module procedure gfield_xeqxpay
 endinterface
 
-! -- Fonctions et Operateurs ------------------------------------------------
+interface l1norm
+  module procedure gfield_l1norm
+endinterface
+
+interface l2norm
+  module procedure gfield_l2norm
+endinterface
+
+interface l1wnorm
+  module procedure gfield_l1wnorm
+endinterface
+
+interface l2wnorm
+  module procedure gfield_l2wnorm
+endinterface
+
+interface dot_prod
+  module procedure gfield_dot_prod
+endinterface
+
+interface wdot_prod
+  module procedure gfield_wdot_prod
+endinterface
+
+! -- Functions and Operators ------------------------------------------------
 
 
 ! -- IMPLEMENTATION ---------------------------------------------------------
@@ -86,13 +111,13 @@ contains
 
 
 !------------------------------------------------------------------------------!
-! Procedure : allocation d'une structure GENERICFIELD
+! Procedure : ST_GENERICFIELD structure allocation
 !------------------------------------------------------------------------------!
 subroutine new_genericfield(gfield, dim, n_scal, n_vect, n_tens)
-implicit none 
-type(st_genericfield) :: gfield                  ! champ a creer
-integer               :: dim                     ! nombre de cellules des champs
-integer               :: n_scal, n_vect, n_tens  ! nombre de scalaires, vecteurs et tenseurs
+implicit none
+type(st_genericfield) :: gfield                  ! generic field
+integer               :: dim                     ! cell number
+integer               :: n_scal, n_vect, n_tens  ! numbers of fields
 integer               :: i
 
   gfield%dim       = dim
@@ -101,26 +126,26 @@ integer               :: i
   gfield%ntens     = n_tens
 
   nullify(gfield%next)
-  
+
   if (gfield%nscal > 0) then
-    allocate(gfield%tabscal(n_scal))          ! allocation du tableau de champs scalaires
+    allocate(gfield%tabscal(n_scal))          ! scalar field array allocation
     do i = 1, n_scal
-      
-      call new(gfield%tabscal(i), gfield%dim)  ! allocation champ par champ
+
+      call new(gfield%tabscal(i), gfield%dim)  ! field by field allocation
     enddo
   endif
-  
+
   if (gfield%nvect > 0) then
-    allocate(gfield%tabvect(n_vect))          ! allocation du tableau de champs vecteurs
+    allocate(gfield%tabvect(n_vect))          ! vector field array allocation
     do i = 1, n_vect
-      call new(gfield%tabvect(i), gfield%dim)  ! allocation champ par champ
+      call new(gfield%tabvect(i), gfield%dim)  ! field by field allocation
     enddo
   endif
 
   if (gfield%ntens > 0) then
-    allocate(gfield%tabtens(n_tens))          ! allocation du tableau de champs tenseurs
+    allocate(gfield%tabtens(n_tens))          ! tensor field array allocation
     do i = 1, n_tens
-      call new(gfield%tabtens(i), gfield%dim)  ! allocation champ par champ
+      call new(gfield%tabtens(i), gfield%dim)  ! field by field allocation
     enddo
   endif
 
@@ -128,11 +153,11 @@ endsubroutine new_genericfield
 
 
 !------------------------------------------------------------------------------!
-! Procedure : allocation d'une structure FIELD a partir d'une autre structure
+! Procedure : ST_GENERICFIELD structure allocation from another structure
 !------------------------------------------------------------------------------!
 subroutine new_genericfield_st(newfield, oldfield)
 implicit none
-type(st_genericfield) :: newfield, oldfield     ! champ a creer, et champ d'origine
+type(st_genericfield) :: newfield, oldfield     ! generic fields (new and original)
 
   call new(newfield, oldfield%dim, oldfield%nscal, oldfield%nvect, oldfield%ntens)
 
@@ -140,13 +165,13 @@ endsubroutine new_genericfield_st
 
 
 !------------------------------------------------------------------------------!
-! Procedure : initialisation d'une structure GENERICFIELD
+! Procedure : ST_GENERICFIELD structure initialisation
 !------------------------------------------------------------------------------!
 subroutine init_genericfield(gfield, scal, vect)
 implicit none
-type(st_genericfield) :: gfield     ! champ a creer, et champ d'origine
-real(krp)             :: scal       ! scalaire pour initialisation
-type(v3d)             :: vect       ! vecteur  pour initialisation
+type(st_genericfield) :: gfield     ! generic field
+real(krp)             :: scal       ! initialisation scalar
+type(v3d)             :: vect       ! initialisation vector
 integer               :: i
 
   do i = 1, gfield%nscal
@@ -165,7 +190,7 @@ endsubroutine init_genericfield
 
 
 !------------------------------------------------------------------------------!
-! Procedure : desallocation d'une structure GENERICFIELD
+! Procedure : ST_GENERICFIELD structure deallocation
 !------------------------------------------------------------------------------!
 subroutine delete_genericfield(gfield)
 implicit none
@@ -197,7 +222,7 @@ endsubroutine delete_genericfield
 
 
 !------------------------------------------------------------------------------!
-! Procedure : creation et lien chaine d'une structure GENERICFIELD
+! Procedure : generic field creation and chained link
 !------------------------------------------------------------------------------!
 function insert_newgfield(gfield,dim,nscal,nvect,ntens) result(pgfield)
 implicit none
@@ -207,13 +232,13 @@ integer                        :: dim,nscal,nvect,ntens
 
   allocate(pgfield)
   call new(pgfield,dim,nscal,nvect,ntens)
-  pgfield%next => gfield  
+  pgfield%next => gfield
 
 endfunction insert_newgfield
 
 
 !------------------------------------------------------------------------------!
-! Procedure : desallocation d'une liste chainee de structure GENERICFIELD
+! Procedure : generic field chained list deallocation
 !------------------------------------------------------------------------------!
 subroutine delete_chainedgfield(gfield)
 implicit none
@@ -231,7 +256,7 @@ endsubroutine delete_chainedgfield
 
 
 !------------------------------------------------------------------------------!
-! Procedure : convert generic field into real array
+! Procedure : generic field conversion into real array
 !------------------------------------------------------------------------------!
 subroutine pack_gfield(gfield, tab, n)
 implicit none
@@ -266,7 +291,7 @@ endsubroutine pack_gfield
 
 
 !------------------------------------------------------------------------------!
-! Procedure : convert generic field into real array
+! Procedure : real array conversion into generic field
 !------------------------------------------------------------------------------!
 subroutine unpack_gfield(tab, gfield, n)
 implicit none
@@ -283,14 +308,14 @@ integer(kip) :: iv, i, sze, dim, tot, ideb
     call erreur("Development", "non consistent sizes of generic field of real array")
 
   do iv = 1, gfield%nscal
-    gfield%tabscal(iv)%scal(1:dim) = tab(iv:tot:sze) 
+    gfield%tabscal(iv)%scal(1:dim) = tab(iv:tot:sze)
   enddo
   do iv = 1, gfield%nvect
     ideb = gfield%nscal+3*(iv-1)+1
     do i = 1, dim
       gfield%tabvect(iv)%vect(i)%x = tab(ideb  +(i-1)*sze)
       gfield%tabvect(iv)%vect(i)%y = tab(ideb+1+(i-1)*sze)
-      gfield%tabvect(iv)%vect(i)%z = tab(ideb+2+(i-1)*sze) 
+      gfield%tabvect(iv)%vect(i)%z = tab(ideb+2+(i-1)*sze)
     enddo
   enddo
 
@@ -324,7 +349,7 @@ end function size_tot_gfield
 
 
 !------------------------------------------------------------------------------
-! Procédure : transfert de champ générique : rgfield reçoit igfield
+! Procédure : generic field transfer : rgfield receives igfield
 !------------------------------------------------------------------------------
 subroutine transfer_gfield(rgfield, igfield)
 implicit none
@@ -344,11 +369,12 @@ enddo
 do i = 1, igfield%ntens
   call transfer_tenfield(rgfield%tabtens(i),igfield%tabtens(i))
 enddo
-  
+
 endsubroutine transfer_gfield
 
+
 !------------------------------------------------------------------------------
-! Computing routine : gfield_scale : X = A*X
+! Computing routine : gfield_scale : X = a*X
 !------------------------------------------------------------------------------
 subroutine gfield_scale(x, a)
 implicit none
@@ -369,6 +395,7 @@ do ip = 1, x%ntens
 enddo
 
 endsubroutine gfield_scale
+
 
 !------------------------------------------------------------------------------
 ! Computing routine : gfield_xeqxpy : X = X + Y
@@ -394,7 +421,7 @@ endsubroutine gfield_xeqxpy
 
 
 !------------------------------------------------------------------------------
-! Computing routine : gfield_xeqxpay : X = X + A*Y
+! Computing routine : gfield_xeqxpay : X = X + a*Y
 !------------------------------------------------------------------------------
 subroutine gfield_xeqxpay(x, a, y)
 implicit none
@@ -417,15 +444,175 @@ enddo
 endsubroutine gfield_xeqxpay
 
 
+!------------------------------------------------------------------------------
+! Computing routine : gfield_l1norm : n = sum(abs(X(i)))
+!------------------------------------------------------------------------------
+real(krp) function gfield_l1norm(x)
+implicit none
+type(st_genericfield) :: x
+integer               :: ip
+
+gfield_l1norm = 0.0_krp
+
+do ip = 1, x%nscal
+  gfield_l1norm = gfield_l1norm + l1norm(x%tabscal(ip))
+enddo
+
+do ip = 1, x%nvect
+  gfield_l1norm = gfield_l1norm + l1norm(x%tabvect(ip))
+enddo
+
+do ip = 1, x%ntens
+  gfield_l1norm = gfield_l1norm + l1norm(x%tabtens(ip))
+enddo
+
+endfunction gfield_l1norm
+
+
+!------------------------------------------------------------------------------
+! Computing routine : gfield_l2norm : n = sqrt(sum(X(i).X(i)))
+!------------------------------------------------------------------------------
+real(krp) function gfield_l2norm(x)
+implicit none
+type(st_genericfield) :: x
+integer               :: ip
+
+gfield_l2norm = 0.0_krp
+
+do ip = 1, x%nscal
+  gfield_l2norm = gfield_l2norm + l2norm(x%tabscal(ip))**2
+enddo
+
+do ip = 1, x%nvect
+  gfield_l2norm = gfield_l2norm + l2norm(x%tabvect(ip))**2
+enddo
+
+do ip = 1, x%ntens
+  gfield_l2norm = gfield_l2norm + l2norm(x%tabtens(ip))**2
+enddo
+
+gfield_l2norm = sqrt(gfield_l2norm)
+
+endfunction gfield_l2norm
+
+
+!------------------------------------------------------------------------------
+! Computing routine : gfield_l1wnorm : n = sum(w(i)*abs(X(i)))
+!------------------------------------------------------------------------------
+real(krp) function gfield_l1wnorm(x, scaw, vecw, tenw)
+implicit none
+type(st_genericfield) :: x
+real(krp), dimension(x%nscal) :: scaw
+real(krp), dimension(x%nvect) :: vecw
+real(krp), dimension(x%ntens) :: tenw
+integer               :: ip
+
+gfield_l1wnorm = 0.0_krp
+
+do ip = 1, x%nscal
+  gfield_l1wnorm = gfield_l1wnorm + scaw(ip)*l1norm(x%tabscal(ip))
+enddo
+
+do ip = 1, x%nvect
+  gfield_l1wnorm = gfield_l1wnorm + vecw(ip)*l1norm(x%tabvect(ip))
+enddo
+
+do ip = 1, x%ntens
+  gfield_l1wnorm = gfield_l1wnorm + tenw(ip)*l1norm(x%tabtens(ip))
+enddo
+
+endfunction gfield_l1wnorm
+
+
+!------------------------------------------------------------------------------
+! Computing routine : gfield_l2wnorm : n = sqrt(sum(w(i)*X(i).X(i)))
+!------------------------------------------------------------------------------
+real(krp) function gfield_l2wnorm(x, scaw, vecw, tenw)
+implicit none
+type(st_genericfield) :: x
+real(krp), dimension(x%nscal) :: scaw
+real(krp), dimension(x%nvect) :: vecw
+real(krp), dimension(x%ntens) :: tenw
+integer               :: ip
+
+gfield_l2wnorm = 0.0_krp
+
+do ip = 1, x%nscal
+  gfield_l2wnorm = gfield_l2wnorm + scaw(ip)*l2norm(x%tabscal(ip))**2
+enddo
+
+do ip = 1, x%nvect
+  gfield_l2wnorm = gfield_l2wnorm + vecw(ip)*l2norm(x%tabvect(ip))**2
+enddo
+
+do ip = 1, x%ntens
+  gfield_l2wnorm = gfield_l2wnorm + tenw(ip)*l2norm(x%tabtens(ip))**2
+enddo
+
+gfield_l2wnorm = sqrt(gfield_l2wnorm)
+
+endfunction gfield_l2wnorm
+
+!------------------------------------------------------------------------------
+! Computing routine : gfield_dot_prod : n = sum(X(i).Y(i))
+!------------------------------------------------------------------------------
+real(krp) function gfield_dot_prod(x, y)
+implicit none
+type(st_genericfield) :: x, y
+integer               :: ip
+
+gfield_dot_prod = 0.0_krp
+
+do ip = 1, x%nscal
+  gfield_dot_prod = gfield_dot_prod + dot_prod(x%tabscal(ip),y%tabscal(ip))
+enddo
+
+do ip = 1, x%nvect
+  gfield_dot_prod = gfield_dot_prod + dot_prod(x%tabvect(ip),y%tabvect(ip))
+enddo
+
+do ip = 1, x%ntens
+  gfield_dot_prod = gfield_dot_prod + dot_prod(x%tabtens(ip),y%tabtens(ip))
+enddo
+
+endfunction gfield_dot_prod
+
+!------------------------------------------------------------------------------
+! Computing routine : gfield_wdot_prod : n = sum(w(i)*X(i).Y(i))
+!------------------------------------------------------------------------------
+real(krp) function gfield_wdot_prod(x, y, scaw, vecw, tenw)
+implicit none
+type(st_genericfield) :: x, y
+real(krp), dimension(x%nscal) :: scaw
+real(krp), dimension(x%nvect) :: vecw
+real(krp), dimension(x%ntens) :: tenw
+integer               :: ip
+
+gfield_wdot_prod = 0.0_krp
+
+do ip = 1, x%nscal
+  gfield_wdot_prod = gfield_wdot_prod + scaw(ip)*dot_prod(x%tabscal(ip),y%tabscal(ip))
+enddo
+
+do ip = 1, x%nvect
+  gfield_wdot_prod = gfield_wdot_prod + vecw(ip)*dot_prod(x%tabvect(ip),y%tabvect(ip))
+enddo
+
+do ip = 1, x%ntens
+  gfield_wdot_prod = gfield_wdot_prod + tenw(ip)*dot_prod(x%tabtens(ip),y%tabtens(ip))
+enddo
+
+endfunction gfield_wdot_prod
+
+
 endmodule GENFIELD
 
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! oct  2002 : creation du module
-! juin 2003 : structuration des champs par type (scalaire, vecteur...)
-! juin 2004 : procedures insert_newgfield et delete_chainedgfield
-! nov  2004 : split DEFFIELD -> DEFFIELD / GENFIELD / BASEFIELD
-! aug  2005 : size of field, 
+! Oct 2002 : creation
+! Jun 2003 : field structure by type (scalar, vector, tensor)
+! Jun 2004 : procedures insert_newgfield and delete_chainedgfield
+! Nov 2004 : split DEFFIELD -> DEFFIELD/GENFIELD/BASEFIELD
+! Aug 2005 : size of field
 !------------------------------------------------------------------------------!
-

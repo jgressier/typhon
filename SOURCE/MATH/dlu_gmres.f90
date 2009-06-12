@@ -1,12 +1,12 @@
 !------------------------------------------------------------------------------!
-! Procedure : dlu_gmres                              Authors : G. Grondin
-!                                                    Created : July 2008
-! Fonction
+! Procedure : dlu_gmres                         Authors : G. Grondin
+!
+! Function
 !   Resolution of linear system : mat.sol = rhs
 !     mat type(st_dlu)
 !     Generalized Minimum Residual method (GMRES)
 !
-! Defauts/Limitations/Divers :
+! Defaults/Limitations/Misc :
 !   - Array sol(*) contains rhs as input
 !
 !------------------------------------------------------------------------------!
@@ -55,8 +55,10 @@ errgmres = huge(errgmres)    ! maximal real number in machine representation (to
 
 allocate(r1(dim))
 allocate(p1(dim))
-allocate(qc(dim)) ;     allocate(qs(dim))
-allocate(ss(dim)) ;     allocate(yy(dim))
+allocate(qc(nkrylov))
+allocate(qs(nkrylov))
+allocate(ss(nkrylov+1))
+allocate(yy(nkrylov))
 !allocate(soln(dim))
 allocate(hh(nkrylov+1,nkrylov));
 allocate(w1(nkrylov,dim));
@@ -90,7 +92,7 @@ do while ((errgmres >= ref*def_impli%maxres).and.(nit <= def_impli%max_it*2))
 
   v1(1,1:dim) = fact*r1(1:dim)                                  ! v1 = r0/|r0|
 
-  ss(1:dim) = 0.0_krp
+  ss(1:nkrylov+1) = 0.0_krp
   ss(1) = beta                                                  ! s(1) = |r0|
 
   hh(1:nkrylov+1,1:nkrylov) = 0.0_krp
@@ -205,5 +207,5 @@ endsubroutine dlu_gmres
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! Jul  2008 : creation
+! Jul 2008 : creation
 !------------------------------------------------------------------------------!

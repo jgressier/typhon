@@ -1,8 +1,10 @@
 !------------------------------------------------------------------------------!
-! Procedure : build_implicit_dlu                        Authors : J. Gressier
-!                                                       Created : Aug 2005
+! Procedure : build_implicit_dlu                Authors : J. Gressier
+!
 ! Function
 !   Build implicit system with jacobian matrices to DLU structure (SPARSE MAT)
+!
+! Defaults/Limitations/Misc :
 !
 !------------------------------------------------------------------------------!
 subroutine build_implicit_dlu(dtloc, umesh, jacL, jacR, matdlu)
@@ -20,10 +22,10 @@ use SPARSE_MAT
 implicit none
 
 ! -- Inputs --
-type(st_ustmesh) :: umesh        ! domaine non structure a integrer
+type(st_ustmesh) :: umesh        ! unstructured mesh
 real(krp)        :: dtloc(1:umesh%ncell)
-type(mnu_time)   :: deftime      ! parametres d'integration spatiale
-type(st_mattab)  :: jacL, jacR   ! tableaux de jacobiennes des flux
+type(mnu_time)   :: deftime      ! time integration parameter
+type(st_mattab)  :: jacL, jacR   ! flux jacobian matrices
 
 ! -- Outputs --
 type(st_dlu)     :: matdlu
@@ -37,12 +39,6 @@ integer(kip)          :: if, ic1, ic2, ic, info, dim
 ! compatibility test
 !-----------------------
 if (jacL%dim > 1) call erreur("internal error", "impossible to use DLU storage for this system of equations")
-
-!-----------------------
-
-call new(matdlu, umesh%ncell, umesh%nface)  ! alloc & init of sparse matrix
-
-matdlu%couple%fils(1:matdlu%ncouple, 1:2) = umesh%facecell%fils(1:matdlu%ncouple, 1:2) 
 
 !-------------------------------------------------------
 ! matrix construction - internal faces only
@@ -84,16 +80,12 @@ do if = umesh%nface_int+1, umesh%nface
 
 enddo
 
-do ic = 1, umesh%ncell_int
-  matdlu%diag(ic) = matdlu%diag(ic) + umesh%mesh%volume(ic,1,1) / dtloc(ic)
-enddo
-
 
 endsubroutine build_implicit_dlu
 
 !------------------------------------------------------------------------------!
-! Change history
+! Changes history
 !
-! Aug  2005 : creation
-! Aug  2005 : ghost cells have been added to the DLU system
+! Aug 2005 : creation
+! Aug 2005 : ghost cells have been added to the DLU system
 !------------------------------------------------------------------------------!

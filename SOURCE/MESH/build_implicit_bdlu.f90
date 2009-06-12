@@ -1,8 +1,10 @@
 !------------------------------------------------------------------------------!
-! Procedure : build_implicit_bdlu                       Authors : J. Gressier
-!                                                       Created : Aug 2005
+! Procedure : build_implicit_bdlu               Authors : J. Gressier
+!
 ! Function
 !   Build implicit system with jacobian matrices to BDLU structure (SPARSE MAT)
+!
+! Defaults/Limitations/Misc :
 !
 !------------------------------------------------------------------------------!
 subroutine build_implicit_bdlu(dtloc, umesh, jacL, jacR, matbdlu)
@@ -20,10 +22,10 @@ use SPARSE_MAT
 implicit none
 
 ! -- Inputs --
-type(st_ustmesh) :: umesh        ! domaine non structure a integrer
+type(st_ustmesh) :: umesh        ! unstructured mesh
 real(krp)        :: dtloc(1:umesh%ncell)
-type(mnu_time)   :: deftime      ! parametres d'integration spatiale
-type(st_mattab)  :: jacL, jacR   ! tableaux de jacobiennes des flux
+type(mnu_time)   :: deftime      ! time integration parameter
+type(st_mattab)  :: jacL, jacR   ! flux jacobian matrices
 
 ! -- Outputs --
 type(st_bdlu)    :: matbdlu
@@ -34,20 +36,6 @@ integer(kip)          :: i, if, ic1, ic2, ic, info, dim, dimb
 ! -- Body --
 
 dimb = jacL%dim   ! dimension of a block
-
-call new(matbdlu, dimb, umesh%ncell, umesh%nface)  ! alloc & init of sparse matrix
-
-matbdlu%couple%fils(1:matbdlu%ncouple, 1:2) = umesh%facecell%fils(1:matbdlu%ncouple, 1:2) 
-
-!-------------------------------------------------------
-! Init diagonal
-
-do ic = 1, umesh%ncell_int
-  matbdlu%diag (1:dimb, 1:dimb, ic) = 0._krp
-  do i = 1, dimb
-    matbdlu%diag(i, i, ic) = umesh%mesh%volume(ic,1,1) / dtloc(ic)
-  enddo
-enddo
 
 !-------------------------------------------------------
 ! matrix construction - internal faces only
@@ -96,7 +84,7 @@ enddo
 endsubroutine build_implicit_bdlu
 
 !------------------------------------------------------------------------------!
-! Change history
+! Changes history
 !
-! Aug  2005 : creation
+! Aug 2005 : creation
 !------------------------------------------------------------------------------!

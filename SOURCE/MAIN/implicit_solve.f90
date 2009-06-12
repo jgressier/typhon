@@ -1,8 +1,10 @@
 !------------------------------------------------------------------------------!
-! Procedure : implicit_solve                            Authors : J. Gressier
-!                                                       Created : August 2005
-! Fonction
+! Procedure : implicit_solve                    Authors : J. Gressier
+!
+! Function
 !   Solve implicit system
+!
+! Defaults/Limitations/Misc :
 !
 !------------------------------------------------------------------------------!
 subroutine implicit_solve(deftime, mat, rhsfield)
@@ -22,13 +24,13 @@ type(mnu_time)         :: deftime       ! time integration parameter
 type(st_spmat)         :: mat
 
 ! -- Input/output --
-type(st_genericfield)  :: rhsfield      ! rhs generic field
+type(st_genericfield)  :: rhsfield      ! rhs/solution generic field
 
 ! -- Internal variables --
-real(krp), allocatable :: tabres(:)     ! collect residuals
-integer(kip)           :: if, ic1, ic2, ic, info, dim
+real(krp), allocatable :: tabres(:)     ! residual/solution array
+integer(kip)           :: info
 
-! -- BODY --
+! -- Body --
 
 !--------------------------------------------------
 ! solve implicit system
@@ -86,8 +88,8 @@ deallocate(tabres)
 
 endsubroutine implicit_solve
 !------------------------------------------------------------------------------!
-! Change History
+! Changes history
 !
-! Aug  2005 : creation (from part of implicit_step)
-! Dec  2006 : add GMRES method
+! Aug 2005 : creation (from part of implicit_step)
+! Dec 2006 : add GMRES method
 !------------------------------------------------------------------------------!

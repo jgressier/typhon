@@ -37,7 +37,7 @@ all: $(XIO_LIB)
 
 $(XIO_LIB): $(D_XIO_OBJ)
 	@echo ---------------------------------------------------------------
-	@echo \* Creation of library $(XIO_LIB)
+	@echo \* Creation of library : $(XIO_LIB)
 	@touch $(XIO_LIB) ; rm $(XIO_LIB)
 	@$(AR) ruv $(XIO_LIB) $(D_XIO_OBJ)
 	@echo \* Creation of library index

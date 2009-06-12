@@ -1,10 +1,11 @@
 !------------------------------------------------------------------------------!
-! Procedure : calc_jac_hlldiag                         Authors : J. Gressier
-!                                                      Created : Aug  2005
-! Fonction                                
-!   Computes HLL Jacobian matrices : diagonal simplified expression
+! Procedure : calc_jac_hlldiag                  Authors : J. Gressier
 !
-! Defauts/Limitations/Divers :
+! Function
+!   Computes HLL Jacobian matrices of a numerical flux
+!   (diagonal simplified expression)
+!
+! Defaults/Limitations/Misc :
 !
 !------------------------------------------------------------------------------!
 subroutine calc_jac_hlldiag(defsolver, defspat, nflux, face,        &
@@ -23,18 +24,20 @@ use MATRIX_ARRAY
 implicit none
 
 ! -- Inputs --
-type(mnu_solver)      :: defsolver        ! parametres de definition du solveur
-type(mnu_spat)        :: defspat          ! parametres d'integration spatiale
-integer               :: nflux            ! nombre de flux (face) a calculer
-integer               :: ideb             ! indice du premier flux a remplir
-type(st_face), dimension(1:nflux) & 
-                      :: face             ! donnees geometriques des faces
-type(st_nsetat)       :: cell_l, cell_r   ! champs des valeurs primitives
+type(mnu_solver)      :: defsolver        ! solver parameters
+type(mnu_spat)        :: defspat          ! space integration parameters
+integer               :: nflux            ! number of fluxes
+integer               :: ideb             ! index of first flux
+type(st_face), dimension(1:nflux) &
+                      :: face             ! geom. data of faces
+type(st_nsetat)       :: cell_l, cell_r   ! primitive variables array
 real(krp), dimension(nflux) &
-                      :: sl, sr, vnl, vnr 
+                      :: sl, sr, vnl, vnr
+
+! -- Inputs/Outputs --
 
 ! -- Outputs --
-type(st_mattab)       :: jacL, jacR  ! jac associees
+type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 
 ! -- Internal parameters --
 integer(kip) :: i
@@ -48,10 +51,11 @@ do i = 1, 5
   jacR%mat(i, i, ideb:ideb-1+nflux) = sl(1:nflux)
 enddo
 
+
 endsubroutine calc_jac_hlldiag
 
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! Aug  2005 : creation
+! Aug 2005 : creation
 !------------------------------------------------------------------------------!

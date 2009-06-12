@@ -1,12 +1,14 @@
 !------------------------------------------------------------------------------!
-! Procedure : calc_flux_ausmm                  Authors : J. Gressier
-!                                              Created : September 2005
-! Fonction
+! Procedure : calc_flux_ausmm                   Authors : J. Gressier
+!
+! Function
 !   Computation of AUSMM flux for Euler equations
 !
+! Defaults/Limitations/Misc :
+!
 !------------------------------------------------------------------------------!
-subroutine calc_flux_ausmm(defsolver, defspat, nflux, face,        &
-                          cell_l, cell_r, flux, ideb,             &
+subroutine calc_flux_ausmm(defsolver, defspat, nflux, face, &
+                          cell_l, cell_r, flux, ideb,      &
                           calc_jac, jacL, jacR)
 use TYPHMAKE
 use OUTPUT
@@ -22,19 +24,20 @@ use MATRIX_ARRAY
 implicit none
 
 ! -- Inputs --
-type(mnu_solver)      :: defsolver        ! parametres de definition du solveur
-type(mnu_spat)        :: defspat          ! parametres d'integration spatiale
-integer               :: nflux            ! nombre de flux (face) a calculer
-integer               :: ideb             ! indice du premier flux a remplir
-type(st_face), dimension(1:nflux) & 
-                      :: face             ! donnees geometriques des faces
-type(st_nsetat)       :: cell_l, cell_r   ! champs des valeurs primitives
-logical               :: calc_jac         ! choix de calcul de la jacobienne
+type(mnu_solver)      :: defsolver        ! solver parameters
+type(mnu_spat)        :: defspat          ! space integration parameters
+integer               :: nflux            ! number of fluxes
+integer               :: ideb             ! index of first flux
+type(st_face), dimension(1:nflux) &
+                      :: face             ! geom. data of faces
+type(st_nsetat)       :: cell_l, cell_r   ! primitive variables array
+logical               :: calc_jac         ! jacobian calculation boolean
 
+! -- Inputs/Outputs --
 
 ! -- Outputs --
 type(st_genericfield) :: flux
-type(st_mattab)       :: jacL, jacR       ! jac associees
+type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 
 ! -- Internal variables --
 integer                 :: if
@@ -42,20 +45,22 @@ real(krp), dimension(taille_buffer) &
                         :: al, ar, mp, mm, pp, pm, rHl, rHr, ml, mr, ms
 real(krp)               :: g, gig1, iks
 
-! -- BODY --
+! -- Body --
 
 g    = defsolver%defns%properties(1)%gamma
 gig1 = g/(g - 1._krp)
+
+! -- Pre-processing --
 
 !-------------------------------
 ! Flux computation
 
 ! -- speed of sound --
 
-al(1:nflux) = sqrt(g*cell_l%pressure(1:nflux)/cell_l%density(1:nflux))        ! sound speed (left state)
-ar(1:nflux) = sqrt(g*cell_r%pressure(1:nflux)/cell_r%density(1:nflux))        !             (right state)
+al(1:nflux) = sqrt(g*cell_l%pressure(1:nflux)/cell_l%density(1:nflux)) ! speed of sound (left  state)
+ar(1:nflux) = sqrt(g*cell_r%pressure(1:nflux)/cell_r%density(1:nflux)) !                (right state)
 
-! -- Mach numbers -- 
+! -- Mach numbers --
 
 do if = 1, nflux
   ml(if) = (cell_l%velocity(if).scal.face(if)%normale)/al(if)    ! face normal velocity (left  state)
@@ -64,7 +69,7 @@ enddo
 
 ! -- Mach numbers functions and Pressure upwinding functions (van Leer basic ones) --
 
-where (ml(1:nflux) >= 1._krp) 
+where (ml(1:nflux) >= 1._krp)
   mp(1:nflux) = ml(1:nflux)
   pp(1:nflux) = 1._krp
 elsewhere (ml(1:nflux) <= -1._krp)
@@ -75,7 +80,7 @@ elsewhere ((ml(1:nflux) > -1._krp).and.(ml(1:nflux) < 1._krp))
   pp(1:nflux) = mp(1:nflux)*(2._krp-ml(1:nflux))
 endwhere
 
-where (mr(1:nflux) <= -1._krp) 
+where (mr(1:nflux) <= -1._krp)
   mm(1:nflux) = mr(1:nflux)
   pm(1:nflux) = 1._krp
 elsewhere (mr(1:nflux) >= 1._krp)
@@ -110,7 +115,7 @@ do if = 1, nflux
 enddo
 
 !--------------------------------------------------------------
-! Calcul des jacobiennes
+! Jacobian calculation
 !--------------------------------------------------------------
 if (calc_jac) then
 
@@ -139,6 +144,6 @@ endsubroutine calc_flux_ausmm
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! July 2004 : creation, AUSMM flux
-! Aug  2005 : call to jacobian matrices
+! Jul 2004 : creation, AUSMM flux
+! Aug 2005 : call to jacobian matrices
 !------------------------------------------------------------------------------!
