@@ -91,6 +91,9 @@ if (defsolver%defspat%calc_hresQ) then
   pgrid => gridlist%first
   do while (associated(pgrid))
     call calc_hres_states(defsolver, defsolver%defspat, pgrid, pgrid%info%field_loc)
+    if (defsolver%defspat%method == hres_svm) then
+      call calcboco_connect(defsolver, defsolver%defspat, pgrid, bccon_face_state)
+    endif
     pgrid => pgrid%next
   enddo
 endif

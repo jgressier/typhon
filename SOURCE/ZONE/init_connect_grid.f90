@@ -207,19 +207,19 @@ do ib = 1, grid%umesh%nboco
         endif   
       enddo
       
-      ! -- for direct periodic connection inside a zone, one directly use internal cell index
+      ! -- direct periodic connection inside a zone
       
       allocate(boco%gridcon%i_param(1:nf))
-      boco%gridcon%i_param(1:nf) = grid%umesh%facecell%fils(grid%umesh%boco(ib2)%iface(i1(1:nf)),1)
+      boco%gridcon%i_param(1:nf) = grid%umesh%boco(ib2)%iface(i1(1:nf))
 
       ! -- define ghost cells centers, volumes...
 
       do if = 1, boco%nface     
         iface = grid%umesh%boco(ib)%iface(if)               ! local face index
-        ifper = grid%umesh%boco(ib2)%iface(i1(if))          ! periodic face index
+        ifper = boco%gridcon%i_param(if)                    ! periodic face index
         ic1   = grid%umesh%facecell%fils(iface,1)           ! internal/reference cell index
         ic2   = grid%umesh%facecell%fils(iface,2)           ! ghost cell index
-        icper = boco%gridcon%i_param(if)                    ! index of periodic cell
+        icper = grid%umesh%facecell%fils(ifper,1)           ! index of periodic internal cell
 
         ! face to cell vector on periodic face
         dfc   = grid%umesh%mesh%centre(icper,1,1) - grid%umesh%mesh%iface(ifper,1,1)%centre

@@ -30,22 +30,25 @@ type(st_grid)          :: grid             ! maillage en entree, champ en sortie
 integer :: ib, ir                    ! index de conditions aux limites et de couplage
 integer :: idef                      ! index de definitions des conditions aux limites
 integer :: nrac                      ! numero de raccord
-type(st_genericfield), pointer :: gfield ! alias to field (primitive or gradient)
+type(st_genericfield), pointer          :: fsend, frecv ! pointer of send or receive fields
+integer(kip), dimension(:), allocatable :: isend, irecv ! index of data in fsent and frecv
 
 ! ----------------------------------- BODY -----------------------------------
 
 select case(bccon_mode)
 case(bccon_cell_state)
-  gfield => grid%info%field_loc%etatprim
+  fsend => grid%info%field_loc%etatprim
+  frecv => grid%info%field_loc%etatprim
 case(bccon_face_state)
-  ! cell_l ?
-  call erreur("Internal error","connection mode not yet implemented")
+  fsend => grid%info%field_loc%cell_l
+  frecv => grid%info%field_loc%cell_r  
 case(bccon_cell_grad)
-  gfield => grid%info%field_loc%gradient
+  fsend => grid%info%field_loc%gradient
+  frecv => grid%info%field_loc%gradient
 case(bccon_face_grad)
-  call erreur("Internal error","connection mode not yet implemented")
+  call error_stop("Internal error: connection mode not yet implemented")
 case default
-  call erreur("Internal error","unknown connection mode")
+  call error_stop("Internal error: unknown connection mode")
 endselect
 
 ! only compute connections (idef <= 0)
@@ -53,6 +56,7 @@ endselect
 do ib = 1, grid%umesh%nboco
 
   idef = grid%umesh%boco(ib)%idefboco
+
   if (idef <= 0) then
 
     select case(grid%umesh%boco(ib)%gridcon%contype)
@@ -61,7 +65,7 @@ do ib = 1, grid%umesh%nboco
 
       ! send and receive data of this grid (from other grids)
       ! 
-      call calcboco_connect_match(bccon_mode, defsolver, grid%umesh, gfield, grid%umesh%boco(ib))
+      call calcboco_connect_match(bccon_mode, defsolver, grid%umesh, fsend, frecv, grid%umesh%boco(ib))
 
     case(gdcon_nomatch)
       call erreur("Development","non matching connection not implemented")
@@ -70,7 +74,7 @@ do ib = 1, grid%umesh%nboco
 
       ! compute periodic matching conditions (only available for periodic def. inside a grid)
       ! 
-      call calcboco_connect_per_match(bccon_mode, defsolver, grid%umesh, gfield, grid%umesh%boco(ib))
+      call calcboco_connect_per_match(bccon_mode, defsolver, grid%umesh, fsend, frecv, grid%umesh%boco(ib))
 
     case(gdcon_per_nomatch)
       call erreur("Development","periodic non matching connection not implemented")
