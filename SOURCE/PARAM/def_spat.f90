@@ -291,6 +291,7 @@ case(solNS)
   if (samestring(str,"MONOTONIC1"))  defspat%postlimiter = postlim_monotonic1
   if (samestring(str,"MONOTONIC2"))  defspat%postlimiter = postlim_monotonic2
   if (samestring(str,"BARTH"))       defspat%postlimiter = postlim_barth
+  if (samestring(str,"SUPERBARTH"))  defspat%postlimiter = postlim_superbarth
   if (defspat%postlimiter == -1) &
        call erreur("parameters parsing","unexpected post limiter")
   call print_info(7,"    post-limiter: "//trim(str))

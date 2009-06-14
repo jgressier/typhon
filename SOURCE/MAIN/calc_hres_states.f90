@@ -33,6 +33,7 @@ integer :: ib, nblock           ! block index and number of blocks
 integer :: ista, iend           ! starting and ending index
 integer :: it                   ! index de tableau
 integer :: icl, icr             ! index de cellule a gauche et a droite
+real(krp) :: klim
 
 ! -- BODY --
 
@@ -105,7 +106,12 @@ case(postlim_none)
   ! NOTHING TO DO
 
 case(postlim_barth)
-  call postlimit_barth(defspat, grid%umesh, field%etatprim, field%cell_l, field%cell_r)
+  klim = 0.5_krp
+  call postlimit_barth(defspat, klim, grid%umesh, field%etatprim, field%cell_l, field%cell_r)
+
+case(postlim_superbarth)
+  klim = 1._krp
+  call postlimit_barth(defspat, klim, grid%umesh, field%etatprim, field%cell_l, field%cell_r)
 
 case(postlim_monotonic0, postlim_monotonic1, postlim_monotonic2)
   call postlimit_monotonic(defspat, grid%umesh, field%etatprim, field%cell_l, field%cell_r)

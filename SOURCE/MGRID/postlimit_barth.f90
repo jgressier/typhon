@@ -5,7 +5,7 @@
 !   Ensure monotonic variations of face values according to cell values
 !
 !------------------------------------------------------------------------------!
-subroutine postlimit_barth(defspat, umesh, fprim, cell_l, cell_r)
+subroutine postlimit_barth(defspat, klim, umesh, fprim, cell_l, cell_r)
 
 use TYPHMAKE
 use OUTPUT
@@ -13,14 +13,13 @@ use VARCOM
 use MENU_NUM
 use USTMESH
 use GENFIELD
-use EQNS
 use GEO3D
-use LIMITER
 
 implicit none
 
 ! -- INPUTS --
 type(mnu_spat)        :: defspat          ! parametres d'integration spatiale
+real(krp)             :: klim             ! limiter parameter (.5 ~ minmod / 1. ~ superbee) 
 integer               :: nf, ideb         ! face number and first index
 type(st_ustmesh)      :: umesh            ! unstructured mesh definition
 type(st_genericfield) :: fprim, fgrad     ! primitive variables & gradients fields
@@ -33,7 +32,6 @@ real(krp), allocatable  :: ratio(:)   ! cell  ratio
 real(krp)               :: lratio     ! local ratio
 real(krp)               :: LRsca(cell_buffer)
 type(v3d)               :: LRvec(cell_buffer)
-real(krp), parameter    :: klim = .5_krp
 integer    :: i, if, isca, ivec
 integer    :: icl(cell_buffer),  icr(cell_buffer)
 integer    :: buf, dimbuf, dimbuf1 ! buffer size (current, regular and first)
@@ -68,7 +66,7 @@ do isca = 1, fprim%nscal
     icr(1:buf)  = umesh%facecell%fils(ista:iend, 2)
 
     select case(defspat%postlimiter)
-    case(postlim_barth)
+    case(postlim_barth, postlim_superbarth)
 
       LRsca(1:buf) = fprim%tabscal(isca)%scal(icr(1:buf))-fprim%tabscal(isca)%scal(icl(1:buf))
 
@@ -147,7 +145,7 @@ do ivec = 1, fprim%nvect
     icr(1:buf)  = umesh%facecell%fils(ista:iend, 2)
 
     select case(defspat%postlimiter)
-    case(postlim_barth)
+    case(postlim_barth, postlim_superbarth)
 
       do i = 1, buf
         LRvec(i) = fprim%tabvect(ivec)%vect(icr(i))-fprim%tabvect(ivec)%vect(icl(i))
@@ -231,5 +229,6 @@ endsubroutine postlimit_barth
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! Jun  2008 : created, ensure monotone variation at face, cell based limiting
+! June 2008: created, ensure monotone variation at face, cell based limiting
+! June 2009: add klim parameter in dummy argument (.5 ~ minmod / 1. ~ superbee) 
 !------------------------------------------------------------------------------!

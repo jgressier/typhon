@@ -38,11 +38,11 @@ type(st_ustboco), pointer :: boco
 
 call print_info(10,"- Grid "//name(grid))
 
-write(str_w,'(a,i8,a,i8,a,i7,a)') "  connectivity :",grid%umesh%ncell," cells included",&
+write(str_w,'(a,i8,a,i8,a,i6,a)') "  connectivity :",grid%umesh%ncell," total cells,",&
                                   grid%umesh%ncell_int," internal cells &",&
-                                  grid%umesh%ncell_lim," ghost cells"
+                                  grid%umesh%ncell_lim," ghost (BC) cells"
 call print_info(10, str_w)
-write(str_w,'(a,i8,a,i8,a,i7,a)') "  connectivity :",grid%umesh%nface," faces included",&
+write(str_w,'(a,i8,a,i8,a,i6,a)') "  connectivity :",grid%umesh%nface," total faces,",&
                                   grid%umesh%nface_int," internal faces &",&
                                   grid%umesh%nface_lim," boundary faces"
 call print_info(10, str_w)

@@ -1,13 +1,10 @@
 !------------------------------------------------------------------------------!
-! Procedure : calc_ns_timestep            Auteur : J. Gressier
-!                                         Date   : July 2004
-! Fonction                                Modif  : (cf historique)
-!   Calcul du pas de temps local et global par zone selon solveur
+! Procedure : calc_ns_timestep   
 !
-! Defauts/Limitations/Divers :
+! Fonction
+!   Compute local time step for Euler/NS solver
 !
 !------------------------------------------------------------------------------!
-
 subroutine calc_ns_timestep(cfl, fluid, umesh, field, dtloc, ncell)
 
 use TYPHMAKE
@@ -20,21 +17,23 @@ use EQNS
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 real(krp)         :: cfl           ! CFL number
 type(st_espece)   :: fluid         ! donnees du fluide
 type(st_ustmesh)  :: umesh         ! donnees geometriques
 type(st_field)    :: field         ! donnees champs
 integer           :: ncell         ! nombre de cellules internes (taille de dtloc)
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 real(krp), dimension(1:ncell) :: dtloc    ! tableau de pas de temps local
 
-! -- Declaration des variables internes --
+! -- Private DATA --
 integer   :: if, ic
 real(krp) :: gg1, a2, rv2, irho
 
-! -- Debut de la procedure --
+! ------------------------------ BODY ------------------------------
+
+! Euler timestep is 
 
 ! -- Calcul de somme S_i --
 ! pour faire la somme des surfaces des faces, on boucle d'abord sur les faces
@@ -75,9 +74,10 @@ do ic = 1, ncell
   rv2  = sqrabs(field%etatcons%tabvect(1)%vect(ic))
   irho = 1._krp/field%etatcons%tabscal(1)%scal(ic)
   a2   = (field%etatcons%tabscal(2)%scal(ic)-.5_krp*rv2*irho)*gg1*irho
-  if (a2 <= 0._krp) then
-    write(str_w,*) "cell ",ic,":",umesh%mesh%centre(ic,1,1)
-    call erreur("integration failed", "negative internal energy:"//trim(str_w))
+  if (.not.(a2 > 0._krp)) then  ! should get NaN as well
+    write(str_w,'(a,e10.2,a,i8,a,3e10.2,a)') "negative or NaN internal energy (",a2,"m²/s²) <cell",ic,",",&
+                                           umesh%mesh%centre(ic,1,1),">"
+    call error_stop(trim(str_w))
   endif
   dtloc(ic) = dtloc(ic) / (sqrt(rv2)*irho+sqrt(a2))
 enddo
@@ -86,7 +86,6 @@ enddo
 ! dans la routine appelante
 
 endsubroutine calc_ns_timestep
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !

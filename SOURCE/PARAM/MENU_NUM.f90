@@ -83,6 +83,7 @@ integer(kpp), parameter :: postlim_monotonic0  = 10
 integer(kpp), parameter :: postlim_monotonic1  = 11
 integer(kpp), parameter :: postlim_monotonic2  = 12
 integer(kpp), parameter :: postlim_barth       = 20
+integer(kpp), parameter :: postlim_superbarth  = 21
 
 ! -- Constants for SVM order
 integer(kpp), parameter :: svm_2       = 2
