@@ -93,16 +93,23 @@ case(init_def)  ! --- initialization through FCT functions ---
         endif
       endif
 
-      if (initns%is_velocity) then
-        call fct_eval_real(blank_env, initns%velocity, vel(i))
+      if (initns%is_vcomponent) then
+        call fct_eval_real(blank_env, initns%vx, velocity(i)%x)
+        call fct_eval_real(blank_env, initns%vy, velocity(i)%y)
+        call fct_eval_real(blank_env, initns%vz, velocity(i)%z)
+        vel(i) = abs(velocity(i))
       else
-        call fct_eval_real(blank_env, initns%mach, mach(i))
+        if (initns%is_velocity) then
+          call fct_eval_real(blank_env, initns%velocity, vel(i))
+        else
+          call fct_eval_real(blank_env, initns%mach, mach(i))
+        endif
+
+        call fct_eval_real(blank_env, initns%dir_x, velocity(i)%x)
+        call fct_eval_real(blank_env, initns%dir_y, velocity(i)%y)
+        call fct_eval_real(blank_env, initns%dir_z, velocity(i)%z)
       endif
-
-      call fct_eval_real(blank_env, initns%dir_x, velocity(i)%x)
-      call fct_eval_real(blank_env, initns%dir_y, velocity(i)%y)
-      call fct_eval_real(blank_env, initns%dir_z, velocity(i)%z)
-
+      
     enddo
 
     ! -- compute density & static pressure (if needed, via total/static temperature/pressure) --
@@ -119,7 +126,7 @@ case(init_def)  ! --- initialization through FCT functions ---
       if (initns%is_density) then   ! must only compute pstat (without tstat/ttot)
 
         if (initns%is_velocity) then   ! Mach number is not defined
-          call erreur("Initialization", "enable to use DENSITY, TOTAL PRESSURE and VELOCITY combination")
+          call erreur("Initialization", "unable to use DENSITY, TOTAL PRESSURE and VELOCITY combination")
         else
           pstat(1:buf)   = ptot(1:buf) / (1._krp + .5_krp*(gamma-1._krp)*mach(1:buf)**2)**(gamma/(gamma-1._krp))
         endif
@@ -154,8 +161,12 @@ case(init_def)  ! --- initialization through FCT functions ---
     ! -- pressure --
     field%etatprim%tabscal(2)%scal(ifirst:iend) = pstat(1:buf)
 
-    ! -- velocity vector --
-    field%etatprim%tabvect(1)%vect(ifirst:iend) = (vel(1:buf)/abs(velocity(1:buf)))*velocity(1:buf)
+    ! -- velocity components if not already defined --
+    if (initns%is_vcomponent) then
+      field%etatprim%tabvect(1)%vect(ifirst:iend) = velocity(1:buf)
+    else
+      field%etatprim%tabvect(1)%vect(ifirst:iend) = (vel(1:buf)/abs(velocity(1:buf)))*velocity(1:buf)
+    endif
 
     ifirst = ifirst + buf
     buf    = maxbuf

@@ -70,33 +70,45 @@ else
   call string_to_funct(str, initns%tstat, info)
 endif
 
-if (rpm_existkey(pblock, "MACH")) then
-  initns%is_velocity = .false.
-  call rpmgetkeyvalstr(pblock, "MACH", str)
-  print*," parsing     MACH = "//trim(str)
-  call string_to_funct(str, initns%mach, info)
+if (rpm_existkey(pblock, "VX")) then
+  initns%is_vcomponent = .true.
+  initns%is_velocity   = .true.  ! same kind of definition
+  call rpmgetkeyvalstr(pblock, "VX", str)
+  call convert_to_funct(str, initns%vx, info)  
+  call rpmgetkeyvalstr(pblock, "VY", str)
+  call convert_to_funct(str, initns%vy, info)  
+  call rpmgetkeyvalstr(pblock, "VZ", str)
+  call convert_to_funct(str, initns%vz, info)
 else
-  initns%is_velocity = .true.
-  call rpmgetkeyvalstr(pblock, "VELOCITY", str)
-  print*," parsing VELOCITY = "//trim(str)
-  call string_to_funct(str, initns%velocity, info)
-endif
+  initns%is_vcomponent = .false.
+  if (rpm_existkey(pblock, "MACH")) then
+    initns%is_velocity = .false.
+    call rpmgetkeyvalstr(pblock, "MACH", str)
+    print*," parsing     MACH = "//trim(str)
+    call string_to_funct(str, initns%mach, info)
+  else
+    initns%is_velocity = .true.
+    call rpmgetkeyvalstr(pblock, "VELOCITY", str)
+    print*," parsing VELOCITY = "//trim(str)
+    call string_to_funct(str, initns%velocity, info)
+  endif
 
-if (rpm_existkey(pblock, "DIRECTION")) then
-  call rpmgetkeyvalstr (pblock, "DIRECTION", str)
-  direction = v3d_of(str, info)
-  if (info /= 0) &
-       call erreur("menu definition","problem when parsing DIRECTION vector (NS initialization)") 
-  call convert_to_funct(direction%x, initns%dir_x, info)
-  call convert_to_funct(direction%y, initns%dir_y, info)
-  call convert_to_funct(direction%z, initns%dir_z, info)
-else
-  call rpmgetkeyvalstr(pblock, "DIR_X", str)
-  call convert_to_funct(str, initns%dir_x, info)  
-  call rpmgetkeyvalstr(pblock, "DIR_Y", str)
-  call convert_to_funct(str, initns%dir_y, info)  
-  call rpmgetkeyvalstr(pblock, "DIR_Z", str)
-  call convert_to_funct(str, initns%dir_z, info)  
+  if (rpm_existkey(pblock, "DIRECTION")) then
+    call rpmgetkeyvalstr (pblock, "DIRECTION", str)
+    direction = v3d_of(str, info)
+    if (info /= 0) &
+         call erreur("menu definition","problem when parsing DIRECTION vector (NS initialization)") 
+    call convert_to_funct(direction%x, initns%dir_x, info)
+    call convert_to_funct(direction%y, initns%dir_y, info)
+    call convert_to_funct(direction%z, initns%dir_z, info)
+  else
+    call rpmgetkeyvalstr(pblock, "DIR_X", str)
+    call convert_to_funct(str, initns%dir_x, info)  
+    call rpmgetkeyvalstr(pblock, "DIR_Y", str)
+    call convert_to_funct(str, initns%dir_y, info)  
+    call rpmgetkeyvalstr(pblock, "DIR_Z", str)
+    call convert_to_funct(str, initns%dir_z, info)  
+  endif
 endif
 
 endsubroutine def_init_ns
