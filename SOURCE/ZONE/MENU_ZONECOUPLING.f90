@@ -4,8 +4,6 @@
 ! Fonction                                Modif  :
 !   Definition des methodes de couplage entre zones
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
 
 module MENU_ZONECOUPLING
@@ -20,9 +18,9 @@ use ZONE_COUPLING
 ! Definition de la structure MNU_ZONECOUPLING : structures d'echanges entres zones
 !------------------------------------------------------------------------------!
 type mnu_zonecoupling
-  character(len=strlen)      :: family     ! nom de famille de la CL
-  character(len=strlen)      :: connzone   ! nom de la zone connectee par ce raccord
-  character(len=strlen)      :: connfam    ! nom de famille de la CL connectee
+  character(len=shortname)   :: family     ! nom de famille de la CL
+  character(len=shortname)   :: connzone   ! nom de la zone connectee par ce raccord
+  character(len=shortname)   :: connfam    ! nom de famille de la CL connectee
                                            ! par ce raccord
   type(st_zonecoupling)      :: zcoupling  ! parametres de couplage
   real(krp)                  :: partcor    ! part de correction a faire par 

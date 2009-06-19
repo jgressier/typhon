@@ -40,7 +40,7 @@ integer(kpp), parameter :: per_rot   = 3
 ! structure MNU_PERIODICITY : Periodicity parameters
 !------------------------------------------------------------------------------!
 type mnu_periodicity
-  character(len=strlen) :: name
+  character(len=shortname) :: name
   integer(kpp)          :: type
   type(v3d)             :: origin, axis, distance
   real(krp)             :: angle
@@ -52,7 +52,7 @@ endtype mnu_periodicity
 !------------------------------------------------------------------------------!
 type mnu_mesh
   character             :: format      ! cf VARCOM
-  character(len=strlen) :: filename    ! nom de fichier
+  character(len=longname) :: filename    ! nom de fichier
   real(krp)             :: scale       ! scale factor
   integer(kpp)          :: splitmesh   ! split method
   integer(kip)          :: nperiodicity ! number of periodicity

@@ -45,9 +45,9 @@ if (nkey /= 1) call erreur("lecture de menu", &
 defsolver%nequat = 1
 defsolver%nsca   = 1
 defsolver%nvec   = 0
-allocate(defsolver%namesca(defsolver%nsca))
-allocate(defsolver%namevec(defsolver%nvec))
-defsolver%namesca(1) = 'Temperature'
+allocate(defsolver%idsca(defsolver%nsca))
+allocate(defsolver%idvec(defsolver%nvec))
+defsolver%idsca(1) = qs_temperature ! 'Temperature'
 
 ! -- lecture du type de materiau
 

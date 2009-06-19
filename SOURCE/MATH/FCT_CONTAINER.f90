@@ -102,7 +102,6 @@ type(st_fct_container), intent(in)  :: source
 type(st_fct_container), intent(out) :: dest
 
   dest%type = source%type
-  dest%name = source%name
 
   select case(source%type)
   case(cont_real)
@@ -114,7 +113,7 @@ type(st_fct_container), intent(out) :: dest
   case(cont_v3d)
     dest%v3d = source%v3d
   case(cont_var)
-    ! name already copied
+    dest%name = source%name
   case default
     call set_fct_error(1_ipar, "unknown type of node container (in copy_fct_container)")
   endselect

@@ -71,7 +71,7 @@ type mnu_output
   integer(kpp)          :: dataset       ! data set to save
   integer(kpp)          :: location      ! data location
   character             :: format        ! output format
-  character(len=strlen) :: filename      ! file name or base name
+  character(len=longname) :: filename      ! file name or base name
   integer               :: iunit         ! IO unit
   integer(kpp)          :: write         ! writing instant (end, cycle...)
   integer               :: period        ! writing period (if "cycle")

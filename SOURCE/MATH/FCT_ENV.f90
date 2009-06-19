@@ -48,9 +48,9 @@ implicit none
 type(st_fct_env)  :: env
 
   ! -- initialize ENV to no constant/function --
+  if (associated(env%var_stack)) call delete_fct_env(env)
   env%uptodate = .false.
   env%nvar     = 0
-  if (associated(env%var_stack)) call delete_fct_env(env)
   nullify(env%var_stack)  
 
 endsubroutine new_fct_env
@@ -88,7 +88,9 @@ type(st_fct_node), pointer :: p
 
   p => env%var_stack
   do while (associated(p))
-    if (samestring(name, p%container%name)) exit
+    !if (samestring(name, p%container%name)) exit
+    if (lowercase(name) == p%container%name) exit
+    !print*,'seek: '//name//' is not '//p%container%name
     p => p%right
   enddo
 

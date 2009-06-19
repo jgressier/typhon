@@ -280,6 +280,8 @@ rm $MAKECONF 2> /dev/null
   echo "FO_prof     = $F90_PROF"
   echo "FO_         = \$(FO_opt)"
   echo "FO          = \$(FO_\$(OPT))"
+  echo "FF          = $(FB) $(FO)"
+  echo "LINKFB      = $(FB) $(FO)"
   echo "LINKER      = \$(CF)"
   echo "LINKSO      = \$(CF) -shared"
   echo "METISLIB    = $LIB_metis"

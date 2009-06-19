@@ -61,11 +61,11 @@ if (samestring(str, "RANS"))     defsolver%defns%typ_fluid = eqRANS
 defsolver%nequat = 5
 defsolver%nsca   = 2
 defsolver%nvec   = 1
-allocate(defsolver%namesca(defsolver%nsca))
-allocate(defsolver%namevec(defsolver%nvec))
-defsolver%namesca(1) = 'Density'
-defsolver%namesca(2) = 'Pressure'
-defsolver%namevec(1) = 'Velocity'
+allocate(defsolver%idsca(defsolver%nsca))
+allocate(defsolver%idvec(defsolver%nvec))
+defsolver%idsca(1) = qs_density   ! 'Density'
+defsolver%idsca(2) = qs_pressure  ! 'Pressure'
+defsolver%idvec(1) = qv_velocity  ! 'Velocity'
 
 select case(defsolver%defns%typ_fluid)
 case(eqEULER)
@@ -81,7 +81,7 @@ case(eqNSLAM)
   call rpmgetkeyvalstr(pcour, "VISCOSITY", str, "SUTHERLAND")
 
   if (samestring(str, "SUTHERLAND"))         defsolver%defns%properties(1)%typ_visc = visc_suth
-  if (samestring(str, "CONSTANT"))           defsolver%defns%properties(1)%typ_visc = visc_dyncst ! historical
+  if (samestring(str, "CONSTANT"))           defsolver%defns%properties(1)%typ_visc = visc_dyncst ! legacy
   if (samestring(str, "DYNAMIC-CONSTANT"))   defsolver%defns%properties(1)%typ_visc = visc_dyncst
   if (samestring(str, "KINEMATIC-CONSTANT")) defsolver%defns%properties(1)%typ_visc = visc_kincst
   if (samestring(str, "LINEAR"))             defsolver%defns%properties(1)%typ_visc = visc_lin

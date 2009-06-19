@@ -5,8 +5,6 @@
 !   Definition des structures de donnees des zones (contient
 !   maillage, type de solveur et info)
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
 
 module DEFZONE
@@ -35,7 +33,7 @@ implicit none
 !------------------------------------------------------------------------------!
 type st_zone
   integer               :: id         ! index of zone
-  character(len=strlen) :: name       ! zone name
+  character(len=shortname) :: name       ! zone name
   integer               :: nprobe     ! probe number
   integer               :: ncoupling  ! nombre d'echanges avec d'autres zones
   type(st_infozone)     :: info       ! information sur l'integration

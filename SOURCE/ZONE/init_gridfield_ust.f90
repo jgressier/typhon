@@ -37,11 +37,9 @@ call print_info(8, ". initializing and allocating fields")
 
 select case(defsolver%typ_solver)
 case(solNS)
-  field=>newfield(grid, 2, 1, umesh%ncell, umesh%nface)
+  field=>newfield(grid, defsolver%nsca, defsolver%nvec, umesh%ncell, umesh%nface)
 case(solKDIF)
-  field=>newfield(grid, 1, 0, umesh%ncell, umesh%nface) 
-case(solVORTEX)
-  field=>newfield(grid, 1, 0, umesh%ncell, umesh%nface)
+  field=>newfield(grid, defsolver%nsca, defsolver%nvec, umesh%ncell, umesh%nface) 
 case default
   call erreur("Internal error (init_gridfield_ust)","unknown solver type")
 endselect 

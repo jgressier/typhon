@@ -4,8 +4,6 @@
 ! Fonction                                Modif  :
 !   Ecriture fichier des champs de chaque zone
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
 subroutine output_result(world, position)
 
@@ -26,8 +24,8 @@ integer        :: position
 ! -- Ouputs --
 
 ! -- Internal variables --
-integer               :: i, iz
-character(len=strlen) :: nom       ! file name
+integer                 :: i, iz
+character(len=longname) :: nom       ! file name
 
 ! -- BODY --
 

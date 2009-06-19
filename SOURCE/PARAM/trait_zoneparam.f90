@@ -117,7 +117,7 @@ call def_init(block, solver, zone%defsolver)
 ! -------------------------
 ! Definition des capteurs
 
-call def_capteurs(block, solver, zone%defsolver)
+call def_probe(block, solver, zone%defsolver)
 
 ! -------------------------
 ! Definition des autres parametres

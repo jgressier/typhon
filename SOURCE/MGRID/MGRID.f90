@@ -386,7 +386,7 @@ endsubroutine delete_chainedgrid
 function name_grid(grid) result(str)
 implicit none
 type(st_grid)         :: grid
-character(len=strlen) :: str
+character(len=shortname) :: str
 
   str = "" ! grid%umesh%name
 

@@ -44,7 +44,7 @@ type mnu_init
   type(st_init_vort)  :: vortex   ! condition aux limites propre au solveur VORTEX
   integer(kpp)        :: unif     ! uniformite de la condition initiale
   integer(kpp)        :: type     ! kind of definition of initial condition
-  character (len=strlen) &
+  character (len=longname) &
                       :: file     ! file name for definition with a file
 endtype mnu_init
 

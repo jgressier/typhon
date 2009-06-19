@@ -1,13 +1,10 @@
 !------------------------------------------------------------------------------!
-! Procedure : def_param                   Auteur : J. Gressier
-!                                         Date   : Juillet 2002
-! Fonction                                Modif  : Novembre 2002
+! Procedure : def_param
+!
+! Fonction
 !   Lecture des menus et traitement pour definition des parametres
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
-
 subroutine def_param(lworld)
 
 use RPM        ! librairie de blocs RPM pour la lecture des parametres
@@ -17,23 +14,23 @@ use MODWORLD   ! definition des donnees globales
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 type(st_world) :: lworld
 
-! -- Declaration des variables internes --
+! -- Private Data --
 type(rpmblock), pointer :: firstblock
 integer                 :: info         ! etat de l'ouverture de fichier
-character(len=strlen)   :: fic
+character(len=longname) :: fic
 
-! -- Debut de la procedure --
+! -- BODY --
 
 !---------------------------------------------------------
 ! Lecture des parametres
 !---------------------------------------------------------
 
-call print_etape("> LECTURE : fichier menu principal")
+call print_etape("> PARAMETERS reading : main file (main.rpm)")
 
 fic = "main.rpm"
 
@@ -53,7 +50,7 @@ close(uf_menu)
 ! Traitement des parametres lus et configuration WORLD
 !---------------------------------------------------------
 
-call print_etape("> PARAMETRES : traitement et initialisation")
+call print_etape("> PARAMETERs : parsing and initialization")
 
 call trait_param(firstblock, lworld)
 
@@ -63,3 +60,8 @@ call dealloc_rpmblock(firstblock)        ! Desallocation de la liste RPM
 
 
 endsubroutine def_param
+!------------------------------------------------------------------------------!
+! change history
+!
+! July 2003: created
+!------------------------------------------------------------------------------!

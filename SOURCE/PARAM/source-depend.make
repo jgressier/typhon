@@ -9,7 +9,6 @@ PARAM_LIB = $(PRJLIB)/libt_param.a
 
 PARAM_MOD = MENU_AMR.$(MOD)      \
             MENU_BOCO.$(MOD)     \
-            MENU_CAPTEURS.$(MOD) \
             MENU_COUPLING.$(MOD) \
             MENU_GEN.$(MOD)      \
             MENU_INIT.$(MOD)     \
@@ -18,13 +17,13 @@ PARAM_MOD = MENU_AMR.$(MOD)      \
             MENU_MESH.$(MOD)     \
             MENU_MPI.$(MOD)      \
             MENU_NUM.$(MOD)      \
+            MENU_PROBE.$(MOD)    \
             MENU_SOLVER.$(MOD)   \
 
 
 PARAM_OBJ := $(PARAM_MOD:.$(MOD)=.o)  \
             def_amr.o          \
             def_boco.o         \
-            def_capteurs.o     \
             def_check.o        \
             def_connect.o      \
             def_init.o         \
@@ -34,6 +33,7 @@ PARAM_OBJ := $(PARAM_MOD:.$(MOD)=.o)  \
             def_other.o        \
             def_output.o       \
             def_param.o        \
+            def_probe.o        \
             def_project.o      \
             def_spat.o         \
             def_time.o         \

@@ -16,6 +16,7 @@ ZONE_MOD = BOUND.$(MOD)                  \
 ZONE_OBJ := $(ZONE_MOD:.$(MOD)=.o)       \
             calc_varcons.o               \
             calc_varprim.o               \
+            calc_zonetimestep.o          \
             donnees_echange.o            \
             init_connect_grid.o          \
             init_gridfield_ust.o         \
@@ -24,6 +25,7 @@ ZONE_OBJ := $(ZONE_MOD:.$(MOD)=.o)       \
             init_ustboco_kutta.o         \
             init_ustboco_singpanel.o     \
             prb_boco_field.o             \
+            prb_zone_vol.o               \
             split_zone.o                 \
             update_champ.o
 

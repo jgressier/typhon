@@ -145,12 +145,6 @@ do while (.not.lzone%info%end_cycle)
   case(solKDIF, solNS)
     call integzone_tstep_usttree(dt, lzone)
 
-  case(solVORTEX)
-    call integzone_tstep_lagrange(dt, lzone) 
-    lzone%info%residumax  = 2._krp      ! astuce pour n'imposer qu'une iteration
-    lzone%info%cur_res    = 1.e-8_krp   ! dans le cycle
-    lzone%info%residu_ref = 1.e+8_krp   ! astuce pour n'avoir qu'un cycle
-
   case default
     call erreur("internal error (integration_cyclezone)","unknown solver")
   endselect
@@ -160,7 +154,7 @@ do while (.not.lzone%info%end_cycle)
 
   call check_end_cycle(lzone%info, dt)
 
-  call write_monitors(lzone)
+  call write_monitors_iteration(lzone)
 
 enddo
 

@@ -24,7 +24,7 @@ type(st_init_kdif)    :: kdif
 integer               :: unif ! uniformite de la condition initiale
 type(st_ustmesh)      :: umesh
 integer(kip)     :: init_type
-character(len=strlen) :: initfile
+character(len=longname) :: initfile
 
 ! -- OUTPUTS --
 type(st_field) :: champ

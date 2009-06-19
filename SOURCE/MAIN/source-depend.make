@@ -19,7 +19,6 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            calc_hres_states.o       \
            calc_rhs.o               \
            calcdifflux.o            \
-           calc_zonetimestep.o      \
            calcul_raccord.o         \
            check_end_cycle.o        \
            choixcorrection.o        \
@@ -60,7 +59,8 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            tstep_implicit.o         \
            update_couplingboco.o    \
            write_bocohisto.o        \
-           write_monitors.o         \
+           write_monitors_cycle.o   \
+           write_monitors_iteration.o \
 
 D_MAIN_OBJ = $(MAIN_OBJ:%=$(PRJOBJ)/%)
 

@@ -22,11 +22,6 @@ all: seq mpi
 include defvar.make
 include defprj.make
 
-
-# Option compilation (cf defvar.make)
-
-FF   = $(FB) $(FO)
-
 # Précision
 
 #PREC = SP    # Choix de la double précision (SP ou DP)

@@ -33,6 +33,7 @@ MGRID_OBJ = $(MGRID_MOD:.$(MOD)=.o)      \
             integ_ustboco.o            \
             postlimit_monotonic.o      \
             postlimit_barth.o          \
+            prb_grid_vol.o             \
             precalc_grad_lsq.o         \
             #minmax_limiter.o
 

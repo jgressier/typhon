@@ -11,10 +11,12 @@ integer, parameter :: iposzmaj = iachar('Z')
 
 !interface uppercase
 !  module procedure charuppercase, struppercase
+
 !endinterface
 
 interface strof
-  module procedure strof_int, strof_int2
+  module procedure strof_int, strof_int2, strof_real, strof_double
+
 endinterface
 
 contains 
@@ -224,6 +226,32 @@ function strof_full_int(nb, l) result(strout)
 endfunction strof_full_int
 
 !------------------------------------------------------------------------------!
+! Fonction : tranformation real -> chaine de caracteres (ajuste a gauche)
+!------------------------------------------------------------------------------!
+function strof_real(nb) result(strout)
+  implicit none
+  real(4), intent(in)  :: nb      ! nombre a transformer, et longueur
+  character(len=20)    :: strout  ! longueur de la chaine
+
+  write(strout,'(e15.8)') nb
+  strout = adjustl(strout)
+
+endfunction strof_real
+
+!------------------------------------------------------------------------------!
+! Fonction : tranformation real -> chaine de caracteres (ajuste a gauche)
+!------------------------------------------------------------------------------!
+function strof_double(nb) result(strout)
+  implicit none
+  real(8), intent(in)  :: nb      ! nombre a transformer, et longueur
+  character(len=25)    :: strout  ! longueur de la chaine
+
+  write(strout,'(e24.15)') nb
+  strout = adjustl(strout)
+
+endfunction strof_double
+
+!------------------------------------------------------------------------------!
 ! Fonction : Test logique d'egalite des chaines de caracteres
 !------------------------------------------------------------------------------!
 function samestring(str1, str2)
@@ -234,8 +262,9 @@ function samestring(str1, str2)
   !print*,"samestring: ",index(trim(str1),trim(str2))," ",&
   !index(trim(str2),trim(str1))
   !print*,"samestring:",trim(str1),"#",trim(str2)
-  samestring =      (index(trim(str1),trim(str2)) == 1) &
-               .and.(index(trim(str2),trim(str1)) == 1)
+  !samestring =      (index(trim(str1),trim(str2)) == 1) &
+  !             .and.(index(trim(str2),trim(str1)) == 1)
+  samestring = (str1==str2)
 endfunction samestring
 
 !------------------------------------------------------------------------------!

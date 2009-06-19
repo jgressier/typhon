@@ -5,8 +5,7 @@
 !   Write the field of each zone in a CGNS file
 !
 !------------------------------------------------------------------------------!
- 
-subroutine output_cgns(nom, defio, zone)
+ subroutine output_cgns(nom, defio, zone)
 
 use TYPHMAKE
 use OUTPUT
@@ -20,7 +19,7 @@ implicit none
 include 'cgnslib_f.h'
 
 ! -- INPUTS --
-character(len=strlen) :: nom       ! filename
+character(len=longname) :: nom       ! filename
 type(mnu_output)      :: defio     ! output parameter
 type(st_zone)         :: zone      ! zone
 

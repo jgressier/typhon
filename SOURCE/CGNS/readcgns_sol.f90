@@ -28,8 +28,9 @@ type(st_ustmesh)      :: umesh
 type(st_genericfield) :: field
 
 ! -- Internal variables --
-integer                 :: itype, isol, info, dim, i, isca, ivec
-real(krp), allocatable  :: v(:)      ! temporary array for sol reading
+integer                  :: itype, isol, info, dim, i, isca, ivec
+real(krp), allocatable   :: v(:)      ! temporary array for sol reading
+character(len=shortname) :: qname
 
 ! -- BODY --
 
@@ -52,9 +53,10 @@ dim = umesh%ncell_int
 
 do isca = 1, field%nscal
 
-   call cg_field_read_f(cgnsunit, ibase, izone, isol, trim(defsolver%namesca(isca)), itype, &
+  qname = quantity_cgnsname(defsolver%idsca(isca))
+   call cg_field_read_f(cgnsunit, ibase, izone, isol, trim(qname), itype, &
                         1, dim, field%tabscal(isca)%scal(1:dim), info)
-   if (info /=0) call erreur("CGNS IO", "reading "//trim(defsolver%namesca(isca))//" solution...")
+   if (info /=0) call erreur("CGNS IO", "reading "//trim(qname)//" solution...")
 
 enddo
 
@@ -64,23 +66,24 @@ if (field%nvect > 0) then
 
   do ivec = 1, field%nvect
 
-     call cg_field_read_f(cgnsunit, ibase, izone, isol, trim(defsolver%namevec(ivec))//'X', itype, &
+    qname = quantity_cgnsname(defsolver%idvec(ivec))
+     call cg_field_read_f(cgnsunit, ibase, izone, isol, trim(qname)//'X', itype, &
                           1, dim, v, info)
-     if (info /=0) call erreur("CGNS IO", "reading "//trim(defsolver%namesca(isca))//'X'//" solution...")
+     if (info /=0) call erreur("CGNS IO", "reading "//trim(qname)//'X'//" solution...")
      do i = 1, dim
         field%tabvect(ivec)%vect(i)%x = v(i)
      enddo
 
-     call cg_field_read_f(cgnsunit, ibase, izone, isol, trim(defsolver%namevec(ivec))//'Y', itype, &
+     call cg_field_read_f(cgnsunit, ibase, izone, isol, trim(qname)//'Y', itype, &
                           1, dim, v, info)
-     if (info /=0) call erreur("CGNS IO", "reading "//trim(defsolver%namesca(isca))//'Y'//" solution...")
+     if (info /=0) call erreur("CGNS IO", "reading "//trim(qname)//'Y'//" solution...")
      do i = 1, dim
         field%tabvect(ivec)%vect(i)%y = v(i)
      enddo
 
-     call cg_field_read_f(cgnsunit, ibase, izone, isol, trim(defsolver%namevec(ivec))//'Z', itype, &
+     call cg_field_read_f(cgnsunit, ibase, izone, isol, trim(qname)//'Z', itype, &
                           1, dim, v, info)
-     if (info /=0) call erreur("CGNS IO", "reading "//trim(defsolver%namesca(isca))//'Z'//" solution...")
+     if (info /=0) call erreur("CGNS IO", "reading "//trim(qname)//'Z'//" solution...")
      do i = 1, dim
         field%tabvect(ivec)%vect(i)%z = v(i)
      enddo

@@ -48,12 +48,12 @@ type st_boco_ns
   logical   :: alloctemp      ! allocation of table "temp"
   logical   :: allocflux      ! allocation of table "flux_nunif"
   logical   :: allochconv     ! allocation of tables "h_nunif" and "tconv_nunif"
-  character (len=strlen) &
+  character (len=longname) &
             :: tempfile       ! file name for definition of not uniform temperature  
   real(krp) :: flux
   real(krp), dimension(:), pointer  &
             :: flux_nunif     ! not uniform wall heat flux
-  character (len=strlen) &
+  character (len=longname) &
             :: fluxfile       ! file name for definition of not uniform flux
   real(krp), dimension(:), pointer &
             :: h_nunif        ! not uniform convection coefficient (for coupling)

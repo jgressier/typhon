@@ -31,7 +31,7 @@ type(st_field)        :: field
 integer               :: i, dim, ufc, ir, istart, iend, isol, ifield, isca, ivec
 integer               :: info, cgnstype, ielem, nvtex, nelem, icoord
 real(8), allocatable  :: v(:)      ! temporary array for sol writing (type CGNS RealDouble)
-character(len=32)     :: solname
+character(len=shortname) :: qname, solname
 
 ! -- BODY --
 
@@ -42,7 +42,7 @@ character(len=32)     :: solname
 
 solname = 'MyFlowSolution'
 call cg_sol_write_f(cgnsunit, ibase, izone, solname, CellCenter, isol, info)
-if (info /=0) call erreur("Fatal CGNS IO", "writing solution structure...")
+if (info /=0) call error_stop("Fatal CGNS IO writing solution structure...")
 
 
 !-------------------------------------------------------------------------
@@ -69,8 +69,9 @@ do isca = 1, field%etatprim%nscal
     istart = istart +  umesh%cellvtex%elem(ielem)%nelem
   enddo
 
-call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, trim(defsolver%namesca(isca)), v(1:nelem), ifield, info)
-if (info /=0) call erreur("Fatal CGNS IO", "writing "//trim(defsolver%namesca(isca))//" solution...")
+  qname = quantity_cgnsname(defsolver%idsca(isca))
+  call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, trim(qname), v(1:nelem), ifield, info)
+  if (info /=0) call error_stop("Fatal CGNS IO writing "//trim(qname)//" solution...")
 
 enddo
 
@@ -82,12 +83,13 @@ do ivec = 1, field%etatprim%nvect
   do ielem = 1, umesh%cellvtex%ntype
     do i = 1, umesh%cellvtex%elem(ielem)%nelem
       v(istart+i) = field%etatprim%tabvect(ivec)%vect(umesh%cellvtex%elem(ielem)%ielem(i))%x
-   enddo
-   istart = istart +  umesh%cellvtex%elem(ielem)%nelem
- enddo
-
- call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, trim(defsolver%namevec(ivec))//'X', v, ifield, info)
- if (info /=0) call erreur("Fatal CGNS IO", "writing "//trim(defsolver%namevec(ivec))//'X'//" solution...")
+    enddo
+    istart = istart +  umesh%cellvtex%elem(ielem)%nelem
+  enddo
+ 
+  qname = quantity_cgnsname(defsolver%idvec(ivec))
+  call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, trim(qname)//'X', v, ifield, info)
+  if (info /=0) call error_stop("Fatal CGNS IO writing "//trim(qname)//'X'//" solution...")
 
   istart = 0
   do ielem = 1, umesh%cellvtex%ntype
@@ -97,8 +99,8 @@ do ivec = 1, field%etatprim%nvect
    istart = istart +  umesh%cellvtex%elem(ielem)%nelem
  enddo
 
- call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, trim(defsolver%namevec(ivec))//'Y', v, ifield, info)
- if (info /=0) call erreur("Fatal CGNS IO", "writing "//trim(defsolver%namevec(ivec))//'Y'//" solution...")
+ call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, trim(qname)//'Y', v, ifield, info)
+ if (info /=0) call error_stop("Fatal CGNS IO writing "//trim(qname)//'Y'//" solution...")
 
   istart = 0
   do ielem = 1, umesh%cellvtex%ntype
@@ -108,8 +110,8 @@ do ivec = 1, field%etatprim%nvect
    istart = istart +  umesh%cellvtex%elem(ielem)%nelem
  enddo
 
- call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, trim(defsolver%namevec(ivec))//'Z', v, ifield, info)
- if (info /=0) call erreur("Fatal CGNS IO", "writing "//trim(defsolver%namevec(ivec))//'Z'//" solution...")
+ call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, trim(qname)//'Z', v, ifield, info)
+ if (info /=0) call error_stop("Fatal CGNS IO writing "//trim(qname)//'Z'//" solution...")
 
 enddo
 

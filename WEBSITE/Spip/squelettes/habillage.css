@@ -41,7 +41,7 @@ q {}
 blockquote {}
 blockquote.spip {} /* Cf.: spip_style.css */
 blockquote.spip_poesie {} /* Cf.: spip_style.css */
-.spip_code {} /* Cf.: spip_style.css */
+.spip_code { font-family: monospace; font-size: 1.2em; } /* Cf.: spip_style.css */
 .spip_cadre {} /* Cf.: spip_style.css */
 address {}
 
@@ -179,8 +179,8 @@ ul ul ul ul ul .forum-chapo { background: #FFF; }
 /*.rubriques .on { display: block; background:#FFF4B7; border-bottom:1px solid #000080; border-top:1px solid #000080; }*/
 
 #navigation .menu { background:none; text-align: center; }
-#navigation .menu ul li { display:block; background:none; font-size: 1.1em; margin-top: .5em;  }
-#navigation .menu ul li .on { display: block; background:#FFF4B7; border-bottom:1px solid #000080; border-top:1px solid #000080; }
+/* #navigation .menu ul li { display:block; background:none; font-size: 1.1em; margin-top: .5em;  } */
+/* #navigation .menu ul li .on { display: block; background:#FFF4B7; padding-bottom:4px; padding-top:4px; border-bottom:1px solid #000080; border-top:1px solid #000080; } */
 #navigation .menu ul li ul {  font-size: 1em; margin-top: .2em; background:#9CCFEF; }
 #navigation .menu ul li ul li { font-size: .9em;  margin-top: 0em;}
 #navigation .menu ul li ul li .on { display: block; background:#D7E6EF; border-bottom:none; border-top:none; }
@@ -190,10 +190,16 @@ ul ul ul ul ul .forum-chapo { background: #FFF; }
 .pagination .on { font-weight: bold; color: #666; }
 
 /* Rubriques */
+#navigation .rubriques { background:none; text-align: center; }
+#navigation .rubriques ul li { display:block; background:none; font-size: 1.1em; margin-top: .5em;  }
+#navigation .rubriques ul li .on { display: block; background:#FFF4B7; padding-bottom:4px; padding-top:4px; border-bottom:1px solid #000080; border-top:1px solid #000080; }
+#navigation .rubriques ul li ul {  font-size: 1em; margin-top: .2em; background:#9CCFEF; }
+#navigation .rubriques ul li ul li { font-size: .9em;  margin-top: 0em;}
+#navigation .rubriques ul li ul li .on { display: block; background:#D7E6EF; border-bottom:none; border-top:none; }
 .rubriques ul { border: 0; }
 .rubriques ul li { background: #EEE; border: 0; }
 
-.formulaire_recherche { margin-bottom: 2em; } /*Cf.: spip_formulaires.css*/
+.formulaire_recherche { position:fixed; right:20px; top:50px;  font-size:0.8em; } 
 
 /* Listes d'articles et extraits introductifs */
 .articles ul li { clear: both; padding: 0.40em 0.20em; }

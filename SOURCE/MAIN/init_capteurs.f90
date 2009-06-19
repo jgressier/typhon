@@ -55,10 +55,10 @@ do i = 1, zone%defsolver%nprobe
   select case(zone%info%time_model)
 
   case(time_steady)
-    call erreur("developpement", "mode non traite pour l'initialisation des capteurs")
+    !call erreur("developpement", "mode non traite pour l'initialisation des capteurs")
 
   case(time_unsteady)
-    call erreur("developpement", "mode non traite pour l'initialisation des capteurs")
+    !call erreur("developpement", "mode non traite pour l'initialisation des capteurs")
 
   case default
     call erreur("internal error (init_capteurs)", "unknown time model")

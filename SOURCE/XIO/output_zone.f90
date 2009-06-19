@@ -5,7 +5,6 @@
 !   Write the field of each zone
 !
 !------------------------------------------------------------------------------!
-
 subroutine output_zone(nom, defio, zone)
 
 use TYPHMAKE
@@ -17,7 +16,7 @@ use MENU_GEN
 implicit none
 
 ! -- INPUTS --
-character(len=strlen) :: nom       ! filename
+character(len=longname) :: nom       ! filename
 type(mnu_output)      :: defio     ! output parameter
 type(st_zone)         :: zone      ! zone
 

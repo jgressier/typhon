@@ -45,9 +45,9 @@ integer, parameter :: bchisto_flux           = 2
 ! structure MNU_CONECT: options numeriques les solveurs 
 !------------------------------------------------------------------------------!
 type mnu_connect
-  character(len=strlen) :: fam1, fam2   ! involved family names
+  character(len=shortname) :: fam1, fam2   ! involved family names
   integer(kpp)          :: type         ! type of connection
-  character(len=strlen) :: link         ! string of link to other definition (ie:periodicity)
+  character(len=shortname) :: link         ! string of link to other definition (ie:periodicity)
   integer(kip)          :: ilink        ! link to 'connection' index (ie: defmesh%periodicity)
 endtype mnu_connect
 
@@ -56,7 +56,7 @@ endtype mnu_connect
 ! structure MNU_BOCO : boundary condition
 !------------------------------------------------------------------------------!
 type mnu_boco
-  character(len=strlen) :: family        ! nom de famille de la condition aux limites
+  character(len=shortname) :: family        ! nom de famille de la condition aux limites
   integer               :: typ_boco      ! type physique de condition aux limites 
                                          !  (cf definitions VARCOM : bc_*) 
   integer               :: typ_calc      ! type de calcul de conditions aux limites

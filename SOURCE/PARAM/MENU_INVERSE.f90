@@ -35,11 +35,11 @@ type mnu_inv
   integer(kip)           :: ncyc_futur                ! number of prospective cycles
   integer(kip)           :: ncyc_sensi                ! periodicity of sensitivity computation
   real(krp)              :: ref_flux                  ! reference flux for sensitivity computation
-  character (len=strlen) :: bc_unknown                ! name of BOCO of unknown FLUX
-  character (len=strlen) :: bc_tmes                   ! name of BOCO of MEASURES
+  character (len=shortname) :: bc_unknown                ! name of BOCO of unknown FLUX
+  character (len=shortname) :: bc_tmes                   ! name of BOCO of MEASURES
 
-  character (len=strlen) :: mode_file                 ! filename
-  character (len=strlen) :: tmes_file                 ! filename
+  character (len=longname) :: mode_file                 ! filename
+  character (len=longname) :: tmes_file                 ! filename
   integer                :: mode_funit                ! File Unit of DCT modes
   integer                :: tmes_funit                ! File Unit of Measured Quantities
   integer                :: iz_tmes, iz_unknown       ! zone index where there are tmes/unknown BOCO

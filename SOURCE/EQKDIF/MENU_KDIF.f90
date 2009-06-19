@@ -51,22 +51,22 @@ type st_boco_kdif
 
   ! IF FILE BASED CONDITION
   logical   :: alloctemp, allocflux, allochconv     ! flag for array allocations
-  character (len=strlen) &
+  character (len=longname) &
             :: tempfile       ! nom de fichier de definition de la temp non uniforme  
 
   real(krp), dimension(:), pointer  &
             :: temp           ! temperature de paroi non uniforme
   real(krp), dimension(:), pointer  &
             :: flux_nunif     ! flux non uniforme
-  character (len=strlen) &
+  character (len=longname) &
             :: fluxfile       ! nom de fichier de definition du flux non uniforme  
   real(krp), dimension(:), pointer  &
             :: h_nunif        ! coefficient de convection non uniforme
   real(krp), dimension(:), pointer  &
             :: tconv_nunif    ! temperature de convection non uniforme
-  character (len=strlen) &
+  character (len=longname) &
             :: hfile          ! nom de fichier de definition du coef de convection non uniforme
-  character (len=strlen) &
+  character (len=longname) &
             :: tconvfile       ! nom de fichier de definition de la temperature de 
                                ! convection non uniforme  
 endtype st_boco_kdif

@@ -4,8 +4,6 @@
 ! Fonction                                Modif  : (cf historique)
 !   Lecture d'un fichier de maillage TYPHMSH - lecture d'une domaine
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
 
 subroutine readtyphmsh_dom(unit, umesh, typ_geo)
@@ -26,7 +24,7 @@ type(st_ustmesh) :: umesh      ! structure maillage non structure
 integer               :: ier             ! code d'erreur
 integer               :: i               ! indice courant
 character(len=60)     :: typ_dom, str    ! chaines
-character(len=strlen) :: nom             ! chaines
+character(len=longname) :: nom             ! chaines
 
 ! -- Debut de procedure
    

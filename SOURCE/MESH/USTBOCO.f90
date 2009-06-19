@@ -26,7 +26,7 @@ integer, parameter :: defboco_connect = -1
 ! Definition de la structure ST_USTBOCO : Definition des conditions aux limites
 !------------------------------------------------------------------------------!
 type st_ustboco
-  character(len=strlen)          :: family     ! nom de famille
+  character(len=shortname)       :: family     ! tag name
   integer                        :: idefboco   ! index pointer to defsolver boco definition
                                                !   if <= 0 then other definition (cf defboco_* constants)
   integer                        :: nface      ! nombre de faces concernees

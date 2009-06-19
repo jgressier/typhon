@@ -26,7 +26,7 @@ type(mnu_ns)     :: defns
 type(st_init_ns) :: initns
 type(st_ustmesh) :: umesh
 integer(kpp)     :: init_type
-character(len=strlen) :: initfile
+character(len=longname) :: initfile
 
 ! -- OUTPUTS --
 type(st_field) :: field
