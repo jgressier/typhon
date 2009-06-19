@@ -97,6 +97,7 @@ else
     if (info /= 0) &
       call error_stop("Parameter parsing (PROBE) - unable to process symbolic function "//trim(str))
 
+    defsolver%probe(ip)%write = .true.
   enddo
 
 endif

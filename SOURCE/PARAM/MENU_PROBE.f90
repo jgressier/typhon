@@ -43,6 +43,7 @@ type mnu_probe
   integer(kpp)          :: type        ! type de capteur
   integer(kpp)          :: store       ! type de stockage
   logical               :: write       ! ecriture des donnees
+  integer               :: unit        ! IO unit
   character(len=shortname) :: name        ! 
   character(len=shortname) :: boco_name   ! famille associee (si necessaire)
                                        !   DEV: on peut extrapoler a plusieurs familles
@@ -50,6 +51,7 @@ type mnu_probe
   integer               :: boco_index  ! index de condition limite
   type(st_fct_node)     :: quantity    ! quantite a calculer (selon solveur)
   real(krp)             :: result
+  real(krp)             :: volume
   type(v3d)             :: center, dir ! vecteurs centre et direction (si necessaire)
 endtype mnu_probe
 

@@ -31,15 +31,15 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            implicit_solve.o         \
            init_boco.o              \
            init_bocohisto.o         \
-           init_capteurs.o          \
            init_champ.o             \
            init_connect.o           \
            init_coupling.o          \
            init_implicit.o          \
            init_inverse.o           \
-           init_maillage.o          \
+           init_probes.o            \
            init_world.o             \
            init_zone.o              \
+           initzone_mesh.o          \
            integration.o            \
            integration_cycle.o      \
            integration_cycle_inverse.o \

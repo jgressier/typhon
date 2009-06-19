@@ -4,10 +4,8 @@
 ! Fonction                                Modif  : (cf historique)
 !   Calcul et initialisation du maillage
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
-subroutine init_maillage(zone)
+subroutine initzone_mesh(zone)
 
 use TYPHMAKE
 use VARCOM
@@ -23,14 +21,9 @@ type(st_zone) :: zone
 type(st_grid), pointer :: pgrid
 type(st_ustmesh)       :: newmesh
 real(krp)              :: alpha, beta,gamma,delta      ! geometric coefficient for the split
+
 ! -- BODY --
 
-select case(zone%defsolver%typ_solver)
-
-case(solKDIF)
-  call calc_ustmesh(zone%gridlist%first%umesh, zone%defsolver%defmesh)
-
-case(solVORTEX, solNS)
   pgrid => zone%gridlist%first
 
   do while (associated(pgrid))
@@ -83,7 +76,7 @@ case(solVORTEX, solNS)
       call delete(pgrid%umesh)
       pgrid%umesh = newmesh
     case default
-      call erreur('Development','unknown splitting method (init_maillage)')
+      call error_stop('Internal error: unknown splitting method (initzone_mesh)')
     endselect
 
     ! -- compute geometrical properties of CELLS / FACES of the mesh --
@@ -94,19 +87,13 @@ case(solVORTEX, solNS)
 
   enddo
     
-case default
-
-  call erreur('Development','unknown solver (init_maillage)')
-
-endselect
-
-endsubroutine init_maillage
-
+endsubroutine initzone_mesh
 !------------------------------------------------------------------------------!
 ! Changes history
 !
 ! nov  2002: creation de la procedure
 ! mars 2004: traitement des grilles (VORTEX)
 ! oct  2007: add conversion to "Spectral Volume" mesh
+! June 2009: change name to initzone_mesh (from init_maillage)
 !------------------------------------------------------------------------------!
 

@@ -35,7 +35,7 @@ enddo
 
 call print_info(5,"* Computing mesh properties")
 do izone = 1, world%prj%nzone
-  call init_maillage(world%zone(izone))
+  call initzone_mesh(world%zone(izone))
 enddo
 
 !--------------------------------------------------------------------
@@ -105,7 +105,7 @@ enddo
 
 call print_info(5,"* Initializing probes & monitors")
 do izone = 1, world%prj%nzone
-  call init_capteurs(world%zone(izone))
+  call init_probes(world%zone(izone))
 enddo
 
 endsubroutine init_world

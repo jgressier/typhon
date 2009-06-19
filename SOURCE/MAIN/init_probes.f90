@@ -1,5 +1,5 @@
 !------------------------------------------------------------------------------!
-! Procedure : init_capteurs               Auteur : J. Gressier
+! Procedure : init_probes               Auteur : J. Gressier
 !                                         Date   : Janvier 2004
 ! Fonction                                Modif  : see history
 !   Initialisation des capteurs
@@ -9,8 +9,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-
-subroutine init_capteurs(zone)
+subroutine init_probes(zone)
 
 use TYPHMAKE
 use OUTPUT
@@ -46,31 +45,28 @@ case(time_unsteady, time_unsteady_inverse)
   write(uf_monphy,'(a)') "@variables: time"
 
 case default
-  call erreur("internal error (init_capteurs)", "unknown time model")
+  call erreur("internal error (init_probes)", "unknown time model")
 
 endselect
 
 do i = 1, zone%defsolver%nprobe
 
-  select case(zone%info%time_model)
-
-  case(time_steady)
-    !call erreur("developpement", "mode non traite pour l'initialisation des capteurs")
-
-  case(time_unsteady)
-    !call erreur("developpement", "mode non traite pour l'initialisation des capteurs")
-
-  case default
-    call erreur("internal error (init_capteurs)", "unknown time model")
-  endselect
+  if (zone%defsolver%probe(i)%write) then
+    zone%defsolver%probe(i)%unit = getnew_io_unit()
+    if (zone%defsolver%probe(i)%unit <= 0) &
+         call error_stop("IO unit management: impossible to find free unit")
+    open(unit = zone%defsolver%probe(i)%unit, &
+         file=trim(zone%defsolver%probe(i)%name)//".tmon", form = "formatted")
+    !write(zone%defsolver%probe(i)%unit, *) '#'
+  endif
 
 enddo
 
-endsubroutine init_capteurs
-
+endsubroutine init_probes
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
-! jan  2004 : creation de la procedure
-! july 2004 : initialization of default probes
+! jan  2004: created
+! july 2004: initialization of default probes
+! June 2009: specific files per probe monitor
 !------------------------------------------------------------------------------!

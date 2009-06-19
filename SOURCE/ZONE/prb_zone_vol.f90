@@ -33,6 +33,7 @@ case(vol_max)
   probe%result = -huge(probe%result)
 case(vol_average)
   probe%result = 0._krp
+  probe%volume = 0._krp
 case default
   call error_stop("Internal error (prb_grid_vol): unknown probe type")
 endselect
@@ -50,13 +51,13 @@ enddo
 ! -- MPI reduce --
 
 !call exchange_zonal_timestep(lzone, dt)
+if (mpi_run) call error_stop("Interanl limitation: cannot use PROBE in parallel computations")
 
 select case(probe%type)
 case(vol_min, vol_max)
   ! nothing to do
 case(vol_average)
-  !probe%result = probe%result / zone%info
-  call error_stop("VOLUME AVERAGE still needs developement")  
+  probe%result = probe%result / probe%volume
 case default
   call error_stop("Internal error (prb_grid_vol): unknown probe type")
 endselect

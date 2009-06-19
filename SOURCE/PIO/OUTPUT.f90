@@ -11,7 +11,7 @@
 
 module OUTPUT
 
-use TYPHMAKE   ! Definition de la precision
+use IO_UNIT
 use VARCOM
 use STRING
 
@@ -91,17 +91,25 @@ implicit none
 
   ! unites d'entrees
   uf_stdin   = 5     ! entree standard
-  uf_menu    = 10    ! menus
-  uf_mesh    = 20    ! maillages
-  uf_cdlim   = 30    ! conditions aux limites
+  uf_menu    = getnew_io_unit()    ! menus
+  uf_mesh    = getnew_io_unit()    ! maillages
+  uf_cdlim   = getnew_io_unit()    ! conditions aux limites
+  if (uf_menu   <= 0) call error_stop("IO unit management: cannot find free unit")
+  if (uf_mesh   <= 0) call error_stop("IO unit management: cannot find free unit")
+  if (uf_cdlim  <= 0) call error_stop("IO unit management: cannot find free unit")
 
   ! unites de sorties
   uf_stdout  = 6    ! sortie standard (informations standard)
-  uf_log     = 9    ! fichier log     (informations detaillees)
-  uf_monres  = 31   ! monres file : residual monitor
-  uf_monphy  = 32   ! monphy file : physical value monitor
-  uf_residu  = 40   ! residus
-  uf_mesure  = 50   ! mesures diverses
+  uf_log     = getnew_io_unit()    ! fichier log     (informations detaillees)
+  uf_monres  = getnew_io_unit()   ! monres file : residual monitor
+  uf_monphy  = getnew_io_unit()   ! monphy file : physical value monitor
+  uf_residu  = getnew_io_unit()   ! residus
+  uf_mesure  = getnew_io_unit()   ! mesures diverses
+  if (uf_log    <= 0) call error_stop("IO unit management: cannot find free unit")
+  if (uf_monres <= 0) call error_stop("IO unit management: cannot find free unit")
+  if (uf_monphy <= 0) call error_stop("IO unit management: cannot find free unit")
+  if (uf_residu <= 0) call error_stop("IO unit management: cannot find free unit")
+  if (uf_mesure <= 0) call error_stop("IO unit management: cannot find free unit")
   uf_chpresu = 1055   ! champs resultats
   uf_compflux= 56   ! comparaison de flux a l'interface
   uf_tempinter=57   ! DEV1404
@@ -110,7 +118,7 @@ implicit none
   open(unit=uf_log, file = "typhon.log", form="formatted")
 
   ! unites de entrees/sorties
-  uf_reprise = 60   ! fichier reprise
+  uf_reprise = getnew_io_unit()   ! fichier reprise
 
   debug_mode= .false.
 
@@ -199,10 +207,10 @@ else
 endif
 
 if (n <= std_maxlevel) then
-  write(uf_stdout,'(a,a)') mpipre, trim(str)
-  write(uf_log,   '(a,a)') mpipre, trim(str)
+  write(uf_stdout,'(a,a)') trim(mpipre), trim(str)
+  write(uf_log,   '(a,a)') trim(mpipre), trim(str)
 elseif (n <= log_maxlevel) then
-  write(uf_log,'(a,a)')    mpipre, trim(str)
+  write(uf_log,'(a,a)')    trim(mpipre), trim(str)
 endif
 
 endsubroutine print_info

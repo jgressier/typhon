@@ -7,7 +7,8 @@ LDIR = PIO
 
 PIO_LIB = $(PRJLIB)/libt_pio.a
 
-PIO_MOD = OUTPUT.$(MOD)   \
+PIO_MOD = IO_UNIT.$(MOD)  \
+          OUTPUT.$(MOD)   \
           RPM.$(MOD)      \
 
 

@@ -58,6 +58,7 @@ do ic = 1, grid%umesh%ncell_int
     probe%result = max(probe%result, result)
   case(vol_average)
     probe%result = probe%result + result*grid%umesh%mesh%volume(ic,1,1)
+    probe%volume = probe%volume + grid%umesh%mesh%volume(ic,1,1)
   case default
     call error_stop("Internal error (prb_grid_vol): unknown probe type")
   endselect
@@ -73,9 +74,8 @@ call delete_fct_env(blank_env)      ! temporary environment from FCT_EVAL
 
 
 endsubroutine prb_grid_vol
-
 !------------------------------------------------------------------------------!
 ! change history
 !
-! June 2009: created
+! June 2009: created, vol_min, vol_max, vol_average
 !------------------------------------------------------------------------------!
