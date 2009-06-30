@@ -87,8 +87,6 @@ enddo
 select case(defsolver%typ_solver)
 case(solNS, solKDIF)
   call calc_varcons(defsolver, field)
-case(solVORTEX)
-  ! nothing to do
 case default
   call erreur("Internal error (init_gridfield_ust)","unknown solver type")
 endselect

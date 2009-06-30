@@ -5,8 +5,6 @@
 !   Traitement des parametres du fichier menu principal
 !   Parametres de definition du modele de conduction de la chaleur
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
 subroutine def_model_kdif(block, defsolver)
 
@@ -18,13 +16,13 @@ use MENU_SOLVER
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(rpmblock), target :: block
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 type(mnu_solver)       :: defsolver
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nkey           ! nombre de clefs
 integer                  :: i
@@ -42,11 +40,8 @@ call seekrpmblock(pblock, "MODEL", 0, pcour, nkey)
 if (nkey /= 1) call erreur("lecture de menu", &
                            "bloc MODEL inexistant ou surnumeraire")
 
-defsolver%nequat = 1
-defsolver%nsca   = 1
-defsolver%nvec   = 0
-allocate(defsolver%idsca(defsolver%nsca))
-allocate(defsolver%idvec(defsolver%nvec))
+call define_solver(defsolver, 1, 0)
+
 defsolver%idsca(1) = qs_temperature ! 'Temperature'
 
 ! -- lecture du type de materiau

@@ -62,7 +62,7 @@ endif
 
 call print_info(5,"* Computing initial conditions")
 do izone = 1, world%prj%nzone
-  call init_champ(world%zone(izone))
+  call initzone_field(world%zone(izone))
 enddo
 
 !--------------------------------------------------------------------

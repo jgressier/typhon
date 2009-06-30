@@ -49,6 +49,7 @@ type st_infozone
   real(krp) :: residumax            ! residu maximal admissible pour le cycle
   real(krp) :: residu_ref, cur_res  ! residu de reference (world) et courant (cycle)
   real(krp) :: residu_reforigine    ! residu de reference du premier cycle
+  real(krp) :: totvolume            ! total volume on all grids
   integer   :: nbproc               ! total number of communicating processors in the zone
   integer   :: headproc
   integer, pointer &

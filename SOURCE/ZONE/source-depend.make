@@ -14,6 +14,7 @@ ZONE_MOD = BOUND.$(MOD)                  \
            MENU_ZONECOUPLING.$(MOD) 
 
 ZONE_OBJ := $(ZONE_MOD:.$(MOD)=.o)       \
+            calc_refcons.o               \
             calc_varcons.o               \
             calc_varprim.o               \
             calc_zonetimestep.o          \
@@ -24,10 +25,12 @@ ZONE_OBJ := $(ZONE_MOD:.$(MOD)=.o)       \
             init_ustboco_ghostface.o     \
             init_ustboco_kutta.o         \
             init_ustboco_singpanel.o     \
+            initzone_field.o             \
+            initzone_mesh.o              \
             prb_boco_field.o             \
             prb_zone_vol.o               \
             split_zone.o                 \
-            update_champ.o
+            update_field.o
 
 
 D_ZONE_OBJ := $(ZONE_OBJ:%=$(PRJOBJ)/%)

@@ -1,4 +1,4 @@
 export TYPE_EXE=seq
 export MESHFILE=tube.cgns
 export INPUTFILE=main.rpm
-export TO_CHECK=monres.001
+export TO_CHECK="monres.001 Average_T.tmon"

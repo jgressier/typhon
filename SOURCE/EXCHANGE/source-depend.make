@@ -12,6 +12,7 @@ EXCHSEQ_MOD = #.$(MOD)      \
 EXCHMPI_MOD = #.$(MOD)      \
 
 EXCHSEQ_OBJ := $(EXCHANGE_MOD:.$(MOD)=.o)  \
+               allreduce_sum_seq.o         \
                exchange_zonal_residual_seq.o \
                exchange_zonal_timestep_seq.o \
                finalize_exch_seq.o         \
@@ -20,6 +21,7 @@ EXCHSEQ_OBJ := $(EXCHANGE_MOD:.$(MOD)=.o)  \
                sendtogrid_seq.o            \
 
 EXCHMPI_OBJ := $(EXCHANGE_MOD:.$(MOD)=.o)  \
+               allreduce_sum_mpi.o         \
                exchange_zonal_residual_mpi.o \
                exchange_zonal_timestep_mpi.o \
                finalize_exch_mpi.o         \

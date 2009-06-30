@@ -113,6 +113,27 @@ endsubroutine init_mnu_solver
 
 
 !------------------------------------------------------------------------------!
+! Procedure : initialisation d'une structure MNU_SOLVER
+!------------------------------------------------------------------------------!
+subroutine define_solver(defsolver, nsca, nvec)
+implicit none
+type(mnu_solver)  :: defsolver
+integer           :: nsca, nvec
+
+  defsolver%nsca   = nsca
+  defsolver%nvec   = nvec
+  defsolver%nequat = nsca + 3*nvec
+  allocate(defsolver%refsca(nsca))
+  allocate(defsolver%refvec(nvec))
+  if (nsca /= 0) defsolver%refsca(1:nsca) = 0._krp
+  if (nvec /= 0) defsolver%refvec(1:nvec) = 0._krp
+  allocate(defsolver%idsca(nsca))
+  allocate(defsolver%idvec(nvec))
+
+endsubroutine define_solver
+
+
+!------------------------------------------------------------------------------!
 ! Procedure : desallocation d'une structure MNU_SOLVER
 !------------------------------------------------------------------------------!
 subroutine delete_mnu_solver(defsolver)
@@ -120,6 +141,8 @@ implicit none
 type(mnu_solver)  :: defsolver
 integer           :: ib
 
+  if (associated(defsolver%refsca)) deallocate(defsolver%refsca)
+  if (associated(defsolver%refvec)) deallocate(defsolver%refvec)
   if (associated(defsolver%idsca)) deallocate(defsolver%idsca)
   if (associated(defsolver%idvec)) deallocate(defsolver%idvec)
 
@@ -382,6 +405,27 @@ integer          :: i
   enddo
 
 endfunction indexcapteur
+
+!------------------------------------------------------------------------------!
+! Routine : define_refcons
+!------------------------------------------------------------------------------!
+subroutine define_refcons(defsolver)
+implicit none
+type(mnu_solver) :: defsolver
+
+
+select case(defsolver%typ_solver)
+case(solKDIF)
+  ! nothing to do
+case(solNS)
+  ! momentum reference value is (rho_ref * V_ref)
+  ! V_ref is sqrt(Energy/rho_ref)
+  defsolver%refvec(1) = sqrt(defsolver%refsca(1)*defsolver%refsca(2))  ! sqrt(rho * rhoV2)
+case default
+  call error_stop("Internal error (define_refcons): unknown solver")
+endselect 
+
+endsubroutine DEFINE_REFCONS
 
 
 

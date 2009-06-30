@@ -52,11 +52,7 @@ endselect
 
 ! -- update main field of each grid with (last) RHS --
 
-pgrid => gridlist%first
-do while (associated(pgrid))
-  call update_champ(info, pgrid%info%field_loc, pgrid%umesh%ncell_int)
-  pgrid => pgrid%next
-enddo
+call update_field(info, defsolver, gridlist)
 
 
 !-----------------------------

@@ -5,8 +5,6 @@
 !   Traitement des parametres du fichier menu principal
 !   Parametres de definition du modele de conduction de la chaleur
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
 subroutine def_model_ns(block, defsolver)
 
@@ -58,11 +56,8 @@ if (samestring(str, "LAMINAR"))  defsolver%defns%typ_fluid = eqNSLAM
 if (samestring(str, "DNS"))      defsolver%defns%typ_fluid = eqNSLAM
 if (samestring(str, "RANS"))     defsolver%defns%typ_fluid = eqRANS
 
-defsolver%nequat = 5
-defsolver%nsca   = 2
-defsolver%nvec   = 1
-allocate(defsolver%idsca(defsolver%nsca))
-allocate(defsolver%idvec(defsolver%nvec))
+call define_solver(defsolver, 2, 1)
+
 defsolver%idsca(1) = qs_density   ! 'Density'
 defsolver%idsca(2) = qs_pressure  ! 'Pressure'
 defsolver%idvec(1) = qv_velocity  ! 'Velocity'

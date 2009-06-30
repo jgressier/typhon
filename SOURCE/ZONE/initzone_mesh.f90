@@ -86,6 +86,24 @@ real(krp)              :: alpha, beta,gamma,delta      ! geometric coefficient f
     pgrid => pgrid%next
 
   enddo
+
+  !--------------------------------------------------------
+  ! compute zone geometrical properties
+
+  zone%info%totvolume = 0._krp
+
+  ! -- loop on grids of this thread --
+
+  pgrid => zone%gridlist%first
+  do while (associated(pgrid))
+    zone%info%totvolume = zone%info%totvolume + sum(pgrid%umesh%mesh%volume(1:pgrid%umesh%ncell_int, 1, 1))
+    pgrid => pgrid%next
+  enddo
+
+  ! -- reduce (sum) on all threads
+  print*,'vol',zone%info%totvolume
+  call allreduce_sum(zone%info%totvolume)
+  print*,'vol',zone%info%totvolume
     
 endsubroutine initzone_mesh
 !------------------------------------------------------------------------------!
@@ -94,6 +112,6 @@ endsubroutine initzone_mesh
 ! nov  2002: creation de la procedure
 ! mars 2004: traitement des grilles (VORTEX)
 ! oct  2007: add conversion to "Spectral Volume" mesh
-! June 2009: change name to initzone_mesh (from init_maillage)
+! June 2009: change name to initzone_mesh (from init_maillage), compute volume
 !------------------------------------------------------------------------------!
 

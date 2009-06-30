@@ -1,11 +1,11 @@
 !------------------------------------------------------------------------------!
-! Procedure : init_champ                  Auteur : J. Gressier
+! Procedure : initzone_field                  Auteur : J. Gressier
 !                                         Date   : Mars 2003
 ! Fonction                                Modif  : (cf historique)
 !   Initialisation des champs
 !
 !------------------------------------------------------------------------------!
-subroutine init_champ(zone)
+subroutine initzone_field(zone)
 
 use TYPHMAKE
 use OUTPUT
@@ -26,8 +26,6 @@ integer                :: id
 
 ! -- BODY --
 
-!zone%champ%idim = 1
-
 pgrid => zone%gridlist%first
 
 do while (associated(pgrid))
@@ -39,7 +37,9 @@ do while (associated(pgrid))
   pgrid => pgrid%next
 enddo
 
-endsubroutine init_champ
+call calc_refcons(zone)
+
+endsubroutine initzone_field
 !------------------------------------------------------------------------------!
 ! Changes history
 !

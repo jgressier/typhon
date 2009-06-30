@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
-! Procedure : ns_bocoflux                    Authors : J. Gressier / E. Radenac
-!                                            Created : August 2005
-! Function                                   Modif   : (cf history)
+! Procedure : ns_bocoflux 
+!
+! Function
 !   Computation of VISCOUS flux for NS equations
 !
 !------------------------------------------------------------------------------!
