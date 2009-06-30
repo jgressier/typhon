@@ -60,7 +60,7 @@ do ielem = 1, umesh%cellvtex%ntype
   case(elem_quad4)
     cgnstype = QUAD_4
   case(elem_ngon)
-    cgnstype = NGON_n
+    cgnstype = NGON_n + umesh%cellvtex%elem(ielem)%nvtex
   case(elem_tetra4)
     cgnstype = TETRA_4
   case(elem_pyra5)

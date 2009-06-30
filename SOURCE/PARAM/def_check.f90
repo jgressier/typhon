@@ -62,6 +62,8 @@ case(split_svm4kris2)
   zone%defsolver%defspat%svm%sv_order = svm_4
   call print_info(10, "  initialize SVM parameters")
   call init_svmparam(zone%defsolver%defspat%svm)
+case(split_iso_tri)
+  call print_info(10, " Triangular refinment")
 case default
   call erreur("Development", "unknown mesh splitting parameter (def_check)")
 endselect

@@ -18,6 +18,7 @@ implicit none
 ! -- Variables globales du module -------------------------------------------
 
 integer(kpp), parameter :: split_none      = 0
+integer(kpp), parameter :: split_iso_tri   = 11
 integer(kpp), parameter :: split_svm2quad  = 21
 integer(kpp), parameter :: split_svm2tri   = 22
 integer(kpp), parameter :: split_svm3wang  = 31
@@ -26,6 +27,7 @@ integer(kpp), parameter :: split_svm3kris2 = 33
 integer(kpp), parameter :: split_svm4wang  = 41
 integer(kpp), parameter :: split_svm4kris  = 42
 integer(kpp), parameter :: split_svm4kris2 = 43
+
 
 ! -- Constants for PERIODICITY defintion
 
@@ -55,6 +57,7 @@ type mnu_mesh
   character(len=longname) :: filename    ! nom de fichier
   real(krp)             :: scale       ! scale factor
   integer(kpp)          :: splitmesh   ! split method
+  integer(kip)          :: nsplit      ! number of split application
   integer(kip)          :: nperiodicity ! number of periodicity
   type(mnu_periodicity), pointer :: periodicity(:) 
   integer               :: icgnsbase   ! original base index in CGNS file

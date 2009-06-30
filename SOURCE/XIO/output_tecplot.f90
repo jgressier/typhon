@@ -32,9 +32,9 @@ character(len=10)     :: suffix
 ! -- BODY --
 
 if (mpi_run) then
-  suffix = "_p"//strof_full_int(myprocid,3)//".vtk"
+  suffix = "_p"//strof_full_int(myprocid,3)//".dat"
 else
-  suffix = ".vtk"
+  suffix = ".dat"
 endif
 
 open(unit=uf_chpresu, file=trim(nom)//trim(suffix), form='formatted', iostat = info)
