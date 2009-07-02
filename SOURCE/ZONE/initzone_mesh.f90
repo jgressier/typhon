@@ -21,6 +21,7 @@ type(st_zone) :: zone
 type(st_grid), pointer :: pgrid
 type(st_ustmesh)       :: newmesh
 real(krp)              :: alpha, beta,gamma,delta      ! geometric coefficient for the split
+integer(kip)           :: isplit
 
 ! -- BODY --
 
@@ -75,6 +76,12 @@ real(krp)              :: alpha, beta,gamma,delta      ! geometric coefficient f
       call convert_to_svm_4kris(zone%defsolver%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh,alpha,beta,gamma,delta)
       call delete(pgrid%umesh)
       pgrid%umesh = newmesh
+    case(split_iso_tri)
+     do isplit=1, zone%defsolver%defmesh%nsplit
+      call raffin_iso_tri(zone%defsolver%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh)
+      call delete(pgrid%umesh)
+      pgrid%umesh = newmesh
+     enddo
     case default
       call error_stop('Internal error: unknown splitting method (initzone_mesh)')
     endselect
