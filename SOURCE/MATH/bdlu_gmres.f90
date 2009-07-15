@@ -161,7 +161,7 @@ do while ((errgmres >= ref*def_impli%maxres).and.(nit <= def_impli%max_it*2))
 
   enddo
 
-  nk = jk
+  nk = min(jk,nkrylov)
 
   ! Solve H.y = s
   do jk = nk,1,-1
