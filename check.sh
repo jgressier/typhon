@@ -135,13 +135,14 @@ for CASE in $LISTCASES ; do
   . $CASEDIR/$REFCONF
   cp $MESHDIR/$MESHFILE $TMPDIR
   cp $CASEDIR/$INPUTFILE $TMPDIR
+  hostname > hostfile
   echo $bar  >> $HOMEDIR/check.log
   echo $CASE >> $HOMEDIR/check.log
   echo $bar  >> $HOMEDIR/diff.log
   echo $CASE >> $HOMEDIR/diff.log
   case $TYPE_EXE in
     seq) $EXEDIR/Typhon-$TYPE_EXE >> $HOMEDIR/check.log 2>&1 ;;
-    mpi) mpirun -np ${MPIPROCS:-2} \
+    mpi) mpirun -np ${MPIPROCS:-2} -machinefile hostfile \
          $EXEDIR/Typhon-$TYPE_EXE >> $HOMEDIR/check.log 2>&1 ;;
     *)   echo -e ${col1}$fic unknown typhon executable ;;
   esac

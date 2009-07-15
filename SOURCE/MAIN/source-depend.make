@@ -92,7 +92,7 @@ SVNREVSTR=character(len=20), parameter :: svnrev = '$(SVNREV)'
 
 SVNREVFILE=Include/svnrev.h
 
-SVNREVDEP=$(shell echo "$(SVNREVSTR)" | diff - -q $(SVNREVFILE) >/dev/null || echo SVNREV)
+SVNREVDEP=$(shell echo "$(SVNREVSTR)" | diff - -q $(SVNREVFILE) >/dev/null 2>&1 || echo SVNREVFORCE)
 
 MAIN/depends.make: $(D_MAIN_SRC)
 	(cd MAIN ; ../$(MAKEDEPENDS))
@@ -100,7 +100,7 @@ MAIN/depends.make: $(D_MAIN_SRC)
 MAIN/main.f90: $(SVNREVFILE)
 	@touch MAIN/main.f90
 
-SVNREV:
+SVNREVFORCE:
 	@:
 
 $(SVNREVFILE): $(SVNREVDEP)

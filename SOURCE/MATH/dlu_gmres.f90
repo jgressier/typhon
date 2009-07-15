@@ -108,17 +108,17 @@ do while ((errgmres >= ref*def_impli%maxres).and.(nit <= def_impli%max_it*2))
 
     hh(jk+1,jk) = sqrt(dot_product(w1(jk,1:dim),w1(jk,1:dim)))  ! h(j+1,j) = ||wj||_2
 
-    if ( hh(jk+1,jk) > 1.0E-14*normp1 ) then
+    do ik = 1,jk-1                                            ! apply J(1)...J(kj-1) on hh
+      tmp = hh(ik,jk)
+      hh(ik  ,jk) =  qc(ik)*tmp + qs(ik)*hh(ik+1,jk)
+      hh(ik+1,jk) = -qs(ik)*tmp + qc(ik)*hh(ik+1,jk)
+    enddo
+
+    if ( hh(jk+1,jk) > epsilon(normp1)*10*normp1 ) then
 
       fact = 1.0_krp/hh(jk+1,jk)
       if ( jk < nkrylov ) &
       v1(jk+1,1:dim) = fact*w1(jk,1:dim)                        ! v(j+1) = wj/h(j+1,j)
-
-      do ik = 1,jk-1                                            ! apply J(1)...J(kj-1) on hh
-        tmp = hh(ik,jk)
-        hh(ik  ,jk) =  qc(ik)*tmp + qs(ik)*hh(ik+1,jk)
-        hh(ik+1,jk) = -qs(ik)*tmp + qc(ik)*hh(ik+1,jk)
-      enddo
 
       if ( hh(jk,jk) == 0 ) exit                                ! Exit if hh(jk,jk)==0
 
@@ -156,7 +156,7 @@ do while ((errgmres >= ref*def_impli%maxres).and.(nit <= def_impli%max_it*2))
 
   enddo
 
-  nk = jk-1
+  nk = jk
 
   ! Solve H.y = s
   do jk = nk,1,-1
