@@ -17,6 +17,7 @@ function usage() {
   echo
   echo "       -h: prints this help"
   echo "       -l: prints list of cases"
+  echo "       -k: keep (do not delete) TMPDIR"
   echo "       --: end of options"
   echo
   echo "       <pattern>: selects cases with name matching <pattern>"
@@ -40,7 +41,6 @@ export  BINDIR=$HOMEDIR/bin
 export  NRGDIR=$HOMEDIR/NRG
 export MESHDIR=$HOMEDIR/NRG/COMMON
 export  TMPDIR=/tmp/typhon.$$
-trap "rm -Rf $TMPDIR ; cd $ORIGDIR" 0 2
 
 # --- directory check ---
 #
@@ -52,18 +52,20 @@ fi
 
 # --- get options ---
 #
-OPTS=$(getopt -o hl -n "$SCRIPTNAME" -- "$@")
+OPTS=$(getopt -o hlk -n "$SCRIPTNAME" -- "$@")
 [[ $? != 0 ]] && usage 1
 eval set -- "$OPTS"
 
 # --- parse options ---
 #
 list=0
+keeptmpdir=0
 patlist=()
 while true ; do
   case "$1" in
     -h) usage 0 ;;
     -l) list=1 ;;
+    -k) keeptmpdir=1 ;;
     --) shift ; break ;;
   esac
   shift
@@ -90,6 +92,7 @@ export DIFFCOM=$DIFF
 export LD_LIBRARY_PATH=$EXEDIR/Lib:$LD_LIBRARY_PATH
 
 mkdir $TMPDIR
+[ $keeptmpdir -eq 0 ] && trap "rm -Rf $TMPDIR ; cd $ORIGDIR" 0 2
 
 rm diff.log check.log 2> /dev/null
 
@@ -122,6 +125,7 @@ typeset -i ncol2=ncol1+25 ; col2="\\033[${ncol2}G"
 # --- tests ---
 #
 echo diffing with : $DIFF
+[ $keeptmpdir -eq 1 ] && echo "tmp dir in   : $TMPDIR"
 echo $bar
 
 cd $TMPDIR
