@@ -5,7 +5,7 @@
 !   Write a TYPHON ZONE (structure) to a CGNS BASE
 !
 !------------------------------------------------------------------------------!
-subroutine writecgns_zone(cgnsunit, zone) 
+subroutine writecgns_zone(cgnsunit, ibase, zone) 
 
 use TYPHMAKE
 use OUTPUT
@@ -19,12 +19,13 @@ include 'cgnslib_f.h'
 
 ! -- INPUTS --
 integer               :: cgnsunit           ! unit number for cgns file
+integer               :: ibase              ! CGNS base index
 type(st_zone)         :: zone
 
 ! -- OUPUTS --
 
 ! -- Internal variables --
-integer                :: ibase, izone     ! CGNS base and zone index
+integer                :: izone            ! CGNS zone index
 integer                :: isize(3)         ! tableau d'informations de la zone
 integer                :: info
 type(st_genericfield)  :: vfield
@@ -34,10 +35,6 @@ type(st_grid), pointer :: pgrid
 
 pgrid => zone%gridlist%first 
 izone = 0
-
-call cg_base_write_f(cgnsunit, zone%name, dimgeo(pgrid%umesh), 3, ibase, info)
-
-!if (zone%gridlist%nbgrid /= 1) call erreur("Write CGNS","only one grid allowed")
 
 do while (associated(pgrid))
 

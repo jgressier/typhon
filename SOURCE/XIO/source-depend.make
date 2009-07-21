@@ -11,7 +11,6 @@ XIO_MOD = REPRISE.$(MOD)
 
 XIO_OBJ = $(XIO_MOD:.$(MOD)=.o)  \
           comp_flux.o            \
-          output_cgns.o          \
           output_tec_str.o       \
           output_tec_ust.o       \
           output_tec_ust_ctr.o   \
@@ -25,8 +24,14 @@ XIO_OBJ = $(XIO_MOD:.$(MOD)=.o)  \
           output_vtkbin_scal.o   \
           output_vtkbin_vect.o   \
           output_zone.o          \
+          outputzone_close.o     \
+          outputzone_sol.o       \
+          outputzone_open.o      \
+          outputzone_ustmesh.o   \
           readtyphmsh_dom.o      \
-          readtyphmshfile.o      
+          readtyphmshfile.o      \
+          writevtk_sol.o         \
+          writevtk_ustmesh.o     \
  
 D_XIO_OBJ = $(XIO_OBJ:%=$(PRJOBJ)/%)
 

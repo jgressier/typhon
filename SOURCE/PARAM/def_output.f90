@@ -80,7 +80,7 @@ do io = 1, world%noutput
   case default
     call erreur("internal error (def_output)", "unknown format")
   endselect
-  world%output(io)%filename = str
+  world%output(io)%basename = str
 
   ! --- type of output --- 
 

@@ -68,13 +68,15 @@ endtype mnu_project
 ! structure MNU_OUTPUT : Output parameters
 !------------------------------------------------------------------------------!
 type mnu_output
-  integer(kpp)          :: dataset       ! data set to save
-  integer(kpp)          :: location      ! data location
-  character             :: format        ! output format
-  character(len=longname) :: filename      ! file name or base name
-  integer               :: iunit         ! IO unit
-  integer(kpp)          :: write         ! writing instant (end, cycle...)
-  integer               :: period        ! writing period (if "cycle")
+  integer(kpp)            :: dataset       ! data set to save
+  integer(kpp)            :: location      ! data location
+  character               :: format        ! output format
+  character(len=longname) :: basename      ! base name for files
+  character(len=longname) :: filename      ! file name from basename
+  integer                 :: iunit         ! IO unit
+  integer                 :: izone         ! zone index (base for CGNS)
+  integer(kpp)            :: write         ! writing instant (end, cycle...)
+  integer                 :: period        ! writing period (if "cycle")
 endtype mnu_output
 
 ! -- INTERFACES -------------------------------------------------------------

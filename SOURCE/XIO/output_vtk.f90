@@ -5,7 +5,7 @@
 !   Write the field of each zone in a VTK file
 !
 !------------------------------------------------------------------------------!
-subroutine output_vtk(nom, defio, zone)
+subroutine output_vtk(defio, zone)
 
 use TYPHMAKE
 use OUTPUT
@@ -16,7 +16,6 @@ use MENU_GEN
 implicit none
 
 ! -- INPUTS --
-character(len=longname) :: nom       ! filename
 type(mnu_output)      :: defio     ! output parameter
 type(st_zone)         :: zone      ! zone
 
@@ -30,13 +29,9 @@ character(len=10)     :: suffix
 
 ! -- BODY --
 
-if (mpi_run) then
-  suffix = "_p"//strof_full_int(myprocid,3)//".vtk"
-else
-  suffix = ".vtk"
-endif
+suffix = ".vtk"
 
-open(unit=uf_chpresu, file=trim(nom)//trim(suffix), form='formatted', iostat = info)
+open(unit=uf_chpresu, file=trim(defio%filename)//trim(suffix), form='formatted', iostat = info)
 
 select case(zone%defsolver%typ_solver)
 
@@ -55,15 +50,10 @@ case(solKDIF)
   call output_vtk_cell(uf_chpresu, zone%defsolver, &
        zone%gridlist%first%umesh, zone%gridlist%first%info%field_loc)
 
-case(solVORTEX)
-
-  call erreur("Developpement","les sorties VORTEX ne sont pas prevues dans ce format")
-
 case default
-
-  call erreur("Developpement","solveur inconnu (output_vtk)")
-
+  call error_stop("Internal error: unknown solver (output_vtk)")
 endselect
+
 
 close(uf_chpresu)
 

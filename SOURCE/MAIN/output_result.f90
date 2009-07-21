@@ -36,7 +36,7 @@ do i = 1, world%noutput
 
     do iz = 1, world%prj%nzone
 
-      nom = trim(world%output(i)%filename)//trim(world%zone(iz)%name)
+      nom = trim(world%output(i)%basename)//trim(world%zone(iz)%name)
 
       select case(position)
       case(end_calc)
@@ -49,7 +49,7 @@ do i = 1, world%noutput
         call erreur("Internal error (output_result)","unknown position parameter in output")
       endselect
 
-      call output_zone(nom, world%output(i), world%zone(iz))
+      call output_zone(trim(nom), world%output(i), world%zone(iz))
 
     enddo
 
