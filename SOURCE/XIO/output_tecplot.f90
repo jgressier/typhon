@@ -17,7 +17,7 @@ use MENU_GEN
 implicit none
 
 ! -- Inputs --
-character(len=longname) :: nom       ! filename
+character(len=*), intent(in) :: nom       ! filename
 type(mnu_output)      :: defio     ! output parameter
 type(st_zone)         :: zone      ! zone
 

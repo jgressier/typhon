@@ -67,7 +67,7 @@ case(init_file)
   read(1004,'(a)') charac
   read(1004,'(a)') charac
   do ic=1, ncell
-    read(1004,'(4e18.8)') x, y, z, champ%etatprim%tabscal(1)%scal(ic)
+    read(1004,*) x, y, z, champ%etatprim%tabscal(1)%scal(ic)
   enddo
   close(1004)
 
