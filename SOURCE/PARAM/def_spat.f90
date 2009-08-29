@@ -173,6 +173,7 @@ case(solNS)
     if (samestring(str,"VANLEER"))     defspat%muscl%limiter = lim_vleer
     if (samestring(str,"SUPERBEE"))    defspat%muscl%limiter = lim_sbee
     if (samestring(str,"KIM3"))        defspat%muscl%limiter = lim_kim3
+    if (samestring(str,"LIM03"))       defspat%muscl%limiter = lim_lim03
     !if (samestring(str,"MINMAX"))      defspat%muscl%limiter = lim_minmax
     call print_info(7,"    limiter     : "//trim(str))
 

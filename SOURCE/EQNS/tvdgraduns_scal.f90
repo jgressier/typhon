@@ -47,6 +47,8 @@ case(lim_sbee)
   scellgrad(:) = superbee(scellgrad(:), LRsca(:)) - scellgrad(:)
 case(lim_kim3) !!! 3rd order is not proved for this combination of slopes !!!
   scellgrad(:) = kim3(LRsca(:), scellgrad(:)) - scellgrad(:)  ! param order !
+case(lim_lim03)
+  scellgrad(:) = lim03(scellgrad(:), LRsca(:)) - scellgrad(:)  ! param order !
 case default
   call erreur("high resolution","unknown limiter")
 endselect

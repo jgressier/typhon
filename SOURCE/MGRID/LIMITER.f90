@@ -39,6 +39,10 @@ interface kim3
   module procedure kim3, kim3_t, kim3_v, kim3_vt
 endinterface
 
+interface lim03
+  module procedure lim03, lim03_t, lim03_v, lim03_vt
+endinterface
+
 interface monotonic0
   module procedure monotonic0, monotonic0_v
 endinterface
@@ -331,6 +335,84 @@ integer :: i
 
 end function kim3_vt
 
+!-----------------------------------------------------------------------
+function lim03(x1, x2)
+implicit none
+real(krp) :: x1, x2, lim03, eta
+
+  eta = (x1*x1 + x2*x2) / 0.01_krp / 0.01_krp
+
+  lim03 = 0._krp
+  if (eta < 1._krp) then
+    lim03 = (2._krp*x2 + x1) / 3._krp
+  elseif ((x1 > 0._krp).and.(x2 > 0._krp)) then
+    lim03 = (2._krp*x2 + x1) / 3._krp
+    lim03 = min(1.6_krp*x2, 2._krp*x1, lim03)
+  elseif ((x1 < 0._krp).and.(x2 < 0._krp)) then
+    lim03 = (2._krp*x2 + x1) / 3._krp
+    lim03 = max(1.6_krp*x2, 2._krp*x1, lim03)
+  elseif ((x1 < 0._krp).and.(x2 > 0._krp)) then
+    lim03 = (2._krp*x2 + x1) / 3._krp
+    lim03 = max(0._krp, min(-0.5_krp*x1, lim03))
+  elseif ((x1 > 0._krp).and.(x2 < 0._krp)) then
+    lim03 = (2._krp*x2 + x1) / 3._krp
+    lim03 = min(0._krp, max(-0.5_krp*x1, lim03))
+  endif
+
+end function lim03
+
+!-----------------------------------------------------------------------
+function lim03_t(x1, x2)
+implicit none
+real(krp), dimension(:)        :: x1, x2
+real(krp), dimension(size(x1)) :: lim03_t, eta
+
+  eta = (x1*x1 + x2*x2) / 0.01_krp / 0.01_krp
+
+  lim03_t = 0._krp
+  where (eta < 1._krp)
+    lim03_t = (2._krp*x2 + x1) / 3._krp
+  elsewhere ((x1 > 0._krp).and.(x2 > 0._krp))
+    lim03_t = (2._krp*x2 + x1) / 3._krp
+    lim03_t = min(1.6_krp*x2, 2._krp*x1, lim03_t)
+  elsewhere ((x1 < 0._krp).and.(x2 < 0._krp))
+    lim03_t = (2._krp*x2 + x1) / 3._krp
+    lim03_t = max(1.6_krp*x2, 2._krp*x1, lim03_t)
+  elsewhere ((x1 < 0._krp).and.(x2 > 0._krp))
+    lim03_t = (2._krp*x2 + x1) / 3._krp
+    lim03_t = max(0._krp, min(-0.5_krp*x1, lim03_t))
+  elsewhere ((x1 > 0._krp).and.(x2 < 0._krp))
+    lim03_t = (2._krp*x2 + x1) / 3._krp
+    lim03_t = min(0._krp, max(-0.5_krp*x1, lim03_t))
+  endwhere
+
+end function lim03_t
+
+!-----------------------------------------------------------------------
+function lim03_v(v1, v2)
+implicit none
+type(v3d) :: v1, v2, lim03_v
+
+  lim03_v%x = lim03(v1%x, v2%x)
+  lim03_v%y = lim03(v1%y, v2%y)
+  lim03_v%z = lim03(v1%z, v2%z)
+
+end function lim03_v
+
+!-----------------------------------------------------------------------
+function lim03_vt(v1, v2)
+implicit none
+type(v3d), dimension(:) :: v1, v2
+type(v3d), dimension(size(v1)) :: lim03_vt
+integer :: i
+
+  do i = 1, size(v1)
+    lim03_vt(i)%x = lim03(v1(i)%x, v2(i)%x)
+    lim03_vt(i)%y = lim03(v1(i)%y, v2(i)%y)
+    lim03_vt(i)%z = lim03(v1(i)%z, v2(i)%z)
+  enddo
+
+end function lim03_vt
 
 !-----------------------------------------------------------------------
 ! MONOTONIC LIMITERS of x1, x2 between a and b

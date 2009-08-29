@@ -48,6 +48,8 @@ case(lim_sbee)
   vcellgrad(:) = superbee(vcellgrad(:), LRvec(:)) - vcellgrad(:)
 case(lim_kim3)
   vcellgrad(:) = kim3(LRvec(:), vcellgrad(:)) - vcellgrad(:)  ! param order !
+case(lim_lim03)
+  vcellgrad(:) = lim03(vcellgrad(:), LRvec(:)) - vcellgrad(:)  ! param order !
 case default
   call erreur("high resolution","unknown limiter")
 endselect

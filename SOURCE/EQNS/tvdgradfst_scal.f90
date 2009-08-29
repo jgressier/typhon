@@ -51,6 +51,8 @@ case(lim_sbee)
   scellgrad(:) = superbee(2._krp*scellgrad(:)-LRsca(:), LRsca(:))
 case(lim_kim3)
   scellgrad(:) = kim3(LRsca(:), 2._krp*scellgrad(:)-LRsca(:))  ! param order !
+case(lim_lim03)
+  scellgrad(:) = lim03(2._krp*scellgrad(:)-LRsca(:), LRsca(:)) ! param order !
 case default
   call erreur("high resolution","unknown limiter")
 endselect
