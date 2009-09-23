@@ -29,9 +29,6 @@ integer  log_maxlevel ! profondeur d'affichage maximale en fichier log
 ! unites d'entrees
 
 integer  uf_stdin     ! entree standard
-integer  uf_menu      ! menus
-integer  uf_mesh      ! maillages
-integer  uf_cdlim     ! conditions aux limites
 
 ! unites de sorties
 
@@ -91,12 +88,6 @@ implicit none
 
   ! unites d'entrees
   uf_stdin   = 5     ! entree standard
-  uf_menu    = getnew_io_unit()    ! menus
-  uf_mesh    = getnew_io_unit()    ! maillages
-  uf_cdlim   = getnew_io_unit()    ! conditions aux limites
-  if (uf_menu   <= 0) call error_stop("IO unit management: cannot find free unit")
-  if (uf_mesh   <= 0) call error_stop("IO unit management: cannot find free unit")
-  if (uf_cdlim  <= 0) call error_stop("IO unit management: cannot find free unit")
 
   ! unites de sorties
   uf_stdout  = 6    ! sortie standard (informations standard)

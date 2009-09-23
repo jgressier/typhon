@@ -1,11 +1,9 @@
 !------------------------------------------------------------------------------!
-! Procedure : def_boco                    Auteur : J. Gressier
-!                                         Date   : Mars 2003
-! Fonction                                Modif  : (cf historique)
+! Procedure : def_boco
+!
+! Fonction
 !   Traitement des parametres du fichier menu principal
 !   Parametres principaux du projet
-!
-! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
 subroutine def_boco(block, isolver, defsolver, zcoupling, ncoupling)

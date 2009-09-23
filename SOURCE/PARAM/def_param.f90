@@ -9,6 +9,7 @@ subroutine def_param(lworld)
 
 use RPM        ! librairie de blocs RPM pour la lecture des parametres
 use TYPHMAKE   ! definition de la precision
+use IO_UNIT    !
 use OUTPUT     ! definition des unites de sortie
 use MODWORLD   ! definition des donnees globales
 
@@ -23,6 +24,7 @@ type(st_world) :: lworld
 type(rpmblock), pointer :: firstblock
 integer                 :: info         ! etat de l'ouverture de fichier
 character(len=longname) :: fic
+integer                 :: uf_menu
 
 ! -- BODY --
 
@@ -32,7 +34,8 @@ character(len=longname) :: fic
 
 call print_etape("> PARAMETERS reading : main file (main.rpm)")
 
-fic = "main.rpm"
+fic     = "main.rpm"
+uf_menu = getnew_io_unit()
 
 open(unit=uf_menu, file=trim(fic), form="formatted", action="read", iostat=info)
 if (info /= 0) call erreur("Lecture du menu","fichier "//trim(fic)// &
@@ -42,7 +45,8 @@ if (info /= 0) call erreur("Lecture du menu","fichier "//trim(fic)// &
 !nullify(firstblock)
 
 call readrpmblock(uf_menu, uf_log, 1, firstblock) ! Lecture du fichier de parametres
-close(uf_menu)
+
+call close_io_unit(uf_menu)
 
 !call printrpmblock(6, firstblock, .false.)
 
@@ -50,7 +54,7 @@ close(uf_menu)
 ! Traitement des parametres lus et configuration WORLD
 !---------------------------------------------------------
 
-call print_etape("> PARAMETERs : parsing and initialization")
+call print_etape("> PARAMETERS : parsing and initialization")
 
 call trait_param(firstblock, lworld)
 
