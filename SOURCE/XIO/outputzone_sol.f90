@@ -41,7 +41,7 @@ case(fmt_TECPLOT)
 
 case(fmt_VTK, fmt_VTKBIN)
 
-  call writecgns_sol(defio, zone%defsolver, pgrid%umesh, pgrid%info%field_loc)
+  call writevtk_sol(defio, zone%defsolver, pgrid%umesh, pgrid%info%field_loc)
 
 
 case(fmt_CGNS, fmt_CGNS_linked)

@@ -5,13 +5,14 @@
 !   Write the field of each zone
 !
 !------------------------------------------------------------------------------!
-subroutine output_zone(nom, defio, zone)
+subroutine output_zone(nom, defio, zone, winfo)
 
 use TYPHMAKE
 use OUTPUT
 use VARCOM
 use DEFZONE
 use MENU_GEN
+USE MODINFO
 
 implicit none
 
@@ -19,14 +20,16 @@ implicit none
 character(len=*), intent(in) :: nom       ! filename
 type(mnu_output)             :: defio     ! output parameter
 type(st_zone)                :: zone      ! zone
+type(st_info)                :: winfo     ! world info
 
 ! -- OUPUTS --
 
 ! -- Internal variables --
-integer               :: izone, i, dim, ufc, ir
-integer               :: info
-type(st_genericfield) :: vfield
-character(len=10)     :: suffix
+integer                :: izone, i, dim, ufc, ir
+integer                :: info
+type(st_genericfield)  :: vfield
+character(len=10)      :: suffix, fileformat
+type(st_grid), pointer :: pgrid
 
 ! -- BODY --
 
@@ -34,6 +37,22 @@ character(len=10)     :: suffix
 !------------------------------------------------------------------
 ! prepare DATA to save
 !------------------------------------------------------------------
+
+! -- recompute PRIMITIVE data (for all OUTPUTS) --
+
+pgrid => zone%gridlist%first
+do while (associated(pgrid))
+  call calc_varprim(zone%defsolver, pgrid%info%field_loc)     ! calcul des var. primitives
+  pgrid => pgrid%next
+enddo
+
+! -- recompute BOCO data (needed for BOCO outputs AND Tecplot output) --
+
+pgrid => zone%gridlist%first
+do while (associated(pgrid))
+  call calcboco_ust(winfo%curtps, zone%defsolver, zone%defsolver%defspat, pgrid)
+  pgrid => pgrid%next
+enddo
 
 select case(defio%dataset)
 case(dataset_node)
@@ -55,12 +74,12 @@ select case(defio%format)
 case(fmt_VTK)
 
   call print_info(2,"* write VTK file: " // trim(defio%filename))
-  call output_vtk(defio, zone)
+  !call output_vtk(defio, zone)
 
 case(fmt_VTKBIN)
 
   call print_info(2,"* write VTK Binary file: " // trim(defio%filename))
-  call output_vtkbin(defio, zone)
+  !call output_vtkbin(defio, zone)
 
 case(fmt_TECPLOT)
 
@@ -80,9 +99,11 @@ endselect
 !------------------------------------------------------------------
 
 select case(defio%format)
-case(fmt_VTK, fmt_VTKBIN, fmt_TECPLOT)
+case(fmt_TECPLOT)
   ! already saved
-case(fmt_CGNS, fmt_CGNS_linked)
+!case(fmt_VTK, fmt_VTKBIN)
+  ! already saved
+case(fmt_CGNS, fmt_CGNS_linked, fmt_VTK, fmt_VTKBIN)
 
   call outputzone_open   (defio, zone) 
   call outputzone_ustmesh(defio, zone) 

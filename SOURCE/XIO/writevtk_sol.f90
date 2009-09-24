@@ -37,6 +37,8 @@ character(len=shortname) :: qname
 
 ! -- header --
 
+ncellint = umesh%ncell_int
+
 select case(defio%format)
 case(fmt_VTK)
   write(defio%iunit,'(A,I9)') 'CELL_DATA ', ncellint

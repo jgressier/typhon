@@ -49,7 +49,7 @@ do i = 1, world%noutput
         call erreur("Internal error (output_result)","unknown position parameter in output")
       endselect
 
-      call output_zone(trim(nom), world%output(i), world%zone(iz))
+      call output_zone(trim(nom), world%output(i), world%zone(iz), world%info)
 
     enddo
 
