@@ -10,12 +10,12 @@ BLOCK:PROJECT           ! DEFINITION DU PROJET
 ENDBLOCK               
 
 BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
-  FORMAT = TECPLOT        
+  FORMAT = VTK
   FILE   = "typhon" 
 ENDBLOCK
 
 BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
-  NAME   = "flat" 
+  NAME   = "NS" 
   SOLVER = EULER  
 ENDBLOCK
 

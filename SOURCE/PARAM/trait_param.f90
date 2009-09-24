@@ -13,16 +13,17 @@ use VARCOM
 use OUTPUT
 use MODWORLD
 use MENU_SOLVER
+use IO_UNIT
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(rpmblock), target :: block
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 type(st_world) :: world
 
-! -- Declaration des variables internes --
+! -- Private Data --
 type(rpmblock), pointer  :: pblock, pcour, pzone  ! pointeurs de bloc RPM
 integer                  :: nkey           ! nombre de clefs
 logical                  :: localzone      ! declaration locale d'une zone
@@ -31,8 +32,9 @@ integer                  :: icoupl         ! numero local de raccord
 integer                  :: solver         ! type de solveur
 integer                  :: info           ! etat de l'ouverture de fichier
 character(len=dimrpmlig) :: str, fic       ! chaines RPM intermediaire
+integer                  :: uf_menu
 
-! -- Debut de la procedure --
+! -- BODY --
 
 ! -- Recherche du BLOCK:PROJECT et traitement
 
@@ -77,11 +79,12 @@ do izone = 1, world%prj%nzone
   if (rpm_existkey(pcour, "FILE")) then
 
     call rpmgetkeyvalstr(pcour, "FILE", fic)
+    uf_menu = getnew_io_unit()
     open(unit=uf_menu, file=trim(fic), iostat=info)
     if (info /= 0) call erreur("Lecture du menu","fichier "//trim(fic)// &
                                " introuvable ou interdit en lecture")
     call readrpmblock(uf_menu, uf_log, 1, pzone)
-    close(uf_menu) 
+    call close_io_unit(uf_menu) 
 
   else
 
