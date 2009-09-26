@@ -77,9 +77,10 @@ do im = 1, nmode
    ! -- Apply Flux mode dQ --
 
    lworld%zone(izflux)%defsolver%boco(ibdefflux)%boco_kdif%flux_nunif(1:nflux) = flux(1:nflux)
-    
+
+   ! negative outgoing flux
    unitmode(1:nmode) = 0._krp
-   unitmode(im)      = lworld%prj%inverse%ref_flux    ! define ( 0 ..., 1, 0 ... 0)
+   unitmode(im)      = -lworld%prj%inverse%ref_flux    ! define ( 0 ..., -1, 0 ... 0)
 
    call add_invmodes(inverse%defmode, &
                      lworld%zone(izflux)%defsolver%boco(ibdefflux)%boco_kdif%flux_nunif(1:nflux), &
@@ -93,13 +94,13 @@ do im = 1, nmode
          call integration_cyclezone(lworld%zone(izone), lworld%info%residu_ref, wcur_res)
       enddo
   
-      call inverse_get_tmes(ifut, lworld%prj%inverse, lworld%zone(lworld%prj%inverse%iz_tmes), &
+      call inverse_get_tmes(lworld%info, ifut, lworld%prj%inverse, lworld%zone(lworld%prj%inverse%iz_tmes), &
            tmes_calc)
    enddo
 
-   lworld%prj%inverse%sensi(im, 1:nmes, 1:nfut) = (tmes_calc(1:nmes, 1:nfut) - tref(1:nmes, 1:nfut))&
+   lworld%prj%inverse%sensi(im, 1:nmes, 1:nfut) = -(tmes_calc(1:nmes, 1:nfut) - tref(1:nmes, 1:nfut))&
                                                   / lworld%prj%inverse%ref_flux
-   print*,"  mode",im," sensitivity:",maxval(abs(lworld%prj%inverse%sensi(im, 1:nmes, 1:nfut)))
+   !print*,"  mode",im," sensitivity:",maxval(abs(lworld%prj%inverse%sensi(im, 1:nmes, 1:nfut)))
    
 enddo
 

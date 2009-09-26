@@ -101,7 +101,7 @@ flux(1:nflux) = lworld%zone(izflux)%defsolver%boco(ibdefflux)%boco_kdif%flux_nun
 
 allocate(tmes_ref(nmes, nfut))
 
-call print_info(10, ". prospection ("//trim(strof(nfut))//" cycles)")
+call print_info(10, ". prospecting ("//trim(strof(nfut))//" cycles)")
 
 do ifut = 1, nfut
 
@@ -110,7 +110,7 @@ do ifut = 1, nfut
     call integration_cyclezone(lworld%zone(izone), lworld%info%residu_ref, wcur_res)
   enddo
 
-  call inverse_get_tmes(ifut, lworld%prj%inverse, lworld%zone(lworld%prj%inverse%iz_tmes), &
+  call inverse_get_tmes(lworld%info, ifut, lworld%prj%inverse, lworld%zone(lworld%prj%inverse%iz_tmes), &
                         tmes_ref)
 enddo
 
