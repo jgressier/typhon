@@ -23,8 +23,10 @@ integer       :: icycle
 ! -- Outputs --
 
 ! -- Internal variables --
-integer            :: ic                 ! index de capteur
-character(len=200) :: str
+integer                :: ic                 ! index de capteur
+character(len=200)     :: str
+type(st_grid), pointer :: pgrid
+
 
 ! -- BODY --
 
@@ -32,6 +34,16 @@ character(len=200) :: str
 ! Computation 
 
 str=''
+
+if (zone%defsolver%nprobe >= 1) then
+
+! -- update primitive data --
+
+pgrid => zone%gridlist%first
+do while (associated(pgrid))
+  call calc_varprim(zone%defsolver, pgrid%info%field_loc)     ! calcul des var. primitives
+  pgrid => pgrid%next
+enddo
 
 do ic = 1, zone%defsolver%nprobe
 
@@ -55,7 +67,7 @@ do ic = 1, zone%defsolver%nprobe
 
 enddo
 
-
+endif
 !-----------------------------
 endsubroutine write_monitors_cycle
 !------------------------------------------------------------------------------!
