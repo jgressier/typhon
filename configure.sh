@@ -51,13 +51,19 @@ check_diff() {
   }
 
 check_f90compiler() {
-  local namelist="ifort ifc pgf90 lfc pathf90 af90 f90 f95 sxf90 g95 gfortran"
+  local namelist="$F90 ifort ifc pgf90 lfc pathf90 af90 f90 f95 sxf90 g95 gfortran"
   for exe in $namelist ; do
     F90C=$(which $exe 2> /dev/null)
     if [ -n "$F90C" ] ; then
       success $F90C
       F90C=${F90C##*/}
-      check "$F90C fortran 90 conformance" f90conformance
+      case $SYS-$F90C in
+	  *ifc|*ifort) F90_FB="-fPIC -implicitnone -convert big_endian" ;;
+	  *gfortran)   F90_FB="-fPIC -fimplicit-none -fconvert=big-endian -ffree-line-length-none" ;;
+	  *)           F90_FB="" ;;
+      esac
+      export F90_FB
+      check "$F90C fortran 90 conformance" f90conformance "$F90_FB"
       break
     fi
   done
@@ -74,7 +80,7 @@ check_f90conformance() {
   cd $TMPDIR
   rm * 2> /dev/null
   cp $LOCALDIR/$TOOLSCONF/f90conformance.f90 .
-  $F90C $f90options f90conformance.f90 -o f90test > /dev/null 2>&1
+  $F90C $f90options f90conformance.f90 -o f90test >> $conflog 2>&1
   if [ $? ] ; then
     success "successfully compiled"
     ./f90test > /dev/null 2>&1
@@ -91,10 +97,10 @@ check_f90conformance() {
 
 check_f90opti() {
   case $SYS-$F90C in
-    *ifc|*ifort) F90_OPTI="-fPIC -implicitnone -convert big_endian -O3" ;;
+    *ifc|*ifort) F90_OPTI="-O3" ;;
     *pgf90)      F90_OPTI="-fastsse -Munroll=n:4 -Mipa=fast,inline" ;;
     *pathf90)    F90_OPTI="-Ofast" ;;
-    *gfortran)   F90_OPTI="-ffast-math -funroll-loops -O3" ;;
+    *gfortran)   F90_OPTI="-O3" ;;
     *g95)        F90_OPTI="-ffast-math -funroll-loops -O3" ;;
     *af90)       F90_OPTI="-Ofast -fast_math" ;;
     *lfc)        F90_OPTI="--fast" ;;
@@ -104,17 +110,17 @@ check_f90opti() {
   esac
   export F90_OPTI
   success "$F90_OPTI"
-  check "$F90_OPTI options" f90conformance "$F90_OPTI"
+  check "$F90_OPTI options" f90conformance "$F90_FB $F90_OPTI"
   }
 
 check_f90debug() {
   case $SYS-$F90C in
-    *ifc|*ifort) F90_DEBUG="-fPIC -implicitnone -convert big_endian -g -traceback -CB" ;;
+    *ifc|*ifort) F90_DEBUG="-g -traceback -CB" ;;
     *)           F90_DEBUG="-g" ;;
   esac
   export F90_DEBUG
   success "$F90_DEBUG"
-  check "$F90_DEBUG options" f90conformance "$F90_DEBUG"
+  check "$F90_DEBUG options" f90conformance "$F90_FB $F90_DEBUG"
   }
 
 check_f90prof() {
@@ -123,7 +129,7 @@ check_f90prof() {
   esac
   export F90_PROF
   success "$F90_PROF"
-  check "$F90_PROF options" f90conformance "$F90_PROF"
+  check "$F90_PROF options" f90conformance "$F90_FB $F90_PROF"
   }
 
 check_library() {
@@ -217,6 +223,8 @@ LOCALDIR=$PWD
 TMPDIR=/tmp/configure.$$
 mkdir $TMPDIR
 trap "cd $LOCALDIR ; rm -Rf $TMPDIR ; exit 1" 0 2
+conflog=$LOCALDIR/configure.log
+rm $conflog 2> /dev/null
 
 check "native system"               system
 check "CPU model"                   proc
@@ -266,7 +274,7 @@ done
 
 ### MAKEFILE CONFIGURATION ###
 echo Writing Makefile configuration...
-rm $MAKECONF 2> /dev/null
+mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
 {
   echo "# This file was created by $(basename $0)"
   echo
@@ -274,7 +282,7 @@ rm $MAKECONF 2> /dev/null
   echo "MAKEDEPENDS = Util/make_depends $F90modcase"
   echo "MOD         = $F90modext"
   echo "CF          = $F90C"
-  echo "FB          = -I\$(PRJINC)"
+  echo "FB          = $F90_FB -I\$(PRJINC)"
   echo "FO_debug    = $F90_DEBUG"
   echo "FO_opt      = $F90_OPTI"
   echo "FO_prof     = $F90_PROF"

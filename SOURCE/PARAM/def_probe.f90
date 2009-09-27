@@ -52,7 +52,7 @@ else
 
     call rpmgetkeyvalstr(pcour, "TYPE", str)
 
-    defsolver%probe(ip)%type = cnull
+    defsolver%probe(ip)%type = inull
 
     if (samestring(str, "PROBE" ))         defsolver%probe(ip)%type = probe_cell
     if (samestring(str, "BOCO_FIELD" ))    defsolver%probe(ip)%type = boco_field

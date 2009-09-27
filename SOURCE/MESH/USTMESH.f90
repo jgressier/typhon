@@ -17,7 +17,7 @@ use MESHBASE      ! geometrical basic elements
 use CONNECTIVITY  ! lists & connectivity 
 use ELEMVTEX      ! Cell (vtex) definition
 use DEFFIELD
-use USTBOCO
+use DEF_USTBOCO
 
 implicit none
 

@@ -7,22 +7,29 @@ HOW TO CREATE NEW TYPHON RELEASE
 - run NRG (non-regression) cases
 
 - update release number in SOURCE/MODCOM/VARCOM.f90
+  export    RELEASE=i.j.k
+  export SVNRELEASE=i-j-k
 
 - update WEBSITE (index, index_news, dev_chlog, feat_*)
 
 - commit changes 
-  > svn ci -m "last changes for release i.j.k"
+  > svn ci -m "last changes for release $RELEASE"
 
 - create a "svn tag" 
-  > svn cp -m "tagging release i.j.k" \
+  > svn cp -m "tagging release $RELEASE" \
            https://typhon.svn.sourceforge.net/svnroot/typhon/trunk \
-           https://typhon.svn.sourceforge.net/svnroot/typhon/tags/rel-i-j-k
+           https://typhon.svn.sourceforge.net/svnroot/typhon/tags/rel-$SVNRELEASE
 
 - create news text
   . mail typhon-devel typhon-users@list.sourceforge.net
   . post news on sf.net/projects/typhon
 
 - create packages 
-    tar cvfz typhon-solver-x.x.x-sources.tar.gz TYPHON/SOURCE
-    anonymous ftp to upload.sourceforge.net / incoming and create release in sf.net/projects/typhon
+    svn export https://typhon.svn.sourceforge.net/svnroot/typhon/tags/rel-$SVNRELEASE typhon
+    cd typhon
+    rm -R NRG WEBSITE VALIDATION dev
+    cd ..
+    tar cvfz typhon-solver-$RELEASE-sources.tar.gz typhon
+    scp typhon-solver-$RELEASE-sources.tar.gz gressier@frs.sourceforge.net:uploads
+  create release in sf.net/projects/typhon
 

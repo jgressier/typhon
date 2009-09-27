@@ -633,27 +633,27 @@ end subroutine v3d_rot
 !------------------------------------------------------------------------------!
 ! computation of rotation matrix
 !------------------------------------------------------------------------------!
-subroutine calc_rot(rot, axis, angle)
+subroutine calc_rot(mrot, axis, angle)
 implicit none
 type(v3d), intent(in)  :: axis
 real(krp), intent(in)  :: angle
-real(krp), intent(out) :: rot(3,3)
+real(krp), intent(out) :: mrot(3,3)
 real(krp) :: costh, sinth
 
   costh = cos(angle)
   sinth = sin(angle)
-  rot(1,1)   = costh
-  rot(2,2)   = costh
-  rot(3,3)   = costh
-  rot(1,2)   = - axis%z*sinth
-  rot(1,3)   = + axis%y*sinth
-  rot(2,1)   = + axis%z*sinth
-  rot(2,3)   = - axis%x*sinth
-  rot(3,1)   = - axis%y*sinth
-  rot(3,2)   = + axis%x*sinth
-  rot(1,1:3) = rot(1,1:3) + (1._krp-costh)*axis%x*tab(axis)
-  rot(2,1:3) = rot(2,1:3) + (1._krp-costh)*axis%y*tab(axis)
-  rot(3,1:3) = rot(3,1:3) + (1._krp-costh)*axis%z*tab(axis)
+  mrot(1,1)   = costh
+  mrot(2,2)   = costh
+  mrot(3,3)   = costh
+  mrot(1,2)   = - axis%z*sinth
+  mrot(1,3)   = + axis%y*sinth
+  mrot(2,1)   = + axis%z*sinth
+  mrot(2,3)   = - axis%x*sinth
+  mrot(3,1)   = - axis%y*sinth
+  mrot(3,2)   = + axis%x*sinth
+  mrot(1,1:3) = mrot(1,1:3) + (1._krp-costh)*axis%x*tab(axis)
+  mrot(2,1:3) = mrot(2,1:3) + (1._krp-costh)*axis%y*tab(axis)
+  mrot(3,1:3) = mrot(3,1:3) + (1._krp-costh)*axis%z*tab(axis)
 
 end subroutine calc_rot
 
@@ -666,16 +666,15 @@ type(v3d), intent(in)    :: axis
 real(krp), intent(in)    :: angle
 type(v3d), intent(inout) :: v(:)
 integer   :: i
-real(krp) :: rot(3,3)
+real(krp) :: mrot(3,3)
 
-  call calc_rot(rot, axis, angle)
+  call calc_rot(mrot, axis, angle)
 
   do i = 1, size(v)
-    v(i) = v3d_of(matmul(rot, tab(v(i))))
+    v(i) = v3d_of(matmul(mrot, tab(v(i))))
   enddo
 
 end subroutine v3d_rot_t
-
 
 
 

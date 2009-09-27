@@ -8,12 +8,12 @@ LDIR := MESH
 MESH_LIB = $(PRJLIB)/libt_mesh.a
 
 MESH_MOD = ELEMVTEX.$(MOD)     \
+           DEF_USTBOCO.$(MOD)  \
            GEO3D.$(MOD)        \
            GRID_CONNECT.$(MOD) \
            MESHBASE.$(MOD)     \
            STRMESH.$(MOD)      \
            TENSOR3.$(MOD)      \
-           USTBOCO.$(MOD)      \
            USTMESH.$(MOD) 
 
 MESH_OBJ = $(MESH_MOD:.$(MOD)=.o)  \

@@ -5,7 +5,7 @@
 !
 !------------------------------------------------------------------------------!
 
-module USTBOCO
+module DEF_USTBOCO
 
 use TYPHMAKE      ! machine accuracy
 use GEO3D 
@@ -26,7 +26,7 @@ integer, parameter :: defboco_connect = -1
 ! Definition de la structure ST_USTBOCO : Definition des conditions aux limites
 !------------------------------------------------------------------------------!
 type st_ustboco
-  character(len=shortname)       :: family     ! tag name
+  character(len=shortname)       :: family     ! nom de famille
   integer                        :: idefboco   ! index pointer to defsolver boco definition
                                                !   if <= 0 then other definition (cf defboco_* constants)
   integer                        :: nface      ! nombre de faces concernees
@@ -99,7 +99,7 @@ integer          :: i
 endsubroutine delete_ustboco
 
 
-endmodule USTBOCO
+endmodule DEF_USTBOCO
 
 !------------------------------------------------------------------------------!
 ! History
