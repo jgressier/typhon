@@ -5,8 +5,10 @@ LDIR := MESH
 
 ####### Files
 
+# Library
 MESH_LIB = $(PRJLIB)/libt_mesh.a
 
+# Modules
 MESH_MOD = ELEMVTEX.$(MOD)     \
            DEF_USTBOCO.$(MOD)  \
            GEO3D.$(MOD)        \
@@ -14,8 +16,9 @@ MESH_MOD = ELEMVTEX.$(MOD)     \
            MESHBASE.$(MOD)     \
            STRMESH.$(MOD)      \
            TENSOR3.$(MOD)      \
-           USTMESH.$(MOD) 
+           USTMESH.$(MOD)
 
+# Objects
 MESH_OBJ = $(MESH_MOD:.$(MOD)=.o)  \
            build_implicit_bdlu.o   \
            build_implicit_dlu.o    \
@@ -36,10 +39,10 @@ MESH_OBJ = $(MESH_MOD:.$(MOD)=.o)  \
            scale_mesh.o            \
            test_ustmesh.o          \
 
-
 D_MESH_OBJ = $(MESH_OBJ:%=$(PRJOBJ)/%)
 
 D_MESH_SRC := $(MESH_OBJ:%.o=$(LDIR)/%.f90)
+
 
 ####### Build rules
 
@@ -47,10 +50,10 @@ all: $(MESH_LIB)
 
 $(MESH_LIB): $(D_MESH_OBJ)
 	@echo ---------------------------------------------------------------
-	@echo \* Creation of library : $(MESH_LIB)
+	@echo \* Compiling library $(MESH_LIB)
 	@touch $(MESH_LIB) ; rm $(MESH_LIB)
 	@$(AR) ruv $(MESH_LIB) $(D_MESH_OBJ)
-	@echo \* Creation of library index
+	@echo \* Creating library index
 	@$(RAN)    $(MESH_LIB)
 	@echo ---------------------------------------------------------------
 	@echo \* LIBRARY $(MESH_LIB) created
@@ -58,6 +61,7 @@ $(MESH_LIB): $(D_MESH_OBJ)
 
 MESH_clean:
 	-rm $(MESH_LIB) $(D_MESH_OBJ) $(MESH_MOD) MESH/depends.make
+
 
 ####### Dependencies
 

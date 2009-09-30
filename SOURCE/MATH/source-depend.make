@@ -1,12 +1,14 @@
 ############################################################
-##   Compilation de la librairie MATH
+##   MATH library compilation
 
 LDIR = MATH
 
 ####### Files
 
+# Library
 MATH_LIB = $(PRJLIB)/libt_math.a
 
+# Modules
 MATH_MOD = FCT_CONTAINER.$(MOD) \
            FCT_DEF.$(MOD)       \
            FCT_ENV.$(MOD)       \
@@ -26,6 +28,7 @@ MATH_MOD = FCT_CONTAINER.$(MOD) \
            SPMAT_CRS.$(MOD)   \
            SPMAT_SDLU.$(MOD)  \
 
+# Objects
 MATH_OBJ = $(MATH_MOD:.$(MOD)=.o)  \
            bdlu_bicg.o             \
            bdlu_bicgstab.o         \
@@ -47,31 +50,31 @@ D_MATH_OBJ = $(MATH_OBJ:%=$(PRJOBJ)/%)
 
 D_MATH_SRC = $(MATH_OBJ:%.o=$(LDIR)/%.f90)
 
+
 ####### Build rules
 
 all: $(MATH_LIB)
 
 $(MATH_LIB): $(D_MATH_OBJ)
 	@echo ---------------------------------------------------------------
-	@echo \* Creation of library : $(MATH_LIB)
+	@echo \* Compiling library $(MATH_LIB)
 	@touch $(MATH_LIB) ; rm $(MATH_LIB)
 	@$(AR) ruv $(MATH_LIB) $(D_MATH_OBJ)
-	@echo \* Creation of library index
+	@echo \* Creating library index
 	@$(RAN)    $(MATH_LIB)
 	@echo ---------------------------------------------------------------
 	@echo \* LIBRARY $(MATH_LIB) created
 	@echo ---------------------------------------------------------------
 
 MATH_clean:
-	-rm  $(MATH_LIB) $(D_MATH_OBJ) $(MATH_MOD) MATH/depends.make
+	-rm $(MATH_LIB) $(D_MATH_OBJ) $(MATH_MOD) MATH/depends.make
+
 
 ####### Dependencies
-
 
 MATH/depends.make: $(D_MATH_SRC)
 	(cd MATH ; ../$(MAKEDEPENDS))
 
 include MATH/depends.make
-
 
 

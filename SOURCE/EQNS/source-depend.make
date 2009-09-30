@@ -1,16 +1,18 @@
 ############################################################
-##   Compilation de la librairie EQNS
+##   EQNS library compilation
 
 LDIR := EQNS
 
 ####### Files
 
+# Library
 EQNS_LIB = $(PRJLIB)/libt_eqns.a
 
+# Modules
 EQNS_MOD = EQNS.$(MOD)      \
            MENU_NS.$(MOD)
 
-
+# Objects
 EQNS_OBJ := $(EQNS_MOD:.$(MOD)=.o)    \
             calc_flux_ausmm.o         \
             calc_flux_hlle.o          \
@@ -65,28 +67,24 @@ all: $(EQNS_LIB)
 
 $(EQNS_LIB): $(D_EQNS_OBJ)
 	@echo ---------------------------------------------------------------
-	@echo \* Création de la librairie $(EQNS_LIB)
+	@echo \* Compiling library $(EQNS_LIB)
 	@touch $(EQNS_LIB) ; rm $(EQNS_LIB)
 	@$(AR) ruv $(EQNS_LIB) $(D_EQNS_OBJ)
-	@echo \* Création de l\'index de la librairie
+	@echo \* Creating library index
 	@$(RAN)    $(EQNS_LIB)
 	@echo ---------------------------------------------------------------
-	@echo \* LIBRAIRIE $(EQNS_LIB) créée
+	@echo \* LIBRARY $(EQNS_LIB) created
 	@echo ---------------------------------------------------------------
 
 EQNS_clean:
-	-rm  $(EQNS_LIB) $(D_EQNS_OBJ) $(EQNS_MOD) EQNS/depends.make
+	-rm $(EQNS_LIB) $(D_EQNS_OBJ) $(EQNS_MOD) EQNS/depends.make
 
 
 ####### Dependencies
-
 
 EQNS/depends.make: $(D_EQNS_SRC)
 	(cd EQNS ; ../$(MAKEDEPENDS))
 
 include EQNS/depends.make
-
-
-
 
 

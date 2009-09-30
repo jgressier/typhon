@@ -1,18 +1,21 @@
 ############################################################
-##   Compilation de la librairie ZONE
+##   ZONE library compilation
 
 LDIR := ZONE
 
 ####### Files
 
+# Library
 ZONE_LIB = $(PRJLIB)/libt_zone.a
 
+# Modules
 ZONE_MOD = BOUND.$(MOD)                  \
            DEFCAPTEURS.$(MOD)            \
            DEFZONE.$(MOD)                \
            ZONE_COUPLING.$(MOD)          \
-           MENU_ZONECOUPLING.$(MOD) 
+           MENU_ZONECOUPLING.$(MOD)
 
+# Objects
 ZONE_OBJ := $(ZONE_MOD:.$(MOD)=.o)       \
             calc_refcons.o               \
             calc_varcons.o               \
@@ -32,7 +35,6 @@ ZONE_OBJ := $(ZONE_MOD:.$(MOD)=.o)       \
             split_zone.o                 \
             update_field.o
 
-
 D_ZONE_OBJ := $(ZONE_OBJ:%=$(PRJOBJ)/%)
 
 D_ZONE_SRC := $(ZONE_OBJ:%.o=$(LDIR)/%.f90)
@@ -44,17 +46,18 @@ all: $(ZONE_LIB)
 
 $(ZONE_LIB): $(D_ZONE_OBJ)
 	@echo ---------------------------------------------------------------
-	@echo \* Création de la librairie $(ZONE_LIB)
+	@echo \* Compiling library $(ZONE_LIB)
 	@touch $(ZONE_LIB) ; rm $(ZONE_LIB)
 	@$(AR) ruv $(ZONE_LIB) $(D_ZONE_OBJ)
-	@echo \* Création de l\'index de la librairie
+	@echo \* Creating library index
 	@$(RAN)    $(ZONE_LIB)
 	@echo ---------------------------------------------------------------
-	@echo \* LIBRAIRIE $(ZONE_LIB) créée
+	@echo \* LIBRARY $(ZONE_LIB) created
 	@echo ---------------------------------------------------------------
 
 ZONE_clean:
-	-rm  $(ZONE_LIB) $(D_ZONE_OBJ) $(ZONE_MOD) ZONE/depends.make
+	-rm $(ZONE_LIB) $(D_ZONE_OBJ) $(ZONE_MOD) ZONE/depends.make
+
 
 ####### Dependencies
 

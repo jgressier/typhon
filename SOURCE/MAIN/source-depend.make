@@ -5,10 +5,13 @@ LDIR := MAIN
 
 ####### Files
 
+# Library
 MAIN_LIB = $(PRJLIB)/libt_main.a
 
+# Modules
 MAIN_MOD = MODWORLD.$(MOD)
 
+# Objects
 MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            accumulfluxcorr.o        \
            analyse.o                \
@@ -71,17 +74,17 @@ all: $(MAIN_LIB)
 
 $(MAIN_LIB): $(D_MAIN_OBJ)
 	@echo ---------------------------------------------------------------
-	@echo \* Creation of library : $(MAIN_LIB)
+	@echo \* Compiling library $(MAIN_LIB)
 	@touch $(MAIN_LIB) ; rm $(MAIN_LIB)
 	@$(AR) ruv $(MAIN_LIB) $(D_MAIN_OBJ)
-	@echo \* Creation of library index
+	@echo \* Creating library index
 	@$(RAN)    $(MAIN_LIB)
 	@echo ---------------------------------------------------------------
 	@echo \* LIBRARY $(MAIN_LIB) created
 	@echo ---------------------------------------------------------------
 
-MAIN_clean: 
-	-rm  $(MAIN_LIB) $(D_MAIN_OBJ) $(MAIN_MOD) MAIN/depends.make
+MAIN_clean:
+	-rm $(MAIN_LIB) $(D_MAIN_OBJ) $(MAIN_MOD) MAIN/depends.make
 
 
 ####### Dependencies
@@ -108,4 +111,5 @@ $(SVNREVFILE): $(SVNREVDEP)
 	@echo "$(SVNREVSTR)" > $@
 
 include MAIN/depends.make
+
 

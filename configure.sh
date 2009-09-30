@@ -110,7 +110,7 @@ check_f90opti() {
   esac
   export F90_OPTI
   success "$F90_OPTI"
-  check "$F90_OPTI options" f90conformance "$F90_FB $F90_OPTI"
+  check "$F90C optimization" f90conformance "$F90_FB $F90_OPTI"
   }
 
 check_f90debug() {
@@ -120,7 +120,7 @@ check_f90debug() {
   esac
   export F90_DEBUG
   success "$F90_DEBUG"
-  check "$F90_DEBUG options" f90conformance "$F90_FB $F90_DEBUG"
+  check "$F90C debug" f90conformance "$F90_FB $F90_DEBUG"
   }
 
 check_f90prof() {
@@ -129,7 +129,7 @@ check_f90prof() {
   esac
   export F90_PROF
   success "$F90_PROF"
-  check "$F90_PROF options" f90conformance "$F90_FB $F90_PROF"
+  check "$F90C profiling" f90conformance "$F90_FB $F90_PROF"
   }
 
 check_library() {
@@ -167,7 +167,7 @@ check_include() {
     rm SOURCE/Include/$name 2> /dev/null
     ln -s $fullname SOURCE/Include
   else
-    fail "not found"
+    fail "not found: $name"
   fi
   }
 
@@ -243,8 +243,8 @@ for inc in $EXTINC ; do
 done
 check "MPI library"                 mpilib
 check "$F90C optimization options"  f90opti
-check "$F90C debug        options"  f90debug
-check "$F90C profiling    options"  f90prof
+check "$F90C debug options"  f90debug
+check "$F90C profiling options"  f90prof
 
 ### DEEPER CHECK ###
 
@@ -266,14 +266,14 @@ fi
 echo Configuration ended
 
 ### SHELL CONFIGURATION ###
-echo Writing Shell configuration...
+echo Writing Shell configuration ...
 rm $SHELLCONF 2> /dev/null
 for VAR in SYS PROC DIFF ; do
   echo export $VAR=\"$(printenv $VAR)\" >> $SHELLCONF
 done
 
 ### MAKEFILE CONFIGURATION ###
-echo Writing Makefile configuration...
+echo Writing Makefile configuration ...
 mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
 {
   echo "# This file was created by $(basename $0)"

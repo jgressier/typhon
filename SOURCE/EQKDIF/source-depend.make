@@ -1,18 +1,20 @@
 ############################################################
-##   Compilation de la librairie EQKDIF
+##   EQKDIF library compilation
 
 LDIR := EQKDIF
 
 ####### Files
 
+# Library
 EQKDIF_LIB = $(PRJLIB)/libt_eqkdif.a
 
+# Modules
 EQKDIF_MOD = EQKDIF.$(MOD)      \
              MATER_LOI.$(MOD)   \
              MATERIAU.$(MOD)    \
              MENU_KDIF.$(MOD)
 
-
+# Objects
 EQKDIF_OBJ := $(EQKDIF_MOD:.$(MOD)=.o)        \
               add_kdif_radiativeflux.o        \
               add_kdif_coupled_radflux.o      \
@@ -59,17 +61,18 @@ all: $(EQKDIF_LIB)
 
 $(EQKDIF_LIB): $(D_EQKDIF_OBJ)
 	@echo ---------------------------------------------------------------
-	@echo \* Création de la librairie $(EQKDIF_LIB)
+	@echo \* Compiling library $(EQKDIF_LIB)
 	@touch $(EQKDIF_LIB) ; rm $(EQKDIF_LIB)
 	@$(AR) ruv $(EQKDIF_LIB) $(D_EQKDIF_OBJ)
-	@echo \* Création de l\'index de la librairie
+	@echo \* Creating library index
 	@$(RAN)    $(EQKDIF_LIB)
 	@echo ---------------------------------------------------------------
-	@echo \* LIBRAIRIE $(EQKDIF_LIB) créée
+	@echo \* LIBRARY $(EQKDIF_LIB) created
 	@echo ---------------------------------------------------------------
 
 EQKDIF_clean:
-	-rm  $(EQKDIF_LIB) $(D_EQKDIF_OBJ) $(EQKDIF_MOD) EQKDIF/depends.make
+	-rm $(EQKDIF_LIB) $(D_EQKDIF_OBJ) $(EQKDIF_MOD) EQKDIF/depends.make
+
 
 ####### Dependencies
 
@@ -77,7 +80,5 @@ EQKDIF/depends.make: $(D_EQKDIF_SRC)
 	(cd EQKDIF ; ../$(MAKEDEPENDS))
 
 include EQKDIF/depends.make
-
-
 
 

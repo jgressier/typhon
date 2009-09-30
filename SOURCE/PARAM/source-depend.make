@@ -1,12 +1,14 @@
 ############################################################
-##   Compilation de la librairie PARAM
+##   PARAM library compilation
 
 LDIR := PARAM
 
 ####### Files
 
+# Library
 PARAM_LIB = $(PRJLIB)/libt_param.a
 
+# Modules
 PARAM_MOD = MENU_AMR.$(MOD)      \
             MENU_BOCO.$(MOD)     \
             MENU_COUPLING.$(MOD) \
@@ -20,7 +22,7 @@ PARAM_MOD = MENU_AMR.$(MOD)      \
             MENU_PROBE.$(MOD)    \
             MENU_SOLVER.$(MOD)   \
 
-
+# Objects
 PARAM_OBJ := $(PARAM_MOD:.$(MOD)=.o)  \
             def_amr.o          \
             def_boco.o         \
@@ -52,27 +54,24 @@ all: $(PARAM_LIB)
 
 $(PARAM_LIB): $(D_PARAM_OBJ)
 	@echo ---------------------------------------------------------------
-	@echo \* Création de la librairie $(PARAM_LIB)
+	@echo \* Compiling library $(PARAM_LIB)
 	@touch $(PARAM_LIB) ; rm $(PARAM_LIB)
 	@$(AR) ruv $(PARAM_LIB) $(D_PARAM_OBJ)
-	@echo \* Création de l\'index de la librairie
+	@echo \* Creating library index
 	@$(RAN)    $(PARAM_LIB)
 	@echo ---------------------------------------------------------------
-	@echo \* LIBRAIRIE $(PARAM_LIB) créée
+	@echo \* LIBRARY $(PARAM_LIB) created
 	@echo ---------------------------------------------------------------
 
 PARAM_clean:
-	-rm  $(PARAM_LIB) $(D_PARAM_OBJ) $(PARAM_MOD) PARAM/depends.make
+	-rm $(PARAM_LIB) $(D_PARAM_OBJ) $(PARAM_MOD) PARAM/depends.make
+
 
 ####### Dependencies
-
 
 PARAM/depends.make: $(D_PARAM_SRC)
 	(cd PARAM ; ../$(MAKEDEPENDS))
 
 include PARAM/depends.make
-
-
-
 
 

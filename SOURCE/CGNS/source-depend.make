@@ -1,16 +1,18 @@
 ############################################################
-##   Compilation de la librairie CGNS
+##   CGNS library compilation
 
 LDIR := CGNS
 
 ####### Files
 
+# Library
 CGNS_LIB = $(PRJLIB)/libt_cgns.a
 
+# Modules
 CGNS_MOD = CGNS_STRUCT.$(MOD)       \
-           CGNSLIB.$(MOD) 
+           CGNSLIB.$(MOD)
 
-
+# Objects
 CGNS_OBJ := $(CGNS_MOD:.$(MOD)=.o)   \
             cgns2typhon_zone.o       \
             cgns2typhon_ustboco.o    \
@@ -32,7 +34,6 @@ CGNS_OBJ := $(CGNS_MOD:.$(MOD)=.o)   \
 	    writecgns_sol.o          \
 	    writecgns_zone.o
 
-
 D_CGNS_OBJ := $(CGNS_OBJ:%=$(PRJOBJ)/%)
 
 D_CGNS_SRC := $(CGNS_OBJ:%.o=$(LDIR)/%.f90)
@@ -44,23 +45,24 @@ all: $(CGNS_LIB)
 
 $(CGNS_LIB): $(D_CGNS_OBJ)
 	@echo ---------------------------------------------------------------
-	@echo \* Création de la librairie $(CGNS_LIB)
+	@echo \* Compiling library $(CGNS_LIB)
 	@touch $(CGNS_LIB) ; rm $(CGNS_LIB)
 	@$(AR) ruv $(CGNS_LIB) $(D_CGNS_OBJ)
-	@echo \* Création de l\'index de la librairie
+	@echo \* Creating library index
 	@$(RAN)    $(CGNS_LIB)
 	@echo ---------------------------------------------------------------
-	@echo \* LIBRAIRIE $(CGNS_LIB) créée
+	@echo \* LIBRARY $(CGNS_LIB) created
 	@echo ---------------------------------------------------------------
 
 CGNS_clean:
-	-rm  $(CGNS_LIB) $(D_CGNS_OBJ) $(CGNS_MOD) CGNS/depends.make
+	-rm $(CGNS_LIB) $(D_CGNS_OBJ) $(CGNS_MOD) CGNS/depends.make
+
 
 ####### Dependencies
-
-
 
 CGNS/depends.make: $(D_CGNS_SRC)
 	(cd CGNS ; ../$(MAKEDEPENDS))
 
 include CGNS/depends.make
+
+
