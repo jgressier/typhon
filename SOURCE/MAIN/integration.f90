@@ -127,7 +127,16 @@ do while (.not. lworld%info%fin_integration)
     call erreur("Development", "unknown TIME integration model")
   endselect
 
+  !--------------------------------------------------------
+  ! Outputs
+
+  do izone = 1, lworld%prj%nzone
+    call write_monitors_cycle(lworld%info%icycle, lworld%zone(izone))
+    call write_bocohisto(     lworld%info%icycle, lworld%zone(izone))
+  enddo
+
   call output_result(lworld, end_cycle)
+  !--------------------------------------------------------
 
   open(unit=2001, file="typhon_stop", status="old", iostat=ierr)
   if (ierr == 0) then
