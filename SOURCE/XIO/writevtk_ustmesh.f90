@@ -23,9 +23,12 @@ type(st_ustmesh), intent(in) :: umesh         ! unstructured mesh
 
 ! -- OUTPUTS --
 
-! -- Internal variables --
-integer   :: i, ncellint
+! -- Private DATA --
+integer, parameter :: maxbuffer = 1000
+integer            :: npaq, dimpaq, dimpaq1, dim, ista, iend
+integer   :: i, q, nelem, ncellint
 integer   :: info, ntot, ielem, vtktype, nvtex
+real(8)   :: value(3, maxbuffer)
 type(v3d) :: vtex
 
 ! -- BODY --
@@ -47,14 +50,27 @@ endselect
 
 ! -- vertices coordinates --
 
-do i = 1, umesh%nvtex
-  vtex = umesh%mesh%vertex(i,1,1)
+nelem = umesh%nvtex
+call calc_buffer(nelem, maxbuffer, npaq, dimpaq, dimpaq1)
+  
+ista = 1
+dim  = dimpaq1
+
+do q = 1, npaq
+  iend = ista-1+dim
+  do i = 1, dim
+    value(1:3, i) = tab(umesh%mesh%vertex(i,1,1))   ! indirection & real*8
+  enddo
+
   select case(defio%format)
   case(fmt_VTK)
-    write(defio%iunit,'(1P,4E17.8E3)') vtex%x, vtex%y, vtex%z
+    write(defio%iunit,'(1P,3E17.8E3)') value(1:3, 1:dim)
   case(fmt_VTKBIN)
-    write(defio%iunit) real(vtex%x, kind=8), real(vtex%y, kind=8), real(vtex%z, kind=8)
+    write(defio%iunit) value(1:3, 1:dim)
   endselect
+
+  ista = iend+1
+  dim  = dimpaq
 enddo
 if (defio%format == fmt_VTKBIN) call writereturn(defio%iunit)
 

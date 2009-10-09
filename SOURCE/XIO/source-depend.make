@@ -18,10 +18,6 @@ XIO_OBJ = $(XIO_MOD:.$(MOD)=.o)  \
           output_tec_ust.o       \
           output_tec_ust_ctr.o   \
           output_tecplot.o       \
-          output_vtk_scal.o      \
-          output_vtk_vect.o      \
-          output_vtkbin_scal.o   \
-          output_vtkbin_vect.o   \
           output_zone.o          \
           outputzone_close.o     \
           outputzone_sol.o       \
@@ -29,8 +25,10 @@ XIO_OBJ = $(XIO_MOD:.$(MOD)=.o)  \
           outputzone_ustmesh.o   \
           readtyphmsh_dom.o      \
           readtyphmshfile.o      \
+          writevtk_scal.o        \
           writevtk_sol.o         \
           writevtk_ustmesh.o     \
+          writevtk_vect.o        \
 
 D_XIO_OBJ = $(XIO_OBJ:%=$(PRJOBJ)/%)
 

@@ -27,7 +27,8 @@ type(st_ustmesh)      :: umesh
 ! -- Internal variables --
 integer               :: i, dim, ufc, ir, istart, iend
 integer               :: info, cgnstype, ielem, nvtex, nelem, icoord
-real(8), allocatable  :: v(:)
+real(8),    allocatable  :: v(:)
+integer(4), allocatable  :: icell(:,:)  ! dynamic array for transpose to avoid stack problems
 
 ! -- BODY --
 
@@ -78,8 +79,13 @@ do ielem = 1, umesh%cellvtex%ntype
   iend   = istart -1 + nelem
   nvtex  = umesh%cellvtex%elem(ielem)%nvtex
 
+  allocate(icell(1:nvtex, 1:nelem))
+  icell(1:nvtex, 1:nelem) = transpose(umesh%cellvtex%elem(ielem)%elemvtex(1:nelem,1:nvtex))
+
   call cg_section_write_f(cgnsunit, ibase, izone, 'Elem'//trim(ElementTypename(cgnstype)), cgnstype, istart, iend, 0, &
-      transpose(umesh%cellvtex%elem(ielem)%elemvtex(1:nelem,1:nvtex)), ielem, info)
+      icell, ielem, info)
+
+  deallocate(icell)
 
 enddo
 

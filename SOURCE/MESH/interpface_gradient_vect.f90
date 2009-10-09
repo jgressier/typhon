@@ -38,11 +38,12 @@ type(t3d), dimension(nf) :: dqH        ! interpolated face gradients
 ! -- Declaration des variables internes --
 real(krp) :: dLR2(taille_buffer)
 type(t3d) :: Favg, Fcomp
+type(v3d) :: FavgLR(taille_buffer)
 integer   :: if, k, icl, icr
 
 real(krp) :: theta = 1._krp
 
-! -- Debut de la procedure --
+! -- BODY --
 
 if (nf > taille_buffer) then
   call erreur("Development","interpolation should be used after splitting into packets")
@@ -71,12 +72,10 @@ case(dis_avg2) ! consistent formulation, only weighted average of gradients
 case(dis_full) ! full consistent formulation, averaged between compact and averaged formulations
 
   dLR2(1:nf) = sqrabs(vLR(1:nf))
-
-  do if = 1, nf
-    Favg  = ndHL(if)*dqR(if) + ndHR(if)*dqL(if)
-    Fcomp = (qR(if) - qL(if) - (Favg.scal.vLR(if))).tens.((theta/dLR2(if))*vLR(if))
-    dqH(if) = Fcomp + Favg
-  enddo
+  
+  dqH(1:nf)    = ndHL(1:nf)*dqR(1:nf) + ndHR(1:nf)*dqL(1:nf)     ! compute F_average
+  FavgLR(1:nf) = qR(1:nf) - qL(1:nf) - (dqH(1:nf).scal.vLR(1:nf))
+  dqH(1:nf)    = dqH(1:nf) + ( FavgLR(1:nf).tens.((theta/dLR2(1:nf))*vLR(1:nf)) )
 
 endselect
 

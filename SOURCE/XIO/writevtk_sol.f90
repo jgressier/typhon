@@ -50,29 +50,13 @@ case default
 endselect
 
 do isca = 1, field%etatprim%nscal
-
   qname = quantity_cgnsname(defsolver%idsca(isca))
-
-  select case(defio%format)
-  case(fmt_VTK)
-    call output_vtk_scal(defio%iunit, umesh, trim(qname),  field%etatprim%tabscal(isca))
-  case(fmt_VTKBIN)
-    call output_vtkbin_scal(defio%iunit, umesh, trim(qname),  field%etatprim%tabscal(isca))
-  endselect
-
+  call writevtk_scal(defio, umesh, trim(qname),  field%etatprim%tabscal(isca))
 enddo
 
 do ivec = 1, field%etatprim%nvect
-
   qname = quantity_cgnsname(defsolver%idvec(ivec))
-
-  select case(defio%format)
-  case(fmt_VTK)
-    call output_vtk_vect(defio%iunit, umesh, trim(qname),  field%etatprim%tabvect(ivec))
-  case(fmt_VTKBIN)
-    call output_vtkbin_vect(defio%iunit, umesh, trim(qname),  field%etatprim%tabvect(ivec))
-  endselect
-
+  call writevtk_vect(defio, umesh, trim(qname),  field%etatprim%tabvect(ivec))
 enddo
 
 endsubroutine writevtk_sol

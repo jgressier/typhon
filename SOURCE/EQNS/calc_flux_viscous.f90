@@ -90,40 +90,42 @@ do if = 1, nflux
   id      = 1._krp/(dHL(if) + dHR(if))
   dHL(if) = id*dHL(if)
   dHR(if) = id*dHR(if)
-  vLR(if) = cg_r(if) - cg_l(if)
+enddo
+
+vLR(1:nflux) = cg_r(1:nflux) - cg_l(1:nflux)
   ! DEV / OPT : calcul de la distance au carre si c'est la seule utilisee
   ! pour eviter sqrt()**2
   !dLR(if) = abs(vLR(if))
 
-  vL(if) = cell_l%velocity(if)
-  vR(if) = cell_r%velocity(if)
-  velH(if) = dHR(if)*vL(if) + dHL(if)*vR(if)
+vL(1:nflux) = cell_l%velocity(1:nflux)
+vR(1:nflux) = cell_r%velocity(1:nflux)
+velH(1:nflux) = dHR(1:nflux)*vL(1:nflux) + dHL(1:nflux)*vR(1:nflux)
 
-  TL(if)   = cell_l%pressure(if) / (cell_l%density(if) * r_PG)
-  TR(if)   = cell_r%pressure(if) / (cell_r%density(if) * r_PG)
-  TH(if)   = dHR(if)*TL(if) + dHL(if)*TR(if)
-  rhoH(if) = dHR(if)*cell_l%density(if) + dHL(if)*cell_r%density(if)
+TL(1:nflux)   = cell_l%pressure(1:nflux) / (cell_l%density(1:nflux) * r_PG)
+TR(1:nflux)   = cell_r%pressure(1:nflux) / (cell_r%density(1:nflux) * r_PG)
+TH(1:nflux)   = dHR(1:nflux)*TL(1:nflux) + dHL(1:nflux)*TR(1:nflux)
+rhoH(1:nflux) = dHR(1:nflux)*cell_l%density(1:nflux) + dHL(1:nflux)*cell_r%density(1:nflux)
 
-  ! computation of temperature gradient :
-  ! grad(T) = 1 / (density * r) * grad(P) - P/(r * density**2) * grad(density)
-  gradTL(if) = 1._krp/(cell_l%density(if) * r_PG) * gradL%tabvect(2)%vect(if) - &
-               cell_l%pressure(if) / (cell_l%density(if)**2 * r_PG) * &
-               gradL%tabvect(1)%vect(if)
-  gradTR(if) = 1._krp/(cell_r%density(if) * r_PG) * gradR%tabvect(2)%vect(if) - &
-               cell_r%pressure(if) / (cell_r%density(if)**2 * r_PG) * &
-               gradR%tabvect(1)%vect(if)
+! computation of temperature gradient :
+! grad(T) = 1 / (density * r) * grad(P) - P/(r * density**2) * grad(density)
+gradTL(1:nflux) = 1._krp/(cell_l%density(1:nflux) * r_PG) * gradL%tabvect(2)%vect(1:nflux) - &
+     cell_l%pressure(1:nflux) / (cell_l%density(1:nflux)**2 * r_PG) * &
+     gradL%tabvect(1)%vect(1:nflux)
+gradTR(1:nflux) = 1._krp/(cell_r%density(1:nflux) * r_PG) * gradR%tabvect(2)%vect(1:nflux) - &
+     cell_r%pressure(1:nflux) / (cell_r%density(1:nflux)**2 * r_PG) * &
+     gradR%tabvect(1)%vect(1:nflux)
 
-enddo
+!enddo
 
 call calc_viscosity(defsolver%defns%properties(1), rhoH(1:nflux), TH(1:nflux), mu(1:nflux))
 
 ! velocity gradient at the face
-call interp_facegradient_vect(nflux,defspat%sch_dis,dHL,dHR,vLR,vL,vR,&
-     gradL%tabtens(1)%tens,gradR%tabtens(1)%tens,gradvH)
+call interp_facegradient_vect(nflux, defspat%sch_dis, dHL, dHR, vLR, vL, vR,&
+     gradL%tabtens(1)%tens,gradR%tabtens(1)%tens, gradvH)
 
 ! temperature gradient at the face
-call interp_facegradn_scal(nflux,defspat%sch_dis,dHL,dHR,vLR,face,TL,TR,&
-     gradTL,gradTR,gradTH)
+call interp_facegradn_scal(nflux, defspat%sch_dis, dHL, dHR, vLR, face, TL, TR,&
+     gradTL, gradTR, gradTH)
 
 ! viscous, heat flux
 ! Flux = (sigma . V) . normal + conductivity . grad (T) . normal
