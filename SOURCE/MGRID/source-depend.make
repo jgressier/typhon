@@ -53,7 +53,7 @@ all: $(MGRID_LIB)
 $(MGRID_LIB): $(D_MGRID_OBJ)
 	@echo ---------------------------------------------------------------
 	@echo \* Compiling library $(MGRID_LIB)
-	@touch $(MGRID_LIB) ; rm $(MGRID_LIB)
+	@rm -f $(MGRID_LIB)
 	@$(AR) ruv $(MGRID_LIB) $(D_MGRID_OBJ)
 	@echo \* Creating library index
 	@$(RAN)    $(MGRID_LIB)

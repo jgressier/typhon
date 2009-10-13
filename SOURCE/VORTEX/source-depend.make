@@ -36,7 +36,7 @@ all: $(VORTEX_LIB)
 $(VORTEX_LIB): $(D_VORTEX_OBJ)
 	@echo ---------------------------------------------------------------
 	@echo \* Compiling library $(VORTEX_LIB)
-	@touch $(VORTEX_LIB) ; rm $(VORTEX_LIB)
+	@rm -f $(VORTEX_LIB)
 	@$(AR) ruv $(VORTEX_LIB) $(D_VORTEX_OBJ)
 	@echo \* Creating library index
 	@$(RAN)    $(VORTEX_LIB)

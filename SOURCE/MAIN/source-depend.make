@@ -75,7 +75,7 @@ all: $(MAIN_LIB)
 $(MAIN_LIB): $(D_MAIN_OBJ)
 	@echo ---------------------------------------------------------------
 	@echo \* Compiling library $(MAIN_LIB)
-	@touch $(MAIN_LIB) ; rm $(MAIN_LIB)
+	@rm -f $(MAIN_LIB)
 	@$(AR) ruv $(MAIN_LIB) $(D_MAIN_OBJ)
 	@echo \* Creating library index
 	@$(RAN)    $(MAIN_LIB)
@@ -89,12 +89,16 @@ MAIN_clean:
 
 ####### Dependencies
 
+# SVNREV : version number
 SVNREV=$(shell svnversion 2> /dev/null || echo unknown)
 
+# SVNREVSTR : fortran code line defining the string for the version number
 SVNREVSTR=character(len=20), parameter :: svnrev = '$(SVNREV)'
 
+# SVNREVFILE : name of the file which sould contain SVNREVSTR
 SVNREVFILE=Include/svnrev.h
 
+# SVNREVDEP : defined to SVNREVFORCE if SVNREVFILE does not contain SVNREVSTR
 SVNREVDEP=$(shell echo "$(SVNREVSTR)" | diff - -q $(SVNREVFILE) >/dev/null 2>&1 || echo SVNREVFORCE)
 
 MAIN/depends.make: $(D_MAIN_SRC)
@@ -103,9 +107,12 @@ MAIN/depends.make: $(D_MAIN_SRC)
 MAIN/main.f90: $(SVNREVFILE)
 	@touch MAIN/main.f90
 
+.PHONY : SVNREVFORCE
+
 SVNREVFORCE:
 	@:
 
+# if SVNREVDEP define to SVNREVFORCE then updates SVNREVFILE
 $(SVNREVFILE): $(SVNREVDEP)
 	@echo ..... revision number : $(SVNREV)
 	@echo "$(SVNREVSTR)" > $@

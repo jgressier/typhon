@@ -47,7 +47,7 @@ all: $(ZONE_LIB)
 $(ZONE_LIB): $(D_ZONE_OBJ)
 	@echo ---------------------------------------------------------------
 	@echo \* Compiling library $(ZONE_LIB)
-	@touch $(ZONE_LIB) ; rm $(ZONE_LIB)
+	@rm -f $(ZONE_LIB)
 	@$(AR) ruv $(ZONE_LIB) $(D_ZONE_OBJ)
 	@echo \* Creating library index
 	@$(RAN)    $(ZONE_LIB)

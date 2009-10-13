@@ -55,7 +55,7 @@ all: $(PARAM_LIB)
 $(PARAM_LIB): $(D_PARAM_OBJ)
 	@echo ---------------------------------------------------------------
 	@echo \* Compiling library $(PARAM_LIB)
-	@touch $(PARAM_LIB) ; rm $(PARAM_LIB)
+	@rm -f $(PARAM_LIB)
 	@$(AR) ruv $(PARAM_LIB) $(D_PARAM_OBJ)
 	@echo \* Creating library index
 	@$(RAN)    $(PARAM_LIB)

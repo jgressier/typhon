@@ -36,7 +36,7 @@ all: $(MODCOM_LIB)
 $(MODCOM_LIB): $(D_MODCOM_OBJ)
 	@echo ---------------------------------------------------------------
 	@echo \* Compiling library $(MODCOM_LIB)
-	@touch $(MODCOM_LIB) ; rm $(MODCOM_LIB)
+	@rm -f $(MODCOM_LIB)
 	@$(AR) ruv $(MODCOM_LIB) $(D_MODCOM_OBJ)
 	@echo \* Creating library index
 	@$(RAN)    $(MODCOM_LIB)

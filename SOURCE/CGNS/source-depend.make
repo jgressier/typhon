@@ -46,7 +46,7 @@ all: $(CGNS_LIB)
 $(CGNS_LIB): $(D_CGNS_OBJ)
 	@echo ---------------------------------------------------------------
 	@echo \* Compiling library $(CGNS_LIB)
-	@touch $(CGNS_LIB) ; rm $(CGNS_LIB)
+	@rm -f $(CGNS_LIB)
 	@$(AR) ruv $(CGNS_LIB) $(D_CGNS_OBJ)
 	@echo \* Creating library index
 	@$(RAN)    $(CGNS_LIB)

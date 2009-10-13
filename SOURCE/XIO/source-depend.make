@@ -42,7 +42,7 @@ all: $(XIO_LIB)
 $(XIO_LIB): $(D_XIO_OBJ)
 	@echo ---------------------------------------------------------------
 	@echo \* Compiling library $(XIO_LIB)
-	@touch $(XIO_LIB) ; rm $(XIO_LIB)
+	@rm -f $(XIO_LIB)
 	@$(AR) ruv $(XIO_LIB) $(D_XIO_OBJ)
 	@echo \* Creating library index
 	@$(RAN)    $(XIO_LIB)

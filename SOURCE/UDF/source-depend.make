@@ -28,7 +28,7 @@ all: $(UDF_LIB)
 $(UDF_LIB): $(D_UDF_OBJ)
 	@echo ---------------------------------------------------------------
 	@echo \* Compiling SHARED library $(UDF_LIB)
-	@touch $(UDF_LIB) ; rm $(UDF_LIB)
+	@rm -f $(UDF_LIB)
 	@$(LINKSO) -o $(UDF_LIB) $(D_UDF_OBJ)
 	@echo ---------------------------------------------------------------
 	@echo \* LIBRARY $(UDF_LIB) created

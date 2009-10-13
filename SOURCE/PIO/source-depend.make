@@ -29,7 +29,7 @@ all: $(PIO_LIB)
 $(PIO_LIB): $(D_PIO_OBJ)
 	@echo ---------------------------------------------------------------
 	@echo \* Compiling library $(PIO_LIB)
-	@touch $(PIO_LIB) ; rm $(PIO_LIB)
+	@rm -f $(PIO_LIB)
 	@$(AR) ruv $(PIO_LIB) $(D_PIO_OBJ)
 	@echo \* Creating library index
 	@$(RAN)    $(PIO_LIB)

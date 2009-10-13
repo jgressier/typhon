@@ -68,7 +68,7 @@ all: $(EQNS_LIB)
 $(EQNS_LIB): $(D_EQNS_OBJ)
 	@echo ---------------------------------------------------------------
 	@echo \* Compiling library $(EQNS_LIB)
-	@touch $(EQNS_LIB) ; rm $(EQNS_LIB)
+	@rm -f $(EQNS_LIB)
 	@$(AR) ruv $(EQNS_LIB) $(D_EQNS_OBJ)
 	@echo \* Creating library index
 	@$(RAN)    $(EQNS_LIB)

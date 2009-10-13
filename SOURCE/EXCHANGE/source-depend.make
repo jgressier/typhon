@@ -46,7 +46,7 @@ D_EXCHMPI_SRC := $(EXCHMPI_OBJ:%.o=$(LDIR)/%.f90)
 $(EXCHSEQ_LIB): $(D_EXCHSEQ_OBJ)
 	@echo ---------------------------------------------------------------
 	@echo \* Compiling library $(EXCHSEQ_LIB)
-	@touch $(EXCHSEQ_LIB) ; rm $(EXCHSEQ_LIB)
+	@rm -f $(EXCHSEQ_LIB)
 	@$(AR) ruv $(EXCHSEQ_LIB) $(D_EXCHSEQ_OBJ)
 	@echo \* Creating library index
 	@$(RAN)    $(EXCHSEQ_LIB)
@@ -57,7 +57,7 @@ $(EXCHSEQ_LIB): $(D_EXCHSEQ_OBJ)
 $(EXCHMPI_LIB): $(D_EXCHMPI_OBJ)
 	@echo ---------------------------------------------------------------
 	@echo \* Compiling library $(EXCHMPI_LIB)
-	@touch $(EXCHMPI_LIB) ; rm $(EXCHMPI_LIB)
+	@rm -f $(EXCHMPI_LIB)
 	@$(AR) ruv $(EXCHMPI_LIB) $(D_EXCHMPI_OBJ)
 	@echo \* Creating index library
 	@$(RAN)    $(EXCHMPI_LIB)

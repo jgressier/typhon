@@ -51,7 +51,7 @@ all: $(MESH_LIB)
 $(MESH_LIB): $(D_MESH_OBJ)
 	@echo ---------------------------------------------------------------
 	@echo \* Compiling library $(MESH_LIB)
-	@touch $(MESH_LIB) ; rm $(MESH_LIB)
+	@rm -f $(MESH_LIB)
 	@$(AR) ruv $(MESH_LIB) $(D_MESH_OBJ)
 	@echo \* Creating library index
 	@$(RAN)    $(MESH_LIB)

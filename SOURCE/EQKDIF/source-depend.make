@@ -62,7 +62,7 @@ all: $(EQKDIF_LIB)
 $(EQKDIF_LIB): $(D_EQKDIF_OBJ)
 	@echo ---------------------------------------------------------------
 	@echo \* Compiling library $(EQKDIF_LIB)
-	@touch $(EQKDIF_LIB) ; rm $(EQKDIF_LIB)
+	@rm -f $(EQKDIF_LIB)
 	@$(AR) ruv $(EQKDIF_LIB) $(D_EQKDIF_OBJ)
 	@echo \* Creating library index
 	@$(RAN)    $(EQKDIF_LIB)

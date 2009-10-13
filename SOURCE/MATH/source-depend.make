@@ -58,7 +58,7 @@ all: $(MATH_LIB)
 $(MATH_LIB): $(D_MATH_OBJ)
 	@echo ---------------------------------------------------------------
 	@echo \* Compiling library $(MATH_LIB)
-	@touch $(MATH_LIB) ; rm $(MATH_LIB)
+	@rm -f $(MATH_LIB)
 	@$(AR) ruv $(MATH_LIB) $(D_MATH_OBJ)
 	@echo \* Creating library index
 	@$(RAN)    $(MATH_LIB)
