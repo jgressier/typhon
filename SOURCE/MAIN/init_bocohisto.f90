@@ -21,7 +21,7 @@ implicit none
 type(st_zone) :: zone
 
 ! -- Internal variables --
-integer :: ib, uio   
+integer :: ib, uio
 
 ! -- BODY --
 
@@ -35,16 +35,16 @@ do ib = 1, zone%defsolver%nboco
     uio = uio + 1
     zone%defsolver%boco(ib)%histoquant_unit = uio
     open(unit=uio, file="histovar"//trim(zone%name)//"_"//trim(zone%defsolver%boco(ib)%family), form = "formatted")
-    write(uio,'(a)') "#CYCLE AVERAGE PRIMITIVES QUANTITIES"
+    write(uio,'(a)') "#CYCLE AVERAGE PRIMITIVE QUANTITIES"
   endif
-  
+
   if (iand(zone%defsolver%boco(ib)%save_history, bchisto_flux) /= 0) then
     uio = uio + 1
     zone%defsolver%boco(ib)%histoflux_unit = uio
     open(unit=uio, file="histoflux"//trim(zone%name)//"_"//trim(zone%defsolver%boco(ib)%family), form = "formatted")
     write(uio,'(a)') "#CYCLE INTEGRAL FLUX"
   endif
-  
+
 enddo
 
 endsubroutine init_bocohisto

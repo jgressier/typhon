@@ -50,7 +50,7 @@ allocate( u0(1:ngrid))
 pgrid => gridlist%first
 do igrid = 1, ngrid
   call new(u0(igrid), pgrid%field%etatcons)
-  call transfer_gfield(u0(igrid), pgrid%field%etatcons)
+  call transfer(u0(igrid), pgrid%field%etatcons)
   pgrid => pgrid%next
 enddo
 
@@ -65,7 +65,7 @@ rkstage: do istage = 1, nstage
 
     pgrid => gridlist%first
     do igrid = 1, ngrid
-      call transfer_gfield(pgrid%field%etatcons, u0(igrid))
+      call transfer(pgrid%field%etatcons, u0(igrid))
       do is = 1, istage-1
         call xeqxpay(pgrid%field%etatcons, defsolver%deftime%rk%coef(istage-1, is), rhs(is, igrid))
       enddo
@@ -95,7 +95,7 @@ enddo rkstage
 
 pgrid => gridlist%first
 do igrid = 1, ngrid
-  call transfer_gfield(pgrid%field%residu, rhs(1, igrid))
+  call transfer(pgrid%field%residu, rhs(1, igrid))
   call scale(pgrid%field%residu, defsolver%deftime%rk%coef(nstage, 1))
   do is = 2, nstage
     call xeqxpay(pgrid%field%residu, defsolver%deftime%rk%coef(nstage, is), rhs(is, igrid))
@@ -107,7 +107,7 @@ enddo
 
 pgrid => gridlist%first
 do igrid = 1, ngrid
-  call transfer_gfield(pgrid%field%etatcons, u0(igrid))
+  call transfer(pgrid%field%etatcons, u0(igrid))
   pgrid => pgrid%next
 enddo
 

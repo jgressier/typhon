@@ -67,8 +67,12 @@ interface unpackst
   module procedure unpack_gfield
 endinterface
 
+interface transfer
+  module procedure gfield_transfer, gfield_transfer_t
+endinterface
+
 interface scale
-  module procedure gfield_scale
+  module procedure gfield_scale, gfield_scale_t
 endinterface
 
 interface xeqxpy
@@ -76,15 +80,19 @@ interface xeqxpy
 endinterface
 
 interface xeqxpay
-  module procedure gfield_xeqxpay
+  module procedure gfield_xeqxpay, gfield_xeqxpay_t
 endinterface
 
 interface l1norm
   module procedure gfield_l1norm
 endinterface
 
+interface l2sqnorm
+  module procedure gfield_l2sqnorm, gfield_l2sqnorm_t
+endinterface
+
 interface l2norm
-  module procedure gfield_l2norm
+  module procedure gfield_l2norm, gfield_l2norm_t
 endinterface
 
 interface l1wnorm
@@ -96,7 +104,7 @@ interface l2wnorm
 endinterface
 
 interface dot_prod
-  module procedure gfield_dot_prod
+  module procedure gfield_dot_prod, gfield_dot_prod_t
 endinterface
 
 interface wdot_prod
@@ -351,7 +359,7 @@ end function size_tot_gfield
 !------------------------------------------------------------------------------
 ! Procédure : generic field transfer : rgfield receives igfield
 !------------------------------------------------------------------------------
-subroutine transfer_gfield(rgfield, igfield)
+subroutine gfield_transfer(rgfield, igfield)
 implicit none
 type(st_genericfield) :: igfield, rgfield
 integer               :: i
@@ -361,16 +369,45 @@ rgfield%nvect = igfield%nvect
 rgfield%ntens = igfield%ntens
 rgfield%dim = igfield%dim
 do i = 1, igfield%nscal
-  call transfer_scafield(rgfield%tabscal(i),igfield%tabscal(i))
+  call transfer(rgfield%tabscal(i),igfield%tabscal(i))
 enddo
 do i = 1, igfield%nvect
-  call transfer_vecfield(rgfield%tabvect(i),igfield%tabvect(i))
+  call transfer(rgfield%tabvect(i),igfield%tabvect(i))
 enddo
 do i = 1, igfield%ntens
-  call transfer_tenfield(rgfield%tabtens(i),igfield%tabtens(i))
+  call transfer(rgfield%tabtens(i),igfield%tabtens(i))
 enddo
 
-endsubroutine transfer_gfield
+endsubroutine gfield_transfer
+
+
+!------------------------------------------------------------------------------
+! Procédure : generic field transfer : rgfield receives igfield
+!------------------------------------------------------------------------------
+subroutine gfield_transfer_t(rgfield, igfield)
+implicit none
+type(st_genericfield), dimension(:) :: igfield, rgfield
+integer               :: i, ig
+
+do ig = 1, size(rgfield)
+
+  rgfield(ig)%nscal = igfield(ig)%nscal
+  rgfield(ig)%nvect = igfield(ig)%nvect
+  rgfield(ig)%ntens = igfield(ig)%ntens
+  rgfield(ig)%dim = igfield(ig)%dim
+  do i = 1, igfield(ig)%nscal
+    call transfer(rgfield(ig)%tabscal(i),igfield(ig)%tabscal(i))
+  enddo
+  do i = 1, igfield(ig)%nvect
+    call transfer(rgfield(ig)%tabvect(i),igfield(ig)%tabvect(i))
+  enddo
+  do i = 1, igfield(ig)%ntens
+    call transfer(rgfield(ig)%tabtens(i),igfield(ig)%tabtens(i))
+  enddo
+
+enddo
+
+endsubroutine gfield_transfer_t
 
 
 !------------------------------------------------------------------------------
@@ -378,7 +415,7 @@ endsubroutine transfer_gfield
 !------------------------------------------------------------------------------
 subroutine gfield_scale(x, a)
 implicit none
-type(st_genericfield) :: x, y
+type(st_genericfield) :: x
 real(krp)             :: a
 integer               :: ip
 
@@ -395,6 +432,34 @@ do ip = 1, x%ntens
 enddo
 
 endsubroutine gfield_scale
+
+
+!------------------------------------------------------------------------------
+! Computing routine : gfield_scale_t : X = a*X
+!------------------------------------------------------------------------------
+subroutine gfield_scale_t(x, a)
+implicit none
+type(st_genericfield), dimension(:) :: x
+real(krp)             :: a
+integer               :: ip, ig
+
+do ig = 1, size(x)
+
+  do ip = 1, x(ig)%nscal
+    call scale(x(ig)%tabscal(ip), a)
+  enddo
+
+  do ip = 1, x(ig)%nvect
+    call scale(x(ig)%tabvect(ip), a)
+  enddo
+
+  do ip = 1, x(ig)%ntens
+    call scale(x(ig)%tabtens(ip), a)
+  enddo
+
+enddo
+
+endsubroutine gfield_scale_t
 
 
 !------------------------------------------------------------------------------
@@ -445,6 +510,34 @@ endsubroutine gfield_xeqxpay
 
 
 !------------------------------------------------------------------------------
+! Computing routine : gfield_xeqxpay_t : X = X + a*Y
+!------------------------------------------------------------------------------
+subroutine gfield_xeqxpay_t(x, a, y)
+implicit none
+type(st_genericfield), dimension(:) :: x, y
+real(krp)             :: a
+integer               :: ip, ig
+
+do ig = 1, size(x)
+
+  do ip = 1, x(ig)%nscal
+    call xeqxpay(x(ig)%tabscal(ip), a, y(ig)%tabscal(ip))
+  enddo
+
+  do ip = 1, x(ig)%nvect
+    call xeqxpay(x(ig)%tabvect(ip), a, y(ig)%tabvect(ip))
+  enddo
+
+  do ip = 1, x(ig)%ntens
+    call xeqxpay(x(ig)%tabtens(ip), a, y(ig)%tabtens(ip))
+  enddo
+
+enddo
+
+endsubroutine gfield_xeqxpay_t
+
+
+!------------------------------------------------------------------------------
 ! Computing routine : gfield_l1norm : n = sum(abs(X(i)))
 !------------------------------------------------------------------------------
 real(krp) function gfield_l1norm(x)
@@ -470,6 +563,60 @@ endfunction gfield_l1norm
 
 
 !------------------------------------------------------------------------------
+! Computing routine : gfield_l2sqnorm : n = sqrt(sum(X(i).X(i)))
+!------------------------------------------------------------------------------
+real(krp) function gfield_l2sqnorm(x)
+implicit none
+type(st_genericfield) :: x
+integer               :: ip
+
+gfield_l2sqnorm = 0.0_krp
+
+do ip = 1, x%nscal
+  gfield_l2sqnorm = gfield_l2sqnorm + l2sqnorm(x%tabscal(ip))
+enddo
+
+do ip = 1, x%nvect
+  gfield_l2sqnorm = gfield_l2sqnorm + l2sqnorm(x%tabvect(ip))
+enddo
+
+do ip = 1, x%ntens
+  gfield_l2sqnorm = gfield_l2sqnorm + l2sqnorm(x%tabtens(ip))
+enddo
+
+endfunction gfield_l2sqnorm
+
+
+!------------------------------------------------------------------------------
+! Computing routine : gfield_l2sqnorm_t : n = sqrt(sum(X(i).X(i)))
+!------------------------------------------------------------------------------
+real(krp) function gfield_l2sqnorm_t(x)
+implicit none
+type(st_genericfield), dimension(:) :: x
+integer               :: ip, ig
+
+gfield_l2sqnorm_t = 0.0_krp
+
+do ig = 1, size(x)
+
+  do ip = 1, x(ig)%nscal
+    gfield_l2sqnorm_t = gfield_l2sqnorm_t + l2sqnorm(x(ig)%tabscal(ip))
+  enddo
+
+  do ip = 1, x(ig)%nvect
+    gfield_l2sqnorm_t = gfield_l2sqnorm_t + l2sqnorm(x(ig)%tabvect(ip))
+  enddo
+
+  do ip = 1, x(ig)%ntens
+    gfield_l2sqnorm_t = gfield_l2sqnorm_t + l2sqnorm(x(ig)%tabtens(ip))
+  enddo
+
+enddo
+
+endfunction gfield_l2sqnorm_t
+
+
+!------------------------------------------------------------------------------
 ! Computing routine : gfield_l2norm : n = sqrt(sum(X(i).X(i)))
 !------------------------------------------------------------------------------
 real(krp) function gfield_l2norm(x)
@@ -480,20 +627,51 @@ integer               :: ip
 gfield_l2norm = 0.0_krp
 
 do ip = 1, x%nscal
-  gfield_l2norm = gfield_l2norm + l2norm(x%tabscal(ip))**2
+  gfield_l2norm = gfield_l2norm + l2sqnorm(x%tabscal(ip))
 enddo
 
 do ip = 1, x%nvect
-  gfield_l2norm = gfield_l2norm + l2norm(x%tabvect(ip))**2
+  gfield_l2norm = gfield_l2norm + l2sqnorm(x%tabvect(ip))
 enddo
 
 do ip = 1, x%ntens
-  gfield_l2norm = gfield_l2norm + l2norm(x%tabtens(ip))**2
+  gfield_l2norm = gfield_l2norm + l2sqnorm(x%tabtens(ip))
 enddo
 
 gfield_l2norm = sqrt(gfield_l2norm)
 
 endfunction gfield_l2norm
+
+
+!------------------------------------------------------------------------------
+! Computing routine : gfield_l2norm_t : n = sqrt(sum(X(i).X(i)))
+!------------------------------------------------------------------------------
+real(krp) function gfield_l2norm_t(x)
+implicit none
+type(st_genericfield), dimension(:) :: x
+integer               :: ip, ig
+
+gfield_l2norm_t = 0.0_krp
+
+do ig = 1, size(x)
+
+  do ip = 1, x(ig)%nscal
+    gfield_l2norm_t = gfield_l2norm_t + l2sqnorm(x(ig)%tabscal(ip))
+  enddo
+
+  do ip = 1, x(ig)%nvect
+    gfield_l2norm_t = gfield_l2norm_t + l2sqnorm(x(ig)%tabvect(ip))
+  enddo
+
+  do ip = 1, x(ig)%ntens
+    gfield_l2norm_t = gfield_l2norm_t + l2sqnorm(x(ig)%tabtens(ip))
+  enddo
+
+enddo
+
+gfield_l2norm_t = sqrt(gfield_l2norm_t)
+
+endfunction gfield_l2norm_t
 
 
 !------------------------------------------------------------------------------
@@ -553,6 +731,7 @@ gfield_l2wnorm = sqrt(gfield_l2wnorm)
 
 endfunction gfield_l2wnorm
 
+
 !------------------------------------------------------------------------------
 ! Computing routine : gfield_dot_prod : n = sum(X(i).Y(i))
 !------------------------------------------------------------------------------
@@ -576,6 +755,36 @@ do ip = 1, x%ntens
 enddo
 
 endfunction gfield_dot_prod
+
+
+!------------------------------------------------------------------------------
+! Computing routine : gfield_dot_prod_t : n = sum(X(i).Y(i))
+!------------------------------------------------------------------------------
+real(krp) function gfield_dot_prod_t(x, y)
+implicit none
+type(st_genericfield), dimension(:) :: x, y
+integer               :: ip, ig
+
+gfield_dot_prod_t = 0.0_krp
+
+do ig = 1, size(x)
+
+  do ip = 1, x(ig)%nscal
+    gfield_dot_prod_t = gfield_dot_prod_t + dot_prod(x(ig)%tabscal(ip),y(ig)%tabscal(ip))
+  enddo
+
+  do ip = 1, x(ig)%nvect
+    gfield_dot_prod_t = gfield_dot_prod_t + dot_prod(x(ig)%tabvect(ip),y(ig)%tabvect(ip))
+  enddo
+
+  do ip = 1, x(ig)%ntens
+    gfield_dot_prod_t = gfield_dot_prod_t + dot_prod(x(ig)%tabtens(ip),y(ig)%tabtens(ip))
+  enddo
+
+enddo
+
+endfunction gfield_dot_prod_t
+
 
 !------------------------------------------------------------------------------
 ! Computing routine : gfield_wdot_prod : n = sum(w(i)*X(i).Y(i))

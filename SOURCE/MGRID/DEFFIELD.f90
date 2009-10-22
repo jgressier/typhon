@@ -340,13 +340,13 @@ rfield%allocprim = ifield%allocprim
 rfield%allocqref = ifield%allocqref
 rfield%allocqhres = ifield%allocqhres
 rfield%calcgrad  = ifield%calcgrad
-call transfer_gfield(rfield%etatcons,ifield%etatcons)
-call transfer_gfield(rfield%etatprim,ifield%etatprim)
-call transfer_gfield(rfield%qref,ifield%qref)
-call transfer_gfield(rfield%cell_l,ifield%cell_l)
-call transfer_gfield(rfield%cell_r,ifield%cell_r)
-call transfer_gfield(rfield%gradient,ifield%gradient)
-call transfer_gfield(rfield%residu,ifield%residu)
+call transfer(rfield%etatcons,ifield%etatcons)
+call transfer(rfield%etatprim,ifield%etatprim)
+call transfer(rfield%qref,ifield%qref)
+call transfer(rfield%cell_l,ifield%cell_l)
+call transfer(rfield%cell_r,ifield%cell_r)
+call transfer(rfield%gradient,ifield%gradient)
+call transfer(rfield%residu,ifield%residu)
 
 endsubroutine transfer_field
 
@@ -360,7 +360,7 @@ type(st_field) :: field
 
 if (.not.field%allocqref) call alloc_qref(field)
 
-call transfer_gfield(field%qref, field%etatcons)
+call transfer(field%qref, field%etatcons)
 
 endsubroutine field_cons2ref
 
@@ -371,7 +371,7 @@ subroutine field_ref2cons(field)
 implicit none
 type(st_field) :: field
 
-call transfer_gfield(field%etatcons, field%qref)
+call transfer(field%etatcons, field%qref)
 
 endsubroutine field_ref2cons
 

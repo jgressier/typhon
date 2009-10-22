@@ -31,8 +31,8 @@ integer(kpp), parameter :: tps_impl   = 20   ! linearized implicit (theta scheme
 integer(kpp), parameter :: tps_dualt  = 25   ! dual time
 integer(kpp), parameter :: tps_rk2    = 30   ! Runge Kutta explicit : predictor-corrector
 integer(kpp), parameter :: tps_rk2ssp = 31   ! Runge Kutta explicit : Heun
-integer(kpp), parameter :: tps_rk3ssp = 33   ! Runge Kutta explicit 
-integer(kpp), parameter :: tps_rk4    = 35   ! Runge Kutta explicit 
+integer(kpp), parameter :: tps_rk3ssp = 33   ! Runge Kutta explicit
+integer(kpp), parameter :: tps_rk4    = 35   ! Runge Kutta explicit
 
 ! -- Constantes pour schema de calcul des flux hyperboliques (sch_hyp)
 integer(kpp), parameter :: sch_rusanov  = 05
@@ -114,17 +114,19 @@ integer(kpp), parameter :: dis_full = 10    ! evaluation complete (ponderee de 1
 integer(kpp), parameter :: grad_lsq  = 10     ! least square method
 integer(kpp), parameter :: grad_lsqw = 12     ! weighted least square method
 
-! -- Constantes pour la methode de resolution matricielle
-integer(kpp), parameter :: alg_lu       = 10  ! resolution directe LU
-integer(kpp), parameter :: alg_cho      = 15  ! resolution directe (decomposition Choleski) (SYM)
-integer(kpp), parameter :: alg_jac      = 20  ! resolution iterative Jacobi
-integer(kpp), parameter :: alg_gs       = 25  ! resolution iterative Gauss-Seidel
-integer(kpp), parameter :: alg_sor      = 26  ! resolution iterative Gauss-Seidel avec OverRelaxation
-integer(kpp), parameter :: alg_gmres    = 40  ! resol. par proj. : GMRES
-integer(kpp), parameter :: alg_bicg     = 60  ! Bi-Conjugate Gradient 
-integer(kpp), parameter :: alg_bicgpjac = 61  ! Bi-Conjugate Gradient (Jacobi Preconditioned)
-integer(kpp), parameter :: alg_cgs      = 62  ! Conjugate Gradient Squared
-integer(kpp), parameter :: alg_bicgstab = 70  ! Bi-Conjugate Gradient Stabilized
+! -- Constants for implicit resolution method
+integer(kpp), parameter :: alg_undef     =  -1
+integer(kpp), parameter :: alg_lu        =  10  ! direct LU
+integer(kpp), parameter :: alg_cho       =  15  ! direct Choleski decomposition (SYM)
+integer(kpp), parameter :: alg_jac       =  20  ! iterative Jacobi
+integer(kpp), parameter :: alg_gs        =  25  ! iterative Gauss-Seidel
+integer(kpp), parameter :: alg_sor       =  26  ! iterative Gauss-Seidel with OverRelaxation
+integer(kpp), parameter :: alg_gmres     =  40  ! Generalized Minimal Residual (GMRes)
+integer(kpp), parameter :: alg_bicg      =  60  ! Bi-Conjugate Gradient
+integer(kpp), parameter :: alg_bicgpjac  =  61  ! Bi-Conjugate Gradient (Jacobi Preconditioned)
+integer(kpp), parameter :: alg_cgs       =  62  ! Conjugate Gradient Squared
+integer(kpp), parameter :: alg_bicgstab  =  70  ! Bi-Conjugate Gradient Stabilized
+integer(kpp), parameter :: alg_gmresfree = 140  ! matrix-free Generalized Minimal Residual (GMRES)
 
 
 ! -- DECLARATIONS -----------------------------------------------------------
@@ -189,8 +191,8 @@ type mnu_svm
   integer(kpp)      :: internal_faces       ! number of internal faces (by cell)
   integer(kpp)      :: nb_subfaces          ! number of sub faces      (by cell) (internal + original*split)
   integer(kpp)      :: nb_facepoints        ! number of integration points by face
-  real(krp),pointer :: interp_weights(:,:)  ! weights for cell to face Gauss points interpolation  
-                                    
+  real(krp),pointer :: interp_weights(:,:)  ! weights for cell to face Gauss points interpolation
+
 endtype mnu_svm
 
 !------------------------------------------------------------------------------!
@@ -241,7 +243,7 @@ if (defspat%sch_dis == inull) &
 
 select case(defspat%sch_dis)
 case(dis_dif2)
-  
+
 case(dis_avg2)
   defspat%calc_grad = .true.
 case(dis_full)
@@ -321,7 +323,7 @@ case(tps_rk4)
   rk%coef(:, :)   = 0._krp
   rk%coef(1, 1)   = 0.5_krp
   rk%coef(2, 1:2) = (/ 0._krp, 0.5_krp /)
-  rk%coef(3, 1:3) = (/ 0._krp,  0._krp, 1._krp /) 
+  rk%coef(3, 1:3) = (/ 0._krp,  0._krp, 1._krp /)
   rk%coef(4, 1:4) = (/ 1._krp,  2._krp, 2._krp, 1._krp /) / 6._krp
 case default
   call erreur("parameters parsing","unknown RUNGE KUTTA method")
@@ -359,19 +361,19 @@ case(svm_4)
   svm%svface_split   = 4      ! nb of CV face per SV face
   svm%nb_facepoints  = 2      ! number of integration points by face
   select case(svm%sv_partition)
-    case(svm_4wang) 
+    case(svm_4wang)
      svm%intnode        = 6      ! nb of internal added nodes for cell splitting
      svm%internal_faces = 15      ! number of internal faces (by cell)
      svm%nb_subfaces    = 15+4*3  ! total number of sub faces (by cell)
-    case(svm_4kris) 
+    case(svm_4kris)
      svm%intnode        = 9      ! nb of internal added nodes for cell splitting
      svm%internal_faces = 18      ! number of internal faces (by cell)
      svm%nb_subfaces    = 18+4*3  ! total number of sub faces (by cell)
-    case(svm_4kris2) 
+    case(svm_4kris2)
      svm%intnode        = 9      ! nb of internal added nodes for cell splitting
      svm%internal_faces = 18      ! number of internal faces (by cell)
      svm%nb_subfaces    = 18+4*3  ! total number of sub faces (by cell)
-  endselect 
+  endselect
 case default
   call erreur("parameters parsing","unknown SVM order (init_svmparam)")
 endselect
@@ -413,7 +415,7 @@ case(svm_2)
   defsvm%interp_weights(7, 1:defsvm%cv_split) = (/ k1(3), k1(1), k1(2) /)
   defsvm%interp_weights(8, 1:defsvm%cv_split) = (/ k1(3), k1(2), k1(1) /)
   defsvm%interp_weights(9, 1:defsvm%cv_split) = (/ k1(2), k1(3), k1(1) /)
-  if (size(defsvm%interp_weights, 1) /= 9) call erreur("SVM initialization", "bad array size") 
+  if (size(defsvm%interp_weights, 1) /= 9) call erreur("SVM initialization", "bad array size")
 
 case(svm_3) ! 36 Gauss pts, 6 coeff per point, 7 independent points
 
@@ -421,22 +423,22 @@ select case(defsvm%sv_partition)
 
   case(svm_3wang) !weights for alpha=1/4 and beta =1/3 : ORIGINAL PARTITION BY WANG
 
-!Gauss point1 
-  k(1,1) = 5353._krp /4017._krp + 2287._krp / 10712._krp * sqrt(3._krp)    !1.702377414448907  
+!Gauss point1
+  k(1,1) = 5353._krp /4017._krp + 2287._krp / 10712._krp * sqrt(3._krp)    !1.702377414448907
   k(1,2) =-263._krp / 4017._krp + 623._krp / 10712._krp * sqrt(3._krp)     !0.0352627258945180
   k(1,3) = 781._krp / 4017._krp - 129._krp / 10712._krp * sqrt(3._krp)     ! 0.1735653577754183
   k(1,4) = 346._krp / 1339._krp - 3375._krp / 10712._krp  * sqrt(3._krp)   !-0.2873106306520688
   k(1,5) = 89._krp / 2678._krp + 765._krp / 10712._krp * sqrt(3._krp)      !0.1569285724225346
   k(1,6) =-2017._krp /2678._krp  - 171._krp /10712._krp  * sqrt(3._krp)    !-0.7808234398893090
 !Gauss point2 coefficients
-  k(2,1) = 5353._krp / 4017._krp - 2287._krp / 10712._krp * sqrt(3._krp)   !0.9627956002386711 
+  k(2,1) = 5353._krp / 4017._krp - 2287._krp / 10712._krp * sqrt(3._krp)   !0.9627956002386711
   k(2,2) =-263._krp / 4017._krp - 623._krp / 10712._krp * sqrt(3._krp)     !-0.1662062160613092
   k(2,3) = 781._krp / 4017._krp + 129._krp / 10712._krp * sqrt(3._krp)     !0.2152820407807181
   k(2,4) = 346._krp / 1339._krp + 3375._krp / 10712._krp * sqrt(3._krp)    !0.8041142154168186
   k(2,5) = 89._krp / 2678._krp - 765._krp / 10712._krp * sqrt(3._krp)      !-0.09046105935307983
   k(2,6) =-2017._krp / 2678._krp + 171._krp / 10712._krp * sqrt(3._krp)    !-0.7255245810218187
 !Gauss point3 coefficients
-  k(3,1) = 725._krp / 8034._krp + 16._krp / 103._krp * sqrt(3._krp)        !0.3592979098638236  
+  k(3,1) = 725._krp / 8034._krp + 16._krp / 103._krp * sqrt(3._krp)        !0.3592979098638236
   k(3,2) = 725._krp / 8034._krp - 16._krp / 103._krp * sqrt(3._krp)        !-0.1788149623905849
   k(3,3) = 1949._krp / 8034._krp                                      !0.2425939756036843
   k(3,4) = 4067._krp / 2678._krp                                      !1.518670649738611
@@ -450,7 +452,7 @@ select case(defsvm%sv_partition)
   k(4,5) =-367._krp / 5356._krp - 289._krp /10712._krp * sqrt(3._krp)      !-0.1152504372094292
   k(4,6) =-727._krp / 5356._krp - 1921._krp /10712._krp * sqrt(3._krp)     !-0.4463470501624172
 !Gauss point20 coefficients
-  k(5,1) = 9407._krp / 16068._krp - 1583._krp / 32136._krp * sqrt(3._krp)  !0.5001295609789167   
+  k(5,1) = 9407._krp / 16068._krp - 1583._krp / 32136._krp * sqrt(3._krp)  !0.5001295609789167
   k(5,2) =-2401._krp / 16068._krp + 529._krp / 32136._krp * sqrt(3._krp)   !-0.1209156436020682
   k(5,3) = 719._krp / 16068._krp - 1727._krp / 32136._krp * sqrt(3._krp)   !-0.04833369880107822
   k(5,4) = 3875._krp / 5356._krp - 1283._krp / 10712._krp * sqrt(3._krp)   !0.5160361103331899
@@ -462,9 +464,9 @@ select case(defsvm%sv_partition)
   k(6,3) =-2221._krp / 16068._krp + 23._krp /2678._krp *sqrt(3._krp)       !-0.1233493271443548
   k(6,4) = 2783._krp / 5356._krp - 45._krp /2678._krp *sqrt(3._krp)        !0.4904995196637045
   k(6,5) = 71._krp / 412._krp - 219._krp /2678._krp *sqrt(3._krp)          !0.03068740595310525
-  k(6,6) = 2783._krp / 5356._krp - 45._krp /2678._krp *sqrt(3._krp)        !0.4904995196637045  
+  k(6,6) = 2783._krp / 5356._krp - 45._krp /2678._krp *sqrt(3._krp)        !0.4904995196637045
 !Gauss point32 coefficients
-  k(7,1) = 1043._krp / 16068._krp - 263._krp /2678._krp * sqrt(3._krp)     !-0.1051889578257212 
+  k(7,1) = 1043._krp / 16068._krp - 263._krp /2678._krp * sqrt(3._krp)     !-0.1051889578257212
   k(7,2) =-2221._krp / 16068._krp - 23._krp /2678._krp * sqrt(3._krp)      !-0.1531007599853439
   k(7,3) =-2221._krp / 16068._krp - 23._krp /2678._krp * sqrt(3._krp)      !-0.1531007599853438
   k(7,4) = 2783._krp / 5356._krp + 45._krp /2678._krp * sqrt(3._krp)       !0.5487088447873784
@@ -473,7 +475,7 @@ select case(defsvm%sv_partition)
 
   case(svm_3kris) !weights for alpha=91/1000 and beta =18/100 : OPTIMISED PARTITION BY ABEELE
 
-!Gauss point1 
+!Gauss point1
   k(1,1) = 3287080870527984892769449._krp /2789865336429461513887500._krp + 1418701068984221352033613._krp /22318922691435692111100000._krp * sqrt(3._krp) !1.28831976766918
   k(1,2) =-71144047021860659130551._krp /2789865336429461513887500._krp + 522189246477331890433613._krp /22318922691435692111100000._krp * sqrt(3._krp) !.0150233922365182
   k(1,3) = 210615222587040306569449._krp /2789865336429461513887500._krp - 63476794901672945922129._krp /7439640897145230703700000._krp * sqrt(3._krp) !.0607146992628959
@@ -495,12 +497,12 @@ select case(defsvm%sv_partition)
   k(3,5) =-167715642217320809198179._krp /464977556071576918981250._krp + 8955415372763._krp /148367596411589._krp * sqrt(3._krp) !-.256150239037658
   k(3,6) =-167715642217320809198179._krp /464977556071576918981250._krp - 8955415372763._krp /148367596411589._krp * sqrt(3._krp) !-.465242180993486
  !Gauss point19 coefficients
-  k(4,1) = 9251092766669808504418591._krp /11159461345717846055550000._krp + 22281691035126377513779._krp /421111748895013058700000._krp * sqrt(3._krp) !.920636534649943 
+  k(4,1) = 9251092766669808504418591._krp /11159461345717846055550000._krp + 22281691035126377513779._krp /421111748895013058700000._krp * sqrt(3._krp) !.920636534649943
   k(4,2) =-748200062253774879181409._krp /11159461345717846055550000._krp - 3293964392767447286221._krp /421111748895013058700000._krp * sqrt(3._krp) !-.0805944702065471
-  k(4,3) = 263898843663433393618591._krp /11159461345717846055550000._krp + 3383896341922490704593._krp /140370582965004352900000._krp * sqrt(3._krp) !.0654023265278943 
-  k(4,4) = 1203018128665083511793803._krp /3719820448572615351850000._krp + 3586821656594948395407._krp /140370582965004352900000._krp * sqrt(3._krp) !.367665836904311 
-  k(4,5) =-199181021302678486731197._krp /3719820448572615351850000._krp + 1470113694091063145407._krp /140370582965004352900000._krp * sqrt(3._krp) !-.0354059464509639 
-  k(4,6) =-206280508149612012831197._krp /3719820448572615351850000._krp - 14770073906728145654593._krp /140370582965004352900000._krp * sqrt(3._krp) !-.237704281424637 
+  k(4,3) = 263898843663433393618591._krp /11159461345717846055550000._krp + 3383896341922490704593._krp /140370582965004352900000._krp * sqrt(3._krp) !.0654023265278943
+  k(4,4) = 1203018128665083511793803._krp /3719820448572615351850000._krp + 3586821656594948395407._krp /140370582965004352900000._krp * sqrt(3._krp) !.367665836904311
+  k(4,5) =-199181021302678486731197._krp /3719820448572615351850000._krp + 1470113694091063145407._krp /140370582965004352900000._krp * sqrt(3._krp) !-.0354059464509639
+  k(4,6) =-206280508149612012831197._krp /3719820448572615351850000._krp - 14770073906728145654593._krp /140370582965004352900000._krp * sqrt(3._krp) !-.237704281424637
 !Gauss point20 coefficients
   k(5,1) = 9251092766669808504418591._krp /11159461345717846055550000._krp - 22281691035126377513779._krp /421111748895013058700000._krp * sqrt(3._krp) !.737345419867903
   k(5,2) =-748200062253774879181409._krp /11159461345717846055550000._krp + 3293964392767447286221._krp /421111748895013058700000._krp * sqrt(3._krp) !-.0534980346330126
@@ -525,7 +527,7 @@ select case(defsvm%sv_partition)
 
   case(svm_3kris2) !weights for alpha=0.1093621117 and beta =0.1730022492 : OPTIMISED PARTITION BY ABEELE
 
-!Gauss point1 
+!Gauss point1
   k(1,1) = 1.28944701993
   k(1,2) = 0.0103882882085
   k(1,3) = 0.0651156162188
@@ -601,7 +603,7 @@ endselect
 
   defsvm%interp_weights(19, 1:defsvm%cv_split) = (/ k(4,1), k(4,2), k(4,3) , k(4,4), k(4,5), k(4,6)/)!
   defsvm%interp_weights(20, 1:defsvm%cv_split) = (/ k(5,1), k(5,2), k(5,3) , k(5,4), k(5,5), k(5,6)/)!
- 
+
   defsvm%interp_weights(21, 1:defsvm%cv_split) = (/ k(4,2), k(4,1), k(4,3) , k(4,4), k(4,6), k(4,5)/)
   defsvm%interp_weights(22, 1:defsvm%cv_split) = (/ k(5,2), k(5,1), k(5,3) , k(5,4), k(5,6), k(5,5)/)
   defsvm%interp_weights(23, 1:defsvm%cv_split) = (/ k(4,3), k(4,1), k(4,2) , k(4,6), k(4,4), k(4,5)/)
@@ -621,7 +623,7 @@ endselect
   defsvm%interp_weights(35, 1:defsvm%cv_split) = (/ k(6,3), k(6,2), k(6,1) , k(6,5), k(6,4), k(6,6)/)
   defsvm%interp_weights(36, 1:defsvm%cv_split) = (/ k(7,3), k(7,2), k(7,1) , k(7,5), k(7,4), k(7,6)/)
 
-  if (size(defsvm%interp_weights, 1) /= 36) call erreur("SVM initialization", "bad array size") 
+  if (size(defsvm%interp_weights, 1) /= 36) call erreur("SVM initialization", "bad array size")
 
 case(svm_4) ! 54 Gauss pts, 10 coeff per point
 
@@ -803,9 +805,9 @@ select case(defsvm%sv_partition)
   defsvm%interp_weights(52, 1:defsvm%cv_split) = (/ k4(10,2), k4(10,3), k4(10,1) , k4(10,6), k4(10,7), k4(10,8),k4(10,9),k4(10,4),k4(10,5),k4(10,10)/)
   defsvm%interp_weights(53, 1:defsvm%cv_split) = (/ k4(10,1), k4(10,3), k4(10,2) , k4(10,9), k4(10,8), k4(10,7),k4(10,6),k4(10,5),k4(10,4),k4(10,10)/)
 
-  if (size(defsvm%interp_weights, 1) /= 54) call erreur("SVM initialization", "bad array size") 
+  if (size(defsvm%interp_weights, 1) /= 54) call erreur("SVM initialization", "bad array size")
 
-  case(svm_4kris)   ! 12 independent points 
+  case(svm_4kris)   ! 12 independent points
  !Gauss point1 coefficients
   kk4(1,1) = 1.350186571632712
   kk4(1,2) =-0.004622267015403575
@@ -884,16 +886,16 @@ select case(defsvm%sv_partition)
   kk4(7,9) =-0.09934845070431942
   kk4(7,10)=-0.6260194322534035
 !Gauss point28 coefficients
-  kk4(8,1) =-0.1845434719636343 
-  kk4(8,2) =-0.1845434719636343 
+  kk4(8,1) =-0.1845434719636343
+  kk4(8,2) =-0.1845434719636343
   kk4(8,3) =-0.03907751185445954
-  kk4(8,4) = 0.8137520094270351 
-  kk4(8,5) = 0.8137520094270351 
+  kk4(8,4) = 0.8137520094270351
+  kk4(8,5) = 0.8137520094270351
   kk4(8,6) =-0.07987703593857617
   kk4(8,7) = 0.06772188147188028
   kk4(8,8) = 0.06772188147188028
   kk4(8,9) =-0.07987703593857617
-  kk4(8,10)=-0.1950292541389505 
+  kk4(8,10)=-0.1950292541389505
 !Gauss point43 coefficients
   kk4(9,1) = 0.4171428636300509
   kk4(9,2) = 0.04469143885360190

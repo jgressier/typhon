@@ -30,8 +30,11 @@ real(krp)     :: sol(1:mat%dim*mat%dimblock)  ! RHS as input, SOLUTION as output
 integer(kip)  :: info
 
 ! -- Internal variables --
-real(krp), dimension(:), allocatable :: r1, p1, qc, qs, ss, yy
-real(krp), dimension(:,:), allocatable :: hh, w1, v1
+real(krp), dimension(:),   allocatable :: qc, qs, ss, yy
+real(krp), dimension(:,:), allocatable :: hh
+real(krp), dimension(:),   allocatable :: r1, p1
+real(krp), dimension(:,:), allocatable :: w1, v1
+
 integer(kip)                         :: nit, dim
 real(krp)                            :: errgmres, ref
 real(krp)                            :: beta, fact, tmp, normp1
@@ -53,16 +56,17 @@ dim = mat%dim*mat%dimblock
 nit    = 0
 errgmres = huge(errgmres)    ! maximal real number in machine representation (to ensure 1st iteration)
 
-allocate(r1(dim))
-allocate(p1(dim))
 allocate(qc(nkrylov))
 allocate(qs(nkrylov))
 allocate(ss(nkrylov+1))
 allocate(yy(nkrylov))
-!allocate(soln(dim))
-allocate(hh(nkrylov+1,nkrylov));
-allocate(w1(nkrylov,dim));
-allocate(v1(nkrylov,dim));
+allocate(hh(nkrylov+1,nkrylov))
+
+allocate(r1(dim))
+allocate(p1(dim))
+
+allocate(w1(nkrylov,dim))
+allocate(v1(nkrylov,dim))
 
 ! -- initialization --
 
@@ -76,11 +80,11 @@ do i = 1, mat%dim
     sol(is+ib) = p1(is+ib) / mat%diag(ib,ib,i)  ! initial guess
   enddo
 enddo
+! ref = norme_L1(sol)
 ref = sum(abs(sol(1:dim)))
 
+! normp1 = norme_L2(p1)
 normp1 = sqrt(dot_product(p1(1:dim),p1(1:dim)))
-
-!call sort_bdlu(mat)
 
 do while ((errgmres >= ref*def_impli%maxres).and.(nit <= def_impli%max_it*2))
 
@@ -121,9 +125,10 @@ do while ((errgmres >= ref*def_impli%maxres).and.(nit <= def_impli%max_it*2))
 
     if ( hh(jk+1,jk) > epsilon(normp1)*10*normp1 ) then
 
-      fact = 1.0_krp/hh(jk+1,jk)
-      if ( jk < nkrylov ) &
-      v1(jk+1,1:dim) = fact*w1(jk,1:dim)                        ! v(j+1) = wj/h(j+1,j)
+      if ( jk < nkrylov ) then
+        fact = 1.0_krp/hh(jk+1,jk)
+        v1(jk+1,1:dim) = fact*w1(jk,1:dim)                        ! v(j+1) = wj/h(j+1,j)
+      endif
 
       if ( hh(jk,jk) == 0 ) exit                                ! Exit if hh(jk,jk)==0
 
@@ -205,7 +210,10 @@ else
   info = -1
 endif
 
-deallocate(r1, p1, qc, qs, ss, yy, hh, w1, v1)
+deallocate(w1, v1)
+deallocate(r1, p1)
+deallocate(hh)
+deallocate(qc, qs, ss, yy)
 
 endsubroutine bdlu_gmres
 

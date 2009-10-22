@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : update_field
-!             
-! Fonction    
+!
+! Fonction
 !   Update conservative variables with residual fiels
 !   (compute residuals)
 !
@@ -24,7 +24,7 @@ type(mnu_solver)  :: defsolver       ! solver parameters
 type(st_gridlist) :: gridlist        ! list of grids
 
 ! -- Private Data --
-type(st_field), pointer :: pfield     
+type(st_field), pointer :: pfield
 type(st_grid),  pointer :: pgrid
 integer                 :: nc, ip, ic
 
@@ -32,7 +32,7 @@ integer                 :: nc, ip, ic
 
 pgrid => gridlist%first
 do while (associated(pgrid))
- 
+
   pfield => pgrid%info%field_loc
 
   call xeqxpy(pfield%etatcons, pfield%residu)
@@ -56,11 +56,11 @@ do while (associated(pgrid))
                                       / defsolver%refvec(ip)
       enddo
     enddo
-  
+
     ! -- merge residual for all procs --
 
     call exchange_zonal_residual(info)
-  
+
   endif
 
   pgrid => pgrid%next

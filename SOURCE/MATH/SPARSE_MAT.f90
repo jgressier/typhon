@@ -1,10 +1,10 @@
 !------------------------------------------------------------------------------!
 ! MODULE : SPARSE_MAT                             Authors : J. Gressier
-!                                                 Created : Avril 2004
-! Fonction
-!   Definition des structures de stockage de matrices creuses
 !
-! Defauts/Limitations/Divers :
+! Function
+!   Definition of sparse matrix storage structures
+!
+! Defaults/Limitations/Misc :
 !
 !------------------------------------------------------------------------------!
 
@@ -19,8 +19,10 @@ use SPMAT_BDLU
 
 implicit none
 
-! -- Variables globales du module -------------------------------------------
+! -- Global variables -------------------------------------------------------
 
+integer(kpp), parameter :: mat_undef = -1
+integer(kpp), parameter :: mat_none  =  1
 integer(kpp), parameter :: mat_dlu   = 10
 integer(kpp), parameter :: mat_bdlu  = 11
 integer(kpp), parameter :: mat_sdlu  = 15
@@ -52,7 +54,7 @@ interface delete
   module procedure delete_spmat
 endinterface
 
-! -- Fonctions et Operateurs ------------------------------------------------
+! -- Functions and Operators ------------------------------------------------
 
 
 ! -- IMPLEMENTATION ---------------------------------------------------------
@@ -69,10 +71,10 @@ type(st_spmat) :: mat
   select case(mat%type)
   case(mat_dlu)
     call delete(mat%dlu)
-  case(mat_sdlu)
-    call delete(mat%sdlu)
   case(mat_bdlu)
     call delete(mat%bdlu)
+  case(mat_sdlu)
+    call delete(mat%sdlu)
   case(mat_crs)
     call delete(mat%crs)
   case default
@@ -83,11 +85,12 @@ endsubroutine delete_spmat
 
 
 endmodule SPARSE_MAT
+
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! avr  2004 : created, scalar terms
-! dec  2004 : extension to block terms
-! feb  2005 : transfered to SPMATH_DLU/BDLU
-!             enscapsulation of all types (DLU, BDLU, CRS, BCRS)
+! Apr 2004 : creation, scalar terms
+! Dec 2004 : extension to block terms
+! Feb 2005 : transfered to SPMATH_DLU/BDLU
+!            encapsulation of all types (DLU, BDLU, CRS, BCRS)
 !------------------------------------------------------------------------------!

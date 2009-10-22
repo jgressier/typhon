@@ -124,20 +124,26 @@ rm diff.log check.log 2> /dev/null
 # --- get list of cases ---
 #
 cd $NRGDIR
-LISTCASES=$(find * -name $REFCONF | xargs -n 1 dirname | grep "${patlist[@]:-.}")
+LISTCASES=( $(find * -name $REFCONF | xargs -n 1 dirname | grep "${patlist[@]:-.}") )
+
+if [ ${#LISTCASES[@]} = 0 ] ; then
+  echo "NO CASE FOUND"
+  echo "$bar"
+  exit 0
+fi
 
 # --- print list of cases ---
 #
 if [ $list -eq 1 ] ; then
   echo LISTCASES =
-  for CASE in ${LISTCASES[*]} ; do
+  for CASE in "${LISTCASES[@]}" ; do
     echo "    ${CASE}"
   done
   exit 0
 fi
 
 typeset -i ncol0=1
-for CASE in ${LISTCASES[*]} ; do
+for CASE in "${LISTCASES[@]}" ; do
   i=$(echo $CASE | wc -c)
   if [ $i -gt $ncol0 ] ; then ncol0=i ; fi
 done
@@ -153,7 +159,7 @@ echo diffing with DIFF : $DIFF
 echo "$bar"
 
 echo diff-command : $DIFFCOM >> $HOMEDIR/diff.log
-for CASE in $LISTCASES ; do
+for CASE in "${LISTCASES[@]}" ; do
   # init
   CASEDIR=$NRGDIR/$CASE
   # print

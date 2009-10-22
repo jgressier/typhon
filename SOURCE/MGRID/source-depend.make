@@ -34,11 +34,12 @@ MGRID_OBJ = $(MGRID_MOD:.$(MOD)=.o)      \
             distrib_field.o            \
             extractpart_grid.o         \
             getpart_grid.o             \
+            gmres_free.o               \
             integ_ustboco.o            \
             postlimit_monotonic.o      \
             postlimit_barth.o          \
             prb_grid_vol.o             \
-            precalc_grad_lsq.o         \
+            precalc_grad_lsq.o
             #minmax_limiter.o
 
 D_MGRID_OBJ = $(MGRID_OBJ:%=$(PRJOBJ)/%)

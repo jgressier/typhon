@@ -32,7 +32,6 @@ type(mnu_time) :: deftime
 ! -- Internal variables --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nkey           ! nombre de clefs
-integer                  :: i
 character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 ! -- BODY --
@@ -134,6 +133,7 @@ case(tps_impl)
   endselect
 
   if (rpm_existkey(pcour, "INVERSION")) then
+    deftime%implicite%methode = alg_undef
     call rpmgetkeyvalstr(pcour, "INVERSION", str)
     if (samestring(str,"LU"))           deftime%implicite%methode = alg_lu
     if (samestring(str,"JACOBI"))       deftime%implicite%methode = alg_jac
@@ -145,6 +145,7 @@ case(tps_impl)
     if (samestring(str,"CGS"))          deftime%implicite%methode = alg_cgs
     if (samestring(str,"BICGSTAB"))     deftime%implicite%methode = alg_bicgstab
     if (samestring(str,"GMRES"))        deftime%implicite%methode = alg_gmres
+    if (samestring(str,"GMRESFREE"))    deftime%implicite%methode = alg_gmresfree
   endif
 
   select case(deftime%implicite%methode)
@@ -166,7 +167,7 @@ case(tps_impl)
     call print_info(9,"    Successive Over Relaxation iterative inversion (SOR)")
     call rpmgetkeyvalint (pcour, "MAX_IT",    deftime%implicite%max_it, 10_kpp)
     call rpmgetkeyvalreal(pcour, "INV_RES",   deftime%implicite%maxres, 1.e-4_krp)
-    call rpmgetkeyvalreal(pcour, "OVERRELAX", deftime%implicite%maxres, 1.e-4_krp)
+    call rpmgetkeyvalreal(pcour, "OVERRELAX", deftime%implicite%overrelax, 1._krp)
 
   case(alg_bicg)
     call print_info(9,"    Bi-Conjugate Gradient iterative inversion (BiCG)")
@@ -193,17 +194,48 @@ case(tps_impl)
     call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 50_kpp)
     call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-4_krp)
 
+  case(alg_gmresfree)
+    call print_info(9,"    Matrix-Free Generalized Minimum Residual iterative inversion (GMRES)")
+    call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 50_kpp)
+    call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-4_krp)
+    deftime%implicite%storage = mat_none
+    call erreur("algebra","unavailable inversion method: "//trim(str))
+
   case default
-    call erreur("algebra","unknown inversion method")
+    call erreur("algebra","unknown inversion method: "//trim(str))
   endselect
 
   if (rpm_existkey(pcour, "STORAGE")) then
+    deftime%implicite%storage = mat_undef
     call rpmgetkeyvalstr(pcour, "STORAGE", str)
     if (samestring(str,"DLU"))   deftime%implicite%storage = mat_dlu
     if (samestring(str,"BDLU"))  deftime%implicite%storage = mat_bdlu
     if (samestring(str,"CRS"))   deftime%implicite%storage = mat_crs
     if (samestring(str,"BCRS"))  deftime%implicite%storage = mat_bcrs
+    if (samestring(str,"NONE"))  deftime%implicite%storage = mat_none
   endif
+
+  if ( deftime%implicite%storage == mat_undef ) then
+    call erreur("algebra","unknown storage method: "//trim(str))
+  endif
+
+  if ( deftime%implicite%methode == alg_gmresfree .AND. &
+       deftime%implicite%storage /= mat_none ) then
+    call print_info(1,"algebra: "//trim(str)//" storage method incompatible with Matrix-Free GMRES")
+    call error_stop("         No (default) storage method or NONE required")
+  endif
+
+  if ( deftime%implicite%methode /= alg_gmresfree .AND. &
+       deftime%implicite%storage == mat_none ) then
+    call print_info(1,"algebra: "//trim(str)//" storage method incompatible without Matrix-Free GMRES")
+    select case(solver)
+    case(solKDIF)
+      call error_stop("         Default (DLU) storage method or DLU required")
+    case(solNS)
+      call error_stop("         Default (BDLU) storage method or BDLU required")
+    endselect
+  endif
+
 
 !------------------------------------------------------
 ! DUAL TIME METHOD
@@ -216,11 +248,12 @@ case default
 endselect
 
 
-
 endsubroutine def_time
+
 !------------------------------------------------------------------------------!
-! Change History
-! nov  2002 : creation (vide) pour lien avec l'arborescence
-! sept 2003 : lecture des parametres de calcul du pas de temps
-! avr  2004 : lecture des parametres d'integration (implicitation)
+! Changes history
+! Nov 2002 : creation
+! Sep 2003 : scan timestep parameters
+! Apr 2004 : scan implicit parameters
+! Oct 2009 : matrix-free GMRES
 !------------------------------------------------------------------------------!

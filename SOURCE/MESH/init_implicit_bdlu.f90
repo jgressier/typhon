@@ -27,7 +27,8 @@ type(mnu_solver) :: defsolver    ! solver parameters
 type(st_bdlu)    :: matbdlu
 
 ! -- Internal variables --
-integer(kip)          :: i, ic, dimb
+integer(kip)          :: ic
+integer(kip)          :: i, dimb
 
 ! -- Body --
 
@@ -35,7 +36,7 @@ dimb = defsolver%nequat   ! dimension of a block
 
 call new(matbdlu, dimb, umesh%ncell, umesh%nface)  ! alloc of sparse matrix
 
-matbdlu%couple%fils(1:matbdlu%ncouple, 1:2) = umesh%facecell%fils(1:matbdlu%ncouple, 1:2) 
+matbdlu%couple%fils(1:matbdlu%ncouple, 1:2) = umesh%facecell%fils(1:matbdlu%ncouple, 1:2)
 
 !-------------------------------------------------------
 ! Init diagonal
@@ -43,7 +44,7 @@ matbdlu%couple%fils(1:matbdlu%ncouple, 1:2) = umesh%facecell%fils(1:matbdlu%ncou
 do ic = 1, umesh%ncell_int
   matbdlu%diag (1:dimb, 1:dimb, ic) = 0._krp
   do i = 1, dimb
-    matbdlu%diag(i, i, ic) = umesh%mesh%volume(ic,1,1) / dtloc(ic)
+    matbdlu%diag(i, i, ic) = 1._krp ! umesh%mesh%volume(ic,1,1) / dtloc(ic)
   enddo
 enddo
 

@@ -109,6 +109,8 @@ do while (associated(pgrid))
   !case(tps_expl, tps_rk2, tps_rk2ssp, tps_rk3ssp, tps_rk4)
 
   case(tps_impl, tps_dualt)
+
+    if (defsolver%deftime%implicite%storage /= mat_none) &
       call init_implicit(pgrid%dtloc, defsolver, pgrid%umesh, mat)
 
   endselect
@@ -124,6 +126,7 @@ do while (associated(pgrid))
 
   case(tps_impl, tps_dualt)
 
+    if (defsolver%deftime%implicite%storage /= mat_none) &
       call tstep_implicit(pgrid%dtloc, info%time_model, defsolver, &
                           pgrid%umesh, pgrid%info%field_loc, &
                           coupling, ncoupling, mat)

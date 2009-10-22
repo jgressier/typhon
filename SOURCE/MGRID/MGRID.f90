@@ -83,7 +83,7 @@ type st_subcell
    integer                                 :: ncell_int ! nb of cells
    integer, dimension(:), pointer          :: id
    integer, dimension(:,:), pointer        :: intcell
-end type st_subcell
+endtype st_subcell
 
 
 !------------------------------------------------------------------------------!
@@ -93,7 +93,7 @@ type st_gridlist
   type(st_grid), pointer :: parent          ! pointer to parent grid
   type(st_grid), pointer :: first, last     ! pointer to first and last grid
   integer(kip)           :: nbgrid          ! number of grids
-endtype
+endtype st_gridlist
 
 
 !------------------------------------------------------------------------------!
@@ -102,7 +102,7 @@ endtype
 type st_grid
   type(st_infogrid)          :: info       ! grid information
 
-  type(st_gridlist), pointer :: family     ! pointer to grid list family (parent & sisters)
+!  type(st_gridlist), pointer :: family     ! pointer to grid list family (parent & sisters)
   type(st_gridlist)          :: children   ! grid list of children
   type(st_grid),     pointer :: next       ! next sister in grid list
 
@@ -164,11 +164,11 @@ integer                              :: id
 type(st_gridlist), optional, target  :: gridlist
 
   grid%info%id = id
-  if (present(gridlist)) then 
-    grid%family  => gridlist
-  else
-    nullify(grid%family)
-  endif
+!  if (present(gridlist)) then 
+!    grid%family  => gridlist
+!  else
+!    nullify(grid%family)
+!  endif
 
   grid%nbocofield = 0
   grid%nfield     = 0

@@ -7,13 +7,15 @@ SCRIPTVOID=${SCRIPTNAME//?/ }
 ########################################################################
 # --- print usage ---
 ########################################################################
-bar="================================================================"
+function writebar() {
+  echo "================================================================"
+}
 
 function usage() {
   if [ $1 = 1 ] ; then
-    echo $bar
+    writebar
     echo "ERROR"
-    echo $bar
+    writebar
   fi
   echo
   echo "Usage: $SCRIPTNAME [-h] [-l <nblevl>] [-d <srcdir>] \\"
@@ -37,19 +39,21 @@ function usage() {
   echo "       <subroutinename>: to be processed"
   echo
   if [ $1 = 1 ] ; then
-    echo $bar
+    writebar
     echo "ERROR"
-    echo $bar
+    writebar
   fi
   exit $1
 }
 
 function info() {
+  local head=
   if [ $# -eq 0 ] ; then
     echo
     echo "$SCRIPTNAME:"
   else
-    printf "$SCRIPTVOID  %s\n" "$@"
+    if [ $# -ne 1 ] ; then head="$1" ; shift ; fi
+    printf "$SCRIPTVOID  $head%s\n" "$@"
   fi
 }
 
@@ -57,7 +61,7 @@ function warning() {
   echo
   echo "$SCRIPTNAME: warning"
   [[ $# -gt 0 ]] && printf "$SCRIPTVOID  %s\n" "$@"
-  echo "$bar"
+  writebar
 }
 
 function error() {
@@ -88,6 +92,9 @@ excludebtin=(
   writereturn
 )
 
+excludebtin=( $(echo ${excludebtin[@]/#/^}) )
+excludebtin=( $(echo ${excludebtin[@]/%/$}) )
+
 excludeargs=()
 
 print0=0
@@ -103,30 +110,30 @@ header[$print0$islast1]="└── "
 headnx[$print0$islast1]="    "
 header[$print0$islast2]=""
 headnx[$print0$islast2]=""
-separ[$print0]="────"
+separe[$print0        ]="────"
 header[$print1$islast0]="@@|="
 headnx[$print1$islast0]="@@|@"
 header[$print1$islast1]="@@@="
 headnx[$print1$islast1]="@@@@"
 header[$print1$islast2]=""
 headnx[$print1$islast2]=""
-separ[$print1]="@@--"
+separe[$print1        ]="@@--"
 header[$print2$islast0]=nexthd
 headnx[$print2$islast0]=passhd
 header[$print2$islast1]=lasthd
 headnx[$print2$islast1]=voidhd
-separ[$print2]=linehd
-
-typeset -i lev
+separe[$print2        ]=linehd
 
 ########################################################################
 # --- definition of arbo function ---
 ########################################################################
 function arbo() {
-  local myhead myname islast n file list tabl f i isdone ok
+  local myhead myname islast i n file list tabl f isdone app lev
+  typeset -i i n lev
   myhead="$1" ; shift
   myname="$1" ; shift
   islast="$1" ; shift
+  lev="$1" ; shift
 #
 # -- check if subroutine already done --
 #
@@ -142,21 +149,24 @@ function arbo() {
   if [ $lev -lt $nblevl ] ; then
     file=$(echo $SOURCEDIR/*/${myname}.f90)
     if [ -f "$file" ] ; then
+#
+# -- build call list if subroutine file exists
+#
       list=( $(grep '^\([^!]*[) ]\)*call ' $file 2>/dev/null | sed 's/"[^"]*"//g' | \
                sed 's/(/ (/g;s/call /\ncall /g' | grep call | awk '{print $2}' | \
                grep -v "${excludeopts[@]}") )
 #
-# -- add (*) if subroutine already done and wrappable --
+# -- append (*) if subroutine already done and wrappable --
 #
       if [ ${#list[@]} -gt 0 ] ; then
-        ok=${isdone:+" (*)"}
+        app=${isdone:+" (*)"}
       fi
     else
 #
-# -- add (?) if subroutine was not found --
+# -- append (?) if subroutine file not found --
 #
       list=()
-      ok=" (?)"
+      app=" (?)"
     fi
   fi
 #
@@ -166,15 +176,14 @@ function arbo() {
     alreadydone+=("$myname")
   fi
 #
-# -- conditional print --
+# -- header print --
 #
-  oldhead="$myhead"
   printf "$myhead${header[$print$islast]}"
   myhead="$myhead${headnx[$print$islast]}"
 #
 # -- subroutine name print --
 #
-  echo "$myname${ok:-}"
+  echo "$myname${app:-}"
 #
 # -- check called subroutines if current subroutine not already done --
 #
@@ -190,13 +199,11 @@ function arbo() {
       [[ ! -z "$f" ]] && tabl+=($f)
     done
 #
-# -- call arbo with adequate arguments --
+# -- call arbo with adequate arguments (1 for last subroutine) --
 #
-    typeset -i n=${#tabl[@]}-1
+    n=${#tabl[@]}-1
     for i in ${!tabl[@]} ; do
-      lev=lev+dlev
-      arbo "${myhead}" "${tabl[i]}" $((i==n?1:0))
-      lev=lev-dlev
+      arbo "${myhead}" "${tabl[i]}" $((i==n?1:0)) $((lev+dlev))
     done
   fi
 }
@@ -212,10 +219,10 @@ eval set -- "$OPTS"
 # --- parse options ---
 ########################################################################
 print=0
-nbcols=1 ; nbcl=0
+nbcols=1 ; isnbcl=
 nblevl=1 ; dlev=0
-nopexc=0
-lstexc=0
+btnexc=
+lstexc=
 while true ; do
   case "$1" in
     -h) usage 0 ;;
@@ -223,13 +230,12 @@ while true ; do
     -d) shift ; srcdir=$1 ;;
     -p) print=1 ;;
     -r) psopt="-r" ;;
-    -n) shift ; nbcols=$1 ; nbcl=1 ;;
+    -n) shift ; nbcols=$1 ; isnbcl=is_set ;;
     -o) shift ; output=$1 ;;
-    -x) shift ; for pat in $(eval echo '{'"$1"',}') ; do
-                  excludeargs+=("$pat")
-                done ;;
-    -X) nopexc=1 ;;
-    -L) lstexc=1 ;;
+    -x) shift ; IFS=',' eval read -a x '<<<' "'$1'"
+                excludeargs+=("${x[@]}") ;;
+    -X) btnexc=is_set ;;
+    -L) lstexc=is_set ;;
     --) shift ; break ;;
   esac
   shift
@@ -256,29 +262,21 @@ if [ -z "${SOURCEDIR:-}" ] ; then
   SOURCEDIR=$SCRIPTDIR
 fi
 
-if [ $lstexc = 1 ] ; then
+if [ "$lstexc" ] ; then
   info
-  if [ $nopexc = 1 ] ; then
-    info "builtin exclude patterns (ignored):"
-  else
-    info "builtin exclude patterns:"
-  fi
-  for bat in "${excludebtin[@]}" ; do
-    info "    ^$bat$"
-  done
+  info "builtin exclude patterns${btnexc:+ (ignored)}:"
+  info "    " "${excludebtin[@]}"
   if [ ${#excludeargs[@]} -gt 0 ] ; then
     info "additional exclude patterns:"
-    for pat in "${excludeargs[@]}" ; do
-      info "    $pat"
-    done
+    info "    " "${excludeargs[@]}"
   fi
   exit 0
 fi
 
 excludeopts=("-e" "^$")
-if [ $nopexc = 0 ] ; then
+if [ ! "$btnexc" ] ; then
   for bat in "${excludebtin[@]}" ; do
-    excludeopts+=("-e" "^$bat$")
+    excludeopts+=("-e" "$bat")
   done
 fi
 if [ ${#excludeargs[@]} -gt 0 ] ; then
@@ -287,7 +285,7 @@ if [ ${#excludeargs[@]} -gt 0 ] ; then
   done
 fi
 
-if [ $nbcl = 1 ] && [ $print = 0 ] ; then
+if [ "$isnbcl" ] && [ $print = 0 ] ; then
   warning "<nbcols> is ignored in default output"
 fi
 if [ $print = 1 ] && [ -z "${output:-}" ] ; then
@@ -313,10 +311,10 @@ listsub=$(grep 'subroutine ' */*.f90 | grep '.f90: *subroutine ')
 
 listsub=( $(echo "$listsub" | sed 's/\.f90:/.f90 /;s/ *(.*//' | awk '{print $3,$1}' | sort | awk '{print $1}') )
 
-listcal=( $(echo "$listsub" | sed 's/\.f90:/.f90 /;s/ *(.*//' | awk '{print $3,$1}' | sort | awk '{print $2}') )
+listcal=( $(echo "${listsub[@]:-}" | sed 's/\.f90:/.f90 /;s/ *(.*//' | awk '{print $3,$1}' | sort | awk '{print $2}') )
 
 for i in $(seq 20) ; do
-  sep=$(printf "%s%s" "${sep:-}" "${separ[$print]}")
+  sep=$(printf "%s%s" "${sep:-}" "${separe[$print]}")
 done
 {
   printf "$sep\n"
@@ -326,9 +324,8 @@ done
   # --- initialize table of already done subroutines ---
   ########################################################################
     alreadydone=()
-    lev=0
     printf "$sep\n"
-    arbo "" "$g" 2
+    arbo "" "$g" 2 0
   done
 } > "$tmpout"
 
@@ -356,7 +353,7 @@ for i in $islast0 $islast1 ; do
 done
 sep=$(echo "$sep" | sed 's/^\\|//')
 sed "s:^(\(\($sep\)\+\):\1(:g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
-sed "s:^(\(\(${separ[$print1]}\)\+\):\1(:g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
+sed "s:^(\(\(${separe[$print1]}\)\+\):\1(:g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
 
 # Postscript macros
 sed 's:%%EndSetup$:%\n'\
@@ -379,7 +376,7 @@ for i in $islast0 $islast1 ; do
   sed "s:${header[1$i]}:${header[2$i]} :g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
   sed "s:${headnx[1$i]}:${headnx[2$i]} :g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
 done
-sed "s:${separ[1]}:${separ[2]} :g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
+sed "s:${separe[1]}:${separe[2]} :g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
 
 mv "$tmpout" "$output"
 

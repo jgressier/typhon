@@ -31,7 +31,7 @@ type(st_mattab)  :: jacL, jacR   ! flux jacobian matrices
 type(st_dlu)     :: matdlu
 
 ! -- Internal variables --
-integer(kip)          :: if, ic1, ic2, ic, info, dim
+integer(kip)          :: i_f, ic1, ic2, ic, info, dim
 
 ! -- Body --
 
@@ -43,40 +43,40 @@ if (jacL%dim > 1) call erreur("internal error", "impossible to use DLU storage f
 !-------------------------------------------------------
 ! matrix construction - internal faces only
 
-do if = 1, umesh%nface_int
+do i_f = 1, umesh%nface_int
 
-  ic1 = matdlu%couple%fils(if,1)     ! ic1 cell is supposed to the lowest index
-  ic2 = matdlu%couple%fils(if,2)     ! ic2 cell is supposed to the highest index
+  ic1 = matdlu%couple%fils(i_f,1)     ! ic1 cell is supposed to the lowest index
+  ic2 = matdlu%couple%fils(i_f,2)     ! ic2 cell is supposed to the highest index
 
   ! contribution of the face to left cell
 
-  matdlu%diag(ic1) = matdlu%diag(ic1) + jacL%mat(1,1,if)
-  matdlu%upper(if) = + jacR%mat(1,1,if)  
+  matdlu%diag (ic1) = matdlu%diag(ic1) + jacL%mat(1,1,i_f)*dtloc(ic1)/umesh%mesh%volume(ic1,1,1)
+  matdlu%upper(i_f) =                  + jacR%mat(1,1,i_f)*dtloc(ic1)/umesh%mesh%volume(ic1,1,1)
 
   ! contribution of the face to right cell
 
-  matdlu%diag(ic2) = matdlu%diag(ic2) - jacR%mat(1,1,if)
-  matdlu%lower(if) = - jacL%mat(1,1,if)  
+  matdlu%diag (ic2) = matdlu%diag(ic2) - jacR%mat(1,1,i_f)*dtloc(ic2)/umesh%mesh%volume(ic2,1,1)
+  matdlu%lower(i_f) =                  - jacL%mat(1,1,i_f)*dtloc(ic2)/umesh%mesh%volume(ic2,1,1)
 
 enddo
 
 !-------------------------------------------------------
 ! matrix construction - boundary faces only
 
-do if = umesh%nface_int+1, umesh%nface
+do i_f = umesh%nface_int+1, umesh%nface
 
-  ic1 = matdlu%couple%fils(if,1)     ! ic1 cell is supposed to the lowest index  (internal cell)
-  ic2 = matdlu%couple%fils(if,2)     ! ic2 cell is supposed to the highest index (ghost    cell)
+  ic1 = matdlu%couple%fils(i_f,1)     ! ic1 cell is supposed to the lowest index  (internal cell)
+  ic2 = matdlu%couple%fils(i_f,2)     ! ic2 cell is supposed to the highest index (ghost    cell)
 
   ! contribution of the face to left cell (internal cell)
 
-  matdlu%diag(ic1) = matdlu%diag(ic1) + jacL%mat(1,1,if)
-  matdlu%upper(if) = + jacR%mat(1,1,if) 
+  matdlu%diag (ic1) = matdlu%diag(ic1) + jacL%mat(1,1,i_f)*dtloc(ic1)/umesh%mesh%volume(ic1,1,1)
+  matdlu%upper(i_f) =                  + jacR%mat(1,1,i_f)*dtloc(ic1)/umesh%mesh%volume(ic1,1,1)
 
   ! contribution of the face to right cell
 
-  matdlu%diag(ic2) = 1._krp
-  matdlu%lower(if) = 0._krp
+  matdlu%diag (ic2) = 1._krp
+  matdlu%lower(i_f) = 0._krp
 
 enddo
 

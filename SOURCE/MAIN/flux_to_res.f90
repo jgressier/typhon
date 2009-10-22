@@ -29,12 +29,12 @@ logical               :: trait_jac               ! need to parse jacobians or no
 
 ! -- OUTPUTS --
 type(st_genericfield)   :: residu            ! champ de residus
-type(st_mattab)         :: jacL, jacR 
+type(st_mattab)         :: jacL, jacR
 
 ! -- Declaration des variables internes --
 real(krp), allocatable :: surf(:)         ! intermediate surface
 real(krp), allocatable :: vol(:)          ! intermediate volume
-integer               :: if, i            ! index de face
+integer               :: i_f, i            ! index de face
 integer               :: ic1, ic2         ! index de cellules
 integer               :: ip               ! index de variables
 integer               :: ib               ! index de conditions aux limites
@@ -45,15 +45,15 @@ integer               :: ic               ! index de couplage
 
 allocate(surf(umesh%nface))
 
-do if = 1, umesh%nface
-  surf(if) = umesh%mesh%iface(if,1,1)%surface
+do i_f = 1, umesh%nface
+  surf(i_f) = umesh%mesh%iface(i_f,1,1)%surface
 enddo
 
 ! -- flux surfaciques -> flux de surfaces --
 
 do ip = 1, flux%nscal
-  do if = 1, umesh%nface
-    flux%tabscal(ip)%scal(if) = surf(if) * flux%tabscal(ip)%scal(if)
+  do i_f = 1, umesh%nface
+    flux%tabscal(ip)%scal(i_f) = surf(i_f) * flux%tabscal(ip)%scal(i_f)
   enddo
 enddo
 
@@ -66,47 +66,44 @@ enddo
 
 if (trait_jac) then
   dim = jacL%dim
-  do if = 1, umesh%nface
-    jacL%mat(1:dim,1:dim,if) = surf(if) * jacL%mat(1:dim,1:dim,if)
-    jacR%mat(1:dim,1:dim,if) = surf(if) * jacR%mat(1:dim,1:dim,if)
+  do i_f = 1, umesh%nface
+    jacL%mat(1:dim,1:dim,i_f) = surf(i_f) * jacL%mat(1:dim,1:dim,i_f)
+    jacR%mat(1:dim,1:dim,i_f) = surf(i_f) * jacR%mat(1:dim,1:dim,i_f)
   enddo
 endif
 
 deallocate(surf)
- 
+
 ! -- calcul des residus --
 
 call init_genericfield(residu, 0._krp, v3d(0._krp, 0._krp, 0._krp))
 
-do if = 1, umesh%nface
-  ic1 = umesh%facecell%fils(if,1)
-  ic2 = umesh%facecell%fils(if,2)
+do i_f = 1, umesh%nface
+  ic1 = umesh%facecell%fils(i_f,1)
+  ic2 = umesh%facecell%fils(i_f,2)
 
   do ip = 1, residu%nscal
-    residu%tabscal(ip)%scal(ic1) = residu%tabscal(ip)%scal(ic1) - flux%tabscal(ip)%scal(if)
-    residu%tabscal(ip)%scal(ic2) = residu%tabscal(ip)%scal(ic2) + flux%tabscal(ip)%scal(if)
+    residu%tabscal(ip)%scal(ic1) = residu%tabscal(ip)%scal(ic1) - flux%tabscal(ip)%scal(i_f)
+    residu%tabscal(ip)%scal(ic2) = residu%tabscal(ip)%scal(ic2) + flux%tabscal(ip)%scal(i_f)
   enddo
   do ip = 1, residu%nvect
-    call shift_sub(residu%tabvect(ip)%vect(ic1), flux%tabvect(ip)%vect(if))
-    call shift_add(residu%tabvect(ip)%vect(ic2), flux%tabvect(ip)%vect(if))
-    !residu%tabvect(ip)%vect(ic1) = residu%tabvect(ip)%vect(ic1) - flux%tabvect(ip)%vect(if)
-    !residu%tabvect(ip)%vect(ic2) = residu%tabvect(ip)%vect(ic2) + flux%tabvect(ip)%vect(if)
+    call shift_sub(residu%tabvect(ip)%vect(ic1), flux%tabvect(ip)%vect(i_f))
+    call shift_add(residu%tabvect(ip)%vect(ic2), flux%tabvect(ip)%vect(i_f))
+    !residu%tabvect(ip)%vect(ic1) = residu%tabvect(ip)%vect(ic1) - flux%tabvect(ip)%vect(i_f)
+    !residu%tabvect(ip)%vect(ic2) = residu%tabvect(ip)%vect(ic2) + flux%tabvect(ip)%vect(i_f)
   enddo
 enddo
 
 ! ??? creation de procedure intrinseques ? // optimisation
 
-if (.not.trait_jac) then
-  do ic1 = 1, umesh%ncell_int
-    do ip = 1, residu%nscal
-      residu%tabscal(ip)%scal(ic1) = dtloc(ic1) * residu%tabscal(ip)%scal(ic1) &
-                                     / umesh%mesh%volume(ic1,1,1)
-    enddo
-    do ip = 1, residu%nvect
-      residu%tabvect(ip)%vect(ic1) = (dtloc(ic1)/ umesh%mesh%volume(ic1,1,1)) * residu%tabvect(ip)%vect(ic1)  
-    enddo
+do ic1 = 1, umesh%ncell_int
+  do ip = 1, residu%nscal
+    residu%tabscal(ip)%scal(ic1) = (dtloc(ic1)/ umesh%mesh%volume(ic1,1,1)) * residu%tabscal(ip)%scal(ic1)
   enddo
-endif
+  do ip = 1, residu%nvect
+    residu%tabvect(ip)%vect(ic1) = (dtloc(ic1)/ umesh%mesh%volume(ic1,1,1)) * residu%tabvect(ip)%vect(ic1)
+  enddo
+enddo
 
 
 endsubroutine flux_to_res

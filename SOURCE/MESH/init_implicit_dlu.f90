@@ -35,13 +35,13 @@ if (defsolver%nequat > 1) call erreur("internal error", "impossible to use DLU s
 
 call new(matdlu, umesh%ncell, umesh%nface)  ! alloc of sparse matrix
 
-matdlu%couple%fils(1:matdlu%ncouple, 1:2) = umesh%facecell%fils(1:matdlu%ncouple, 1:2) 
+matdlu%couple%fils(1:matdlu%ncouple, 1:2) = umesh%facecell%fils(1:matdlu%ncouple, 1:2)
 
 !-------------------------------------------------------
 ! Init diagonal
 
 do ic = 1, umesh%ncell_int
-  matdlu%diag(ic) = umesh%mesh%volume(ic,1,1) / dtloc(ic)
+  matdlu%diag(ic) = 1._krp ! umesh%mesh%volume(ic,1,1) / dtloc(ic)
 enddo
 
 

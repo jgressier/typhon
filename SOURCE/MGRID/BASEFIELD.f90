@@ -30,7 +30,7 @@ integer, parameter :: nghostcell = 1
 type st_scafield
   integer :: dim                            ! cell number
   real(krp), dimension(:), pointer :: scal  ! scalar field
-endtype
+endtype st_scafield
 
 !------------------------------------------------------------------------------!
 ! ST_VECFIELD structure definition : physical vector field
@@ -39,7 +39,7 @@ endtype
 type st_vecfield
   integer :: dim                            ! cell number
   type(v3d), dimension(:), pointer :: vect  ! vector field
-endtype
+endtype st_vecfield
 
 !------------------------------------------------------------------------------!
 ! ST_TENFIELD structure definition : physical tensor field
@@ -48,7 +48,7 @@ endtype
 type st_tenfield
   integer :: dim                            ! cell number
   type(t3d), dimension(:), pointer :: tens  ! tensor field
-endtype
+endtype st_tenfield
 
 
 ! -- INTERFACES -------------------------------------------------------------
@@ -59,6 +59,10 @@ endinterface
 
 interface delete
   module procedure delete_scafield, delete_vecfield, delete_tenfield
+endinterface
+
+interface transfer
+  module procedure transfer_scafield, transfer_vecfield, transfer_tenfield
 endinterface
 
 interface scale
@@ -75,6 +79,10 @@ endinterface
 
 interface l1norm
   module procedure scaf_l1norm, vecf_l1norm, tenf_l1norm
+endinterface
+
+interface l2sqnorm
+  module procedure scaf_l2sqnorm, vecf_l2sqnorm, tenf_l2sqnorm
 endinterface
 
 interface l2norm
@@ -100,24 +108,12 @@ implicit none
 type(st_scafield) :: scafield          ! scalar field
 integer           :: dim               ! dimension
 
-  scafield%dim = dim
-  if (scafield%dim > 0) then
+scafield%dim = dim
+if (scafield%dim > 0) then
   allocate(scafield%scal(scafield%dim))
-  endif
+endif
 
 endsubroutine new_scafield
-
-
-!------------------------------------------------------------------------------!
-! Procedure : ST_SCAFIELD structure deallocation
-!------------------------------------------------------------------------------!
-subroutine delete_scafield(scafield)
-implicit none
-type(st_scafield) :: scafield
-
-  deallocate(scafield%scal)
-
-endsubroutine delete_scafield
 
 
 !------------------------------------------------------------------------------!
@@ -128,24 +124,12 @@ implicit none
 type(st_vecfield) :: vecfield          ! vector field
 integer           :: dim               ! dimension
 
-  vecfield%dim = dim
-  if (vecfield%dim > 0) then
-    allocate(vecfield%vect(dim))
-  endif
+vecfield%dim = dim
+if (vecfield%dim > 0) then
+  allocate(vecfield%vect(dim))
+endif
 
 endsubroutine new_vecfield
-
-
-!------------------------------------------------------------------------------!
-! Procedure : ST_VECFIELD structure deallocation
-!------------------------------------------------------------------------------!
-subroutine delete_vecfield(vecfield)
-implicit none
-type(st_vecfield) :: vecfield
-
-  deallocate(vecfield%vect)
-
-endsubroutine delete_vecfield
 
 
 !------------------------------------------------------------------------------!
@@ -156,12 +140,36 @@ implicit none
 type(st_tenfield) :: tenfield          ! tensor field
 integer           :: dim               ! dimension
 
-  tenfield%dim = dim
-  if (tenfield%dim > 0) then
-    allocate(tenfield%tens(dim))
-  endif
+tenfield%dim = dim
+if (tenfield%dim > 0) then
+  allocate(tenfield%tens(dim))
+endif
 
 endsubroutine new_tenfield
+
+
+!------------------------------------------------------------------------------!
+! Procedure : ST_SCAFIELD structure deallocation
+!------------------------------------------------------------------------------!
+subroutine delete_scafield(scafield)
+implicit none
+type(st_scafield) :: scafield
+
+deallocate(scafield%scal)
+
+endsubroutine delete_scafield
+
+
+!------------------------------------------------------------------------------!
+! Procedure : ST_VECFIELD structure deallocation
+!------------------------------------------------------------------------------!
+subroutine delete_vecfield(vecfield)
+implicit none
+type(st_vecfield) :: vecfield
+
+deallocate(vecfield%vect)
+
+endsubroutine delete_vecfield
 
 
 !------------------------------------------------------------------------------!
@@ -171,7 +179,7 @@ subroutine delete_tenfield(tenfield)
 implicit none
 type(st_tenfield) :: tenfield
 
-  deallocate(tenfield%tens)
+deallocate(tenfield%tens)
 
 endsubroutine delete_tenfield
 
@@ -248,13 +256,13 @@ implicit none
 type(st_vecfield) :: x
 real(krp)         :: a
 
-  call scale(x%vect(1:x%dim), a)
+call scale(x%vect(1:x%dim), a)
 
 endsubroutine vecf_scale
 
 
 !------------------------------------------------------------------------------
-! Computing routine : vecf_scale : X = a*X
+! Computing routine : tenf_scale : X = a*X
 !------------------------------------------------------------------------------
 subroutine tenf_scale(x, a)
 implicit none
@@ -262,9 +270,9 @@ type(st_tenfield) :: x
 integer           :: i
 real(krp)         :: a
 
-  do i = 1, x%dim
-    x%tens(i)%mat = a*x%tens(i)%mat
-  enddo
+do i = 1, x%dim
+  x%tens(i)%mat = a*x%tens(i)%mat
+enddo
 
 endsubroutine tenf_scale
 
@@ -291,22 +299,22 @@ subroutine vecf_xeqxpy(x, y)
 implicit none
 type(st_vecfield) :: x, y
 
-  call shift_add(x%vect(1:x%dim), y%vect(1:x%dim))
+call shift_add(x%vect(1:x%dim), y%vect(1:x%dim))
 
 endsubroutine vecf_xeqxpy
 
 
 !------------------------------------------------------------------------------
-! Computing routine : vecf_xeqxpy : X = X + Y
+! Computing routine : tenf_xeqxpy : X = X + Y
 !------------------------------------------------------------------------------
 subroutine tenf_xeqxpy(x, y)
 implicit none
 type(st_tenfield) :: x, y
 integer           :: i
 
-  do i = 1, x%dim
-    x%tens(i)%mat = x%tens(i)%mat + y%tens(i)%mat
-  enddo
+do i = 1, x%dim
+  x%tens(i)%mat = x%tens(i)%mat + y%tens(i)%mat
+enddo
 
 endsubroutine tenf_xeqxpy
 
@@ -339,23 +347,22 @@ integer           :: i
 do i = 1, x%dim
   x%vect(i) = x%vect(i) + a*y%vect(i)
 enddo
-!call shift_add(x%vect(1:x%dim), a*y%vect(1:x%dim))
 
 endsubroutine vecf_xeqxpay
 
 
 !------------------------------------------------------------------------------
-! Computing routine : vecf_xeqxpay : X = X + a*Y
+! Computing routine : tenf_xeqxpay : X = X + a*Y
 !------------------------------------------------------------------------------
 subroutine tenf_xeqxpay(x, a, y)
 implicit none
 type(st_tenfield) :: x, y
-integer           :: i
 real(krp)         :: a
+integer           :: i
 
-  do i = 1, x%dim
-    x%tens(i)%mat = x%tens(i)%mat + a*y%tens(i)%mat
-  enddo
+do i = 1, x%dim
+  x%tens(i)%mat = x%tens(i)%mat + a*y%tens(i)%mat
+enddo
 
 endsubroutine tenf_xeqxpay
 
@@ -404,6 +411,55 @@ do i = 1, x%dim
 enddo
 
 endfunction tenf_l1norm
+
+!------------------------------------------------------------------------------
+! Computing routine : scaf_l2sqnorm : n = sqrt(sum(x(i)^2))
+!------------------------------------------------------------------------------
+real(krp) function scaf_l2sqnorm(x)
+implicit none
+type(st_scafield) :: x
+integer           :: i
+
+scaf_l2sqnorm = 0.0_krp
+do i = 1, x%dim
+  scaf_l2sqnorm = scaf_l2sqnorm + x%scal(i)*x%scal(i)
+enddo
+
+endfunction scaf_l2sqnorm
+
+!------------------------------------------------------------------------------
+! Computing routine : vecf_l2sqnorm : n = sqrt(sum(x(i).x(i)))
+!------------------------------------------------------------------------------
+real(krp) function vecf_l2sqnorm(x)
+implicit none
+type(st_vecfield) :: x
+integer           :: i
+
+vecf_l2sqnorm = 0.0_krp
+do i = 1, x%dim
+  vecf_l2sqnorm = vecf_l2sqnorm + sqrabs(x%vect(i))
+enddo
+
+endfunction vecf_l2sqnorm
+
+!------------------------------------------------------------------------------
+! Computing routine : tenf_l2sqnorm : n = sqrt(sum(x(i)::x(i)))
+!------------------------------------------------------------------------------
+real(krp) function tenf_l2sqnorm(x)
+implicit none
+type(st_tenfield) :: x
+integer           :: i, ii, jj
+
+tenf_l2sqnorm = 0.0_krp
+do i = 1, x%dim
+  do ii = 1,3
+    do jj = 1,3
+      tenf_l2sqnorm = tenf_l2sqnorm + x%tens(i)%mat(ii,jj)*x%tens(i)%mat(ii,jj)
+    enddo
+  enddo
+enddo
+
+endfunction tenf_l2sqnorm
 
 !------------------------------------------------------------------------------
 ! Computing routine : scaf_l2norm : n = sqrt(sum(x(i)^2))
