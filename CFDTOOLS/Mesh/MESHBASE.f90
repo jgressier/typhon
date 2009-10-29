@@ -1,19 +1,11 @@
 !------------------------------------------------------------------------------!
-! MODULE : MESHBASE                       Auteur : J. Gressier
-!                                         Date   : Octobre 2002
-! Fonction                                Modif  : (cf historique)
-!   Bibliotheque de procedures et fonctions pour la gestion des elements
-!   geometriques de base (face...)
-!
-! Defauts/Limitations/Divers :
-! Historique :
+! MODULE : MESHBASE 
 !
 !------------------------------------------------------------------------------!
-
 module MESHBASE
 
-use TYPHMAKE   ! Definition de la precision
-use GEO3D      ! elements geometriques
+use MESHPREC   ! configuration
+use VEC3D      ! 3D vectors
 
 implicit none
 
@@ -180,4 +172,5 @@ endmodule MESHBASE
 ! fev  2004 : suppression de certains elements propres au structure
 !             structure information de MESH
 !             redefintion de new_mesh (allocation de non structure)
+! Oct  2009 : transfered from TYPHON sources
 !------------------------------------------------------------------------------!

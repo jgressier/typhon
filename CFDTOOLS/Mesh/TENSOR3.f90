@@ -10,8 +10,8 @@
 
 module TENSOR3
 
-use TYPHMAKE
-use GEO3D
+use MESHPREC
+use VEC3D
 
 ! -- DECLARATIONS -----------------------------------------------------------
 

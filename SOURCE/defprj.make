@@ -4,34 +4,24 @@ INCDIR  = $(HDIR)/LIB/Include
 LIBDIR  = $(HDIR)/LIB/Lib
 #PRJDIR  = $(HDIR)/TYPHON
 PRJDIR  = .
-PRJINC  = $(PRJDIR)/Include
-PRJLIB  = $(PRJDIR)/Lib
-PRJEXT  = ../LIBEXT
-PRJOBJ  = $(PRJDIR)/Obj
+PRJINCDIR  =$(PRJDIR)/Include
+#PRJLIBDIR  = $(PRJDIR)/Lib
+PRJLIBDIR  = Lib
+#PRJEXT  = ../LIBEXT
+PRJLIBEXT = -L../../CFDTOOLS/lib -lcfdmesh -lcfdbase
+PRJINCEXT =../CFDTOOLS/include
 
-####### Définition des utilitaires
+  dir.opt=optim
+dir.optim=optim
+  dir.dbg=debug
+dir.debug=debug
+ dir.prof=profil
+dir.gprof=profil
 
-AR          = ar
-RAN         = touch
-MAKE        = make
+# default
+dir.=$(dir.opt)
 
-####### Définitions des règles de compilation
+PRJOBJDIR=Obj.$(dir.$(opt))
 
-.SUFFIXES: .f .f90 .$(MOD) .o
-
-
-$(PRJINC)/%.$(MOD): ${$*.source}
-	@echo -n "MODULE: "
-	$(CF) $(FF) -c $< -o $(PRJOBJ)/${$*.objet}
-	mv $*.$(MOD) $(PRJINC)
-
-$(PRJOBJ)/%.o: %.f90
-	@echo -n "OBJECT: "
-	$(CF) $(FF) -c $< -o $(PRJOBJ)/$*.o
-
-# intermédiaire pour les dépendances, garantissant la compilation
-# %.dep: %.f90 
-#	@echo - compilation du fichier $*
-#	$(CF) $(FF) -c $< -o $(PRJOBJ)/$*.o
-#	@touch $*.dep
-
+$(PRJOBJDIR):
+	mkdir -p $(PRJOBJDIR)

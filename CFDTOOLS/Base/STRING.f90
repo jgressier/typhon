@@ -9,11 +9,6 @@ integer, parameter :: iposzmin = iachar('z')
 integer, parameter :: iposamaj = iachar('A')
 integer, parameter :: iposzmaj = iachar('Z')
 
-!interface uppercase
-!  module procedure charuppercase, struppercase
-
-!endinterface
-
 interface strof
   module procedure strof_int, strof_int2, strof_real, strof_double
 

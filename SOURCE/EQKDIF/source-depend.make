@@ -6,16 +6,16 @@ LDIR := EQKDIF
 ####### Files
 
 # Library
-EQKDIF_LIB = $(PRJLIB)/libt_eqkdif.a
+EQKDIF_LIB = $(PRJLIBDIR)/libt_eqkdif.a
 
 # Modules
-EQKDIF_MOD = EQKDIF.$(MOD)      \
-             MATER_LOI.$(MOD)   \
-             MATERIAU.$(MOD)    \
-             MENU_KDIF.$(MOD)
+EQKDIF_MOD = EQKDIF.$(MODEXT)      \
+             MATER_LOI.$(MODEXT)   \
+             MATERIAU.$(MODEXT)    \
+             MENU_KDIF.$(MODEXT)
 
 # Objects
-EQKDIF_OBJ := $(EQKDIF_MOD:.$(MOD)=.o)        \
+EQKDIF_OBJ := $(EQKDIF_MOD:.$(MODEXT)=.o)        \
               add_kdif_radiativeflux.o        \
               add_kdif_coupled_radflux.o      \
               corr_varprim_kdif.o             \
@@ -50,34 +50,22 @@ EQKDIF_OBJ := $(EQKDIF_MOD:.$(MOD)=.o)        \
               setboco_kdif_isoth.o            \
               stock_kdif_cond_coupling.o      \
 
-D_EQKDIF_OBJ := $(EQKDIF_OBJ:%=$(PRJOBJ)/%)
+libt_eqkdif.objects := $(EQKDIF_OBJ:%=$(PRJOBJDIR)/%)
+libt_eqkdif.target: $(libt_eqkdif.objects)
 
 D_EQKDIF_SRC := $(EQKDIF_OBJ:%.o=$(LDIR)/%.f90)
 
 
 ####### Build rules
 
-all: $(EQKDIF_LIB)
-
-$(EQKDIF_LIB): $(D_EQKDIF_OBJ)
-	@echo ---------------------------------------------------------------
-	@echo \* Compiling library $(EQKDIF_LIB)
-	@rm -f $(EQKDIF_LIB)
-	@$(AR) ruv $(EQKDIF_LIB) $(D_EQKDIF_OBJ)
-	@echo \* Creating library index
-	@$(RAN)    $(EQKDIF_LIB)
-	@echo ---------------------------------------------------------------
-	@echo \* LIBRARY $(EQKDIF_LIB) created
-	@echo ---------------------------------------------------------------
-
 EQKDIF_clean:
-	-rm $(EQKDIF_LIB) $(D_EQKDIF_OBJ) $(EQKDIF_MOD) EQKDIF/depends.make
+	-rm $(EQKDIF_LIB) $(libt_eqkdif.objects) $(EQKDIF_MOD) EQKDIF/depends.make
 
 
 ####### Dependencies
 
 EQKDIF/depends.make: $(D_EQKDIF_SRC)
-	(cd EQKDIF ; ../$(MAKEDEPENDS))
+	$(MAKEDEPENDS) EQKDIF
 
 include EQKDIF/depends.make
 

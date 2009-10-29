@@ -10,9 +10,9 @@
 
 module BASEFIELD
 
-use TYPHMAKE     ! Precision and string size
+use MESHPREC     ! Precision and string size
 !use OUTPUT
-use GEO3D        !
+use VEC3D        !
 use TENSOR3      !
 
 implicit none

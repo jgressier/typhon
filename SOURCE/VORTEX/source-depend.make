@@ -6,15 +6,15 @@ LDIR := VORTEX
 ####### Files
 
 # Library
-VORTEX_LIB = $(PRJLIB)/libt_vortex.a
+VORTEX_LIB = $(PRJLIBDIR)/libt_vortex.a
 
 # Modules
-VORTEX_MOD = PAN2D_LIN.$(MOD)   \
-             MENU_VORTEX.$(MOD) \
-             VORTEX2D.$(MOD)
+VORTEX_MOD = PAN2D_LIN.$(MODEXT)   \
+             MENU_VORTEX.$(MODEXT) \
+             VORTEX2D.$(MODEXT)
 
 # Objects
-VORTEX_OBJ = $(VORTEX_MOD:.$(MOD)=.o)  \
+VORTEX_OBJ = $(VORTEX_MOD:.$(MODEXT)=.o)  \
              calc_induced_velocities.o \
              def_boco_vortex.o         \
              def_init_vortex.o         \
@@ -24,34 +24,22 @@ VORTEX_OBJ = $(VORTEX_MOD:.$(MOD)=.o)  \
              init_boco_vort.o          \
              init_vort_ust.o
 
-D_VORTEX_OBJ = $(VORTEX_OBJ:%=$(PRJOBJ)/%)
+libt_vortex.objects = $(VORTEX_OBJ:%=$(PRJOBJDIR)/%)
+libt_vortex.target: $(libt_vortex.objects)
 
 D_VORTEX_SRC := $(VORTEX_OBJ:%.o=$(LDIR)/%.f90)
 
 
 ####### Build rules
 
-all: $(VORTEX_LIB)
-
-$(VORTEX_LIB): $(D_VORTEX_OBJ)
-	@echo ---------------------------------------------------------------
-	@echo \* Compiling library $(VORTEX_LIB)
-	@rm -f $(VORTEX_LIB)
-	@$(AR) ruv $(VORTEX_LIB) $(D_VORTEX_OBJ)
-	@echo \* Creating library index
-	@$(RAN)    $(VORTEX_LIB)
-	@echo ---------------------------------------------------------------
-	@echo \* LIBRARY $(VORTEX_LIB) created
-	@echo ---------------------------------------------------------------
-
 VORTEX_clean:
-	-rm $(VORTEX_LIB) $(D_VORTEX_OBJ) $(VORTEX_MOD) VORTEX/depends.make
+	-rm $(VORTEX_LIB) $(libt_vortex.objects) $(VORTEX_MOD) VORTEX/depends.make
 
 
 ####### Dependencies
 
 VORTEX/depends.make: $(D_VORTEX_SRC) $(LDIR)/source-depend.make
-	(cd VORTEX ; ../$(MAKEDEPENDS))
+	$(MAKEDEPENDS) VORTEX
 
 include VORTEX/depends.make
 

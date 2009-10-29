@@ -5,8 +5,8 @@
 !------------------------------------------------------------------------------!
 module ELEMVTEX
 
-use TYPHMAKE
-use OUTPUT
+use MESHPREC
+use IOCFD
 
 !------------------------------------------------------------------------------!
 implicit none
@@ -90,13 +90,13 @@ elemvtex%nelem    = nelem
 elemvtex%nvtex    = nvtex_element(itype)
 
 if (elemvtex%nvtex < 0) then
-  call erreur("Element connectivity", "unknown element type")
+  call cfd_error("unknown element type in Element connectivity")
 endif
 
 if (present(nvtex_opt).and.(elemvtex%nvtex == 0)) then
   elemvtex%nvtex = nvtex_opt
 else
-  call print_warning("number of vertices should not be forced")
+  call cfd_warning("number of vertices should not be forced")
 endif
 
 allocate(elemvtex%ielem   (nelem))
@@ -212,6 +212,7 @@ endsubroutine getindex_genelemvtex
 endmodule
 !------------------------------------------------------------------------------!
 ! History
-! Apr  2008 : creation, element/vtex connectivity (derived from USTMESH)
+! Apr  2008: creation, element/vtex connectivity (derived from USTMESH)
+! Oct  2009: transfered from TYPHON sources
 !------------------------------------------------------------------------------!
 

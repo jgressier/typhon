@@ -37,9 +37,11 @@ esac
 USE=$(echo use | tr $changecase)
 
 #-----------------------------------------------------------------
-# try to get optional output file
+# try to get optional ROOT folder
 shift
-TARGET=${1:-depends.make}
+ROOTDIR=${1:-.}
+
+TARGET=$ROOTDIR/depends.make
 
 #-----------------------------------------------------------------
 echo Building module dependencies in $TARGET
@@ -50,31 +52,38 @@ echo \# This file has been created automatically      > $TARGET
 echo \# It can be overwritten                        >> $TARGET
 echo \# \(manual modifications are not recommended\) >> $TARGET
 
-for fic in *.f90 ; do
+for fic in $(find $ROOTDIR -name '*.f90') ; do
+
+  basename=$(basename $fic .f90)
+  #
 
   # MODULE
 
   if [ -n "$(grep -i '^ *module ' $fic)" ] ; then
-    module=$(echo ${fic%.f90} | tr $changecase)
-    echo $module.source:=${PWD##*/}/$fic >> $TARGET
-    echo $module.objet:=${fic%.f90}.o >> $TARGET
-    echo '$(PRJINC)/'${module}.'$(MOD)': ${PWD##*/}/$fic \\ >> $TARGET
+    modulebase=$(basename $fic .f90 | tr $changecase)
+    echo $modulebase.source:=$fic >> $TARGET
+    echo $modulebase.object:=$basename.o >> $TARGET
+    echo $basename.target: '$(PRJINCDIR)/'$modulebase.'$(MODEXT)'  >> $TARGET
+    echo >> $TARGET
+    echo ${modulebase}.'$(MODEXT): $(PRJINCDIR)/'${modulebase}.'$(MODEXT)' >> $TARGET
+    echo '$(PRJINCDIR)/'${modulebase}.'$(MODEXT)': $fic \\ >> $TARGET
     grep -i '^ *use ' $fic       | 
       sed 's/!.*$//'             | 
       tr   $changecase           |
-      sed 's/ *$/.$(MOD)    \\/' | 
-      sed "s/^ *$USE /"'                     $(PRJINC)\//' >> $TARGET
+      sed 's/ *$/.$(MODEXT) \\/' | 
+      sed "s/^ *$USE /    /" >> $TARGET
     echo >> $TARGET
   fi
 
   # OBJET
 
-  echo '$(PRJOBJ)/'${fic%.f90}.o: \\   >> $TARGET
+  #echo $modulebase.objsrc:=$fic >> $TARGET
+  echo '$(PRJOBJDIR)/'$basename.o: $fic \\   >> $TARGET
   grep -i '^ *use ' $fic       | 
     sed 's/!.*$//'             | 
     tr   $changecase           |
-    sed 's/ *$/.$(MOD)    \\/' | 
-    sed "s/^ *$USE /"'                       $(PRJINC)\//' >> $TARGET
+    sed 's/ *$/.$(MODEXT) \\/' | 
+    sed "s/^ *$USE /    /" >> $TARGET
   echo >> $TARGET
 
 done

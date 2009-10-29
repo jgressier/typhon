@@ -10,9 +10,8 @@
 
 module GENFIELD
 
-use TYPHMAKE     ! Precision and string size
-use OUTPUT
-use GEO3D        !
+use MESHPREC     ! Precision and string size
+use IOCFD
 use TENSOR3      !
 use BASEFIELD
 
@@ -278,7 +277,7 @@ integer(kip) :: iv, i, sze, dim, tot, ideb
   tot = sze*dim
 
   if (tot /= size(tab)) &
-    call erreur("Development", "non consistent sizes of generic field of real array")
+    call cfd_error("non consistent sizes of generic field of real array (pack_gfield)")
 
   do iv = 1, gfield%nscal
     tab(iv:tot:sze) = gfield%tabscal(iv)%scal(1:dim)
@@ -293,7 +292,7 @@ integer(kip) :: iv, i, sze, dim, tot, ideb
   enddo
 
   if (gfield%ntens /= 0) &
-    call erreur("Development", "not yet supposed to pack generic fields with tensor fields")
+    call cfd_error("[DEV] not yet supposed to pack generic fields with tensor fields (pack_gfield)")
 
 endsubroutine pack_gfield
 
@@ -313,7 +312,7 @@ integer(kip) :: iv, i, sze, dim, tot, ideb
   tot = sze*dim
 
   if (tot /= size(tab)) &
-    call erreur("Development", "non consistent sizes of generic field of real array")
+    call cfd_error("non consistent sizes of generic field of real array (unpack_gfield)")
 
   do iv = 1, gfield%nscal
     gfield%tabscal(iv)%scal(1:dim) = tab(iv:tot:sze)
@@ -328,7 +327,7 @@ integer(kip) :: iv, i, sze, dim, tot, ideb
   enddo
 
   if (gfield%ntens /= 0) &
-    call erreur("Development", "not yet supposed to unpack generic fields with tensor fields")
+    call cfd_error("[DEV] not yet supposed to pack generic fields with tensor fields (unpack_gfield)")
 
 endsubroutine unpack_gfield
 

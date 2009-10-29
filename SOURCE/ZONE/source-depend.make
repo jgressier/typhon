@@ -6,17 +6,17 @@ LDIR := ZONE
 ####### Files
 
 # Library
-ZONE_LIB = $(PRJLIB)/libt_zone.a
+ZONE_LIB = $(PRJLIBDIR)/libt_zone.a
 
 # Modules
-ZONE_MOD = BOUND.$(MOD)                  \
-           DEFCAPTEURS.$(MOD)            \
-           DEFZONE.$(MOD)                \
-           ZONE_COUPLING.$(MOD)          \
-           MENU_ZONECOUPLING.$(MOD)
+ZONE_MOD = BOUND.$(MODEXT)                  \
+           DEFCAPTEURS.$(MODEXT)            \
+           DEFZONE.$(MODEXT)                \
+           ZONE_COUPLING.$(MODEXT)          \
+           MENU_ZONECOUPLING.$(MODEXT)
 
 # Objects
-ZONE_OBJ := $(ZONE_MOD:.$(MOD)=.o)       \
+ZONE_OBJ := $(ZONE_MOD:.$(MODEXT)=.o)       \
             calc_refcons.o               \
             calc_varcons.o               \
             calc_varprim.o               \
@@ -35,34 +35,19 @@ ZONE_OBJ := $(ZONE_MOD:.$(MOD)=.o)       \
             split_zone.o                 \
             update_field.o
 
-D_ZONE_OBJ := $(ZONE_OBJ:%=$(PRJOBJ)/%)
+libt_zone.objects := $(ZONE_OBJ:%=$(PRJOBJDIR)/%)
+libt_zone.target: $(libt_zone.objects)
 
 D_ZONE_SRC := $(ZONE_OBJ:%.o=$(LDIR)/%.f90)
 
-
-####### Build rules
-
-all: $(ZONE_LIB)
-
-$(ZONE_LIB): $(D_ZONE_OBJ)
-	@echo ---------------------------------------------------------------
-	@echo \* Compiling library $(ZONE_LIB)
-	@rm -f $(ZONE_LIB)
-	@$(AR) ruv $(ZONE_LIB) $(D_ZONE_OBJ)
-	@echo \* Creating library index
-	@$(RAN)    $(ZONE_LIB)
-	@echo ---------------------------------------------------------------
-	@echo \* LIBRARY $(ZONE_LIB) created
-	@echo ---------------------------------------------------------------
-
 ZONE_clean:
-	-rm $(ZONE_LIB) $(D_ZONE_OBJ) $(ZONE_MOD) ZONE/depends.make
+	-rm $(ZONE_LIB) $(libt_zone.objects) $(ZONE_MOD) ZONE/depends.make
 
 
 ####### Dependencies
 
 ZONE/depends.make: $(D_ZONE_SRC)
-	(cd ZONE ; ../$(MAKEDEPENDS))
+	$(MAKEDEPENDS) ZONE
 
 include ZONE/depends.make
 

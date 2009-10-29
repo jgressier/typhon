@@ -6,14 +6,14 @@ LDIR := EQNS
 ####### Files
 
 # Library
-EQNS_LIB = $(PRJLIB)/libt_eqns.a
+EQNS_LIB = $(PRJLIBDIR)/libt_eqns.a
 
 # Modules
-EQNS_MOD = EQNS.$(MOD)      \
-           MENU_NS.$(MOD)
+EQNS_MOD = EQNS.$(MODEXT)      \
+           MENU_NS.$(MODEXT)
 
 # Objects
-EQNS_OBJ := $(EQNS_MOD:.$(MOD)=.o)    \
+EQNS_OBJ := $(EQNS_MOD:.$(MODEXT)=.o)    \
             calc_flux_ausmm.o         \
             calc_flux_hlle.o          \
             calc_flux_hllc.o          \
@@ -56,35 +56,21 @@ EQNS_OBJ := $(EQNS_MOD:.$(MOD)=.o)    \
             tvdgradstr_vect.o         \
             tvdgraduns_vect.o         \
 
-D_EQNS_OBJ := $(EQNS_OBJ:%=$(PRJOBJ)/%)
+libt_eqns.objects := $(EQNS_OBJ:%=$(PRJOBJDIR)/%)
+libt_eqns.target: $(libt_eqns.objects)
 
 D_EQNS_SRC := $(EQNS_OBJ:%.o=$(LDIR)/%.f90)
 
 
 ####### Build rules
 
-all: $(EQNS_LIB)
-
-$(EQNS_LIB): $(D_EQNS_OBJ)
-	@echo ---------------------------------------------------------------
-	@echo \* Compiling library $(EQNS_LIB)
-	@rm -f $(EQNS_LIB)
-	@$(AR) ruv $(EQNS_LIB) $(D_EQNS_OBJ)
-	@echo \* Creating library index
-	@$(RAN)    $(EQNS_LIB)
-	@echo ---------------------------------------------------------------
-	@echo \* LIBRARY $(EQNS_LIB) created
-	@echo ---------------------------------------------------------------
-
 EQNS_clean:
-	-rm $(EQNS_LIB) $(D_EQNS_OBJ) $(EQNS_MOD) EQNS/depends.make
+	-rm $(EQNS_LIB) $(libt_eqns.objects) $(EQNS_MOD) EQNS/depends.make
 
 
 ####### Dependencies
 
 EQNS/depends.make: $(D_EQNS_SRC)
-	(cd EQNS ; ../$(MAKEDEPENDS))
+	$(MAKEDEPENDS) EQNS
 
 include EQNS/depends.make
-
-

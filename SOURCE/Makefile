@@ -1,6 +1,8 @@
 ############################################################
 ##   Compilation du code TYPHON
 
+.SUFFIXES:
+
 help:
 	@echo "-----------------------------------------------------------------"
 	@echo "TYPHON compilation"
@@ -10,17 +12,18 @@ help:
 	@echo "  seq       -> sequential   Typhon executable 'Typhon-seq'"
 	@echo "  mpi       -> MPI parallel Typhon executable 'Typhon-mpi'"
 	@echo "Options:"
-	@echo "  OPT=opt   -> Optimized options (default)"
-	@echo "  OPT=debug -> Debugging options"
-	@echo "  OPT=prof  -> Profiling options"
+	@echo "  opt=optim   -> Optimized options (default)"
+	@echo "  opt=debug -> Debugging options"
+	@echo "  opt=prof  -> Profiling options"
 	@echo "-----------------------------------------------------------------"
 
 all: seq mpi
 
 ####### Compiler, tools and options
 
-include defvar.make
 include defprj.make
+include ../config/arch.make
+include ../config/rules.make
 
 # Précision
 
@@ -46,7 +49,7 @@ LIB2 = libt_param.a  \
        libt_vortex.a \
        libt_eqns.a   \
        libt_eqkdif.a \
-       libt_udf.so   \
+       libt_udf.a    \
        libt_mesh.a   \
        libt_pio.a    \
        libt_math.a   \
@@ -55,8 +58,8 @@ LIB2 = libt_param.a  \
 LIBSEQ = $(LIB1) libt_exchseq.a $(LIB2)
 LIBMPI = $(LIB1) libt_exchmpi.a $(LIB2)
 
-D_LIBSEQ = $(LIBSEQ:%=$(PRJLIB)/%)
-D_LIBMPI = $(LIBMPI:%=$(PRJLIB)/%)
+D_LIBSEQ = $(LIBSEQ:%=$(PRJLIBDIR)/%)
+D_LIBMPI = $(LIBMPI:%=$(PRJLIBDIR)/%)
 
 VPATH = CGNS:EQNS:EQKDIF:EXCHANGE:MAIN:MGRID:MESH:MODCOM:MATH:PARAM:PIO:UDF:VORTEX:XIO:ZONE
 
@@ -92,25 +95,25 @@ mpi: $(PRGNAME)-mpi
 $(PRGNAME)-seq : $(MAIN) $(D_LIBSEQ) $(MAKEFILE)
 	@echo ---------------------------------------------------------------
 	@echo LINKING $(PRGNAME)-seq ---
-	@echo external Libraries: $(EXTLIBS)
+	@echo external Libraries: $(PRJLIBEXT) $(EXTLIBS)
 	@echo TYPHON   Libraries: $(LIBSEQ)
-	(cd $(PRJLIB) ; $(LINKER) $(LINKFB) ../$(MAIN) $(LIBSEQ) $(EXTLIBS) -o ../$(PRGNAME)-seq)
+	(cd $(PRJLIBDIR) ; $(LINKER) $(LINKFB) ../$(MAIN) $(LIBSEQ) $(PRJLIBEXT) $(EXTLIBS) -o ../$(PRGNAME)-seq)
 	@echo --- Creation of $(PRGNAME)-seq done ---
 
 $(PRGNAME)-mpi : $(MAIN) $(D_LIBMPI) $(MAKEFILE)
 	@echo ---------------------------------------------------------------
 	@echo  LINKING $(PRGNAME)-mpi ---
-	@echo external Libraries: $(EXTLIBS) $(MPILIB)
+	@echo external Libraries: $(PRJLIBEXT) $(EXTLIBS) $(MPILIB)
 	@echo TYPHON   Libraries: $(LIBMPI)
-	(cd $(PRJLIB) ; $(LINKER) $(LINKFB) ../$(MAIN) $(LIBMPI) $(EXTLIBS) $(MPILIB) -o ../$(PRGNAME)-mpi)
+	(cd $(PRJLIBDIR) ; $(LINKER) $(LINKFB) ../$(MAIN) $(LIBMPI) $(PRJLIBEXT) $(EXTLIBS) $(MPILIB) -o ../$(PRGNAME)-mpi)
 	@echo --- Creation of $(PRGNAME)-mpi done ---
 
 clean:
 	rm -f $(PRGNAME)-seq $(PRGNAME)-mpi 
-	rm -f $(PRJOBJ)/*.o 
+	rm -f $(PRJOBJDIR)/*.o 
 	rm -f $(D_LIBMPI) $(D_LIBSEQ) 
-	rm -f $(PRJINC)/*.$(MOD)
-	rm -f *.$(MOD)
+	rm -f $(PRJINCDIR)/*.$(MODEXT)
+	rm -f *.$(MODEXT)
 
 
 ####### Dependencies

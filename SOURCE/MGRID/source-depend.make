@@ -6,18 +6,17 @@ LDIR := MGRID
 ####### Files
 
 # Library
-MGRID_LIB = $(PRJLIB)/libt_mgrid.a
+MGRID_LIB = $(PRJLIBDIR)/libt_mgrid.a
 
 # Modules
-MGRID_MOD = BASEFIELD.$(MOD)    \
-            DEFFIELD.$(MOD)     \
-            GENFIELD.$(MOD)     \
-            LIMITER.$(MOD)      \
-            MATFREE.$(MOD)      \
-            MGRID.$(MOD)
+MGRID_MOD = \
+            DEFFIELD.$(MODEXT)     \
+            LIMITER.$(MODEXT)      \
+            MATFREE.$(MODEXT)      \
+            MGRID.$(MODEXT)
 
 # Objects
-MGRID_OBJ = $(MGRID_MOD:.$(MOD)=.o)      \
+MGRID_OBJ = $(MGRID_MOD:.$(MODEXT)=.o)      \
             calcboco_connect.o           \
             calcboco_connect_match.o     \
             calcboco_connect_per_match.o \
@@ -42,34 +41,22 @@ MGRID_OBJ = $(MGRID_MOD:.$(MOD)=.o)      \
             precalc_grad_lsq.o
             #minmax_limiter.o
 
-D_MGRID_OBJ = $(MGRID_OBJ:%=$(PRJOBJ)/%)
+libt_mgrid.objects = $(MGRID_OBJ:%=$(PRJOBJDIR)/%)
+libt_mgrid.target: $(libt_mgrid.objects)
 
 D_MGRID_SRC := $(MGRID_OBJ:%.o=$(LDIR)/%.f90)
 
 
 ####### Build rules
 
-all: $(MGRID_LIB)
-
-$(MGRID_LIB): $(D_MGRID_OBJ)
-	@echo ---------------------------------------------------------------
-	@echo \* Compiling library $(MGRID_LIB)
-	@rm -f $(MGRID_LIB)
-	@$(AR) ruv $(MGRID_LIB) $(D_MGRID_OBJ)
-	@echo \* Creating library index
-	@$(RAN)    $(MGRID_LIB)
-	@echo ---------------------------------------------------------------
-	@echo \* LIBRARY $(MGRID_LIB) created
-	@echo ---------------------------------------------------------------
-
 MGRID_clean:
-	-rm $(MGRID_LIB) $(D_MGRID_OBJ) $(MGRID_MOD) MGRID/depends.make
+	-rm $(MGRID_LIB) $(libt_mgrid.objects) $(MGRID_MOD) MGRID/depends.make
 
 
 ####### Dependencies
 
 MGRID/depends.make: $(D_MGRID_SRC)
-	(cd MGRID ; ../$(MAKEDEPENDS))
+	$(MAKEDEPENDS) MGRID
 
 include MGRID/depends.make
 

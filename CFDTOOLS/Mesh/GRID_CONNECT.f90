@@ -8,8 +8,8 @@
 
 module GRID_CONNECT
 
-use TYPHMAKE      ! machine accuracy
-use GEO3D
+use MESHPREC      ! machine accuracy
+use VEC3D
 
 implicit none
 

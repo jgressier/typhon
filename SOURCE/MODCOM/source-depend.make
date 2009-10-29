@@ -6,52 +6,38 @@ LDIR := MODCOM
 ####### Files
 
 # Library
-MODCOM_LIB = $(PRJLIB)/libt_modcom.a
+MODCOM_LIB = $(PRJLIBDIR)/libt_modcom.a
 
 # Modules
-MODCOM_MOD = COMMTAG.$(MOD)          \
-             CONNECTIVITY.$(MOD)     \
-             CONNECT_CSR.$(MOD)      \
-             GENLIB.$(MOD)           \
-             GEO2D.$(MOD)            \
-             LAPACK.$(MOD)           \
-             LIBSORT.$(MOD)          \
-             MODINFO.$(MOD)          \
-             STRING.$(MOD)           \
-             TYPHMAKE.$(MOD)         \
-             VARCOM.$(MOD)
+MODCOM_MOD = COMMTAG.$(MODEXT)          \
+             CONNECT_CSR.$(MODEXT)      \
+             GENLIB.$(MODEXT)           \
+             GEO2D.$(MODEXT)            \
+             LAPACK.$(MODEXT)           \
+             LIBSORT.$(MODEXT)          \
+             MODINFO.$(MODEXT)          \
+             TYPHMAKE.$(MODEXT)         \
+             VARCOM.$(MODEXT)
 
 # Objects
-MODCOM_OBJ = $(MODCOM_MOD:.$(MOD)=.o) # \
+MODCOM_OBJ = $(MODCOM_MOD:.$(MODEXT)=.o) # \
 
-D_MODCOM_OBJ = $(MODCOM_OBJ:%=$(PRJOBJ)/%)
+libt_modcom.objects = $(MODCOM_OBJ:%=$(PRJOBJDIR)/%)
+libt_modcom.target: $(libt_modcom.objects)
 
 D_MODCOM_SRC := $(MODCOM_OBJ:%.o=$(LDIR)/%.f90)
 
 
 ####### Build rules
 
-all: $(MODCOM_LIB)
-
-$(MODCOM_LIB): $(D_MODCOM_OBJ)
-	@echo ---------------------------------------------------------------
-	@echo \* Compiling library $(MODCOM_LIB)
-	@rm -f $(MODCOM_LIB)
-	@$(AR) ruv $(MODCOM_LIB) $(D_MODCOM_OBJ)
-	@echo \* Creating library index
-	@$(RAN)    $(MODCOM_LIB)
-	@echo ---------------------------------------------------------------
-	@echo \* LIBRARY $(MODCOM_LIB) created
-	@echo ---------------------------------------------------------------
-
 MODCOM_clean:
-	-rm $(MODCOM_LIB) $(D_MODCOM_OBJ) $(MODCOM_MOD) MODCOM/depends.make
+	-rm $(MODCOM_LIB) $(libt_modcom.objects) $(MODCOM_MOD) MODCOM/depends.make
 
 
 ####### Dependencies
 
 MODCOM/depends.make: $(D_MODCOM_SRC)
-	(cd MODCOM ; ../$(MAKEDEPENDS))
+	$(MAKEDEPENDS) MODCOM
 
 include MODCOM/depends.make
 

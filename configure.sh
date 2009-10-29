@@ -7,7 +7,7 @@ echo ------------------------------------------------------------------
 TOOLSCONF=TOOLS/configure
 
 # output files
-MAKECONF=SOURCE/defvar.make
+MAKECONF=config/arch.make
 SHELLCONF=bin/shconf.sh
 
 # Initialization
@@ -266,35 +266,33 @@ fi
 echo Configuration ended
 
 ### SHELL CONFIGURATION ###
-echo Writing Shell configuration ...
+echo Writing Shell configuration \($SHELLCONF\)...
 rm $SHELLCONF 2> /dev/null
 for VAR in SYS PROC DIFF ; do
   echo export $VAR=\"$(printenv $VAR)\" >> $SHELLCONF
 done
 
 ### MAKEFILE CONFIGURATION ###
-echo Writing Makefile configuration ...
+echo Writing Makefile configuration \($MAKECONF\)...
 mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
 {
   echo "# This file was created by $(basename $0)"
   echo
   echo "SHELL       = $SHELL"
-  echo "MAKEDEPENDS = Util/make_depends $F90modcase"
-  echo "MOD         = $F90modext"
-  echo "CF          = $F90C"
-  echo "FB          = $F90_FB -I\$(PRJINC)"
+  echo "MAKEDEPENDS = \$(PRJDIR)/../TOOLS/make_depends $F90modcase"
+  echo "MODEXT      = $F90modext"
+  echo "FB          = $F90_FB -I\$(PRJINCDIR)"
   echo "FO_debug    = $F90_DEBUG"
   echo "FO_opt      = $F90_OPTI"
   echo "FO_prof     = $F90_PROF"
   echo "FO_         = \$(FO_opt)"
-  echo "FO          = \$(FO_\$(OPT))"
-  echo "FF          = \$(FB) \$(FO)"
-  echo "LINKFB      = \$(FB) \$(FO)"
-  echo "LINKER      = \$(CF)"
-  echo "LINKSO      = \$(CF) -shared"
+  echo "F90OPT      = \$(FO_\$(OPT))"
+  echo "F90C        = $F90C \$(FB)"
+  echo "LINKFB      = \$(F90OPT)"
+  echo "LINKER      = \$(F90C)"
+  echo "LINKSO      = \$(F90C) -shared"
   echo "METISLIB    = $LIB_metis"
   echo "CGNSLIB     = $LIB_cgns"
-  echo "#LAPACKLIB   = $LIB_lapack $LIB_blas"
   echo "MPILIB      = $MPILIB"
   echo "#MPIOPT      = \$(mpif90 --showme:compile)"
   echo "#MPILIB      = \$(mpif90 --showme:link)"

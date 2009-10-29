@@ -6,42 +6,32 @@ LDIR := UDF
 ####### Files
 
 # Library
-UDF_LIB = $(PRJLIB)/libt_udf.so
+UDF_LIB = $(PRJLIBDIR)/libt_udf.a
 
 # Modules
 UDF_MOD =
 
 # Objects
-UDF_OBJ := $(UDF_MOD:.$(MOD)=.o)  \
+UDF_OBJ := $(UDF_MOD:.$(MODEXT)=.o)  \
            udf_kdif_aniso.o       \
            udf_ns_init.o          \
 
-D_UDF_OBJ := $(UDF_OBJ:%=$(PRJOBJ)/%)
+libt_udf.objects := $(UDF_OBJ:%=$(PRJOBJDIR)/%)
+libt_udf.target: $(libt_udf.objects)
 
 D_UDF_SRC := $(UDF_OBJ:%.o=$(LDIR)/%.f90)
 
 
 ####### Build rules
 
-all: $(UDF_LIB)
-
-$(UDF_LIB): $(D_UDF_OBJ)
-	@echo ---------------------------------------------------------------
-	@echo \* Compiling SHARED library $(UDF_LIB)
-	@rm -f $(UDF_LIB)
-	@$(LINKSO) -o $(UDF_LIB) $(D_UDF_OBJ)
-	@echo ---------------------------------------------------------------
-	@echo \* LIBRARY $(UDF_LIB) created
-	@echo ---------------------------------------------------------------
-
 UDF_clean:
-	-rm $(UDF_LIB) $(D_UDF_OBJ) $(UDF_MOD)
+	-rm $(UDF_LIB) $(libt_udf.objects) $(UDF_MOD)
 
 
 ####### Dependencies
 
 UDF/depends.make: $(D_UDF_SRC)
-	(cd UDF ; ../$(MAKEDEPENDS))
+	$(MAKEDEPENDS) UDF
 
 include UDF/depends.make
 

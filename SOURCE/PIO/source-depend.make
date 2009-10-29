@@ -6,45 +6,33 @@ LDIR := PIO
 ####### Files
 
 # Library
-PIO_LIB = $(PRJLIB)/libt_pio.a
+PIO_LIB = $(PRJLIBDIR)/libt_pio.a
 
 # Modules
-PIO_MOD = IO_UNIT.$(MOD)  \
-          OUTPUT.$(MOD)   \
-          RPM.$(MOD)      \
+PIO_MOD = IO_UNIT.$(MODEXT)  \
+          OUTPUT.$(MODEXT)   \
+          RPM.$(MODEXT)      \
 
 # Objects
-PIO_OBJ = $(PIO_MOD:.$(MOD)=.o)  \
+PIO_OBJ = $(PIO_MOD:.$(MODEXT)=.o)  \
           rpm_output.o
 
-D_PIO_OBJ = $(PIO_OBJ:%=$(PRJOBJ)/%)
+libt_pio.objects = $(PIO_OBJ:%=$(PRJOBJDIR)/%)
+libt_pio.target: $(libt_pio.objects)
 
 D_PIO_SRC = $(PIO_OBJ:%.o=$(LDIR)/%.f90)
 
 
 ####### Build rules
 
-all: $(PIO_LIB)
-
-$(PIO_LIB): $(D_PIO_OBJ)
-	@echo ---------------------------------------------------------------
-	@echo \* Compiling library $(PIO_LIB)
-	@rm -f $(PIO_LIB)
-	@$(AR) ruv $(PIO_LIB) $(D_PIO_OBJ)
-	@echo \* Creating library index
-	@$(RAN)    $(PIO_LIB)
-	@echo ---------------------------------------------------------------
-	@echo \* LIBRARY $(PIO_LIB) created
-	@echo ---------------------------------------------------------------
-
 PIO_clean:
-	-rm $(PIO_LIB) $(D_PIO_OBJ) $(PIO_MOD) PIO/depends.make
+	-rm $(PIO_LIB) $(libt_pio.objects) $(PIO_MOD) PIO/depends.make
 
 
 ####### Dependencies
 
 PIO/depends.make: $(D_PIO_SRC)
-	(cd PIO ; ../$(MAKEDEPENDS))
+	$(MAKEDEPENDS) PIO
 
 include PIO/depends.make
 

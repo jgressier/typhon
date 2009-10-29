@@ -6,24 +6,24 @@ LDIR := PARAM
 ####### Files
 
 # Library
-PARAM_LIB = $(PRJLIB)/libt_param.a
+PARAM_LIB = $(PRJLIBDIR)/libt_param.a
 
 # Modules
-PARAM_MOD = MENU_AMR.$(MOD)      \
-            MENU_BOCO.$(MOD)     \
-            MENU_COUPLING.$(MOD) \
-            MENU_GEN.$(MOD)      \
-            MENU_INIT.$(MOD)     \
-            MENU_INTEG.$(MOD)    \
-            MENU_INVERSE.$(MOD)  \
-            MENU_MESH.$(MOD)     \
-            MENU_MPI.$(MOD)      \
-            MENU_NUM.$(MOD)      \
-            MENU_PROBE.$(MOD)    \
-            MENU_SOLVER.$(MOD)   \
+PARAM_MOD = MENU_AMR.$(MODEXT)      \
+            MENU_BOCO.$(MODEXT)     \
+            MENU_COUPLING.$(MODEXT) \
+            MENU_GEN.$(MODEXT)      \
+            MENU_INIT.$(MODEXT)     \
+            MENU_INTEG.$(MODEXT)    \
+            MENU_INVERSE.$(MODEXT)  \
+            MENU_MESH.$(MODEXT)     \
+            MENU_MPI.$(MODEXT)      \
+            MENU_NUM.$(MODEXT)      \
+            MENU_PROBE.$(MODEXT)    \
+            MENU_SOLVER.$(MODEXT)   \
 
 # Objects
-PARAM_OBJ := $(PARAM_MOD:.$(MOD)=.o)  \
+PARAM_OBJ := $(PARAM_MOD:.$(MODEXT)=.o)  \
             def_amr.o          \
             def_boco.o         \
             def_check.o        \
@@ -43,34 +43,22 @@ PARAM_OBJ := $(PARAM_MOD:.$(MOD)=.o)  \
             trait_zoneparam.o  \
             def_coupling.o     \
 
-D_PARAM_OBJ := $(PARAM_OBJ:%=$(PRJOBJ)/%)
+libt_param.objects := $(PARAM_OBJ:%=$(PRJOBJDIR)/%)
+libt_param.target: $(libt_param.objects)
 
 D_PARAM_SRC := $(PARAM_OBJ:%.o=$(LDIR)/%.f90)
 
 
 ####### Build rules
 
-all: $(PARAM_LIB)
-
-$(PARAM_LIB): $(D_PARAM_OBJ)
-	@echo ---------------------------------------------------------------
-	@echo \* Compiling library $(PARAM_LIB)
-	@rm -f $(PARAM_LIB)
-	@$(AR) ruv $(PARAM_LIB) $(D_PARAM_OBJ)
-	@echo \* Creating library index
-	@$(RAN)    $(PARAM_LIB)
-	@echo ---------------------------------------------------------------
-	@echo \* LIBRARY $(PARAM_LIB) created
-	@echo ---------------------------------------------------------------
-
 PARAM_clean:
-	-rm $(PARAM_LIB) $(D_PARAM_OBJ) $(PARAM_MOD) PARAM/depends.make
+	-rm $(PARAM_LIB) $(libt_param.objects) $(PARAM_MOD) PARAM/depends.make
 
 
 ####### Dependencies
 
 PARAM/depends.make: $(D_PARAM_SRC)
-	(cd PARAM ; ../$(MAKEDEPENDS))
+	$(MAKEDEPENDS) PARAM
 
 include PARAM/depends.make
 

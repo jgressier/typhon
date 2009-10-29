@@ -6,13 +6,13 @@ LDIR := XIO
 ####### Files
 
 # Library
-XIO_LIB = $(PRJLIB)/libt_xio.a
+XIO_LIB = $(PRJLIBDIR)/libt_xio.a
 
 # Modules
-XIO_MOD = REPRISE.$(MOD)
+XIO_MOD = REPRISE.$(MODEXT)
 
 # Objects
-XIO_OBJ = $(XIO_MOD:.$(MOD)=.o)  \
+XIO_OBJ = $(XIO_MOD:.$(MODEXT)=.o)  \
           comp_flux.o            \
           output_tec_str.o       \
           output_tec_ust.o       \
@@ -30,34 +30,22 @@ XIO_OBJ = $(XIO_MOD:.$(MOD)=.o)  \
           writevtk_ustmesh.o     \
           writevtk_vect.o        \
 
-D_XIO_OBJ = $(XIO_OBJ:%=$(PRJOBJ)/%)
+libt_xio.objects = $(XIO_OBJ:%=$(PRJOBJDIR)/%)
+libt_xio.target: $(libt_xio.objects)
 
 D_XIO_SRC = $(XIO_OBJ:%.o=$(LDIR)/%.f90)
 
 
 ####### Build rules
 
-all: $(XIO_LIB)
-
-$(XIO_LIB): $(D_XIO_OBJ)
-	@echo ---------------------------------------------------------------
-	@echo \* Compiling library $(XIO_LIB)
-	@rm -f $(XIO_LIB)
-	@$(AR) ruv $(XIO_LIB) $(D_XIO_OBJ)
-	@echo \* Creating library index
-	@$(RAN)    $(XIO_LIB)
-	@echo ---------------------------------------------------------------
-	@echo \* LIBRARY $(XIO_LIB) created
-	@echo ---------------------------------------------------------------
-
 XIO_clean:
-	-rm $(XIO_LIB) $(D_XIO_OBJ) $(XIO_MOD) XIO/depends.make
+	-rm $(XIO_LIB) $(libt_xio.objects) $(XIO_MOD) XIO/depends.make
 
 
 ####### Dependencies
 
 XIO/depends.make: $(D_XIO_SRC)
-	(cd XIO ; ../$(MAKEDEPENDS))
+	$(MAKEDEPENDS) XIO
 
 include XIO/depends.make
 

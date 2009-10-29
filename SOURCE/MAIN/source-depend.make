@@ -6,13 +6,13 @@ LDIR := MAIN
 ####### Files
 
 # Library
-MAIN_LIB = $(PRJLIB)/libt_main.a
+MAIN_LIB = $(PRJLIBDIR)/libt_main.a
 
 # Modules
-MAIN_MOD = MODWORLD.$(MOD)
+MAIN_MOD = MODWORLD.$(MODEXT)
 
 # Objects
-MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
+MAIN_OBJ = $(MAIN_MOD:.$(MODEXT)=.o)   \
            accumulfluxcorr.o        \
            analyse.o                \
            analyse_zone.o           \
@@ -63,28 +63,16 @@ MAIN_OBJ = $(MAIN_MOD:.$(MOD)=.o)   \
            write_monitors_cycle.o   \
            write_monitors_iteration.o \
 
-D_MAIN_OBJ = $(MAIN_OBJ:%=$(PRJOBJ)/%)
+libt_main.objects = $(MAIN_OBJ:%=$(PRJOBJDIR)/%)
+libt_main.target: $(libt_main.objects)
 
 D_MAIN_SRC := $(MAIN_OBJ:%.o=$(LDIR)/%.f90)
 
 
 ####### Build rules
 
-all: $(MAIN_LIB)
-
-$(MAIN_LIB): $(D_MAIN_OBJ)
-	@echo ---------------------------------------------------------------
-	@echo \* Compiling library $(MAIN_LIB)
-	@rm -f $(MAIN_LIB)
-	@$(AR) ruv $(MAIN_LIB) $(D_MAIN_OBJ)
-	@echo \* Creating library index
-	@$(RAN)    $(MAIN_LIB)
-	@echo ---------------------------------------------------------------
-	@echo \* LIBRARY $(MAIN_LIB) created
-	@echo ---------------------------------------------------------------
-
 MAIN_clean:
-	-rm $(MAIN_LIB) $(D_MAIN_OBJ) $(MAIN_MOD) MAIN/depends.make
+	-rm $(MAIN_LIB) $(libt_main.objects) $(MAIN_MOD) MAIN/depends.make
 
 
 ####### Dependencies
@@ -102,7 +90,7 @@ SVNREVFILE=Include/svnrev.h
 SVNREVDEP=$(shell echo "$(SVNREVSTR)" | diff - -q $(SVNREVFILE) >/dev/null 2>&1 || echo SVNREVFORCE)
 
 MAIN/depends.make: $(D_MAIN_SRC)
-	(cd MAIN ; ../$(MAKEDEPENDS))
+	$(MAKEDEPENDS) MAIN
 
 MAIN/main.f90: $(SVNREVFILE)
 	@touch MAIN/main.f90

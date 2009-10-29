@@ -1,22 +1,16 @@
 !------------------------------------------------------------------------------!
-! MODULE : USTMESH                                Authors : J. Gressier
-!                                                 Created : October 2002
-! Fonction
-!   Bibliotheque de procedures et fonctions pour la gestion de maillages
-!   non structures
+! MODULE : USTMESH 
 !
-! Defauts/Limitations/Divers :
-!
+! Grid geometry and connectivity for unstructured mesh
 !------------------------------------------------------------------------------!
 
 module USTMESH
 
-use TYPHMAKE      ! machine accuracy
-use GEO3D 
+use MESHPREC      ! configuration of machine accuracy
 use MESHBASE      ! geometrical basic elements
 use CONNECTIVITY  ! lists & connectivity 
 use ELEMVTEX      ! Cell (vtex) definition
-use DEFFIELD
+use IOCFD
 use DEF_USTBOCO
 
 implicit none
@@ -188,7 +182,7 @@ integer :: i, info
       pboco => umesh%boco(i)
     endif
   enddo
-  if (info /= 1) call erreur("structure","plusieurs noms de conditions limites identiques")
+  if (info /= 1) call cfd_error("many BOCO structures have the same tag")
   
 endfunction pboco_ustmesh
 
@@ -276,7 +270,7 @@ subroutine ust_create_face(nsom, icell, face, face_prop, face_vtex, face_cell, L
     newf              = face_vtex%nbnodes + 1
     face_vtex%nbnodes = newf
     if (newf > size(face_vtex%fils, 1)) &
-      call erreur("Fatal error", "unexpected face in mesh or bad face array allocation >= "//strof(newf))
+      call cfd_error("unexpected face in mesh or bad face array allocation >= "//strof(newf))
     face_vtex%fils(newf, 1:nsom) = face(1:nsom)
     !print*,'newface',face
     !
@@ -298,8 +292,7 @@ subroutine ust_create_face(nsom, icell, face, face_prop, face_vtex, face_cell, L
 
     !print*,'oldface',face
     if (face_cell%fils(iface,2) /= 0) then
-      call erreur("Conversion CGNS->TYPHON",&
-           "bad connectivity : 3 cells found for only one face")
+      call cfd_error("cell->face conversion error, bad connectivity : 3 cells found for only one face")
     endif
     face_cell%fils(iface,2) = icell   ! seconde cellule
     !

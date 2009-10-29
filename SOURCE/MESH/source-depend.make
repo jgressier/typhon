@@ -6,20 +6,15 @@ LDIR := MESH
 ####### Files
 
 # Library
-MESH_LIB = $(PRJLIB)/libt_mesh.a
+MESH_LIB = $(PRJLIBDIR)/libt_mesh.a
 
 # Modules
-MESH_MOD = ELEMVTEX.$(MOD)     \
-           DEF_USTBOCO.$(MOD)  \
-           GEO3D.$(MOD)        \
-           GRID_CONNECT.$(MOD) \
-           MESHBASE.$(MOD)     \
-           STRMESH.$(MOD)      \
-           TENSOR3.$(MOD)      \
-           USTMESH.$(MOD)
+MESH_MOD = \
+           GEO3D.$(MODEXT)        \
+           STRMESH.$(MODEXT)      \
 
 # Objects
-MESH_OBJ = $(MESH_MOD:.$(MOD)=.o)  \
+MESH_OBJ = $(MESH_MOD:.$(MODEXT)=.o)  \
            build_implicit_bdlu.o   \
            build_implicit_dlu.o    \
            calc_connface.o         \
@@ -39,34 +34,22 @@ MESH_OBJ = $(MESH_MOD:.$(MOD)=.o)  \
            scale_mesh.o            \
            test_ustmesh.o          \
 
-D_MESH_OBJ = $(MESH_OBJ:%=$(PRJOBJ)/%)
+libt_mesh.objects = $(MESH_OBJ:%=$(PRJOBJDIR)/%)
+libt_mesh.target: $(libt_mesh.objects)
 
 D_MESH_SRC := $(MESH_OBJ:%.o=$(LDIR)/%.f90)
 
 
 ####### Build rules
 
-all: $(MESH_LIB)
-
-$(MESH_LIB): $(D_MESH_OBJ)
-	@echo ---------------------------------------------------------------
-	@echo \* Compiling library $(MESH_LIB)
-	@rm -f $(MESH_LIB)
-	@$(AR) ruv $(MESH_LIB) $(D_MESH_OBJ)
-	@echo \* Creating library index
-	@$(RAN)    $(MESH_LIB)
-	@echo ---------------------------------------------------------------
-	@echo \* LIBRARY $(MESH_LIB) created
-	@echo ---------------------------------------------------------------
-
 MESH_clean:
-	-rm $(MESH_LIB) $(D_MESH_OBJ) $(MESH_MOD) MESH/depends.make
+	-rm $(MESH_LIB) $(libt_mesh.objects) $(MESH_MOD) MESH/depends.make
 
 
 ####### Dependencies
 
 MESH/depends.make: $(D_MESH_SRC)
-	(cd MESH ; ../$(MAKEDEPENDS))
+	$(MAKEDEPENDS) MESH
 
 include MESH/depends.make
 

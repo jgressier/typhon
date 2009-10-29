@@ -1,16 +1,11 @@
 !------------------------------------------------------------------------------!
-! MODULE : CONNECTIVITY                   Auteur : J. Gressier
-!                                         Date   : Juillet 2003
-! Fonction                                Modif  : (cf historique)
-!   Bibliotheque de procedures et fonctions pour la gestion de connectivites
-!
-! Defauts/Limitations/Divers :
+! MODULE : CONNECTIVITY 
+! 
+! General connectivities
 !
 !------------------------------------------------------------------------------!
 
 module CONNECTIVITY
-
-use TYPHMAKE   ! Definition de la precision
 
 implicit none
 
@@ -294,10 +289,11 @@ endfunction index_int
 endmodule CONNECTIVITY
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! History
 !
 ! juil 2003 : creation du module, connectivite simple et generalisee
 ! juin 2004 : new et delete pour st_elemc
+! Oct  2009 : transfered from TYPHON
 !------------------------------------------------------------------------------!
 
 

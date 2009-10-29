@@ -6,14 +6,14 @@ LDIR := CGNS
 ####### Files
 
 # Library
-CGNS_LIB = $(PRJLIB)/libt_cgns.a
+CGNS_LIB = $(PRJLIBDIR)/libt_cgns.a
 
 # Modules
-CGNS_MOD = CGNS_STRUCT.$(MOD)       \
-           CGNSLIB.$(MOD)
+CGNS_MOD = CGNS_STRUCT.$(MODEXT)       \
+           CGNSLIB.$(MODEXT)
 
 # Objects
-CGNS_OBJ := $(CGNS_MOD:.$(MOD)=.o)   \
+CGNS_OBJ := $(CGNS_MOD:.$(MODEXT)=.o)   \
             cgns2typhon_zone.o       \
             cgns2typhon_ustboco.o    \
             cgns2typhon_ustmesh.o    \
@@ -34,34 +34,22 @@ CGNS_OBJ := $(CGNS_MOD:.$(MOD)=.o)   \
 	    writecgns_sol.o          \
 	    writecgns_zone.o
 
-D_CGNS_OBJ := $(CGNS_OBJ:%=$(PRJOBJ)/%)
+libt_cgns.objects := $(CGNS_OBJ:%=$(PRJOBJDIR)/%)
+libt_cgns.target: $(libt_cgns.objects)
 
 D_CGNS_SRC := $(CGNS_OBJ:%.o=$(LDIR)/%.f90)
 
 
 ####### Build rules
 
-all: $(CGNS_LIB)
-
-$(CGNS_LIB): $(D_CGNS_OBJ)
-	@echo ---------------------------------------------------------------
-	@echo \* Compiling library $(CGNS_LIB)
-	@rm -f $(CGNS_LIB)
-	@$(AR) ruv $(CGNS_LIB) $(D_CGNS_OBJ)
-	@echo \* Creating library index
-	@$(RAN)    $(CGNS_LIB)
-	@echo ---------------------------------------------------------------
-	@echo \* LIBRARY $(CGNS_LIB) created
-	@echo ---------------------------------------------------------------
-
 CGNS_clean:
-	-rm $(CGNS_LIB) $(D_CGNS_OBJ) $(CGNS_MOD) CGNS/depends.make
+	-rm $(CGNS_LIB) $(libt_cgns.objects) $(CGNS_MOD) CGNS/depends.make
 
 
 ####### Dependencies
 
 CGNS/depends.make: $(D_CGNS_SRC)
-	(cd CGNS ; ../$(MAKEDEPENDS))
+	$(MAKEDEPENDS) CGNS
 
 include CGNS/depends.make
 
