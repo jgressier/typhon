@@ -10,7 +10,6 @@
 
 subroutine readcgnsbase(unit, ib,  base) 
 
-use CGNSLIB       ! definition des mots-clefs
 use CGNS_STRUCT   ! Definition des structures CGNS
 use OUTPUT        ! Sorties standard TYPHON
 

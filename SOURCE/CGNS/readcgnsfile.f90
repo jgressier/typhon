@@ -8,7 +8,6 @@
 subroutine readcgnsfile(defmesh, world) 
 
 use MENU_MESH
-use CGNSLIB       ! definition des mots-clefs
 use CGNS_STRUCT   ! Definition des structures CGNS
 use OUTPUT        ! Sorties standard TYPHON
 
