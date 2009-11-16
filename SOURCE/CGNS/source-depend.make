@@ -9,7 +9,7 @@ LDIR := CGNS
 CGNS_LIB = $(PRJLIBDIR)/libt_cgns.a
 
 # Modules
-CGNS_MOD = CGNS_STRUCT.$(MODEXT)       \
+CGNS_MOD = \
            CGNSLIB.$(MODEXT)
 
 # Objects
@@ -20,19 +20,10 @@ CGNS_OBJ := $(CGNS_MOD:.$(MODEXT)=.o)   \
             createface_fromcgns.o    \
             readcgns_strboco.o       \
             readcgns_strconnect.o    \
-            readcgns_ustboco.o       \
-            readcgns_ustconnect.o    \
             readcgnsbase.o           \
             readcgnsfile.o           \
-            readcgnsvtex.o           \
-            readcgnszone.o           \
-            readcgns_sol.o           \
             seek_bcface_face.o       \
             seek_bcface_vtex.o       \
-	    writecgns_bocomesh.o     \
-	    writecgns_ustmesh.o      \
-	    writecgns_sol.o          \
-	    writecgns_zone.o
 
 libt_cgns.objects := $(CGNS_OBJ:%=$(PRJOBJDIR)/%)
 libt_cgns.target: $(libt_cgns.objects)

@@ -15,17 +15,17 @@
 
 module CGNS_STRUCT   
 
-use TYPHMAKE         ! Definition de la precision
-use CGNSLIB          ! Definition des constantes pour les types CGNS
-use GEO3D            ! MES! Compilation conditionnelle ? avec GEO3D_dp
+use MESHPREC         ! Precision configuration
+use VEC3D     
 use CONNECTIVITY
-
 
 implicit none         
 
+include 'cgnslib_f.h'
+
 ! -- Variables globales du module -------------------------------------------
 
-!integer, parameter :: cgnslen   = 30  ! defini dans CGNSLIB
+integer, parameter :: cgnslen   = len(ElementTypeName(0)) ! use string definition in cngslib_f.h
 integer, parameter :: maxconnect = 8   ! nombre maximum de sommets par element
 
 

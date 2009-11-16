@@ -4,15 +4,12 @@
 ! Fonction                                Modif  : (cd historique)
 !   Lecture de conditions aux limites pour maillage non structure
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
 
 subroutine readcgns_ustboco(unit, ib, iz, ibc, boco)                 
 
-use CGNSLIB       ! definition des mots-clefs
 use CGNS_STRUCT   ! Definition des structures CGNS
-use OUTPUT        ! Sorties standard TYPHON
+use IOCFD
 use STRING
 
 implicit none
@@ -39,32 +36,31 @@ integer             :: n1, n2, n3, nd ! variables fantomes
 boco%nom = ""
 call cg_boco_info_f(unit, ib, iz, ibc, boco%nom, bctyp, pttyp, npts, &
                     n1, n2, n3, nd, ier)
-if (ier /= 0) call erreur("Lecture CGNS","Probleme a la lecture des conditions aux limites")
+if (ier /= 0) call cfd_error("(CGNS) cannot get boundary conditions information")
 
 ! --- nom de famille selon le type de definition ---
 
 select case(bctyp)
 
 case(FamilySpecified)
-  call erreur("Developpement","Cas CGNS/boco non implemente")
+  call cfd_error("(CGNS) CGNS/boco tag not implemented")
 
 case default
   call cg_goto_f(unit, ib, ier, 'Zone_t', iz, 'ZoneBC_t', 1, 'BC_t',ibc, 'end')
-  if (ier /= 0) call erreur("Lecture CGNS","Probleme lors du parcours ADF")
+  if (ier /= 0) call cfd_error("(CGNS) cannot browse boundary conditions")
   call cg_famname_read_f(boco%family, ier)
   if (ier /= 0) then
      boco%family = boco%nom
   endif
   call cg_gridlocation_read_f(boco%gridlocation, ier)
   if (ier /= 0) then
-    call print_warning("Lecture CGNS : type de connectivite non defini (VERTEX par defaut)")
+    call cfd_warning("(CGNS) Lecture CGNS : type de connectivite non defini (VERTEX par defaut)")
     boco%gridlocation = Vertex
   endif
 endselect
  
-!write(str_w,*) 
-call print_info(5, ". tagged element section"//strof(ibc,3)//" : "//trim(boco%family))
-call print_info(8, "    type "//trim(BCTypeName(bctyp))//", "//strof(npts,6)//" items")
+call cfd_print(". tagged element section"//strof(ibc,3)//" : "//trim(boco%family))
+call cfd_print("    type "//trim(BCTypeName(bctyp))//", "//strof(npts,6)//" items")
 
 ! --- Lecture des noeuds ou faces references --
 
@@ -74,19 +70,19 @@ select case(pttyp)
 
 case(ElementList)
   call cg_boco_read_f(unit, ib, iz, ibc, boco%list%fils(1:npts), n1, ier)
-  if (ier /= 0) call erreur("Lecture CGNS", "Probleme a la lecture des conditions aux limites")
-  call print_warning("Lecture CGNS : type de connectivite non defini (FACE par defaut)")
+  if (ier /= 0) call cfd_error("(CGNS) cannot read boundary condition content")
+  call cfd_warning("(CGNS) undefined boundary condition tagging method (default is FACE tag)")
   boco%gridlocation = FaceCenter
 
 case(PointList)
   call cg_boco_read_f(unit, ib, iz, ibc, boco%list%fils(1:npts), n1, ier)
-  if (ier /= 0) call erreur("Lecture CGNS", "Probleme a la lecture des conditions aux limites")
+  if (ier /= 0) call cfd_error("(CGNS) cannot read boundary condition content")
 
 case(PointRange)
-  call erreur("Gestion CGNS","type de reference (PointRange) inattendu en non structure")
+  call cfd_error("(CGNS) unexpected list definition (PointRange)")
 
 case default
-  call erreur("Gestion CGNS","type de reference inattendu dans cette version CGNS")
+  call cfd_error("(CGNS) unknown list definition")
 
 endselect
 

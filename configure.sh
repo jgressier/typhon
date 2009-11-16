@@ -14,7 +14,8 @@ SHELLCONF=bin/shconf.sh
 . $TOOLSCONF/conf_init.sh
 
 ALLMPILIB="mpi mpich lampi mpi_f90"
-ALLPATH="(echo $TYPHONPATH | sed 's/:/ /g' ) /usr /usr/local /opt /opt/local"
+ALLPATH="$(echo $TYPHONPATH | sed 's/:/ /g' ) /usr /usr/local /opt /opt/local"
+INCLUDEPATH="CFDTOOLS/include SOURCE/Include"
 
 # CHECK system tools
 
@@ -115,7 +116,7 @@ check_f90opti() {
 
 check_f90debug() {
   case $SYS-$F90C in
-    *ifc|*ifort) F90_DEBUG="-g -traceback -CB" ;;
+    *ifc|*ifort) F90_DEBUG="-g -traceback -CB -CU" ;;
     *)           F90_DEBUG="-g" ;;
   esac
   export F90_DEBUG
@@ -164,8 +165,10 @@ check_include() {
   done
   if [ -n "$fullname" ] ; then
     success $fullname
-    rm SOURCE/Include/$name 2> /dev/null
-    ln -s $fullname SOURCE/Include
+    for dir in $INCLUDEPATH ; do
+      rm $dir/$name 2> /dev/null
+      ln -s $fullname $dir
+    done
   else
     fail "not found: $name"
   fi

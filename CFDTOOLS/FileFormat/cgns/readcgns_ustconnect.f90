@@ -10,9 +10,9 @@
 
 subroutine readcgns_ustconnect(unit, ib, iz, zone, nmax_elem)                 
 
-use CGNSLIB       ! definition des mots-clefs
-use CGNS_STRUCT   ! Definition des structures CGNS
-use OUTPUT        ! Sorties standard TYPHON
+use CGNS_STRUCT
+use IOCFD
+use STRING
 
 implicit none
 
@@ -37,17 +37,18 @@ type(st_cgns_ustconnect), pointer &
 integer, dimension(:,:), allocatable &
                     :: elem       ! tableau de connectivite intermediaire
 character(len=cgnslen) :: nom     ! nom fantome
+character(len=100)     :: str_w   ! nom fantome
 
 ! -- BODY --
 
 write(str_w,'(a,i8,a)') "reading element connectivity:",nmax_elem," elements"
-call print_info(5, adjustl(str_w))
+call cfd_print(str_w)
 
 ! --- Lecture du nombre de sections ---
 ! (les cellules sont regroupees par section selon leur type)
 
 call cg_nsections_f(unit, ib, iz, nfam, ier)
-if (ier /= 0)   call erreur("Lecture CGNS","Probleme a la lecture du nombre de sections")
+if (ier /= 0) call cfd_error("(CGNS) cannot read number of element sections")
 
 ! --- Lecture des types de section et affectation aux familles ---
 
@@ -61,8 +62,7 @@ allocate(zone%edgefam(nfam))    ! faire "nfam"
 do ifam = 1, nfam               ! Boucle sur l'ensemble des sections
 
   call cg_section_read_f(unit, ib, iz, ifam, nom, itype, ideb, ifin, nbd, ip, ier)
-  if (ier /= 0) call erreur("Lecture CGNS",&
-                            "Probleme a la lecture des informations de la section")
+  if (ier /= 0) call cfd_error("(CGNS) cannot read section information")
 
   select case(zone%imesh) ! TRAITEMENT SELON 2D OU 3D
 
@@ -78,17 +78,17 @@ do ifam = 1, nfam               ! Boucle sur l'ensemble des sections
         zone%ncellfam = zone%ncellfam + 1
         pfam => zone%cellfam(zone%ncellfam)
       case(TETRA_4,PYRA_5,PENTA_6,HEXA_8,TETRA_10,PYRA_14,PENTA_15,PENTA_18,HEXA_20,HEXA_27)
-        call erreur("CGNS reading", "unexpected volumic element for a 2D problem")
+        call cfd_error("(CGNS) unexpected volumic element for a 2D problem")
       case(MIXED, NGON_n)
-        call erreur("CGNS reading", "cannot MIXED and NGON_n elements")
+        call cfd_error("(CGNS) cannot read MIXED and NGON_n elements")
       case default
-        call erreur("CGNS reading", "unknown type element")
+        call cfd_error("(CGNS) unknown type of element")
     endselect
 
   case(3) ! 3D
     select case(itype)
       case(NODE)
-        call print_info(10,"CGNS reading: NODE elements ignored")
+        call cfd_print("(CGNS) NODE elements ignored")
       case(BAR_2,BAR_3)
         zone%nedgefam = zone%nedgefam + 1
         pfam => zone%edgefam(zone%nedgefam)
@@ -99,20 +99,20 @@ do ifam = 1, nfam               ! Boucle sur l'ensemble des sections
         zone%ncellfam = zone%ncellfam + 1
         pfam => zone%cellfam(zone%ncellfam)
       case(MIXED, NGON_n)
-        call erreur("CGNS reading", "cannot MIXED and NGON_n elements")
+        call cfd_error("(CGNS) cannot read MIXED and NGON_n elements")
       case default
-        call erreur("CGNS reading", "unknown type element")
+        call cfd_error("(CGNS) unknown type element")
      endselect
 
   case default
-    call erreur("Developpement", "incoherence de programmation (imesh)")
+    call cfd_error("internal inconsistency (readcgns_ustconnect)")
 
   endselect
 
   ! --- Lecture du nombre de sommets pour le type d'element itype // allocation ---
  
   call cg_npe_f(itype, pfam%nbfils, ier)
-  if (ier /= 0)    call erreur("Lecture CGNS","Probleme a la lecture du type d'element")
+  if (ier /= 0)    call cfd_error("(CGNS) cannot get number of vertex per element")
 
   pfam%type    = itype
   pfam%ideb    = ideb
@@ -122,13 +122,12 @@ do ifam = 1, nfam               ! Boucle sur l'ensemble des sections
   
   write(str_w,'(a,a,a,i8,a,i2,a)') ". ",ElementTypeName(itype)(1:10),":",&
                                    pfam%nbnodes," elements with", pfam%nbfils," vertices"
-  call print_info(8, adjustl(str_w))
+  call cfd_print(adjustl(str_w))
 
   allocate(elem(pfam%nbfils, pfam%nbnodes))  ! tableau intermediaire pour echanger les indices
   elem = 0
   call cg_elements_read_f(unit, ib, iz, ifam, elem, ip, ier)       ! lecture
-  if (ier /= 0) call erreur("Lecture CGNS", &
-                            "Probleme a la lecture de connectivite dans une section")
+  if (ier /= 0) call cfd_error("(CGNS) cannot read element->vertex connectivity")
   pfam%fils(ideb:ifin, 1:pfam%nbfils) = transpose(elem)            ! echange des indices
   deallocate(elem)                                                 ! desallocation
 

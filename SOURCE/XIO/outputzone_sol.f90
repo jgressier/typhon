@@ -15,8 +15,6 @@ use MENU_GEN
 
 implicit none
 
-include 'cgnslib_f.h'
-
 ! -- INPUTS --
 type(mnu_output)      :: defio     ! output parameter
 type(st_zone)         :: zone      ! zone
@@ -37,7 +35,7 @@ pgrid => zone%gridlist%first
 select case(defio%format)
 
 case(fmt_TECPLOT)
-  call error_stop("'Internal error) Unable to use general output with TECPLOT format")
+  call error_stop("(Internal error) Unable to use general output with TECPLOT format")
 
 case(fmt_VTK, fmt_VTKBIN)
 
@@ -48,7 +46,7 @@ case(fmt_CGNS, fmt_CGNS_linked)
 
   izone = 1
   call writecgns_sol(defio%iunit, defio%izone, izone, &
-                      zone%defsolver, pgrid%umesh, pgrid%info%field_loc)
+                      zone%defsolver, pgrid%umesh, pgrid%info%field_loc%etatprim)
 
 case default
   call error_stop("Internal error (outputzone_sol): unknown output format parameter")

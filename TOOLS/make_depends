@@ -52,7 +52,7 @@ echo \# This file has been created automatically      > $TARGET
 echo \# It can be overwritten                        >> $TARGET
 echo \# \(manual modifications are not recommended\) >> $TARGET
 
-for fic in $(find $ROOTDIR -name '*.f90') ; do
+for fic in $(find $ROOTDIR -name '*.f90' | grep -v '/.#') ; do
 
   basename=$(basename $fic .f90)
   #

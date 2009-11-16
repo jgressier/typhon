@@ -7,10 +7,8 @@
 !------------------------------------------------------------------------------!
 subroutine writecgns_ustmesh(cgnsunit, ibase, izone, umesh) 
 
-use TYPHMAKE
-use OUTPUT
-use VARCOM
-use MGRID
+use MESHPREC
+use IOCFD
 use USTMESH
 
 implicit none
@@ -71,7 +69,7 @@ do ielem = 1, umesh%cellvtex%ntype
   case(elem_hexa8)
     cgnstype = HEXA_8
   case default
-    call erreur("CGNS writer", "do not known how to write this element type")
+    call cfd_error("[CGNS writer] do not known how to write this element type")
   endselect
 
   nelem  = umesh%cellvtex%elem(ielem)%nelem

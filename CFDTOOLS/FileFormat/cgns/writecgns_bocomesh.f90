@@ -7,10 +7,8 @@
 !------------------------------------------------------------------------------!
 subroutine writecgns_bocomesh(cgnsunit, ibase, izone, umesh) 
 
-use TYPHMAKE
-use OUTPUT
-use VARCOM
-use MGRID
+use MESHPREC
+use IOCFD
 use USTMESH
 
 implicit none
@@ -67,7 +65,7 @@ do isec = 1, nvtexmax
     case(4)
        cgnstype = QUAD_4
     case default
-       call erreur("Fatal error writing CGNS boco", "unknown element")
+       call cfd_error("Fatal error writing CGNS boco: unknown element type")
     endselect
 
     allocate(elem(1:isec, 1:nelem(isec)))
@@ -89,7 +87,7 @@ do isec = 1, nvtexmax
          istart, iend, 0, elem(1:isec, 1:nelem(isec)), ielem, info)
 
     if (info /= 0) &
-      call erreur("Fatal error writing CGNS boco elements", "cgnslib IO error")
+      call cfd_error("Fatal error writing CGNS boco elements")
 
     deallocate(elem)
   endif
@@ -110,11 +108,10 @@ do ib = 1, umesh%nboco
 
    call cg_goto_f(cgnsunit, ibase, info, 'Zone_t', izone, 'ZoneBC_t', 1, 'BC_t',ibc, 'end')
    if (info /= 0) then
-      call print_warning("CGNS navigation: cannot find BOCO node to write family name")
+      call cfd_error("CGNS navigation: cannot find BOCO node to write family name")
    else
       call cg_famname_write_f(umesh%boco(ib)%family, info)
-      if (info /= 0) &
-           call erreur("Fatal error writing CGNS boco tags", "cgnslib IO error")
+      if (info /= 0) call cfd_error("Fatal error writing CGNS boco tags")
     endif
 
    deallocate(iface)

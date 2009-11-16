@@ -29,6 +29,7 @@ integer, parameter :: nghostcell = 1
 
 type st_scafield
   integer :: dim                            ! cell number
+  integer :: quantity_id
   real(krp), dimension(:), pointer :: scal  ! scalar field
 endtype st_scafield
 
@@ -38,6 +39,7 @@ endtype st_scafield
 
 type st_vecfield
   integer :: dim                            ! cell number
+  integer :: quantity_id
   type(v3d), dimension(:), pointer :: vect  ! vector field
 endtype st_vecfield
 
@@ -47,6 +49,7 @@ endtype st_vecfield
 
 type st_tenfield
   integer :: dim                            ! cell number
+  integer :: quantity_id
   type(t3d), dimension(:), pointer :: tens  ! tensor field
 endtype st_tenfield
 

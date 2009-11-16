@@ -4,15 +4,12 @@
 ! Fonction                                Modif  :
 !   Lecture d'une zone d'un fichier CGNS
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
 
 subroutine readcgnszone(unit, ib, iz, zone) 
 
-use CGNSLIB       ! definition des mots-clefs
 use CGNS_STRUCT   ! Definition des structures CGNS
-use OUTPUT        ! Sorties standard TYPHON
+use IOCFD        ! Sorties standard TYPHON
 
 implicit none 
 
@@ -28,26 +25,27 @@ integer       :: size(3,3)        ! tableau d'informations de la zone
 integer       :: ier              ! code d'erreur
 integer       :: i, ibc           ! indice courant
 integer       :: nmax_elem        ! nombre total d'elements
+character(len=100)     :: str_w   ! nom fantome
 
 ! -- Debut de procedure
    
 ! --- Lecture du type de zone ---
           
 call cg_zone_type_f(unit, ib, iz, zone%type, ier)
-if (ier /= 0) call erreur("Lecture CGNS","Probleme a la lecture du type de zone")
+if (ier /= 0) call cfd_error("(CGNS) cannot read CGNS zone type")
 
 select case(zone%type)
   case(Structured,Unstructured)
     write(str_w,'(a,i3,a,a)') "- Zone",iz,": type",ZoneTypeName(zone%type)
-    call print_info(5, adjustl(str_w))
+    call cfd_print(str_w)
   case default
-    call erreur("Lecture CGNS","zone "//trim(ZoneTypeName(zone%type))//" inconnue")
+    call cfd_error("(CGNS) unknown CGNS zone type")
 endselect
 
 ! --- Lecture des informations de la zone ---
 
 call cg_zone_read_f(unit, ib, iz, zone%nom, size, ier)
-if (ier /= 0)   call erreur("Lecture CGNS","Probleme a la lecture de la zone")
+if (ier /= 0)   call cfd_error("(CGNS) cannot read CGNS zone information")
 
 select case(zone%type)
 
@@ -72,7 +70,7 @@ select case(zone%type)
     nmax_elem    = size(2,1)
 
   case default
-    call erreur("Gestion CGNS","type non reconnu")
+    call cfd_error("(CGNS) unknown CGNS zone type (b)")
 endselect
 
 ! --- Allocation et Lecture des sommets du maillage ---
@@ -85,24 +83,22 @@ call readcgnsvtex(unit, ib, iz, zone%mesh)
 select case(zone%type)
 
 case(Structured)
-  call erreur("Developpement",&
-              "la lecture de connectivite multibloc n'est pas implementee")
-  !call readcgns_strconnect(unit, ib, iz, zone, nmax_elem)
+  call cfd_error("(CGNS) structured multiblock mesh not implemented")
 
 case(Unstructured)
   call readcgns_ustconnect(unit, ib, iz, zone, nmax_elem)
 
 case default
-  call erreur("Developpement", "incoherence de programmation (zone%imesh)")
+    call cfd_error("(CGNS) unknown CGNS zone type (c)")
 endselect
 
 ! --- Lecture des conditions aux limites ---
 
 call cg_nbocos_f(unit, ib, iz, zone%nboco, ier)
-if (ier /= 0) call erreur("Lecture CGNS","Probleme a la lecture du nombre BoCo")
+if (ier /= 0) call cfd_error("(CGNS) cannot read number of CGNS boundary conditions")
 
-write(str_w,'(a,i3,a)') ". lecture de ",zone%nboco," conditions aux limites"
-call print_info(5, adjustl(str_w))
+write(str_w,'(a,i3,a)') ". reading",zone%nboco," CGNS boundary conditions"
+call cfd_print(str_w)
 
 allocate(zone%boco(zone%nboco))
 
@@ -111,28 +107,21 @@ do ibc = 1, zone%nboco
   select case(zone%type)
 
   case(Structured)
-    call erreur("Developpement",&
-                "la lecture de connectivite multibloc n'est pas implementee")
-    !call readcgns_strboco(unit, ib, iz, ibc, zone%boco(ibc))
+    call cfd_error("(CGNS) structured multiblock mesh not implemented")
 
   case(Unstructured)
     call readcgns_ustboco(unit, ib, iz, ibc, zone%boco(ibc))
 
   case default
-    call erreur("Developpement", "incoherence de programmation (zone%imesh)")
+    call cfd_error("(CGNS) unknown CGNS zone type (d)")
+
   endselect
 
-
 enddo
-
-
-
 
 ! --- fermeture du fichier ---
 
 call cg_close_f(unit, ier)
-
-
 
 !-------------------------
 endsubroutine readcgnszone

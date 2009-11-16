@@ -26,7 +26,7 @@ type(st_ustmesh) :: umesh             ! maillage et connectivites
 type(st_grid)    :: grid               ! grid and its field
 
 ! -- Internal variables --
-integer                 :: i, cgnsunit, ier
+integer                 :: i, cgnsunit, ier, isca, ivec
 type(st_field), pointer :: field
 
 ! -- BODY --
@@ -41,7 +41,7 @@ case(solNS)
 case(solKDIF)
   field=>newfield(grid, defsolver%nsca, defsolver%nvec, umesh%ncell, umesh%nface) 
 case default
-  call erreur("Internal error (init_gridfield_ust)","unknown solver type")
+  call error_stop("Internal error (init_gridfield_ust): unknown solver type")
 endselect 
 
 call alloc_prim(field)
@@ -63,9 +63,9 @@ do i = 1, defsolver%ninit
      call cg_open_f(trim(defsolver%defmesh%filename), MODE_READ, cgnsunit, ier)
      if (ier /= 0) call erreur("Fatal CGNS IO", "cannot open "//trim(defsolver%defmesh%filename))
      call readcgns_sol(cgnsunit, defsolver%defmesh%icgnsbase, defsolver%defmesh%icgnszone, &
-                       defsolver, umesh, field%etatprim) 
+                       umesh, field%etatprim) 
      call cg_close_f(cgnsunit, ier)
-     if (ier /= 0) call erreur("Fatal CGNS IO", "cannot close "//trim(defsolver%defmesh%filename))
+     if (ier /= 0) call error_stop("Fatal CGNS IO: cannot close "//trim(defsolver%defmesh%filename))
 
    case default
 
@@ -77,7 +77,7 @@ do i = 1, defsolver%ninit
          call init_kdif_ust(defsolver%init(i)%kdif, field, defsolver%init(i)%unif, &
               umesh, defsolver%init(i)%type, defsolver%init(i)%file)
       case default
-         call erreur("Internal error (init_gridfield_ust)","unknown solver type")
+         call error_stop("Internal error (init_gridfield_ust): unknown solver type")
       endselect
 
    endselect
@@ -88,8 +88,20 @@ select case(defsolver%typ_solver)
 case(solNS, solKDIF)
   call calc_varcons(defsolver, field)
 case default
-  call erreur("Internal error (init_gridfield_ust)","unknown solver type")
+  call error_stop("Internal error (init_gridfield_ust): unknown solver type")
 endselect
+
+! -- copy defsolver quantity ids to PRIMITIVE field --
+
+do isca = 1, field%etatprim%nscal
+  field%etatprim%tabscal(isca)%quantity_id = defsolver%idsca(isca)
+enddo
+
+do ivec = 1, field%etatprim%nvect
+  field%etatprim%tabvect(ivec)%quantity_id = defsolver%idvec(ivec)
+enddo
+
+! --
 
 grid%field => field
 

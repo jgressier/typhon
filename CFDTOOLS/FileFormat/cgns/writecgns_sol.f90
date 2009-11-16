@@ -5,14 +5,13 @@
 !   Write a SOLUTION to a CGNS ZONE
 !
 !------------------------------------------------------------------------------!
-subroutine writecgns_sol(cgnsunit, ibase, izone, defsolver, umesh, field) 
+subroutine writecgns_sol(cgnsunit, ibase, izone, umesh, field) 
 
-use TYPHMAKE
-use OUTPUT
-use VARCOM
-use MGRID
+use MESHPREC
+use IOCFD
+use QUANTITY
 use USTMESH
-use MENU_SOLVER
+use GENFIELD
 
 implicit none
 
@@ -21,9 +20,8 @@ include 'cgnslib_f.h'
 ! -- INPUTS --
 integer               :: cgnsunit           ! unit number for cgns file
 integer               :: ibase, izone       ! base and zone index
-type(mnu_solver)      :: defsolver          ! solver model
 type(st_ustmesh)      :: umesh
-type(st_field)        :: field
+type(st_genericfield) :: field
 
 ! -- OUPUTS --
 
@@ -42,7 +40,7 @@ character(len=shortname) :: qname, solname
 
 solname = 'MyFlowSolution'
 call cg_sol_write_f(cgnsunit, ibase, izone, solname, CellCenter, isol, info)
-if (info /=0) call error_stop("Fatal CGNS IO writing solution structure...")
+if (info /=0) call cfd_error("Fatal CGNS IO writing solution structure...")
 
 
 !-------------------------------------------------------------------------
@@ -59,59 +57,59 @@ allocate(v(nelem))
 
 ! -- reindex and write SCALAR --
 
-do isca = 1, field%etatprim%nscal
+do isca = 1, field%nscal
 
   istart = 0
   do ielem = 1, umesh%cellvtex%ntype
     do i = 1, umesh%cellvtex%elem(ielem)%nelem
-      v(istart+i) = field%etatprim%tabscal(isca)%scal(umesh%cellvtex%elem(ielem)%ielem(i))
+      v(istart+i) = field%tabscal(isca)%scal(umesh%cellvtex%elem(ielem)%ielem(i))
     enddo
     istart = istart +  umesh%cellvtex%elem(ielem)%nelem
   enddo
 
-  qname = quantity_cgnsname(defsolver%idsca(isca))
+  qname = quantity_cgnsname(field%tabscal(isca)%quantity_id)
   call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, trim(qname), v(1:nelem), ifield, info)
-  if (info /=0) call error_stop("Fatal CGNS IO writing "//trim(qname)//" solution...")
+  if (info /=0) call cfd_error("Fatal CGNS IO writing "//trim(qname)//" solution...")
 
 enddo
 
 ! -- reindex and write VECTOR --
 
-do ivec = 1, field%etatprim%nvect
+do ivec = 1, field%nvect
 
   istart = 0
   do ielem = 1, umesh%cellvtex%ntype
     do i = 1, umesh%cellvtex%elem(ielem)%nelem
-      v(istart+i) = field%etatprim%tabvect(ivec)%vect(umesh%cellvtex%elem(ielem)%ielem(i))%x
+      v(istart+i) = field%tabvect(ivec)%vect(umesh%cellvtex%elem(ielem)%ielem(i))%x
     enddo
     istart = istart +  umesh%cellvtex%elem(ielem)%nelem
   enddo
  
-  qname = quantity_cgnsname(defsolver%idvec(ivec))
+  qname = quantity_cgnsname(field%tabvect(ivec)%quantity_id)
   call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, trim(qname)//'X', v, ifield, info)
-  if (info /=0) call error_stop("Fatal CGNS IO writing "//trim(qname)//'X'//" solution...")
+  if (info /=0) call cfd_error("Fatal CGNS IO writing "//trim(qname)//'X'//" solution...")
 
   istart = 0
   do ielem = 1, umesh%cellvtex%ntype
     do i = 1, umesh%cellvtex%elem(ielem)%nelem
-      v(istart+i) = field%etatprim%tabvect(ivec)%vect(umesh%cellvtex%elem(ielem)%ielem(i))%y
+      v(istart+i) = field%tabvect(ivec)%vect(umesh%cellvtex%elem(ielem)%ielem(i))%y
    enddo
    istart = istart +  umesh%cellvtex%elem(ielem)%nelem
  enddo
 
  call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, trim(qname)//'Y', v, ifield, info)
- if (info /=0) call error_stop("Fatal CGNS IO writing "//trim(qname)//'Y'//" solution...")
+ if (info /=0) call cfd_error("Fatal CGNS IO writing "//trim(qname)//'Y'//" solution...")
 
   istart = 0
   do ielem = 1, umesh%cellvtex%ntype
     do i = 1, umesh%cellvtex%elem(ielem)%nelem
-      v(istart+i) = field%etatprim%tabvect(ivec)%vect(umesh%cellvtex%elem(ielem)%ielem(i))%z
+      v(istart+i) = field%tabvect(ivec)%vect(umesh%cellvtex%elem(ielem)%ielem(i))%z
    enddo
    istart = istart +  umesh%cellvtex%elem(ielem)%nelem
  enddo
 
  call cg_field_write_f(cgnsunit, ibase, izone, isol, RealDouble, trim(qname)//'Z', v, ifield, info)
- if (info /=0) call error_stop("Fatal CGNS IO writing "//trim(qname)//'Z'//" solution...")
+ if (info /=0) call cfd_error("Fatal CGNS IO writing "//trim(qname)//'Z'//" solution...")
 
 enddo
 

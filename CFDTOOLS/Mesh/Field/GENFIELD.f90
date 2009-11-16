@@ -137,7 +137,6 @@ integer               :: i
   if (gfield%nscal > 0) then
     allocate(gfield%tabscal(n_scal))          ! scalar field array allocation
     do i = 1, n_scal
-
       call new(gfield%tabscal(i), gfield%dim)  ! field by field allocation
     enddo
   endif

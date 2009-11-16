@@ -5,14 +5,14 @@
 !   Write a SOLUTION to a CGNS ZONE
 !
 !------------------------------------------------------------------------------!
-subroutine readcgns_sol(cgnsunit, ibase, izone, defsolver, umesh, field) 
+subroutine readcgns_sol(cgnsunit, ibase, izone, umesh, field) 
 
-use TYPHMAKE
-use OUTPUT
-use VARCOM
+use MESHPREC
+use IOCFD
+!use VARCOM
 use GENFIELD
 use USTMESH
-use MENU_SOLVER
+use QUANTITY
 
 implicit none
 
@@ -21,7 +21,6 @@ include 'cgnslib_f.h'
 ! -- INPUTS --
 integer               :: cgnsunit           ! unit number for cgns file
 integer               :: ibase, izone       ! base and zone index
-type(mnu_solver)      :: defsolver          ! solver model
 type(st_ustmesh)      :: umesh
 
 ! -- OUPUTS --
@@ -46,17 +45,17 @@ case(4)
 case(8)
    itype = RealDouble
 case default
-  call erreur("Fatal CGNS IO", "cannot read TYPHON real data...")
+  call cfd_error("(CGNS) cannot read TYPHON real data...")
 endselect
 
 dim = umesh%ncell_int
 
 do isca = 1, field%nscal
 
-  qname = quantity_cgnsname(defsolver%idsca(isca))
+  qname = quantity_cgnsname(field%tabscal(isca)%quantity_id)
    call cg_field_read_f(cgnsunit, ibase, izone, isol, trim(qname), itype, &
                         1, dim, field%tabscal(isca)%scal(1:dim), info)
-   if (info /=0) call erreur("CGNS IO", "reading "//trim(qname)//" solution...")
+   if (info /=0) call cfd_error("(CGNS) reading "//trim(qname)//" solution...")
 
 enddo
 
@@ -66,24 +65,24 @@ if (field%nvect > 0) then
 
   do ivec = 1, field%nvect
 
-    qname = quantity_cgnsname(defsolver%idvec(ivec))
+    qname = quantity_cgnsname(field%tabvect(ivec)%quantity_id)
      call cg_field_read_f(cgnsunit, ibase, izone, isol, trim(qname)//'X', itype, &
                           1, dim, v, info)
-     if (info /=0) call erreur("CGNS IO", "reading "//trim(qname)//'X'//" solution...")
+     if (info /=0) call cfd_error("(CGNS) reading "//trim(qname)//'X'//" solution...")
      do i = 1, dim
         field%tabvect(ivec)%vect(i)%x = v(i)
      enddo
 
      call cg_field_read_f(cgnsunit, ibase, izone, isol, trim(qname)//'Y', itype, &
                           1, dim, v, info)
-     if (info /=0) call erreur("CGNS IO", "reading "//trim(qname)//'Y'//" solution...")
+     if (info /=0) call cfd_error("(CGNS) reading "//trim(qname)//'Y'//" solution...")
      do i = 1, dim
         field%tabvect(ivec)%vect(i)%y = v(i)
      enddo
 
      call cg_field_read_f(cgnsunit, ibase, izone, isol, trim(qname)//'Z', itype, &
                           1, dim, v, info)
-     if (info /=0) call erreur("CGNS IO", "reading "//trim(qname)//'Z'//" solution...")
+     if (info /=0) call cfd_error("(CGNS) reading "//trim(qname)//'Z'//" solution...")
      do i = 1, dim
         field%tabvect(ivec)%vect(i)%z = v(i)
      enddo
