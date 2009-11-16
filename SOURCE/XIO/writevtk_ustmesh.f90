@@ -59,7 +59,7 @@ dim  = dimpaq1
 do q = 1, npaq
   iend = ista-1+dim
   do i = 1, dim
-    value(1:3, i) = tab(umesh%mesh%vertex(i,1,1))   ! indirection & real*8
+    value(1:3, i) = tab(umesh%mesh%vertex(ista-1+i,1,1))   ! indirection & real*8
   enddo
 
   select case(defio%format)
