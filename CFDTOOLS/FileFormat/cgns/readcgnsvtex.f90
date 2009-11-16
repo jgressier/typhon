@@ -20,7 +20,7 @@ integer             :: ib, iz     ! numero de base et de zone
 type(st_cgns_vtex)  :: mesh       ! sommets de la zone
 
 ! -- Variables internes --
-integer, parameter   :: cgns_size = 4                                        
+integer, parameter   :: cgns_size = 8                                      
 integer              :: ier        ! code erreur
 real(4), allocatable :: vs(:,:,:)         ! tableau de valeurs intermediaires SINGLE 
 real(8), allocatable :: vd(:,:,:)         ! tableau de valeurs intermediaires DOUBLE

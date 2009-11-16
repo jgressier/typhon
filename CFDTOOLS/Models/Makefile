@@ -1,6 +1,6 @@
 .SUFFIXES:
 
-default: this.modules this.library
+default: this.library this.modules
 #
 # architecture dependent and project variables
 
