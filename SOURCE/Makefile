@@ -85,12 +85,12 @@ include     MAIN/source-depend.make
 
 ####### Build main
 
-MAIN = Obj/main.o # dependencies in MAIN/depends.make
+MAIN:=$(PRJOBJDIR)/main.o # dependencies in MAIN/depends.make
 
 ####### Build rules
 
-seq: $(PRGNAME)-seq
-mpi: $(PRGNAME)-mpi
+seq: $(PRJOBJDIR) $(PRGNAME)-seq
+mpi: $(PRJOBJDIR) $(PRGNAME)-mpi
 
 $(PRGNAME)-seq : $(MAIN) $(D_LIBSEQ) $(MAKEFILE)
 	@echo ---------------------------------------------------------------

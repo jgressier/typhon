@@ -21,7 +21,7 @@ dir.gprof=profil
 # default
 dir.=$(dir.opt)
 
-PRJOBJDIR=Obj.$(dir.$(opt))
+PRJOBJDIR:=Obj.$(dir.$(opt))
 
 $(PRJOBJDIR):
 	mkdir -p $(PRJOBJDIR)
