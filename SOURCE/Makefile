@@ -12,7 +12,7 @@ help:
 	@echo "  seq       -> sequential   Typhon executable 'Typhon-seq'"
 	@echo "  mpi       -> MPI parallel Typhon executable 'Typhon-mpi'"
 	@echo "Options:"
-	@echo "  opt=optim   -> Optimized options (default)"
+	@echo "  opt=optim -> Optimized options (default)"
 	@echo "  opt=debug -> Debugging options"
 	@echo "  opt=prof  -> Profiling options"
 	@echo "-----------------------------------------------------------------"

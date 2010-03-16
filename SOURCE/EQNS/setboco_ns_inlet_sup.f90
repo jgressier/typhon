@@ -19,6 +19,7 @@ use FCT_ENV
 implicit none
 
 ! -- INPUTS --
+real(krp)        :: curtime
 type(mnu_ns)     :: defns            ! solver parameters
 integer          :: unif             ! uniform or not
 type(st_boco_ns) :: bc_ns            ! parameters (field or constant)
