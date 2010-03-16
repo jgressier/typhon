@@ -5,7 +5,7 @@
 !   Computation of supersonic inlet boundary conditions
 !   
 !------------------------------------------------------------------------------!
-subroutine setboco_ns_inlet_sup(defns, unif, bc_ns, ustboco, umesh, fld)
+subroutine setboco_ns_inlet_sup(curtime, defns, unif, bc_ns, ustboco, umesh, fld)
 
 use TYPHMAKE
 use OUTPUT
@@ -51,6 +51,8 @@ allocate(dir(nf))
 
 dir(1:nf) = bc_ns%direction
 
+call fct_env_set_real(blank_env, "t", curtime)
+
 do ifb = 1, nf
   if  = ustboco%iface(ifb)
   ic  = umesh%facecell%fils(if,1)
@@ -82,4 +84,5 @@ endsubroutine setboco_ns_inlet_sup
 !
 ! july 2004 : creation
 ! June 2008 : FCT function for pi, ti, mach (function of X, Y, Z)
+! Mar  2010 : time dependent conditions
 !------------------------------------------------------------------------------!

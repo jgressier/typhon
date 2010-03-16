@@ -5,7 +5,7 @@
 !   Computation of supersonic inlet boundary conditions
 !   
 !------------------------------------------------------------------------------!
-subroutine setboco_ns_outlet_sub(defns, unif, bc_ns, ustboco, umesh, fld)
+subroutine setboco_ns_outlet_sub(curtime, defns, unif, bc_ns, ustboco, umesh, fld)
 
 use TYPHMAKE
 use OUTPUT
@@ -19,6 +19,7 @@ use FCT_ENV
 implicit none
 
 ! -- INPUTS --
+real(krp)        :: curtime
 type(mnu_ns)     :: defns            ! solver parameters
 integer          :: unif             ! uniform or not
 type(st_boco_ns) :: bc_ns            ! parameters (field or constant)
@@ -60,6 +61,8 @@ allocate(dir(nf))
 
 call nspri2pi_ti_mach_dir(defns%properties(1), nf, nspri, pi, ti, mach, dir) 
 
+call fct_env_set_real(blank_env, "t", curtime)
+
 do ifb = 1, nf
   if   = ustboco%iface(ifb)
   call fct_env_set_real(blank_env, "x", umesh%mesh%iface(if,1,1)%centre%x)
@@ -89,4 +92,5 @@ endsubroutine setboco_ns_outlet_sub
 ! july 2004 : creation
 ! mar  2006 : array computation (optimization)
 ! June 2008 : FCT function for static pressure (function of X, Y, Z)
+! Mar  2010 : time dependent conditions
 !------------------------------------------------------------------------------!

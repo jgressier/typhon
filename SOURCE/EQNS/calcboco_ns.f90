@@ -8,7 +8,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine calcboco_ns(defsolver, defboco, ustboco, grid)
+subroutine calcboco_ns(curtime, defsolver, defboco, ustboco, grid)
 
 use TYPHMAKE
 use OUTPUT
@@ -21,6 +21,7 @@ use DEFFIELD
 implicit none
 
 ! -- INPUTS --
+real(krp)        :: curtime
 type(mnu_boco)   :: defboco          ! parametres de conditions aux limites
 type(st_ustboco) :: ustboco          ! lieu d'application des conditions aux limites
 type(mnu_solver) :: defsolver        ! type d'equation a resoudre
@@ -37,19 +38,19 @@ integer          :: icell, ighost    ! index de cellule interieure, et de cellul
 select case(defboco%typ_boco) 
 
 case(bc_inlet_sup)
-  call setboco_ns_inlet_sup(defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
+  call setboco_ns_inlet_sup(curtime, defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
                             ustboco, grid%umesh, grid%info%field_loc)
 
 case(bc_inlet_sub)
-  call setboco_ns_inlet_sub(defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
+  call setboco_ns_inlet_sub(curtime, defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
                             ustboco, grid%umesh, grid%info%field_loc)
 
 case(bc_outlet_sup)
-  call setboco_ns_outlet_sup(defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
+  call setboco_ns_outlet_sup(curtime, defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
                              ustboco, grid%umesh, grid%info%field_loc)
 
 case(bc_outlet_sub)
-  call setboco_ns_outlet_sub(defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
+  call setboco_ns_outlet_sub(curtime, defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
                              ustboco, grid%umesh, grid%info%field_loc)
 
 case(bc_wall_isoth)

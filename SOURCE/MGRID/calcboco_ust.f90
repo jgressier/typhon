@@ -64,7 +64,7 @@ do ib = 1, grid%umesh%nboco
 
     select case(defsolver%typ_solver)
       case(solNS)
-        call calcboco_ns(defsolver, defsolver%boco(idef), grid%umesh%boco(ib), grid)
+        call calcboco_ns(curtime, defsolver, defsolver%boco(idef), grid%umesh%boco(ib), grid)
       case(solKDIF)
         call calcboco_kdif(curtime, defsolver, defsolver%boco(idef), grid%umesh%boco(ib), grid, defspat)
       case(solVORTEX)

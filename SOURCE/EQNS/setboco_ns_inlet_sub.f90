@@ -5,7 +5,7 @@
 !   Computation of supersonic inlet boundary conditions
 !   
 !------------------------------------------------------------------------------!
-subroutine setboco_ns_inlet_sub(defns, unif, bc_ns, ustboco, umesh, fld)
+subroutine setboco_ns_inlet_sub(curtime, defns, unif, bc_ns, ustboco, umesh, fld)
 
 use TYPHMAKE
 use OUTPUT
@@ -19,6 +19,7 @@ use FCT_ENV
 implicit none
 
 ! -- INPUTS --
+real(krp)        :: curtime
 type(mnu_ns)     :: defns            ! solver parameters
 integer          :: unif             ! uniform or not
 type(st_boco_ns) :: bc_ns            ! parameters (field or constant)
@@ -50,6 +51,8 @@ allocate(ti(nf))
 allocate(dir(nf))
 
 dir(1:nf) = bc_ns%direction
+
+call fct_env_set_real(blank_env, "t", curtime)
 
 do ifb = 1, nf
   if   = ustboco%iface(ifb)
@@ -83,4 +86,5 @@ endsubroutine setboco_ns_inlet_sub
 !
 ! july 2004 : creation
 ! June 2008 : FCT function for pi, ti, mach (function of X, Y, Z)
+! Mar  2010 : time dependent conditions
 !------------------------------------------------------------------------------!

@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine setboco_ns_outlet_sup(defns, unif, bc_ns, ustboco, umesh, fld)
+subroutine setboco_ns_outlet_sup(curtime, defns, unif, bc_ns, ustboco, umesh, fld)
 
 use TYPHMAKE
 use OUTPUT
@@ -19,6 +19,7 @@ use DEFFIELD
 implicit none
 
 ! -- Declaration des entrees --
+real(krp)        :: curtime
 type(mnu_ns)     :: defns            ! solver parameters
 integer          :: unif             ! uniform or not
 type(st_boco_ns) :: bc_ns            ! parameters (field or constant)
