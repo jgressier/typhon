@@ -16,10 +16,10 @@ help:
 all: cfdtools seq mpi
 
 cfdtools:
-	@(cd CFDTOOLS ; gmake all opt=$(opt))
+	@(cd CFDTOOLS ; make all opt=$(opt))
 
 seq:
-	@(cd SOURCE ; gmake seq opt=$(opt))
+	@(cd SOURCE ; make seq opt=$(opt))
 
 mpi:
-	@(cd SOURCE ; gmake mpi opt=$(opt))
+	@(cd SOURCE ; make mpi opt=$(opt))

@@ -11,7 +11,7 @@ help:
 	@echo "-----------------------------------------------------------------"
 
 all:
-	@(cd Base ;       gmake opt=$(opt))
-	@(cd Models ;     gmake opt=$(opt))
-	@(cd Mesh ;       gmake opt=$(opt))
-	@(cd FileFormat ; gmake opt=$(opt))
+	@(cd Base ;       make opt=$(opt))
+	@(cd Models ;     make opt=$(opt))
+	@(cd Mesh ;       make opt=$(opt))
+	@(cd FileFormat ; make opt=$(opt))

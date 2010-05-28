@@ -68,7 +68,9 @@ case(4)
   ! Lecture de Z
   call cg_coord_read_f(unit, ib, iz, 'CoordinateZ', RealSingle, (/ 1, 1, 1/), &
        (/ mesh%ni, mesh%nj,mesh%nk /), vs, ier)
-  if (ier /= 0)   call cfd_error("(CGNS) unable read Z coordinate")
+  if (ier /= 0) then
+    vs(:,:,:) = 0._krp
+  endif
 
   ! retranscription
   do k = 1, mesh%nk
@@ -115,7 +117,9 @@ case(8)
   ! Lecture de Z
   call cg_coord_read_f(unit, ib, iz, 'CoordinateZ', RealDouble, (/ 1, 1, 1/), &
        (/ mesh%ni, mesh%nj,mesh%nk /), vd, ier)
-  if (ier /= 0)   call cfd_error("(CGNS) unable read Z coordinate")
+  if (ier /= 0) then
+    vd(:,:,:) = 0._krp
+  endif
 
   ! retranscription
   do k = 1, mesh%nk

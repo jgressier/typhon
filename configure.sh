@@ -136,7 +136,7 @@ check_f90prof() {
 check_library() {
   local    name=$1
   local     ext=$2
-  local pathlib=$ALLPATH
+  local pathlib="$ALLPATH"
   local fullname
   local libname=lib$name.$ext
   for dir in $pathlib ; do
@@ -155,7 +155,7 @@ check_library() {
 
 check_include() {
   local    name=$1
-  local pathlib=$ALLPATH
+  local pathlib="$ALLPATH"
   local fullname
   for dir in $pathlib ; do
     if [ -r "$dir/include/$name" ] ; then
@@ -303,5 +303,5 @@ mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
 echo Done
 echo ------------------------------------------------------------------
 echo
-echo "to build TYPHON : cd SOURCE ; gmake clean ; gmake all OPT=opt"
+echo "to build TYPHON : make all OPT=opt"
 echo
