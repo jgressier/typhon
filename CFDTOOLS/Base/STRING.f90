@@ -10,7 +10,7 @@ integer, parameter :: iposamaj = iachar('A')
 integer, parameter :: iposzmaj = iachar('Z')
 
 interface strof
-  module procedure strof_int, strof_int2, strof_real, strof_double
+  module procedure strof_intl2, strof_intl4, strof_int2, strof_int4, strof_real, strof_double
 
 endinterface
 
@@ -180,28 +180,56 @@ endfunction is_real
 !------------------------------------------------------------------------------!
 ! Fonction : tranformation entier -> chaine de caracteres (len=l)
 !------------------------------------------------------------------------------!
-function strof_int(nb, l) result(strout)
+function strof_intl2(nb, l) result(strout)
   implicit none
-  integer, intent(in) :: nb, l   ! nombre a transformer, et longueur
-  character(len=l)    :: strout  ! longueur de la chaine
+  integer(2), intent(in) :: nb    ! integer to convert
+  integer,    intent(in) :: l     ! string length
+  character(len=l)    :: strout   ! string
   character(len=3) :: sform
 
   write(sform,'(i3)') l   
   write(strout,'(i'//trim(adjustl(sform))//')') nb
-endfunction strof_int
+endfunction strof_intl2
+
+!------------------------------------------------------------------------------!
+! Fonction : tranformation entier -> chaine de caracteres (len=l)
+!------------------------------------------------------------------------------!
+function strof_intl4(nb, l) result(strout)
+  implicit none
+  integer(4), intent(in) :: nb    ! integer to convert
+  integer,    intent(in) :: l     ! string length
+  character(len=l)    :: strout   ! string
+  character(len=3) :: sform
+
+  write(sform,'(i3)') l   
+  write(strout,'(i'//trim(adjustl(sform))//')') nb
+endfunction strof_intl4
 
 !------------------------------------------------------------------------------!
 ! Fonction : tranformation entier -> chaine de caracteres (ajuste a gauche)
 !------------------------------------------------------------------------------!
 function strof_int2(nb) result(strout)
   implicit none
-  integer, intent(in) :: nb      ! nombre a transformer, et longueur
-  character(len=20)   :: strout  ! longueur de la chaine
+  integer(2), intent(in) :: nb      ! integer to convert
+  character(len=20)      :: strout  ! string
 
   write(strout,'(i20)') nb
   strout = adjustl(strout)
 
 endfunction strof_int2
+
+!------------------------------------------------------------------------------!
+! Fonction : tranformation entier -> chaine de caracteres (ajuste a gauche)
+!------------------------------------------------------------------------------!
+function strof_int4(nb) result(strout)
+  implicit none
+  integer(4), intent(in) :: nb      ! integer to convert
+  character(len=20)      :: strout  ! string
+
+  write(strout,'(i20)') nb
+  strout = adjustl(strout)
+
+endfunction strof_int4
 
 !------------------------------------------------------------------------------!
 ! Fonction : tranformation entier -> chaine de caracteres (len=l)
@@ -261,6 +289,24 @@ function samestring(str1, str2)
   !             .and.(index(trim(str2),trim(str1)) == 1)
   samestring = (str1==str2)
 endfunction samestring
+
+!------------------------------------------------------------------------------!
+! Fonction : fill with blanks
+!------------------------------------------------------------------------------!
+function fill(str, l)  result(strout)
+  implicit none
+  character(len=l) :: strout  
+  character(len=*), intent(in) :: str
+  integer                      :: l, lstr
+ 
+  lstr = len(str)
+  if (l > lstr) then
+    strout = str//repeat(' ',l-lstr)
+  else
+    strout = str
+  endif
+
+endfunction fill
 
 !------------------------------------------------------------------------------!
 ! Fonction : Donne le nombre d'un caractere donne dans un chaine

@@ -33,13 +33,11 @@ real(8), allocatable  :: v(:)
 
 nelemtot = umesh%nface_lim
 
-! -- get face type and reorder --
+! -- count number of elements per type --
 
 nvtexmax = umesh%facevtex%nbfils
 allocate(nelem(nvtexmax))          ! number of boco face 
 nelem(:) = 0
-
-allocate(newindex(1:nelemtot))
 
 do i = 1, nelemtot
   nv = count(umesh%facevtex%fils(umesh%nface_int+i, 1:nvtexmax) /= 0)
@@ -47,6 +45,8 @@ do i = 1, nelemtot
 enddo
 
 ! -- collect and write element section --
+
+allocate(newindex(1:nelemtot))
 
 iend = umesh%ncell_int   ! last ELEMENT index in CGNS file (internal elements)
 

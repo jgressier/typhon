@@ -14,14 +14,25 @@ implicit none
 !------------------------------------------------------------------------------!
 ! CONSTANTS for ELEMENT TYPE
 !------------------------------------------------------------------------------!
-integer(kpp), parameter :: elem_bar2   = 1
-integer(kpp), parameter :: elem_tri3   = 2
-integer(kpp), parameter :: elem_quad4  = 3
-integer(kpp), parameter :: elem_ngon   = 4
-integer(kpp), parameter :: elem_tetra4 = 11
-integer(kpp), parameter :: elem_pyra5  = 12
-integer(kpp), parameter :: elem_penta6 = 13
-integer(kpp), parameter :: elem_hexa8  = 14
+integer(kpp), parameter :: elem_bar2    = 2
+integer(kpp), parameter :: elem_bar3    = 3
+integer(kpp), parameter :: elem_tri3    = 13
+integer(kpp), parameter :: elem_tri6    = 16
+integer(kpp), parameter :: elem_quad4   = 24
+integer(kpp), parameter :: elem_quad8   = 28
+integer(kpp), parameter :: elem_quad9   = 29
+integer(kpp), parameter :: elem_ngon    = 50
+integer(kpp), parameter :: elem_tetra4  = 101
+integer(kpp), parameter :: elem_tetra10 = 105
+integer(kpp), parameter :: elem_pyra5   = 121
+integer(kpp), parameter :: elem_pyra14  = 125
+integer(kpp), parameter :: elem_penta6  = 131
+integer(kpp), parameter :: elem_penta15 = 135
+integer(kpp), parameter :: elem_penta18 = 138
+integer(kpp), parameter :: elem_hexa8   = 141
+integer(kpp), parameter :: elem_hexa20  = 145
+integer(kpp), parameter :: elem_hexa27  = 148
+integer(kpp), parameter :: elem_nedron  = 200
 
 
 !------------------------------------------------------------------------------!

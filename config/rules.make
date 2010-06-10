@@ -24,4 +24,8 @@ $(PRJOBJDIR)/%.o:
 	@echo \* OBJECT: options [$(F90OPT)] : $*.o from $<
 	@$(F90C) $(F90OPT) -I$(PRJINCEXT) -c $< -o $(PRJOBJDIR)/$*.o
 
+$(PRJEXEDIR)/%: $(PRJOBJDIR)/%.o $(LIBDEPS:%=$(PRJLIBDIR)/lib%.$(LIBSTA))
+	@echo \* "EXE   ": options [$(F90OPT)] : $* from $<
+	$(F90C) $(F90OPT) -I$(PRJINCEXT)  $< $(LOCALLINKOPT) -o $(PRJEXEDIR)/$*
+
 vpath %.$(MODEXT) $(PRJINCEXT):$(PRJINCDIR)

@@ -9,9 +9,8 @@ this.objects=$(this.basef90:%.f90=%.o)
 $(LIBNAME).objects=$(this.objects:%=$(PRJOBJDIR)/%)
 $(LIBNAME).target: $($(LIBNAME).objects)
 
-depends.make: Makefile $(this.f90)
+depends.make: Makefile $(this.f90) $(this.f90exe)
 	$(MAKEDEPENDS)
 
 this.clean:
 	-rm $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
-	-rm 

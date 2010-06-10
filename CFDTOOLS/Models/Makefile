@@ -20,6 +20,8 @@ this.f90modules=   \
 
 this.f90= $(this.f90modules) \
 
+this.tools:
+
 
 include $(CONFIGDIR)/libconf.make
 

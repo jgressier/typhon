@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------!
 ! Procedure : writecgns_ustmesh                      Authors : J. Gressier
-!                                                    Created : February 2006
+!    
 ! Fonction 
 !   Write an GRID USTMESH to a CGNS ZONE
 !
