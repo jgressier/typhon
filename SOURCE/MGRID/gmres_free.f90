@@ -57,7 +57,7 @@ real(krp), dimension(64,64) :: matrix
 
 ! -- Body --
 
-nkrylov = 10_kip
+nkrylov = def_impli%nkrylov
 
 ngrid  = gridlist%nbgrid
 field_info%dt        = dt

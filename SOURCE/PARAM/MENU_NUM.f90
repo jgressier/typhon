@@ -147,7 +147,8 @@ endtype mnu_rk
 type mnu_imp
   integer(kpp)    :: methode      ! inversion method
   integer(kpp)    :: storage      ! storage method for sparse matrix (see SPARSE_MAT)
-  integer(kpp)    :: max_it       ! maximal number of iterations
+  integer(kip)    :: max_it       ! maximal number of iterations
+  integer(kip)    :: nkrylov      ! number of searching directions (Krylov vectors) for GMRES-like methods
   real(krp)       :: ponderation  ! ponderation implicite/explicite
   real(krp)       :: maxres       ! max residual for convergence (if iterating method)
   real(krp)       :: overrelax    ! overrrelaxation parameter (SOR)
@@ -1030,8 +1031,6 @@ endsubroutine init_svmweights
 
 
 endmodule MENU_NUM
-
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !
@@ -1040,4 +1039,5 @@ endmodule MENU_NUM
 ! sept 2003 : parametres pour l'integration spatiale (calcul de gradients)
 ! jan  2006 : gradient computation method (local routine to get parameters)
 ! Nov  2007 : Runge-Kutta parameters
+! Jul  2010 : number of Krylov vectors
 !------------------------------------------------------------------------------!

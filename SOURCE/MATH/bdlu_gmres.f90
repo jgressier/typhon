@@ -47,7 +47,7 @@ integer(kip)                         :: nkrylov
 
 ! -- Body --
 
-nkrylov = 10_kip
+nkrylov = def_impli%nkrylov
 
 dim = mat%dim*mat%dimblock
 
