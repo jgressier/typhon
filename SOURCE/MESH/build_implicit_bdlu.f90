@@ -45,13 +45,14 @@ do i_f = 1, umesh%nface_int
 
   ic1 = matbdlu%couple%fils(i_f,1)     ! ic1 cell is supposed to the lowest index
   ic2 = matbdlu%couple%fils(i_f,2)     ! ic2 cell is supposed to the highest index
+  !if (ic1 > ic2) print*,'!!!!! ARGH !!!!'
 
-  ! contribution of the face to left cell
+  ! contribution of the face to left cell (n vector is outward)
 
   matbdlu%diag (1:dimb, 1:dimb, ic1) = matbdlu%diag(1:dimb, 1:dimb, ic1) + jacL%mat(1:dimb, 1:dimb, i_f)*dtloc(ic1)/umesh%mesh%volume(ic1,1,1)
   matbdlu%upper(1:dimb, 1:dimb, i_f) =                                   + jacR%mat(1:dimb, 1:dimb, i_f)*dtloc(ic1)/umesh%mesh%volume(ic1,1,1)
 
-  ! contribution of the face to right cell
+  ! contribution of the face to right cell (n vector is inward)
 
   matbdlu%diag (1:dimb, 1:dimb, ic2) = matbdlu%diag(1:dimb, 1:dimb, ic2) - jacR%mat(1:dimb, 1:dimb, i_f)*dtloc(ic2)/umesh%mesh%volume(ic2,1,1)
   matbdlu%lower(1:dimb, 1:dimb, i_f) =                                   - jacL%mat(1:dimb, 1:dimb, i_f)*dtloc(ic2)/umesh%mesh%volume(ic2,1,1)

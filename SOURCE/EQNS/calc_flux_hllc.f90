@@ -44,9 +44,9 @@ type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 integer                 :: if
 type(st_nsetat)         :: roe
 type(v3d)               :: fn, rvst
-real(krp), dimension(taille_buffer) :: sl, sr, vnl, vnr
+real(krp), dimension(taille_buffer) :: sl, sr, vnl, vnr, al, ar, mnl, mnr
 real(krp)               :: g, ig1, iks
-real(krp)               :: am, al, ar, vm, rel, rer, rqL, rqR
+real(krp)               :: am, vm, rel, rer, rqL, rqR
 real(krp)               :: Sst, rst, pst, rest
 
 ! -- Body --
@@ -63,22 +63,23 @@ call calc_roe_states(defsolver%defns%properties(1), nflux, cell_l, cell_r, roe)
 !-------------------------------
 ! Flux computation
 
+al(1:nflux) = sqrt(g*cell_l%pressure(1:nflux)/cell_l%density(1:nflux)) ! speed of sound       (left  state)
+ar(1:nflux) = sqrt(g*cell_r%pressure(1:nflux)/cell_r%density(1:nflux)) !                      (right state)
+
 do if = 1, nflux
 
   fn      = face(if)%normale
   vnl(if) = cell_l%velocity(if).scal.fn                ! face normal velocity (left  state)
   vnr(if) = cell_r%velocity(if).scal.fn                !                      (right state)
   vm  =    roe%velocity(if).scal.fn                    !                      (roe average state)
-  al  = sqrt(g*cell_l%pressure(if)/cell_l%density(if)) ! speed of sound       (left  state)
-  ar  = sqrt(g*cell_r%pressure(if)/cell_r%density(if)) !                      (right state)
   am  = sqrt(g*   roe%pressure(if)/   roe%density(if)) !                      (roe average state)
 
   ! volumic total energy (left and right)
   rel = ig1*cell_l%pressure(if) + .5_krp*cell_l%density(if)*sqrabs(cell_l%velocity(if))
   rer = ig1*cell_r%pressure(if) + .5_krp*cell_r%density(if)*sqrabs(cell_r%velocity(if))
 
-  sl(if)  = min(vnl(if)-al, vm-am)                  ! left  highest wave speed
-  sr(if)  = max(vnr(if)+ar, vm+am)                  ! right highest wave speed
+  sl(if)  = min(vnl(if)-al(if), vm-am)                  ! left  highest wave speed
+  sr(if)  = max(vnr(if)+ar(if), vm+am)                  ! right highest wave speed
 
   !-----------------------------
   ! FULLY UPWIND
@@ -129,22 +130,27 @@ call delete(roe)
 !--------------------------------------------------------------
 if (calc_jac) then
 
-  sl(1:nflux) = min(sl(1:nflux), 0._krp)
-  sr(1:nflux) = max(sr(1:nflux), 0._krp)
-
   select case(defspat%jac_hyp)
   case(jac_efm)
     call erreur("Development", "EFM jacobian matrices not available with HLLC flux")
     !call calc_jac_eqns(defsolver, defspat, nflux, face,        &
     !                   cell_l, cell_r, ideb, jacL, jacR))
   case(jac_hll)
+    sl(1:nflux) = min(sl(1:nflux), 0._krp)
+    sr(1:nflux) = max(sr(1:nflux), 0._krp)
     call calc_jac_hll(defsolver, defspat, nflux, face,          &
                       cell_l, cell_r, sl, sr, vnl, vnr, ideb, jacL, jacR)
   case(jac_hlldiag)
+    sl(1:nflux) = min(sl(1:nflux), 0._krp)
+    sr(1:nflux) = max(sr(1:nflux), 0._krp)
     call calc_jac_hlldiag(defsolver, defspat, nflux, face,          &
                           cell_l, cell_r, sl, sr, vnl, vnr, ideb, jacL, jacR)
-  case default
-    call erreur("Internal error", "unknown jacobian expression for Euler hyperbolic fluxes")
+
+  case default ! --- errors will be checked in calc_jac_gencall
+    mnl(1:nflux) = vnl(1:nflux)/al(1:nflux)
+    mnr(1:nflux) = vnr(1:nflux)/ar(1:nflux)
+    call calc_jac_gencall(defsolver, defspat, nflux, face,          &
+                          cell_l, cell_r,  mnl, mnr, al, ar, ideb, jacL, jacR)
   endselect
 
 endif

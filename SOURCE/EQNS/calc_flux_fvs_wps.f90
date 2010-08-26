@@ -1,11 +1,11 @@
 !------------------------------------------------------------------------------!
-! Procedure : calc_flux_ausmm                   Authors : J. Gressier
+! Procedure : calc_flux_wps                  Authors : J. Gressier
 !
 ! Function
-!   Computation of AUSMM flux for Euler equations
+!   Computation of WPS/FVS schemes with van Leer or EFM functions
 !
 !------------------------------------------------------------------------------!
-subroutine calc_flux_ausmm(defsolver, defspat, nflux, face, &
+subroutine calc_flux_fvs_wps(defsolver, defspat, nflux, face, &
                           cell_l, cell_r, flux, ideb,      &
                           calc_jac, jacL, jacR)
 use TYPHMAKE
@@ -40,13 +40,13 @@ type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 ! -- Internal variables --
 integer                 :: if
 real(krp), dimension(taille_buffer) &
-                        :: al, ar, mp, mm, pp, pm, rHl, rHr, mnl, mnr, ms
-real(krp)               :: g, gig1, iks
+                        :: al, ar, mp, mm, pp, pm, El, Er, mnl, mnr
+real(krp)               :: g, ig1, iks, km, kd, PI
 
 ! -- Body --
 
-g    = defsolver%defns%properties(1)%gamma
-gig1 = g/(g - 1._krp)
+g   = defsolver%defns%properties(1)%gamma
+ig1 = 1._krp/(g - 1._krp)
 
 ! -- Pre-processing --
 
@@ -65,50 +65,63 @@ do if = 1, nflux
   mnr(if) = (cell_r%velocity(if).scal.face(if)%normale)/ar(if)    !                      (right state)
 enddo
 
-! -- Mach numbers functions and Pressure upwinding functions (van Leer basic ones) --
+! -- Mach numbers functions and Pressure upwinding functions --
 
-where (mnl(1:nflux) >= 1._krp)
-  mp(1:nflux) = mnl(1:nflux)
-  pp(1:nflux) = 1._krp
-elsewhere (mnl(1:nflux) <= -1._krp)
-  mp(1:nflux) = 0._krp
-  pp(1:nflux) = 0._krp
-elsewhere 
-  mp(1:nflux) = .25_krp*(mnl(1:nflux)+1._krp)**2
-  pp(1:nflux) = mp(1:nflux)*(2._krp-mnl(1:nflux))
-endwhere
+select case(defspat%sch_hyp)
+case(sch_wps_vleer)
+  where (mnl(1:nflux) >= 1._krp)
+    mp(1:nflux) = mnl(1:nflux)
+    pp(1:nflux) = 1._krp
+  elsewhere (mnl(1:nflux) <= -1._krp)
+    mp(1:nflux) = 0._krp
+    pp(1:nflux) = 0._krp
+  elsewhere 
+    mp(1:nflux) = .25_krp*(mnl(1:nflux)+1._krp)**2
+    pp(1:nflux) = mp(1:nflux)*(2._krp-mnl(1:nflux))
+  endwhere
+  where (mnr(1:nflux) <= -1._krp)
+    mm(1:nflux) = mnr(1:nflux)
+    pm(1:nflux) = 1._krp
+  elsewhere (mnr(1:nflux) >= 1._krp)
+    mm(1:nflux) = 0._krp
+    pm(1:nflux) = 0._krp
+  elsewhere 
+    mm(1:nflux) = -.25_krp*(mnr(1:nflux)-1._krp)**2
+    pm(1:nflux) = -mm(1:nflux)*(2._krp+mnr(1:nflux))
+  endwhere
+case(sch_wps_efm)
+  PI  = 4.0_krp*atan(1.0_krp)
+  km  = sqrt(0.5_krp*g)
+  kd  = 1.0_krp/sqrt(2.0_krp*PI*g)
+  pp(1:nflux) = 0.5_krp*(1.0_krp + erf(km*mnl(1:nflux)))
+  pm(1:nflux) = 0.5_krp*(1.0_krp - erf(km*mnr(1:nflux)))
+  mp(1:nflux) = mnl(1:nflux)*pp(1:nflux) + kd*exp(-(km*mnl(1:nflux))**2)
+  mm(1:nflux) = mnr(1:nflux)*pm(1:nflux) - kd*exp(-(km*mnr(1:nflux))**2)
+case default
+  call error_stop("internal error: numerical scheme not implemented (flux computation)")
+endselect
 
-where (mnr(1:nflux) <= -1._krp)
-  mm(1:nflux) = mnr(1:nflux)
-  pm(1:nflux) = 1._krp
-elsewhere (mnr(1:nflux) >= 1._krp)
-  mm(1:nflux) = 0._krp
-  pm(1:nflux) = 0._krp
-elsewhere 
-  mm(1:nflux) = -.25_krp*(mnr(1:nflux)-1._krp)**2
-  pm(1:nflux) = -mm(1:nflux)*(2._krp+mnr(1:nflux))
-endwhere
+! -- massic total enthalpy (left and right) --
 
-! -- AUSM Mach upwinding --
+El(1:nflux) = ig1*cell_l%pressure(1:nflux)/cell_l%density(1:nflux) + .5_krp*sqrabs(cell_l%velocity(1:nflux))
+Er(1:nflux) = ig1*cell_r%pressure(1:nflux)/cell_r%density(1:nflux) + .5_krp*sqrabs(cell_r%velocity(1:nflux))
 
-ms(1:nflux) = mp(1:nflux) + mm(1:nflux)
-mnl(1:nflux) = al(1:nflux) * max(0._krp, ms(1:nflux))
-mnr(1:nflux) = ar(1:nflux) * min(0._krp, ms(1:nflux))
+! -- FVS : precompute (rho Vn)+/- from M+/- 
 
-! -- volumic total enthalpy (left and right) --
-
-rHl(1:nflux) = gig1*cell_l%pressure(1:nflux) + .5_krp*cell_l%density(1:nflux)*sqrabs(cell_l%velocity(1:nflux))
-rHr(1:nflux) = gig1*cell_r%pressure(1:nflux) + .5_krp*cell_r%density(1:nflux)*sqrabs(cell_r%velocity(1:nflux))
+mp(1:nflux) = mp(1:nflux)*al(1:nflux)*cell_l%density(1:nflux)
+mm(1:nflux) = mm(1:nflux)*ar(1:nflux)*cell_r%density(1:nflux)
 
 do if = 1, nflux
 
   ! mass flux
-  flux%tabscal(1)%scal(ideb-1+if) = mnl(if)*cell_l%density(if) + mnr(if)*cell_r%density(if)
+  flux%tabscal(1)%scal(ideb-1+if) = mp(if) + mm(if)
   ! energy flux
-  flux%tabscal(2)%scal(ideb-1+if) = mnl(if)*rHl(if) + mnr(if)*rHr(if)
+  flux%tabscal(2)%scal(ideb-1+if) = mp(if)*El(if) + mm(if)*Er(if) &
+                                  + pp(if)*mnl(if)*al(if)*cell_l%pressure(if) &
+                                  + pm(if)*mnr(if)*ar(if)*cell_r%pressure(if)
   ! momentum flux
-  flux%tabvect(1)%vect(ideb-1+if) = (mnl(if)*cell_l%density(if))*cell_l%velocity(if) &
-                                  + (mnr(if)*cell_r%density(if))*cell_r%velocity(if) &
+  flux%tabvect(1)%vect(ideb-1+if) = mp(if)*cell_l%velocity(if) &
+                                  + mm(if)*cell_r%velocity(if) &
                                   + (pp(if)*cell_l%pressure(if) + pm(if)*cell_r%pressure(if))*face(if)%normale
 enddo
 
@@ -140,11 +153,9 @@ if (calc_jac) then
 endif
 
 
-endsubroutine calc_flux_ausmm
-
+endsubroutine calc_flux_fvs_wps
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! Jul 2004 : creation, AUSMM flux
-! Aug 2005 : call to jacobian matrices
+! Aug 2010 : creation, WPS/FVS with van Leer and EFM functions
 !------------------------------------------------------------------------------!

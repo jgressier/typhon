@@ -1,0 +1,90 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON 
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+  NZONE     = 1       
+  COORD     = 2D      
+  TIME      = STEADY 
+  RESIDUALS = 1.e-6
+ENDBLOCK               
+
+BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+  FORMAT = VTK-BIN       
+  FILE   = "imp" 
+  PERIOD = 1
+ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "wedge10" 
+  SOLVER = EULER  
+ENDBLOCK
+
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = CGNS
+  FILE   = "channelwedge10tri.cgns"
+  SPLIT  = ISO-TRI
+  NSPLIT = 1
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS = EULER
+  GAS      = AIR
+ENDBLOCK
+
+BLOCK:TIME_PARAM
+  METHOD    = IMPLICIT
+  INVERSION = BICGSTAB
+  INV_RES   = 0.0001
+  MAX_IT    = 100
+  !RESIDUALS = 0.5
+  DTCALC    = LOCAL_STABILITY_CONDITION 
+  CFL       = 2.
+  !CFL_MAX   = 20.
+ENDBLOCK
+
+BLOCK:SPAT_PARAM  
+  SCHEME   = VLH
+  JACOBIAN = VLH
+  !HIGHRES  = MUSCL
+  !LIMITER  = ALBADA
+ENDBLOCK
+
+BLOCK:INIT
+  PI      = 1.E5
+  TI      = 300.
+  MACH    = 2.
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY    = INLET
+  TYPE      = SUPERSONIC_INLET
+  PI        = 1.E5
+  TI        = 300.
+  MACH      = 2.
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = OUTLET
+  TYPE   = SUPERSONIC_OUTLET 
+  !P      = 0.8E5
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = TOP
+  TYPE   = SYMMETRY
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = BOTTOM
+  TYPE   = SYMMETRY
+ENDBLOCK
+
+
+

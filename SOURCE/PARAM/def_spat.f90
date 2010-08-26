@@ -79,7 +79,12 @@ case(solNS)
   if (samestring(str,"HLLCK"))           defspat%sch_hyp = sch_hllck
   if (samestring(str,"STEGER-WARMING"))  defspat%sch_hyp = sch_stegwarm
   if (samestring(str,"VANLEER"))         defspat%sch_hyp = sch_vanleer
+  if (samestring(str,"VLEER"))           defspat%sch_hyp = sch_vanleer
+  if (samestring(str,"VANLEERH"))        defspat%sch_hyp = sch_hwps_vleer
+  if (samestring(str,"VLEERH"))          defspat%sch_hyp = sch_hwps_vleer
+  if (samestring(str,"VLH"))             defspat%sch_hyp = sch_hwps_vleer
   if (samestring(str,"EFM"))             defspat%sch_hyp = sch_efm
+  if (samestring(str,"EFMH"))            defspat%sch_hyp = sch_hwps_efm
   if (samestring(str,"KFVS"))            defspat%sch_hyp = sch_efm
   if (samestring(str,"AUSMM"))           defspat%sch_hyp = sch_ausmm
 
@@ -96,6 +101,10 @@ case(solNS)
     call print_info(7,"  numerical flux : Van Leer")
   case(sch_ausmm)
     call print_info(7,"  numerical flux : AUSM (original scheme, Mach weighting)")
+  case(sch_hwps_vleer)
+    call print_info(7,"  numerical flux : van Leer (Hanel variant)")
+  case(sch_hwps_efm)
+    call print_info(7,"  numerical flux : EFM (Hanel variant)")
   case(sch_efm)
     call print_info(7,"  numerical flux : EFM/KFVS)")
   case default
@@ -108,11 +117,15 @@ case(solNS)
   call rpmgetkeyvalstr(pcour, "JACOBIAN", str, "HLL")
   defspat%jac_hyp = inull
 
-  if (samestring(str,"HLL"))        defspat%jac_hyp = jac_hll
-  if (samestring(str,"HLL-DIAG"))   defspat%jac_hyp = jac_hlldiag
-  if (samestring(str,"RUSANOV"))    defspat%jac_hyp = jac_rusanov
-  if (samestring(str,"EFM"))        defspat%jac_hyp = jac_efm
-  if (samestring(str,"KFVS"))       defspat%jac_hyp = jac_efm
+  if (samestring(str,"HLL"))           defspat%jac_hyp = jac_hll
+  if (samestring(str,"HLL-DIAG"))      defspat%jac_hyp = jac_hlldiag
+  if (samestring(str,"RUSANOV"))       defspat%jac_hyp = jac_rusanov
+  if (samestring(str,"EFM"))           defspat%jac_hyp = jac_efm
+  if (samestring(str,"KFVS"))          defspat%jac_hyp = jac_efm
+  if (samestring(str,"VLH"))           defspat%jac_hyp = jac_vlh
+  if (samestring(str,"VLEERH"))        defspat%jac_hyp = jac_vlh
+  if (samestring(str,"VANLEERH"))      defspat%jac_hyp = jac_vlh
+  if (samestring(str,"VANLEER-HANEL")) defspat%jac_hyp = jac_vlh
 
   if (defspat%jac_hyp == inull) &
     call erreur("parameters parsing","unknown numerical scheme for jacobian matrices")

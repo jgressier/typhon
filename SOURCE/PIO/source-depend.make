@@ -9,8 +9,7 @@ LDIR := PIO
 PIO_LIB = $(PRJLIBDIR)/libt_pio.a
 
 # Modules
-PIO_MOD = IO_UNIT.$(MODEXT)  \
-          OUTPUT.$(MODEXT)   \
+PIO_MOD = OUTPUT.$(MODEXT)   \
           RPM.$(MODEXT)      \
 
 # Objects

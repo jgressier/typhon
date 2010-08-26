@@ -84,7 +84,7 @@ do if = 1, nflux
   expr= f2*ar*exp(-mr*mr)
 
   !-----------------------------
-  ! Centered flux
+  ! numericalflux
   flux%tabscal(1)%scal(ideb-1+if) = cell_l%density(if) * ( vnl(if) * erfl + expl) + &
                                     cell_r%density(if) * ( vnr(if) * erfr - expr)
   flux%tabscal(2)%scal(ideb-1+if) = (rel + cell_l%pressure(if)) * vnl(if) * erfl + &

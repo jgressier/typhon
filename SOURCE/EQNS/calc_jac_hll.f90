@@ -27,8 +27,7 @@ type(mnu_solver)      :: defsolver        ! solver parameters
 type(mnu_spat)        :: defspat          ! space integration parameters
 integer               :: nflux            ! number of fluxes
 integer               :: ideb             ! index of first flux
-type(st_face), dimension(1:nflux) &
-                      :: face             ! geom. data of faces
+type(st_face), dimension(1:nflux) &                     :: face             ! geom. data of faces
 type(st_nsetat)       :: cell_l, cell_r   ! primitive variables array
 real(krp), dimension(nflux) &
                       :: sl, sr, vnl, vnr

@@ -14,6 +14,8 @@ EQNS_MOD = EQNS.$(MODEXT)      \
 
 # Objects
 EQNS_OBJ := $(EQNS_MOD:.$(MODEXT)=.o)    \
+            calc_flux_fvs_wps.o       \
+            calc_flux_fvs_hwps.o      \
             calc_flux_ausmm.o         \
             calc_flux_hlle.o          \
             calc_flux_hllc.o          \
@@ -21,9 +23,11 @@ EQNS_OBJ := $(EQNS_MOD:.$(MODEXT)=.o)    \
             calc_flux_rusanov.o       \
             calc_flux_inviscid.o      \
             calc_flux_viscous.o       \
+            calc_jac_gencall.o        \
             calc_jac_hll.o            \
             calc_jac_hlldiag.o        \
             calc_jac_rusanov.o        \
+            calc_jac_vlh.o            \
             calc_jacflux.o            \
             calc_ns_timestep.o        \
             calc_roe_states.o         \

@@ -35,27 +35,31 @@ integer(kpp), parameter :: tps_rk3ssp = 33   ! Runge Kutta explicit
 integer(kpp), parameter :: tps_rk4    = 35   ! Runge Kutta explicit
 
 ! -- Constantes pour schema de calcul des flux hyperboliques (sch_hyp)
-integer(kpp), parameter :: sch_rusanov  = 05
-integer(kpp), parameter :: sch_roe      = 10
-integer(kpp), parameter :: sch_osher_no = 15
-integer(kpp), parameter :: sch_osher_io = 16
-integer(kpp), parameter :: sch_hllr     = 20
-integer(kpp), parameter :: sch_hlle     = 21
-integer(kpp), parameter :: sch_hllk     = 22
-integer(kpp), parameter :: sch_hllc     = 25
-integer(kpp), parameter :: sch_hllck    = 26
-integer(kpp), parameter :: sch_stegwarm = 30
-integer(kpp), parameter :: sch_vanleer  = 31
-integer(kpp), parameter :: sch_vanleerh = 32
-integer(kpp), parameter :: sch_efm      = 40
-integer(kpp), parameter :: sch_efmo     = 50
-integer(kpp), parameter :: sch_ausmm    = 50
+integer(kpp), parameter :: sch_rusanov    = 05
+integer(kpp), parameter :: sch_roe        = 10
+integer(kpp), parameter :: sch_osher_no   = 15
+integer(kpp), parameter :: sch_osher_io   = 16
+integer(kpp), parameter :: sch_hllr       = 20
+integer(kpp), parameter :: sch_hlle       = 21
+integer(kpp), parameter :: sch_hllk       = 22
+integer(kpp), parameter :: sch_hllc       = 25
+integer(kpp), parameter :: sch_hllck      = 26
+integer(kpp), parameter :: sch_stegwarm   = 30
+integer(kpp), parameter :: sch_vanleer    = 31
+integer(kpp), parameter :: sch_efm        = 35
+integer(kpp), parameter :: sch_wps_vleer  = 40
+integer(kpp), parameter :: sch_wps_efm    = 41
+integer(kpp), parameter :: sch_hwps_vleer = 50   ! or VLEER-H (Hanel variant)
+integer(kpp), parameter :: sch_hwps_efm   = 51   ! or   EFM-H (Hanel variant)
+integer(kpp), parameter :: sch_efmo       = 60
+integer(kpp), parameter :: sch_ausmm      = 70
 
 ! -- Constants for jacobian expression of flux (jac_hyp) --
 integer(kpp), parameter :: jac_hll     = 10
 integer(kpp), parameter :: jac_hlldiag = 15
 integer(kpp), parameter :: jac_rusanov = 16
 integer(kpp), parameter :: jac_efm     = 20
+integer(kpp), parameter :: jac_vlh     = 25
 
 
 ! -- Constantes pour schema de calcul HIGH RESOLUTION

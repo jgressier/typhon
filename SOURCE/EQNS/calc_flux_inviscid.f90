@@ -80,8 +80,16 @@ case(sch_efm)
   call calc_flux_efm(defsolver, defspat, nflux, face,         &
                      QL, QR, flux, ideb,                      &
                      calc_jac, jacL, jacR)
+case(sch_wps_vleer, sch_wps_efm)
+  call calc_flux_fvs_wps(defsolver, defspat, nflux, face,     &
+                     QL, QR, flux, ideb,                      &
+                     calc_jac, jacL, jacR)
+case(sch_hwps_vleer, sch_hwps_efm)
+  call calc_flux_fvs_hwps(defsolver, defspat, nflux, face,    &
+                     QL, QR, flux, ideb,                      &
+                     calc_jac, jacL, jacR)
 case default
-  call erreur("error","numerical scheme not implemented (flux computation)")
+  call error_stop("internal error: numerical scheme not implemented (flux computation)")
 endselect
 
 

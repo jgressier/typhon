@@ -43,9 +43,9 @@ type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 integer                 :: if
 type(st_nsetat)         :: roe
 type(v3d), dimension(taille_buffer) :: fn
-real(krp), dimension(taille_buffer) :: sl, sr, vnl, vnr
+real(krp), dimension(taille_buffer) :: sl, sr, vnl, vnr, al, ar, mnl, mnr
 real(krp)               :: g, ig1, iks, kl, kr, ku
-real(krp)               :: am, al, ar, vm, rel, rer
+real(krp)               :: am, vm, rel, rer
 
 ! -- Body --
 
@@ -67,20 +67,20 @@ enddo
 
 vnl(1:nflux) = cell_l%velocity(1:nflux).scal.fn(1:nflux)       ! face normal velocity (left  state)
 vnr(1:nflux) = cell_r%velocity(1:nflux).scal.fn(1:nflux)       !                      (right state)
+al(1:nflux)  = sqrt(g*cell_l%pressure(1:nflux)/cell_l%density(1:nflux)) ! speed of sound       (left  state)
+ar(1:nflux)  = sqrt(g*cell_r%pressure(1:nflux)/cell_r%density(1:nflux)) !                      (right state)
 
 do if = 1, nflux
 
   vm  = roe%velocity(if).scal.fn(if)                   !                      (roe average state)
-  al  = sqrt(g*cell_l%pressure(if)/cell_l%density(if)) ! sound speed          (left state)
-  ar  = sqrt(g*cell_r%pressure(if)/cell_r%density(if)) !                      (right state)
   am  = sqrt(g*   roe%pressure(if)/   roe%density(if)) !                      (roe average state)
 
   ! volumic total energy (left and right)
   rel = ig1*cell_l%pressure(if) + .5_krp*cell_l%density(if)*sqrabs(cell_l%velocity(if))
   rer = ig1*cell_r%pressure(if) + .5_krp*cell_r%density(if)*sqrabs(cell_r%velocity(if))
 
-  sl(if) = min(0._krp, vnl(if)-al, vm-am)              ! left  highest wave speed
-  sr(if) = max(0._krp, vnr(if)+ar, vm+am)              ! right highest wave speed
+  sl(if) = min(0._krp, vnl(if)-al(if), vm-am)              ! left  highest wave speed
+  sr(if) = max(0._krp, vnr(if)+ar(if), vm+am)              ! right highest wave speed
 
   iks    = 1._krp/(sr(if)-sl(if))
   kl     =  sr(if)*iks
@@ -116,8 +116,12 @@ if (calc_jac) then
   case(jac_hlldiag)
     call calc_jac_hlldiag(defsolver, defspat, nflux, face,          &
                           cell_l, cell_r, sl, sr, vnl, vnr, ideb, jacL, jacR)
-  case default
-    call erreur("Internal error", "unknown jacobian expression for Euler hyperbolic fluxes")
+
+  case default ! --- errors will be checked in calc_jac_gencall
+    mnl(1:nflux) = vnl(1:nflux)/al(1:nflux)
+    mnr(1:nflux) = vnr(1:nflux)/ar(1:nflux)
+    call calc_jac_gencall(defsolver, defspat, nflux, face,          &
+                          cell_l, cell_r,  mnl, mnr, al, ar, ideb, jacL, jacR)
   endselect
 
 endif
