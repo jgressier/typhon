@@ -117,6 +117,7 @@ case(solNS)
   call rpmgetkeyvalstr(pcour, "JACOBIAN", str, "HLL")
   defspat%jac_hyp = inull
 
+  if (samestring(str,"DIFFNUM"))       defspat%jac_hyp = jac_diffnum
   if (samestring(str,"HLL"))           defspat%jac_hyp = jac_hll
   if (samestring(str,"HLL-DIAG"))      defspat%jac_hyp = jac_hlldiag
   if (samestring(str,"RUSANOV"))       defspat%jac_hyp = jac_rusanov

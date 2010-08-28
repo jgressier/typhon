@@ -4,11 +4,9 @@
 ! Function
 !   Computation of VISCOUS flux for NS equations
 !
-! Defaults/Limitations/Misc :
-!
 !------------------------------------------------------------------------------!
 subroutine calc_flux_viscous(defsolver, defspat, nflux, ideb, face, cg_l, cg_r, &
-                             gcell_l, gcell_r, gradL, gradR, flux,    &
+                             QL, QR, gradL, gradR, flux,    &
                              calc_jac, jacL, jacR)
 use TYPHMAKE
 use OUTPUT
@@ -33,7 +31,7 @@ type(st_face), dimension(1:nflux) &
                       :: face             ! geom. data of faces
 type(v3d),     dimension(1:nflux) &
                       :: cg_l, cg_r       ! cell centers (index related to face number)
-type(st_genericfield) :: gcell_l, gcell_r ! primitive variables array
+type(st_nsetat)       :: QL, QR           ! primitive variables array
 type(st_genericfield) :: gradL, gradR     ! left & right gradients
 logical               :: calc_jac         ! jacobian calculation boolean
 
@@ -55,7 +53,6 @@ real(krp), dimension(taille_buffer) :: TL, TR     ! left, right temperatures
 real(krp), dimension(taille_buffer) :: TH, gradTH ! temperature at face center
 real(krp), dimension(taille_buffer) :: rhoH       ! density     at face center
 real(krp), dimension(taille_buffer) :: mu         ! viscosity   at face center
-type(st_nsetat)                     :: cell_L, cell_R
 type(t3d)  :: sigma                               ! viscous tensor
 type(v3d)  :: sigma_n
 real(krp)  :: sigma_vn, addvisc
@@ -70,14 +67,6 @@ integer    :: if, i
 !allocate(dHL(nflux))    ! distance HL, rapportee a HL+HR
 !allocate(dLR(nflux))    ! distance LR (difference de HR+HL)
 !allocate(vLR(nflux))    ! vecteur  LR
-
-! pointers links
-cell_L%density  => gcell_l%tabscal(1)%scal(ideb:)
-cell_R%density  => gcell_r%tabscal(1)%scal(ideb:)
-cell_L%pressure => gcell_l%tabscal(2)%scal(ideb:)
-cell_R%pressure => gcell_r%tabscal(2)%scal(ideb:)
-cell_L%velocity => gcell_l%tabvect(1)%vect(ideb:)
-cell_R%velocity => gcell_r%tabvect(1)%vect(ideb:)
 
 ! -- Pre-processing --
 r_PG = defsolver%defns%properties(1)%r_const        ! perfect gas constant
@@ -97,22 +86,22 @@ vLR(1:nflux) = cg_r(1:nflux) - cg_l(1:nflux)
   ! pour eviter sqrt()**2
   !dLR(if) = abs(vLR(if))
 
-vL(1:nflux) = cell_l%velocity(1:nflux)
-vR(1:nflux) = cell_r%velocity(1:nflux)
+vL(1:nflux) = QL%velocity(1:nflux)
+vR(1:nflux) = QR%velocity(1:nflux)
 velH(1:nflux) = dHR(1:nflux)*vL(1:nflux) + dHL(1:nflux)*vR(1:nflux)
 
-TL(1:nflux)   = cell_l%pressure(1:nflux) / (cell_l%density(1:nflux) * r_PG)
-TR(1:nflux)   = cell_r%pressure(1:nflux) / (cell_r%density(1:nflux) * r_PG)
+TL(1:nflux)   = QL%pressure(1:nflux) / (QL%density(1:nflux) * r_PG)
+TR(1:nflux)   = QR%pressure(1:nflux) / (QR%density(1:nflux) * r_PG)
 TH(1:nflux)   = dHR(1:nflux)*TL(1:nflux) + dHL(1:nflux)*TR(1:nflux)
-rhoH(1:nflux) = dHR(1:nflux)*cell_l%density(1:nflux) + dHL(1:nflux)*cell_r%density(1:nflux)
+rhoH(1:nflux) = dHR(1:nflux)*QL%density(1:nflux) + dHL(1:nflux)*QR%density(1:nflux)
 
 ! computation of temperature gradient :
 ! grad(T) = 1 / (density * r) * grad(P) - P/(r * density**2) * grad(density)
-gradTL(1:nflux) = 1._krp/(cell_l%density(1:nflux) * r_PG) * gradL%tabvect(2)%vect(1:nflux) - &
-     cell_l%pressure(1:nflux) / (cell_l%density(1:nflux)**2 * r_PG) * &
+gradTL(1:nflux) = 1._krp/(QL%density(1:nflux) * r_PG) * gradL%tabvect(2)%vect(1:nflux) - &
+     QL%pressure(1:nflux) / (QL%density(1:nflux)**2 * r_PG) * &
      gradL%tabvect(1)%vect(1:nflux)
-gradTR(1:nflux) = 1._krp/(cell_r%density(1:nflux) * r_PG) * gradR%tabvect(2)%vect(1:nflux) - &
-     cell_r%pressure(1:nflux) / (cell_r%density(1:nflux)**2 * r_PG) * &
+gradTR(1:nflux) = 1._krp/(QR%density(1:nflux) * r_PG) * gradR%tabvect(2)%vect(1:nflux) - &
+     QR%pressure(1:nflux) / (QR%density(1:nflux)**2 * r_PG) * &
      gradR%tabvect(1)%vect(1:nflux)
 
 !enddo
@@ -160,7 +149,7 @@ enddo
 !--------------------------------------------------------------
 if (calc_jac) then
   do if = 1, nflux
-    id = mu(if) / (dHR(if)*cell_l%density(if) + dHL(if)*cell_r%density(if)) &
+    id = mu(if) / (dHR(if)*QL%density(if) + dHL(if)*QR%density(if)) &
                 / abs(cg_r(if) - cg_l(if))
     do i = 1, 5
       jacR%mat(i,i,if) = jacR%mat(i,i,if) - id

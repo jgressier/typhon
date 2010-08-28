@@ -55,6 +55,7 @@ integer(kpp), parameter :: sch_efmo       = 60
 integer(kpp), parameter :: sch_ausmm      = 70
 
 ! -- Constants for jacobian expression of flux (jac_hyp) --
+integer(kpp), parameter :: jac_diffnum = 01
 integer(kpp), parameter :: jac_hll     = 10
 integer(kpp), parameter :: jac_hlldiag = 15
 integer(kpp), parameter :: jac_rusanov = 16

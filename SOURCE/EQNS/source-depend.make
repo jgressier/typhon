@@ -29,6 +29,7 @@ EQNS_OBJ := $(EQNS_MOD:.$(MODEXT)=.o)    \
             calc_jac_rusanov.o        \
             calc_jac_vlh.o            \
             calc_jacflux.o            \
+            calc_jacnum_inviscid.o    \
             calc_ns_timestep.o        \
             calc_roe_states.o         \
             calc_varcons_ns.o         \

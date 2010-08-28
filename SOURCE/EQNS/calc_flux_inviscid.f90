@@ -8,8 +8,7 @@
 !
 !------------------------------------------------------------------------------!
 subroutine calc_flux_inviscid(defsolver, defspat, nflux, ideb, face, &
-                             cell_l, cell_r, flux,    &
-                             calc_jac, jacL, jacR)
+                              QL, QR, flux, calc_jac, jacL, jacR)
 use TYPHMAKE
 use OUTPUT
 use VARCOM
@@ -28,7 +27,7 @@ type(mnu_spat)        :: defspat          ! space integration parameters
 integer, intent(in)   :: nflux            ! number of fluxes
 integer               :: ideb             ! index of first flux
 type(st_face)         :: face(nflux)      ! geom. data of faces
-type(st_genericfield) :: cell_l, cell_r   ! primitive variables array
+type(st_nsetat)       :: QL, QR   ! primitive variables array
 logical               :: calc_jac         ! jacobian calculation boolean
 
 ! -- Inputs/Outputs --
@@ -38,21 +37,9 @@ type(st_genericfield) :: flux
 type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 
 ! -- Internal variables --
-type(st_nsetat)       :: QL, QR
-integer               :: ifin
-integer               :: icell(nflux)
 
 ! -- Body --
 
-ifin = ideb+nflux-1
-
-! pointers links
-QL%density  => cell_l%tabscal(1)%scal(ideb:ifin)
-QR%density  => cell_r%tabscal(1)%scal(ideb:ifin)
-QL%pressure => cell_l%tabscal(2)%scal(ideb:ifin)
-QR%pressure => cell_r%tabscal(2)%scal(ideb:ifin)
-QL%velocity => cell_l%tabvect(1)%vect(ideb:ifin)
-QR%velocity => cell_r%tabvect(1)%vect(ideb:ifin)
 
 !----------------------------------------------------------------------
 ! computation of INVISCID fluxes
