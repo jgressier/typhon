@@ -201,7 +201,7 @@ case(tps_impl)
     call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 50_kip)
     call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-4_krp)
     deftime%implicite%storage = mat_none
-    call erreur("algebra","unavailable inversion method: "//trim(str))
+    !call erreur("algebra","unavailable inversion method: "//trim(str))
 
   case default
     call erreur("algebra","unknown inversion method: "//trim(str))

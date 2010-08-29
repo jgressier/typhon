@@ -46,6 +46,7 @@ EQNS_OBJ := $(EQNS_MOD:.$(MODEXT)=.o)    \
             init_ns_ust.o             \
             integration_ns_ust.o      \
             ns_bocoflux.o             \
+            ns_bocojacobian.o         \
             setboco_ns_flux.o         \
             setboco_ns_hconv.o        \
             setboco_ns_inlet_sub.o    \

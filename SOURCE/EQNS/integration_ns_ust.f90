@@ -140,6 +140,10 @@ enddo
 
 call ns_bocoflux(defsolver, umesh, flux, field, defspat)
 
+if (calc_jac) then
+  call ns_bocojacobian(defsolver, defspat, umesh, flux, field%etatprim, field%gradient, jacL, jacR)
+endif
+
 deallocate(cg_l, cg_r)
 call delete(gradL)
 call delete(gradR)
