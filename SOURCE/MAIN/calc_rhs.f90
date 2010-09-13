@@ -126,10 +126,12 @@ do while (associated(pgrid))
 
   case(tps_impl, tps_dualt)
 
-    if (defsolver%deftime%implicite%storage /= mat_none) &
+    if (defsolver%deftime%implicite%storage /= mat_none) then
       call tstep_implicit(pgrid%dtloc, info%time_model, defsolver, &
                           pgrid%umesh, pgrid%info%field_loc, &
                           coupling, ncoupling, mat)
+      !call delete_spmat(mat) ! done into tstep_implicit
+    endif
 
   endselect
 

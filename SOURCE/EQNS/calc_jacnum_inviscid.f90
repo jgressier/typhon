@@ -285,8 +285,12 @@ do i = 1, nflux
                            / drhov
 enddo
 
-endsubroutine calc_jacnum_inviscid
+!-------------------------------------
+call delete_nsetat(Qmod)
+call delete_genericfield(fluxmod)
 
+
+endsubroutine calc_jacnum_inviscid
 !------------------------------------------------------------------------------!
 ! Changes history
 !
