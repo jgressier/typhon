@@ -38,7 +38,7 @@ pgrid => zone%gridlist%first
 select case(defio%format)
 
 case(fmt_TECPLOT)
-  call error_stop("'Internal error) Unable to use general output with TECPLOT format")
+  call error_stop("(Internal error) Unable to use general output with TECPLOT format")
 
 case(fmt_VTK, fmt_VTKBIN)
 
@@ -53,6 +53,9 @@ case(fmt_CGNS, fmt_CGNS_linked)
   ! -- create CGNS zone --
 
   call cg_zone_write_f(defio%iunit, defio%izone, "ustmesh", isize, Unstructured, izone, info)
+    ! izone is an output
+  if (info /= 0) &
+    call error_stop("CGNS IO error: writing  CGNS zone header (error "//trim(strof(info))//")")
 
   ! -- write TYPHON ustmesh to CGNS zone (defio%izone is a CGNS base index) --
 

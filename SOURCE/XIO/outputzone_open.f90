@@ -61,8 +61,13 @@ case(fmt_CGNS, fmt_CGNS_linked)
 
   suffix = '.cgns'
   call cg_open_f(trim(defio%filename)//trim(suffix), MODE_WRITE, ufc, info)
+  if (info /= 0) &
+    call error_stop("CGNS IO error: opening CGNS file (error "//trim(strof(info))//")")
   defio%iunit = ufc
-  call cg_base_write_f(defio%iunit, zone%name, dimgeo(zone%gridlist%first%umesh), 3, ibase, info)
+
+  call cg_base_write_f(defio%iunit, "Z_"//zone%name, dimgeo(zone%gridlist%first%umesh), 3, ibase, info)
+  if (info /= 0) &
+    call error_stop("CGNS IO error: writing CGNS base (error "//trim(strof(info))//")")
   defio%izone = ibase
 
 case default

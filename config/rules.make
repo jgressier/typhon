@@ -17,11 +17,13 @@ $(PRJLIBDIR)/%.$(LIBSTA): $(PRJOBJDIR) %.target
 
 $(PRJINCDIR)/%.$(MODEXT): 
 	@echo \* MODULE: options [$(F90OPT)] : $*.$(MODEXT) from $($*.source)
+	@if [[ ! -d $(PRJOBJDIR) ]] ; then mkdir $(PRJOBJDIR) ; fi
 	@$(F90C) $(F90OPT) -I$(PRJINCEXT) -c ${$*.source} -o $(PRJOBJDIR)/$($*.object)
 	@mv $*.$(MODEXT) $(PRJINCDIR)
 
 $(PRJOBJDIR)/%.o: 
 	@echo \* OBJECT: options [$(F90OPT)] : $*.o from $<
+	@if [[ ! -d $(PRJOBJDIR) ]] ; then mkdir $(PRJOBJDIR) ; fi
 	@$(F90C) $(F90OPT) -I$(PRJINCEXT) -c $< -o $(PRJOBJDIR)/$*.o
 
 $(PRJEXEDIR)/%: $(PRJOBJDIR)/%.o $(LIBDEPS:%=$(PRJLIBDIR)/lib%.$(LIBSTA))

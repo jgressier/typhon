@@ -46,7 +46,7 @@ case(fmt_CGNS, fmt_CGNS_linked)
 
   izone = 1
   call writecgns_sol(defio%iunit, defio%izone, izone, &
-                      zone%defsolver, pgrid%umesh, pgrid%info%field_loc%etatprim)
+                     pgrid%umesh, pgrid%info%field_loc%etatprim)
 
 case default
   call error_stop("Internal error (outputzone_sol): unknown output format parameter")
