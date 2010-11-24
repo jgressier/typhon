@@ -55,6 +55,8 @@ if (unif == uniform) then
     enddo
   enddo
 
+  call delete_fct_env(blank_env)      ! temporary environment from FCT_EVAL
+
 else
 
   do ifb = 1, ustboco%nface

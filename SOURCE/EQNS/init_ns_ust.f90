@@ -172,6 +172,8 @@ case(init_def)  ! --- initialization through FCT functions ---
     buf    = maxbuf
   enddo
   
+  call delete_fct_env(blank_env)      ! temporary environment from FCT_EVAL
+
   call delete(nspri)
   !!if (field%allocgrad) field%gradient(:,:,:,:,:) = 0._krp
 

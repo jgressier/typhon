@@ -74,6 +74,8 @@ case default
   call error_stop("unknown definition of boco flux computation (kdif)")
 endselect
 
+call delete_fct_env(blank_env)      ! temporary environment from FCT_EVAL
+
 !-------------------------------------------------------------
 ! APPLY FLUX CONDITION
 

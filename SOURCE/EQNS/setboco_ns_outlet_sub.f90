@@ -81,6 +81,7 @@ do ifb = 1, nf
   fld%etatprim%tabvect(1)%vect(ighost) = nspri%velocity(ifb)
 enddo
 
+call delete_fct_env(blank_env)      ! temporary environment from FCT_EVAL
 call delete(nspri)
 deallocate(ps, pi, ti, mach, dir)
 

@@ -75,6 +75,8 @@ case default
   call erreur("boco flux computation","unknown definition")
 endselect
 
+call delete_fct_env(blank_env)      ! temporary environment from FCT_EVAL
+
 !-------------------------------------------------------------
 ! APPLY CONVECTION CONDITION
 
