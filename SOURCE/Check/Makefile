@@ -1,8 +1,8 @@
 
 FC = ifort
-FINC = -I../Include
-FLIB = -L../Obj -L../Lib
-FLIBSPEC = -lmpich -lt_math -lt_mesh -lt_modcom
+FINC = -I../Include -I../../CFDTOOLS/include
+FLIB = -L../Obj -L../Lib -L../../CFDTOOLS/lib
+FLIBSPEC = -lmpich -lt_math -lt_mesh -lt_modcom -lcfdbase
 
 SRCLIST = $(wildcard *.f90)
 RAWLIST = $(patsubst %.f90,%,$(SRCLIST))

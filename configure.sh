@@ -303,5 +303,5 @@ mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
 echo Done
 echo ------------------------------------------------------------------
 echo
-echo "to build TYPHON : make all OPT=opt"
+echo "to build TYPHON : make all"
 echo

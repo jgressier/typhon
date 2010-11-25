@@ -69,6 +69,7 @@ integer                    :: i
     do i = 1, env%nvar
       p => env%var_stack%right
       call delete_fct_node(env%var_stack)
+      deallocate(env%var_stack)
       env%var_stack => p
     enddo
     if (associated(p)) call fct_warning("bad number of variables while FCT_ENV deleting")
