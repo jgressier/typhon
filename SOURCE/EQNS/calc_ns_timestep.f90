@@ -63,13 +63,17 @@ enddo
 
 ! -- Calcul de V / somme_i S_i et prise en compte du nombre de CFL --
 
+!$OMP PARALLEL DO
 do ic = 1, ncell
   dtloc(ic) =  cfl * 2._krp * umesh%mesh%volume(ic,1,1) / dtloc(ic)
 enddo
+!$OMP END PARALLEL DO
 
 !!! OPTIM : try to vectorize !!!
 
 gg1 = fluid%gamma*(fluid%gamma -1._krp)
+
+!$OMP PARALLEL DO private(ic, rv2, irho, a2)
 do ic = 1, ncell
   rv2  = sqrabs(field%etatcons%tabvect(1)%vect(ic))
   irho = 1._krp/field%etatcons%tabscal(1)%scal(ic)
@@ -81,6 +85,7 @@ do ic = 1, ncell
   endif
   dtloc(ic) = dtloc(ic) / (sqrt(rv2)*irho+sqrt(a2))
 enddo
+!$OMP END PARALLEL DO
 
 ! dans le cas de pas de temps global, le pas de temps minimum est calcule et impose
 ! dans la routine appelante

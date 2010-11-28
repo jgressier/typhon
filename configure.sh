@@ -98,20 +98,20 @@ check_f90conformance() {
 
 check_f90opti() {
   case $SYS-$F90C in
-    *ifc|*ifort) F90_OPTI="-O3" ;;
-    *pgf90)      F90_OPTI="-fastsse -Munroll=n:4 -Mipa=fast,inline" ;;
-    *pathf90)    F90_OPTI="-Ofast" ;;
-    *gfortran)   F90_OPTI="-O3" ;;
-    *g95)        F90_OPTI="-ffast-math -funroll-loops -O3" ;;
-    *af90)       F90_OPTI="-Ofast -fast_math" ;;
-    *lfc)        F90_OPTI="--fast" ;;
-    IRIX*f90)    F90_OPTI="-03" ;;
-    HP-UX-f90)   F90_OPTI="-03" ;;
-    *)           F90_OPTI="-03" ;;
+    *ifc|*ifort) F90_OPTIM="-O3" ; F90_OPENMP="-openmp" ;;
+    *pgf90)      F90_OPTIM="-fastsse -Munroll=n:4 -Mipa=fast,inline" ;;
+    *pathf90)    F90_OPTIM="-Ofast" ;;
+    *gfortran)   F90_OPTIM="-O3" ;;
+    *g95)        F90_OPTIM="-ffast-math -funroll-loops -O3" ;;
+    *af90)       F90_OPTIM="-Ofast -fast_math" ;;
+    *lfc)        F90_OPTIM="--fast" ;;
+    IRIX*f90)    F90_OPTIM="-03" ;;
+    HP-UX-f90)   F90_OPTIM="-03" ;;
+    *)           F90_OPTIM="-03" ;;
   esac
-  export F90_OPTI
-  success "$F90_OPTI"
-  check "$F90C optimization" f90conformance "$F90_FB $F90_OPTI"
+  export F90_OPTIM
+  success "$F90_OPTIM"
+  check "$F90C optimization" f90conformance "$F90_FB $F90_OPTIM"
   }
 
 check_f90debug() {
@@ -126,11 +126,11 @@ check_f90debug() {
 
 check_f90prof() {
   case $SYS-$F90C in
-    *)           F90_PROF="$F90_OPTI -pg" ;;
+    *)           F90_PROFIL="$F90_OPTIM -pg" ;;
   esac
-  export F90_PROF
-  success "$F90_PROF"
-  check "$F90C profiling" f90conformance "$F90_FB $F90_PROF"
+  export F90_PROFIL
+  success "$F90_PROFIL"
+  check "$F90C profiling" f90conformance "$F90_FB $F90_PROFIL"
   }
 
 check_library() {
@@ -286,10 +286,11 @@ mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
   echo "MODEXT      = $F90modext"
   echo "FB          = $F90_FB -I\$(PRJINCDIR)"
   echo "FO_debug    = $F90_DEBUG"
-  echo "FO_opt      = $F90_OPTI"
-  echo "FO_prof     = $F90_PROF"
-  echo "FO_         = \$(FO_opt)"
-  echo "F90OPT      = \$(FO_\$(OPT))"
+  echo "FO_optim    = $F90_OPTIM"
+  echo "FO_openmp   = $F90_OPTIM $F90_OPENMP"
+  echo "FO_profil   = $F90_PROFIL"
+  echo "FO_         = \$(FO_optim)"
+  echo "F90OPT      = \$(FO_\$(opt))"
   echo "F90C        = $F90C \$(FB)"
   echo "LINKFB      = \$(F90OPT)"
   echo "LINKER      = \$(F90C)"

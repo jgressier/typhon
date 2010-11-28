@@ -30,7 +30,7 @@ logical :: gradneeded           ! use gradients or not
 integer :: if                   ! face index
 integer :: buf, dimbuf, dimbuf1 ! buffer size (current, regular and first)
 integer :: ib, nblock           ! block index and number of blocks
-integer :: ista, iend           ! starting and ending index
+integer, allocatable, dimension(:) :: ista, iend           ! starting and ending index
 integer :: it                   ! index de tableau
 integer :: icl, icr             ! index de cellule a gauche et a droite
 real(krp) :: klim
@@ -38,15 +38,24 @@ real(krp) :: klim
 ! -- BODY --
 
 call calc_buffer(grid%umesh%nface, cell_buffer, nblock, dimbuf, dimbuf1)
+buf  = dimbuf1
+allocate(ista(nblock))
+allocate(iend(nblock))
+ista(1) = 1
+do ib = 1, nblock-1
+  iend(ib)   = ista(ib)+buf-1
+  ista(ib+1) = ista(ib)+buf
+  buf  = dimbuf         ! tous les nblocks suivants sont de taille dimbuf
+enddo
+iend(nblock)   = ista(nblock)+buf-1
 
 call alloc_hres_states(field, grid%umesh%nface)
 
-ista = 1
-buf  = dimbuf1
+!$OMP PARALLEL DO private(ib, buf) shared (field, ista, iend)
 
 do ib = 1, nblock
 
-  iend = ista+buf-1
+  buf = iend(ib)-ista(ib)+1
 
   select case(defspat%method)
 
@@ -54,8 +63,8 @@ do ib = 1, nblock
     
     ! -- no extrapolation, only direct copy of cell values --
 
-    call distrib_field(field%etatprim, grid%umesh%facecell, ista, iend, &
-                       field%cell_l, field%cell_r, ista)
+    call distrib_field(field%etatprim, grid%umesh%facecell, ista(ib), iend(ib), &
+                       field%cell_l, field%cell_r, ista(ib))
   
  
   !----------------------------------------------------------------------
@@ -63,26 +72,26 @@ do ib = 1, nblock
   !----------------------------------------------------------------------
   case(hres_muscl)
 
-    call hres_ns_muscl(defspat, buf, ista, grid%umesh,      &
+    call hres_ns_muscl(defspat, buf, ista(ib), grid%umesh,      &
                        field%etatprim, field%gradient,   &
-                       field%cell_l, field%cell_r, ista)
+                       field%cell_l, field%cell_r, ista(ib))
 
   case(hres_musclfast)
 
-    call hres_ns_musclfast(defspat, buf, ista, grid%umesh,      &
+    call hres_ns_musclfast(defspat, buf, ista(ib), grid%umesh,      &
                            field%etatprim, field%gradient,   &
-                           field%cell_l, field%cell_r, ista)
+                           field%cell_l, field%cell_r, ista(ib))
 
   case(hres_muscluns)
 
-    call hres_ns_muscluns(defspat, buf, ista, grid%umesh,      &
+    call hres_ns_muscluns(defspat, buf, ista(ib), grid%umesh,      &
                           field%etatprim, field%gradient,   &
-                          field%cell_l, field%cell_r, ista)
+                          field%cell_l, field%cell_r, ista(ib))
 
   case(hres_svm)
 
-    call hres_ns_svm(defspat, buf, ista, grid%umesh, field%etatprim, &
-                     field%cell_l, field%cell_r, ista)
+    call hres_ns_svm(defspat, buf, ista(ib), grid%umesh, field%etatprim, &
+                     field%cell_l, field%cell_r, ista(ib))
 
   case default
     call erreur("High order extrapolation","unknown high resolution method")
@@ -91,11 +100,10 @@ do ib = 1, nblock
 
   !----------------------------------------------------------------------
   ! end of nblock
-
-  ista = ista + buf
-  buf  = dimbuf         ! tous les nblocks suivants sont de taille dimbuf
-  
 enddo
+!$OMP END PARALLEL DO
+
+deallocate(ista, iend)
 
 !----------------------------------------------------------------------
 ! POST-LIMITATION

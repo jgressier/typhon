@@ -70,18 +70,22 @@ allocate(rhs(3,nc*dim))    ! allocation
 
 select case(defspat%gradmeth)
 case(grad_lsq)
+  !$OMP PARALLEL DO private(if, ic1, ic2)
   do if = 1, nf
     ic1  = grid%umesh%facecell%fils(if,1)
     ic2  = grid%umesh%facecell%fils(if,2)
     dcg(1:3,if) = tab(grid%umesh%mesh%centre(ic2,1,1) - grid%umesh%mesh%centre(ic1,1,1))
   enddo
+  !$OMP END PARALLEL DO
 case(grad_lsqw)
+  !$OMP PARALLEL DO private(if, ic1, ic2, dvec)
   do if = 1, nf
     ic1  = grid%umesh%facecell%fils(if,1)
     ic2  = grid%umesh%facecell%fils(if,2)
     dvec = grid%umesh%mesh%centre(ic2,1,1) - grid%umesh%mesh%centre(ic1,1,1)
     dcg(1:3,if) = tab(dvec)/sqrabs(dvec)**2
   enddo
+  !$OMP END PARALLEL DO
 case default
   call erreur("Internal error", "unknown GRADIENT computation method")
 endselect
@@ -93,6 +97,8 @@ endselect
 rhs(:,:) = 0._krp      ! initialisation
 
 ! Calcul des seconds membres (cellules internes et limites)
+
+!!!!$OMP PARALLEL DO private(if, ic1, ic2, is, iv, dec, dsca), reduction(+: rhs)
 
 do if = 1, nf
 
@@ -126,12 +132,17 @@ do if = 1, nf
 
 enddo
 
+!!!!$OMP END PARALLEL DO
+
 !-----------------------------------------------------------------------------
 ! Solve LSQ
 !-----------------------------------------------------------------------------
 
 info  = 0
 xinfo = 0
+
+!$OMP PARALLEL DO private(ic)
+
 do ic = 1, nc
   !call lapack_potrs('U', 3, dim, &
   !                  grid%optmem%gradcond(ic)%mat, 3, &
@@ -139,11 +150,16 @@ do ic = 1, nc
   call cholesky_solve(grid%optmem%gradcond(ic)%mat, 3, rhs(1:3, (ic-1)*dim+1:ic*dim), dim)
   if (info /= 0) xinfo = ic
 enddo
+
+!$OMP END PARALLEL DO
+
 if (xinfo /= 0) call erreur("Gradient computation","Choleski inversion failed")
 
 !-----------------------------------------------------------------------------
 ! Unpack solution
 !-----------------------------------------------------------------------------
+
+!$OMP PARALLEL DO private (ic, dec, is, iv)
 
 do ic = 1, nc
   dec = (ic-1)*dim
@@ -157,7 +173,7 @@ do ic = 1, nc
   enddo
 enddo
 
-
+!$OMP END PARALLEL DO
 
 ! --desallocation
 

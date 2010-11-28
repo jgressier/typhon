@@ -41,7 +41,7 @@ logical :: theo_jac, num_jac    ! compute analytical or numerical jacobians
 integer :: if                   ! face index
 integer :: buf, dimbuf, dimbuf1 ! buffer size (current, regular and first)
 integer :: ib, nblock           ! block index and number of blocks
-integer :: ista, iend           ! starting and ending index
+integer, allocatable, dimension(:) :: ista, iend           ! starting and ending index
 integer :: it                   ! index de tableau
 integer :: icl, icr             ! index de cellule a gauche et a droite
 type(st_nsetat)       :: QL, QR
@@ -55,24 +55,36 @@ if (.not.field%allocqhres) call erreur("Internal error", "Face extrapolated stat
 
 call calc_buffer(umesh%nface, cell_buffer, nblock, dimbuf, dimbuf1)
 
+buf  = dimbuf1
+allocate(ista(nblock))
+allocate(iend(nblock))
+ista(1) = 1
+do ib = 1, nblock-1
+  iend(ib)   = ista(ib)+buf-1
+  ista(ib+1) = ista(ib)+buf
+  buf  = dimbuf         ! tous les nblocks suivants sont de taille dimbuf
+enddo
+iend(nblock)   = ista(nblock)+buf-1
+
+!$OMP PARALLEL private(ib, QL, QR, cg_l, cg_r, gradL, gradR, buf) shared (flux, jacL, jacR)
+
 allocate(  cg_l(dimbuf),   cg_r(dimbuf))
 call new(gradL, dimbuf, field%gradient%nscal, field%gradient%nvect, field%gradient%ntens)
 call new(gradR, dimbuf, field%gradient%nscal, field%gradient%nvect, field%gradient%ntens)
 
-ista = 1
-buf  = dimbuf1
+!$OMP DO 
 
 do ib = 1, nblock
 
-  iend = ista+buf-1
+  buf = iend(ib)-ista(ib)+1
 
   ! pointers links
-  QL%density  => field%cell_l%tabscal(1)%scal(ista:iend)
-  QR%density  => field%cell_r%tabscal(1)%scal(ista:iend)
-  QL%pressure => field%cell_l%tabscal(2)%scal(ista:iend)
-  QR%pressure => field%cell_r%tabscal(2)%scal(ista:iend)
-  QL%velocity => field%cell_l%tabvect(1)%vect(ista:iend)
-  QR%velocity => field%cell_r%tabvect(1)%vect(ista:iend)
+  QL%density  => field%cell_l%tabscal(1)%scal(ista(ib):iend(ib))
+  QR%density  => field%cell_r%tabscal(1)%scal(ista(ib):iend(ib))
+  QL%pressure => field%cell_l%tabscal(2)%scal(ista(ib):iend(ib))
+  QR%pressure => field%cell_r%tabscal(2)%scal(ista(ib):iend(ib))
+  QL%velocity => field%cell_l%tabvect(1)%vect(ista(ib):iend(ib))
+  QR%velocity => field%cell_r%tabvect(1)%vect(ista(ib):iend(ib))
 
   !----------------------------------------------------------------------
   ! computation of INVISCID fluxes
@@ -82,12 +94,12 @@ do ib = 1, nblock
   num_jac  = (calc_jac).and.(defspat%jac_hyp == jac_diffnum)
 
   call calc_flux_inviscid(defsolver, defspat,                             &
-                          buf, ista, umesh%mesh%iface(ista:iend, 1, 1), &
+                          buf, ista(ib), umesh%mesh%iface(ista(ib):iend(ib), 1, 1), &
                           QL, QR, flux, theo_jac, jacL, jacR)
 
   if (num_jac) then
     call calc_jacnum_inviscid(defsolver, defspat,                             &
-                            buf, ista, umesh%mesh%iface(ista:iend, 1, 1), &
+                            buf, ista(ib), umesh%mesh%iface(ista(ib):iend(ib), 1, 1), &
                             QL, QR, flux, theo_jac, jacL, jacR)
   endif
 
@@ -101,16 +113,18 @@ do ib = 1, nblock
 
   case(eqNSLAM)
     ! -- redirection of cell centers 
-    cg_l(1:buf) = umesh%mesh%centre(umesh%facecell%fils(ista:iend,1), 1, 1)
-    cg_r(1:buf) = umesh%mesh%centre(umesh%facecell%fils(ista:iend,2), 1, 1)
+    cg_l(1:buf) = umesh%mesh%centre(umesh%facecell%fils(ista(ib):iend(ib),1), 1, 1)
+    cg_r(1:buf) = umesh%mesh%centre(umesh%facecell%fils(ista(ib):iend(ib),2), 1, 1)
 
     ! -- redirection of gradients
-    call distrib_field(field%gradient, umesh%facecell, ista, iend, &
+    call distrib_field(field%gradient, umesh%facecell, ista(ib), iend(ib), &
                        gradL, gradR, 1)
+
     call calc_flux_viscous(defsolver, defspat,                        &
-                           buf, ista, umesh%mesh%iface(ista:iend, 1, 1), &
+                           buf, ista(ib), umesh%mesh%iface(ista(ib):iend(ib), 1, 1), &
                            cg_l, cg_r, QL, QR, gradL, gradR, flux,        &
                            calc_jac, jacL, jacR)
+
   case(eqRANS)
     call erreur("development", "turbulence modeling not implemented")   
 
@@ -121,20 +135,17 @@ do ib = 1, nblock
   !----------------------------------------------------------------------
   ! end of nblock
 
-  ista = ista + buf
-  buf  = dimbuf         ! tous les nblocks suivants sont de taille dimbuf
-  
 enddo
+!$OMP END DO
 
-!!$print*, '--L---------'
-!!$do ib = 1, 5
-!!$  print'(5e14.6)', jacL%mat(ib,:,100)
-!!$enddo
-!!$print*, '--R---------'
-!!$do ib = 1, 5
-!!$  print'(5e14.6)', jacR%mat(ib,:,100)
-!!$enddo
-!!$stop
+deallocate(cg_l, cg_r)
+call delete(gradL)
+call delete(gradR)
+
+!$OMP END PARALLEL
+
+deallocate(ista, iend)
+
 !-------------------------------------------------------------
 ! flux assignment or modification on boundary conditions
 
@@ -143,10 +154,6 @@ call ns_bocoflux(defsolver, umesh, flux, field, defspat)
 if (calc_jac) then
   call ns_bocojacobian(defsolver, defspat, umesh, flux, field%etatprim, field%gradient, jacL, jacR)
 endif
-
-deallocate(cg_l, cg_r)
-call delete(gradL)
-call delete(gradR)
 
 endsubroutine integration_ns_ust
 

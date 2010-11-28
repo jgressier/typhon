@@ -41,35 +41,43 @@ integer               :: ib               ! index de conditions aux limites
 integer               :: dim              ! dimension
 integer               :: ic               ! index de couplage
 
-! -- Debut de la procedure --
+! -- BODY --
 
 allocate(surf(umesh%nface))
 
+!$OMP PARALLEL DO
 do i_f = 1, umesh%nface
   surf(i_f) = umesh%mesh%iface(i_f,1,1)%surface
 enddo
+!$OMP END PARALLEL DO
 
 ! -- flux surfaciques -> flux de surfaces --
 
+!!$OMP PARALLEL  !!! bug when using OpenMP here
 do ip = 1, flux%nscal
+  !!$OMP DO
   do i_f = 1, umesh%nface
     flux%tabscal(ip)%scal(i_f) = surf(i_f) * flux%tabscal(ip)%scal(i_f)
   enddo
+  !!$OMP END DO
 enddo
 
 do ip = 1, flux%nvect
   !flux%tabvect(ip)%vect(:) = surf(:) * flux%tabvect(ip)%vect(:)
   call scale(flux%tabvect(ip)%vect, surf(:))
 enddo
+!!$OMP END PARALLEL
 
 ! -- idem traitement des jacobiennes
 
 if (trait_jac) then
   dim = jacL%dim
+  !$OMP PARALLEL DO
   do i_f = 1, umesh%nface
     jacL%mat(1:dim,1:dim,i_f) = surf(i_f) * jacL%mat(1:dim,1:dim,i_f)
     jacR%mat(1:dim,1:dim,i_f) = surf(i_f) * jacR%mat(1:dim,1:dim,i_f)
   enddo
+  !$OMP END PARALLEL DO
 endif
 
 deallocate(surf)
@@ -96,6 +104,7 @@ enddo
 
 ! ??? creation de procedure intrinseques ? // optimisation
 
+!$OMP PARALLEL DO private(ic1, ip)
 do ic1 = 1, umesh%ncell_int
   do ip = 1, residu%nscal
     residu%tabscal(ip)%scal(ic1) = (dtloc(ic1)/ umesh%mesh%volume(ic1,1,1)) * residu%tabscal(ip)%scal(ic1)
@@ -104,10 +113,9 @@ do ic1 = 1, umesh%ncell_int
     residu%tabvect(ip)%vect(ic1) = (dtloc(ic1)/ umesh%mesh%volume(ic1,1,1)) * residu%tabvect(ip)%vect(ic1)
   enddo
 enddo
-
+!$OMP END PARALLEL DO
 
 endsubroutine flux_to_res
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !

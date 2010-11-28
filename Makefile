@@ -9,6 +9,7 @@ help:
 	@echo "  cfdtools  -> CFDtools libraries"
 	@echo "Options:"
 	@echo "  opt=optim -> Optimized options (default)"
+	@echo "  opt=openmp-> Optimized options + OPENMP "
 	@echo "  opt=debug -> Debugging options"
 	@echo "  opt=prof  -> Profiling options"
 	@echo "-----------------------------------------------------------------"

@@ -242,8 +242,10 @@ endif
 
 call delete(face_cell)
 call delete(face_vtex)
-call delete(face_Ltag)
-call delete(face_Rtag)
+if (defmesh%splitmesh /= split_none) then
+  call delete(face_Ltag)
+  call delete(face_Rtag)
+endif
 
 ! -- Renumerotation des faces --
 

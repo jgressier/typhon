@@ -30,11 +30,12 @@ real(krp) :: rho, ec
 real(krp) :: g1
 type(v3d) :: vel
 
-! -- Debut de la procedure --
+! -- BODY --
 
 ncell = field%ncell
 g1    = defns%properties(1)%gamma - 1._krp
 
+!$OMP PARALLEL DO private(i, rho, vel, ec)
 do i = 1, ncell
   rho = field%etatcons%tabscal(1)%scal(i)
   vel = field%etatcons%tabvect(1)%vect(i) / rho
@@ -43,13 +44,12 @@ do i = 1, ncell
   field%etatprim%tabscal(2)%scal(i) = g1*(field%etatcons%tabscal(2)%scal(i) - ec)
   field%etatprim%tabvect(1)%vect(i) = vel
 enddo
-
+!$OMP END PARALLEL DO
 
 !-----------------------------
 endsubroutine calc_varprim_ns
-
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! History
 !
 ! oct  2003 : creation de la procedure
 ! july 2004 : actual computations
