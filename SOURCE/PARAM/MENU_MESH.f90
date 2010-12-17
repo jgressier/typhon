@@ -60,8 +60,8 @@ type mnu_mesh
   integer(kip)          :: nsplit      ! number of split application
   integer(kip)          :: nperiodicity ! number of periodicity
   type(mnu_periodicity), pointer :: periodicity(:) 
-  integer               :: icgnsbase   ! original base index in CGNS file
-  integer               :: icgnszone   ! original zone index in CGNS file
+  integer               :: icgnsbase   ! base index in CGNS file
+  integer               :: icgnszone   ! zone index in CGNS file
 endtype mnu_mesh
 
 

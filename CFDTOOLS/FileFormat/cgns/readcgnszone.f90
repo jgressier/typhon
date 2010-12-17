@@ -22,13 +22,18 @@ type(st_cgns_zone)  :: zone       ! structure CGNS : zone
 
 ! -- Variables internes --
 integer       :: size(3,3)        ! tableau d'informations de la zone
-integer       :: ier              ! code d'erreur
+integer       :: ier, igeo        ! code d'erreur
 integer       :: i, ibc           ! indice courant
 integer       :: nmax_elem        ! nombre total d'elements
 character(len=100)     :: str_w   ! nom fantome
 
-! -- Debut de procedure
+! -- BODY --
    
+call cg_base_read_f(unit, ib, zone%nom, zone%imesh, igeo, ier)
+
+!! BUG : test desactive car ier /= 0 meme si tout est correct
+!if (ier /= 0) call erreur("Lecture CGNS","Probleme a la lecture de la base")
+
 ! --- Lecture du type de zone ---
           
 call cg_zone_type_f(unit, ib, iz, zone%type, ier)

@@ -106,69 +106,7 @@ type st_cgns_zone
 endtype st_cgns_zone
 
 
-!------------------------------------------------------------------------------!
-! ST_CGNS_BASE : structure receptrice des donnees par base
-!------------------------------------------------------------------------------!
-type st_cgns_base  
-  character(len=cgnslen) :: nom        ! nom de la base
-  integer                 :: imesh     ! type de maillage (2: 2D, 3: 3D)
-  integer                 :: igeo      ! nombre de coordonnees
-  integer                 :: nzone     ! nombre de zones
-  integer                 :: nzone_str ! nombre de zones structurees
-  integer                 :: nzone_ust ! nombre de zones non structurees
-  type(st_cgns_zone), dimension(:), pointer &
-                          :: zone   ! liste des zones
-endtype st_cgns_base  
-
-
-!------------------------------------------------------------------------------!
-! ST_CGNS_WORLD : structure principale receptrice des donnees du fichier CGNS
-!------------------------------------------------------------------------------!
-type st_cgns_world
-  character(len=cgnslen) :: nom    ! nom DU JEU DE DONNEES  
-  integer                 :: nbase  ! nombre de bases
-  type(st_cgns_base), dimension(:), pointer &
-                          :: base   ! liste des bases
-endtype st_cgns_world
-
-
 contains 
-
-!------------------------------------------------------------------------------!
-! delete_cgns_world
-!------------------------------------------------------------------------------!
-subroutine delete_cgns_world(cgw)
-implicit none
-type(st_cgns_world) :: cgw
-integer             :: i
-
-  if (associated(cgw%base)) then
-    do i = 1, cgw%nbase
-      call delete_cgns_base(cgw%base(i))
-    enddo
-    deallocate(cgw%base)
-  endif
-
-endsubroutine delete_cgns_world
-
-
-!------------------------------------------------------------------------------!
-! delete_cgns_base
-!------------------------------------------------------------------------------!
-subroutine delete_cgns_base(cgb)
-implicit none
-type(st_cgns_base) :: cgb
-integer             :: i
-
-  if (associated(cgb%zone)) then
-    do i = 1, cgb%nzone
-      call delete_cgns_zone(cgb%zone(i))
-    enddo
-    deallocate(cgb%zone)
-  endif
-
-endsubroutine delete_cgns_base
-
 
 !------------------------------------------------------------------------------!
 ! delete_cgns_zone
@@ -257,7 +195,7 @@ endsubroutine delete_cgns_boco
 endmodule CGNS_STRUCT
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! History
 !
 ! nov  2002 : creation du module, structure pour la lecture CGNS
 ! juin 2004 : modificiation de la structure pour lecture des BOCO

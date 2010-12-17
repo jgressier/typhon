@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------!
 ! Procedure : def_mesh                              Authors : J. Gressier
-!                                                   Created : November 2002
+!  
 ! Fonction                                          Modif  : (see history)
 !   Parse main file parameters / Mesh definition
 !
@@ -41,8 +41,7 @@ call print_info(5,"- mesh definition")
 pblock => block
 call seekrpmblock(pblock, "MESH", 0, pcour, nkey)
 
-if (nkey /= 1) call erreur("parameter parsing", &
-                           "bloc MESH inexistant ou surnumeraire")
+if (nkey /= 1) call error_stop("parameter parsing: BLOCK:MESH not found (or conflicts)")
 
 ! -- lecture du format
 
@@ -50,13 +49,14 @@ call rpmgetkeyvalstr(pcour, "FORMAT", str)
 defmesh%format = cnull
 
 if (samestring(str,"CGNS"))    defmesh%format = fmt_CGNS
-if (samestring(str,"TYPHMSH")) defmesh%format = fmt_TYPHMSH
-if (defmesh%format == cnull) call erreur("lecture de menu","format de maillage inconnu")
+if (samestring(str,"TYPHON"))  defmesh%format = fmt_TYPHON
+if (samestring(str,"TYM"))     defmesh%format = fmt_TYPHON
+if (defmesh%format == cnull) call error_stop("parameters parsing: unknown mesh format -> "//trim(str))
 
-defmesh%icgnsbase = 1
-defmesh%icgnszone = 1
+call rpmgetkeyvalint(pcour, "CGNSBASE", defmesh%icgnsbase, 1)
+call rpmgetkeyvalint(pcour, "CGNSZONE", defmesh%icgnszone, 1)
 
-! -- lecture du nom de fichier
+! -- read mesh file name --
 
 call rpmgetkeyvalstr(pcour, "FILE", str)
 defmesh%filename = str
@@ -101,9 +101,8 @@ case(split_svm4kris2)
   call print_info(20, "  . split mesh : SVM4 KRIS OPTIMISED 2")
 case(split_iso_tri)
   call print_info(20, "  . split mesh : ISO REFINMENT")
-
 case default
-  call erreur("Development", "unknown splitmesh parameter (def_mesh)")
+  call error_stop("parameters parsing: unknown splitmesh parameter -> "//trim(str))
 endselect
 
 ! ----------------------------------------------------------------------------
@@ -151,7 +150,7 @@ if (defmesh%nperiodicity >= 1) then
        defmesh%periodicity(ip)%angle = 2._krp*pi/x
       endif
     case default
-      call erreur("parameters parsing","periodicity model")
+      call error_stop("parameters parsing: periodicity model")
     endselect
 
   enddo
@@ -159,12 +158,11 @@ endif
 
 
 endsubroutine def_mesh
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! nov  2002 : creation de la procedure
-! fev  2004 : lecture de format TYPHMSH (format interne)
-! sept 2005 : add scale factor
-! oct  2007 : splitting option
+! nov  2002: created
+! sept 2005: add scale factor
+! oct  2007: splitting option
+! June 2010: TYPHON internal format
 !------------------------------------------------------------------------------!

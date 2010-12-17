@@ -13,12 +13,9 @@ CGNS_MOD = \
 
 # Objects
 CGNS_OBJ := $(CGNS_MOD:.$(MODEXT)=.o)   \
-            cgns2typhon_zone.o       \
             cgns2typhon_ustboco.o    \
             cgns2typhon_ustmesh.o    \
             createface_fromcgns.o    \
-            readcgnsbase.o           \
-            readcgnsfile.o           \
             seek_bcface_face.o       \
             seek_bcface_vtex.o       \
 

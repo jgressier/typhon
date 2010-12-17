@@ -18,6 +18,8 @@ this.f90modules= \
   cgns/CGNS_STRUCT.f90  \
 
 this.f90= $(this.f90modules) \
+  internal/typhonread_ustmesh.f90  \
+  internal/typhonwrite_ustmesh.f90 \
   cgns/readcgns_sol.f90        \
   cgns/readcgns_ustboco.f90    \
   cgns/readcgns_ustconnect.f90 \

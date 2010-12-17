@@ -258,6 +258,8 @@ call cgns2typhon_ustboco(cgnszone, umesh)
 umesh%ncell_lim = umesh%nface_lim
 umesh%ncell     = umesh%ncell_int + umesh%ncell_lim
 
+call print_info(8, "End of CGNS->TYPHON conversion")
+
 !-------------------------
 endsubroutine cgns2typhon_ustmesh
 

@@ -115,7 +115,7 @@ enddo
 !------------------------------
 ! BC marks
 !------------------------------
-print*,'. BC marks'
+print*,'. BC marks (IMIN, IMAX, JMIN, JMAX)'
 
 call createboco(umesh, 4)       ! creates 4 boco (IMIN, IMAX, JMIN, JMAX)
 

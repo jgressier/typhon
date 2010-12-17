@@ -32,6 +32,8 @@ MAIN_OBJ = $(MAIN_MOD:.$(MODEXT)=.o)   \
            echange_zonematch.o      \
            flux_to_res.o            \
            implicit_solve.o         \
+           importcgns_mesh.o        \
+           importtyphon_mesh.o      \
            init_boco.o              \
            init_bocohisto.o         \
            init_connect.o           \
@@ -50,11 +52,10 @@ MAIN_OBJ = $(MAIN_MOD:.$(MODEXT)=.o)   \
            integzone_tstep_usttree.o  \
            integ_treelevel.o        \
            inverse_calc_sensi.o     \
-           lecture_maillage.o       \
-           lectzone_mesh.o          \
            mpi_strategy_pre.o       \
            mpi_strategy_post.o      \
            output_result.o          \
+           readallmesh.o            \
            treelevel_explicit.o     \
            treelevel_rungekutta.o   \
            tstep_implicit.o         \

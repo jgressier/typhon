@@ -17,15 +17,15 @@ implicit none
 integer(kpp), parameter :: act_compute = 1
 integer(kpp), parameter :: act_analyse = 2
 
-! -- Constants for OUTPUT formats/location --
+! -- Constants for INPUT/OUTPUT formats/location --
 
 character, parameter   :: fmt_CGNS        = 'C'   ! format CGNS
 character, parameter   :: fmt_CGNS_linked = 'D'   ! format CGNS with common linked mesh
-character, parameter   :: fmt_TYPHMSH = 'M'   ! format TYPHON MESH
-character, parameter   :: fmt_TECPLOT = 'T'   ! format TECPLOT (ascii)
-character, parameter   :: fmt_VIGIE   = 'V'   ! format VIGIE
-character, parameter   :: fmt_VTK     = 'K'   ! format VTK (ascii)
-character, parameter   :: fmt_VTKBIN  = 'I'   ! format VTK Binary
+character, parameter   :: fmt_TYPHON      = 'Y'   ! format TYPHON MESH/solution
+character, parameter   :: fmt_TECPLOT     = 'T'   ! format TECPLOT (ascii)
+character, parameter   :: fmt_VIGIE       = 'V'   ! format VIGIE
+character, parameter   :: fmt_VTK         = 'K'   ! format VTK (ascii)
+character, parameter   :: fmt_VTKBIN      = 'I'   ! format VTK Binary
 
 integer(kpp), parameter :: write_end   = 1
 integer(kpp), parameter :: write_cycle = 2

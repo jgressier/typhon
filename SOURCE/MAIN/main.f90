@@ -43,7 +43,7 @@ call print_info(0,"******************************************************")
 
 call init_varcom()
 
-!###### LECTURE MENU ET TRAITEMENT DES PARAMETRES
+!###### PARAMETERS PARSING 
 
 call def_param(loc_world)
 
@@ -54,10 +54,10 @@ if (mpi_run) then
   call mpi_strategy_pre(loc_world)
 endif
 
-!###### LECTURE MAILLAGE et Generation des structures de donnees
+!###### MESH READING AND DATA STRUCTURE DEFINITION
 
 call print_etape("> INPUTS : mesh and boundary conditions")
-call lecture_maillage(loc_world)
+call readallmesh(loc_world)
 
 !###### INITIALISATION
 
