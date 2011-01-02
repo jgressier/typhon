@@ -4,20 +4,21 @@
 ! Fonction: MESH reading
 !
 !------------------------------------------------------------------------------!
-subroutine importtyphon_mesh(zone)
+subroutine importtyphon_mesh(defmesh, umesh)
 
-use TYPHMAKE
-use OUTPUT
-use VARCOM
-use DEFZONE
+use IO_UNIT
 use XBIN_IO
 use TYPHON_FMT
-use MENU_GEN
+use MESHPARAMS
+use USTMESH
 
 implicit none
 
+! -- INPUTS --
+type(mnu_mesh) :: defmesh
+
 ! -- OUTPUTS --
-type(st_zone) :: zone
+type(st_ustmesh) :: umesh
 
 ! -- Internal variables --
 integer                       :: iunit
@@ -30,7 +31,7 @@ type(st_xbindatasection)      :: xbindata
 ! open xbin file
 
 iunit = getnew_io_unit()
-call xbin_openread(iunit, trim(zone%defsolver%defmesh%filename), defxbin)
+call xbin_openread(iunit, trim(defmesh%filename), defxbin)
 
 call xbin_readdatahead(defxbin, xbindata)
 call xbin_skipdata(defxbin, xbindata)

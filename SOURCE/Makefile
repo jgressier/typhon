@@ -43,7 +43,6 @@ LIB1 = libt_main.a   \
        libt_xio.a    \
        libt_zone.a   \
        libt_mgrid.a  \
-       libt_cgns.a   \
 
 LIB2 = libt_param.a  \
        libt_vortex.a \
@@ -61,7 +60,7 @@ LIBMPI = $(LIB1) libt_exchmpi.a $(LIB2)
 D_LIBSEQ = $(LIBSEQ:%=$(PRJLIBDIR)/%)
 D_LIBMPI = $(LIBMPI:%=$(PRJLIBDIR)/%)
 
-VPATH = CGNS:EQNS:EQKDIF:EXCHANGE:MAIN:MGRID:MESH:MODCOM:MATH:PARAM:PIO:UDF:VORTEX:XIO:ZONE
+VPATH = EQNS:EQKDIF:EXCHANGE:MAIN:MGRID:MESH:MODCOM:MATH:PARAM:PIO:UDF:VORTEX:XIO:ZONE
 
 
 ####### Build libraries
@@ -78,7 +77,6 @@ include EXCHANGE/source-depend.make
 include   VORTEX/source-depend.make
 include    PARAM/source-depend.make
 include     ZONE/source-depend.make
-include     CGNS/source-depend.make
 include      XIO/source-depend.make
 include     MAIN/source-depend.make 
 

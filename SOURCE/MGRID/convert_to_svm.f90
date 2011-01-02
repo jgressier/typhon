@@ -10,7 +10,7 @@ subroutine convert_to_svm(defmesh, defspat, umesh, newmesh)
 use OUTPUT
 use USTMESH
 use MESHBASE
-use MENU_MESH
+use MESHPARAMS
 use MENU_NUM
 
 implicit none
@@ -88,21 +88,20 @@ call new_mesh(newmesh%mesh, 0, 0, newmesh%nvtex)
 !
 newmesh%mesh%vertex(1:umesh%nvtex, 1, 1) = umesh%mesh%vertex(1:umesh%nvtex, 1, 1) 
 
-if (defmesh%splitmesh /= split_svm2quad) then
-  call erreur("Development", "SVM_2QUAD is the only implemented parameter")
-endif
-
 ! -- check there are only tri --
 !
-call getindex_genelemvtex(umesh%cellvtex, elem_tri3, ielem)
-if (umesh%ncell_int /= umesh%cellvtex%elem(ielem)%nelem) then
-  call erreur("Development", "SVM_2QUAD can only be used with original TRI cells")
+ielem = getindex_genelemvtex(umesh%cellvtex, elem_tri3)
+if (ielem /= 0) then
+  if (umesh%ncell_int /= umesh%cellvtex%elem(ielem)%nelem) &
+    call error_stop("SVM_2QUAD spectral method can only be used with original TRI cells")
+else
+  call error_stop("SVM_2QUAD spectral method can only be used with original TRI cells")
 endif
 
 ! -- create internal nodes of SV cells --
 !
 if (defspat%svm%intnode /= 1) &
-  call erreur("Error", "SVM_2QUAD : internal node should be defined to 1")
+  call error_stop("SVM_2QUAD : internal node should be defined to 1")
 
 do ic = 1, umesh%cellvtex%elem(ielem)%nelem
   iv   = umesh%cellvtex%elem(ielem)%elemvtex(ic,1)          ! first node of cell
@@ -139,7 +138,7 @@ enddo
 ! Create CONTROL VOLUMES (CV) as SV subcells
 
 call addelem_genelemvtex(newmesh%cellvtex)                          ! add a ELEMVTEX section
-ielemquad = newmesh%cellvtex%ntype
+ielemquad = newmesh%cellvtex%nsection
 
 nquad = defspat%svm%cv_split*umesh%cellvtex%elem(ielem)%nelem               ! define number of QUAD (TRI => 3 QUAD)
 call new_elemvtex(newmesh%cellvtex%elem(ielemquad), nquad, elem_quad4)      ! allocation
@@ -243,7 +242,7 @@ enddo
 ! --- check created faces ---
 
 if (count(face_cell%fils(:,2) == 0) /= newmesh%nface_lim) &
-  call erreur("Spectral Volume Mesh creation", "bad number of boundering faces")
+  call error_stop("Spectral Volume Mesh creation: bad number of boundering faces")
 
 ! --- Riemann faces : Transfer from temporary connectivities ---
 

@@ -49,7 +49,7 @@ if (info /=0) call cfd_error("Fatal CGNS IO writing solution structure...")
 ! -- compute total number of elements --
 
 nelem = 0
-do ielem = 1, umesh%cellvtex%ntype
+do ielem = 1, umesh%cellvtex%nsection
   nelem = nelem +  umesh%cellvtex%elem(ielem)%nelem
 enddo
 
@@ -60,7 +60,7 @@ allocate(v(nelem))
 do isca = 1, field%nscal
 
   istart = 0
-  do ielem = 1, umesh%cellvtex%ntype
+  do ielem = 1, umesh%cellvtex%nsection
     do i = 1, umesh%cellvtex%elem(ielem)%nelem
       v(istart+i) = field%tabscal(isca)%scal(umesh%cellvtex%elem(ielem)%ielem(i))
     enddo
@@ -78,7 +78,7 @@ enddo
 do ivec = 1, field%nvect
 
   istart = 0
-  do ielem = 1, umesh%cellvtex%ntype
+  do ielem = 1, umesh%cellvtex%nsection
     do i = 1, umesh%cellvtex%elem(ielem)%nelem
       v(istart+i) = field%tabvect(ivec)%vect(umesh%cellvtex%elem(ielem)%ielem(i))%x
     enddo
@@ -90,7 +90,7 @@ do ivec = 1, field%nvect
   if (info /=0) call cfd_error("Fatal CGNS IO writing "//trim(qname)//'X'//" solution...")
 
   istart = 0
-  do ielem = 1, umesh%cellvtex%ntype
+  do ielem = 1, umesh%cellvtex%nsection
     do i = 1, umesh%cellvtex%elem(ielem)%nelem
       v(istart+i) = field%tabvect(ivec)%vect(umesh%cellvtex%elem(ielem)%ielem(i))%y
    enddo
@@ -101,7 +101,7 @@ do ivec = 1, field%nvect
  if (info /=0) call cfd_error("Fatal CGNS IO writing "//trim(qname)//'Y'//" solution...")
 
   istart = 0
-  do ielem = 1, umesh%cellvtex%ntype
+  do ielem = 1, umesh%cellvtex%nsection
     do i = 1, umesh%cellvtex%elem(ielem)%nelem
       v(istart+i) = field%tabvect(ivec)%vect(umesh%cellvtex%elem(ielem)%ielem(i))%z
    enddo

@@ -6,13 +6,10 @@
 !   pour le type "ghostface" (point fictif sur la face) : cela revient a
 !   avoir une cellule fictive de volume nul.
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
 subroutine init_ustboco_ghostface(ib, defboco, umesh)
 
 use TYPHMAKE
-!use VARCOM
 use OUTPUT
 use USTMESH
 use MENU_BOCO
@@ -32,7 +29,7 @@ type(st_ustmesh) :: umesh                ! unstructured mesh
 integer :: if                            ! indice boco et de face
 integer :: icell, iface                  ! index de cellule et de face
 
-! -- Debut de la procedure --
+! --- BODY ---
 
 ! affectation de connectivite face limites -> cellules fictives
 ! la variable umesh%ncell_lim contient le nombre courant de cellules limites affectees
@@ -40,7 +37,7 @@ integer :: icell, iface                  ! index de cellule et de face
 ! le tableau de cellules est cense pouvoir contenir le nombre de cellules fictives (test)
 
 if ((umesh%ncell_lim+umesh%boco(ib)%nface)>(umesh%ncell-umesh%ncell_int)) then
-  call erreur("Allocation","Pas assez de cellules allouees pour les cellules fictives")
+  call error_stop("(Allocation) Pas assez de cellules allouees pour les cellules fictives")
 endif
 
 ! -- boucle sur la liste des faces de la condition limite --
@@ -55,20 +52,17 @@ do if = 1, umesh%boco(ib)%nface
   ! definition geometrique de la cellule fictive
   umesh%mesh%volume(icell,1,1) = 0._krp
   umesh%mesh%centre(icell,1,1) = umesh%mesh%iface(iface,1,1)%centre
-  
   if (umesh%facecell%fils(iface,2) == 0) then
     umesh%facecell%fils(iface,2) = icell    ! affectation de la cellule fictive
   else
-    call erreur("Initialisation de connectivite", &
-                "Connectivite deja affectee sur face limite")
+    call error_stop("(Initialisation de connectivite) Connectivite deja affectee sur face limite")
   endif
 
 enddo
 
 endsubroutine init_ustboco_ghostface
-
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! changes history
 !
 ! mars 2003 : creation de la procedure
 !------------------------------------------------------------------------------!

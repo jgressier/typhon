@@ -108,9 +108,7 @@ integer(kip)           :: isplit
   enddo
 
   ! -- reduce (sum) on all threads
-  print*,'vol',zone%info%totvolume
   call allreduce_sum(zone%info%totvolume)
-  print*,'vol',zone%info%totvolume
     
 endsubroutine initzone_mesh
 !------------------------------------------------------------------------------!

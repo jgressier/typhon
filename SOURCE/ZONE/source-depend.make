@@ -33,7 +33,8 @@ ZONE_OBJ := $(ZONE_MOD:.$(MODEXT)=.o)       \
             prb_boco_field.o             \
             prb_zone_vol.o               \
             split_zone.o                 \
-            update_field.o
+            update_field.o               \
+            zone_preproc.o
 
 libt_zone.objects := $(ZONE_OBJ:%=$(PRJOBJDIR)/%)
 libt_zone.target: $(libt_zone.objects)

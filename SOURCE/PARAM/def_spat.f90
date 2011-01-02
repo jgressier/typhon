@@ -16,7 +16,7 @@ use OUTPUT
 use VARCOM
 use MENU_SOLVER
 use MENU_NUM
-use MENU_MESH
+use MESHPARAMS
 
 implicit none
 

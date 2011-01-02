@@ -10,7 +10,7 @@ subroutine convert_to_svm_4wang(defmesh, defspat, umesh, newmesh)
 use OUTPUT
 use USTMESH
 use MESHBASE
-use MENU_MESH
+use MESHPARAMS
 use MENU_NUM
 
 implicit none
@@ -94,9 +94,9 @@ newmesh%mesh%vertex(1:umesh%nvtex, 1, 1) = umesh%mesh%vertex(1:umesh%nvtex, 1, 1
 
 ! -- check there are only tri --
 !
-call getindex_genelemvtex(umesh%cellvtex, elem_tri3, ielem)
-if (umesh%ncell_int /= umesh%cellvtex%elem(ielem)%nelem) then
-  call erreur("Development", "SVM can only be used with original TRI cells")
+ielem = getindex_genelemvtex(umesh%cellvtex, elem_tri3)
+if ((ielem /= 0).and.(umesh%ncell_int /= umesh%cellvtex%elem(ielem)%nelem)) then
+  call error_stop("SVM can only be used with original TRI cells")
 endif
 
 ! -- create internal nodes of SV cells --

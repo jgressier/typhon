@@ -32,8 +32,6 @@ MAIN_OBJ = $(MAIN_MOD:.$(MODEXT)=.o)   \
            echange_zonematch.o      \
            flux_to_res.o            \
            implicit_solve.o         \
-           importcgns_mesh.o        \
-           importtyphon_mesh.o      \
            init_boco.o              \
            init_bocohisto.o         \
            init_connect.o           \

@@ -44,7 +44,7 @@ case default
   call error_stop("Internal error (writevtk_scal): unknown output format parameter")
 endselect
 
-do ielem = 1, umesh%cellvtex%ntype
+do ielem = 1, umesh%cellvtex%nsection
 
   nelem = umesh%cellvtex%elem(ielem)%nelem
   call calc_buffer(nelem, maxbuffer, npaq, dimpaq, dimpaq1)

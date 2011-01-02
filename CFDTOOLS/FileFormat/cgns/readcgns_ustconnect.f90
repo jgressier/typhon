@@ -1,143 +1,119 @@
 !------------------------------------------------------------------------------!
-! Procedure : readcgns_ustconnect         Auteur : J. Gressier
-!                                         Date   : Novembre 2002
-! Fonction                                Modif  : (cf historique)
-!   Lecture des de la connectivite de tous les elements
-!
-! Defauts/Limitations/Divers :
+! Procedure : readcgns_ustconnect 
+!                                 
+! Function                        
+!   Read CGNS connectivity in TYPHON structure
 !
 !------------------------------------------------------------------------------!
+subroutine readcgns_ustconnect(unit, ib, iz, umesh)
 
-subroutine readcgns_ustconnect(unit, ib, iz, zone, nmax_elem)                 
-
-use CGNS_STRUCT
 use IOCFD
 use STRING
+use USTMESH
+use CGNS_STRUCT
 
 implicit none
 
-! -- Entrees --
+! -- INPUTS --
 integer             :: unit       ! numero d'unite pour la lecture
 integer             :: ib, iz     ! numero de base et de zone
-integer             :: nmax_elem  ! nombre total d'elements
 
-! -- Sorties --
-type(st_cgns_zone)  :: zone       ! connectivite cellule->sommets
-                                  !              faces  ->sommets
-                                  ! dans la structure zone
+! -- OUTPUTS --
+type(st_ustmesh)    :: umesh      ! connectivity cell->vertex, face->vertex
 
-! -- Variables internes --                                        
+! -- Internal variables --                                        
 integer             :: ier        ! code erreur
 integer             :: ifam, nfam ! indice de famille et nombre total de familles
 integer             :: ideb, ifin ! indice des cellules repertoriees dans la section
-integer             :: itype      ! type d'element
-integer             :: nbd, ip    ! entiers non utilises en sortie
-type(st_cgns_ustconnect), pointer &
-                    :: pfam       ! pointeur sur une famille
+integer             :: itype      ! CGNS element type
+integer             :: nbd, ip    ! unused integers
 integer, dimension(:,:), allocatable &
-                    :: elem       ! tableau de connectivite intermediaire
-character(len=cgnslen) :: nom     ! nom fantome
-character(len=100)     :: str_w   ! nom fantome
+                    :: elem       ! intermediate CGNS connectivity
+character(len=cgnslen) :: cgnsname ! cgns   string
+character(len=100)     :: str_w    ! output string
+integer, parameter  :: nmax_cell = 20        ! max nb of cells in vtex->cell connectivity
+type(st_connect)    :: face_vtex, &          ! temporary face->vtex connectivity
+                       face_cell, &          ! temporary face->cell connectivity
+                       face_Ltag, face_Rtag  ! left & right tag for face
+integer             :: ntotcell              ! calcul du nombre total de cellules
+integer             :: maxvtex, maxface      ! nombre de sommets/face, face/cellule
+integer             :: nface                 ! estimation du nombre de faces
+integer             :: iconn, icell, ivtex   ! indices courants
+integer             :: ielem, nelem , nvtex    
+integer             :: ista, iend, icgnstype, ityphontype
+integer             :: iv, if     
 
 ! -- BODY --
 
-write(str_w,'(a,i8,a)') "reading element connectivity:",nmax_elem," elements"
-call cfd_print(str_w)
-
-! --- Lecture du nombre de sections ---
+!-----------------------------------------------------------------
+! Number of CGNS element section
 ! (les cellules sont regroupees par section selon leur type)
 
 call cg_nsections_f(unit, ib, iz, nfam, ier)
 if (ier /= 0) call cfd_error("(CGNS) cannot read number of element sections")
 
-! --- Lecture des types de section et affectation aux familles ---
+call cfd_print("* reading CGNS element connectivity: "//trim(strof(nfam))//" sections")
 
-zone%ncellfam = 0
-zone%nfacefam = 0
-zone%nedgefam = 0
-allocate(zone%cellfam(nfam))    ! on surdimensionne les listes de familles au nombre
-allocate(zone%facefam(nfam))    ! de familles maximal alors que seule la somme doit
-allocate(zone%edgefam(nfam))    ! faire "nfam"
+!-----------------------------------------------------------------
+! LOOP on CGNS sections
 
-do ifam = 1, nfam               ! Boucle sur l'ensemble des sections
+nface = 0
 
-  call cg_section_read_f(unit, ib, iz, ifam, nom, itype, ideb, ifin, nbd, ip, ier)
+do ifam = 1, nfam               ! LOOP on CGNS sections
+
+  call cg_section_read_f(unit, ib, iz, ifam, cgnsname, icgnstype, ideb, ifin, nbd, ip, ier)
   if (ier /= 0) call cfd_error("(CGNS) cannot read section information")
 
-  select case(zone%imesh) ! TRAITEMENT SELON 2D OU 3D
-
-  case(2) ! 2D
-    select case(itype)
-      case(NODE)
-        zone%nedgefam = zone%nedgefam + 1
-        pfam => zone%edgefam(zone%nedgefam)
-      case(BAR_2,BAR_3)
-        zone%nfacefam = zone%nfacefam + 1
-        pfam => zone%facefam(zone%nfacefam)
-      case(TRI_3,QUAD_4,TRI_6,QUAD_8,QUAD_9)
-        zone%ncellfam = zone%ncellfam + 1
-        pfam => zone%cellfam(zone%ncellfam)
-      case(TETRA_4,PYRA_5,PENTA_6,HEXA_8,TETRA_10,PYRA_14,PENTA_15,PENTA_18,HEXA_20,HEXA_27)
-        call cfd_error("(CGNS) unexpected volumic element for a 2D problem")
-      case(MIXED, NGON_n)
-        call cfd_error("(CGNS) cannot read MIXED and NGON_n elements")
-      case default
-        call cfd_error("(CGNS) unknown type of element")
-    endselect
-
-  case(3) ! 3D
-    select case(itype)
-      case(NODE)
-        call cfd_print("(CGNS) NODE elements ignored")
-      case(BAR_2,BAR_3)
-        zone%nedgefam = zone%nedgefam + 1
-        pfam => zone%edgefam(zone%nedgefam)
-      case(TRI_3,QUAD_4,TRI_6,QUAD_8,QUAD_9)
-        zone%nfacefam = zone%nfacefam + 1
-        pfam => zone%facefam(zone%nfacefam)
-      case(TETRA_4,PYRA_5,PENTA_6,HEXA_8,TETRA_10,PYRA_14,PENTA_15,PENTA_18,HEXA_20,HEXA_27)
-        zone%ncellfam = zone%ncellfam + 1
-        pfam => zone%cellfam(zone%ncellfam)
-      case(MIXED, NGON_n)
-        call cfd_error("(CGNS) cannot read MIXED and NGON_n elements")
-      case default
-        call cfd_error("(CGNS) unknown type element")
-     endselect
-
-  case default
-    call cfd_error("internal inconsistency (readcgns_ustconnect)")
-
-  endselect
-
-  ! --- Lecture du nombre de sommets pour le type d'element itype // allocation ---
+  !-----------------------------------------------------------------
+  ! read CGNS section
  
-  call cg_npe_f(itype, pfam%nbfils, ier)
+  call cg_npe_f(icgnstype, nvtex, ier)
   if (ier /= 0)    call cfd_error("(CGNS) cannot get number of vertex per element")
 
-  pfam%type    = itype
-  pfam%ideb    = ideb
-  pfam%ifin    = ifin
-  pfam%nbnodes = ifin - ideb + 1
-  allocate(pfam%fils(ideb:ifin, pfam%nbfils))
+  nelem = ifin - ideb + 1
   
-  write(str_w,'(a,a,a,i8,a,i2,a)') ". ",ElementTypeName(itype)(1:10),":",&
-                                   pfam%nbnodes," elements with", pfam%nbfils," vertices"
+  write(str_w,'(a,i8,a,i2,a)') ". section "//cgnsname(1:10)//":",nelem," "//ElementTypeName(icgnstype)(1:10)//" elements (",nvtex," vertices)"
   call cfd_print(adjustl(str_w))
 
-  allocate(elem(pfam%nbfils, pfam%nbnodes))  ! tableau intermediaire pour echanger les indices
+  allocate(elem(nvtex, nelem))  ! tableau intermediaire pour echanger les indices
   elem = 0
   call cg_elements_read_f(unit, ib, iz, ifam, elem, ip, ier)       ! lecture
   if (ier /= 0) call cfd_error("(CGNS) cannot read element->vertex connectivity")
-  pfam%fils(ideb:ifin, 1:pfam%nbfils) = transpose(elem)            ! echange des indices
-  deallocate(elem)                                                 ! desallocation
 
-  ! ---  ---
-  ! Il est envisageable de renumeroter les famille par ensemble volumiques et surfaciques
-  ! pour imposer une continuite de la numerotation. Mais cela n'est a priori pas obligatoire
+  select case(icgnstype)
+  case(NODE)
+    call cfd_print("  . skipping section")
+
+  case(BAR_3, TRI_6, QUAD_8, QUAD_9, TETRA_10, PYRA_14, PENTA_15, PENTA_18, HEXA_20, HEXA_27)
+    call cfd_error("Unexpected type of CGNS element ("//trim(ElementTypeName(icgnstype))//")")
+
+  case(BAR_2, TRI_3, QUAD_4, TETRA_4, PYRA_5, PENTA_6, HEXA_8)
+    ityphontype = cgns2typhon_elemtype(icgnstype)
+    call cfd_print("  . create new element section")
+    call addelem_genelemvtex(umesh%cellvtex)
+    ielem = umesh%cellvtex%nsection
+    call new_elemvtex(umesh%cellvtex%elem(ielem), nelem, ityphontype)
+
+    do icell = 1, nelem  ! loop because of stack size problems
+      umesh%cellvtex%elem(ielem)%elemvtex(icell, 1:nvtex) = elem(1:nvtex, icell)
+      umesh%cellvtex%elem(ielem)%ielem   (icell)          = ideb-1+icell
+    enddo
+
+  case(MIXED, NGON_n)
+    call cfd_error("Unexpected type of CGNS element (MIXED)")
+
+  case default
+    call cfd_error("Unknown CGNS element")
+  endselect 
+
+  deallocate(elem)
 
 enddo ! fin de la boucle sur les sections
 
-
-
 !------------------------------
 endsubroutine readcgns_ustconnect
+!------------------------------------------------------------------------------!
+! Changes history
+!
+! Dec  2010: direct fill in ustmesh structures
+!------------------------------------------------------------------------------!

@@ -286,7 +286,7 @@ enddo
 
 call new_genelemvtex(partgrid%umesh%cellvtex, 0)
 
-do ielem = 1, fullgrid%umesh%cellvtex%ntype
+do ielem = 1, fullgrid%umesh%cellvtex%nsection
 
   nelem = count(partition(fullgrid%umesh%cellvtex%elem(ielem)%ielem(1:fullgrid%umesh%cellvtex%elem(ielem)%nelem)) == ipart)
   nvtex = fullgrid%umesh%cellvtex%elem(ielem)%nvtex

@@ -16,7 +16,6 @@ PARAM_MOD = MENU_AMR.$(MODEXT)      \
             MENU_INIT.$(MODEXT)     \
             MENU_INTEG.$(MODEXT)    \
             MENU_INVERSE.$(MODEXT)  \
-            MENU_MESH.$(MODEXT)     \
             MENU_MPI.$(MODEXT)      \
             MENU_NUM.$(MODEXT)      \
             MENU_PROBE.$(MODEXT)    \

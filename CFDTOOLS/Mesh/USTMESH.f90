@@ -29,7 +29,7 @@ implicit none
 type st_ustmesh
   integer(kip)          :: id                    ! domain id
   integer(kip)          :: level                 ! multigrid level
-  !integer               :: nbdim                ! nombre de dimension du maillage
+  integer               :: geodim               ! nombre de dimension du maillage
   integer(kip)          :: nvtex, nface, ncell   ! number of vertices, faces and cells
   integer(kip)          :: nface_int, ncell_int  ! number of internal faces and cells
   integer(kip)          :: nface_lim, ncell_lim  ! number of boundering faces and cells
@@ -89,12 +89,13 @@ subroutine init_ustmesh(umesh)
 implicit none
 type(st_ustmesh) :: umesh
 
-  umesh%id    = -1
-  umesh%level = 0
-  umesh%nvtex = 0
-  umesh%ncell = 0 ; umesh%ncell_int = 0 ; umesh%ncell_lim = 0
-  umesh%nface = 0 ; umesh%nface_int = 0 ; umesh%nface_lim = 0 ; umesh%nface_intsvm = 0 
-  umesh%nboco = 0
+  umesh%id     = -1
+  umesh%geodim = 0
+  umesh%level  = 0
+  umesh%nvtex  = 0
+  umesh%ncell  = 0 ; umesh%ncell_int = 0 ; umesh%ncell_lim = 0
+  umesh%nface  = 0 ; umesh%nface_int = 0 ; umesh%nface_lim = 0 ; umesh%nface_intsvm = 0 
+  umesh%nboco  = 0
   call new_genelemvtex(umesh%cellvtex, 0)   ! initialization
   nullify(umesh%face_Ltag%fils)
   nullify(umesh%face_Rtag%fils)
@@ -341,6 +342,40 @@ integer function scan_face(face, nvtex, face_vtex, vtex_face, nface)
 
   !-------------------------
 endfunction scan_face
+
+!------------------------------------------------------------------------------!
+! Function : scan_bocoface
+!   seeks 'face' in existing 'facevtex' connectivity (ONLY BOUNDARY CONDITION faces)
+!   return face index if it exists, O otherwise
+!------------------------------------------------------------------------------!
+integer function scan_bocoface(face, nvtex, umesh) 
+  implicit none 
+  ! -- INPUTS --
+  integer          :: nvtex              ! number of vertex in the face
+  integer          :: face(1:nvtex)      ! face definition
+  type(st_ustmesh) :: umesh
+  ! -- Internal variables --
+  integer :: iface, isom  
+  logical :: find_face
+
+  ! -- BODY --
+
+  scan_bocoface = 0  ! Initialization (result if face not found)
+
+  ! Only testing 
+  isom      = face(1)
+  find_face = .false.
+
+  ! -- loop on existing faces containing face(1) vertex --
+  do iface = umesh%nface_int+1, umesh%nface
+    find_face = same_face(nvtex, face, umesh%facevtex%fils(iface, 1:nvtex))
+    if (find_face) exit
+  enddo
+
+  if (find_face) scan_bocoface = iface
+
+  !-------------------------
+endfunction scan_bocoface
 
 
 !------------------------------------------------------------------------------!

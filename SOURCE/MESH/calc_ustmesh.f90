@@ -22,8 +22,7 @@ subroutine calc_ustmesh(umesh, defmesh)
 use TYPHMAKE
 use OUTPUT
 use USTMESH
-use MENU_MESH
-use MESHBASE
+use MESHPARAMS
 
 implicit none
 

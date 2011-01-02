@@ -79,7 +79,7 @@ if (defio%format == fmt_VTKBIN) call writereturn(defio%iunit)
 ncellint       = umesh%ncell_int
 ntot           = 0                       ! number of written integer in CELLVTEX connectivity
 
-do ielem = 1, umesh%cellvtex%ntype
+do ielem = 1, umesh%cellvtex%nsection
   nvtex = umesh%cellvtex%elem(ielem)%nvtex
   ntot  = ntot + (nvtex+1)*umesh%cellvtex%elem(ielem)%nelem
 enddo
@@ -92,7 +92,7 @@ case(fmt_VTKBIN)
   call writestr(defio%iunit, trim(str_w))
 endselect
 
-do ielem = 1, umesh%cellvtex%ntype
+do ielem = 1, umesh%cellvtex%nsection
 
   nvtex = umesh%cellvtex%elem(ielem)%nvtex
   do i = 1, umesh%cellvtex%elem(ielem)%nelem
@@ -116,7 +116,7 @@ case(fmt_VTKBIN)
   call writestr(defio%iunit, trim(str_w))
 endselect
 
-do ielem = 1, umesh%cellvtex%ntype
+do ielem = 1, umesh%cellvtex%nsection
 
   select case(umesh%cellvtex%elem(ielem)%elemtype)
   case(elem_bar2)

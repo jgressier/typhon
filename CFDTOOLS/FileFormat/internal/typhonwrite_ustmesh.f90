@@ -32,7 +32,7 @@ ncell         = umesh%ncell_int
 nface         = umesh%nface_lim
 nvtex         = umesh%nvtex
 nmark         = umesh%nboco
-ncellsections = umesh%cellvtex%ntype
+ncellsections = umesh%cellvtex%nsection
 nfacesections = 1
 
 !------------------------------------------------------------------------------!
@@ -53,7 +53,7 @@ call delete_xbindata(xbindata)
 !------------------------------------------------------------------------------!
 ! write CELL elements
 
-do ielem = 1, umesh%cellvtex%ntype
+do ielem = 1, umesh%cellvtex%nsection
   call typhonwrite_elemvtex(defxbin, umesh%cellvtex%elem(ielem))
 enddo
 

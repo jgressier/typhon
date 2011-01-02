@@ -18,6 +18,7 @@ module CGNS_STRUCT
 use MESHPREC         ! Precision configuration
 use VEC3D     
 use CONNECTIVITY
+use ELEMVTEX
 
 implicit none         
 
@@ -25,7 +26,7 @@ include 'cgnslib_f.h'
 
 ! -- Variables globales du module -------------------------------------------
 
-integer, parameter :: cgnslen   = len(ElementTypeName(0)) ! use string definition in cngslib_f.h
+integer, parameter :: cgnslen    = len(ElementTypeName(0)) ! use string definition in cngslib_f.h
 integer, parameter :: maxconnect = 8   ! nombre maximum de sommets par element
 
 
@@ -190,6 +191,68 @@ integer             :: i
   call delete(boco%list)
 
 endsubroutine delete_cgns_boco
+
+!------------------------------------------------------------------------------!
+! Function : compute number of VTEX in ELEMENT DEFINITION
+!------------------------------------------------------------------------------!
+integer function typhon2cgns_elemtype(itype)
+implicit none
+! -- dummy arguments --
+integer(kpp),      intent(in)  :: itype
+
+select case(itype)
+case(elem_bar2)
+  typhon2cgns_elemtype = BAR_2
+case(elem_tri3)
+  typhon2cgns_elemtype = TRI_3
+case(elem_quad4)
+  typhon2cgns_elemtype = QUAD_4
+case(elem_ngon)
+  typhon2cgns_elemtype = NGON_N
+case(elem_tetra4)
+  typhon2cgns_elemtype = TETRA_4
+case(elem_pyra5)
+  typhon2cgns_elemtype = PYRA_5
+case(elem_penta6)
+  typhon2cgns_elemtype = PENTA_6
+case(elem_hexa8)
+  typhon2cgns_elemtype = HEXA_8
+case default
+  typhon2cgns_elemtype = -1
+endselect
+
+endfunction typhon2cgns_elemtype
+
+!------------------------------------------------------------------------------!
+! Function : compute number of VTEX in ELEMENT DEFINITION
+!------------------------------------------------------------------------------!
+integer function cgns2typhon_elemtype(itype)
+implicit none
+! -- dummy arguments --
+integer(kpp),      intent(in)  :: itype
+
+select case(itype)
+case(bar_2)
+  cgns2typhon_elemtype = elem_BAR2
+case(tri_3)
+  cgns2typhon_elemtype = elem_TRI3
+case(quad_4)
+  cgns2typhon_elemtype = elem_QUAD4
+case(ngon_n)
+  cgns2typhon_elemtype = elem_NGON
+case(tetra_4)
+  cgns2typhon_elemtype = elem_TETRA4
+case(pyra_5)
+  cgns2typhon_elemtype = elem_PYRA5
+case(penta_6)
+  cgns2typhon_elemtype = elem_PENTA6
+case(hexa_8)
+  cgns2typhon_elemtype = elem_HEXA8
+case default
+  cgns2typhon_elemtype = -1
+endselect
+
+endfunction cgns2typhon_elemtype
 
 
 endmodule CGNS_STRUCT

@@ -72,14 +72,14 @@ enddo
 print*,'. QUAD elements'
 itype = elem_quad4
 
-call getindex_genelemvtex(umesh%cellvtex, itype, ielem)
+ielem = getindex_genelemvtex(umesh%cellvtex, itype)
 
 if (ielem /= 0) call cfd_error("element section already exists")
 
 nelem = nx*ny
 
 call addelem_genelemvtex(umesh%cellvtex)
-ielem = umesh%cellvtex%ntype
+ielem = umesh%cellvtex%nsection
 call new_elemvtex(umesh%cellvtex%elem(ielem), nelem, itype)
 nvtex = umesh%cellvtex%elem(ielem)%nvtex
 

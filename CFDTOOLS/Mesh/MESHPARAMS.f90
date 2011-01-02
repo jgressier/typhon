@@ -1,5 +1,5 @@
 !------------------------------------------------------------------------------!
-! MODULE : MENU_MESH                      Authors : J. Gressier
+! MODULE : MESH_PARAMS                      Authors : J. Gressier
 !                                         Created : November 2002
 ! Fonction
 !   Definition des structures pour les entrees du programme TYPHON
@@ -7,10 +7,9 @@
 !
 !------------------------------------------------------------------------------!
 
-module MENU_MESH
+module MESHPARAMS
 
-use TYPHMAKE   ! Definition de la precision
-use GEO3D
+use VEC3D
 use TENSOR3
 
 implicit none
@@ -159,14 +158,13 @@ endselect
 
 endsubroutine transten_per
 
-
-
-endmodule MENU_MESH
+endmodule MESHPARAMS
 !------------------------------------------------------------------------------!
 ! Changes history
 !
 ! nov  2002 : created
 ! sept 2005 : add scale factor
+! Dec  2010 : TYPHON (MENU_MESH) -> CFDTOOLS (MESHPARAMS)
 !------------------------------------------------------------------------------!
 
 

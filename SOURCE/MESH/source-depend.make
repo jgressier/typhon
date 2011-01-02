@@ -30,7 +30,6 @@ MESH_OBJ = $(MESH_MOD:.$(MODEXT)=.o)  \
            interpface_gradient_vect.o \
            interpface_gradn_scal.o    \
            interpface_gradn_vect.o    \
-           reorder_ustconnect.o    \
            scale_mesh.o            \
            test_ustmesh.o          \
 

@@ -50,7 +50,7 @@ allocate(newindex(1:nelemtot))
 
 iend = umesh%ncell_int   ! last ELEMENT index in CGNS file (internal elements)
 
-ielem = umesh%cellvtex%ntype  ! number of cell sections already written
+ielem = umesh%cellvtex%nsection  ! number of cell sections already written
 !call cg_nsections_f(cgnsunit, ibase, izone, ielem)
 
 do isec = 1, nvtexmax

@@ -49,7 +49,7 @@ deallocate(v)
 
 iend = 0
 
-do ielem = 1, umesh%cellvtex%ntype
+do ielem = 1, umesh%cellvtex%nsection
 
   select case(umesh%cellvtex%elem(ielem)%elemtype)
   case(elem_bar2)

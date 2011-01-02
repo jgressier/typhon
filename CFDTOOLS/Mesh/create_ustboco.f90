@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
-! Procedure : cgns2typhon_ustboco.f90     Auteur : J. Gressier
-!                                         Date   : Fevrier 2003
-! Fonction                                Modif  : (cf historique)
+! Procedure : create_ustboco
+!  
+! Fonction
 !   Creation des conditions aux limites par conversion CGNS->TYPHON
 !   Test de coherence entre les faces CGNS et les faces creees dans TYPHON
 !
@@ -9,24 +9,19 @@
 !   ATTENTION : les faces sont supposees ordonnees (faces limites en fin de tab)
 !
 !------------------------------------------------------------------------------!
-subroutine cgns2typhon_ustboco(cgnszone, umesh) 
+subroutine create_ustboco(umesh) 
 
-use TYPHMAKE      ! definitions generales 
-use CGNS_STRUCT   ! Definition des structures CGNS
 use USTMESH       ! Definition des structures maillage non structure
-use OUTPUT        ! Sorties standard TYPHON
+use IOCFD  
 
 implicit none 
 
 ! -- INPUTS --
-type(st_cgns_zone)  :: cgnszone        ! zone CGNS contenant conditions aux limites
 
 ! -- INPUTS/OUTPUTS --
 type(st_ustmesh)    :: umesh           ! unstructured mesh
 
 ! -- Internal variables --
-integer, dimension(:), allocatable &
-                    :: listface        ! liste provisoire de faces
 integer             :: nface_int       ! nombre de faces internes
 integer             :: nface_lim       ! nombre de faces limites
 integer             :: ib, if, nf, iib
@@ -35,27 +30,32 @@ integer             :: ib, if, nf, iib
 
 ! -- Creation des conditions aux limites --
 
-allocate(listface(umesh%nface_lim))   ! allocation provisoire avec marges
+do ib = 1, umesh%nboco
 
-call createboco(umesh, cgnszone%nboco)
+  umesh%boco(ib)%family = uppercase(umesh%boco(ib)%family)
+  call cfd_print("  . linking boundary condition marks"//strof(ib,3)//"/"//trim(strof(umesh%nboco))// &
+                    ": "//trim(umesh%boco(ib)%family))
 
-do ib = 1, cgnszone%nboco
-
-  call print_info(8,"  . linking boundary condition marks"//strof(ib,3)//"/"//trim(strof(cgnszone%nboco))// &
-                    ": "//trim(cgnszone%boco(ib)%family))
-
-  select case(cgnszone%boco(ib)%gridlocation)
-  case(vertex)
-    call print_info(20,'      vertex tagging method')
-    call seek_bcface_vtex(ib, cgnszone%boco(ib), umesh, listface)
-  case(facecenter)
-    call print_info(20,'      face tagging method')
-    call seek_bcface_face(ib, cgnszone%boco(ib), cgnszone%nfacefam , &
-                          cgnszone%facefam(1:cgnszone%nfacefam), umesh, listface)
+  select case(umesh%boco(ib)%ilocation)
+  case(iloc_vtex)
+    call cfd_print('      vertex tagging method')
+    call seek_bcface_vtex(umesh%boco(ib), umesh)
+  case(iloc_elemcell)
+    call cfd_print('      cell tagging method')
+    call cfd_error('tagging method not yet implemented')
+    !call seek_bcface_vtex(ib, umesh%boco(ib), umesh, listface)
+  case(iloc_elemface)
+    call cfd_print('      face element tagging method')
+    call seek_bcface_face(umesh%boco(ib), umesh)
+  case(iloc_face)
+    call cfd_print('      genuine face tagging method (nothing to do)')
   case default
-    call erreur("boundary condition build","tagging method unknown")
+    call cfd_error("boundary condition links: unknown tagging method ("//trim(strof(umesh%boco(ib)%ilocation))//")")
   endselect
-  
+
+  if (umesh%boco(ib)%nface == 0) &
+  call cfd_print("    > no marked face has been found, skipping boundary condition mark section...")
+
 enddo
 
 ! --- Check empty boco marks ---
@@ -77,22 +77,16 @@ umesh%nboco = iib
 
 nf = 0
 do ib = 1, umesh%nboco
-  print*,ib, umesh%boco(ib)%nface
   nf = nf + umesh%boco(ib)%nface
 enddo
 
 ! --- check bounding faces == tagged faces ---
 
 if (nf /= umesh%nface_lim) &
-  call erreur("BOCO tagging", "tagged faces number does not correspond to boundaring faces number")
-
-! desallocation
-
-deallocate(listface)
+  call cfd_error("number of tagged faces does not correspond to number of boundaring faces")
 
 !-------------------------
-endsubroutine cgns2typhon_ustboco
-
+endsubroutine create_ustboco
 !------------------------------------------------------------------------------!
 ! Changes history
 !
@@ -100,4 +94,5 @@ endsubroutine cgns2typhon_ustboco
 ! june 2004: construction des connectivites BOCO-> faces, generalisation
 !            procedure intrinseque transferee dans USTMESH
 ! Nov  2007: check empty boco marks
+! Dec  2010: TYPHON(cgns2typhon_ustboco)->CFDTOOLS(create_ustboco)
 !------------------------------------------------------------------------------!

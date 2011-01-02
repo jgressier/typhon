@@ -14,7 +14,6 @@
 subroutine reorder_ustconnect(iaction, umesh) 
 
 use USTMESH       ! Definition des structures maillage non structure
-use OUTPUT
 
 implicit none 
 
@@ -36,7 +35,7 @@ integer             :: if, oldf, newf
 ! -- Debut de procedure
 
 if (iaction /= 0) then
-  call erreur("Developpement","cas inattendu dans 'reorder_ustconnect'")
+  call cfd_error("unexpexted action in reorder_ustconnect")
 endif
 
 ntotface = umesh%facecell%nbnodes
@@ -106,7 +105,6 @@ deallocate(trans_index)
 
 !-------------------------
 endsubroutine reorder_ustconnect
-
 !------------------------------------------------------------------------------!
 ! Change history
 !

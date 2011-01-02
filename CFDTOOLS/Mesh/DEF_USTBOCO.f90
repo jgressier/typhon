@@ -19,6 +19,11 @@ implicit none
 
 integer, parameter :: defboco_connect = -1       
 
+integer, parameter :: iloc_vtex     = 1
+integer, parameter :: iloc_elemcell = 2
+integer, parameter :: iloc_elemface = 3
+integer, parameter :: iloc_face     = 4
+
 ! -- DECLARATIONS -----------------------------------------------------------
 
 
@@ -26,12 +31,14 @@ integer, parameter :: defboco_connect = -1
 ! Definition de la structure ST_USTBOCO : Definition des conditions aux limites
 !------------------------------------------------------------------------------!
 type st_ustboco
-  character(len=shortname)       :: family     ! nom de famille
+  character(len=shortname)       :: family     ! Family name or TAG
+  integer                        :: ilocation  ! type of connectivity
   integer                        :: idefboco   ! index pointer to defsolver boco definition
                                                !   if <= 0 then other definition (cf defboco_* constants)
-  integer                        :: nface      ! nombre de faces concernees
-  integer, dimension(:), pointer :: iface      ! liste des faces concernees par
-                                               ! les conditions aux limites
+  integer                        :: ntag       ! number of tags
+  integer, dimension(:), pointer :: itag       ! list of tags
+  integer                        :: nface      ! number of tagged face 
+  integer, dimension(:), pointer :: iface      ! face index
   real(krp)                      :: area       ! sum of tagged face area
   type(st_genericfield), pointer :: bocofield  ! pointer to chained list of boco fields (in MGRID)
   type(st_genericfield)          :: avg_quant  ! average quantity on boco 
@@ -58,6 +65,22 @@ endinterface
 ! -- IMPLEMENTATION ---------------------------------------------------------
 contains
 
+character(14) function str_location(iloc)
+implicit none
+integer :: iloc
+select case(iloc)
+case(iloc_vtex)
+  str_location = "vertex"
+case(iloc_elemcell)
+  str_location = "cell element"
+case(iloc_elemface)
+  str_location = "face element"
+case(iloc_face)
+  str_location = "internal face"
+case default
+  str_location = "unknown"
+endselect
+endfunction str_location
 
 !------------------------------------------------------------------------------!
 ! Procedure : allocation d'une structure USTBOCO
@@ -91,6 +114,8 @@ integer          :: i
   deallocate(bc%iface)
   if (bc%idefboco <= 0) call delete(bc%gridcon)
 
+  if (associated(bc%itag)) deallocate(bc%itag)
+
   call delete_genericfield(bc%avg_quant)
   call delete_genericfield(bc%sum_flux)
 
@@ -98,9 +123,21 @@ integer          :: i
 
 endsubroutine delete_ustboco
 
+!------------------------------------------------------------------------------!
+! Procedure : desallocation des tags 
+!------------------------------------------------------------------------------!
+subroutine deletetag_ustboco(bc)
+implicit none
+type(st_ustboco) :: bc
+integer          :: i
+
+  deallocate(bc%itag)
+  bc%ntag = 0
+
+endsubroutine deletetag_ustboco
+
 
 endmodule DEF_USTBOCO
-
 !------------------------------------------------------------------------------!
 ! History
 !

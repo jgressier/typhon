@@ -4,30 +4,30 @@
 ! Fonction                                Modif  : (cf historique)
 !   Recherche des faces a partir des listes de VERTEX marques
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
-subroutine seek_bcface_vtex(ib, cgnsboco, umesh, listface) 
+subroutine seek_bcface_vtex(ustboco, umesh) 
 
-use TYPHMAKE      ! definitions generales 
-use CGNS_STRUCT   ! Definition des structures CGNS
 use USTMESH       ! Definition des structures maillage non structure
-use OUTPUT        ! Sorties standard TYPHON
+use IOCFD
 
 implicit none 
 
-! -- Entrees --
-integer             :: ib              ! indice de condition limite
-type(st_cgns_boco)  :: cgnsboco        ! zone CGNS contenant conditions aux limites
+! -- INPUTS --
 
-! -- Entrees/Sorties --
-type(st_ustmesh)    :: umesh           ! unstructured mesh
+! -- INPUTS/OUTPUTS --
+type(st_ustboco)  :: ustboco      ! original tags
+type(st_ustmesh)  :: umesh        ! unstructured mesh
 
-! -- Variables internes --
-integer, dimension(*) :: listface      ! tableau de travail
-integer               :: if, nf
+! -- OUTPUTS --
 
-! -- Debut de procedure
+! -- Internal variables --
+integer               :: if
+integer               :: nf             ! number of tagged face
+integer, allocatable  :: listface(:)    ! list of marked faces 
+
+! --- BODY ---
+
+allocate(listface(umesh%nface_lim))   ! temporary allocation
 
 ! -- Creation des conditions aux limites --
 
@@ -38,21 +38,26 @@ nf = 0
 do if = umesh%nface_int+1, umesh%nface_int+umesh%nface_lim
 
   if (face_invtexlist(umesh%facevtex%nbfils, umesh%facevtex%fils(if,:), &
-                      cgnsboco%list%nbfils, cgnsboco%list%fils)) then
+                      ustboco%ntag,          ustboco%itag(:)) ) then
     nf = nf + 1
     listface(nf) = if
   endif
 enddo
 
-call print_info(20,'      '//trim(strof(nf))//' mesh faces tagged')
-call new_ustboco(umesh%boco(ib), uppercase(cgnsboco%family), nf)
-umesh%boco(ib)%iface(1:nf) = listface(1:nf)
+call cfd_print('      '//trim(strof(nf))//' mesh faces tagged')
+
+call new_ustboco(ustboco, ustboco%family, nf)
+ustboco%ilocation   = iloc_face
+if (nf > 0) ustboco%iface(1:nf) = listface(1:nf)
+call deletetag_ustboco(ustboco)
+
+deallocate(listface)
   
 !-------------------------
 endsubroutine seek_bcface_vtex
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !
 ! june 2004: creation
+! Dec  2010: transfered to CFDTOOLS (direct use of USTMESH structures)
 !------------------------------------------------------------------------------!

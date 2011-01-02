@@ -56,7 +56,7 @@ call writereturn(uf)
 ncellint       = umesh%ncell_int
 ntot           = 0                       ! number of written integer in CELLVTEX connectivity
 
-do ielem = 1, umesh%cellvtex%ntype
+do ielem = 1, umesh%cellvtex%nsection
   nvtex = umesh%cellvtex%elem(ielem)%nvtex
   ntot  = ntot + (nvtex+1)*umesh%cellvtex%elem(ielem)%nelem
 enddo
@@ -64,7 +64,7 @@ enddo
 write(str_w,'(A,2I10)') 'CELLS ', ncellint, ntot
 call writestr(uf, trim(str_w))
 
-do ielem = 1, umesh%cellvtex%ntype
+do ielem = 1, umesh%cellvtex%nsection
 
   nvtex = umesh%cellvtex%elem(ielem)%nvtex
   do i = 1, umesh%cellvtex%elem(ielem)%nelem
@@ -78,7 +78,7 @@ enddo
 write(str_w,'(A,I9,A)') 'CELL_TYPES ', ncellint, ' int'
 call writestr(uf, trim(str_w))
 
-do ielem = 1, umesh%cellvtex%ntype
+do ielem = 1, umesh%cellvtex%nsection
 
   select case(umesh%cellvtex%elem(ielem)%elemtype)
   case(elem_bar2)

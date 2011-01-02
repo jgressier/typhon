@@ -10,7 +10,7 @@ subroutine raffin_iso_tri(defmesh, defspat, umesh, newmesh)
 use OUTPUT
 use USTMESH
 use MESHBASE
-use MENU_MESH
+use MESHPARAMS
 use MENU_NUM
 
 implicit none
@@ -44,7 +44,7 @@ logical                :: rightface
 
 ! -- BODY --
 
-call print_info(10, "  . Iso Tri refinment mesh...")
+call print_info(10, "  . Iso Tri refinement mesh...")
 
 fnv     = 2     ! nb of vertices per face
 cnv     = 3     ! nb of vertices per SV cell
@@ -86,9 +86,9 @@ newmesh%mesh%vertex(1:umesh%nvtex, 1, 1) = umesh%mesh%vertex(1:umesh%nvtex, 1, 1
 
 ! -- check there are only tri --
 !
-call getindex_genelemvtex(umesh%cellvtex, elem_tri3, ielem)
-if (umesh%ncell_int /= umesh%cellvtex%elem(ielem)%nelem) then
-  call erreur("Development", "raffin_iso_tri can only be used with original TRI cells")
+ielem = getindex_genelemvtex(umesh%cellvtex, elem_tri3)
+if ((ielem /= 0).and.(umesh%ncell_int /= umesh%cellvtex%elem(ielem)%nelem)) then
+  call error_stop("REFINEMENT can only be used with original TRI cells")
 endif
 
 
@@ -161,7 +161,7 @@ enddo
 ntri = 4 *umesh%cellvtex%elem(ielem)%nelem               ! define number of  new TRI (TRI => 4TRI)
 
 call addelem_genelemvtex(newmesh%cellvtex)                          ! add a ELEMVTEX section
-ielemtri = newmesh%cellvtex%ntype
+ielemtri = newmesh%cellvtex%nsection
 ntri = 4 *umesh%cellvtex%elem(ielem)%nelem               ! define number of  new TRI (TRI => 4TRI)
 
 call new_elemvtex(newmesh%cellvtex%elem(ielemtri), ntri, elem_tri3)      ! allocation
