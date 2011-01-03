@@ -35,13 +35,16 @@ integer, parameter  :: nmax_cell = 20        ! max nb of cells in vtex->cell con
 type(st_connect)    :: face_vtex, &          ! temporary face->vtex connectivity
                        face_cell, &          ! temporary face->cell connectivity
                        face_Ltag, face_Rtag  ! left & right tag for face
-integer             :: ntotcell              ! calcul du nombre total de cellules
-integer             :: maxvtex, maxface      ! nombre de sommets/face, face/cellule
-integer             :: nface                 ! estimation du nombre de faces
-integer             :: iconn, icell, ivtex   ! indices courants
-integer             :: ielem, nelem , nvtex    
-integer             :: ista, iend, icgnstype, ityphontype
-integer             :: iv, if     
+integer              :: ntotcell              ! calcul du nombre total de cellules
+integer              :: maxvtex, maxface      ! nombre de sommets/face, face/cellule
+integer              :: nface                 ! estimation du nombre de faces
+integer              :: iconn, icell, ivtex   ! indices courants
+integer              :: ielem, nelem , nvtex    
+integer              :: ElementDataSize       ! size of data element
+integer, allocatable :: imixedtype(:)         ! type  of element in MIXED section
+integer, allocatable :: imixedindex(:)        ! index of element in MIXED section
+integer              :: ista, iend, icgnstype, ityphontype, icgtype
+integer              :: iv, if, nelem_mixed, ie, ind
 
 ! -- BODY --
 
@@ -72,10 +75,15 @@ do ifam = 1, nfam               ! LOOP on CGNS sections
 
   nelem = ifin - ideb + 1
   
-  write(str_w,'(a,i8,a,i2,a)') ". section "//cgnsname(1:10)//":",nelem," "//ElementTypeName(icgnstype)(1:10)//" elements (",nvtex," vertices)"
+  write(str_w,'(a,i8,a,i2,a)') ". section "//cgnsname(1:10)//":",nelem," "//trim(ElementTypeName(icgnstype))//" elements (",nvtex," vertices)"
   call cfd_print(adjustl(str_w))
 
-  allocate(elem(nvtex, nelem))  ! tableau intermediaire pour echanger les indices
+  if (nvtex == 0) then ! for special elements
+    call cg_ElementDataSize_f(unit, ib, iz, ifam, ElementDataSize, ier)
+    allocate(elem(1,ElementDataSize))  
+  else
+    allocate(elem(nvtex,nelem))  ! temporary array (help to swap dimensions)
+  endif
   elem = 0
   call cg_elements_read_f(unit, ib, iz, ifam, elem, ip, ier)       ! lecture
   if (ier /= 0) call cfd_error("(CGNS) cannot read element->vertex connectivity")
@@ -99,8 +107,38 @@ do ifam = 1, nfam               ! LOOP on CGNS sections
       umesh%cellvtex%elem(ielem)%ielem   (icell)          = ideb-1+icell
     enddo
 
-  case(MIXED, NGON_n)
-    call cfd_error("Unexpected type of CGNS element (MIXED)")
+  case(MIXED)
+    nelem_mixed = nelem
+    allocate(imixedindex(nelem_mixed))
+    allocate(imixedtype(nelem_mixed))
+    call sort_elementtype(ElementDataSize, elem, nelem_mixed, imixedindex, imixedtype)
+    do icgtype = min(BAR_2, TRI_3, QUAD_4, TETRA_4, PYRA_5, PENTA_6, HEXA_8),&
+                 max(BAR_2, TRI_3, QUAD_4, TETRA_4, PYRA_5, PENTA_6, HEXA_8)
+      nelem = count(imixedtype(1:nelem_mixed) == icgtype)
+      if (nelem > 0) then
+        nvtex       = nvtex_cgnselement(icgtype)  
+        ityphontype = cgns2typhon_elemtype(icgtype)
+        call cfd_print("  . create new element section: "//strof(nelem,7)//" "//trim(ElementTypeName(icgtype)))
+        call addelem_genelemvtex(umesh%cellvtex)
+        ielem = umesh%cellvtex%nsection
+        call new_elemvtex(umesh%cellvtex%elem(ielem), nelem, ityphontype)
+        icell = 0
+        do ie = 1, nelem_mixed  
+          if (imixedtype(ie) == icgtype) then
+            icell = icell + 1
+            ind   = imixedindex(ie)
+            umesh%cellvtex%elem(ielem)%elemvtex(icell, 1:nvtex) = elem(1, ind+1:ind+nvtex)
+            umesh%cellvtex%elem(ielem)%ielem   (icell)          = ideb-1+icell
+          endif
+        enddo
+        if (icell /= nelem) call cfd_error("unexpected number of element in MIXED section")
+        ideb = ideb + nelem
+      endif
+    enddo
+    deallocate(imixedindex, imixedtype)
+
+  case(NGON_n)
+    call cfd_error("Unexpected type of CGNS element (NGON_N)")
 
   case default
     call cfd_error("Unknown CGNS element")
@@ -109,6 +147,40 @@ do ifam = 1, nfam               ! LOOP on CGNS sections
   deallocate(elem)
 
 enddo ! fin de la boucle sur les sections
+
+!------------------------------
+contains
+
+subroutine sort_elementtype(dim, element, nelem, iindex, itype)
+implicit none
+! -- dummy arguments --
+integer, intent(in)  :: dim                          ! number of element
+integer, intent(in)  :: element(1,dim)               ! MIXED element connectivity
+integer, intent(in)  :: nelem                        ! number of element
+integer, intent(out) :: iindex(nelem), itype(nelem)  ! index and type of MIXED element connectivity
+! -- internal variables --
+integer :: ie, it, nvtex, ielem
+
+! -- BODY --
+
+ie     = 1                ! index in element()
+ielem  = 0                ! index in iindex() and itype()
+iindex = 0
+itype  = 0
+do while (ie <= dim)
+  ielem         = ielem + 1
+  iindex(ielem) = ie                 ! index of element
+  itype(ielem)  = element(1,ie)      ! type  of element
+  nvtex         = nvtex_cgnselement(itype(ielem))  
+  !print*,ie,ielem,itype(ielem),nvtex
+  if (nvtex <= 0)  &
+    call cfd_error("Unexpected CGNS element in MIXED section: "//trim(strof(itype(ielem))))
+  ie  = ie + 1 + nvtex
+enddo
+if ((ielem /= nelem).or.(ie /= dim+1)) &
+  call cfd_error("Unexpected end of MIXED section")
+
+endsubroutine sort_elementtype
 
 !------------------------------
 endsubroutine readcgns_ustconnect

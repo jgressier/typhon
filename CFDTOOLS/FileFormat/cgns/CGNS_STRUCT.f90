@@ -193,7 +193,38 @@ integer             :: i
 endsubroutine delete_cgns_boco
 
 !------------------------------------------------------------------------------!
-! Function : compute number of VTEX in ELEMENT DEFINITION
+! Function : transfer element TYPE
+!------------------------------------------------------------------------------!
+integer function nvtex_cgnselement(itype)
+implicit none
+! -- dummy arguments --
+integer(kpp),      intent(in)  :: itype
+
+select case(itype)
+case(NODE)
+  nvtex_cgnselement = 1
+case(BAR_2)
+  nvtex_cgnselement = 2
+case(TRI_3)
+  nvtex_cgnselement = 3
+case(quad_4)
+  nvtex_cgnselement = 4
+case(tetra_4)
+  nvtex_cgnselement = 4
+case(pyra_5)
+  nvtex_cgnselement = 5
+case(penta_6)
+  nvtex_cgnselement = 6
+case(hexa_8)
+  nvtex_cgnselement = 8
+case default
+  nvtex_cgnselement = -1
+endselect
+
+endfunction nvtex_cgnselement
+
+!------------------------------------------------------------------------------!
+! Function : transfer element TYPE
 !------------------------------------------------------------------------------!
 integer function typhon2cgns_elemtype(itype)
 implicit none
@@ -224,7 +255,7 @@ endselect
 endfunction typhon2cgns_elemtype
 
 !------------------------------------------------------------------------------!
-! Function : compute number of VTEX in ELEMENT DEFINITION
+! Function : transfer element TYPE
 !------------------------------------------------------------------------------!
 integer function cgns2typhon_elemtype(itype)
 implicit none
