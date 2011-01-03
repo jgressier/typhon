@@ -128,11 +128,10 @@ do ifam = 1, nfam               ! LOOP on CGNS sections
             icell = icell + 1
             ind   = imixedindex(ie)
             umesh%cellvtex%elem(ielem)%elemvtex(icell, 1:nvtex) = elem(1, ind+1:ind+nvtex)
-            umesh%cellvtex%elem(ielem)%ielem   (icell)          = ideb-1+icell
+            umesh%cellvtex%elem(ielem)%ielem   (icell)          = ideb-1+ie
           endif
         enddo
         if (icell /= nelem) call cfd_error("unexpected number of element in MIXED section")
-        ideb = ideb + nelem
       endif
     enddo
     deallocate(imixedindex, imixedtype)

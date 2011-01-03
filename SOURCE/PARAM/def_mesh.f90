@@ -14,7 +14,7 @@ use VARCOM
 use STRING
 use MATH
 use GEO3D
-use MENU_MESH
+use MESHPARAMS
 use MENU_GEN
 
 implicit none
