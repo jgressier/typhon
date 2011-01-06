@@ -46,6 +46,9 @@ do ic = 1, grid%umesh%ncell_int
   do ivec = 1, grid%info%field_loc%etatprim%nvect
     qname = quantity_name(defsolver%idvec(ivec))
     call fct_env_set_real(blank_env, trim(qname), abs(grid%info%field_loc%etatprim%tabvect(ivec)%vect(ic)))
+    call fct_env_set_real(blank_env, trim(qname)//"_X", grid%info%field_loc%etatprim%tabvect(ivec)%vect(ic)%x)
+    call fct_env_set_real(blank_env, trim(qname)//"_Y", grid%info%field_loc%etatprim%tabvect(ivec)%vect(ic)%y)
+    call fct_env_set_real(blank_env, trim(qname)//"_Z", grid%info%field_loc%etatprim%tabvect(ivec)%vect(ic)%z)
   enddo
 
   !call print_fct_env(6, blank_env)

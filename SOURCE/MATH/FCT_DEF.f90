@@ -54,7 +54,7 @@ integer(ipar)     :: type
 character(len=*)  :: comment
 
   print*,"FCT MODULE error : ",trim(comment)
-  stop
+  stop 1
 
 endsubroutine set_fct_error_intipar
 
@@ -66,7 +66,7 @@ integer           :: type
 character(len=*)  :: comment
 
   print*,"FCT MODULE error : ",trim(comment)
-  stop
+  stop 1
 
 endsubroutine set_fct_error_int
 
