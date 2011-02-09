@@ -84,8 +84,6 @@ deallocate(surf)
 
 ! -- calcul des residus --
 
-call init_genericfield(residu, 0._krp, v3d(0._krp, 0._krp, 0._krp))
-
 do i_f = 1, umesh%nface
   ic1 = umesh%facecell%fils(i_f,1)
   ic2 = umesh%facecell%fils(i_f,2)

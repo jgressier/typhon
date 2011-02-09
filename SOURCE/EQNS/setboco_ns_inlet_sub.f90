@@ -50,7 +50,6 @@ allocate(pi(nf))
 allocate(ti(nf))
 allocate(dir(nf))
 
-dir(1:nf) = bc_ns%direction
 
 call fct_env_set_real(blank_env, "t", curtime)
 
@@ -63,6 +62,10 @@ do ifb = 1, nf
   call fct_env_set_real(blank_env, "z", umesh%mesh%iface(if,1,1)%centre%z)
   call fct_eval_real(blank_env, bc_ns%ptot, pi(ifb))
   call fct_eval_real(blank_env, bc_ns%ttot, ti(ifb))
+  call fct_eval_real(blank_env, bc_ns%dir_x, dir(ifb)%x)
+  call fct_eval_real(blank_env, bc_ns%dir_y, dir(ifb)%y)
+  call fct_eval_real(blank_env, bc_ns%dir_z, dir(ifb)%z)
+  dir(ifb) = dir(ifb) / abs(dir(ifb)) ! moved from def_boco_ns.f90
 enddo
 
 call pi_ti_ps_dir2nspri(defns%properties(1), nf, pi(1:nf), ti(1:nf), ps(1:nf), dir(1:nf), &
@@ -88,4 +91,5 @@ endsubroutine setboco_ns_inlet_sub
 ! july 2004 : creation
 ! June 2008 : FCT function for pi, ti, mach (function of X, Y, Z)
 ! Mar  2010 : time dependent conditions
+! Feb  2011 : symbolic funcions evaluation for DIRECTION fields (A. Gardi)
 !------------------------------------------------------------------------------!

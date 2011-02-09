@@ -42,7 +42,7 @@ type st_boco_ns
   type(st_fct_node) :: pstat, ptot, ttot, mach         ! FCT functions
   real(krp) :: temp_wall
   type(v3d) :: wall_velocity
-  type(v3d) :: direction
+  type(st_fct_node) :: dir_x, dir_y, dir_z
   real(krp), dimension(:), pointer  &
             :: temp           ! not uniform wall temperature
   logical   :: alloctemp      ! allocation of table "temp"
@@ -119,6 +119,7 @@ endmodule MENU_NS
 ! aout 2002 : creation du module
 ! june 2004 : conditions limites (bctype_of_nsboco, st_boco_ns) 
 ! sept 2006 : FCT functions for initialization variables
+! febr 2011 : v3d direction became st_fct_node dir_x,dir_y,dir_z (A.Gardi)
 !------------------------------------------------------------------------------!
 
 

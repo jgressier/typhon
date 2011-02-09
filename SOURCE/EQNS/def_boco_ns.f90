@@ -36,6 +36,7 @@ integer(kip)             :: ib, nkey
 character(len=dimrpmlig) :: str            ! intermediate RPM string
 integer(kip)             :: info
 integer(kip)             :: typ
+type(v3d)                :: temp_direction
 
 ! -- BODY --
 
@@ -99,11 +100,30 @@ case(bc_inlet_sub)
   call convert_to_funct(str, boco%ttot, info)  
   if (info /= 0) &
        call erreur("menu definition","problem when parsing TI (NS boundary condition)") 
-  call rpmgetkeyvalstr (pblock, "DIRECTION", str)
-  boco%direction = v3d_of(str, info)
-  if (info /= 0) &
-    call erreur("parsing parameters","unable to read DIRECTION data (subsonic inlet)")
-  boco%direction = boco%direction / abs(boco%direction)
+  if (rpm_existkey(pblock, "DIRECTION")) then
+    call rpmgetkeyvalstr (pblock, "DIRECTION", str)
+    temp_direction = v3d_of(str, info)
+    if (info /= 0) &
+         call erreur("menu definition","problem when parsing DIRECTION vector (NS initialization)") 
+    call convert_to_funct(temp_direction%x, boco%dir_x, info)
+    call convert_to_funct(temp_direction%y, boco%dir_y, info)
+    call convert_to_funct(temp_direction%z, boco%dir_z, info)
+  else
+    call rpmgetkeyvalstr(pblock, "DIR_X", str)
+    if (info /= 0) &
+    	call erreur("parsing parameters","unable to read DIR_X data (subsonic inlet)")
+    call convert_to_funct(str, boco%dir_x, info)  
+    call rpmgetkeyvalstr(pblock, "DIR_Y", str)
+    if (info /= 0) &
+    	call erreur("parsing parameters","unable to read DIR_Y data (subsonic inlet)")
+    call convert_to_funct(str, boco%dir_y, info)  
+    call rpmgetkeyvalstr(pblock, "DIR_Z", str)
+    if (info /= 0) &
+    	call erreur("parsing parameters","unable to read DIR_Z data (subsonic inlet)")
+    call convert_to_funct(str, boco%dir_z, info)  
+  endif
+
+  ! boco%direction = boco%direction / abs(boco%direction) MOVED TO setboco_ns_inlet_sub.f90
   !call erreur("Development","'bc_inlet_sub' : Case not implemented")
 
 case(bc_inlet_sup)
@@ -120,11 +140,30 @@ case(bc_inlet_sup)
   call convert_to_funct(str, boco%mach, info)  
   if (info /= 0) &
        call erreur("menu definition","problem when parsing MACH (NS boundary condition)") 
-  call rpmgetkeyvalstr (pblock, "DIRECTION", str)
-  boco%direction = v3d_of(str, info)
-  if (info /= 0) &
-    call erreur("parsing parameters","unable to read DIRECTION data (supersonic inlet)")
-  boco%direction = boco%direction / abs(boco%direction)
+  if (rpm_existkey(pblock, "DIRECTION")) then
+    call rpmgetkeyvalstr (pblock, "DIRECTION", str)
+    temp_direction = v3d_of(str, info)
+    if (info /= 0) &
+         call erreur("menu definition","problem when parsing DIRECTION vector (NS initialization)") 
+    call convert_to_funct(temp_direction%x, boco%dir_x, info)
+    call convert_to_funct(temp_direction%y, boco%dir_y, info)
+    call convert_to_funct(temp_direction%z, boco%dir_z, info)
+  else
+    call rpmgetkeyvalstr(pblock, "DIR_X", str)
+    if (info /= 0) &
+    	call erreur("parsing parameters","unable to read DIR_X data (supersonic inlet)")
+    call convert_to_funct(str, boco%dir_x, info)  
+    call rpmgetkeyvalstr(pblock, "DIR_Y", str)
+    if (info /= 0) &
+    	call erreur("parsing parameters","unable to read DIR_Y data (supersonic inlet)")
+    call convert_to_funct(str, boco%dir_y, info)  
+    call rpmgetkeyvalstr(pblock, "DIR_Z", str)
+    if (info /= 0) &
+    	call erreur("parsing parameters","unable to read DIR_Z data (supersonic inlet)")
+    call convert_to_funct(str, boco%dir_z, info)  
+  endif
+
+  ! boco%direction = boco%direction / abs(boco%direction) MOVED TO setboco_ns_inlet_sup.f90
   !call erreur("Development","'bc_inlet_sup' : Case not implemented")
 
 case(bc_outlet_sub)
@@ -156,4 +195,5 @@ endsubroutine def_boco_ns
 ! june 2005 : wall conditions
 ! nov  2006 : NS wall conditions with WALL_VELOCITY
 ! fev  2007 : English translation
+! feb  2011 : symbolic funcions support added for inlet DIRECTION (A. Gardi)
 !------------------------------------------------------------------------------!

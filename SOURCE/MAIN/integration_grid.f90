@@ -59,6 +59,7 @@ endselect
 ! -- source terms and flux allocation (structure similar to field%etatcons) --
 
 call new(flux, grid%umesh%nface, grid%info%field_loc%nscal, grid%info%field_loc%nvect, 0)
+call init_genericfield(grid%info%field_loc%residu, 0._krp, v3d(0._krp, 0._krp, 0._krp))
 
 ! The whole mesh can be split here into fixed sized blocks
 ! for optimization of memory consumption and vectorization
@@ -138,4 +139,5 @@ endsubroutine integration_grid
 !            appel des routines d'integration temporelle
 ! Oct 2004 : field chained list
 ! Sep 2005 : local time stepping
+! Dec 2010 : init_genericfield(grid%info%field_loc%residu,...) moved from flux_to_res
 !------------------------------------------------------------------------------!
