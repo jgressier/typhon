@@ -5,22 +5,25 @@
 !   Computation of supersonic inlet boundary conditions
 !   
 !------------------------------------------------------------------------------!
-subroutine setboco_ns_inlet_sub(curtime, defns, unif, bc_ns, ustboco, umesh, fld)
+subroutine setboco_ns_inlet_sub(curtime, defns, mrf, unif, bc_ns, ustboco, umesh, fld)
 
 use TYPHMAKE
 use OUTPUT
 use VARCOM
-use MENU_BOCO
 use USTMESH
 use DEFFIELD 
 use FCT_EVAL
 use FCT_ENV
+use MENU_BOCO
+use MESHMRF
+use EQNS
 
 implicit none
 
 ! -- INPUTS --
 real(krp)        :: curtime
 type(mnu_ns)     :: defns            ! solver parameters
+type(mnu_mrf)    :: mrf              ! Moving Reference Frame parameters
 integer          :: unif             ! uniform or not
 type(st_boco_ns) :: bc_ns            ! parameters (field or constant)
 type(st_ustboco) :: ustboco          ! lieu d'application des conditions aux limites
@@ -34,11 +37,12 @@ integer                :: ifb, if, ip, nf  ! index de liste, index de face limit
 integer                :: ic, ighost    ! index de cellule interieure, et de cellule fictive
 real(krp), allocatable :: ps(:), pi(:), ti(:)
 type(v3d), allocatable :: dir(:)
-type(st_nsetat) :: nspri
+type(v3d)              :: pos
+type(st_nsetat)        :: nspri
 
 ! -- BODY --
 
-if (unif /= uniform) call erreur("Developpement","Condition non uniforme non implementee")
+if (unif /= uniform) call error_stop("Development: Condition non uniforme non implementee")
 
 call new_fct_env(blank_env)      ! temporary environment from FCT_EVAL
 
@@ -49,7 +53,6 @@ allocate(ps(nf))
 allocate(pi(nf))
 allocate(ti(nf))
 allocate(dir(nf))
-
 
 call fct_env_set_real(blank_env, "t", curtime)
 
@@ -71,6 +74,15 @@ enddo
 call pi_ti_ps_dir2nspri(defns%properties(1), nf, pi(1:nf), ti(1:nf), ps(1:nf), dir(1:nf), &
                         nspri) 
 
+! BOundary COnditions transformation in the Moving Reference Frame
+if (mrf%type /= mrf_none) then
+  do ifb = 1, nf
+    if   = ustboco%iface(ifb)
+    pos  = umesh%mesh%iface(if,1,1)%centre
+    call mrf_abs2rel(mrf, curtime, pos, nspri%velocity(ifb))    ! DEV: need to vectorize ?
+  enddo
+endif
+
 do ifb = 1, nf
   if      = ustboco%iface(ifb)
   ighost  = umesh%facecell%fils(if,2)
@@ -84,12 +96,12 @@ call delete(nspri)
 deallocate(ps, pi, ti, dir)
 
 endsubroutine setboco_ns_inlet_sub
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !
 ! july 2004 : creation
 ! June 2008 : FCT function for pi, ti, mach (function of X, Y, Z)
 ! Mar  2010 : time dependent conditions
-! Feb  2011 : symbolic funcions evaluation for DIRECTION fields (A. Gardi)
+! Feb  2011 : symbolic functions evaluation for DIRECTION fields (A. Gardi)
+! Feb  2011 : Boundary Conditions transformation in the Moving Reference Frame
 !------------------------------------------------------------------------------!

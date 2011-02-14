@@ -6,7 +6,7 @@
 !
 !------------------------------------------------------------------------------!
 subroutine integration_grid(dt, typtemps, defsolver, grid, &
-                            coupling, ncoupling, mat)
+                            coupling, ncoupling, mat, curtime)
 
 use TYPHMAKE
 use OUTPUT
@@ -25,6 +25,7 @@ real(krp)        :: dt               ! CFL time step
 character        :: typtemps         ! time model (STEADY, UNSTEADY, PERIODIC)
 type(mnu_solver) :: defsolver        ! solver parameters
 integer          :: ncoupling        ! number of couplings of the zone
+real(krp)        :: curtime          ! temps courant
 
 ! -- Inputs/Outputs --
 type(st_grid)    :: grid             ! grid
@@ -70,7 +71,7 @@ case(solKDIF)
                             flux, calc_jac, jacL, jacR)
 case(solNS)
   call integration_ns_ust(defsolver, defsolver%defspat, grid%umesh, grid%info%field_loc, &
-                          flux, calc_jac, jacL, jacR)
+                          flux, calc_jac, jacL, jacR, curtime)
 case default
   call erreur("internal error (integration_grid)", "unknown or unexpected solver")
 endselect

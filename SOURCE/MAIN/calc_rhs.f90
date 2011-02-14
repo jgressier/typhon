@@ -116,7 +116,7 @@ do while (associated(pgrid))
   endselect
 
   call integration_grid(dt, info%time_model, defsolver, &
-                        pgrid, coupling, ncoupling, mat)
+                        pgrid, coupling, ncoupling, mat, curtime)
 
   ! -- implicit resolution --
 

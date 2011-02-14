@@ -8,7 +8,7 @@
 !
 !------------------------------------------------------------------------------!
 subroutine integration_ns_ust(defsolver, defspat, umesh, field, flux, &
-                              calc_jac, jacL, jacR)
+                              calc_jac, jacL, jacR, curtime)
 
 use TYPHMAKE
 use OUTPUT
@@ -27,6 +27,7 @@ type(mnu_solver) :: defsolver        ! type d'equation a resoudre
 type(mnu_spat)   :: defspat          ! parametres d'integration spatiale
 type(st_ustmesh) :: umesh            ! umesh non structure a integrer
 logical          :: calc_jac         ! choix de calcul de la jacobienne
+real(krp)        :: curtime          ! temps courant
 
 ! -- Inputs/Outputs --
 type(st_field)   :: field            ! champ des valeurs et residus
@@ -146,6 +147,10 @@ call delete(gradR)
 
 deallocate(ista, iend)
 
+! MRF source terms
+
+call calc_source_mrf(umesh, field, defsolver%defmrf, curtime)
+
 !-------------------------------------------------------------
 ! flux assignment or modification on boundary conditions
 
@@ -156,7 +161,6 @@ if (calc_jac) then
 endif
 
 endsubroutine integration_ns_ust
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !
@@ -165,4 +169,5 @@ endsubroutine integration_ns_ust
 ! Feb 2005: call to viscous flux computation
 ! nov 2007: add post limitation
 ! May 2009: split high order extrapolation to calc_hres_states
+! Dec 2010: call for Moving Reference Frame source terms calculation (A. Gardi)
 !------------------------------------------------------------------------------!

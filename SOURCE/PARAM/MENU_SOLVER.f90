@@ -15,6 +15,7 @@ module MENU_SOLVER
 use TYPHMAKE      ! Definition de la precision
 use QUANTITY      ! CFDTOOLS module: quantity id and names
 use MESHPARAMS
+use MESHMRF
 use MENU_NUM      ! Definition des parametres numeriques d'integration
 use MENU_NS       ! Definition des solveurs type NS
 use MENU_KDIF     ! Definition des solveurs type Equation de diffusion
@@ -48,6 +49,7 @@ type mnu_solver
   integer, pointer   :: idsca(:)        ! names for primitive scalars 
   integer, pointer   :: idvec(:)        ! names for primitive vectors 
   type(mnu_mesh)  :: defmesh         ! mesh / geometry parameters
+  type(mnu_mrf)   :: defmrf          ! mesh / moving reference frame
   type(mnu_time)  :: deftime         ! parametres d'integration temporelle
   type(mnu_spat)  :: defspat         ! parametres d'integration spatiale
   type(mnu_ns)    :: defns           ! options si solveur NS
@@ -288,6 +290,7 @@ endmodule MENU_SOLVER
 ! dec  2006 : add reference values
 ! June 2009 : add quantity names
 ! Nov  2009 : transfer quantity names to CFDTOOLS/Models/QUANTITY
+! Dec  2010 : MRF parameters (A. Gardi)
 !------------------------------------------------------------------------------!
 
 

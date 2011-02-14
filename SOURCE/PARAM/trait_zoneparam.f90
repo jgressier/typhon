@@ -38,6 +38,7 @@ character(len=dimrpmlig):: str            ! chaine RPM intermediaire
 ! -------------------------
 ! MESH definition
 
+call def_mrf (block, zone%defsolver%defmrf)
 call def_mesh(block, zone%defsolver%defmesh)
 
 ! -------------------------
@@ -132,7 +133,6 @@ call def_check(zone)
 
 
 endsubroutine trait_zoneparam
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !

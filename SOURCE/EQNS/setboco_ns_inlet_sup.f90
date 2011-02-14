@@ -5,22 +5,26 @@
 !   Computation of supersonic inlet boundary conditions
 !   
 !------------------------------------------------------------------------------!
-subroutine setboco_ns_inlet_sup(curtime, defns, unif, bc_ns, ustboco, umesh, fld)
+subroutine setboco_ns_inlet_sup(curtime, defns, mrf, unif, bc_ns, ustboco, umesh, fld)
 
 use TYPHMAKE
 use OUTPUT
 use VARCOM
-use MENU_BOCO
 use USTMESH
 use DEFFIELD 
 use FCT_EVAL
 use FCT_ENV
+use MENU_SOLVER
+use MENU_BOCO
+use MESHMRF
+use EQNS
 
 implicit none
 
 ! -- INPUTS --
 real(krp)        :: curtime
 type(mnu_ns)     :: defns            ! solver parameters
+type(mnu_mrf)    :: mrf              ! Moving Reference Frame parameters
 integer          :: unif             ! uniform or not
 type(st_boco_ns) :: bc_ns            ! parameters (field or constant)
 type(st_ustboco) :: ustboco          ! lieu d'application des conditions aux limites
@@ -32,13 +36,14 @@ type(st_field)   :: fld              ! fld des etats
 ! -- Internal Variables --
 integer         :: ifb, if, ip, nf  ! index de liste, index de face limite et parametres
 integer         :: ighost, ic       ! index de cellule interieure, et de cellule fictive
+type(v3d)       :: pos
 type(st_nsetat) :: nspri
 real(krp), allocatable :: mach(:), pi(:), ti(:)
 type(v3d), allocatable :: dir(:)
 
 ! -- BODY --
 
-if (unif /= uniform) call erreur("Developpement","Condition non uniforme non implementee")
+if (unif /= uniform) call error_stop("Development: Condition non uniforme non implementee")
 
 nf = ustboco%nface
 
@@ -70,6 +75,15 @@ enddo
 
 call pi_ti_mach_dir2nspri(defns%properties(1), nf, pi, ti, mach, dir, nspri) 
 
+! BOundary COnditions transformation in the Moving Reference Frame
+if (mrf%type /= mrf_none) then
+  do ifb = 1, nf
+    if   = ustboco%iface(ifb)
+    pos  = umesh%mesh%iface(if,1,1)%centre
+    call mrf_abs2rel(mrf, curtime, pos, nspri%velocity(ifb))    ! DEV: need to vectorize ?
+  enddo
+endif
+
 do ifb = 1, nf
   if     = ustboco%iface(ifb)
   ighost = umesh%facecell%fils(if,2)
@@ -83,7 +97,6 @@ call delete(nspri)
 deallocate(pi, ti, mach, dir)
 
 endsubroutine setboco_ns_inlet_sup
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !
@@ -91,4 +104,5 @@ endsubroutine setboco_ns_inlet_sup
 ! June 2008 : FCT function for pi, ti, mach (function of X, Y, Z)
 ! Mar  2010 : time dependent conditions
 ! Feb  2011 : symbolic funcions evaluation for DIRECTION fields (A. Gardi)
+! Feb  2011 : Boundary Conditions transformation in the Moving Reference Frame
 !------------------------------------------------------------------------------!

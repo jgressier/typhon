@@ -38,11 +38,11 @@ integer          :: icell, ighost    ! index de cellule interieure, et de cellul
 select case(defboco%typ_boco) 
 
 case(bc_inlet_sup)
-  call setboco_ns_inlet_sup(curtime, defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
+  call setboco_ns_inlet_sup(curtime, defsolver%defns, defsolver%defmrf, defboco%boco_unif, defboco%boco_ns, &
                             ustboco, grid%umesh, grid%info%field_loc)
 
 case(bc_inlet_sub)
-  call setboco_ns_inlet_sub(curtime, defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
+  call setboco_ns_inlet_sub(curtime, defsolver%defns, defsolver%defmrf, defboco%boco_unif, defboco%boco_ns, &
                             ustboco, grid%umesh, grid%info%field_loc)
 
 case(bc_outlet_sup)
@@ -86,4 +86,5 @@ endsubroutine calcboco_ns
 !
 ! july 2004 : creation (called)
 ! oct  2004 : field chained list
+! feb  2011 : MRF parameters passed to setboco_ns_inlet_sub/sup
 !------------------------------------------------------------------------------!

@@ -30,6 +30,7 @@ PARAM_OBJ := $(PARAM_MOD:.$(MODEXT)=.o)  \
             def_init.o         \
             def_inverse.o      \
             def_mesh.o         \
+            def_mrf.o          \
             def_mpi.o          \
             def_other.o        \
             def_output.o       \
