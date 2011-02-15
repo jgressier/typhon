@@ -37,7 +37,7 @@ type mnu_mrf
   type(v3d)          :: velocity      ! center (initial) velocity
   type(v3d)          :: acceleration  ! center acceleration
   type(v3d)          :: axis          ! rotation axis
-  real(krp)          :: omega, osc_period, osc_angle
+  real(krp)          :: omega, osc_period, osc_angle, phi
 endtype mnu_mrf
 
 
@@ -69,19 +69,31 @@ type(v3d)          :: omega, radius, mrfvelocity
 ! -- BODY --
 
 ! Angular parameters
-osc_om = 2._krp*acos(-1._krp)/mrf%osc_period   ! DEV: must use MATH module in future
-theta =  mrf%omega*time    + mrf%osc_angle * sin(osc_om*time)
-omega = (mrf%omega  + osc_om*mrf%osc_angle * cos(osc_om*time)) * mrf%axis
 
 select case(mrf%type)
 case(mrf_none)
-case(mrf_rot_osc)
+
+case(mrf_rot_cst)
+  theta =  mrf%omega * time
+  omega =  mrf%omega * mrf%axis
   ! Boundary Vabs rotation due to MRF position (theta(t))
   call rot(velocity, mrf%axis, -theta)
   ! Vabs -> Vrel thanks to MRF velocity (omega(t) x r)
   radius      =  pos - mrf%center
   mrfvelocity = omega .vect. radius
   velocity    = velocity - mrfvelocity
+
+case(mrf_rot_osc)
+  osc_om = 2._krp*acos(-1._krp)/mrf%osc_period   ! DEV: must use MATH module in future
+  theta =  mrf%omega*time    + mrf%osc_angle * sin(osc_om*time + mrf%phi)
+  omega = (mrf%omega  + osc_om*mrf%osc_angle * cos(osc_om*time + mrf%phi)) * mrf%axis
+  ! Boundary Vabs rotation due to MRF position (theta(t))
+  call rot(velocity, mrf%axis, -theta)
+  ! Vabs -> Vrel thanks to MRF velocity (omega(t) x r)
+  radius      =  pos - mrf%center
+  mrfvelocity = omega .vect. radius
+  velocity    = velocity - mrfvelocity
+
 case default
   call cfd_error("(MRF) unknown or not implemented MRF definition (mrf_abs2rel)")
 endselect

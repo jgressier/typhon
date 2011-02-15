@@ -7,14 +7,12 @@ BLOCK:PROJECT           ! DEFINITION DU PROJET
   COORD     = 2D      
   TIME      = UNSTEADY 
   DURATION  = .01
-  NCYCLE    = 100
-  RESIDUALS = 1.e-4
+  NCYCLE    = 20 
 ENDBLOCK               
 
 BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
   FORMAT = VTK-BIN
   FILE   = "typhon"
-  PERIOD = 1 
 ENDBLOCK
 
 BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )

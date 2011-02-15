@@ -57,46 +57,52 @@ case(1)
   if (samestring(str,"OSCILLATING_ROTATION"))    defmrf%type = mrf_rot_osc
 
   defmrf%axis = v3d(0._krp, 0._krp, 1._krp)     
+  defmrf%phi = 0._krp
 
   select case(defmrf%type)
   case(mrf_none)
     call print_info(7,"  no moving reference frame defined")
+
   case(mrf_trans_cst)
-    call print_info(7,"  constant translational velocity")
+    call print_info(7,"  constant translational velocity (works but does exactly nothing!)")
     call rpmgetkeyvalstr(pcour, "CENTER_VELOCITY", str)
     defmrf%velocity = v3d_of(str, info)     
+
   case(mrf_trans_lin)
     call print_info(7,"  constant (translational) acceleration")
     call rpmgetkeyvalstr(pcour, "CENTER_ACCELERATION", str)
     defmrf%acceleration = v3d_of(str, info)     
     call rpmgetkeyvalstr(pcour, "CENTER_VELOCITY", str, "(0., 0., 0.)")
     defmrf%velocity = v3d_of(str, info)     
+
   case(mrf_trans_osc)
     call print_info(7,"  oscillating translational velocity")
     call error_stop("parameters parsing: oscillating translational velocity not yet implemented")
+
   case(mrf_rot_cst)
     call print_info(7,"  constant rotational velocity")
     call rpmgetkeyvalstr(pcour, "CENTER", str, "(0., 0., 0.)")
     defmrf%center = v3d_of(str, info)     
     call rpmgetkeyvalstr(pcour, "AXIS", str, "(0., 0., 1.)")
     defmrf%axis = v3d_of(str, info)     
-    if (rpm_existkey(pcour, "ROTATION_RPM")) then
+    if (rpm_existkey(pcour, "OMEGA_RPM")) then
       call rpmgetkeyvalreal(pcour, "OMEGA_RPM",  omega_rpm)
       defmrf%omega = 2._krp*pi*omega_rpm/60._krp
     else
       call rpmgetkeyvalreal(pcour, "OMEGA",  defmrf%omega)
     endif
-    
+
   case(mrf_rot_lin)
     call print_info(7,"  accelerating rotation")
     call error_stop("parameters parsing: accelerating rotation not yet implemented")
+
   case(mrf_rot_osc)
     call print_info(7,"  oscillating rotation")
     call rpmgetkeyvalstr(pcour, "CENTER", str, "(0., 0., 0.)")
     defmrf%center = v3d_of(str, info)     
     call rpmgetkeyvalstr(pcour, "AXIS", str, "(0., 0., 1.)")
     defmrf%axis = v3d_of(str, info)     
-    if (rpm_existkey(pcour, "ROTATION_RPM")) then
+    if (rpm_existkey(pcour, "OMEGA_RPM")) then
       call rpmgetkeyvalreal(pcour, "OMEGA_RPM",  omega_rpm)
       defmrf%omega = 2._krp*pi*omega_rpm/60._krp
     else
@@ -105,12 +111,17 @@ case(1)
     call rpmgetkeyvalreal(pcour, "OSC_ANGLE",  defmrf%osc_angle)
     defmrf%osc_angle = pi/180._krp*defmrf%osc_angle
     call rpmgetkeyvalreal(pcour, "OSC_PERIOD", defmrf%osc_period)
+    if (abs(defmrf%osc_period) < epsilon(1._krp)) then
+      call error_stop("parameters parsing: invalid (null) OSC_PERIOD for the rotationally oscillating reference frame")
+    endif
+    call rpmgetkeyvalreal(pcour, "PHI",  defmrf%phi, 0._krp)
+
   case default
     call error_stop("parameters parsing: unknown MRF type definition")
   endselect
 
   if (abs(defmrf%axis) < epsilon(1._krp)) then
-    call error_stop("parameters parsing: invalid rotation axis (null module) for the Moving Reference Frame")
+    call error_stop("parameters parsing: invalid (null) rotation AXIS for the rotating reference frame")
   else
     defmrf%axis = defmrf%axis/abs(defmrf%axis)
   endif
