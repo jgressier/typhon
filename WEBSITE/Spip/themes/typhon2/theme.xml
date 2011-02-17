@@ -27,6 +27,7 @@
        dans theme.xml) du/des squelettes concernes.
     -->
   <squelettes>typhon-dist</squelettes>
+  <squelettes>test-dist</squelettes>
   <description>
     <multi>
       Activate this 'habillage' to modify the look of the official distribution.
