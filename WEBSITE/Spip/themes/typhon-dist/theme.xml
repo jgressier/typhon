@@ -1,0 +1,21 @@
+<theme>
+	<nom> <!-- Nom du plugin -->
+	  typhon-dist
+	</nom>
+	<auteur>	<!-- Auteur du plugin -->
+		J. Gressier
+	</auteur>
+	<version>
+	1.9
+	</version>
+	<etat>
+	stable
+	</etat>
+	<description>
+		Typhon squelette (from legacy-dist)
+	</description>
+	<type> 
+	squelettes
+	</type>
+
+</theme>

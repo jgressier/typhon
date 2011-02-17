@@ -1,0 +1,13 @@
+#CACHE{0}
+[(#HTTP_HEADER{Content-Type: text/html[; charset=(#CHARSET)]})]
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="#LANG" lang="#LANG" dir="#LANG_DIR">
+<head>
+<title><:pass_vousinscrire:></title>
+[<meta name="description" content="(#DESCRIPTIF_SITE_SPIP|couper{150}|attribut_html)" />]
+<INCLURE{fond=inc-head}>
+</head>
+<body class="page_sommaire">
+#FORMULAIRE_INSCRIPTION{#ENV{mode},#ENV{focus},#ENV{id_rubrique}}
+</body>
+</html>

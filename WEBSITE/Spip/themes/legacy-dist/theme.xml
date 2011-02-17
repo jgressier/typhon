@@ -1,0 +1,27 @@
+<theme>
+	<nom> <!-- Nom du plugin -->
+	  legacy-dist
+	</nom>
+	<auteur>	<!-- Auteur du plugin -->
+_ <multi>  
+Legacy distribution from Spip installation
+</multi>
+	</auteur>
+	<version>
+	1.9
+	</version>
+	<etat>
+	stable
+	</etat>
+	<description>
+<multi>
+This is the official SPIP 'squelettes' distribution located in 'dist' directory
+[fr]
+Voici la distribution officielle des squelettes pour SPIP, (fichiers dans le r&eacute;pertoire 'dist')
+</multi>
+	</description>
+	<type> 
+	squelettes
+	</type>
+
+</theme>

@@ -13,38 +13,6 @@
 	[(#REM) Entete de la page + titre du site ]
 	<INCLURE{fond=inc-entete}>
 
-
-    [(#REM) Menu de navigation laterale ]
-    <div id="navigation">
-
-        [(#REM) Menu de navigation par rubriques ]
-        <INCLURE{fond=inc-rubriques}{id_rubrique}>
-	
-		#FORMULAIRE_RECHERCHE
-
-    
-    [(#REM) Menu de navigation laterale ]
-    <div id="extra">
-
-        [(#REM) Articles dans la meme rubrique ]
-        <B_articles_rubrique>
-        <div class="menu">
-            <h2><a href="#URL_RUBRIQUE"><:meme_rubrique:></a></h2>
-            <ul>
-                <BOUCLE_articles_rubrique(ARTICLES) {id_rubrique} {par date}{inverse} {0,10}>
-                <li><a href="#URL_ARTICLE"[ class="(#EXPOSE)"]>#TITRE</a></li>
-                </BOUCLE_articles_rubrique>
-            </ul>
-        </div>
-        </B_articles_rubrique>
-
-        [(#REM) Menu de navigation mots-cles ]
-        #MODELE{article_mots}
-        
-    </div><!--#extra-->
-    </div><!--#navigation-->
-
-
 	[(#REM) Contenu principal : contenu de l'article ]
     <div class="hfeed" id="conteneur">
     <div class="hentry" id="contenu">
@@ -60,7 +28,7 @@
 				[<p class="#EDIT{soustitre} soustitre">(#SOUSTITRE)</p>]
             </div>
 
-            <p><small><abbr class="published" title="[(#DATE|date_iso)]">[(#DATE_MODIF|nom_jour) ][(#DATE_MODIF|affdate)]</abbr>[, <:par_auteur:> (#LESAUTEURS)][ (<:texte_date_publication_anterieure:> (#DATE_REDAC|affdate)).]</small></p>
+            <p><small><abbr class="published" title="[(#DATE|date_iso)]">[(#DATE|nom_jour) ][(#DATE|affdate)]</abbr>[, <:par_auteur:> (#LESAUTEURS)][ (<:texte_date_publication_anterieure:> (#DATE_REDAC|affdate)).]</small></p>
 
             [(#REM) Inclure le modele des liens de traductions ]
             #MODELE{article_traductions}
@@ -101,6 +69,35 @@
 	</div><!--#conteneur-->
 
 
+    [(#REM) Menu de navigation laterale ]
+    <div id="navigation">
+
+        [(#REM) Menu de navigation par rubriques ]
+        <INCLURE{fond=inc-rubriques}{id_rubrique}>
+	
+		#FORMULAIRE_RECHERCHE
+
+    </div><!--#navigation-->
+    
+    [(#REM) Menu de navigation laterale ]
+    <div id="extra">
+
+        [(#REM) Articles dans la meme rubrique ]
+        <B_articles_rubrique>
+        <div class="menu">
+            <h2><a href="#URL_RUBRIQUE"><:meme_rubrique:></a></h2>
+            <ul>
+                <BOUCLE_articles_rubrique(ARTICLES) {id_rubrique} {par date}{inverse} {0,10}>
+                <li><a href="#URL_ARTICLE"[ class="(#EXPOSE)"]>#TITRE</a></li>
+                </BOUCLE_articles_rubrique>
+            </ul>
+        </div>
+        </B_articles_rubrique>
+
+        [(#REM) Menu de navigation mots-cles ]
+        #MODELE{article_mots}
+        
+    </div><!--#extra-->
 
 	[(#REM) Pied de page ]
 	<INCLURE{fond=inc-pied}{skel=#SQUELETTE}>

@@ -2,9 +2,6 @@
 	Un cache plus court, pour la boucle syndic_articles
 ]#CACHE{3600}
 <BOUCLE_principale(RUBRIQUES) {id_rubrique}>
-<BOUCLE_test_article_edito(ARTICLES){id_rubrique}{titre='Presentation'}{0,1}>
-  <INCLURE{fond=article}{id_article}>
-</BOUCLE_test_article_edito>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="#LANG" lang="#LANG" dir="#LANG_DIR">
 <head>
@@ -21,34 +18,6 @@
 	[(#REM) Entete de la page + titre du site ]
 	<INCLURE{fond=inc-entete}>
 
-    [(#REM) Menu de navigation laterale ]
-    <div id="navigation">
-
-        [(#REM) Menu de navigation par rubriques ]
-        <INCLURE{fond=inc-rubriques}{id_rubrique}>
-		
-		#FORMULAIRE_RECHERCHE
-
-    
-    [(#REM) Menu de navigation laterale ]
-    <div id="extra">
-
-        [(#REM) Menu de navigation mots-cles ]
-        <B_mots>
-        <div class="menu">
-            <h2><:mots_clefs:></h2>
-            <ul>
-                <BOUCLE_mots(MOTS) {id_rubrique} {par titre}>
-                <li><a href="#URL_MOT" rel="tag">#TITRE</a></li>
-                </BOUCLE_mots>
-            </ul>
-        </div>
-        </B_mots>
-        
-    </div><!--#extra-->
-    </div><!--#navigation-->
-
-
 	[(#REM) Contenu principal : contenu de la rubrique ]
     <div id="conteneur">
     <div id="contenu">
@@ -59,22 +28,22 @@
         <div class="cartouche">
             [(#LOGO_RUBRIQUE||image_reduire{200,200})]
             <h1 class="#EDIT{titre}">#TITRE</h1>
-            [<p><small><:dernier_ajout:> : (#DATE_MODIF|affdate_jourcourt).</small></p>]
+            [<p><small><:dernier_ajout:> : (#DATE|affdate_jourcourt).</small></p>]
         </div>
 
         [<div class="#EDIT{texte} chapo">(#TEXTE)</div>]
 
-        [(#REM) Articles de la rubrique ET SOUS RUBRIQUES ]
+        [(#REM) Articles de la rubrique ]
         <B_articles>
         <div class="menu articles">
             #ANCRE_PAGINATION
             <h2><:articles_rubrique:></h2>
             <ul>
-                <BOUCLE_articles(ARTICLES){branche}{doublons}{par date}{inverse} {pagination}>
+                <BOUCLE_articles(ARTICLES) {id_rubrique} {par date}{inverse} {pagination}>
                 <li>
                     [(#LOGO_ARTICLE|#URL_ARTICLE|image_reduire{150,100})]
                     <h3><a href="#URL_ARTICLE">#TITRE</a></h3>
-                    <small>[(#DATE_MODIF|affdate_jourcourt)][, <:par_auteur:> (#LESAUTEURS)]</small>
+                    <small>[(#DATE|affdate_jourcourt)][, <:par_auteur:> (#LESAUTEURS)]</small>
                 </li>
                 </BOUCLE_articles>
             </ul>
@@ -171,11 +140,37 @@
 	</div><!--#contenu-->
 	</div><!--#conteneur-->
 
+    [(#REM) Menu de navigation laterale ]
+    <div id="navigation">
+
+        [(#REM) Menu de navigation par rubriques ]
+        <INCLURE{fond=inc-rubriques}{id_rubrique}>
+		
+		#FORMULAIRE_RECHERCHE
+
+    </div><!--#navigation-->
+    
+    [(#REM) Menu de navigation laterale ]
+    <div id="extra">
+
+        [(#REM) Menu de navigation mots-cles ]
+        <B_mots>
+        <div class="menu">
+            <h2><:mots_clefs:></h2>
+            <ul>
+                <BOUCLE_mots(MOTS) {id_rubrique} {par titre}>
+                <li><a href="#URL_MOT" rel="tag">#TITRE</a></li>
+                </BOUCLE_mots>
+            </ul>
+        </div>
+        </B_mots>
+        
+    </div><!--#extra-->
+
 	[(#REM) Pied de page ]
 	<INCLURE{fond=inc-pied}{skel=#SQUELETTE}>
 
 </div><!--#page-->
 </body>
 </html>
-<//B_test_article_edito>
 </BOUCLE_principale>

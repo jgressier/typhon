@@ -1,0 +1,37 @@
+<theme>
+  <!-- 
+       Ce fichier identifie les themes pour le plugin "habillages" 
+       ou d'autres plugins de gestion d'habillages pour SPIP. 
+    -->
+  <nom>Typhon2</nom>
+  <auteur>J. Gressier</auteur>
+  <version>1.0</version>
+  <etat>stable</etat>
+  <!-- 
+       Le type sert a identifier le contenu du dossier qui
+       contient le present fichier. Les types sont :
+       - "squelettes" : les squelettes de l'espace public;
+       - "themes" : les couleurs de fonds et de textes;
+       - "logos_site" : les logos de site;
+       - "logos_rubart" : les logos de rubriques et d'articles;
+       - "icones_prive" : les icones de l'espace prive;
+       - "extras" : les comportements inseres notament par du javascript.
+       Le type sert au plugin pour savoir quel contenu lister dans
+       les rubriques dediees (squelettes, themes, logos, extras, espace prive).
+    -->
+  <type>themes</type>
+  <!-- 
+       La balise <squelettes> contient les squelettes avec lesquels
+       est compatible ce style. Pas de majuscule, ni de caracteres
+       accentues ici. <squelettes> correspond ici au prefixe (indique
+       dans theme.xml) du/des squelettes concernes.
+    -->
+  <squelettes>typhon-dist</squelettes>
+  <description>
+    <multi>
+      Activate this 'habillage' to modify the look of the official distribution.
+      [fr]
+      Activez cet habillage pour changer les couleurs de vos squelettes SPIP
+    </multi>
+  </description>
+</theme>
