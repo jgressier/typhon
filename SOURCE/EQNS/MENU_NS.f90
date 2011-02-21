@@ -26,11 +26,14 @@ implicit none
 ! structure MNU_NS : options numeriques les solveurs Euler, NS et RANS
 !------------------------------------------------------------------------------!
 type mnu_ns
-  integer         :: typ_fluid         ! type de fluide (cf definitions parameter) 
-  integer         :: typ_gas           ! type de gaz    (cf definitions parameter)
-  integer         :: nb_species        ! nombre d'especes resolues
+  integer           :: typ_fluid         ! type de fluide (cf definitions parameter) 
+  integer           :: typ_gas           ! type de gaz    (cf definitions parameter)
+  integer           :: nb_species        ! nombre d'especes resolues
   type(st_espece), dimension(:), pointer &
-                  :: properties        ! proprietes des differentes especes
+                    :: properties        ! proprietes des differentes especes
+  logical           :: is_extforce, is_extpower
+  type(st_fct_node) :: extforce_x, extforce_y, extforce_z
+  type(st_fct_node) :: extpower
 endtype mnu_ns
 
 !------------------------------------------------------------------------------!

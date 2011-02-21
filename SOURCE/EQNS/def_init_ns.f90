@@ -39,20 +39,20 @@ pblock => block
 if (rpm_existkey(pblock, "PI")) then
   initns%is_pstat = .false.
   call rpmgetkeyvalstr(pblock, "PI", str)
-  print*," parsing       PI = "//trim(str)
   call string_to_funct(str, initns%ptot, info)
+  if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
 else
   initns%is_pstat = .true.
   call rpmgetkeyvalstr(pblock, "P", str)
-  print*," parsing       P  = "//trim(str)
   call string_to_funct(str, initns%pstat, info)
+  if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
 endif
 
 if (rpm_existkey(pblock, "DENSITY")) then
   initns%is_density = .true.
   call rpmgetkeyvalstr(pblock, "DENSITY", str)
-  print*," parsing  DENSITY = "//trim(str)
   call string_to_funct(str, initns%density, info)
+  if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
   if (rpm_existkey(pblock, "TI")) call erreur("NS initialization", "over-defined state (TI)")
   if (rpm_existkey(pblock, "T"))  call erreur("NS initialization", "over-defined state (T)")
   initns%is_tstat = .false.
@@ -60,14 +60,14 @@ elseif (rpm_existkey(pblock, "TI")) then
   initns%is_density = .false.
   initns%is_tstat   = .false.
   call rpmgetkeyvalstr(pblock, "TI", str)
-  print*," parsing       TI = "//trim(str)
   call string_to_funct(str, initns%ttot, info)
+if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
 else
   initns%is_density = .false.
   initns%is_tstat   = .true.
   call rpmgetkeyvalstr(pblock, "T", str)
-  print*," parsing       T  = "//trim(str)
   call string_to_funct(str, initns%tstat, info)
+  if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
 endif
 
 if (rpm_existkey(pblock, "VX")) then
@@ -75,39 +75,45 @@ if (rpm_existkey(pblock, "VX")) then
   initns%is_velocity   = .true.  ! same kind of definition
   call rpmgetkeyvalstr(pblock, "VX", str)
   call convert_to_funct(str, initns%vx, info)  
+    if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
   call rpmgetkeyvalstr(pblock, "VY", str)
   call convert_to_funct(str, initns%vy, info)  
+    if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
   call rpmgetkeyvalstr(pblock, "VZ", str)
   call convert_to_funct(str, initns%vz, info)
+    if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
 else
   initns%is_vcomponent = .false.
   if (rpm_existkey(pblock, "MACH")) then
     initns%is_velocity = .false.
     call rpmgetkeyvalstr(pblock, "MACH", str)
-    print*," parsing     MACH = "//trim(str)
     call string_to_funct(str, initns%mach, info)
+    if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
   else
     initns%is_velocity = .true.
     call rpmgetkeyvalstr(pblock, "VELOCITY", str)
-    print*," parsing VELOCITY = "//trim(str)
     call string_to_funct(str, initns%velocity, info)
+    if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
   endif
 
   if (rpm_existkey(pblock, "DIRECTION")) then
     call rpmgetkeyvalstr (pblock, "DIRECTION", str)
     direction = v3d_of(str, info)
     if (info /= 0) &
-         call erreur("menu definition","problem when parsing DIRECTION vector (NS initialization)") 
+         call error_stop("menu definition: problem when parsing DIRECTION vector (NS initialization)") 
     call convert_to_funct(direction%x, initns%dir_x, info)
     call convert_to_funct(direction%y, initns%dir_y, info)
     call convert_to_funct(direction%z, initns%dir_z, info)
   else
     call rpmgetkeyvalstr(pblock, "DIR_X", str)
     call convert_to_funct(str, initns%dir_x, info)  
+    if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
     call rpmgetkeyvalstr(pblock, "DIR_Y", str)
     call convert_to_funct(str, initns%dir_y, info)  
+    if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
     call rpmgetkeyvalstr(pblock, "DIR_Z", str)
     call convert_to_funct(str, initns%dir_z, info)  
+    if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
   endif
 endif
 

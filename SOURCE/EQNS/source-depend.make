@@ -23,6 +23,7 @@ EQNS_OBJ := $(EQNS_MOD:.$(MODEXT)=.o)    \
             calc_flux_rusanov.o       \
             calc_flux_inviscid.o      \
             calc_flux_viscous.o       \
+	    calc_source_ext.o         \
 	    calc_source_mrf.o         \
             calc_jac_gencall.o        \
             calc_jac_hll.o            \

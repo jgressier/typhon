@@ -39,9 +39,9 @@
             #ANCRE_PAGINATION
             <h2><:articles_rubrique:></h2>
             <ul>
-                <BOUCLE_articles(ARTICLES) {id_rubrique} {par date_redac}{inverse} {pagination}>
+                <BOUCLE_articles(ARTICLES) {id_rubrique} {par date_modif}{inverse} {pagination}>
                 <li>
-                    [(#LOGO_ARTICLE|#URL_ARTICLE|image_reduire{150,100})]
+                   [(#LOGO_ARTICLE|#URL_ARTICLE|image_reduire{150,100})]
                     <h3><a href="#URL_ARTICLE">#TITRE</a></h3>
                     <small>[(#DATE_MODIF|affdate_jourcourt)][, <:par_auteur:> (#LESAUTEURS)]</small>
                 </li>
@@ -87,7 +87,7 @@
 			[(#ANCRE_PAGINATION)]
 			<h2><:derniers_articles:></h2>
 			<ul>
-				<BOUCLE_articles_recents(ARTICLES) {branche} {par date_redac}{inverse} {pagination 5}>
+				<BOUCLE_articles_recents(ARTICLES) {branche} {par date_modif}{inverse} {pagination 5}>
 				<li class="hentry">
 					[(#LOGO_ARTICLE_RUBRIQUE|#URL_ARTICLE|image_reduire{150,100})]
 					<h3 class="entry-title"><a href="#URL_ARTICLE" rel="bookmark">#TITRE</a></h3>

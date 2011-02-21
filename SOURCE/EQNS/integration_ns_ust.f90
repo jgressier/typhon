@@ -147,7 +147,11 @@ call delete(gradR)
 
 deallocate(ista, iend)
 
-! MRF source terms
+! --- MRF source terms ---
+
+call calc_source_ext(umesh, field, defsolver%defns, curtime)
+
+! --- MRF source terms ---
 
 call calc_source_mrf(umesh, field, defsolver%defmrf, curtime)
 

@@ -14,6 +14,7 @@ use OUTPUT
 use VARCOM
 use MENU_SOLVER
 use MENU_NS
+use FCT_PARSER
 
 implicit none
 
@@ -26,7 +27,7 @@ type(mnu_solver)       :: defsolver
 ! -- Internal variables --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nkey           ! nombre de clefs
-integer                  :: i
+integer                  :: i, info
 character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 real(krp)                :: molweight
 
@@ -142,12 +143,39 @@ case default
   call erreur("viscosity computation", "unknown kind of computation")
 endselect
 
+! -- External forces and energy source --
+
+defsolver%defns%is_extforce = rpm_existkey(pcour, "EXT_FORCE_X").or. &
+                              rpm_existkey(pcour, "EXT_FORCE_Y").or. &
+                              rpm_existkey(pcour, "EXT_FORCE_Z")
+if (defsolver%defns%is_extforce) then
+  call print_info(10,"    . additional external force")
+  call rpmgetkeyvalstr(pcour, "EXT_FORCE_X", str, "0.")
+  call convert_to_funct(str, defsolver%defns%extforce_x, info)
+  if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
+  call rpmgetkeyvalstr(pcour, "EXT_FORCE_Y", str, "0.")
+  call convert_to_funct(str, defsolver%defns%extforce_y, info)
+  if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
+  call rpmgetkeyvalstr(pcour, "EXT_FORCE_Y", str, "0.")
+  call convert_to_funct(str, defsolver%defns%extforce_z, info)
+  if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
+endif
+
+defsolver%defns%is_extpower = rpm_existkey(pcour, "EXT_POWER")
+if (defsolver%defns%is_extpower) then
+  call print_info(10,"    . additional external energy source")
+  call rpmgetkeyvalstr(pcour, "EXT_POWER", str, "0.")
+  call convert_to_funct(str, defsolver%defns%extpower, info)
+  if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
+endif
 
 endsubroutine def_model_ns
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! sept 2003 : creation de la procedure
-! nov  2003 : definition du fluide (Euler) et du gaz (AIR mono espece)
+! sept 2003: creation de la procedure
+! nov  2003: definition du fluide (Euler) et du gaz (AIR mono espece)
+! sep  2005: various viscosity laws (constant, linear)
+! may  2009: various viscosity laws (constant kinematic)
+! feb  2011: external sources (forces and energy)
 !------------------------------------------------------------------------------!
