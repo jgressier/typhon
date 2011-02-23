@@ -34,12 +34,14 @@ select case(zinfo%time_model)
 case(time_steady)
   zinfo%residu_ref = max(zinfo%residu_ref, zinfo%cur_res)
   if (zinfo%cur_res/zinfo%residu_ref <= zinfo%residumax) zinfo%end_cycle = .true.
+  if (zinfo%iter_loc == zinfo%maxit) zinfo%end_cycle = .true.
   ! -- header --
   if (mod(zinfo%iter_loc, itfreq*nlines) == 1) call print_info(9,'     it residuals')
   ! -- residuals --
   if (mod(zinfo%iter_loc,itfreq) == 0) &
       write(str_w,'(i7,g12.4)') zinfo%iter_loc, log10(zinfo%cur_res) !   log10(zinfo%cur_res/zinfo%residu_ref)
       !if (mod(zinfo%iter_loc,itfreq) == 0) call print_info(9,str_w)
+  ! -- residuals --
 
 case(time_unsteady, time_unsteady_inverse)
   zinfo%cycle_time = zinfo%cycle_time + dt

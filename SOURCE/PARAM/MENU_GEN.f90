@@ -58,7 +58,7 @@ type mnu_project
   real(krp)       :: duration   ! time duration (if unsteady)
   real(krp)       :: tpsbase    ! pas de temps de base du couplage
   integer(kip)    :: ncycle     ! number of cycles (steady)
-  real(krp)       :: residumax  ! valeur maximale du residu admise (stationnaire)
+  real(krp)       :: residumax  ! valeur maximale du residu admise (steady)
   real(krp)       :: dtbase     ! pas de temps de base d'un cycle
   integer(kpp)    :: action     ! give main action to do
   type(mnu_inv)   :: inverse    ! parameters for inverse method

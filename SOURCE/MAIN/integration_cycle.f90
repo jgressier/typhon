@@ -94,6 +94,7 @@ do izone = 1, lworld%prj%nzone
 
   case(time_steady)
     lworld%zone(izone)%info%residumax  = lworld%zone(izone)%defsolver%deftime%maxres
+    lworld%zone(izone)%info%maxit      = lworld%zone(izone)%defsolver%deftime%maxit
     lworld%zone(izone)%info%residu_ref = lworld%info%cur_res
 
   case(time_unsteady)

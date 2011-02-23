@@ -128,8 +128,22 @@ case(solNS)
   if (samestring(str,"VANLEERH"))      defspat%jac_hyp = jac_vlh
   if (samestring(str,"VANLEER-HANEL")) defspat%jac_hyp = jac_vlh
 
-  if (defspat%jac_hyp == inull) &
-    call erreur("parameters parsing","unknown numerical scheme for jacobian matrices")
+  select case(defspat%jac_hyp)
+  case(jac_diffnum)
+    call print_info(7,"  approximate jacobian: numerical differenciation of inviscid flux")
+  case(jac_hll)
+    call print_info(7,"  approximate jacobian: HLL (constant waves)")
+  case(jac_hlldiag)
+    call print_info(7,"  approximate jacobian: HLL (diagonal variant)")
+  case(jac_rusanov)
+    call print_info(7,"  approximate jacobian: Rusanov")
+  case(jac_efm)
+    call print_info(7,"  approximate jacobian: EFM (kinetic)")
+  case(jac_vlh)
+    call print_info(7,"  approximate jacobian: van Leer / Hanel")
+   case default
+    call erreur("parameters parsing","unknown jacobian")
+  endselect
 
   !-----------------------------------------
   ! Dissipative flux method

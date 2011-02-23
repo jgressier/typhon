@@ -156,7 +156,7 @@ if (defsolver%defns%is_extforce) then
   call rpmgetkeyvalstr(pcour, "EXT_FORCE_Y", str, "0.")
   call convert_to_funct(str, defsolver%defns%extforce_y, info)
   if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
-  call rpmgetkeyvalstr(pcour, "EXT_FORCE_Y", str, "0.")
+  call rpmgetkeyvalstr(pcour, "EXT_FORCE_Z", str, "0.")
   call convert_to_funct(str, defsolver%defns%extforce_z, info)
   if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
 endif

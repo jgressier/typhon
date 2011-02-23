@@ -13,6 +13,8 @@ dir.optim=optim
 dir.debug=debug
  dir.prof=profil
 dir.gprof=profil
+   dir.omp=openmp
+dir.openmp=openmp
 
 # default
 dir.=$(dir.opt)

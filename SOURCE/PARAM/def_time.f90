@@ -5,8 +5,6 @@
 !   Traitement des parametres du fichier menu principal
 !   Parametres d'integration temporelle
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
 subroutine def_time(prj, block, solver, deftime)
 
@@ -80,6 +78,8 @@ endselect
 ! -- si stationnaire, critere d'arret --
 
 call  rpmgetkeyvalreal(pcour, "RESIDUALS", deftime%maxres, prj%residumax)
+
+call  rpmgetkeyvalint(pcour, "CYCLE_MAX_IT", deftime%maxit, huge(deftime%maxit))
 
 ! -- type de schema temporel --
 

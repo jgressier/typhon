@@ -42,7 +42,7 @@ type st_infozone
   logical   :: end_cycle            ! end of cycle
   integer   :: iter_tot             ! nombre d'iteration total
   integer   :: iter_loc             ! nombre d'iteration local dans le cycle
-  integer   :: nbstep               ! nombre de pas maximal du cycle
+  integer   :: maxit                ! max number of iteration
   real(krp) :: cycle_start          ! starting time of current cycle
   real(krp) :: cycle_dt             ! duration      of cycle
   real(krp) :: cycle_time           ! local time    in the cycle
