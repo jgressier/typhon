@@ -10,7 +10,6 @@ subroutine calc_flux_viscous(defsolver, defspat, nflux, ideb, face, cg_l, cg_r, 
                              calc_jac, jacL, jacR)
 use TYPHMAKE
 use OUTPUT
-use VARCOM
 use MENU_SOLVER
 use MENU_NUM
 use MESHBASE
@@ -43,16 +42,16 @@ type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 
 ! -- Internal variables --
 real(krp), parameter      :: theta = 1._krp
-real(krp), dimension(taille_buffer) :: dHR, dHL   ! cell to face distance
-type(v3d), dimension(taille_buffer) :: vLR        ! cell to cell vector
-type(t3d), dimension(taille_buffer) :: gradvH     ! face (H) vector (velocity gradient)
-type(v3d), dimension(taille_buffer) :: velH       ! face (H) velocity
-type(v3d), dimension(taille_buffer) :: vL, vR     ! left, right velocities
-type(v3d), dimension(taille_buffer) :: gradTL, gradTR  ! left, right temp grad
-real(krp), dimension(taille_buffer) :: TL, TR     ! left, right temperatures
-real(krp), dimension(taille_buffer) :: TH, gradTH ! temperature at face center
-real(krp), dimension(taille_buffer) :: rhoH       ! density     at face center
-real(krp), dimension(taille_buffer) :: mu         ! viscosity   at face center
+real(krp), dimension(nflux) :: dHR, dHL   ! cell to face distance
+type(v3d), dimension(nflux) :: vLR        ! cell to cell vector
+type(t3d), dimension(nflux) :: gradvH     ! face (H) vector (velocity gradient)
+type(v3d), dimension(nflux) :: velH       ! face (H) velocity
+type(v3d), dimension(nflux) :: vL, vR     ! left, right velocities
+type(v3d), dimension(nflux) :: gradTL, gradTR  ! left, right temp grad
+real(krp), dimension(nflux) :: TL, TR     ! left, right temperatures
+real(krp), dimension(nflux) :: TH, gradTH ! temperature at face center
+real(krp), dimension(nflux) :: rhoH       ! density     at face center
+real(krp), dimension(nflux) :: mu         ! viscosity   at face center
 type(t3d)  :: sigma                               ! viscous tensor
 type(v3d)  :: sigma_n
 real(krp)  :: sigma_vn, addvisc

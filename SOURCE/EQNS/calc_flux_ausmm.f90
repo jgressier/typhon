@@ -8,9 +8,7 @@
 subroutine calc_flux_ausmm(defsolver, defspat, nflux, face, &
                           cell_l, cell_r, flux, ideb,      &
                           calc_jac, jacL, jacR)
-use TYPHMAKE
 use OUTPUT
-use VARCOM
 use MENU_SOLVER
 use MENU_NUM
 use MESHBASE
@@ -39,7 +37,7 @@ type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 
 ! -- Internal variables --
 integer                 :: if
-real(krp), dimension(taille_buffer) &
+real(krp), dimension(nflux) &
                         :: al, ar, mp, mm, pp, pm, rHl, rHr, mnl, mnr, ms
 real(krp)               :: g, gig1, iks
 

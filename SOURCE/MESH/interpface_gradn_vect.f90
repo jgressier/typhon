@@ -11,10 +11,8 @@
 subroutine interp_facegradn_vect(nf, meth, ndHL, ndHR, vLR, face, &
                                  qL, qR, dqL, dqR, dqH)
 
-use TYPHMAKE
 use OUTPUT
-use VARCOM
-use GEO3D
+use PACKET
 use MENU_NUM
 use USTMESH
 use GENFIELD

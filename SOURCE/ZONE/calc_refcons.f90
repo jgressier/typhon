@@ -7,9 +7,8 @@
 !------------------------------------------------------------------------------!
 subroutine calc_refcons(zone)
 
-use TYPHMAKE
 use OUTPUT
-use VARCOM
+use PACKET
 use DEFZONE
 
 implicit none

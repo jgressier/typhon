@@ -10,9 +10,8 @@
 subroutine integration_kdif_ust(defsolver, defspat, umesh, field, flux, &
                                 calc_jac, jacL, jacR)
 
-use TYPHMAKE
 use OUTPUT
-use VARCOM
+use PACKET
 use MENU_SOLVER
 use MENU_NUM
 use USTMESH
@@ -36,10 +35,10 @@ type(st_genericfield)   :: flux        ! flux physiques
 type(st_mattab)         :: jacL, jacR  ! jacobiennes associees (gauche et droite)
 
 ! -- Internal variables --
-integer :: if, nfb              ! index de face et taille de bloc courant
-integer :: nbuf                 ! taille de buffer 
-integer :: ib, nbloc            ! index de bloc et nombre de blocs
-integer :: ideb, ifin           ! index de debut et fin de bloc
+integer :: if                   ! face index
+integer :: buf                  ! buffer size
+integer :: ib, nblock           ! block index and number of blocks
+integer, pointer :: ista(:), iend(:)           ! starting and ending index
 integer :: it                   ! index de tableau
 integer :: icl, icr             ! index de cellule a gauche et a droite
 real(krp), dimension(:), allocatable & 
@@ -51,29 +50,22 @@ type(v3d), dimension(:), allocatable &
 
 ! -- Body --
 
-! On peut ici decouper la maillage complet en blocs de taille fixe pour optimiser
-! l'encombrement memoire et la vectorisation
+call new_buf_index(umesh%nface, face_buffer, nblock, ista, iend)
 
-! nombre de blocs (<= taille_buffer) necessaires pour umesh%nface
-nbloc = 1 + (umesh%nface-1) / taille_buffer
-nbuf  = 1 + (umesh%nface-1) / nbloc          ! taille de bloc buffer
-nfb   = 1 + mod(umesh%nface-1, nbuf)         ! taille de 1er bloc peut etre <> de nbuf
+!$OMP PARALLEL private(ib, cell_l, cell_r, cg_l, cg_r, grad_l, grad_r, buf, icl, icr, if, it) shared (flux, jacL, jacR)
 
-!print*,"!!! DEBUG integration kdif", umesh%nface, nbloc, nbuf, nfb, taille_buffer
+allocate(grad_l(face_buffer), grad_r(face_buffer))
+allocate(cell_l(face_buffer), cell_r(face_buffer))
+allocate(  cg_l(face_buffer),   cg_r(face_buffer))
 
-! il sera a tester l'utilisation de tableaux de champs generiques plutôt que
-! des definitions type d'etat specifiques (st_kdifetat)
+!$OMP DO 
 
-allocate(grad_l(nbuf), grad_r(nbuf))
-allocate(cell_l(nbuf), cell_r(nbuf))
-allocate(  cg_l(nbuf),   cg_r(nbuf))
+do ib = 1, nblock
 
-ideb = 1
+  buf = iend(ib)-ista(ib)+1
 
-do ib = 1, nbloc
-
-  do it = 1, nfb
-    if  = ideb+it-1
+  do it = 1, buf
+    if  = ista(ib)+it-1
     icl = umesh%facecell%fils(if,1)
     icr = umesh%facecell%fils(if,2)
     grad_l(it) = field%gradient%tabvect(1)%vect(icl)
@@ -87,19 +79,21 @@ do ib = 1, nbloc
   ! - dans une version ulterieure, il sera necessaire de faire intervenir les gradients
   ! - l'acces au tableau flux n'est pas programme de maniere generale !!! DEV
 
-  ifin = ideb+nfb-1
-
   ! ATTENTION : le flux n'est passe ici que pour UN SEUL scalaire
 
   call calc_kdif_flux(defsolver, defspat,                             &
-                      nfb, umesh%mesh%iface(ideb:ifin, 1, 1),       &
+                      buf, umesh%mesh%iface(ista(ib):iend(ib), 1, 1),       &
                       cg_l, cell_l, grad_l, cg_r, cell_r, grad_r,     &
-                      flux%tabscal(1)%scal(ideb:ifin), ideb,          &
+                      flux%tabscal(1)%scal(ista(ib):iend(ib)), ista(ib),          &
                       calc_jac, jacL, jacR)
-  ideb = ideb + nfb
-  nfb  = nbuf         ! tous les blocs suivants sont de taille nbuf
   
 enddo
+
+deallocate(grad_l, grad_r, cell_l, cell_r, cg_l, cg_r)
+
+!$OMP END PARALLEL
+
+deallocate(ista, iend)
 
 !-------------------------------------------------------------
 ! flux assignment or modification on boundary conditions
@@ -107,11 +101,7 @@ enddo
 call kdif_bocoflux(defsolver, umesh, flux, field%etatprim,          &
                    calc_jac, jacL, jacR)
 
-!-------------------------------------------------------------
-deallocate(grad_l, grad_r, cell_l, cell_r, cg_l, cg_r)
-
 endsubroutine integration_kdif_ust
-
 !------------------------------------------------------------------------------!
 ! Change history
 !
@@ -119,4 +109,5 @@ endsubroutine integration_kdif_ust
 ! Jun 2003: update management of conservative and primitive variables
 ! Oct 2003: gradients added in left and right distribution
 ! Apr 2004: jacobian matrices computation for implicit solver
+! Feb 2011: OPEN-MP directives
 !------------------------------------------------------------------------------!

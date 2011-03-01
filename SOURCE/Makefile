@@ -87,16 +87,19 @@ MAIN:=$(PRJOBJDIR)/main.o # dependencies in MAIN/depends.make
 
 ####### Build rules
 
-seq: $(PRJOBJDIR) $(PRGNAME)-seq
+PRGSEQNAME=$(PRGNAME).$(dir.$(opt))
+seq: $(PRJOBJDIR) $(PRGSEQNAME)
 mpi: $(PRJOBJDIR) $(PRGNAME)-mpi
 
-$(PRGNAME)-seq : $(MAIN) $(D_LIBSEQ) $(MAKEFILE)
+$(PRGSEQNAME) : $(MAIN) $(D_LIBSEQ) $(MAKEFILE)
 	@echo ---------------------------------------------------------------
 	@echo LINKING $(PRGNAME)-seq ---
 	@echo external Libraries: $(PRJLIBEXT) $(EXTLIBS)
 	@echo TYPHON   Libraries: $(LIBSEQ)
-	(cd $(PRJLIBDIR) ; $(LINKER) $(LINKFB) ../$(MAIN) $(LIBSEQ) $(PRJLIBEXT) $(EXTLIBS) -o ../$(PRGNAME)-seq)
-	@echo --- Creation of $(PRGNAME)-seq done ---
+	(cd $(PRJLIBDIR) ; $(LINKER) $(LINKFB) ../$(MAIN) $(LIBSEQ) $(PRJLIBEXT) $(EXTLIBS) -o ../$(PRGSEQNAME))
+	@echo --- link $(PRGNAME)-seq to $(PRGSEQNAME) ---
+	@ln -fs $(PRGSEQNAME) $(PRGNAME)-seq
+	@echo --- CREATION OF $(PRGSEQNAME) DONE ---
 
 $(PRGNAME)-mpi : $(MAIN) $(D_LIBMPI) $(MAKEFILE)
 	@echo ---------------------------------------------------------------
@@ -104,7 +107,7 @@ $(PRGNAME)-mpi : $(MAIN) $(D_LIBMPI) $(MAKEFILE)
 	@echo external Libraries: $(PRJLIBEXT) $(EXTLIBS) $(MPILIB)
 	@echo TYPHON   Libraries: $(LIBMPI)
 	(cd $(PRJLIBDIR) ; $(LINKER) $(LINKFB) ../$(MAIN) $(LIBMPI) $(PRJLIBEXT) $(EXTLIBS) $(MPILIB) -o ../$(PRGNAME)-mpi)
-	@echo --- Creation of $(PRGNAME)-mpi done ---
+	@echo --- CREATION OF $(PRGNAME)-mpi DONE ---
 
 clean:
 	rm -f $(PRGNAME)-seq $(PRGNAME)-mpi 

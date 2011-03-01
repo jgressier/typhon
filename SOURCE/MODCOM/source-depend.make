@@ -16,6 +16,7 @@ MODCOM_MOD = COMMTAG.$(MODEXT)          \
              LAPACK.$(MODEXT)           \
              LIBSORT.$(MODEXT)          \
              MODINFO.$(MODEXT)          \
+             PACKET.$(MODEXT)           \
              TYPHMAKE.$(MODEXT)         \
              VARCOM.$(MODEXT)
 

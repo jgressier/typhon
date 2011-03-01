@@ -10,7 +10,7 @@
 !------------------------------------------------------------------------------!
 subroutine init_ns_ust(defns, initns, field, umesh, init_type, initfile)
 
-use TYPHMAKE
+use PACKET
 use DEFFIELD
 use USTMESH
 use EQNS

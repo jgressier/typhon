@@ -7,9 +7,8 @@
 !------------------------------------------------------------------------------!
 subroutine calc_hres_states(defsolver, defspat, grid, field)
 
-use TYPHMAKE
 use OUTPUT
-use VARCOM
+use PACKET
 use MENU_SOLVER
 use MENU_NUM
 use USTMESH
@@ -28,26 +27,16 @@ type(st_field)   :: field            ! use field%etatprim to create field%cell_l
 ! -- Internal variables --
 logical :: gradneeded           ! use gradients or not
 integer :: if                   ! face index
-integer :: buf, dimbuf, dimbuf1 ! buffer size (current, regular and first)
+integer :: buf                  ! buffer size
 integer :: ib, nblock           ! block index and number of blocks
-integer, allocatable, dimension(:) :: ista, iend           ! starting and ending index
+integer, pointer :: ista(:), iend(:)  ! starting and ending index
 integer :: it                   ! index de tableau
 integer :: icl, icr             ! index de cellule a gauche et a droite
 real(krp) :: klim
 
 ! -- BODY --
 
-call calc_buffer(grid%umesh%nface, cell_buffer, nblock, dimbuf, dimbuf1)
-buf  = dimbuf1
-allocate(ista(nblock))
-allocate(iend(nblock))
-ista(1) = 1
-do ib = 1, nblock-1
-  iend(ib)   = ista(ib)+buf-1
-  ista(ib+1) = ista(ib)+buf
-  buf  = dimbuf         ! tous les nblocks suivants sont de taille dimbuf
-enddo
-iend(nblock)   = ista(nblock)+buf-1
+call new_buf_index(grid%umesh%nface, face_buffer, nblock, ista, iend)
 
 call alloc_hres_states(field, grid%umesh%nface)
 

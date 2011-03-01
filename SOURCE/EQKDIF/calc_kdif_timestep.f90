@@ -21,21 +21,21 @@ use MATER_LOI
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(mnu_time)    :: deftime       ! parametres pour le calcul du pas de temps
 type(st_materiau) :: mat           ! donnees du materiau
 type(st_ustmesh)  :: umesh         ! donnees geometriques
 type(st_field)    :: field         ! donnees champs
 integer           :: ncell         ! nombre de cellules internes (taille de dtloc)
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 real(krp), dimension(1:ncell) :: dtloc    ! tableau de pas de temps local
 
-! -- Declaration des variables internes --
+! -- Private DATA --
 integer   :: if, ic
 real(krp) :: tc
 
-! -- Debut de la procedure --
+! ------------------------------ BODY ------------------------------
 
 ! -- Calcul de somme S_i ** 2 --
 ! pour faire la somme des surfaces des faces, on boucle d'abord sur les faces

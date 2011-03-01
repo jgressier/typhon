@@ -7,10 +7,8 @@
 !------------------------------------------------------------------------------!
 subroutine writevtk_ustmesh(defio, umesh)
 
-use TYPHMAKE
 use OUTPUT
-use VARCOM
-use GEO3D
+use PACKET
 use MENU_GEN
 use USTMESH
 use DEFFIELD

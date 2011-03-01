@@ -7,10 +7,8 @@
 !------------------------------------------------------------------------------!
 subroutine writevtk_scal(defio, umesh, name, scafld)
 
-use TYPHMAKE
 use OUTPUT
-use VARCOM
-use GEO3D
+use PACKET
 use MENU_GEN
 use USTMESH
 use DEFFIELD

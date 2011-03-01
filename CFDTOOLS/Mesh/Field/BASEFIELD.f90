@@ -196,9 +196,11 @@ type(st_scafield) :: iscafield, rscafield
 integer           :: i
 
 rscafield%dim= iscafield%dim
+!$OMP PARALLEL DO 
 do i = 1, iscafield%dim
   rscafield%scal(i) = iscafield%scal(i)
 enddo
+!$OMP END PARALLEL DO
 
 endsubroutine transfer_scafield
 
@@ -212,9 +214,11 @@ type(st_vecfield) :: ivecfield, rvecfield
 integer           :: i
 
 rvecfield%dim= ivecfield%dim
+!$OMP PARALLEL DO 
 do i = 1, ivecfield%dim
   rvecfield%vect(i)= ivecfield%vect(i)
 enddo
+!$OMP END PARALLEL DO
 
 endsubroutine transfer_vecfield
 
@@ -228,9 +232,11 @@ type(st_tenfield) :: itenfield, rtenfield
 integer           :: i
 
 rtenfield%dim= itenfield%dim
+!$OMP PARALLEL DO 
 do i = 1, itenfield%dim
   rtenfield%tens(i)= itenfield%tens(i)
 enddo
+!$OMP END PARALLEL DO
 
 endsubroutine transfer_tenfield
 
@@ -244,9 +250,11 @@ type(st_scafield) :: x
 real(krp)         :: a
 integer           :: i
 
+!$OMP PARALLEL DO 
 do i = 1, x%dim
   x%scal(i) = a*x%scal(i)
 enddo
+!$OMP END PARALLEL DO
 
 endsubroutine scaf_scale
 
@@ -258,8 +266,13 @@ subroutine vecf_scale(x, a)
 implicit none
 type(st_vecfield) :: x
 real(krp)         :: a
+integer           :: i
 
-call scale(x%vect(1:x%dim), a)
+!$OMP PARALLEL DO 
+do i = 1, x%dim
+  x%vect(i) = a*x%vect(i)
+enddo
+!$OMP END PARALLEL DO
 
 endsubroutine vecf_scale
 
@@ -273,9 +286,11 @@ type(st_tenfield) :: x
 integer           :: i
 real(krp)         :: a
 
+!$OMP PARALLEL DO 
 do i = 1, x%dim
   x%tens(i)%mat = a*x%tens(i)%mat
 enddo
+!$OMP END PARALLEL DO
 
 endsubroutine tenf_scale
 
@@ -288,9 +303,11 @@ implicit none
 type(st_scafield) :: x, y
 integer           :: i
 
+!$OMP PARALLEL DO 
 do i = 1, x%dim
   x%scal(i) = x%scal(i) + y%scal(i)
 enddo
+!$OMP END PARALLEL DO
 
 endsubroutine scaf_xeqxpy
 
@@ -301,8 +318,13 @@ endsubroutine scaf_xeqxpy
 subroutine vecf_xeqxpy(x, y)
 implicit none
 type(st_vecfield) :: x, y
+integer           :: i
 
-call shift_add(x%vect(1:x%dim), y%vect(1:x%dim))
+!$OMP PARALLEL DO 
+do i = 1, x%dim
+  x%vect(i) = x%vect(i) + y%vect(i)
+enddo
+!$OMP END PARALLEL DO
 
 endsubroutine vecf_xeqxpy
 
@@ -315,9 +337,11 @@ implicit none
 type(st_tenfield) :: x, y
 integer           :: i
 
+!$OMP PARALLEL DO 
 do i = 1, x%dim
   x%tens(i)%mat = x%tens(i)%mat + y%tens(i)%mat
 enddo
+!$OMP END PARALLEL DO
 
 endsubroutine tenf_xeqxpy
 
@@ -331,9 +355,11 @@ type(st_scafield) :: x, y
 real(krp)         :: a
 integer           :: i
 
+!$OMP PARALLEL DO 
 do i = 1, x%dim
   x%scal(i) = x%scal(i) + a*y%scal(i)
 enddo
+!$OMP END PARALLEL DO
 
 endsubroutine scaf_xeqxpay
 
@@ -347,9 +373,11 @@ type(st_vecfield) :: x, y
 real(krp)         :: a
 integer           :: i
 
+!$OMP PARALLEL DO 
 do i = 1, x%dim
   x%vect(i) = x%vect(i) + a*y%vect(i)
 enddo
+!$OMP END PARALLEL DO
 
 endsubroutine vecf_xeqxpay
 
@@ -363,9 +391,11 @@ type(st_tenfield) :: x, y
 real(krp)         :: a
 integer           :: i
 
+!$OMP PARALLEL DO 
 do i = 1, x%dim
   x%tens(i)%mat = x%tens(i)%mat + a*y%tens(i)%mat
 enddo
+!$OMP END PARALLEL DO
 
 endsubroutine tenf_xeqxpay
 

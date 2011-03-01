@@ -43,6 +43,10 @@ integer                :: nv          ! nombre de variables
 integer                :: is, iv      ! indice de variable scalaire et vectorielle
 integer                :: ic1, ic2    ! indices de cellules (gauche et droite de face)
 integer                :: info, xinfo ! retour d'info des routines LAPACK
+integer, pointer      :: ifsta(:), ifend(:)     ! starting and ending index
+integer, pointer      :: icsta(:), icend(:)     ! starting and ending index
+integer               :: ifb, fbuf, nfblock     ! buffer size for face
+integer               :: icb, cbuf, ncblock     ! buffer size 
 
 ! -- BODY --
 
@@ -98,7 +102,7 @@ rhs(:,:) = 0._krp      ! initialisation
 
 ! Calcul des seconds membres (cellules internes et limites)
 
-!!!!$OMP PARALLEL DO private(if, ic1, ic2, is, iv, dec, dsca), reduction(+: rhs)
+!!$OMP PARALLEL DO private(if, ic1, ic2, is, iv, dec, dsca) shared (rhs)   ! , reduction(+: rhs)
 
 do if = 1, nf
 
@@ -109,7 +113,9 @@ do if = 1, nf
     dec = is-dim
     dsca = gfield%tabscal(is)%scal(ic2) - gfield%tabscal(is)%scal(ic1) 
     rhs(1:3, ic1*dim+dec) = rhs(1:3, ic1*dim+dec) + dsca*dcg(1:3,if)
-    if (if <= nfi) rhs(1:3, ic2*dim+dec) = rhs(1:3, ic2*dim+dec) + dsca*dcg(1:3,if)
+    if (if <= nfi) then
+      rhs(1:3, ic2*dim+dec) = rhs(1:3, ic2*dim+dec) + dsca*dcg(1:3,if)
+    endif
   enddo
 
   do iv = 1, gfield%nvect
@@ -117,22 +123,28 @@ do if = 1, nf
     dec = gfield%nscal-dim + 3*(iv-1) +1
     dsca = gfield%tabvect(iv)%vect(ic2)%x - gfield%tabvect(iv)%vect(ic1)%x
     rhs(1:3, ic1*dim+dec) = rhs(1:3, ic1*dim+dec) + dsca*dcg(1:3,if)
-    if (if <= nfi) rhs(1:3, ic2*dim+dec) = rhs(1:3, ic2*dim+dec) + dsca*dcg(1:3,if)
+    if (if <= nfi) then
+      rhs(1:3, ic2*dim+dec) = rhs(1:3, ic2*dim+dec) + dsca*dcg(1:3,if)
+    endif
     ! -- Y component --
     dec = gfield%nscal-dim + 3*(iv-1) +2
     dsca = gfield%tabvect(iv)%vect(ic2)%y - gfield%tabvect(iv)%vect(ic1)%y
     rhs(1:3, ic1*dim+dec) = rhs(1:3, ic1*dim+dec) + dsca*dcg(1:3,if)
-    if (if <= nfi) rhs(1:3, ic2*dim+dec) = rhs(1:3, ic2*dim+dec) + dsca*dcg(1:3,if)
+    if (if <= nfi) then
+      rhs(1:3, ic2*dim+dec) = rhs(1:3, ic2*dim+dec) + dsca*dcg(1:3,if)
+    endif
     ! -- Z component --
     dec = gfield%nscal-dim + 3*(iv-1) +3
     dsca = gfield%tabvect(iv)%vect(ic2)%z - gfield%tabvect(iv)%vect(ic1)%z
     rhs(1:3, ic1*dim+dec) = rhs(1:3, ic1*dim+dec) + dsca*dcg(1:3,if)
-    if (if <= nfi) rhs(1:3, ic2*dim+dec) = rhs(1:3, ic2*dim+dec) + dsca*dcg(1:3,if)
+    if (if <= nfi) then
+      rhs(1:3, ic2*dim+dec) = rhs(1:3, ic2*dim+dec) + dsca*dcg(1:3,if)
+    endif
   enddo
 
 enddo
 
-!!!!$OMP END PARALLEL DO
+!!$OMP END PARALLEL DO
 
 !-----------------------------------------------------------------------------
 ! Solve LSQ
@@ -144,16 +156,12 @@ xinfo = 0
 !$OMP PARALLEL DO private(ic)
 
 do ic = 1, nc
-  !call lapack_potrs('U', 3, dim, &
-  !                  grid%optmem%gradcond(ic)%mat, 3, &
-  !                  rhs(1:3, (ic-1)*dim+1:ic*dim), 3, info)
   call cholesky_solve(grid%optmem%gradcond(ic)%mat, 3, rhs(1:3, (ic-1)*dim+1:ic*dim), dim)
-  if (info /= 0) xinfo = ic
 enddo
 
 !$OMP END PARALLEL DO
 
-if (xinfo /= 0) call erreur("Gradient computation","Choleski inversion failed")
+!if (xinfo /= 0) call erreur("Gradient computation","Choleski inversion failed")
 
 !-----------------------------------------------------------------------------
 ! Unpack solution

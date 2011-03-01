@@ -11,7 +11,6 @@ subroutine calc_flux_inviscid(defsolver, defspat, nflux, ideb, face, &
                               QL, QR, flux, calc_jac, jacL, jacR)
 use TYPHMAKE
 use OUTPUT
-use VARCOM
 use MENU_SOLVER
 use MENU_NUM
 use MESHBASE
@@ -79,9 +78,7 @@ case default
   call error_stop("internal error: numerical scheme not implemented (flux computation)")
 endselect
 
-
 endsubroutine calc_flux_inviscid
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !

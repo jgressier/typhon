@@ -10,9 +10,8 @@
 subroutine integration_ns_ust(defsolver, defspat, umesh, field, flux, &
                               calc_jac, jacL, jacR, curtime)
 
-use TYPHMAKE
 use OUTPUT
-use VARCOM
+use PACKET
 use MENU_SOLVER
 use MENU_NUM
 use USTMESH
@@ -40,9 +39,9 @@ type(st_mattab)         :: jacL, jacR  ! jacobiennes associees (gauche et droite
 logical :: gradneeded           ! use gradients or not
 logical :: theo_jac, num_jac    ! compute analytical or numerical jacobians
 integer :: if                   ! face index
-integer :: buf, dimbuf, dimbuf1 ! buffer size (current, regular and first)
+integer :: buf                  ! buffer size
 integer :: ib, nblock           ! block index and number of blocks
-integer, allocatable, dimension(:) :: ista, iend           ! starting and ending index
+integer, pointer :: ista(:), iend(:)           ! starting and ending index
 integer :: it                   ! index de tableau
 integer :: icl, icr             ! index de cellule a gauche et a droite
 type(st_nsetat)       :: QL, QR
@@ -54,24 +53,13 @@ type(v3d), dimension(:), allocatable &
 
 if (.not.field%allocqhres) call erreur("Internal error", "Face extrapolated states not defined")
 
-call calc_buffer(umesh%nface, cell_buffer, nblock, dimbuf, dimbuf1)
-
-buf  = dimbuf1
-allocate(ista(nblock))
-allocate(iend(nblock))
-ista(1) = 1
-do ib = 1, nblock-1
-  iend(ib)   = ista(ib)+buf-1
-  ista(ib+1) = ista(ib)+buf
-  buf  = dimbuf         ! tous les nblocks suivants sont de taille dimbuf
-enddo
-iend(nblock)   = ista(nblock)+buf-1
+call new_buf_index(umesh%nface, face_buffer, nblock, ista, iend)
 
 !$OMP PARALLEL private(ib, QL, QR, cg_l, cg_r, gradL, gradR, buf) shared (flux, jacL, jacR)
 
-allocate(  cg_l(dimbuf),   cg_r(dimbuf))
-call new(gradL, dimbuf, field%gradient%nscal, field%gradient%nvect, field%gradient%ntens)
-call new(gradR, dimbuf, field%gradient%nscal, field%gradient%nvect, field%gradient%ntens)
+allocate(  cg_l(face_buffer),   cg_r(face_buffer))
+call new(gradL, face_buffer, field%gradient%nscal, field%gradient%nvect, field%gradient%ntens)
+call new(gradR, face_buffer, field%gradient%nscal, field%gradient%nvect, field%gradient%ntens)
 
 !$OMP DO 
 

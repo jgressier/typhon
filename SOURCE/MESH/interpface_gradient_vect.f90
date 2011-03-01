@@ -11,10 +11,8 @@
 subroutine interp_facegradient_vect(nf, meth, ndHL, ndHR, vLR, &
                                     qL, qR, dqL, dqR, dqH)
 
-use TYPHMAKE
 use OUTPUT
-use VARCOM
-use GEO3D
+use PACKET
 use MENU_NUM
 use USTMESH
 use GENFIELD
@@ -36,9 +34,9 @@ type(t3d), dimension(nf) :: dqH        ! interpolated face gradients
 
 
 ! -- Declaration des variables internes --
-real(krp) :: dLR2(taille_buffer)
+real(krp) :: dLR2(nf)
 type(t3d) :: Favg, Fcomp
-type(v3d) :: FavgLR(taille_buffer)
+type(v3d) :: FavgLR(nf)
 integer   :: if, k, icl, icr
 
 real(krp) :: theta = 1._krp

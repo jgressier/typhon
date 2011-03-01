@@ -9,7 +9,7 @@ subroutine postlimit_monotonic(defspat, umesh, fprim, cell_l, cell_r)
 
 use TYPHMAKE
 use OUTPUT
-use VARCOM
+use PACKET
 use MENU_NUM
 use USTMESH
 use GENFIELD
@@ -30,24 +30,23 @@ type(st_genericfield) :: cell_l, cell_r   ! champs des valeurs primitives
 
 ! -- Internal variables --
 integer    :: i, if, isca, ivec
-integer    :: icl(cell_buffer),  icr(cell_buffer)
-integer    :: buf, dimbuf, dimbuf1 ! buffer size (current, regular and first)
-integer    :: ib, nblock           ! block index and number of blocks
-integer    :: ista, iend           ! starting and ending index
+integer    :: icl(face_buffer),  icr(face_buffer)
+integer    :: buf                     ! buffer size 
+integer    :: ib, nblock              ! block index and number of blocks
+integer, pointer :: ista(:), iend(:)  ! starting and ending index
 
 ! -- BODY --
 
-call calc_buffer(umesh%nface, cell_buffer, nblock, dimbuf, dimbuf1)
+call new_buf_index(umesh%nface, face_buffer, nblock, ista, iend)
 
-ista = 1
-buf  = dimbuf1
+!$OMP PARALLEL DO private(ib, icl, icr, buf, i) shared (cell_L, cell_R, fprim, umesh, ista, iend)
 
 do ib = 1, nblock
 
-iend = ista+buf-1
+  buf = iend(ib)-ista(ib)+1
 
-icl(1:buf)  = umesh%facecell%fils(ista:iend, 1)
-icr(1:buf)  = umesh%facecell%fils(ista:iend, 2)
+  icl(1:buf)  = umesh%facecell%fils(ista(ib):iend(ib), 1)
+  icr(1:buf)  = umesh%facecell%fils(ista(ib):iend(ib), 2)
 
 !------------------------------------------------------------------------------
 ! SCALAR computations
@@ -58,19 +57,19 @@ do isca = 1, fprim%nscal
   select case(defspat%postlimiter)
   case(postlim_monotonic0)
     do i = 1, buf
-      call monotonic0(cell_L%tabscal(isca)%scal(ista-1+i), cell_R%tabscal(isca)%scal(ista-1+i), &
+      call monotonic0(cell_L%tabscal(isca)%scal(ista(ib)-1+i), cell_R%tabscal(isca)%scal(ista(ib)-1+i), &
                    fprim%tabscal(isca)%scal(icl(i)), fprim%tabscal(isca)%scal(icr(i)))
 
     enddo
   case(postlim_monotonic1)
     do i = 1, buf
-      call monotonic1(cell_L%tabscal(isca)%scal(ista-1+i), cell_R%tabscal(isca)%scal(ista-1+i), &
+      call monotonic1(cell_L%tabscal(isca)%scal(ista(ib)-1+i), cell_R%tabscal(isca)%scal(ista(ib)-1+i), &
                    fprim%tabscal(isca)%scal(icl(i)), fprim%tabscal(isca)%scal(icr(i)))
 
     enddo
   case(postlim_monotonic2)
     do i = 1, buf
-      call monotonic2(cell_L%tabscal(isca)%scal(ista-1+i), cell_R%tabscal(isca)%scal(ista-1+i), &
+      call monotonic2(cell_L%tabscal(isca)%scal(ista(ib)-1+i), cell_R%tabscal(isca)%scal(ista(ib)-1+i), &
                    fprim%tabscal(isca)%scal(icl(i)), fprim%tabscal(isca)%scal(icr(i)))
 
     enddo
@@ -89,19 +88,19 @@ do ivec = 1, fprim%nvect
   select case(defspat%postlimiter)
   case(postlim_monotonic0)
     do i = 1, buf
-      call monotonic0(cell_L%tabvect(ivec)%vect(ista-1+i), cell_R%tabvect(ivec)%vect(ista-1+i), &
+      call monotonic0(cell_L%tabvect(ivec)%vect(ista(ib)-1+i), cell_R%tabvect(ivec)%vect(ista(ib)-1+i), &
                    fprim%tabvect(ivec)%vect(icl(i)), fprim%tabvect(ivec)%vect(icr(i)))
 
     enddo
   case(postlim_monotonic1)
     do i = 1, buf
-      call monotonic1(cell_L%tabvect(ivec)%vect(ista-1+i), cell_R%tabvect(ivec)%vect(ista-1+i), &
+      call monotonic1(cell_L%tabvect(ivec)%vect(ista(ib)-1+i), cell_R%tabvect(ivec)%vect(ista(ib)-1+i), &
                    fprim%tabvect(ivec)%vect(icl(i)), fprim%tabvect(ivec)%vect(icr(i)))
 
     enddo
   case(postlim_monotonic2)
     do i = 1, buf
-      call monotonic2(cell_L%tabvect(ivec)%vect(ista-1+i), cell_R%tabvect(ivec)%vect(ista-1+i), &
+      call monotonic2(cell_L%tabvect(ivec)%vect(ista(ib)-1+i), cell_R%tabvect(ivec)%vect(ista(ib)-1+i), &
                    fprim%tabvect(ivec)%vect(icl(i)), fprim%tabvect(ivec)%vect(icr(i)))
 
     enddo
@@ -113,12 +112,8 @@ enddo ! vector loop
 
   !----------------------------------------------------------------------
   ! end of nblock
-
-  ista = ista + buf
-  buf  = dimbuf         ! tous les nblocks suivants sont de taille dimbuf
-  
 enddo
-
+!$OMP END PARALLEL DO
 
 endsubroutine postlimit_monotonic
 

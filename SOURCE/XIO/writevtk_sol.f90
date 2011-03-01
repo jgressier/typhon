@@ -7,10 +7,7 @@
 !------------------------------------------------------------------------------!
 subroutine writevtk_sol(defio, defsolver, umesh, field)
 
-use TYPHMAKE
 use OUTPUT
-use VARCOM
-use GEO3D
 use MENU_GEN
 use USTMESH
 use DEFFIELD

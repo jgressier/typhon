@@ -12,7 +12,6 @@ subroutine calc_flux_hlle(defsolver, defspat, nflux, face, &
                           calc_jac, jacL, jacR)
 use TYPHMAKE
 use OUTPUT
-use VARCOM
 use MENU_SOLVER
 use MENU_NUM
 use MESHBASE
@@ -42,8 +41,8 @@ type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 ! -- Internal variables --
 integer                 :: if
 type(st_nsetat)         :: roe
-type(v3d), dimension(taille_buffer) :: fn
-real(krp), dimension(taille_buffer) :: sl, sr, vnl, vnr, al, ar, mnl, mnr
+type(v3d), dimension(nflux) :: fn
+real(krp), dimension(nflux) :: sl, sr, vnl, vnr, al, ar, mnl, mnr
 real(krp)               :: g, ig1, iks, kl, kr, ku
 real(krp)               :: am, vm, rel, rer
 

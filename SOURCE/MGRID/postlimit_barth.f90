@@ -7,9 +7,8 @@
 !------------------------------------------------------------------------------!
 subroutine postlimit_barth(defspat, klim, umesh, fprim, cell_l, cell_r)
 
-use TYPHMAKE
 use OUTPUT
-use VARCOM
+use PACKET
 use MENU_NUM
 use USTMESH
 use GENFIELD

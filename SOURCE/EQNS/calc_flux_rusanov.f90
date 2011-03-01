@@ -12,7 +12,6 @@ subroutine calc_flux_rusanov(defsolver, defspat, nflux, face, &
                           calc_jac, jacL, jacR)
 use TYPHMAKE
 use OUTPUT
-use VARCOM
 use MENU_SOLVER
 use MENU_NUM
 use MESHBASE
@@ -40,10 +39,10 @@ type(st_genericfield) :: flux
 type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 
 ! -- Internal variables --
-integer                 :: if
-type(v3d), dimension(taille_buffer) :: fn
-real(krp), dimension(taille_buffer) :: ray, vnl, vnr
-real(krp)               :: g, ig1, al, ar, rel, rer
+integer                     :: if
+type(v3d), dimension(nflux) :: fn
+real(krp), dimension(nflux) :: ray, vnl, vnr
+real(krp)                   :: g, ig1, al, ar, rel, rer
 
 ! -- Body --
 

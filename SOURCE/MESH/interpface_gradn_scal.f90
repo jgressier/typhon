@@ -11,10 +11,8 @@
 subroutine interp_facegradn_scal(nf, meth, ndHL, ndHR, vLR, face, &
                                  qL, qR, dqL, dqR, dqH)
 
-use TYPHMAKE
 use OUTPUT
-use VARCOM
-use GEO3D
+use PACKET
 use MENU_NUM
 use USTMESH
 use GENFIELD
@@ -38,7 +36,7 @@ real(krp), dimension(nf) :: dqH        ! interpolated face gradients
 
 
 ! -- Declaration des variables internes --
-real(krp) :: dLR2(taille_buffer)
+real(krp) :: dLR2(nf)
 real(krp) :: pscal, Favg, Fcomp
 type(v3d) :: vi
 integer   :: if, k, icl, icr

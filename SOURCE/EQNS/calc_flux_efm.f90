@@ -12,7 +12,6 @@ subroutine calc_flux_efm (defsolver, defspat, nflux, face, &
                           calc_jac, jacL, jacR)
 use TYPHMAKE
 use OUTPUT
-use VARCOM
 use MENU_SOLVER
 use MENU_NUM
 use MESHBASE
@@ -42,7 +41,7 @@ type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 ! -- Internal variables --
 integer                 :: if
 type(v3d)               :: fn, rvst
-real(krp), dimension(taille_buffer) :: sl, sr, vnl, vnr
+real(krp), dimension(nflux) :: sl, sr, vnl, vnr
 real(krp)               :: g, ig1, iks
 real(krp)               :: al, ar, vm, rel, rer, rqL, rqR
 real(krp)               :: Sst, rst, pst, rest
