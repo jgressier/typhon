@@ -79,7 +79,7 @@ if (mrf%type /= mrf_none) then
   do ifb = 1, nf
     if   = ustboco%iface(ifb)
     pos  = umesh%mesh%iface(if,1,1)%centre
-    call mrf_abs2rel(mrf, curtime, pos, nspri%velocity(ifb))    ! DEV: need to vectorize ?
+    call mrfvel_abs2rel(mrf, curtime, pos, nspri%velocity(ifb))    ! DEV: need to vectorize ?
   enddo
 endif
 

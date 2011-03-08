@@ -95,6 +95,7 @@ integer,          intent(in)  :: n
   bc%nface  = n
   allocate(bc%iface(n))
   nullify(bc%bocofield)  
+  nullify(bc%itag)
   call new_genericfield(bc%avg_quant, 0, 0, 0, 0)   ! initialization
   call new_genericfield(bc%sum_flux,  0, 0, 0, 0)   ! initialization
 

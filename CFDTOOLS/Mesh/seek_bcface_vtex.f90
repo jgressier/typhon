@@ -46,10 +46,10 @@ enddo
 
 call cfd_print('      '//trim(strof(nf))//' mesh faces tagged')
 
+call deletetag_ustboco(ustboco)
 call new_ustboco(ustboco, ustboco%family, nf)
 ustboco%ilocation   = iloc_face
 if (nf > 0) ustboco%iface(1:nf) = listface(1:nf)
-call deletetag_ustboco(ustboco)
 
 deallocate(listface)
   

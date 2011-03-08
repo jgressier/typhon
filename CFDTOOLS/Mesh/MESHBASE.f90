@@ -57,6 +57,7 @@ type st_mesh
   integer         :: ncell                 ! nombre de faces et cellules totales
   type(v3d), dimension(:,:,:), pointer &  ! coordonnees des sommets et centres
                   :: vertex, centre        ! de cellules (i,j,k)
+  type(v3d), dimension(:,:,:), allocatable :: vertex_orig ! MRF addition: table of original vertex positions
   type(st_face), dimension(:,:,:), pointer &
                   :: iface !, jface, kface   ! tableaux de faces
   real(krp), dimension(:,:,:), pointer &
@@ -134,6 +135,7 @@ type(st_mesh) :: mesh
   if (associated(mesh%volume)) deallocate(mesh%volume)
   if (associated(mesh%iface))  deallocate(mesh%iface) 
   if (associated(mesh%vertex)) deallocate(mesh%vertex)
+
   
 endsubroutine delete_mesh
 

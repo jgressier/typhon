@@ -54,7 +54,7 @@ contains
 !------------------------------------------------------------------------------!
 ! absolute to relative velocity transformation
 !------------------------------------------------------------------------------!
-subroutine  mrf_abs2rel(mrf, time, pos, velocity)
+subroutine  mrfvel_abs2rel(mrf, time, pos, velocity)
 implicit none
 ! -- INPUTS --
 type(mnu_mrf)    :: mrf
@@ -95,10 +95,97 @@ case(mrf_rot_osc)
   velocity    = velocity - mrfvelocity
 
 case default
-  call cfd_error("(MRF) unknown or not implemented MRF definition (mrf_abs2rel)")
+  call cfd_error("(MRF) unknown or not implemented MRF definition (mrfvel_abs2rel)")
 endselect
 
-endsubroutine mrf_abs2rel
+endsubroutine mrfvel_abs2rel
+
+!------------------------------------------------------------------------------!
+! relative to absolute velocity transformation
+!------------------------------------------------------------------------------!
+subroutine  mrfvel_rel2abs(mrf, time, pos, velocity)
+implicit none
+! -- INPUTS --
+type(mnu_mrf)    :: mrf
+real(krp)        :: time
+type(v3d)        :: pos
+! INPUT/OUTPUT
+type(v3d)        :: velocity
+! -- INTERNAL VARIABLES --
+real(krp)          :: theta, osc_om
+type(v3d)          :: omega, radius, mrfvelocity
+
+! -- BODY --
+select case(mrf%type)
+case(mrf_none)
+
+case(mrf_rot_cst)
+  theta =  mrf%omega * time
+  omega =  mrf%omega * mrf%axis
+  ! Vabs -> Vrel thanks to MRF velocity (omega(t) x r)
+  radius      =  pos - mrf%center
+  mrfvelocity = omega .vect. radius
+  velocity    = velocity + mrfvelocity
+  ! Boundary Vabs rotation due to MRF position (theta(t))
+  call rot(velocity, mrf%axis, theta)
+
+case(mrf_rot_osc)
+  osc_om = 2._krp*acos(-1._krp)/mrf%osc_period   ! DEV: must use MATH module in future
+  theta =  mrf%omega*time    + mrf%osc_angle * sin(osc_om*time + mrf%phi)
+  omega = (mrf%omega  + osc_om*mrf%osc_angle * cos(osc_om*time + mrf%phi)) * mrf%axis
+  ! Vabs -> Vrel thanks to MRF velocity (omega(t) x r)
+  radius      =  pos - mrf%center
+  mrfvelocity = omega .vect. radius
+  velocity    = velocity + mrfvelocity
+  ! Boundary Vabs rotation due to MRF position (theta(t))
+  call rot(velocity, mrf%axis, theta)
+
+case default
+  call cfd_error("(MRF) unknown or not implemented MRF definition (mrfvel_rel2abs)")
+endselect
+
+endsubroutine mrfvel_rel2abs
+
+
+
+!------------------------------------------------------------------------------!
+! mesh movement due to MRF, for absolute output purposes
+!------------------------------------------------------------------------------!
+subroutine mrfpos_rel2abs(mrf, time, vertex)
+implicit none
+
+! -- INPUTS --
+type(mnu_mrf)    :: mrf
+real(krp)        :: time
+
+! INPUT/OUTPUT
+type(v3d), intent(inout) :: vertex
+
+! -- INTERNAL VARIABLES --
+real(krp)          :: theta, osc_om
+type(v3d)          :: radius
+
+select case(mrf%type)
+case(mrf_none)
+
+case(mrf_rot_cst)
+  theta   =  mrf%omega * time
+  radius  =  vertex - mrf%center
+  call rot(radius, mrf%axis, theta)
+  vertex  =  mrf%center + radius
+
+case(mrf_rot_osc)
+  osc_om  = 2._krp*acos(-1._krp)/mrf%osc_period   ! DEV: must use MATH module in future
+  theta   =  mrf%omega*time    + mrf%osc_angle * sin(osc_om*time + mrf%phi)
+  radius  =  vertex - mrf%center
+  call rot(radius, mrf%axis, theta)
+  vertex  =  mrf%center + radius
+
+case default
+  call cfd_error("(MRF) unknown or not implemented MRF definition (mrfpos_rel2abs)")
+endselect
+
+endsubroutine mrfpos_rel2abs
 
 
 endmodule MESHMRF
@@ -106,7 +193,5 @@ endmodule MESHMRF
 ! Changes history
 !
 ! Jan  2011 : created, A. Gardi development integration
+! Feb  2011 : addition of mrfvel_rel2abs and mrfpos_rel2abs
 !------------------------------------------------------------------------------!
-
-
-

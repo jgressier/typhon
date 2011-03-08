@@ -82,10 +82,10 @@ if (notfound1 > 0) call cfd_print('      '//trim(strof(notfound1))//' tags not f
 if (notfound2 > 0) call cfd_print('      '//trim(strof(notfound2))//' face element not found as boundary face !')
 call cfd_print('      > '//trim(strof(nf))//' mesh faces tagged')
 
+call deletetag_ustboco(ustboco)
 call new_ustboco(ustboco, ustboco%family, nf)
 ustboco%ilocation = iloc_face
 if (nf > 0) ustboco%iface(1:nf) = listface(1:nf)
-call deletetag_ustboco(ustboco)
   
 !-------------------------
 endsubroutine seek_bcface_face
