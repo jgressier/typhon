@@ -24,6 +24,13 @@ integer(kpp), parameter :: mrf_rot_cst   = 20
 integer(kpp), parameter :: mrf_rot_lin   = 21
 integer(kpp), parameter :: mrf_rot_osc   = 31
 
+! -- type of MRF DATA  --
+
+integer(kpp), parameter :: mrfdata_absolute = 10
+integer(kpp), parameter :: mrfdata_relative = 11
+
+
+
 ! -- DECLARATIONS -----------------------------------------------------------
 
 

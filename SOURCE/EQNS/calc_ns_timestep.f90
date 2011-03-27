@@ -104,6 +104,7 @@ do ib = 1, ncblock
       endif
     enddo
     write(str_w,'(a,3e10.2,a)') "at least "//strof(nbadcell)//" negative or NaN internal energy (",minval(a2(1:cbuf)),"m²/s²"
+    call print_info(20, str_w)
     call error_stop(trim(str_w))
   endif
 

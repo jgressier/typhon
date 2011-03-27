@@ -76,6 +76,7 @@ type mnu_output
   integer                 :: iunit         ! IO unit
   integer                 :: izone         ! zone index (base for CGNS)
   integer(kpp)            :: write         ! writing instant (end, cycle...)
+  integer(kpp)            :: refframe      ! reference frame
   integer                 :: period        ! writing period (if "cycle")
 endtype mnu_output
 

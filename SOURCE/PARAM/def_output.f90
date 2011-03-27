@@ -8,11 +8,11 @@
 subroutine def_output(block, world)
 
 use RPM
-use TYPHMAKE
 use OUTPUT
 use VARCOM
 use MODWORLD
 use MENU_GEN
+use MESHMRF
 
 implicit none
 
@@ -36,12 +36,9 @@ call print_info(2,"* Definition of output parameters")
 
 pblock => block
 call seekrpmblock(pblock, "OUTPUT", 0, pcour, nkey)
-!
-!if (nkey /= 1) call erreur("lecture de menu", &
-!                           "bloc OUTPUT inexistant ou surnumeraire")
 
-world%noutput = nkey !DEV2602    world%noutput = 1
-allocate(world%output(world%noutput)) !DEV2602 allocate(world%output(1))
+world%noutput = nkey 
+allocate(world%output(world%noutput))
 
 do io = 1, world%noutput 
 
@@ -60,7 +57,7 @@ do io = 1, world%noutput
   if (samestring(str,"VTK-ASCII"))   world%output(io)%format = fmt_VTK
   if (samestring(str,"VTK-BIN"))     world%output(io)%format = fmt_VTKBIN
   if (samestring(str,"VTK-BINARY"))  world%output(io)%format = fmt_VTKBIN
-  if (world%output(io)%format == cnull) call erreur("parameter reading","unknown format <"//trim(str)//">")
+  if (world%output(io)%format == cnull) call error_stop("parameter reading: unknown format <"//trim(str)//">")
 
   call print_info(10,"  . file"//strof(io,3)//": "//trim(str)//" format")
 
@@ -78,7 +75,7 @@ do io = 1, world%noutput
     ic = index(str, ".dat")
     if ((ic /= 0).and.(ic == len(trim(str))-3)) str = str(1:ic-1)//"    "
   case default
-    call erreur("internal error (def_output)", "unknown format")
+    call error_stop("internal error (def_output): unknown format")
   endselect
   world%output(io)%basename = str
 
@@ -94,11 +91,20 @@ do io = 1, world%noutput
   if (samestring(str,"BOCO"))       world%output(io)%dataset = dataset_bococell
   if (samestring(str,"BOCOCELL"))   world%output(io)%dataset = dataset_bococell
   if (samestring(str,"BOCONODE"))   world%output(io)%dataset = dataset_boconode
-  if (world%output(io)%dataset == inull) call erreur("parameter reading","unknown dataset option")
+  if (world%output(io)%dataset == inull) call error_stop("parameter reading: unknown dataset option")
 
   call print_info(20,"    data set type:"//trim(str))
 
   call rpmgetkeyvalint(pcour, "PERIOD",  world%output(io)%period, huge(world%output(io)%period))
+
+  ! --- reference frame --- 
+
+  call rpmgetkeyvalstr(pcour, "REFFRAME", str, "RELATIVE")
+
+  world%output(io)%refframe = inull
+  if (samestring(str,"RELATIVE"))  world%output(io)%refframe = mrfdata_relative
+  if (samestring(str,"ABSOLUTE"))  world%output(io)%refframe = mrfdata_absolute
+  if (world%output(io)%refframe == inull) call error_stop("parameter reading: unknown dataset option")
 
 
 enddo
@@ -113,4 +119,5 @@ endsubroutine def_output
 ! fev  2007 : correction du nom de fichier pour VTK[BIN] et TECPLOT
 ! fev  2007 : Traduction en anglais
 ! Mar  2009 : CGNS file
+! Mar  2011 : Definition of reference frame
 !------------------------------------------------------------------------------!
