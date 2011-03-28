@@ -57,8 +57,11 @@ enddo
 select case(defio%dataset)
 case(dataset_node)
 case(dataset_cell)
-!case(dataset_bococell)
-!case(dataset_bococell)
+case(dataset_bococell)
+  if (defio%format .ne. fmt_TECPLOT) then
+    call error_stop("TYPE=BOCO/BOCOCELL output implemented only for FORMAT=TECPLOT")
+  endif
+!case(dataset_boconode)
 case default
   call error_stop("internal error(output_zone): unknown dataset parameter")
 endselect

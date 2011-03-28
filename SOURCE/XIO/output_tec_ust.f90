@@ -38,6 +38,9 @@ case(dataset_node)
 case(dataset_cell)
   call output_tec_ust_ctr(uf, umesh, field, defsolver)
 
+case(dataset_bococell)
+  call output_tec_ust_boco(uf, umesh, field, defsolver)
+
 case default
   call erreur("Internal Error (output_tec_ust)", "unknown dataset location parameter")
 endselect

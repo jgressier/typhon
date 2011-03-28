@@ -17,6 +17,7 @@ XIO_OBJ = $(XIO_MOD:.$(MODEXT)=.o)  \
           output_tec_str.o       \
           output_tec_ust.o       \
           output_tec_ust_ctr.o   \
+          output_tec_ust_boco.o  \
           output_tecplot.o       \
           output_zone.o          \
           outputzone_close.o     \
