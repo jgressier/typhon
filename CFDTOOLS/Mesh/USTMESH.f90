@@ -29,7 +29,7 @@ implicit none
 type st_ustmesh
   integer(kip)          :: id                    ! domain id
   integer(kip)          :: level                 ! multigrid level
-  integer               :: geodim               ! nombre de dimension du maillage
+  integer               :: geodim                ! nombre de dimension du maillage
   integer(kip)          :: nvtex, nface, ncell   ! number of vertices, faces and cells
   integer(kip)          :: nface_int, ncell_int  ! number of internal faces and cells
   integer(kip)          :: nface_lim, ncell_lim  ! number of boundering faces and cells
@@ -112,15 +112,15 @@ integer function dimgeo(umesh)
   implicit none
   type(st_ustmesh) :: umesh
   
-  dimgeo = 0
-  select case(typgeo(umesh))
-  case(msh_1Dcurv)
-    dimgeo = 1
-  case(msh_2Dplan, msh_2Dcurv)
-    dimgeo = 2
-  case(msh_3D)
-    dimgeo = 3
-  endselect
+  dimgeo = umesh%geodim
+  !select case(typgeo(umesh))
+  !case(msh_1Dcurv)
+  !  dimgeo = 1
+  !case(msh_2Dplan, msh_2Dcurv)
+  !  dimgeo = 2
+  !case(msh_3D)
+  !  dimgeo = 3
+  !endselect
   
 endfunction dimgeo
 
@@ -219,18 +219,6 @@ logical :: same_som
   face_invtexlist = same_som
 
 endfunction face_invtexlist
-
-
-!------------------------------------------------------------------------------!
-! Fonction : typgeo : type de geometrie du maillage
-!------------------------------------------------------------------------------!
-character function typgeo(umesh)
-implicit none
-type(st_ustmesh) :: umesh
-
-  typgeo = umesh%mesh%info%geom
-
-endfunction typgeo
 
 
 !------------------------------------------------------------------------------!

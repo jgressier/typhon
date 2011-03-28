@@ -41,7 +41,7 @@ real(krp) :: a, b, L, T0, T1, alpha, beta, temp
 
 ! -- Calcul de la connectivite CELL->VTEX --
 
-call calc_cellvtex(typgeo(umesh), cellvtex, umesh%ncell, umesh%ncell_int, &
+call calc_cellvtex(dimgeo(umesh), cellvtex, umesh%ncell, umesh%ncell_int, &
                    umesh%facecell, umesh%facevtex)
 
 call verify_cellvtex(umesh%mesh, cellvtex)

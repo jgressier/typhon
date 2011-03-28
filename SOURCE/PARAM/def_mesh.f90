@@ -48,22 +48,32 @@ if (nkey /= 1) call error_stop("parameter parsing: BLOCK:MESH not found (or conf
 call rpmgetkeyvalstr(pcour, "FORMAT", str)
 defmesh%format = cnull
 
-if (samestring(str,"CGNS"))    defmesh%format = fmt_CGNS
-if (samestring(str,"TYPHON"))  defmesh%format = fmt_TYPHON
-if (samestring(str,"TYM"))     defmesh%format = fmt_TYPHON
-if (defmesh%format == cnull) call error_stop("parameters parsing: unknown mesh format -> "//trim(str))
+if (samestring(str,"CGNS"))     defmesh%format = fmt_CGNS
+if (samestring(str,"INTERNAL")) defmesh%format = fmt_TYPHON
+if (samestring(str,"TYPHON"))   defmesh%format = fmt_TYPHON
+if (samestring(str,"TYM"))      defmesh%format = fmt_TYPHON
 
-call rpmgetkeyvalint(pcour, "CGNSBASE", defmesh%icgnsbase, 1)
-call rpmgetkeyvalint(pcour, "CGNSZONE", defmesh%icgnszone, 1)
+select case(defmesh%format)
+case(fmt_CGNS)
+  call print_info(20, "  . mesh format : CGNS")
+  call rpmgetkeyvalint(pcour, "CGNSBASE", defmesh%icgnsbase, 1)
+  call rpmgetkeyvalint(pcour, "CGNSZONE", defmesh%icgnszone, 1)
+case(fmt_TYPHON)
+  call print_info(20, "  . mesh format : TYPHON internal")
+case default
+  call error_stop("parameters parsing: unknown mesh format -> "//trim(str))
+endselect
 
 ! -- read mesh file name --
 
 call rpmgetkeyvalstr(pcour, "FILE", str)
+call print_info(20, "  . mesh file   : "//trim(str))
 defmesh%filename = str
 
 ! -- read scale factor (default 1.)
 
 call rpmgetkeyvalreal(pcour, "SCALE", defmesh%scale, 1._krp)
+call print_info(20, "  . scale factor: "//strof(defmesh%scale))
 
 ! -- read split method --
 
@@ -90,17 +100,17 @@ case(split_svm2quad)
 case(split_svm3wang)
   call print_info(20, "  . split mesh : SVM3 WANG ORIGINAL")
 case(split_svm3kris)
-  call print_info(20, "  . split mesh : SVM3 KRIS OPTIMISED")
+  call print_info(20, "  . split mesh : SVM3 KRIS OPTIMIZED")
 case(split_svm3kris2)
-  call print_info(20, "  . split mesh : SVM3 KRIS OPTIMISED 2")
+  call print_info(20, "  . split mesh : SVM3 KRIS OPTIMIZED 2")
 case(split_svm4wang)
   call print_info(20, "  . split mesh : SVM4 WANG ORIGINAL")
 case(split_svm4kris)
-  call print_info(20, "  . split mesh : SVM4 KRIS OPTIMISED")
+  call print_info(20, "  . split mesh : SVM4 KRIS OPTIMIZED")
 case(split_svm4kris2)
-  call print_info(20, "  . split mesh : SVM4 KRIS OPTIMISED 2")
+  call print_info(20, "  . split mesh : SVM4 KRIS OPTIMIZED 2")
 case(split_iso_tri)
-  call print_info(20, "  . split mesh : ISO REFINMENT")
+  call print_info(20, "  . split mesh : ISO REFINEMENT")
 case default
   call error_stop("parameters parsing: unknown splitmesh parameter -> "//trim(str))
 endselect

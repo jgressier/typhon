@@ -89,10 +89,8 @@ call init_ustmesh(umesh)   ! default values initialization
 
 select case(idim)    ! transfer mesh dimension 
 case(2)
-  umesh%mesh%info%geom = msh_2dplan
   call cfd_print("    mesh is 2D (planar)")
 case(3)
-  umesh%mesh%info%geom = msh_3d
   call cfd_print("    mesh is 3D")
 endselect
 

@@ -49,8 +49,6 @@ ny = 100
 print*,'creating ',nx,'x',ny,' 2D mesh'
 call init_ustmesh(umesh)
 
-umesh%mesh%info%geom = msh_2dplan
-
 !------------------------------
 ! creates VERTICES
 !------------------------------

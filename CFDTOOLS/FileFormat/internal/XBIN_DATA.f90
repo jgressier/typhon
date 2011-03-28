@@ -31,12 +31,24 @@ interface xbin_writedata_ordint
   module procedure xbin_writedata_ordint_x, xbin_writedata_ordint_xx
 endinterface
 
+interface xbin_readdata_ordint
+  module procedure xbin_readdata_ordint_x
+endinterface
+
 interface xbin_writedata_indint
   module procedure xbin_writedata_indint_xx
 endinterface
 
+interface xbin_readdata_indint
+  module procedure xbin_readdata_indint_xx
+endinterface
+
 interface xbin_writedata_ordreal
   module procedure xbin_writedata_ordreal_xx
+endinterface
+
+interface xbin_readdata_ordreal
+  module procedure xbin_readdata_ordreal_xx
 endinterface
 
 !------------------------------------------------------------------------------!
@@ -308,6 +320,30 @@ integer(xbinkip) :: i1, dim
   
 endsubroutine xbin_writedata_ordint_x
 
+!------------------------------------------------------------------------------!
+! read DATA section (integer array with implicit ordered index)
+!------------------------------------------------------------------------------!
+subroutine xbin_readdata_ordint_x(defxbin, xbindata, array)
+implicit none
+! -- INPUTS --
+type(st_defxbin)           :: defxbin
+type(st_xbindatasection)   :: xbindata
+integer(xbinkip)           :: nelem
+integer(xbinkip)           :: array(1:xbindata%nelem)
+! -- OUTPUTS --
+! -- private data --
+integer(xbinkip) :: i1, dim
+
+  select case(xbindata%datatype)
+  case(xbindatatype_int_ordarray)
+    read(defxbin%iunit) array(1:xbindata%nelem)
+  case default
+    call cfd_error(xbin_prefix//" unexpected data type reading ordered integer array")
+  endselect
+  call xbin_readend(defxbin)
+
+endsubroutine xbin_readdata_ordint_x
+
 
 !------------------------------------------------------------------------------!
 ! write DATA section (integer array with implicit ordered index)
@@ -363,6 +399,34 @@ integer :: info
   
 endsubroutine xbin_writedata_indint_xx
 
+!------------------------------------------------------------------------------!
+! read DATA section (integer array with indirect index)
+!------------------------------------------------------------------------------!
+subroutine xbin_readdata_indint_xx(defxbin, xbindata, iindex, iarray)
+implicit none
+! -- INPUTS --
+type(st_defxbin)         :: defxbin
+type(st_xbindatasection) :: xbindata
+! -- OUTPUTS --
+integer(xbinkip)         :: iindex(1:xbindata%nelem)
+integer(xbinkip)         :: iarray(1:xbindata%dim, 1:xbindata%nelem)
+! -- private data --
+integer :: info, i
+
+  select case(xbindata%datatype)
+  case(xbindatatype_int_indarray)
+    read(defxbin%iunit) iindex(1:xbindata%nelem)
+    read(defxbin%iunit) iarray(1:xbindata%dim, 1:xbindata%nelem)
+  case(xbindatatype_int_ordarray)
+     iindex(1:xbindata%nelem) = (/ (xbindata%firstindex+i, i=0, xbindata%nelem-1) /)
+     read(defxbin%iunit) iarray(1:xbindata%dim, 1:xbindata%nelem)
+  case default
+    call cfd_error(xbin_prefix//" unexpected data type reading indirect ordered integer array")
+  endselect
+  call xbin_readend(defxbin)
+  
+endsubroutine xbin_readdata_indint_xx
+
 
 !------------------------------------------------------------------------------!
 ! write DATA section (real array with implicit ordered index)
@@ -392,11 +456,34 @@ integer(xbinkip) :: i1
   
 endsubroutine xbin_writedata_ordreal_xx
 
+!------------------------------------------------------------------------------!
+! read DATA section (real array with implicit ordered index)
+!------------------------------------------------------------------------------!
+subroutine xbin_readdata_ordreal_xx(defxbin, xbindata, array)
+implicit none
+! -- INPUTS --
+type(st_defxbin)           :: defxbin
+type(st_xbindatasection)   :: xbindata
+! -- OUTPUTS --
+real(xbinkrp)              :: array(1:xbindata%dim, 1:xbindata%nelem)
+! -- private data --
+
+  select case(xbindata%datatype)
+  case(xbindatatype_real_ordarray)
+    read(defxbin%iunit) array(1:xbindata%dim, 1:xbindata%nelem)
+  case default
+    call cfd_error(xbin_prefix//" unexpected data type reading ordered real array")
+  endselect
+  call xbin_readend(defxbin)
+  
+endsubroutine xbin_readdata_ordreal_xx
+
 
 
 endmodule XBIN_DATA
 !------------------------------------------------------------------------------!
 ! Changes
 !
-! June 2010: 
+! June 2010: created, writing data sections
+! Apr  2011: reading data sections
 !------------------------------------------------------------------------------!

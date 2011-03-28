@@ -27,7 +27,7 @@ type(st_connect)    :: face_vtex, &          ! temporary face->vtex connectivity
                        face_Ltag, face_Rtag  ! left & right tag for face
 integer             :: ntotcell              ! calcul du nombre total de cellules
 integer             :: maxvtex, maxface      ! nombre de sommets/face, face/cellule
-integer             :: nface                 ! estimation du nombre de faces
+integer             :: nface, nfacesec       ! estimated face number
 integer             :: ielem, nelem , nvtex    
 integer             :: ista, iend, itype, geodim
 integer             :: iv, if     
@@ -53,13 +53,18 @@ nface   = 0
 maxvtex = 0
 geodim  = 0
 do ielem = 1, umesh%cellvtex%nsection
-  nface   = nface + umesh%cellvtex%elem(ielem)%nelem * ( nface_element(umesh%cellvtex%elem(ielem)%elemtype) -1)
+  nfacesec = umesh%cellvtex%elem(ielem)%nelem * ( nface_element(umesh%cellvtex%elem(ielem)%elemtype) -1)
+  if (nfacesec < 0) then
+    call cfd_error("inconsistent value, corrupted data in estimated face number")
+  endif
+  nface   = nface + nfacesec
   maxvtex = max(maxvtex, nvtexperface_element(umesh%cellvtex%elem(ielem)%elemtype))
   geodim  = max(geodim, dim_element(umesh%cellvtex%elem(ielem)))
 enddo
 umesh%geodim = geodim
 
 ! -- connectivite intermediaire face->sommets --
+
 call new(face_vtex, nface, maxvtex)         ! nface is only is estimated size
 face_vtex%nbnodes   = 0                     ! set face counter to zero (not yet created)
 face_vtex%fils(:,:) = 0                     ! initialization

@@ -18,7 +18,7 @@ use STRING
 implicit none
 
 ! -- Declaration des entrees --
-character        :: geom                  ! mode geometrique
+integer          :: geom                  ! mode geometrique
 type(st_connect) :: facecell, facevtex    ! connectivites en entrees
 integer          :: ncell                 ! nombre total de cellules 
 integer          :: ncell_int             ! nombre de cellules internes
@@ -156,7 +156,7 @@ call init(cellvtex)
 info = 0
 
 select case(geom)
-case(msh_2dplan)
+case(2)
   cellvtex%dim = 2
   do ic = 1, ncell
     select case(nvtex(ic))
@@ -170,7 +170,7 @@ case(msh_2dplan)
       info = ic
     endselect
   enddo
-case(msh_3d)
+case(3)
   cellvtex%dim = 3
   do ic = 1, ncell
     select case(nvtex(ic))

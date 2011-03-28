@@ -73,12 +73,8 @@ call print_info(10, "  . computing face geometry...")
 call calc_ust_face(umesh%facevtex, umesh%mesh, cgface(1:umesh%nface))
 
 
-select case(typgeo(umesh))
-
 !-------------------------------------------------------------------
 ! maillage de cellules + faces
-
-case(msh_2dplan, msh_3d)
 
   call print_info(10, "  . computing cell geometry...")
 
@@ -91,7 +87,7 @@ case(msh_2dplan, msh_3d)
 
   allocate(cg_elem (umesh%nface,2))
   allocate(vol_elem(umesh%nface,2))
-  call calc_ust_elemvol(typgeo(umesh), umesh%ncell_int, umesh%nface, &
+  call calc_ust_elemvol(dimgeo(umesh), umesh%ncell_int, umesh%nface, &
                         midcell, umesh%facecell,                     &
                         cgface, umesh%mesh%iface, cg_elem, vol_elem)
 
@@ -132,25 +128,9 @@ case(msh_2dplan, msh_3d)
   write(str_w, '(a,3e12.4)')        "      gravity center:",umesh%mesh%info%center
   call print_info(10, str_w)
 
-
-!-------------------------------------------------------------------
-! maillage de facettes uniquement (solveur VORTEX)
-
-case(msh_1dcurv, msh_2dcurv)
-
-! DEV ! VERIFIER L'ORIENTATION DES NORMALES A L'EXTERIEUR DES CORPS (INTERIEUR FLUIDE)
-
-case default
-
-  call erreur("Developpement","cas inattendu (calc_ustmesh)")
-
-endselect
-
-
 endsubroutine calc_ustmesh
-
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! nov  2002 : creation de la procedure
 ! fev  2003 : integration du calcul des metriques

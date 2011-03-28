@@ -24,7 +24,7 @@ use MESHBASE
 implicit none
 
 ! -- Declaration des entrees --
-character                   :: geom       ! type de geometrie
+integer                     :: geom       ! type de geometrie
 integer                     :: ncell      ! nombre de cellules
 integer                     :: nface      ! nombre de faces
 type(v3d), dimension(ncell) :: midcell    ! centres de cellule approches ( /= barycentre )
@@ -50,14 +50,14 @@ real(krp)       :: kcg, kvol    ! coefficients pour le calcul du centre et du vo
 ! On en deduit le volume et le centre de gravite du volume elementaire.
 
 select case(geom)
-case(msh_2dplan)
+case(2)
   kcg  = 1./3._krp
   kvol = 1./2._krp
-case(msh_3d)
+case(3)
   kcg  = 1./4._krp
   kvol = 1./3._krp
 case default
-  call erreur("Traitement du maillage (Bug)","Type de geometrie inattendu")
+  call error_stop("internal error: unexpected geometry dimension in calc_ust_elemvol")
 endselect
 
 do if = 1, facecell%nbnodes

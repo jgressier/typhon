@@ -124,13 +124,13 @@ enddo
 
 ! -- Correction de la matrice dans les cas 2D (vecteur supplementaire selon z) --
 
-select case(grid%umesh%mesh%info%geom)
-case(msh_2Dplan)
+select case(dimgeo(grid%umesh))
+case(2)
   do ic = 1, nc
-    ! invariance direction ? magnitude ?
+    ! invariance direction ? magnitude ? !! DEV
     grid%optmem%gradcond(ic)%mat(3,3) = grid%optmem%gradcond(ic)%mat(3,3) + 1._krp  
   enddo
-case(msh_3D)
+case(3)
   ! nothing to do 
 case default
   call erreur("computing gradients","unknown type of mesh")

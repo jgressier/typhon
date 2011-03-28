@@ -31,8 +31,7 @@ do izone = 1, world%prj%nzone
     call importcgns_mesh(world%zone(izone)%defsolver%defmesh, pgrid%umesh)
 
   case(fmt_TYPHON)
-    !call importtyphon_mesh(world%zone(izone))
-    call error_stop("reading mesh: TYPHON format not implemented")
+    call importtyphon_mesh(world%zone(izone)%defsolver%defmesh, pgrid%umesh)
 
   case default
     call error_stop("reading mesh: unknown mesh format")

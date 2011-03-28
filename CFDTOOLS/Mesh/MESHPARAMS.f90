@@ -52,15 +52,15 @@ endtype mnu_periodicity
 ! structure MNU_MESH : parametres pour la distribution entre processeurs
 !------------------------------------------------------------------------------!
 type mnu_mesh
-  character             :: format      ! cf VARCOM
+  character               :: format      ! cf VARCOM
   character(len=longname) :: filename    ! nom de fichier
-  real(krp)             :: scale       ! scale factor
-  integer(kpp)          :: splitmesh   ! split method
-  integer(kip)          :: nsplit      ! number of split application
-  integer(kip)          :: nperiodicity ! number of periodicity
+  real(krp)               :: scale       ! scale factor
+  integer(kpp)            :: splitmesh   ! split method
+  integer(kip)            :: nsplit      ! number of split application
+  integer(kip)            :: nperiodicity ! number of periodicity
   type(mnu_periodicity), pointer :: periodicity(:) 
-  integer               :: icgnsbase   ! base index in CGNS file
-  integer               :: icgnszone   ! zone index in CGNS file
+  integer                 :: icgnsbase   ! base index in CGNS file
+  integer                 :: icgnszone   ! zone index in CGNS file
 endtype mnu_mesh
 
 

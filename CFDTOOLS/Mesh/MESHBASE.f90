@@ -11,23 +11,12 @@ implicit none
 
 ! -- Variables globales du module -------------------------------------------
 
-! type de maillage
-character, parameter :: msh_1Dcurv = '1'
-character, parameter :: msh_2Dplan = '2'
-character, parameter :: msh_2Dcurv = 'C'
-character, parameter :: msh_3D     = '3'
-
-! -- Definition des caracteres caracteristiques pour le type de maillage --
-!character, parameter :: mshSTR = 'S'   (defini dans VARCOM)
-!character, parameter :: mshUST = 'U'
-
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
 ! Definition de la structure INFO_MESH
 !------------------------------------------------------------------------------!
 type info_mesh
-  character :: geom                ! type de maillage (cf constantes)
   type(v3d) :: min, max            ! coordonnees min et max des vertex
   type(v3d) :: center              ! mesh gravity center
   real(krp) :: minscale, maxscale  ! echelle de longueur (min et max)
