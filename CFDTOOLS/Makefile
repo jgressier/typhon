@@ -12,6 +12,13 @@ help:
 
 all:
 	@(cd Base ;       make opt=$(opt))
+	@(cd Math ;       make opt=$(opt))
 	@(cd Models ;     make opt=$(opt))
 	@(cd Mesh ;       make opt=$(opt))
 	@(cd FileFormat ; make opt=$(opt))
+clean:
+	@(cd Base ;       make clean )
+	@(cd Math ;       make clean )
+	@(cd Models ;     make clean )
+	@(cd Mesh ;       make clean )
+	@(cd FileFormat ; make clean )

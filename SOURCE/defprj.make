@@ -8,7 +8,7 @@ PRJINCDIR  =$(PRJDIR)/Include
 #PRJLIBDIR  = $(PRJDIR)/Lib
 PRJLIBDIR  = Lib
 #PRJEXT  = ../LIBEXT
-PRJLIBEXT = -L../../CFDTOOLS/lib -lcfdfileformat -lcfdmesh -lcfdmodels -lcfdbase
+PRJLIBEXT = -L../../CFDTOOLS/lib -lcfdfileformat -lcfdmesh -lcfdmodels -lcfdmath -lcfdbase
 PRJINCEXT =../CFDTOOLS/include
 
   dir.opt=optim

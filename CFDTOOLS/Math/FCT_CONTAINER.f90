@@ -10,7 +10,7 @@
 module FCT_CONTAINER
 
 use FCT_DEF     ! accuracy definition and error handlers
-use GEO3D       ! 3D vector type
+use VEC3D       ! 3D vector type
 
 implicit none
 

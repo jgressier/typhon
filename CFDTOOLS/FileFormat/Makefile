@@ -31,7 +31,7 @@ this.f90= $(this.f90modules) \
   cgns/writecgns_ustmesh.f90   \
   cgns/writecgns_sol.f90       \
 
-LIBDEPS=cfdfileformat cfdmesh cfdbase
+LIBDEPS=cfdfileformat cfdmesh cfdmath cfdbase
 LOCALLINKOPT=-L$(PRJLIBDIR) $(LIBDEPS:%=-l%)
 
 this.f90exe= xbininfo.f90  \

@@ -9,15 +9,7 @@ LDIR = MATH
 MATH_LIB = $(PRJLIBDIR)/libt_math.a
 
 # Modules
-MATH_MOD = FCT_CONTAINER.$(MODEXT) \
-           FCT_DEF.$(MODEXT)       \
-           FCT_ENV.$(MODEXT)       \
-           FCT_EVAL.$(MODEXT)      \
-           FCT_FUNC.$(MODEXT)      \
-           FCT_MATH.$(MODEXT)      \
-           FCT_NODE.$(MODEXT)      \
-           FCT_PARSER.$(MODEXT)    \
-           INTEGRATION.$(MODEXT) \
+MATH_MOD = INTEGRATION.$(MODEXT) \
            INTERPOL.$(MODEXT)    \
            MATH.$(MODEXT)        \
            MATRIX.$(MODEXT)      \

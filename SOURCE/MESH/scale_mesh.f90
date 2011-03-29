@@ -4,33 +4,58 @@
 ! Fonction
 !
 !------------------------------------------------------------------------------!
-subroutine scale_mesh(mesh, factor)
+subroutine scale_mesh(defmesh, mesh)
 
 use TYPHMAKE
+use PACKET
 use OUTPUT
 use MESHBASE
-use GEO3D
+use MESHPARAMS
+use FCT_EVAL
 
 implicit none
 
-! -- Declaration des entrees --
-real(krp) :: factor
+! -- Inputs --
+type(mnu_mesh) :: defmesh
 
-! -- Declaration des entrees/sorties --
-type(st_mesh)            :: mesh      ! entrees:vertex / sorties:iface
+! -- Inputs/Ouputs --
+type(st_mesh) :: mesh     
 
-! -- Declaration des variables internes --
+! -- private data --
+integer, pointer      :: ista(:), iend(:) ! starting and ending index
+integer               :: ib, buf, nblock  ! buffer size 
+integer               :: iv
 
+! -- BODY --
 
-! -- Debut de la procedure --
+if (defmesh%scaling) then
+  call v3d_eq_mult_t(mesh%vertex(1:mesh%nvtex,1,1), defmesh%scale)
+endif
 
-
-call v3d_eq_mult_t(mesh%vertex(1:mesh%nvtex,1,1), factor)
-
+if (defmesh%morphing) then
+  call new_buf_index(mesh%nvtex, cell_buffer, nblock, ista, iend)
+  call new_fct_env(blank_env)      ! temporary environment from FCT_EVAL
+  !$OMP PARALLEL DO private(iv) shared(blank_env)
+  do ib = 1, nblock
+    buf = iend(ib)-ista(ib)+1
+    do iv = ista(ib), iend(ib)
+      call fct_env_set_real(blank_env, "X", mesh%vertex(iv,1,1)%x)
+      call fct_env_set_real(blank_env, "Y", mesh%vertex(iv,1,1)%y)
+      call fct_env_set_real(blank_env, "Z", mesh%vertex(iv,1,1)%z)      
+      call fct_eval_real(blank_env, defmesh%morph_x, mesh%vertex(iv,1,1)%x)
+      call fct_eval_real(blank_env, defmesh%morph_y, mesh%vertex(iv,1,1)%y)
+      call fct_eval_real(blank_env, defmesh%morph_z, mesh%vertex(iv,1,1)%z)
+    enddo
+  enddo
+  !$OMP END PARALLEL DO
+  deallocate(ista, iend)
+  call delete_fct_env(blank_env)      ! temporary environment from FCT_EVAL
+endif
 
 endsubroutine scale_mesh
 !------------------------------------------------------------------------------!
 ! Change history
 !
-! Sept 2005 : creation
+! Sept 2005: creation, scale factor
+! Apr  2011: mesh morphing
 !------------------------------------------------------------------------------!

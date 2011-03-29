@@ -43,7 +43,7 @@ real(krp), dimension(:,:), allocatable :: vol_elem  ! volumes elementaires
 
 ! -- BODY --
 
-call scale_mesh(umesh%mesh, defmesh%scale)
+call scale_mesh(defmesh, umesh%mesh)   ! scale or morph mesh
 
 call test_ustmesh(umesh)
 

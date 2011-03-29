@@ -11,6 +11,7 @@ module MESHPARAMS
 
 use VEC3D
 use TENSOR3
+use FCT_NODE
 
 implicit none
 
@@ -54,13 +55,15 @@ endtype mnu_periodicity
 type mnu_mesh
   character               :: format      ! cf VARCOM
   character(len=longname) :: filename    ! nom de fichier
-  real(krp)               :: scale       ! scale factor
   integer(kpp)            :: splitmesh   ! split method
   integer(kip)            :: nsplit      ! number of split application
   integer(kip)            :: nperiodicity ! number of periodicity
   type(mnu_periodicity), pointer :: periodicity(:) 
   integer                 :: icgnsbase   ! base index in CGNS file
   integer                 :: icgnszone   ! zone index in CGNS file
+  logical                 :: scaling, morphing
+  real(krp)               :: scale       ! scale factor
+  type(st_fct_node)       :: morph_x, morph_Y, morph_z
 endtype mnu_mesh
 
 

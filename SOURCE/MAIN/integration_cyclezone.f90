@@ -158,9 +158,7 @@ do while (.not.lzone%info%end_cycle)
 
 enddo
 
-write(str_w,'(a,i5,a)') "    integration completed in ",lzone%info%iter_loc," iterations"
-
-call print_info(9,str_w)
+call print_info(9,"    integration completed in "//trim(strof(lzone%info%iter_loc))//" iterations")
 
 !---------------------------------------
 endsubroutine integration_cyclezone

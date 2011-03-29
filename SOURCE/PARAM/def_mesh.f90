@@ -13,9 +13,10 @@ use OUTPUT
 use VARCOM
 use STRING
 use MATH
-use GEO3D
+use VEC3D
 use MESHPARAMS
 use MENU_GEN
+use FCT_PARSER
 
 implicit none
 
@@ -70,10 +71,38 @@ call rpmgetkeyvalstr(pcour, "FILE", str)
 call print_info(20, "  . mesh file   : "//trim(str))
 defmesh%filename = str
 
-! -- read scale factor (default 1.)
+! -- read scale factor (default 1.) or morphing functions
 
-call rpmgetkeyvalreal(pcour, "SCALE", defmesh%scale, 1._krp)
-call print_info(20, "  . scale factor: "//strof(defmesh%scale))
+defmesh%scaling = rpm_existkey(pcour, "SCALE")
+
+if (defmesh%scaling) then
+  call rpmgetkeyvalreal(pcour, "SCALE", defmesh%scale)
+  call print_info(20, "  . scale factor: "//strof(defmesh%scale))
+endif
+
+defmesh%morphing =    rpm_existkey(pcour, "MORPH_X") &
+                  .or.rpm_existkey(pcour, "MORPH_Y") &
+                  .or.rpm_existkey(pcour, "MORPH_Z") 
+
+if (defmesh%morphing) then
+  call print_info(20, "  . mesh morphing")
+  call rpmgetkeyvalstr(pcour, "MORPH_X", str, "X")
+  call print_info(20, "    MORPH_X = "//trim(str))
+  call convert_to_funct(str, defmesh%morph_x, info)
+  if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
+  call rpmgetkeyvalstr(pcour, "MORPH_Y", str, "Y")
+  call print_info(20, "    MORPH_Y = "//trim(str))
+  call convert_to_funct(str, defmesh%morph_y, info)
+  if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
+  call rpmgetkeyvalstr(pcour, "MORPH_Z", str, "Z")
+  call print_info(20, "    MORPH_Z = "//trim(str))
+  call convert_to_funct(str, defmesh%morph_z, info)
+  if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
+endif
+
+if (defmesh%scaling.and.defmesh%morphing) then
+  call error_stop("cannot use simultaneously SCALE and MORPH_* functions")
+endif
 
 ! -- read split method --
 
