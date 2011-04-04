@@ -12,13 +12,15 @@ include $(CONFIGDIR)/arch.make
 LIBNAME:=libcfdfileformat
 
 this.f90modules= \
+  internal/TYFMT_MESH.f90  \
+  internal/TYFMT_SOL.f90   \
   internal/TYPHON_FMT.f90  \
   internal/XBIN_DATA.f90  \
   internal/XBIN_IO.f90  \
   cgns/CGNS_STRUCT.f90  \
 
 this.f90= $(this.f90modules) \
-  internal/importtyphon_mesh.f90  \
+  internal/importtyphon_mesh.f90   \
   internal/typhonread_ustmesh.f90  \
   internal/typhonwrite_ustmesh.f90 \
   cgns/importcgns_mesh.f90     \

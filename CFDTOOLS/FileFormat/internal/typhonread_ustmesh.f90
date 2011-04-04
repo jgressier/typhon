@@ -8,6 +8,7 @@ subroutine typhonread_ustmesh(defxbin, umesh)
 use XBIN_IO
 use XBIN_DATA
 use TYPHON_FMT
+use TYFMT_MESH
 use USTMESH
 
 implicit none

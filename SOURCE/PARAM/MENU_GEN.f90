@@ -9,6 +9,7 @@ module MENU_GEN
 
 use TYPHMAKE
 use MENU_INVERSE
+use TYPHON_FMT
 
 implicit none
 
@@ -74,6 +75,7 @@ type mnu_output
   character(len=longname) :: basename      ! base name for files
   character(len=longname) :: filename      ! file name from basename
   integer                 :: iunit         ! IO unit
+  type(st_deftyphon)      :: deftyphon     ! TYPHON file info
   integer                 :: izone         ! zone index (base for CGNS)
   integer(kpp)            :: write         ! writing instant (end, cycle...)
   integer(kpp)            :: refframe      ! reference frame

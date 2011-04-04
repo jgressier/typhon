@@ -12,6 +12,7 @@ use OUTPUT
 use VARCOM
 use DEFZONE
 use MENU_GEN
+use TYFMT_SOL
 
 implicit none
 
@@ -34,13 +35,16 @@ pgrid => zone%gridlist%first
 
 select case(defio%format)
 
+case(fmt_TYPHON)
+
+  call typhonwrite_sol(defio%deftyphon%defxbin, pgrid%umesh, pgrid%info%field_loc%etatprim)
+
 case(fmt_TECPLOT)
   call error_stop("(Internal error) Unable to use general output with TECPLOT format")
 
 case(fmt_VTK, fmt_VTKBIN)
 
   call writevtk_sol(defio, zone%defsolver, pgrid%umesh, pgrid%info%field_loc)
-
 
 case(fmt_CGNS, fmt_CGNS_linked)
 

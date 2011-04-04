@@ -26,7 +26,7 @@ type(st_zone)         :: zone      ! zone
 ! -- Internal variables --
 integer               :: dim, ufc, ir
 integer               :: ibase          ! CGNS base index
-integer               :: info
+integer               :: iunit, info, nbmesh, nbsol
 type(st_genericfield) :: vfield
 character(len=10)     :: suffix
 
@@ -36,6 +36,15 @@ select case(defio%format)
 
 case(fmt_TECPLOT)
   call error_stop("'Internal error) Unable to use general output with TECPLOT format")
+
+case(fmt_TYPHON)
+
+  suffix = ".tys"
+  defio%iunit = getnew_io_unit()
+  if (defio%iunit <= 0) call error_stop("IO unit management: impossible to find free unit")
+  nbmesh = 1
+  nbsol  = 1
+  call typhon_openwrite(iunit, trim(defio%filename)//trim(suffix), defio%deftyphon, nbmesh, nbsol)
 
 case(fmt_VTK)
 

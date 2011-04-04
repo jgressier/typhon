@@ -49,6 +49,7 @@ do io = 1, world%noutput
   call rpmgetkeyvalstr(pcour, "FORMAT", str)
   world%output(io)%format = cnull
 
+  if (samestring(str,"TYPHON"))      world%output(io)%format = fmt_TYPHON
   if (samestring(str,"CGNS"))        world%output(io)%format = fmt_CGNS
   if (samestring(str,"CGNS-LINKED")) world%output(io)%format = fmt_CGNS_linked
   if (samestring(str,"TECPLOT"))     world%output(io)%format = fmt_TECPLOT
@@ -65,6 +66,9 @@ do io = 1, world%noutput
 
   call rpmgetkeyvalstr(pcour, "FILE", str)
   select case(world%output(io)%format)
+  case(fmt_TYPHON)
+    ic = index(str, "."//xtyext_sol)
+    if (ic == len(trim(str))-len(xtyext_sol)) str = str(1:ic-1)//"     "
   case(fmt_CGNS, fmt_CGNS_linked)
     ic = index(str, ".cgns")
     if (ic == len(trim(str))-4) str = str(1:ic-1)//"     "

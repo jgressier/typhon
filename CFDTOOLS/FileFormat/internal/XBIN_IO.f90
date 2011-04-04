@@ -47,6 +47,7 @@ integer info
 
   xbin_eof = eof(defxbin%iunit)
   !inquire(defxbin%iunit, iostat=info)
+  !xbin_eof = is_iostat_end(info)
 
 endfunction xbin_eof
 
@@ -103,16 +104,23 @@ type(st_defxbin) :: defxbin
 ! -- private data --
 character(len=len(xbin_strheader)) :: strcheck
 integer(xbinkpp)                   :: endiancheck
+integer                            :: info
 
-  read(defxbin%iunit) strcheck
+  read(defxbin%iunit, iostat=info) strcheck
+  if (info /=0) &
+    call cfd_error(xbin_prefix//"IO error reading XBIN header") 
   if (strcheck /= xbin_strheader) &
-     call cfd_error(xbin_prefix//" this file has not a XBIN header") 
+    call cfd_error(xbin_prefix//" this file has not a XBIN header") 
 
-  read(defxbin%iunit) endiancheck
+  read(defxbin%iunit, iostat=info) endiancheck
+  if (info /=0) &
+    call cfd_error(xbin_prefix//"IO error reading XBIN endianness") 
   if (endiancheck /= endian_test) &
-     call cfd_error(xbin_prefix//" this file has unexpected endianness") 
+     call cfd_error(xbin_prefix//"") 
 
-  read(defxbin%iunit) defxbin%xbin_version
+  read(defxbin%iunit, iostat=info) defxbin%xbin_version
+  if (info /=0) &
+    call cfd_error(xbin_prefix//"IO error reading XBIN version") 
 
 endsubroutine xbin_readheader
 
@@ -129,7 +137,7 @@ type(st_defxbin) :: defxbin
 ! -- private data --
 integer :: info
 
-  open(unit=iunit, file=trim(filename), form='unformatted', access='stream', iostat = info)
+  open(unit=iunit, file=trim(filename), form='unformatted', access='stream', action='read', iostat = info)
   if (info /= 0) call cfd_error(xbin_prefix//"cannot open file "//trim(filename))
 
   defxbin%iunit = iunit
@@ -149,7 +157,8 @@ type(st_defxbin) :: defxbin
 ! -- private data --
 integer :: info
 
-  open(unit=iunit, file=trim(filename), form='unformatted', access='stream', iostat = info)
+  open(unit=iunit, file=trim(filename), form='unformatted', access='stream', &
+                                        action='write', status='replace', iostat = info)
   if (info /= 0) call cfd_error(xbin_prefix//"cannot open file "//trim(filename))
 
   defxbin%iunit = iunit

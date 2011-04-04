@@ -12,6 +12,7 @@ use OUTPUT
 use VARCOM
 use DEFZONE
 use MENU_GEN
+use TYFMT_MESH
 
 implicit none
 
@@ -36,6 +37,10 @@ integer                :: isize(3)     ! info array for zone
 pgrid => zone%gridlist%first
 
 select case(defio%format)
+
+case(fmt_TYPHON)
+
+  call typhonwrite_ustmesh(defio%deftyphon%defxbin, pgrid%umesh)
 
 case(fmt_TECPLOT)
   call error_stop("(Internal error) Unable to use general output with TECPLOT format")

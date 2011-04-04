@@ -44,11 +44,11 @@ interface xbin_readdata_indint
 endinterface
 
 interface xbin_writedata_ordreal
-  module procedure xbin_writedata_ordreal_xx
+  module procedure xbin_writedata_ordreal_x, xbin_writedata_ordreal_xx
 endinterface
 
 interface xbin_readdata_ordreal
-  module procedure xbin_readdata_ordreal_xx
+  module procedure xbin_readdata_ordreal_x, xbin_readdata_ordreal_xx
 endinterface
 
 !------------------------------------------------------------------------------!
@@ -164,16 +164,17 @@ type(st_xbindatasection) :: xbindata
 ! -- private data --
 integer :: info
 
-  read(defxbin%iunit) xbindata%datatype  
-  read(defxbin%iunit) xbindata%name
-  read(defxbin%iunit) xbindata%groupindex
-  read(defxbin%iunit) xbindata%usertype
-  read(defxbin%iunit) xbindata%intsize
+  read(defxbin%iunit, iostat=info) xbindata%datatype,   xbindata%name,      &
+                                   xbindata%groupindex, xbindata%usertype,  &
+                                   xbindata%intsize
+  if (info /= 0) call cfd_error(xbin_prefix//"unable to read data header 2") 
   if (xbindata%intsize /= xbinkip) &
-     call cfd_error(xbin_prefix//"unexpected integer size in file") 
+     call cfd_error(xbin_prefix//"unexpected integer size in file (section "&
+                               //trim(xbindata%name)//")") 
   read(defxbin%iunit) xbindata%realsize
   if (xbindata%realsize /= xbinkrp) &
-     call cfd_error(xbin_prefix//"unexpected real size in file") 
+     call cfd_error(xbin_prefix//"unexpected real size in file (section "&
+                               //trim(xbindata%name)//")") 
   read(defxbin%iunit) xbindata%nparam
   if (xbindata%nparam >= 1) then
     allocate(xbindata%param(1:xbindata%nparam))
@@ -431,6 +432,35 @@ endsubroutine xbin_readdata_indint_xx
 !------------------------------------------------------------------------------!
 ! write DATA section (real array with implicit ordered index)
 !------------------------------------------------------------------------------!
+subroutine xbin_writedata_ordreal_x(defxbin, xbindata, nelem, array, firstindex)
+implicit none
+! -- INPUTS --
+type(st_defxbin)           :: defxbin
+type(st_xbindatasection)   :: xbindata
+integer(xbinkip)           :: nelem, dim
+integer(xbinkip), optional :: firstindex
+real(xbinkrp)              :: array(1:nelem)
+! -- OUTPUTS --
+! -- private data --
+integer(xbinkip) :: i1
+
+  dim = 0     ! 
+  i1  = 1
+  if (present(firstindex)) i1 = firstindex
+
+  xbindata%datatype = xbindatatype_real_ordarray
+  call xbin_writedatahead(defxbin, xbindata)
+
+  write(defxbin%iunit) i1, nelem, dim
+  write(defxbin%iunit) array(1:nelem)
+
+  call xbin_writeend(defxbin)
+  
+endsubroutine xbin_writedata_ordreal_x
+
+!------------------------------------------------------------------------------!
+! write DATA section (real array with implicit ordered index)
+!------------------------------------------------------------------------------!
 subroutine xbin_writedata_ordreal_xx(defxbin, xbindata, nelem, dim, array, firstindex)
 implicit none
 ! -- INPUTS --
@@ -455,6 +485,28 @@ integer(xbinkip) :: i1
   call xbin_writeend(defxbin)
   
 endsubroutine xbin_writedata_ordreal_xx
+
+!------------------------------------------------------------------------------!
+! read DATA section (real array with implicit ordered index)
+!------------------------------------------------------------------------------!
+subroutine xbin_readdata_ordreal_x(defxbin, xbindata, array)
+implicit none
+! -- INPUTS --
+type(st_defxbin)           :: defxbin
+type(st_xbindatasection)   :: xbindata
+! -- OUTPUTS --
+real(xbinkrp)              :: array(1:xbindata%nelem)
+! -- private data --
+
+  select case(xbindata%datatype)
+  case(xbindatatype_real_ordarray)
+    read(defxbin%iunit) array(1:xbindata%nelem)
+  case default
+    call cfd_error(xbin_prefix//" unexpected data type reading ordered real array")
+  endselect
+  call xbin_readend(defxbin)
+  
+endsubroutine xbin_readdata_ordreal_x
 
 !------------------------------------------------------------------------------!
 ! read DATA section (real array with implicit ordered index)

@@ -73,17 +73,12 @@ else
 endif
 
 select case(defio%format)
-
+case(fmt_TYPHON)
+  call print_info(2,"* write TYPHON file: " // trim(defio%filename))
 case(fmt_VTK)
-
   call print_info(2,"* write VTK file: " // trim(defio%filename))
-  !call output_vtk(defio, zone)
-
 case(fmt_VTKBIN)
-
   call print_info(2,"* write VTK Binary file: " // trim(defio%filename))
-  !call output_vtkbin(defio, zone)
-
 case(fmt_TECPLOT)
 
   call print_info(2,"* write TECPLOT file: " // trim(defio%filename))
@@ -104,9 +99,7 @@ endselect
 select case(defio%format)
 case(fmt_TECPLOT)
   ! already saved
-!case(fmt_VTK, fmt_VTKBIN)
-  ! already saved
-case(fmt_CGNS, fmt_CGNS_linked, fmt_VTK, fmt_VTKBIN)
+case(fmt_CGNS, fmt_CGNS_linked, fmt_VTK, fmt_VTKBIN, fmt_TYPHON)
 
   call outputzone_open   (defio, zone) 
   call outputzone_ustmesh(defio, zone) 
@@ -123,4 +116,5 @@ endsubroutine output_zone
 !
 ! May  2008: creation from output_result
 ! JuLy 2009: restructuration, general output routines
+! Apr  2011: TYPHON format output
 !------------------------------------------------------------------------------!

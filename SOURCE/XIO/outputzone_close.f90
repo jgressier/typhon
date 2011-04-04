@@ -32,7 +32,7 @@ select case(defio%format)
 
 case(fmt_TECPLOT)
   call error_stop("'Internal error) Unable to use general output with TECPLOT format")
-case(fmt_VTK, fmt_VTKBIN)
+case(fmt_VTK, fmt_VTKBIN, fmt_TYPHON)
   call close_io_unit(defio%iunit)
 case(fmt_CGNS, fmt_CGNS_linked)
   call cg_close_f(defio%iunit, info)
