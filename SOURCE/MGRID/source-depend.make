@@ -13,6 +13,7 @@ MGRID_MOD = \
             DEFFIELD.$(MODEXT)     \
             LIMITER.$(MODEXT)      \
             MATFREE.$(MODEXT)      \
+            MESHALE.$(MODEXT)      \
             MGRID.$(MODEXT)
 
 # Objects
@@ -38,7 +39,9 @@ MGRID_OBJ = $(MGRID_MOD:.$(MODEXT)=.o)      \
             postlimit_monotonic.o      \
             postlimit_barth.o          \
             prb_grid_vol.o             \
-            precalc_grad_lsq.o
+            precalc_grad_lsq.o         \
+            update_ustboco_ghostcell.o \
+            update_ustboco_ghostface.o
             #minmax_limiter.o
 
 libt_mgrid.objects = $(MGRID_OBJ:%=$(PRJOBJDIR)/%)

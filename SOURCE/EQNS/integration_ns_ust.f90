@@ -93,6 +93,13 @@ do ib = 1, nblock
   endif
 
   !----------------------------------------------------------------------
+  ! computation of ALE fluxes
+  !----------------------------------------------------------------------
+
+  call calc_flux_ale(defsolver, buf, ista(ib), umesh, cg_l, cg_r, &
+                          QL, QR, flux, theo_jac, jacL, jacR)
+
+  !----------------------------------------------------------------------
   ! computation of VISCOUS fluxes
   !----------------------------------------------------------------------
   select case(defsolver%defns%typ_fluid)

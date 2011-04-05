@@ -15,6 +15,7 @@ module MENU_SOLVER
 use TYPHMAKE      ! Definition de la precision
 use QUANTITY      ! CFDTOOLS module: quantity id and names
 use MESHPARAMS
+use MESHALE
 use MESHMRF
 use MENU_NUM      ! Definition des parametres numeriques d'integration
 use MENU_NS       ! Definition des solveurs type NS
@@ -49,6 +50,7 @@ type mnu_solver
   integer, pointer   :: idsca(:)        ! names for primitive scalars 
   integer, pointer   :: idvec(:)        ! names for primitive vectors 
   type(mnu_mesh)  :: defmesh         ! mesh / geometry parameters
+  type(mnu_ale)   :: defale          ! mesh / arbitrary lagrangian eulerian (ALE)
   type(mnu_mrf)   :: defmrf          ! mesh / moving reference frame
   type(mnu_time)  :: deftime         ! parametres d'integration temporelle
   type(mnu_spat)  :: defspat         ! parametres d'integration spatiale

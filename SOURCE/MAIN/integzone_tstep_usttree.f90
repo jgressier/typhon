@@ -23,10 +23,19 @@ type(st_zone) :: zone            ! zone a integrer
 
 ! -- Internal variables --
 type(st_grid), pointer :: pgrid
-integer                :: if
+real(krp)              :: curtime
 
 ! -- Body --
 
+!----------------------------------
+! ALE MESH MOVEMENT STEP
+
+  curtime = zone%info%cycle_start + zone%info%cycle_time
+  pgrid => zone%gridlist%first
+  do while (associated(pgrid))
+    call ale_meshupdate(pgrid%umesh, zone%defsolver%defale, zone%defsolver%boco(:), pgrid%optmem%gradcond_computed, curtime, dt) !1:zone%defsolver%nboco
+    pgrid => pgrid%next
+  enddo
 
 
 call integ_treelevel(dt, zone%info, zone%defsolver, &

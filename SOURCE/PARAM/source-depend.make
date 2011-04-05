@@ -9,7 +9,8 @@ LDIR := PARAM
 PARAM_LIB = $(PRJLIBDIR)/libt_param.a
 
 # Modules
-PARAM_MOD = MENU_AMR.$(MODEXT)      \
+PARAM_MOD = MENU_ALE.$(MODEXT)      \
+            MENU_AMR.$(MODEXT)      \
             MENU_BOCO.$(MODEXT)     \
             MENU_COUPLING.$(MODEXT) \
             MENU_GEN.$(MODEXT)      \
@@ -23,6 +24,7 @@ PARAM_MOD = MENU_AMR.$(MODEXT)      \
 
 # Objects
 PARAM_OBJ := $(PARAM_MOD:.$(MODEXT)=.o)  \
+            def_ale.o          \
             def_amr.o          \
             def_boco.o         \
             def_check.o        \
