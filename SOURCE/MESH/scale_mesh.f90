@@ -33,9 +33,10 @@ if (defmesh%scaling) then
 endif
 
 if (defmesh%morphing) then
+  !$OMP PARALLEL private(iv, buf, blank_env) shared(ista, iend)
   call new_buf_index(mesh%nvtex, cell_buffer, nblock, ista, iend)
   call new_fct_env(blank_env)      ! temporary environment from FCT_EVAL
-  !$OMP PARALLEL DO private(iv) shared(blank_env)
+  !$OMP DO 
   do ib = 1, nblock
     buf = iend(ib)-ista(ib)+1
     do iv = ista(ib), iend(ib)
@@ -47,9 +48,10 @@ if (defmesh%morphing) then
       call fct_eval_real(blank_env, defmesh%morph_z, mesh%vertex(iv,1,1)%z)
     enddo
   enddo
-  !$OMP END PARALLEL DO
-  deallocate(ista, iend)
+  !$OMP END DO
   call delete_fct_env(blank_env)      ! temporary environment from FCT_EVAL
+  !$OMP END PARALLEL 
+  deallocate(ista, iend)
 endif
 
 endsubroutine scale_mesh
