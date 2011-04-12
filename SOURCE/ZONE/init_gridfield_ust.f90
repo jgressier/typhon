@@ -46,11 +46,21 @@ endselect
 
 call alloc_prim(field)
 
+! -- copy defsolver quantity ids to PRIMITIVE field --
+
+do isca = 1, field%etatprim%nscal
+  field%etatprim%tabscal(isca)%quantity_id = defsolver%idsca(isca)
+enddo
+
+do ivec = 1, field%etatprim%nvect
+  field%etatprim%tabvect(ivec)%quantity_id = defsolver%idvec(ivec)
+enddo
+
 ! Boucle sur les definitions de field
 
 do i = 1, defsolver%ninit
 
-  write(str_w,'(a,i3)') "    initialization #",i
+  write(str_w,'(a,i3)') "  initialization #",i
   call print_info(10, str_w)
 
   ! initialisation selon solveur
@@ -59,7 +69,7 @@ do i = 1, defsolver%ninit
 
   case(init_cgns)
 
-     call print_info(5,"   CGNS file initialization")
+     call print_info(5,"  > CGNS file initialization")
      call cg_open_f(trim(defsolver%defmesh%filename), MODE_READ, cgnsunit, ier)
      if (ier /= 0) call erreur("Fatal CGNS IO", "cannot open "//trim(defsolver%defmesh%filename))
      call readcgns_sol(cgnsunit, defsolver%defmesh%icgnsbase, defsolver%defmesh%icgnszone, &
@@ -68,7 +78,7 @@ do i = 1, defsolver%ninit
      if (ier /= 0) call error_stop("Fatal CGNS IO: cannot close "//trim(defsolver%defmesh%filename))
 
    case default
-
+     
       select case(defsolver%typ_solver)
       case(solNS)
          call init_ns_ust(defsolver%defns, defsolver%init(i)%ns, field, &
@@ -90,16 +100,6 @@ case(solNS, solKDIF)
 case default
   call error_stop("Internal error (init_gridfield_ust): unknown solver type")
 endselect
-
-! -- copy defsolver quantity ids to PRIMITIVE field --
-
-do isca = 1, field%etatprim%nscal
-  field%etatprim%tabscal(isca)%quantity_id = defsolver%idsca(isca)
-enddo
-
-do ivec = 1, field%etatprim%nvect
-  field%etatprim%tabvect(ivec)%quantity_id = defsolver%idvec(ivec)
-enddo
 
 ! --
 

@@ -53,9 +53,10 @@ dim = umesh%ncell_int
 do isca = 1, field%nscal
 
   qname = quantity_cgnsname(field%tabscal(isca)%quantity_id)
-   call cg_field_read_f(cgnsunit, ibase, izone, isol, trim(qname), itype, &
-                        1, dim, field%tabscal(isca)%scal(1:dim), info)
-   if (info /=0) call cfd_error("(CGNS) reading "//trim(qname)//" solution...")
+  call cfd_print("reading CGNS field: "//trim(qname))
+  call cg_field_read_f(cgnsunit, ibase, izone, isol, trim(qname), itype, &
+                       1, dim, field%tabscal(isca)%scal(1:dim), info)
+  if (info /=0) call cfd_error("(CGNS) reading "//trim(qname)//" solution...")
 
 enddo
 
@@ -65,9 +66,10 @@ if (field%nvect > 0) then
 
   do ivec = 1, field%nvect
 
+    call cfd_print("reading CGNS field: "//trim(qname))
     qname = quantity_cgnsname(field%tabvect(ivec)%quantity_id)
-     call cg_field_read_f(cgnsunit, ibase, izone, isol, trim(qname)//'X', itype, &
-                          1, dim, v, info)
+    call cg_field_read_f(cgnsunit, ibase, izone, isol, trim(qname)//'X', itype, &
+                         1, dim, v, info)
      if (info /=0) call cfd_error("(CGNS) reading "//trim(qname)//'X'//" solution...")
      do i = 1, dim
         field%tabvect(ivec)%vect(i)%x = v(i)

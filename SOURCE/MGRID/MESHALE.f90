@@ -26,7 +26,7 @@ implicit none
 
 ! -- INTERFACES -------------------------------------------------------------
 
-! -- Fonctions et Operateurs ------------------------------------------------
+! -- Functions et Operators ------------------------------------------------
 
 ! -- IMPLEMENTATION ---------------------------------------------------------
 
@@ -127,28 +127,32 @@ if (.not. associated(defale%weight)) then
   nboundvtex = ind !count(boundvtex(:) > 0)
 
   ! body_centre
-  defale%body_centre = v3d_zero
-  do iv = 1, nbodyvtex
-    defale%body_centre%x = defale%body_centre%x + (umesh%mesh%vertex(bodyvtex(iv),1,1)%x/nbodyvtex)
-    defale%body_centre%y = defale%body_centre%y + (umesh%mesh%vertex(bodyvtex(iv),1,1)%y/nbodyvtex)
-    defale%body_centre%z = defale%body_centre%z + (umesh%mesh%vertex(bodyvtex(iv),1,1)%z/nbodyvtex)
-  enddo
+  if (abs(defale%body_centre) >= (huge(1._krp)/2)) then
+    do iv = 1, nbodyvtex
+      defale%body_centre%x = defale%body_centre%x + (umesh%mesh%vertex(bodyvtex(iv),1,1)%x/nbodyvtex)
+      defale%body_centre%y = defale%body_centre%y + (umesh%mesh%vertex(bodyvtex(iv),1,1)%y/nbodyvtex)
+      defale%body_centre%z = defale%body_centre%z + (umesh%mesh%vertex(bodyvtex(iv),1,1)%z/nbodyvtex)
+    enddo
+  endif
 
   ! body_maxradius
-  defale%body_maxradius = 0._krp
-  do iv = 1, nbodyvtex
-    if (abs(umesh%mesh%vertex(bodyvtex(iv),1,1)-defale%body_centre) > defale%body_maxradius) then
-        defale%body_maxradius = abs(umesh%mesh%vertex(bodyvtex(iv),1,1)-defale%body_centre)
-    endif
-  enddo
+  if (defale%body_maxradius <= 0._krp) then
+    do iv = 1, nbodyvtex
+      if (abs(umesh%mesh%vertex(bodyvtex(iv),1,1)-defale%body_centre) > defale%body_maxradius) then
+          defale%body_maxradius = abs(umesh%mesh%vertex(bodyvtex(iv),1,1)-defale%body_centre)
+      endif
+    enddo
+  endif
 
   ! closest_boundary
-  defale%closest_boundary = huge(1._krp)
-  do iv = 1, nboundvtex
-    if (abs(umesh%mesh%vertex(boundvtex(iv),1,1)-defale%body_centre) < defale%closest_boundary) then
-      defale%closest_boundary = abs(umesh%mesh%vertex(boundvtex(iv),1,1)-defale%body_centre)
-    endif
-  enddo
+  if (defale%closest_boundary <= 0._krp) then
+    defale%closest_boundary = huge(1._krp)
+    do iv = 1, nboundvtex
+      if (abs(umesh%mesh%vertex(boundvtex(iv),1,1)-defale%body_centre) < defale%closest_boundary) then
+        defale%closest_boundary = abs(umesh%mesh%vertex(boundvtex(iv),1,1)-defale%body_centre)
+      endif
+    enddo
+  endif
 
   ! weight field calculation
   allocate(defale%weight(umesh%nvtex))
@@ -257,7 +261,7 @@ integer(kpp)                 :: ind
 
 ! -- BODY --
   ! Geometric and calculation parameters update
-  gradcond_computed = .false.
+  gradcond_computed = .false.  ! so precalc_grad_lsq() is forced to update the gradient
   call ale_update_geoparam(umesh, defboco)
 
   ! Face velocity evaluation

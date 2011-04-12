@@ -33,8 +33,8 @@ if (defmesh%scaling) then
 endif
 
 if (defmesh%morphing) then
-  !$OMP PARALLEL private(iv, buf, blank_env) shared(ista, iend)
   call new_buf_index(mesh%nvtex, cell_buffer, nblock, ista, iend)
+  !$OMP PARALLEL private(iv, buf, blank_env) shared(ista, iend)
   call new_fct_env(blank_env)      ! temporary environment from FCT_EVAL
   !$OMP DO 
   do ib = 1, nblock

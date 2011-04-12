@@ -78,13 +78,13 @@ do if = 1, nflux
   if_abs = ista-1+if
   
   ! mass flux
-  flux%tabscal(1)%scal(if_abs) = flux%tabscal(1)%scal(if_abs) + (defsolver%defale%face_velocity(if_abs) .scal. umesh%mesh%iface(if_abs, 1, 1)%normale) * rhoH(if)
+  flux%tabscal(1)%scal(if_abs) = flux%tabscal(1)%scal(if_abs) - (defsolver%defale%face_velocity(if_abs) .scal. umesh%mesh%iface(if_abs, 1, 1)%normale) * rhoH(if)
 
   ! momentum flux
-  flux%tabvect(1)%vect(if_abs) = flux%tabvect(1)%vect(if_abs) + (defsolver%defale%face_velocity(if_abs) .scal. umesh%mesh%iface(if_abs, 1, 1)%normale) * momentum(if)
+  flux%tabvect(1)%vect(if_abs) = flux%tabvect(1)%vect(if_abs) - (defsolver%defale%face_velocity(if_abs) .scal. umesh%mesh%iface(if_abs, 1, 1)%normale) * momentum(if)
 
   ! energy flux
-  flux%tabscal(2)%scal(if_abs) = flux%tabscal(2)%scal(if_abs) + (defsolver%defale%face_velocity(if_abs) .scal. umesh%mesh%iface(if_abs, 1, 1)%normale) * energy(if)
+  flux%tabscal(2)%scal(if_abs) = flux%tabscal(2)%scal(if_abs) - (defsolver%defale%face_velocity(if_abs) .scal. umesh%mesh%iface(if_abs, 1, 1)%normale) * energy(if)
 enddo
 
 endselect

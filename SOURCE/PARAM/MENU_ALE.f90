@@ -56,6 +56,10 @@ type(mnu_ale)               :: defale
 ! -- BODY --
   defale%name = ""
   defale%type = ale_none
+  defale%idboco_body = -1
+  defale%body_centre = v3d(-huge(1._krp),-huge(1._krp),-huge(1._krp))
+  defale%body_maxradius = -1._krp
+  defale%closest_boundary = -1._krp
   nullify(defale%weight)
   nullify(defale%original_vertex)
   nullify(defale%old_facecentres)

@@ -94,6 +94,14 @@ case(1)
     call convert_to_funct(str, defale%movement_theta, info)
     if (info /= 0) &
       call erreur("parsing parameters","unable to understand BODY_MOVEMENT_THETA data (ALE - given symbolic 3D BODY movement)")
+    if (rpm_existkey(pcour,"BODY_CENTRE")) then
+      call rpmgetkeyvalstr(pcour, "BODY_CENTRE", str)
+      defale%body_centre = v3d_of(str, info)
+      if (info /= 0) &
+        call erreur("parsing parameters","unable to understand BODY_CENTRE data (ALE - given symbolic 3D BODY movement)")
+    endif
+    call rpmgetkeyvalreal(pcour, "INTERP_MINRADIUS", defale%body_maxradius, -1._krp)
+    call rpmgetkeyvalreal(pcour, "INTERP_MAXRADIUS", defale%closest_boundary, -1._krp)
 
   case default
     call error_stop("parameters parsing: unknown ALE mesh movement type definition")
