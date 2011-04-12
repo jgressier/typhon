@@ -9,7 +9,7 @@
 !   ATTENTION : initialisation des variables primitives
 !
 !------------------------------------------------------------------------------!
-subroutine init_kdif_ust(kdif, champ, unif, umesh, init_type, initfile)
+subroutine init_kdif_ust(init, field, umesh)
 
 use TYPHMAKE
 use DEFFIELD
@@ -20,14 +20,11 @@ use MENU_INIT
 implicit none
 
 ! -- INPUTS --
-type(st_init_kdif)    :: kdif
-integer               :: unif ! uniformite de la condition initiale
-type(st_ustmesh)      :: umesh
-integer(kip)     :: init_type
-character(len=longname) :: initfile
+type(mnu_init)   :: init
+type(st_ustmesh) :: umesh
 
 ! -- OUTPUTS --
-type(st_field) :: champ
+type(st_field) :: field
 
 ! -- Internal Variables --
 integer(kip)          :: ncell
@@ -39,35 +36,35 @@ real(krp)             :: x,y,z
 
 ncell = umesh%ncell_int 
 
-select case(init_type)
+select case(init%type)
 
 case(init_def)
 
-  if (unif == init_unif) then
-    do ip = 1, champ%nscal
-      champ%etatprim%tabscal(ip)%scal(:) = kdif%temp
+  if (init%unif == init_unif) then
+    do ip = 1, field%nscal
+      field%etatprim%tabscal(ip)%scal(:) = init%kdif%temp
     enddo
   else !provisoire
-    do ip = 1, champ%nscal
-      do ic=1, champ%ncell
-       champ%etatprim%tabscal(ip)%scal(ic)=kdif%coef(1)*umesh%mesh%centre(ic,1,1)%x+&
-                                           kdif%coef(2)*umesh%mesh%centre(ic,1,1)%y+&
-                                           kdif%coef(3)*umesh%mesh%centre(ic,1,1)%z+&
-                                           kdif%coef(4)
+    do ip = 1, field%nscal
+      do ic=1, field%ncell
+       field%etatprim%tabscal(ip)%scal(ic)=init%kdif%coef(1)*umesh%mesh%centre(ic,1,1)%x+&
+                                           init%kdif%coef(2)*umesh%mesh%centre(ic,1,1)%y+&
+                                           init%kdif%coef(3)*umesh%mesh%centre(ic,1,1)%z+&
+                                           init%kdif%coef(4)
       enddo
     enddo
   endif
 
 ! pas de de variables vectorielles attendues (pas de test)
 
-!!if (champ%allocgrad) champ%gradient(:,:,:,:,:) = 0._krp
+!!if (field%allocgrad) field%gradient(:,:,:,:,:) = 0._krp
 
 case(init_file)
-  open(unit=1004, file = initfile, form="formatted")
+  open(unit=1004, file = init%file, form="formatted")
   read(1004,'(a)') charac
   read(1004,'(a)') charac
   do ic=1, ncell
-    read(1004,*) x, y, z, champ%etatprim%tabscal(1)%scal(ic)
+    read(1004,*) x, y, z, field%etatprim%tabscal(1)%scal(ic)
   enddo
   close(1004)
 

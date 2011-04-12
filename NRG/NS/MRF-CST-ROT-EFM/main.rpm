@@ -39,8 +39,8 @@ BLOCK:MRF
 ENDBLOCK
 
 BLOCK:INIT
-  VX      = 25.*Y
-  VY      = -25.*X
+  VX      = 0. ! 25.*Y
+  VY      = 0. ! -25.*X
   VZ      = 0.
   DENSITY = 1.225
   P       = 101325

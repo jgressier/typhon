@@ -8,7 +8,7 @@
 !   CAUTION : only initialization of primitive variables
 !
 !------------------------------------------------------------------------------!
-subroutine init_ns_ust(defns, initns, field, umesh, init_type, initfile)
+subroutine init_ns_ust(defns, defmrf, init, field, umesh)
 
 use PACKET
 use DEFFIELD
@@ -16,6 +16,7 @@ use USTMESH
 use EQNS
 use MENU_NS
 use MENU_INIT
+use MESHMRF
 use FCT_EVAL
 use FCT_ENV
 
@@ -23,10 +24,9 @@ implicit none
 
 ! -- INPUTS --
 type(mnu_ns)     :: defns
-type(st_init_ns) :: initns
+type(mnu_mrf)    :: defmrf
+type(mnu_init)   :: init
 type(st_ustmesh) :: umesh
-integer(kpp)     :: init_type
-character(len=longname) :: initfile
 
 ! -- OUTPUTS --
 type(st_field) :: field
@@ -51,7 +51,7 @@ ncell = umesh%ncell_int
 !!! DEV !!! should not directly use gamma
 gamma = defns%properties(1)%gamma
 
-select case(init_type)
+select case(init%type)
 
 case(init_def)  ! --- initialization through FCT functions ---
   
@@ -77,55 +77,55 @@ case(init_def)  ! --- initialization through FCT functions ---
       call fct_env_set_real(blank_env, "y", umesh%mesh%centre(ic,1,1)%y)
       call fct_env_set_real(blank_env, "z", umesh%mesh%centre(ic,1,1)%z)
 
-      if (initns%is_pstat) then
-        call fct_eval_real(blank_env, initns%pstat, pstat(i))
+      if (init%ns%is_pstat) then
+        call fct_eval_real(blank_env, init%ns%pstat, pstat(i))
       else
-        call fct_eval_real(blank_env, initns%ptot, ptot(i))
+        call fct_eval_real(blank_env, init%ns%ptot, ptot(i))
       endif
 
-      if (initns%is_density) then
-        call fct_eval_real(blank_env, initns%density, density(i))
+      if (init%ns%is_density) then
+        call fct_eval_real(blank_env, init%ns%density, density(i))
       else
-        if (initns%is_tstat) then
-          call fct_eval_real(blank_env, initns%tstat, tstat(i))
+        if (init%ns%is_tstat) then
+          call fct_eval_real(blank_env, init%ns%tstat, tstat(i))
         else
-          call fct_eval_real(blank_env, initns%ttot, ttot(i))
+          call fct_eval_real(blank_env, init%ns%ttot, ttot(i))
         endif
       endif
 
-      if (initns%is_vcomponent) then
-        call fct_eval_real(blank_env, initns%vx, velocity(i)%x)
-        call fct_eval_real(blank_env, initns%vy, velocity(i)%y)
-        call fct_eval_real(blank_env, initns%vz, velocity(i)%z)
+      if (init%ns%is_vcomponent) then
+        call fct_eval_real(blank_env, init%ns%vx, velocity(i)%x)
+        call fct_eval_real(blank_env, init%ns%vy, velocity(i)%y)
+        call fct_eval_real(blank_env, init%ns%vz, velocity(i)%z)
         vel(i) = abs(velocity(i))
       else
-        if (initns%is_velocity) then
-          call fct_eval_real(blank_env, initns%velocity, vel(i))
+        if (init%ns%is_velocity) then
+          call fct_eval_real(blank_env, init%ns%velocity, vel(i))
         else
-          call fct_eval_real(blank_env, initns%mach, mach(i))
+          call fct_eval_real(blank_env, init%ns%mach, mach(i))
         endif
 
-        call fct_eval_real(blank_env, initns%dir_x, velocity(i)%x)
-        call fct_eval_real(blank_env, initns%dir_y, velocity(i)%y)
-        call fct_eval_real(blank_env, initns%dir_z, velocity(i)%z)
+        call fct_eval_real(blank_env, init%ns%dir_x, velocity(i)%x)
+        call fct_eval_real(blank_env, init%ns%dir_y, velocity(i)%y)
+        call fct_eval_real(blank_env, init%ns%dir_z, velocity(i)%z)
       endif
       
     enddo
 
     ! -- compute density & static pressure (if needed, via total/static temperature/pressure) --
 
-    if (initns%is_pstat) then
+    if (init%ns%is_pstat) then
       
-      if (.not.initns%is_density) then
+      if (.not.init%ns%is_density) then
         call compute_tstat
         density(1:buf) = pstat(1:buf) / (defns%properties(1)%r_const * tstat(1:buf))
       endif
 
     else ! ptot is defined
 
-      if (initns%is_density) then   ! must only compute pstat (without tstat/ttot)
+      if (init%ns%is_density) then   ! must only compute pstat (without tstat/ttot)
 
-        if (initns%is_velocity) then   ! Mach number is not defined
+        if (init%ns%is_velocity) then   ! Mach number is not defined
           call erreur("Initialization", "unable to use DENSITY, TOTAL PRESSURE and VELOCITY combination")
         else
           pstat(1:buf)   = ptot(1:buf) / (1._krp + .5_krp*(gamma-1._krp)*mach(1:buf)**2)**(gamma/(gamma-1._krp))
@@ -133,7 +133,7 @@ case(init_def)  ! --- initialization through FCT functions ---
 
       else
         call compute_tstat
-        if (initns%is_velocity) then   ! Mach number is not defined
+        if (init%ns%is_velocity) then   ! Mach number is not defined
           mach(1:buf) = abs(vel(1:buf))/sqrt(gamma*defns%properties(1)%r_const * tstat(1:buf))
         endif
         pstat(1:buf)   = ptot(1:buf) / (1._krp + .5_krp*(gamma-1._krp)*mach(1:buf)**2)**(gamma/(gamma-1._krp))
@@ -151,7 +151,7 @@ case(init_def)  ! --- initialization through FCT functions ---
                             //trim(strof(nc))//" cells)" )
     
     ! -- compute velocity (from mach number) --
-    if (.not.initns%is_velocity) then
+    if (.not.init%ns%is_velocity) then
       vel(1:buf) = sqrt(gamma*pstat(1:buf)/density(1:buf))*mach(1:buf)
     endif
     
@@ -162,7 +162,7 @@ case(init_def)  ! --- initialization through FCT functions ---
     field%etatprim%tabscal(2)%scal(ifirst:iend) = pstat(1:buf)
 
     ! -- velocity components if not already defined --
-    if (initns%is_vcomponent) then
+    if (init%ns%is_vcomponent) then
       field%etatprim%tabvect(1)%vect(ifirst:iend) = velocity(1:buf)
     else
       field%etatprim%tabvect(1)%vect(ifirst:iend) = (vel(1:buf)/abs(velocity(1:buf)))*velocity(1:buf)
@@ -183,7 +183,7 @@ case(init_udf)
 
 case(init_file)
   call print_info(5,"   user file initialization")
-  open(unit=1004, file = initfile, form="formatted")
+  open(unit=1004, file = init%file, form="formatted")
   read(1004,'(a)') charac
   read(1004,'(a)') charac
   do ic=1, ncell
@@ -204,13 +204,25 @@ case default
 
 endselect
 
+! -- MRF update --
+
+select case(defmrf%type)
+case(mrf_none) 
+  ! nothing to do
+case default
+  do ic = 1, ncell
+    call mrfvel_abs2rel(defmrf, 0._krp, umesh%mesh%centre(ic,1,1), field%etatprim%tabvect(1)%vect(ic))
+  enddo
+endselect
+
+
 ! -------- SUBROUTINES ------------
 contains
 
 subroutine compute_tstat ! macro-like, using "routine global" variables
 implicit none
-  if (.not.initns%is_tstat) then ! ttot is defined
-    if (initns%is_velocity) then
+  if (.not.init%ns%is_tstat) then ! ttot is defined
+    if (init%ns%is_velocity) then
       tstat(1:buf) = ttot(1:buf) - .5_krp*(gamma-1._krp)/gamma/defns%properties(1)%r_const*vel(1:buf)**2
     else
       tstat(1:buf) = ttot(1:buf) / (1._krp + .5_krp*(gamma-1._krp)*mach(1:buf)**2)
