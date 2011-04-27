@@ -46,7 +46,7 @@ do it = 1, ustboco%ntag
 
   ! -- seek tag in face elements --
   do ielem = 1, umesh%cellvtex%nsection
-    if (dim_element(umesh%cellvtex%elem(ielem)) == umesh%geodim-1 ) then ! only "FACE" elements
+    if (dim_element(umesh%cellvtex%elem(ielem)) == geodim(umesh)-1 ) then ! only "FACE" elements
       do ie = 1, umesh%cellvtex%elem(ielem)%nelem
         if (umesh%cellvtex%elem(ielem)%ielem(ie) == ielemface) then
           nvtex = umesh%cellvtex%elem(ielem)%nvtex

@@ -6,15 +6,14 @@
 !------------------------------------------------------------------------------!
 module MESHALE
 
-use TYPHMAKE
-use VARCOM
 use USTMESH
-use MENU_BOCO
+use MENU_SOLVER
 use MENU_ALE
 use VEC3D
 use FCT_ENV
 use FCT_EVAL
 use OUTPUT
+use MESHGEOM
 
 implicit none
 
@@ -189,41 +188,22 @@ endsubroutine ale_calcweight
 
 ! -----------------------------------------------------------------------------!
 ! -----------------------------------------------------------------------------!
-subroutine ale_update_geoparam(umesh, defboco)
+subroutine ale_update_geoparam(umesh, defsolver)
 ! --- IN/OUTPUTS ---
 type(st_ustmesh)            :: umesh
-type(mnu_boco), dimension(:) :: defboco
+type(mnu_solver)            :: defsolver
 ! -- Internal variables --
 integer                     :: ib
-type(v3d), dimension(:),   allocatable :: cgface
-type(v3d), dimension(:),   allocatable :: midcell   ! centres approches de cellule
-type(v3d), dimension(:,:), allocatable :: cg_elem   ! centres de volume elementaire
-real(krp), dimension(:,:), allocatable :: vol_elem  ! volumes elementaires
 ! -- BODY --
-allocate(cgface(umesh%nface))
-allocate(midcell(umesh%ncell))
-allocate(cg_elem(umesh%nface,2))
-allocate(vol_elem(umesh%nface,2))
 
-  umesh%mesh%centre(1:umesh%ncell,1,1) = v3d_zero;
-  umesh%mesh%volume(1:umesh%ncell,1,1) = 0._krp
-
-  call calc_ust_face(umesh%facevtex, umesh%mesh, cgface(1:umesh%nface))
-  call calc_ust_midcell(umesh%ncell, umesh%facecell, cgface, midcell) ! and not (umesh%ncell_int,.. since otherwise it's not compatible with the output!
-  call calc_ust_elemvol(dimgeo(umesh), umesh%ncell, umesh%nface, midcell, umesh%facecell, cgface, umesh%mesh%iface, cg_elem, vol_elem)
-  call calc_ust_cell(umesh%ncell_int, umesh%nface, umesh%facecell, cg_elem, vol_elem, umesh%mesh)
-
-  deallocate(cgface)
-  deallocate(midcell)
-  deallocate(cg_elem)
-  deallocate(vol_elem)
+  call calc_meshgeom(defsolver%defmesh, umesh)
 
   do ib = 1, umesh%nboco
-    select case(defboco(umesh%boco(ib)%idefboco)%typ_calc)
+    select case(defsolver%boco(umesh%boco(ib)%idefboco)%typ_calc)
     case(bc_calc_ghostcell)
-      call update_ustboco_ghostcell(ib, defboco(umesh%boco(ib)%idefboco), umesh)
+      call update_ustboco_ghostcell(ib, defsolver%boco(umesh%boco(ib)%idefboco), umesh)
     case(bc_calc_ghostface)
-      call update_ustboco_ghostface(ib, defboco(umesh%boco(ib)%idefboco), umesh)
+      call update_ustboco_ghostface(ib, defsolver%boco(umesh%boco(ib)%idefboco), umesh)
     case(bc_calc_singpanel)
       !call update_ustboco_singpanel(ib, defboco(umesh%boco(ib)%idefboco), grid)
       call error_stop("ale_update_geomparam: no way for me to update the thermal boundary conditions")
@@ -244,29 +224,25 @@ endsubroutine ale_update_geoparam
 ! -----------------------------------------------------------------------------!
 
 ! -----------------------------------------------------------------------------!
-subroutine ale_fincycle(umesh, defale, defboco, gradcond_computed, dt)
+subroutine ale_fincycle(umesh, defsolver, gradcond_computed, dt)
 implicit none
-
 ! --- INPUTS ---
-real(krp)                    :: dt
-type(mnu_boco), dimension(:) :: defboco
-
+real(krp)                 :: dt
 ! --- IN/OUTPUTS ---
-type(st_ustmesh)             :: umesh
-type(mnu_ale)                :: defale
-logical                      :: gradcond_computed
-
+type(st_ustmesh)          :: umesh
+type(mnu_solver)          :: defsolver
+logical                   :: gradcond_computed
 ! -- Internal variables --
-integer(kpp)                 :: ind
+integer(kip)              :: ind
 
 ! -- BODY --
   ! Geometric and calculation parameters update
   gradcond_computed = .false.  ! so precalc_grad_lsq() is forced to update the gradient
-  call ale_update_geoparam(umesh, defboco)
+  call ale_update_geoparam(umesh, defsolver)
 
   ! Face velocity evaluation
   do ind = 1, umesh%nface
-    defale%face_velocity(ind) = (umesh%mesh%iface(ind,1,1)%centre - defale%old_facecentres(ind)) / dt
+    defsolver%defale%face_velocity(ind) = (umesh%mesh%iface(ind,1,1)%centre - defsolver%defale%old_facecentres(ind)) / dt
   enddo
 
 endsubroutine ale_fincycle
@@ -274,76 +250,76 @@ endsubroutine ale_fincycle
 
 ! -----------------------------------------------------------------------------!
 ! -----------------------------------------------------------------------------!
-subroutine ale_meshupdate(umesh, defale, defboco, gradcond_computed, curtime, dt)
+subroutine ale_meshupdate(umesh, defsolver, gradcond_computed, curtime, dt)
 implicit none
 ! --- INPUTS ---
 real(krp)                :: curtime, dt
-type(mnu_ale)            :: defale
-type(mnu_boco), dimension(:) :: defboco
+type(mnu_solver)         :: defsolver
 logical                  :: gradcond_computed
 ! --- IN/OUTPUTS ---
-type(st_ustmesh)            :: umesh
+type(st_ustmesh)         :: umesh
 ! -- Internal variables --
 type(v3d)                :: vertexmovement
 real(krp)                :: deltatheta
 type(st_fct_env)         :: blank_env
-integer(kpp)             :: ind
+integer(kip)             :: ind
 
 ! -- BODY --
-select case(defale%type)
+
+select case(defsolver%defale%type)
 
 case(ale_none)
-
+  ! nothing to do
 case(ale_global)
-  call ale_initcycle(umesh, defale)
+  call ale_initcycle(umesh, defsolver%defale)
 
   ! Vertex movement
   call new_fct_env(blank_env)
   call fct_env_set_real(blank_env, "t", curtime)
 
   do ind = 1, umesh%nvtex
-    call fct_env_set_real(blank_env, "x", defale%original_vertex(ind)%x)
-    call fct_env_set_real(blank_env, "y", defale%original_vertex(ind)%y)
-    call fct_env_set_real(blank_env, "z", defale%original_vertex(ind)%z)
-    call fct_eval_real(blank_env, defale%movement_x, vertexmovement%x)
-    call fct_eval_real(blank_env, defale%movement_y, vertexmovement%y)
-    call fct_eval_real(blank_env, defale%movement_z, vertexmovement%z)
+    call fct_env_set_real(blank_env, "x", defsolver%defale%original_vertex(ind)%x)
+    call fct_env_set_real(blank_env, "y", defsolver%defale%original_vertex(ind)%y)
+    call fct_env_set_real(blank_env, "z", defsolver%defale%original_vertex(ind)%z)
+    call fct_eval_real(blank_env, defsolver%defale%movement_x, vertexmovement%x)
+    call fct_eval_real(blank_env, defsolver%defale%movement_y, vertexmovement%y)
+    call fct_eval_real(blank_env, defsolver%defale%movement_z, vertexmovement%z)
     
     ! (actual vertex movement)
-    umesh%mesh%vertex(ind,1,1) = defale%original_vertex(ind) + vertexmovement
+    umesh%mesh%vertex(ind,1,1) = defsolver%defale%original_vertex(ind) + vertexmovement
   enddo
   call delete_fct_env(blank_env)
 
-  call ale_fincycle(umesh, defale, defboco, gradcond_computed, dt)
+  call ale_fincycle(umesh, defsolver, gradcond_computed, dt)
 
 case(ale_body)
-  call ale_initcycle(umesh, defale)
+  call ale_initcycle(umesh, defsolver%defale)
 
   call new_fct_env(blank_env)
 
-  call ale_calcweight(umesh, defale)
+  call ale_calcweight(umesh, defsolver%defale)
 
   ! Vertex movement
   call fct_env_set_real(blank_env, "t", curtime)
-  call fct_eval_real(blank_env, defale%movement_x, vertexmovement%x)
-  call fct_eval_real(blank_env, defale%movement_y, vertexmovement%y)
-  call fct_eval_real(blank_env, defale%movement_z, vertexmovement%z)
-  call fct_eval_real(blank_env, defale%movement_theta, deltatheta)
+  call fct_eval_real(blank_env, defsolver%defale%movement_x, vertexmovement%x)
+  call fct_eval_real(blank_env, defsolver%defale%movement_y, vertexmovement%y)
+  call fct_eval_real(blank_env, defsolver%defale%movement_z, vertexmovement%z)
+  call fct_eval_real(blank_env, defsolver%defale%movement_theta, deltatheta)
 
   do ind = 1, umesh%nvtex 
     ! (actual vertex movement)
-    umesh%mesh%vertex(ind,1,1)%x = defale%original_vertex(ind)%x &
-          + defale%weight(ind) * (vertexmovement%x - deltatheta*(umesh%mesh%vertex(ind,1,1)%y - defale%body_centre%y))
-    umesh%mesh%vertex(ind,1,1)%y = defale%original_vertex(ind)%y &
-          + defale%weight(ind) * (vertexmovement%y + deltatheta*(umesh%mesh%vertex(ind,1,1)%x - defale%body_centre%x))
-    umesh%mesh%vertex(ind,1,1)%z = defale%original_vertex(ind)%z + defale%weight(ind) * vertexmovement%z
+    umesh%mesh%vertex(ind,1,1)%x = defsolver%defale%original_vertex(ind)%x &
+          + defsolver%defale%weight(ind) * (vertexmovement%x - deltatheta*(umesh%mesh%vertex(ind,1,1)%y - defsolver%defale%body_centre%y))
+    umesh%mesh%vertex(ind,1,1)%y = defsolver%defale%original_vertex(ind)%y &
+          + defsolver%defale%weight(ind) * (vertexmovement%y + deltatheta*(umesh%mesh%vertex(ind,1,1)%x - defsolver%defale%body_centre%x))
+    umesh%mesh%vertex(ind,1,1)%z = defsolver%defale%original_vertex(ind)%z + defsolver%defale%weight(ind) * vertexmovement%z
   enddo
   call delete_fct_env(blank_env)
 
-  call ale_fincycle(umesh, defale, defboco, gradcond_computed, dt)
+  call ale_fincycle(umesh, defsolver, gradcond_computed, dt)
 
 case default
-
+  call cfd_error("unknown ALE parameter (ale_meshupdate)")
 endselect
 
 endsubroutine ale_meshupdate

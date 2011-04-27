@@ -1,0 +1,93 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON 
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+  NZONE     = 1       
+  COORD     = 2DAXI
+  TIME      = UNSTEADY 
+  DURATION  = .01
+  NCYCLE    = 100
+ENDBLOCK               
+
+BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+  FORMAT = VTK-BIN !TYPHON
+  FILE   = "CONE"
+  !PERIOD = 1 
+ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "" 
+  SOLVER = EULER  
+ENDBLOCK
+
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = INTERNAL
+  FILE   = "quad20x10.tym"
+  MORPH_Y = (.1+.7*X)*Y+step(X-.2)*tan(3.14159*20/180)*(X-.2)
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS = EULER
+  GAS      = AIR
+ENDBLOCK
+
+BLOCK:TIME_PARAM 
+  METHOD    = RK2-SSP
+  CFL       = 1.
+ENDBLOCK
+
+BLOCK:SPAT_PARAM 
+  SCHEME   = VLH
+  HIGHRES  = MUSCL
+  LIMITER  = KIM3
+ENDBLOCK
+
+BLOCK:PROBE
+ NAME     = PAVG
+ TYPE     = VOL_AVERAGE
+ QUANTITY = PS
+ENDBLOCK
+
+BLOCK:INIT
+  PI       = 1.0E5
+  TI       = 300.
+  MACH     = 2.
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = IMIN
+  TYPE   = SUPERSONIC_INLET
+  PI       = 1.0E5
+  TI       = 300.
+  MACH     = 2.
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = IMAX
+  TYPE   = SUPERSONIC_OUTLET
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = JMIN
+  TYPE   = SYMMETRY
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = JMAX
+  TYPE   = SUPERSONIC_INLET
+  PI       = 1.0E5
+  TI       = 300.
+  MACH     = 2.
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+
+
+

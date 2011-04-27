@@ -24,8 +24,9 @@ EQNS_OBJ := $(EQNS_MOD:.$(MODEXT)=.o)    \
             calc_flux_inviscid.o      \
             calc_flux_viscous.o       \
             calc_flux_ale.o           \
-	    calc_source_ext.o         \
-	    calc_source_mrf.o         \
+            calc_source_ext.o         \
+            calc_source_mrf.o         \
+            calc_source_axisym.o      \
             calc_jac_gencall.o        \
             calc_jac_hll.o            \
             calc_jac_hlldiag.o        \

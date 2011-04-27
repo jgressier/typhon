@@ -62,12 +62,6 @@ integer, parameter   :: solVORTEX = 30    ! Methode integrale et lagrangienne VO
 
 !definitino de solVORTEX dans MENU_SOLVER
 
-! -- Constantes pour le choix du parametre "typ_coord" (mnu_projMODCOM/VARCOM.f90ect)
-
-character, parameter :: c2dplan  = 'P'
-character, parameter :: c2daxi   = 'X'
-character, parameter :: c3dgen   = 'G'
-
 ! -- Constantes pour l'etat d'avancement du calcul
 integer, parameter :: end_calc          = 01
 integer, parameter :: in_cycle          = 02

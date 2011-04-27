@@ -19,16 +19,17 @@ type(st_zone) :: zone
 ! -- Private Data --
 integer                :: izone
 type(st_grid), pointer :: pgrid
-logical                :: facetag
 
 ! -- BODY --
 
 pgrid => zone%gridlist%first
 
-facetag = ( zone%defsolver%defmesh%splitmesh /= split_none )
+do while (associated(pgrid))
 
-call create_face_connect(facetag, pgrid%umesh)
+  call grid_preproc(zone%defsolver%defmesh, pgrid)
 
+  pgrid => pgrid%next
+enddo
 
   
 endsubroutine zone_preproc
@@ -38,4 +39,5 @@ endsubroutine zone_preproc
 ! Nov  2002: creation
 ! June 2010: lecture_maillage.f90 -> readallmesh.f90, add internal TYPHON format
 ! Dec  2010: from readallmesh, all mesh pre-processing
+! Apr  2011: loop on grids and split to grid_preproc
 !------------------------------------------------------------------------------!

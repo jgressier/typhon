@@ -58,19 +58,19 @@ call print_info(8,adjustl(str_w))
 
 call rpmgetkeyvalstr(pcour, "COORD", str)
 
-prj%typ_coord = ' '
-if (samestring(str, "2D" ))     prj%typ_coord = c2dplan
-if (samestring(str, "2DPLAN" )) prj%typ_coord = c2dplan
-if (samestring(str, "2DAXI"))   prj%typ_coord = c2daxi
-if (samestring(str, "3D"))      prj%typ_coord = c3dgen
+prj%typ_coord = inull
+if (samestring(str, "2D" ))     prj%typ_coord = geo_2d
+if (samestring(str, "2DPLAN" )) prj%typ_coord = geo_2d
+if (samestring(str, "2DAXI"))   prj%typ_coord = geo_2daxi
+if (samestring(str, "3D"))      prj%typ_coord = geo_3d
 
 select case(prj%typ_coord)
-case(c2dplan)
+case(geo_2d)
   call print_info(10,"2D framework")
-case(c2daxi) 
+case(geo_2daxi) 
   call print_info(10,"Axisymmetric 2D framework")
   ! DEV : lecture de la position de l'axe
-case(c3dgen) 
+case(geo_3d) 
   call print_info(10,"3D framework")
 case default
   call erreur("parameter parsing","unknown type of framework (def_project)")

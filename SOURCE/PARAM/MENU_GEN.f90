@@ -9,6 +9,7 @@ module MENU_GEN
 
 use TYPHMAKE
 use MENU_INVERSE
+use MESHPARAMS
 use TYPHON_FMT
 
 implicit none
@@ -18,15 +19,7 @@ implicit none
 integer(kpp), parameter :: act_compute = 1
 integer(kpp), parameter :: act_analyse = 2
 
-! -- Constants for INPUT/OUTPUT formats/location --
-
-character, parameter   :: fmt_CGNS        = 'C'   ! format CGNS
-character, parameter   :: fmt_CGNS_linked = 'D'   ! format CGNS with common linked mesh
-character, parameter   :: fmt_TYPHON      = 'Y'   ! format TYPHON MESH/solution
-character, parameter   :: fmt_TECPLOT     = 'T'   ! format TECPLOT (ascii)
-character, parameter   :: fmt_VIGIE       = 'V'   ! format VIGIE
-character, parameter   :: fmt_VTK         = 'K'   ! format VTK (ascii)
-character, parameter   :: fmt_VTKBIN      = 'I'   ! format VTK Binary
+! -- outputs constants --
 
 integer(kpp), parameter :: write_end   = 1
 integer(kpp), parameter :: write_cycle = 2
@@ -54,7 +47,7 @@ character, parameter :: time_unsteady_inverse  = 'V'
 type mnu_project
   integer(kip)    :: nzone      ! number of zones
   integer(kip)    :: ncoupling  ! number of coupling conditions between zones
-  character       :: typ_coord  ! type of framework
+  integer(kpp)    :: typ_coord  ! type of framework
   character       :: time_model ! (S)tationnaire, (I)nstationnaire, (P)eriodique
   real(krp)       :: duration   ! time duration (if unsteady)
   real(krp)       :: tpsbase    ! pas de temps de base du couplage

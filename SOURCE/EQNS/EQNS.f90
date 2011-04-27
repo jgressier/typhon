@@ -22,9 +22,12 @@ real(krp), parameter :: perfect_gas_cst = 8.314472_krp
 ! -- Variables globales du module -------------------------------------------
 
 ! -- Type de solveur (menu_ns%typ_fluid)--
-integer, parameter :: eqEULER = 10
-integer, parameter :: eqNSLAM = 11 
-integer, parameter :: eqRANS  = 12
+integer, parameter :: eqEULER    = 10
+integer, parameter :: eqEULERaxi = 11
+integer, parameter :: eqNSLAM    = 15
+integer, parameter :: eqNSLAMaxi = 16
+integer, parameter :: eqRANS     = 20
+integer, parameter :: eqNSLES    = 30
 
 ! -- Type de gaz (menu_ns%typ_gaz) --
 integer, parameter :: gas_AIR     = 10

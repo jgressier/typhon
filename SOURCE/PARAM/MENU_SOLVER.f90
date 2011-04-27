@@ -15,8 +15,8 @@ module MENU_SOLVER
 use TYPHMAKE      ! Definition de la precision
 use QUANTITY      ! CFDTOOLS module: quantity id and names
 use MESHPARAMS
-use MESHALE
 use MESHMRF
+use MENU_ALE
 use MENU_NUM      ! Definition des parametres numeriques d'integration
 use MENU_NS       ! Definition des solveurs type NS
 use MENU_KDIF     ! Definition des solveurs type Equation de diffusion

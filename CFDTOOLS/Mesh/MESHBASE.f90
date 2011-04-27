@@ -6,6 +6,7 @@ module MESHBASE
 
 use MESHPREC   ! configuration
 use VEC3D      ! 3D vectors
+use MESHPARAMS
 
 implicit none
 
@@ -24,7 +25,6 @@ type info_mesh
   real(krp) :: totvol              ! total volume
 endtype
 
-
 !------------------------------------------------------------------------------!
 ! Definition de la structure ST_FACE : face de cellule
 !------------------------------------------------------------------------------!
@@ -33,7 +33,6 @@ type st_face
   type(v3d)   :: centre         ! centre de face
   real(krp)   :: surface        ! valeur de la surface de la face
 endtype st_face
-
 
 !------------------------------------------------------------------------------!
 ! Definition de la structure ST_MESH : liste de vertex, faces, centres, volumes
@@ -52,7 +51,6 @@ type st_mesh
   real(krp), dimension(:,:,:), pointer &
                   :: volume                ! volume des cellules
 endtype st_mesh
-
 
 ! -- INTERFACES -------------------------------------------------------------
 

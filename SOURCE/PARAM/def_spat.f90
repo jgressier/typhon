@@ -149,7 +149,7 @@ case(solNS)
   ! Dissipative flux method
 
   select case(defsolver%defns%typ_fluid)
-  case(eqEULER)
+  case(eqEULER, eqEULERaxi)
   case(eqNSLAM, eqRANS)
     call get_dissipmethod(pcour, "DISSIPATIVE_FLUX", defspat)
   case default

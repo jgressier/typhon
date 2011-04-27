@@ -29,7 +29,7 @@ integer             :: ntotcell              ! calcul du nombre total de cellule
 integer             :: maxvtex, maxface      ! nombre de sommets/face, face/cellule
 integer             :: nface, nfacesec       ! estimated face number
 integer             :: ielem, nelem , nvtex    
-integer             :: ista, iend, itype, geodim
+integer             :: ista, iend, itype, igeodim
 integer             :: iv, if     
 
 ! -- BODY --
@@ -51,7 +51,7 @@ call cfd_print("  creating faces and associated connectivity")
 
 nface   = 0
 maxvtex = 0
-geodim  = 0
+igeodim  = 0
 do ielem = 1, umesh%cellvtex%nsection
   nfacesec = umesh%cellvtex%elem(ielem)%nelem * ( nface_element(umesh%cellvtex%elem(ielem)%elemtype) -1)
   if (nfacesec < 0) then
@@ -59,9 +59,8 @@ do ielem = 1, umesh%cellvtex%nsection
   endif
   nface   = nface + nfacesec
   maxvtex = max(maxvtex, nvtexperface_element(umesh%cellvtex%elem(ielem)%elemtype))
-  geodim  = max(geodim, dim_element(umesh%cellvtex%elem(ielem)))
+  igeodim = max(igeodim, dim_element(umesh%cellvtex%elem(ielem)))
 enddo
-umesh%geodim = geodim
 
 ! -- connectivite intermediaire face->sommets --
 
@@ -93,7 +92,7 @@ call create_facevtex(facetag, umesh%nvtex, umesh%cellvtex, &
 
 nface           = face_vtex%nbnodes     ! meme valeur que face_cell%nbnodes aussi
 umesh%nface     = nface
-umesh%ncell_int = number_element(umesh%cellvtex, dim=geodim)
+umesh%ncell_int = number_element(umesh%cellvtex, dim=igeodim)
 
 call cfd_print("  >"//strof(nface,9)//" created faces")
 
@@ -139,7 +138,7 @@ umesh%ncell     = umesh%ncell_int + umesh%ncell_lim
 ! -- Deleting unused element/vtex connectivities --
 
 do ielem = 1, umesh%cellvtex%nsection
-  if (dim_element(umesh%cellvtex%elem(ielem)) < umesh%geodim) &
+  if (dim_element(umesh%cellvtex%elem(ielem)) < igeodim) &
     call delete_elemvtex(umesh%cellvtex%elem(ielem))
 enddo
 call pack_genelemvtex(umesh%cellvtex)

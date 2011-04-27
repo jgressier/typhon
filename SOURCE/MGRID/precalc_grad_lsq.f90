@@ -124,7 +124,7 @@ enddo
 
 ! -- Correction de la matrice dans les cas 2D (vecteur supplementaire selon z) --
 
-select case(dimgeo(grid%umesh))
+select case(geodim(grid%umesh))
 case(2)
   do ic = 1, nc
     ! invariance direction ? magnitude ? !! DEV
@@ -133,7 +133,7 @@ case(2)
 case(3)
   ! nothing to do 
 case default
-  call erreur("computing gradients","unknown type of mesh")
+  call error_stop("computing gradients: unknown type of mesh")
 endselect
 
 ! l'inversion peut se faire des façons suivantes selon A symetrique (PO) ou non (GE)
@@ -154,9 +154,7 @@ do ic = 1, nc
   !endif
 enddo
 
-!print*,"DEBUG!!: xinfo = ",xinfo
 if (xinfo /= 0) call erreur("Gradient computation","Choleski decomposition failed")
-
 
 deallocate(dcg)
 

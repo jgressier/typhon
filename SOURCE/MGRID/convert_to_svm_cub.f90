@@ -55,10 +55,8 @@ nfgauss = defspat%svm%nb_facepoints
 !--------------------------------------------------------------------
 ! initialize and allocate new USTMESH
 
-call init_ustmesh(newmesh)
+call init_ustmesh(newmesh, umesh%geotyp, umesh%id)
 
-newmesh%geodim       = umesh%geodim
-newmesh%id           = umesh%id 
 newmesh%nvtex        = umesh%nvtex + &                                  ! existing vertices
                        umesh%ncell_int * defspat%svm%intnode + &        ! internal SV nodes
                        umesh%nface     * (defspat%svm%svface_split-1)   ! new face nodes 

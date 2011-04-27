@@ -20,6 +20,7 @@ this.f90modules=   \
   ELEMVTEX.f90     \
   GRID_CONNECT.f90 \
   MESHBASE.f90     \
+  MESHGEOM.f90     \
   MESHMRF.f90      \
   MESHPARAMS.f90   \
   TENSOR3.f90      \

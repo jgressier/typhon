@@ -104,7 +104,7 @@ do ib = 1, nblock
   !----------------------------------------------------------------------
   select case(defsolver%defns%typ_fluid)
 
-  case(eqEULER)
+  case(eqEULER, eqEULERaxi)
     ! nothing to do
 
   case(eqNSLAM)
@@ -121,11 +121,14 @@ do ib = 1, nblock
                            cg_l, cg_r, QL, QR, gradL, gradR, flux,        &
                            calc_jac, jacL, jacR)
 
+  case(eqNSLAMaxi)
+     call error_stop("development: axisymmetric NS not implemented")   
+
   case(eqRANS)
-    call erreur("development", "turbulence modeling not implemented")   
+    call error_stop("development: turbulence modeling not implemented")   
 
   case default
-    call erreur("viscous flux computation", "unknown model")
+    call error_stop("viscous flux computation: unknown model")
   endselect
 
   !----------------------------------------------------------------------
@@ -142,13 +145,17 @@ call delete(gradR)
 
 deallocate(ista, iend)
 
-! --- MRF source terms ---
+! --- EXT source terms ---
 
 call calc_source_ext(umesh, field, defsolver%defns, curtime)
 
 ! --- MRF source terms ---
 
 call calc_source_mrf(umesh, field, defsolver%defmrf, curtime)
+
+! --- AXISYM source terms ---
+
+call calc_source_axisym(umesh, field, defsolver%defns, curtime)   !must be the last source to call
 
 !-------------------------------------------------------------
 ! flux assignment or modification on boundary conditions

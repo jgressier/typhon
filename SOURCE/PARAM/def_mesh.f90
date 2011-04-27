@@ -5,7 +5,7 @@
 !   Parse main file parameters / Mesh definition
 !
 !------------------------------------------------------------------------------!
-subroutine def_mesh(block, defmesh)
+subroutine def_mesh(prj, block, defmesh)
 
 use RPM
 use TYPHMAKE
@@ -21,10 +21,11 @@ use FCT_PARSER
 implicit none
 
 ! -- INPUTS --
+type(mnu_project)      :: prj
 type(rpmblock), target :: block
 
 ! -- OUTPUTS --
-type(mnu_mesh) :: defmesh
+type(mnu_mesh)     :: defmesh
 
 ! -- Internal variables --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
@@ -36,6 +37,8 @@ character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 ! -- BODY --
 
 call print_info(5,"- mesh definition")
+
+defmesh%geo = prj%typ_coord   ! transfer 2D/2DAXI/3D property
 
 ! -- Recherche du BLOCK:MESH
 

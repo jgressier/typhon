@@ -18,11 +18,6 @@ MESH_OBJ = $(MESH_MOD:.$(MODEXT)=.o)  \
            build_implicit_bdlu.o   \
            build_implicit_dlu.o    \
            calc_connface.o         \
-           calc_ust_cell.o         \
-           calc_ust_elemvol.o      \
-           calc_ust_midcell.o      \
-           calc_ust_checkface.o    \
-           calc_ust_face.o         \
            calc_ustmesh.o          \
            init_implicit_bdlu.o    \
            init_implicit_dlu.o     \

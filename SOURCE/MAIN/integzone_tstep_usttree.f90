@@ -11,6 +11,7 @@ use TYPHMAKE
 use OUTPUT
 use VARCOM
 use DEFZONE
+use MESHALE
 
 implicit none
 
@@ -33,7 +34,7 @@ real(krp)              :: curtime
   curtime = zone%info%cycle_start + zone%info%cycle_time
   pgrid => zone%gridlist%first
   do while (associated(pgrid))
-    call ale_meshupdate(pgrid%umesh, zone%defsolver%defale, zone%defsolver%boco(:), pgrid%optmem%gradcond_computed, curtime, dt) !1:zone%defsolver%nboco
+    call ale_meshupdate(pgrid%umesh, zone%defsolver, pgrid%optmem%gradcond_computed, curtime, dt) !1:zone%defsolver%nboco
     pgrid => pgrid%next
   enddo
 

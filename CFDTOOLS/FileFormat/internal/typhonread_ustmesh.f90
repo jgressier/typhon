@@ -29,7 +29,7 @@ integer(xbinkip)              :: ncellsections, nfacesections
 
 ! -- BODY --
 
-call init_ustmesh(umesh)   ! default values initialization
+call init_ustmesh(umesh, geo_2d, 1)   ! default values initialization
 
 ! -- dimensions --
 
@@ -47,16 +47,6 @@ call cfd_print("> header")
 
 call xbin_readdatahead(defxbin, xbindata)
 call xbin_skipdata(defxbin, xbindata)
-
-!call xbin_defdatasection(xbindata, xbinty_filedef, "USTMESH", &
-!      (/ xty_grid_umesh, &    ! GRID type
-!         ncell,          &    ! number of interior cells
-!         nface,          &    ! number of faces (boco, marked, ...)
-!         nvtex,          &    ! number of number of vertices
-!         ncellsections,  &    ! number of cell sections
-!         nfacesections,  &    ! number of face sections
-!         nmark           &    ! number of mark sections
-!       /) )
 
 if ((xbindata%name /= "USTMESH").or.(xbindata%usertype /= xbinty_filedef)) then
   call cfd_error("XBIN/TYPHON error: expecting USTMESH data section")

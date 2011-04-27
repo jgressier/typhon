@@ -14,7 +14,7 @@ help:
 	@echo "Options:"
 	@echo "  opt=optim -> Optimized options (default)"
 	@echo "  opt=debug -> Debugging options"
-	@echo "  opt=prof  -> Profiling options"
+	@echo "  opt=profil-> Profiling options"
 	@echo "-----------------------------------------------------------------"
 
 all: seq mpi

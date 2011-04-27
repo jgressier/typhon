@@ -40,7 +40,7 @@ character(len=dimrpmlig):: str            ! chaine RPM intermediaire
 
 call def_ale (block, zone%defsolver%defale)
 call def_mrf (block, zone%defsolver%defmrf)
-call def_mesh(block, zone%defsolver%defmesh)
+call def_mesh(prj, block, zone%defsolver%defmesh)
 
 ! -------------------------
 ! MODEL definition
@@ -54,7 +54,7 @@ case(solKDIF)
   call def_model_kdif(block, zone%defsolver)
 case(solNS)
   if (.not.pass_ns) call erreur("restriction","solveur Navier-Stokes indisponible")
-  call def_model_ns(block, zone%defsolver)
+  call def_model_ns(prj, block, zone%defsolver)
 case(solVORTEX)
   if (.not.pass_vort) call erreur("restriction","solveur Vortex indisponible")
   call def_model_vortex(block, zone%defsolver)

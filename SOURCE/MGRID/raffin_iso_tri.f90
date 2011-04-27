@@ -52,9 +52,8 @@ cnv     = 3     ! nb of vertices per SV cell
 !--------------------------------------------------------------------
 ! initialize and allocate new USTMESH
 
-call init_ustmesh(newmesh)
+call init_ustmesh(newmesh, umesh%geotyp, umesh%id)
 
-newmesh%id           = umesh%id 
 newmesh%nvtex        = umesh%nvtex + &                                  ! existing vertices
                        umesh%nface                                      ! new face nodes 
 newmesh%nface_intsvm = umesh%ncell_int * 3                              ! internal SV faces

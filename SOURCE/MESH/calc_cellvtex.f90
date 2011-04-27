@@ -156,7 +156,7 @@ call init(cellvtex)
 info = 0
 
 select case(geom)
-case(2)
+case(geo_2d, geo_2daxi)
   cellvtex%dim = 2
   do ic = 1, ncell
     select case(nvtex(ic))
@@ -170,7 +170,7 @@ case(2)
       info = ic
     endselect
   enddo
-case(3)
+case(geo_3d)
   cellvtex%dim = 3
   do ic = 1, ncell
     select case(nvtex(ic))
@@ -247,9 +247,8 @@ call delete(xcellvtex)
 
 
 endsubroutine calc_cellvtex
-
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Changes history
 !
 ! Juil 2003 : creation de la procedure
 ! 

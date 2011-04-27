@@ -11,7 +11,7 @@ help:
 	@echo "  opt=optim -> Optimized options (default)"
 	@echo "  opt=openmp-> Optimized options + OPENMP "
 	@echo "  opt=debug -> Debugging options"
-	@echo "  opt=prof  -> Profiling options"
+	@echo "  opt=profil-> Profiling options"
 	@echo "-----------------------------------------------------------------"
 
 all: cfdtools seq mpi

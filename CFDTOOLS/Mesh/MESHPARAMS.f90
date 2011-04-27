@@ -28,6 +28,23 @@ integer(kpp), parameter :: split_svm4wang  = 41
 integer(kpp), parameter :: split_svm4kris  = 42
 integer(kpp), parameter :: split_svm4kris2 = 43
 
+! -- Constants for Mesh TYPE --
+
+integer(kpp), parameter :: geo_1D     = 5
+integer(kpp), parameter :: geo_2D     = 10
+integer(kpp), parameter :: geo_2Daxi  = 15
+integer(kpp), parameter :: geo_2Dcurv = 20
+integer(kpp), parameter :: geo_3D     = 30
+
+! -- Constants for INPUT/OUTPUT formats/location --
+
+character, parameter   :: fmt_CGNS        = 'C'   ! format CGNS
+character, parameter   :: fmt_CGNS_linked = 'D'   ! format CGNS with common linked mesh
+character, parameter   :: fmt_TYPHON      = 'Y'   ! format TYPHON MESH/solution
+character, parameter   :: fmt_TECPLOT     = 'T'   ! format TECPLOT (ascii)
+character, parameter   :: fmt_VIGIE       = 'V'   ! format VIGIE
+character, parameter   :: fmt_VTK         = 'K'   ! format VTK (ascii)
+character, parameter   :: fmt_VTKBIN      = 'I'   ! format VTK Binary
 
 ! -- Constants for PERIODICITY defintion
 
@@ -43,9 +60,9 @@ integer(kpp), parameter :: per_rot   = 3
 !------------------------------------------------------------------------------!
 type mnu_periodicity
   character(len=shortname) :: name
-  integer(kpp)          :: type
-  type(v3d)             :: origin, axis, distance
-  real(krp)             :: angle
+  integer(kpp)             :: type
+  type(v3d)                :: origin, axis, distance
+  real(krp)                :: angle
 endtype mnu_periodicity
 
 
@@ -55,9 +72,10 @@ endtype mnu_periodicity
 type mnu_mesh
   character               :: format      ! cf VARCOM
   character(len=longname) :: filename    ! nom de fichier
-  integer(kpp)            :: splitmesh   ! split method
-  integer(kip)            :: nsplit      ! number of split application
-  integer(kip)            :: nperiodicity ! number of periodicity
+  integer(kpp)          :: geo         ! geometric param
+  integer(kpp)          :: splitmesh   ! split method
+  integer(kip)          :: nsplit      ! number of split application
+  integer(kip)          :: nperiodicity ! number of periodicity
   type(mnu_periodicity), pointer :: periodicity(:) 
   integer                 :: icgnsbase   ! base index in CGNS file
   integer                 :: icgnszone   ! zone index in CGNS file

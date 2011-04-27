@@ -8,6 +8,7 @@ module USTMESH
 
 use MESHPREC      ! configuration of machine accuracy
 use MESHBASE      ! geometrical basic elements
+use MESHPARAMS
 use CONNECTIVITY  ! lists & connectivity 
 use ELEMVTEX      ! Cell (vtex) definition
 use IOCFD
@@ -29,7 +30,7 @@ implicit none
 type st_ustmesh
   integer(kip)          :: id                    ! domain id
   integer(kip)          :: level                 ! multigrid level
-  integer               :: geodim                ! nombre de dimension du maillage
+  integer(kpp)          :: geotyp                ! mesh type (cf MESHGEOM)
   integer(kip)          :: nvtex, nface, ncell   ! number of vertices, faces and cells
   integer(kip)          :: nface_int, ncell_int  ! number of internal faces and cells
   integer(kip)          :: nface_lim, ncell_lim  ! number of boundering faces and cells
@@ -67,7 +68,6 @@ endinterface
 ! -- IMPLEMENTATION ---------------------------------------------------------
 contains
 
-
 !------------------------------------------------------------------------------!
 ! Procedure : allocation d'une structure USTMESH
 !------------------------------------------------------------------------------!
@@ -75,22 +75,21 @@ subroutine new_ustmesh(umesh, ncell, nface, nvtex)
 implicit none
 type(st_ustmesh) :: umesh
 integer       :: ncell, nface, nvtex
-
   print*,"!!! pas d'allocation dans new_ustmesh !!!"
   stop
-
 endsubroutine new_ustmesh
-
 
 !------------------------------------------------------------------------------!
 ! Procedure : Initialization of USTMESH structure
 !------------------------------------------------------------------------------!
-subroutine init_ustmesh(umesh)
+subroutine init_ustmesh(umesh, geotyp, id)
 implicit none
 type(st_ustmesh) :: umesh
+integer(kpp)     :: geotyp
+integer(kip)     :: id
 
-  umesh%id     = -1
-  umesh%geodim = 0
+  umesh%id     = id
+  umesh%geotyp = geotyp
   umesh%level  = 0
   umesh%nvtex  = 0
   umesh%ncell  = 0 ; umesh%ncell_int = 0 ; umesh%ncell_lim = 0
@@ -108,21 +107,22 @@ endsubroutine init_ustmesh
 !------------------------------------------------------------------------------!
 ! Fonction : dimgeo : dimension de la geometrie du maillage
 !------------------------------------------------------------------------------!
-integer function dimgeo(umesh)
+integer function geodim(umesh)
   implicit none
   type(st_ustmesh) :: umesh
   
-  dimgeo = umesh%geodim
-  !select case(typgeo(umesh))
-  !case(msh_1Dcurv)
-  !  dimgeo = 1
-  !case(msh_2Dplan, msh_2Dcurv)
-  !  dimgeo = 2
-  !case(msh_3D)
-  !  dimgeo = 3
-  !endselect
+  select case(umesh%geotyp)
+  case(geo_1D)
+    geodim = 1
+  case(geo_2D, geo_2Daxi, geo_2Dcurv)
+    geodim = 2
+  case(geo_3D)
+    geodim = 3
+  case default
+    call cfd_error("unknown mesh type (USTMESH/geodim)")
+  endselect
   
-endfunction dimgeo
+endfunction geodim
 
 
 !------------------------------------------------------------------------------!
@@ -427,7 +427,6 @@ endsubroutine get_bocofacecenter
 
 
 endmodule USTMESH
-
 !------------------------------------------------------------------------------!
 ! History
 !
@@ -439,6 +438,3 @@ endmodule USTMESH
 ! Apr  2008: split USTMESH with BOCO definition in USTBOCO
 ! Aug  2008: include "extract_centre" as "get_bocofacecenter"
 !------------------------------------------------------------------------------!
-
-
-
