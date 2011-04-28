@@ -28,7 +28,7 @@ ENDBLOCK
 BLOCK:MESH
   FORMAT = INTERNAL
   FILE   = "quad20x10.tym"
-  MORPH_Y = (.1+.7*X)*Y+step(X-.2)*tan(3.14159*20/180)*(X-.2)
+  MORPH_Y = (.1+.7*X)*Y+ramp(X-.2)*tan(3.14159*20/180)
 ENDBLOCK
 
 BLOCK:MODEL

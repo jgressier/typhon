@@ -48,7 +48,7 @@ implicit none
 type(st_fct_env)  :: env
 
   ! -- initialize ENV to no constant/function --
-  if (associated(env%var_stack)) call delete_fct_env(env)
+  !if (associated(env%var_stack)) call delete_fct_env(env)
   env%uptodate = .false.
   env%nvar     = 0
   nullify(env%var_stack)  

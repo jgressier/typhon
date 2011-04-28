@@ -83,7 +83,7 @@ SVNREV=$(shell svnversion 2> /dev/null || echo unknown)
 SVNREVSTR=character(len=20), parameter :: svnrev = '$(SVNREV)'
 
 # SVNREVFILE : name of the file which sould contain SVNREVSTR
-SVNREVFILE=Include/svnrev.h
+SVNREVFILE=../include/svnrev.h
 
 # SVNREVDEP : defined to SVNREVFORCE if SVNREVFILE does not contain SVNREVSTR
 SVNREVDEP=$(shell echo "$(SVNREVSTR)" | diff - -q $(SVNREVFILE) >/dev/null 2>&1 || echo SVNREVFORCE)

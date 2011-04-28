@@ -54,11 +54,13 @@ real(4),                intent(out) :: res     ! real result
 type(st_fct_container)     :: cont             ! evaluation of container
 
   call fct_node_eval(env, fct, cont)
-  if (cont%type == cont_real) then
+  select case(cont%type)
+  case(cont_real)
     res = cont%r
-  else
+  case default
     call set_fct_error(-1, "unexpected type of result (fct_eval)")
-  endif
+  endselect
+  call delete(cont)
 
 end subroutine fct_eval_real4
 
@@ -77,16 +79,18 @@ real(8),                intent(out) :: res     ! real result
 type(st_fct_container)     :: cont             ! evaluation of container
 
   call fct_node_eval(env, fct, cont)
-  if (cont%type == cont_real) then
+  select case(cont%type)
+  case(cont_real)
     res = cont%r
-  else
+  case default
     call set_fct_error(-1, "unexpected type of result (fct_eval)")
-  endif
+  endselect
+  call delete(cont)
 
 end subroutine fct_eval_real8
 
 !------------------------------------------------------------------------------!
-! fct_node_eval
+! fct_node_eval : eval and allocate container if needed
 !------------------------------------------------------------------------------!
 recursive subroutine fct_node_eval(env, fct, res)
 implicit none
@@ -230,6 +234,8 @@ case(fct_abs)
 !  call fct_cont_inv(res, operand)
 case(fct_step)
   call fct_cont_step(res, operand)
+case(fct_ramp)
+  call fct_cont_ramp(res, operand)
 case default
   call set_fct_error(-1, "unknown or non-implemented UNARY OPERATOR in FCT_MATH")
 endselect

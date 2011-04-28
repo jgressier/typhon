@@ -15,7 +15,7 @@ SHELLCONF=bin/shconf.sh
 
 ALLMPILIB="mpi mpich lampi mpi_f90"
 ALLPATH="$(echo $TYPHONPATH | sed 's/:/ /g' ) /usr /usr/local /opt /opt/local"
-INCLUDEPATH="CFDTOOLS/include SOURCE/Include"
+INCLUDEPATH="include"
 
 # CHECK system tools
 

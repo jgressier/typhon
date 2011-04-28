@@ -25,6 +25,7 @@ type(st_mesh) :: mesh
 integer, pointer      :: ista(:), iend(:) ! starting and ending index
 integer               :: ib, buf, nblock  ! buffer size 
 integer               :: iv
+type(st_fct_env)      :: env
 
 ! -- BODY --
 
@@ -34,22 +35,22 @@ endif
 
 if (defmesh%morphing) then
   call new_buf_index(mesh%nvtex, cell_buffer, nblock, ista, iend)
-  !$OMP PARALLEL private(iv, buf, blank_env) shared(ista, iend)
-  call new_fct_env(blank_env)      ! temporary environment from FCT_EVAL
+  !$OMP PARALLEL private(iv, buf, env) shared(ista, iend, nblock)
+  call new_fct_env(env)      ! temporary environment from FCT_EVAL
   !$OMP DO 
   do ib = 1, nblock
     buf = iend(ib)-ista(ib)+1
     do iv = ista(ib), iend(ib)
-      call fct_env_set_real(blank_env, "X", mesh%vertex(iv,1,1)%x)
-      call fct_env_set_real(blank_env, "Y", mesh%vertex(iv,1,1)%y)
-      call fct_env_set_real(blank_env, "Z", mesh%vertex(iv,1,1)%z)      
-      call fct_eval_real(blank_env, defmesh%morph_x, mesh%vertex(iv,1,1)%x)
-      call fct_eval_real(blank_env, defmesh%morph_y, mesh%vertex(iv,1,1)%y)
-      call fct_eval_real(blank_env, defmesh%morph_z, mesh%vertex(iv,1,1)%z)
+      call fct_env_set_real(env, "X", mesh%vertex(iv,1,1)%x)
+      call fct_env_set_real(env, "Y", mesh%vertex(iv,1,1)%y)
+      call fct_env_set_real(env, "Z", mesh%vertex(iv,1,1)%z) 
+      call fct_eval_real(env, defmesh%morph_x, mesh%vertex(iv,1,1)%x)
+      call fct_eval_real(env, defmesh%morph_y, mesh%vertex(iv,1,1)%y)
+      call fct_eval_real(env, defmesh%morph_z, mesh%vertex(iv,1,1)%z)
     enddo
   enddo
   !$OMP END DO
-  call delete_fct_env(blank_env)      ! temporary environment from FCT_EVAL
+  call delete_fct_env(env)      ! temporary environment from FCT_EVAL
   !$OMP END PARALLEL 
   deallocate(ista, iend)
 endif

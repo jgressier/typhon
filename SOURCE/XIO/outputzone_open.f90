@@ -26,7 +26,7 @@ type(st_zone)         :: zone      ! zone
 ! -- Internal variables --
 integer               :: dim, ufc, ir
 integer               :: ibase          ! CGNS base index
-integer               :: iunit, info, nbmesh, nbsol
+integer               :: info, nbmesh, nbsol
 type(st_genericfield) :: vfield
 character(len=10)     :: suffix
 
@@ -44,7 +44,7 @@ case(fmt_TYPHON)
   if (defio%iunit <= 0) call error_stop("IO unit management: impossible to find free unit")
   nbmesh = 1
   nbsol  = 1
-  call typhon_openwrite(iunit, trim(defio%filename)//trim(suffix), defio%deftyphon, nbmesh, nbsol)
+  call typhon_openwrite(defio%iunit, trim(defio%filename)//trim(suffix), defio%deftyphon, nbmesh, nbsol)
 
 case(fmt_VTK)
 

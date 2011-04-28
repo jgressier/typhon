@@ -7,6 +7,7 @@ help:
 	@echo "  seq       -> sequential   Typhon executable 'Typhon-seq'"
 	@echo "  mpi       -> MPI parallel Typhon executable 'Typhon-mpi'"
 	@echo "  cfdtools  -> CFDtools libraries"
+	@echo "  clean     -> remove all"
 	@echo "Options:"
 	@echo "  opt=optim -> Optimized options (default)"
 	@echo "  opt=openmp-> Optimized options + OPENMP "
@@ -24,3 +25,7 @@ seq: cfdtools
 
 mpi: cfdtools
 	@(cd SOURCE ; make mpi opt=$(opt))
+
+clean:
+	@(cd CFDTOOLS ; make clean)
+	@(cd SOURCE   ; make clean)

@@ -71,7 +71,7 @@ for fic in $(find $ROOTDIR -name '*.f90' | grep -v '/.#') ; do
       sed 's/!.*$//'             | 
       tr   $changecase           |
       sed 's/ *$/.$(MODEXT) \\/' | 
-      sed "s/^ *$USE /    /" >> $TARGET
+      sed "s/^ *$USE /    \$(PRJINCDIR)\\//" >> $TARGET
     echo >> $TARGET
   fi
 
@@ -83,7 +83,7 @@ for fic in $(find $ROOTDIR -name '*.f90' | grep -v '/.#') ; do
     sed 's/!.*$//'             | 
     tr   $changecase           |
     sed 's/ *$/.$(MODEXT) \\/' | 
-    sed "s/^ *$USE /    /" >> $TARGET
+    sed "s/^ *$USE /    \$(PRJINCDIR)\\//" >> $TARGET
   echo >> $TARGET
 
 done

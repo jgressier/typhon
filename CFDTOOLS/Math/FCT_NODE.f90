@@ -47,8 +47,9 @@ integer(ipar), parameter :: fct_atanh = 18
 integer(ipar), parameter :: fct_abs   = 19
 integer(ipar), parameter :: fct_sign  = 20
 integer(ipar), parameter :: fct_step  = 21
+integer(ipar), parameter :: fct_ramp  = 22
 integer(ipar), parameter :: min_fct   = 01        ! TO BE checked if operator added
-integer(ipar), parameter :: max_fct   = fct_step  ! TO BE checked if operator added
+integer(ipar), parameter :: max_fct   = fct_ramp  ! TO BE checked if operator added
 
 ! -- binary operators (reverse priority order) --
 
@@ -75,7 +76,7 @@ character(len=fct_len), dimension(fct_inv:max_fct), parameter :: op1name = &
   (/ "inv  ", "sqr  ", "sqrt ", "exp  ", "ln   ", "log  ", &
      "sin  ", "cos  ", "tan  ", "sinh ", "cosh ", "tanh ", &
      "asin ", "acos ", "atan ", "asinh", "acosh", "atanh", &
-     "abs  ", "sign ", "step "/)
+     "abs  ", "sign ", "step ", "ramp " /)
      
 integer(ipar), parameter :: op_len = 2
 character(len=op_len), dimension(min_op:max_op), parameter :: op2name = &

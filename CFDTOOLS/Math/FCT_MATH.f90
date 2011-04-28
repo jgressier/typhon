@@ -603,10 +603,38 @@ case(cont_real)            ! -- op OP is REAL -------------------------------
   endif
 
 case default
-  call set_fct_error(-1, "incorrect or non-implemented operands in ATAN operator")
+  call set_fct_error(-1, "incorrect or non-implemented operands in STEP operator")
 endselect
 
 endsubroutine fct_cont_step
+
+!------------------------------------------------------------------------------!
+! fct_cont_ramp
+!------------------------------------------------------------------------------!
+subroutine fct_cont_ramp(res, op)
+implicit none
+! -- parameters --
+type(st_fct_container), intent(in)  :: op            ! operand
+type(st_fct_container), intent(out) :: res           ! container result
+! -- internal variables --
+
+! -- body --
+
+select case(op%type)
+
+case(cont_real)            ! -- op OP is REAL -------------------------------
+  call new_fct_container(res, cont_real, "")
+  if (op%r >= 0._rprc) then
+    res%r = op%r
+  else
+    res%r = 0._rprc
+  endif
+
+case default
+  call set_fct_error(-1, "incorrect or non-implemented operands in RAMP operator")
+endselect
+
+endsubroutine fct_cont_ramp
 
 
 !------------------------------------------------------------------------------!
