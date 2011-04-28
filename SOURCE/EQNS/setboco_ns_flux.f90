@@ -7,12 +7,14 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine setboco_ns_flux(defns,unif, ustboco, umesh, fld, bcns)
+subroutine setboco_ns_flux(defns, defale, defmrf, unif, ustboco, umesh, fld, bcns, curtime)
 
 use TYPHMAKE
 use OUTPUT
 use VARCOM
 use MENU_BOCO
+use MENU_ALE
+use MESHMRF
 use USTMESH
 use DEFFIELD 
 
@@ -20,10 +22,13 @@ implicit none
 
 ! -- INPUTS --
 type(mnu_ns)       :: defns            ! solver parameters
+type(mnu_ale)      :: defale           ! ALE parametres
+type(mnu_mrf)      :: defmrf           ! MRF parametres
 integer            :: unif             ! uniform or not
 type(st_ustboco)   :: ustboco          ! boundary condition location
 type(st_ustmesh)   :: umesh            ! unstructured mesh
 type(st_boco_ns)   :: bcns             ! parameters and temperature (field or constant)
+real(krp)          :: curtime          ! current time
 
 ! -- OUTPUTS --
 type(st_field)   :: fld            ! fields
@@ -41,6 +46,7 @@ type(v3d)  :: gradT        ! temperature gradient
 type(v3d)  :: dc           ! vector cell center - its projection 
                            ! on the face normale
 real(krp), allocatable :: lflux(:)
+type(v3d)  :: wallvelocity
 
 ! -- BODY --
 
@@ -82,7 +88,6 @@ do ifb = 1, ustboco%nface
   temp = fld%etatprim%tabscal(2)%scal(ic) / &
        ( fld%etatprim%tabscal(1)%scal(ic) * r_PG ) - lflux(ifb)*d/conduct
 
-
   ! heat flux
   ustboco%bocofield%tabscal(1)%scal(ifb) = ustboco%bocofield%tabscal(1)%scal(ifb) + lflux(ifb)
 
@@ -93,7 +98,9 @@ do ifb = 1, ustboco%nface
   fld%etatprim%tabscal(1)%scal(ighost) = fld%etatprim%tabscal(2)%scal(ighost)/(r_PG*temp) 
 
   ! velocity
-  fld%etatprim%tabvect(1)%vect(ighost) = (2._krp*bcns%wall_velocity) - fld%etatprim%tabvect(1)%vect(ic)
+  wallvelocity = bcns%wall_velocity
+  call calc_wallvelocity(defale, defmrf, wallvelocity, umesh%mesh%iface(if,1,1), if, curtime)
+  fld%etatprim%tabvect(1)%vect(ighost) = (2._krp*wallvelocity) - fld%etatprim%tabvect(1)%vect(ic)
   
 enddo
 
@@ -107,4 +114,5 @@ endsubroutine setboco_ns_flux
 ! jun  2005: creation
 ! sept 2005: changed to ghost cell (velocity is symmetrical)
 ! June 2009: simplification and bug correction (must not use gradients)
+! Apr  2011: wall velocity updated to account for MRF and ALE (A.Gardi)
 !------------------------------------------------------------------------------!

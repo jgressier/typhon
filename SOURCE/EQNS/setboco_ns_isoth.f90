@@ -7,23 +7,28 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine setboco_ns_isoth(defns,unif, ustboco, umesh, fld, bcns)
+subroutine setboco_ns_isoth(defns, defale, defmrf, unif, ustboco, umesh, fld, bcns, curtime)
 
 use TYPHMAKE
 use OUTPUT
 use VARCOM
 use MENU_BOCO
+use MENU_ALE
+use MESHMRF
 use USTMESH
 use DEFFIELD 
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(mnu_ns)       :: defns            ! solver parameters
+type(mnu_ale)      :: defale           ! ALE parametres
+type(mnu_mrf)      :: defmrf           ! MRF parametres
 integer            :: unif             ! uniform or not
 type(st_ustboco)   :: ustboco          ! boundary condition location
 type(st_ustmesh)   :: umesh            ! unstructured mesh
 type(st_boco_ns)   :: bcns             ! parameters and temperature (field or constant)
+real(krp)          :: curtime          ! current time
 
 ! -- Declaration des sorties --
 type(st_field)   :: fld            ! fields
@@ -36,6 +41,7 @@ real(krp)  :: gPdc, temp
 type(v3d)  :: cgface, cg, normale ! face, cell center, face normale
 type(v3d)  :: dc           ! vector cell center - its projection 
                            ! on the face normale
+type(v3d)  :: wallvelocity
 
 ! -- Debut de la procedure --
 r_PG = defns%properties(1)%r_const        ! perfect gas constant
@@ -66,7 +72,9 @@ if (unif == uniform) then
                 fld%etatprim%tabscal(2)%scal(ighost)/(r_PG*temp) 
     ! velocity
     !fld%etatprim%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)
-    fld%etatprim%tabvect(1)%vect(ighost) = (2._krp*bcns%wall_velocity) - fld%etatprim%tabvect(1)%vect(ic)
+    wallvelocity = bcns%wall_velocity
+    call calc_wallvelocity(defale, defmrf, wallvelocity, umesh%mesh%iface(if,1,1), if, curtime)
+    fld%etatprim%tabvect(1)%vect(ighost) = (2._krp*wallvelocity) - fld%etatprim%tabvect(1)%vect(ic)
 
   enddo
 
@@ -99,7 +107,9 @@ else
                 fld%etatprim%tabscal(2)%scal(ighost)/(r_PG*temp)
     ! velocity
     !fld%etatprim%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)  
-    fld%etatprim%tabvect(1)%vect(ighost) = (2._krp*bcns%wall_velocity) - fld%etatprim%tabvect(1)%vect(ic)
+    wallvelocity = bcns%wall_velocity
+    call calc_wallvelocity(defale, defmrf, wallvelocity, umesh%mesh%iface(if,1,1), if, curtime)
+    fld%etatprim%tabvect(1)%vect(ighost) = (2._krp*wallvelocity) - fld%etatprim%tabvect(1)%vect(ic)
 
   enddo
 
@@ -112,4 +122,5 @@ endsubroutine setboco_ns_isoth
 !
 ! jun 2005: creation
 ! sept 2005: changed to ghost cell (velocity is symmetrical)
+! Apr  2011: wall velocity updated to account for MRF and ALE (A.Gardi)
 !------------------------------------------------------------------------------!

@@ -38,46 +38,46 @@ integer          :: icell, ighost    ! index de cellule interieure, et de cellul
 select case(defboco%typ_boco) 
 
 case(bc_inlet_sup)
-  call setboco_ns_inlet_sup(curtime, defsolver%defns, defsolver%defmrf, defboco%boco_unif, defboco%boco_ns, &
-                            ustboco, grid%umesh, grid%info%field_loc)
+  call setboco_ns_inlet_sup(defsolver%defns, defsolver%defmrf, defboco%boco_unif, defboco%boco_ns, &
+                            ustboco, grid%umesh, grid%info%field_loc, curtime)
 
 case(bc_inlet_sub)
-  call setboco_ns_inlet_sub(curtime, defsolver%defns, defsolver%defmrf, defboco%boco_unif, defboco%boco_ns, &
-                            ustboco, grid%umesh, grid%info%field_loc)
+  call setboco_ns_inlet_sub(defsolver%defns, defsolver%defmrf, defboco%boco_unif, defboco%boco_ns, &
+                            ustboco, grid%umesh, grid%info%field_loc, curtime)
 
 case(bc_outlet_sup)
-  call setboco_ns_outlet_sup(curtime, defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
-                             ustboco, grid%umesh, grid%info%field_loc)
+  call setboco_ns_outlet_sup(defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
+                             ustboco, grid%umesh, grid%info%field_loc, curtime)
 
 case(bc_outlet_sub)
-  call setboco_ns_outlet_sub(curtime, defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
-                             ustboco, grid%umesh, grid%info%field_loc)
+  call setboco_ns_outlet_sub(defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
+                             ustboco, grid%umesh, grid%info%field_loc, curtime)
 
 case(bc_wall_isoth)
-  call setboco_ns_isoth(defsolver%defns,defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, defboco%boco_ns)
+  call setboco_ns_isoth(defsolver%defns, defsolver%defale, defsolver%defmrf, defboco%boco_unif, ustboco, &
+                          grid%umesh, grid%info%field_loc, defboco%boco_ns, curtime)
 
 case(bc_wall_flux)
   call init_genericfield(ustboco%bocofield, 0._krp, v3d(0._krp, 0._krp, 0._krp))
-  call setboco_ns_flux(defsolver%defns, defboco%boco_unif, ustboco, &
-      grid%umesh, grid%info%field_loc, defboco%boco_ns)
+  call setboco_ns_flux(defsolver%defns, defsolver%defale, defsolver%defmrf, defboco%boco_unif, ustboco, &
+                          grid%umesh, grid%info%field_loc, defboco%boco_ns, curtime)
 
 case(bc_wall_hconv)
   call init_genericfield(ustboco%bocofield, 0._krp, v3d(0._krp, 0._krp, 0._krp))
-  call setboco_ns_hconv(defsolver%defns, defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, &
-                          defsolver, defboco%boco_ns)
+  call setboco_ns_hconv(defsolver%defns, defsolver%defale, defsolver%defmrf, defboco%boco_unif, ustboco, &
+                          grid%umesh, grid%info%field_loc, defboco%boco_ns, curtime)
 
 case(bc_wall_hgen)
   call init_genericfield(ustboco%bocofield, 0._krp, v3d(0._krp, 0._krp, 0._krp))
-  call setboco_ns_flux(defsolver%defns, defboco%boco_unif, ustboco, &
-                          grid%umesh, grid%info%field_loc, defboco%boco_ns) 
-  call setboco_ns_hconv(defsolver%defns, defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, &
-                          defsolver, defboco%boco_ns)
+  call setboco_ns_flux(defsolver%defns, defsolver%defale, defsolver%defmrf, defboco%boco_unif, ustboco, &
+                          grid%umesh, grid%info%field_loc, defboco%boco_ns, curtime) 
+  call setboco_ns_hconv(defsolver%defns, defsolver%defale, defsolver%defmrf, defboco%boco_unif, ustboco, &
+                          grid%umesh, grid%info%field_loc, defboco%boco_ns, curtime)
 
 case default
   call erreur("Internal error","unknown boundary condition (calcboco_ns)")
 
 endselect
-
 
 endsubroutine calcboco_ns
 

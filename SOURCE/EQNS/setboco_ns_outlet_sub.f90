@@ -5,7 +5,7 @@
 !   Computation of supersonic inlet boundary conditions
 !   
 !------------------------------------------------------------------------------!
-subroutine setboco_ns_outlet_sub(curtime, defns, unif, bc_ns, ustboco, umesh, fld)
+subroutine setboco_ns_outlet_sub(defns, unif, bc_ns, ustboco, umesh, fld, curtime)
 
 use TYPHMAKE
 use OUTPUT

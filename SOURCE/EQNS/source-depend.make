@@ -38,6 +38,7 @@ EQNS_OBJ := $(EQNS_MOD:.$(MODEXT)=.o)    \
             calc_roe_states.o         \
             calc_varcons_ns.o         \
             calc_varprim_ns.o         \
+            calc_wallvelocity.o       \
             calcboco_ns.o             \
             def_boco_ns.o             \
             def_init_ns.o             \

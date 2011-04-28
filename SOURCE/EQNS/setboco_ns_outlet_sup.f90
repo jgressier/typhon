@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine setboco_ns_outlet_sup(curtime, defns, unif, bc_ns, ustboco, umesh, fld)
+subroutine setboco_ns_outlet_sup(defns, unif, bc_ns, ustboco, umesh, fld, curtime)
 
 use TYPHMAKE
 use OUTPUT

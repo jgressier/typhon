@@ -7,25 +7,28 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine setboco_ns_hconv(defns, unif, ustboco, umesh, fld, defsolver, bcns)
+subroutine setboco_ns_hconv(defns, defale, defmrf, unif, ustboco, umesh, fld, bcns, curtime)
 
 use TYPHMAKE
 use OUTPUT
 use VARCOM
-use MENU_SOLVER
 use MENU_BOCO
+use MENU_ALE
+use MESHMRF
 use USTMESH
 use DEFFIELD 
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(mnu_ns)       :: defns            ! solver parameters
+type(mnu_ale)      :: defale           ! ALE parametres
+type(mnu_mrf)      :: defmrf           ! MRF parametres
 integer            :: unif             ! uniform or not
 type(st_ustboco)   :: ustboco          ! lieu d'application des conditions aux limites
 type(st_ustmesh)   :: umesh            ! unstructured mesh
-type(mnu_solver)   :: defsolver        ! type d'equation a resoudre
 type(st_boco_ns)   :: bcns           ! parameters and fluxes (field or constant)
+real(krp)          :: curtime          ! current time
 
 ! -- Declaration des sorties --
 type(st_field)   :: fld            ! champ des etats
@@ -43,6 +46,7 @@ real(krp), dimension(1) &
                  :: TH, mu       ! cell temperature , viscocity
 type(v3d)        :: dc           ! vector cell center - its projection 
                                  ! on the face normale
+type(v3d)  :: wallvelocity
 
 ! -- Debut de la procedure --
 
@@ -98,7 +102,9 @@ do ifb = 1, ustboco%nface
 
   ! velocity
   !fld%etatprim%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)  
-  fld%etatprim%tabvect(1)%vect(ighost) = (2._krp*bcns%wall_velocity) - fld%etatprim%tabvect(1)%vect(ic)
+  wallvelocity = bcns%wall_velocity
+  call calc_wallvelocity(defale, defmrf, wallvelocity, umesh%mesh%iface(if,1,1), if, curtime)
+  fld%etatprim%tabvect(1)%vect(ighost) = (2._krp*wallvelocity) - fld%etatprim%tabvect(1)%vect(ic)
 
 enddo
 
@@ -108,5 +114,6 @@ endsubroutine setboco_ns_hconv
 ! Historique des modifications
 !
 ! aug  2005 : creation of routine
+! Apr  2011: wall velocity updated to account for MRF and ALE (A.Gardi)
 !------------------------------------------------------------------------------!
 

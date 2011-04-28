@@ -47,7 +47,8 @@ do ib = 1, grid%umesh%nboco
   select case(defsolver%boco(idef)%typ_boco)
 
   case(bc_geo_sym)
-    call calcboco_ust_sym(defsolver%boco(idef), grid%umesh%boco(ib), grid%umesh, grid%info%field_loc)
+    call calcboco_ust_sym(defsolver%boco(idef), defsolver%defale, defsolver%defmrf, &
+           grid%umesh%boco(ib), grid%umesh, grid%info%field_loc, curtime)
     !call erreur("Developpement","'bc_geo_sym' : Cas non implemente")
     
   case(bc_geo_period)
