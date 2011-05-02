@@ -5,6 +5,7 @@
 !------------------------------------------------------------------------------!
 program ty2dmesh
 
+use IOCFD
 use IO_UNIT
 use VEC3D
 use USTMESH
@@ -29,7 +30,7 @@ integer(kpp), parameter :: mesh_quad = 1
 integer(kpp), parameter :: mesh_tri  = 2
 integer(kpp), parameter :: mesh_tri4 = 4
 
-print*,'--- TY2DMESH ---'
+call print_cfdtools_header("TY2DMESH")
 
 !------------------------------
 ! parse arguments
@@ -72,7 +73,7 @@ do while (iarg <= nargs)
   elseif (str_opt == "-tri4") then
     type_mesh = mesh_tri4
  else
-    filename = trim(str_opt)
+    filename = basename(trim(str_opt), xtyext_mesh)
   endif
 enddo
 
@@ -88,9 +89,8 @@ if (filename == "") then
   print*,"  -tri4     : generates tri (split each quad into 4 tri)"
   call cfd_error("missing file name")
 else
-  ic = index(filename, ".tym")
-  if (ic /= len(trim(filename))-3) filename = trim(filename)//".tym"
- endif
+  filename = trim(filename)//"."//xtyext_mesh
+endif
 
 !------------------------------------------------------------
 ! default: creates a 100x100 uniform mesh in 1x1 box

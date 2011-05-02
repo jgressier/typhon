@@ -55,6 +55,22 @@ write(print_unit,*) "Warning in CFDTOOLS libraries: ",trim(str)
 
 endsubroutine cfd_warning
 
+!------------------------------------------------------------------------------!
+! Procedure : print_cfdtools_header
+! Fonction  : print information from CFDtools libraries
+!------------------------------------------------------------------------------!
+subroutine print_cfdtools_header(str)
+implicit none
+! -- INPUTS --
+character(len=*):: str
+! -- BODY --
+
+print*,repeat('-',40)
+print*,trim(str)
+print*,repeat('-',40)
+
+endsubroutine print_cfdtools_header
+
 
 
 endmodule IOCFD

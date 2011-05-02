@@ -104,8 +104,12 @@ do ib = 1, nmark
   call typhonread_bcmark(defxbin, umesh%boco(ib))
 enddo
 
+!------------------------------------------------------------------------------!
+call check_ustmesh_elements(umesh)
+
+
 endsubroutine typhonread_ustmesh
 !------------------------------------------------------------------------------!
 ! Change history
-!
+! Apr 2011: created
 !------------------------------------------------------------------------------!

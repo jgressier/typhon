@@ -18,6 +18,9 @@ this.f90modules= \
   internal/XBIN_DATA.f90  \
   internal/XBIN_IO.f90  \
   cgns/CGNS_STRUCT.f90  \
+  vtk/VTKFMT.f90        \
+  vtk/VTKMESH.f90       \
+  vtk/VTKSOL.f90        \
 
 this.f90= $(this.f90modules) \
   internal/importtyphon_mesh.f90   \
@@ -33,11 +36,12 @@ this.f90= $(this.f90modules) \
   cgns/writecgns_ustmesh.f90   \
   cgns/writecgns_sol.f90       \
 
-LIBDEPS=cfdfileformat cfdmesh cfdmath cfdbase
+LIBDEPS=cfdfileformat cfdmesh cfdmodels cfdmath cfdbase
 LOCALLINKOPT=-L$(PRJLIBDIR) $(LIBDEPS:%=-l%)
 
-this.f90exe= xbininfo.f90  \
-             ty2dmesh.f90
+this.f90exe= xbininfo.f90    \
+             ty2dmesh.f90    \
+             typhon2vtk.f90
 
 this.tools: $(this.f90exe:%.f90=$(PRJEXEDIR)/%)
 

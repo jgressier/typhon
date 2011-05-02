@@ -27,6 +27,7 @@ type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nkey, nkey2    ! nombre de clefs
 integer                  :: i, io, ic
 character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
+character(len=4)         :: suffix         ! suffix string
 
 ! -- BODY --
 
@@ -67,21 +68,17 @@ do io = 1, world%noutput
   call rpmgetkeyvalstr(pcour, "FILE", str)
   select case(world%output(io)%format)
   case(fmt_TYPHON)
-    ic = index(str, "."//xtyext_sol)
-    if (ic == len(trim(str))-len(xtyext_sol)) str = str(1:ic-1)//"     "
+    suffix = xtyext_sol
   case(fmt_CGNS, fmt_CGNS_linked)
-    ic = index(str, ".cgns")
-    if (ic == len(trim(str))-4) str = str(1:ic-1)//"     "
+    suffix = "cgns"
   case(fmt_VTK, fmt_VTKBIN)
-    ic = index(str, ".vtk")
-    if ((ic /= 0).and.(ic == len(trim(str))-3)) str = str(1:ic-1)//"    "
+    suffix = "vtk"
   case(fmt_TECPLOT)
-    ic = index(str, ".dat")
-    if ((ic /= 0).and.(ic == len(trim(str))-3)) str = str(1:ic-1)//"    "
+    suffix = "dat"
   case default
     call error_stop("internal error (def_output): unknown format")
   endselect
-  world%output(io)%basename = str
+  world%output(io)%basename = basename(str, suffix)
 
   ! --- type of output --- 
 

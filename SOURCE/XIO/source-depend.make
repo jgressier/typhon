@@ -24,10 +24,6 @@ XIO_OBJ = $(XIO_MOD:.$(MODEXT)=.o)  \
           outputzone_sol.o       \
           outputzone_open.o      \
           outputzone_ustmesh.o   \
-          writevtk_scal.o        \
-          writevtk_sol.o         \
-          writevtk_ustmesh.o     \
-          writevtk_vect.o        \
 
 libt_xio.objects = $(XIO_OBJ:%=$(PRJOBJDIR)/%)
 libt_xio.target: $(libt_xio.objects)

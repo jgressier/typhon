@@ -124,7 +124,7 @@ logical       :: fig
 ! -- Body --
 
 found = .false.                 ! skip all seeking process once found something
-lstr  = len(trim(str))
+lstr  = len_trim(str)
 
 !-------------------------------------------------------
 ! check for unmatched parentheses
@@ -260,8 +260,8 @@ do while ((.not.found).and.(iop <= max_op))  ! ---------- loop on binary operato
     ! -- if xx.yyE-zz floating point number not found, create node, split string and parse substrings
     if (.not.found) then
       call new_fct_node(node, node_opbin, "", iop)
-      call string_to_node(str(1:istr-1),                          node%left)
-      call string_to_node(str(istr+len(trim(op2name(iop))):lstr), node%right)
+      call string_to_node(str(1:istr-1),                         node%left)
+      call string_to_node(str(istr+len_trim(op2name(iop)):lstr), node%right)
       found = .true.
     endif
 
@@ -289,7 +289,7 @@ do while ((.not.found).and.(iop <= max_fct))      ! ---------- loop on unary ope
   elseif (istr == 1) then     ! --------- found but check that it is at position 1
     ! -- if found, create node, delete operator in string and parse substrings
     call new_fct_node(node, node_opunit, "", iop)
-    call string_to_node(str(len(trim(op1name(iop)))+1:lstr), node%left)
+    call string_to_node(str(len_trim(op1name(iop))+1:lstr), node%left)
     found = .true.
 
   elseif ((istr >= 2).and.(istr <= lstr)) then  ! --------- found but unexpected position

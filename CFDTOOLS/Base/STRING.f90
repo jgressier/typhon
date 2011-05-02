@@ -119,6 +119,23 @@ function chg_char(str, c, r) result(strout)
 endfunction chg_char
 
 !------------------------------------------------------------------------------!
+! Fonction : get root/base name and remove suffix
+!------------------------------------------------------------------------------!
+function basename(str, suffix) result(strout)
+  implicit none
+  character(len=*), intent(in) :: str, suffix
+  character(len=len_trim(str)) :: strout
+  integer                      :: i
+
+  i = index(str, '.'//suffix)
+  if ((i == 0).or.(i /= (len_trim(str)-len_trim(suffix)))) then
+    strout = str
+  else
+    strout = str(1:i-1)
+  endif
+endfunction basename
+
+!------------------------------------------------------------------------------!
 ! Function : check if "str" is a readable real value
 !------------------------------------------------------------------------------!
 logical function is_real(str)

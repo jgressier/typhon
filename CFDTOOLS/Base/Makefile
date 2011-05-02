@@ -20,6 +20,7 @@ this.f90modules= \
   IO_UNIT.f90      \
   IOCFD.f90        \
   MESHPREC.f90     \
+  PACKET.f90       \
   STRING.f90       \
 
 this.f90= $(this.f90modules) \

@@ -52,7 +52,7 @@ call xbin_writedata_nodata(defxbin, xbindata)
 call delete_xbindata(xbindata)
 
 !------------------------------------------------------------------------------!
-! write SCALARS
+! write SCALARS & VECTORS
 
 do isca = 1, gfield%nscal
   call xbin_defdatasection(xbindata, xbinty_scalar, quantity_name(gfield%tabscal(isca)%quantity_id), &
@@ -66,6 +66,11 @@ allocate(sol(1:dim,1:nelem))
 do ivec = 1, gfield%nvect
   call xbin_defdatasection(xbindata, xbinty_vector, quantity_name(gfield%tabvect(ivec)%quantity_id), &
                            (/ gfield%tabvect(ivec)%quantity_id /) )
+  do i = 1, nelem
+    sol(1,i) = gfield%tabvect(ivec)%vect(i)%x
+    sol(2,i) = gfield%tabvect(ivec)%vect(i)%y
+    sol(3,i) = gfield%tabvect(ivec)%vect(i)%z
+  enddo
   call xbin_writedata_ordreal(defxbin, xbindata, nelem, dim, sol)
   call delete_xbindata(xbindata)
 enddo
@@ -74,55 +79,76 @@ deallocate(sol)
 endsubroutine typhonwrite_sol
 
 !------------------------------------------------------------------------------!
-! read NODES coordinates of a mesh
+! read SOLUTION 
 !------------------------------------------------------------------------------!
-subroutine typhonread_nodes(defxbin, mesh)
+subroutine typhonread_sol(defxbin, umesh, gfield)
 implicit none
 ! -- INPUTS --
 type(st_defxbin)         :: defxbin
+type(st_ustmesh)         :: umesh
 ! -- OUTPUTS --
-type(st_mesh)            :: mesh
+type(st_genericfield)    :: gfield
 ! -- private data --
 integer :: info
 type(st_xbindatasection)   :: xbindata
-real(xbinkrp), allocatable :: vtex(:,:)
-integer(xbinkip)           :: nelem, dim, i
+real(xbinkrp), allocatable :: sol(:,:)
+integer(xbinkip)           :: dim, nelem, nsca, nvec, i, isca, ivec
 
 !------------------------------------------------------------------------------!
-! check header
+! define  header
 
 call xbin_readdatahead(defxbin, xbindata)
+call xbin_skipdata(defxbin, xbindata)
 
-if ((xbindata%name /= "NODES").or.(xbindata%usertype /= xbinty_nodes)) then
-  call cfd_error("XBIN/TYPHON error: expecting NODE data section")
+if (xbindata%usertype /= xbinty_solution) then
+  call cfd_error("XBIN/TYPHON error: expecting SOLUTION data section")
 endif
 
-!if (xbindata%nparam >= 1) then
-!  elemvtex%elemtype = xbindata%param(1)
-!else
-!  call cfd_error("XBIN/TYPHON error: expecting parameters in CELL data section")
-!endif
-
-!------------------------------------------------------------------------------!
-! read NODES coordinates
-
-allocate(vtex(1:xbindata%dim,1:xbindata%nelem))
-
-call xbin_readdata_ordreal(defxbin, xbindata, vtex)
-
-mesh%nvtex = xbindata%nelem
-allocate(mesh%vertex(xbindata%nelem, 1, 1))
-
-do i = 1, xbindata%nelem
-  mesh%vertex(i,1,1)%x = vtex(1,i) 
-  mesh%vertex(i,1,1)%y = vtex(2,i) 
-  mesh%vertex(i,1,1)%z = vtex(3,i) 
-enddo
+if (xbindata%nparam >= 3) then
+  nelem         = xbindata%param(1)
+  nsca          = xbindata%param(2)
+  nvec          = xbindata%param(3)
+else
+  call cfd_error("XBIN/TYPHON error: expecting parameters in CELL data section")
+endif
 
 call delete_xbindata(xbindata)
-deallocate(vtex)
 
-endsubroutine typhonread_nodes
+call new_genericfield(gfield, nelem, nsca, nvec, 0)
+
+!------------------------------------------------------------------------------!
+! read SCALARS & VECTORS
+
+do isca = 1, gfield%nscal
+  call xbin_readdatahead(defxbin, xbindata)
+  if (xbindata%usertype /= xbinty_scalar) then
+    call cfd_error("XBIN/TYPHON error: expecting SCALAR SOLUTION data section")
+  endif
+  gfield%tabscal(isca)%quantity_id = xbindata%param(1)
+  call xbin_readdata_ordreal(defxbin, xbindata, gfield%tabscal(isca)%scal(1:nelem))
+  call delete_xbindata(xbindata)
+enddo
+
+dim = 3
+allocate(sol(1:dim,1:nelem))
+do ivec = 1, gfield%nvect
+  call xbin_readdatahead(defxbin, xbindata)
+  if (xbindata%usertype /= xbinty_vector) then
+    call cfd_error("XBIN/TYPHON error: expecting VECTOR SOLUTION data section")
+  endif
+  gfield%tabvect(ivec)%quantity_id = xbindata%param(1)
+  call xbin_readdata_ordreal(defxbin, xbindata, sol)
+  do i = 1, nelem
+    gfield%tabvect(ivec)%vect(i)%x = sol(1,i)
+    gfield%tabvect(ivec)%vect(i)%y = sol(2,i)
+    gfield%tabvect(ivec)%vect(i)%z = sol(3,i)
+  enddo
+  call delete_xbindata(xbindata)
+enddo
+deallocate(sol)
+
+endsubroutine typhonread_sol
+
 
 
 

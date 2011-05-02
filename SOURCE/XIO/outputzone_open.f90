@@ -12,6 +12,7 @@ use OUTPUT
 use VARCOM
 use DEFZONE
 use MENU_GEN
+use TYPHON_FMT
 
 implicit none
 
@@ -39,7 +40,7 @@ case(fmt_TECPLOT)
 
 case(fmt_TYPHON)
 
-  suffix = ".tys"
+  suffix = "."//xtyext_sol
   defio%iunit = getnew_io_unit()
   if (defio%iunit <= 0) call error_stop("IO unit management: impossible to find free unit")
   nbmesh = 1
@@ -51,20 +52,14 @@ case(fmt_VTK)
   suffix = ".vtk"
   defio%iunit = getnew_io_unit()
   if (defio%iunit <= 0) call error_stop("IO unit management: impossible to find free unit")
-  open(unit=defio%iunit, file=trim(defio%filename)//trim(suffix), form='formatted', iostat = info)
-  write(defio%iunit,'(A)') '# vtk DataFile Version 2.0'
-  write(defio%iunit,'(A)') 'TYPHON_'//trim(zone%name)
-  write(defio%iunit,'(A)') 'ASCII'
+  call vtkasc_openwrite(defio%iunit, trim(defio%filename)//trim(suffix), defio%defvtk)
 
 case(fmt_VTKBIN)
 
   suffix = ".vtk"
   defio%iunit = getnew_io_unit()
   if (defio%iunit <= 0) call error_stop("IO unit management: impossible to find free unit")
-  open(unit=defio%iunit, file=trim(defio%filename)//trim(suffix), form='binary', iostat = info)
-  call writestr(defio%iunit, '# vtk DataFile Version 2.0')
-  call writestr(defio%iunit, 'TYPHON_'//trim(zone%name))
-  call writestr(defio%iunit, 'BINARY')
+  call vtkbin_openwrite(defio%iunit, trim(defio%filename)//trim(suffix), defio%defvtk)
 
 case(fmt_CGNS, fmt_CGNS_linked)
 

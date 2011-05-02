@@ -31,6 +31,7 @@ type st_ustmesh
   integer(kip)          :: id                    ! domain id
   integer(kip)          :: level                 ! multigrid level
   integer(kpp)          :: geotyp                ! mesh type (cf MESHGEOM)
+  integer(kpp)          :: elemdim               ! mesh dimension
   integer(kip)          :: nvtex, nface, ncell   ! number of vertices, faces and cells
   integer(kip)          :: nface_int, ncell_int  ! number of internal faces and cells
   integer(kip)          :: nface_lim, ncell_lim  ! number of boundering faces and cells
@@ -90,6 +91,7 @@ integer(kip)     :: id
 
   umesh%id     = id
   umesh%geotyp = geotyp
+  umesh%elemdim = 0
   umesh%level  = 0
   umesh%nvtex  = 0
   umesh%ncell  = 0 ; umesh%ncell_int = 0 ; umesh%ncell_lim = 0
@@ -102,6 +104,28 @@ integer(kip)     :: id
   call init_mesh(umesh%mesh)  ! nullify pointers
 
 endsubroutine init_ustmesh
+
+
+!------------------------------------------------------------------------------!
+! Procedure : some checkings on ustmesh
+!------------------------------------------------------------------------------!
+subroutine check_ustmesh_elements(umesh)
+implicit none
+type(st_ustmesh) :: umesh
+! -- private date --
+integer :: ielem
+! -- BODY --
+  if (umesh%elemdim == 0) then
+    do ielem = 1, umesh%cellvtex%nsection
+      umesh%elemdim = max(umesh%elemdim, dim_element(umesh%cellvtex%elem(ielem)))
+    enddo
+  endif
+  if (umesh%elemdim /= geodim(umesh)) then
+    call cfd_error("inconsistent mesh and element dimension (USTMESH)")
+  endif
+  umesh%ncell_int = number_element(umesh%cellvtex, dim=umesh%elemdim)
+
+endsubroutine check_ustmesh_elements
 
 
 !------------------------------------------------------------------------------!
@@ -123,6 +147,25 @@ integer function geodim(umesh)
   endselect
   
 endfunction geodim
+
+
+!------------------------------------------------------------------------------!
+! Procedure : delete non "volumic" elements
+!------------------------------------------------------------------------------!
+subroutine delete_ustmesh_subelements(umesh)
+implicit none
+type(st_ustmesh) :: umesh
+! -- private date --
+integer :: ielem
+! -- BODY --
+
+do ielem = 1, umesh%cellvtex%nsection
+  if (dim_element(umesh%cellvtex%elem(ielem)) < umesh%elemdim) &
+    call delete_elemvtex(umesh%cellvtex%elem(ielem))
+enddo
+call pack_genelemvtex(umesh%cellvtex)
+
+endsubroutine delete_ustmesh_subelements
 
 
 !------------------------------------------------------------------------------!

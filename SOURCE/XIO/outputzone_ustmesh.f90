@@ -13,6 +13,7 @@ use VARCOM
 use DEFZONE
 use MENU_GEN
 use TYFMT_MESH
+use VTKMESH
 
 implicit none
 
@@ -39,15 +40,13 @@ pgrid => zone%gridlist%first
 select case(defio%format)
 
 case(fmt_TYPHON)
-
   call typhonwrite_ustmesh(defio%deftyphon%defxbin, pgrid%umesh)
 
 case(fmt_TECPLOT)
   call error_stop("(Internal error) Unable to use general output with TECPLOT format")
 
 case(fmt_VTK, fmt_VTKBIN)
-
-  call writevtk_ustmesh(defio, pgrid%umesh)
+  call writevtk_ustmesh(defio%defvtk, pgrid%umesh)
 
 case(fmt_CGNS, fmt_CGNS_linked)
 

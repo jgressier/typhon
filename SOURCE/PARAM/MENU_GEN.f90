@@ -11,6 +11,7 @@ use TYPHMAKE
 use MENU_INVERSE
 use MESHPARAMS
 use TYPHON_FMT
+use VTKFMT
 
 implicit none
 
@@ -69,6 +70,7 @@ type mnu_output
   character(len=longname) :: filename      ! file name from basename
   integer                 :: iunit         ! IO unit
   type(st_deftyphon)      :: deftyphon     ! TYPHON file info
+  type(st_defvtk)         :: defvtk        ! VTK    file info
   integer                 :: izone         ! zone index (base for CGNS)
   integer(kpp)            :: write         ! writing instant (end, cycle...)
   integer(kpp)            :: refframe      ! reference frame

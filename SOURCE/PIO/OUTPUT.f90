@@ -53,9 +53,6 @@ character(len=256) :: str_w   ! chaine provisoire pour l'ecriture sur unite
 character(len=6), parameter :: str_std = "[STD] ", &   ! prefixe d'ecriture std/log
                                str_log = "      "      ! prefixe d'ecriture log/log
 
-character, parameter :: newline_char = char(10)
-character, parameter :: carriage_char = char(13)
-
 ! -- DECLARATIONS -----------------------------------------------------------
 
 
@@ -279,31 +276,6 @@ implicit none
 endsubroutine print_debug
 
 
-!------------------------------------------------------------------------------!
-! Procedure : writestr
-!------------------------------------------------------------------------------!
-subroutine writestr(unit, str)
-implicit none
-integer,          intent(in) :: unit
-character(len=*), intent(in) :: str
-
-  write(unit) str//newline_char
-
-endsubroutine writestr
-
-
-!------------------------------------------------------------------------------!
-! Procedure : writereturn
-!------------------------------------------------------------------------------!
-subroutine writereturn(unit)
-implicit none
-integer,          intent(in) :: unit
-
-  write(unit) newline_char
-
-endsubroutine writereturn
-
-
 endmodule OUTPUT
 !------------------------------------------------------------------------------!
 ! Change history
@@ -312,4 +284,5 @@ endmodule OUTPUT
 ! Nov  2002 : print_info
 ! Aug  2005 : debug output
 ! Feb  2007 : English translation
+! May  2011 : some binary writing routines transfered to CFDTOOLS//VTKFMT
 !------------------------------------------------------------------------------!

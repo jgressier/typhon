@@ -36,6 +36,8 @@ if (ier /= 0) call cfd_error("(CGNS IO) cannot open CGNS file "//trim(defmesh%fi
    
 call readcgnszone(unit, defmesh%icgnsbase, defmesh%icgnszone, umesh)
 
+call check_ustmesh_elements(umesh)
+
 ! --- CGNS close ---
 call cg_close_f(unit, ier)
 
