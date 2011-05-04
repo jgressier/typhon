@@ -52,12 +52,20 @@ x  = 20_prec-1E+1_prec
 str="20-1E+1"
 call test_real(str, x)
 
+x  = 1E-1_prec-2E-2_prec
+str="1E-1-2E-2"
+call test_real(str, x)
+
 x  = .2_prec*1E2_prec
 str=".2*1E2"
 call test_real(str, x)
 
 x  = 1._prec/1E2_prec
 str="1./1E2"
+call test_real(str, x)
+
+x  = 1._prec/1E-2_prec
+str="1./1E-2"
 call test_real(str, x)
 
 x  = 10.**3
@@ -148,9 +156,14 @@ x  = (((3**2+2)*5+4./2.)*3-(3-2./4.)*4)/(2-4)**2
 str="(((3^2+2)*5+4./2.)*3-(3-2./4.)*4)/(2-4)^2"
 call test_real(str, x)
 
+x  = 2._prec
+str="2*step(1)+3*step(-1)"
+call test_real(str, x)
 
-str=" 1.E-9 + (.9622504E-0-1.E-009)*step(-2-X)"
-call test_parse(str)
+x  = 2._prec*4._prec
+str="2*ramp(4)+3*ramp(-1)"
+call test_real(str, x)
+
 
 contains
 
@@ -167,28 +180,14 @@ integer            :: ierr
 call string_to_funct(str, func, ierr)
 call fct_node_eval(blank_env, func, cont)
 if ((abs(cont%r-x)/x) > 10*sqrt(epsilon(x))) then
-  err = "FAUX"
+  err = " FAUX "
 elseif ((abs(cont%r-x)/x) > 10*epsilon(x)) then
   err = "Mauvais"
 else
-  err = " Ok "
+  err = "  Ok "
 endif
 print form, str, cont%r, x, err
 call delete(cont)
-call delete(func)
-
-endsubroutine
-
-subroutine test_parse(str)
-implicit none
-character(len=*)   :: str
-character(len=128) :: str2
-type(st_fct_node)  :: func
-integer            :: ierr
-
-call string_to_funct(str, func, ierr)
-call fct_node_to_str(func, str2)
-print*,trim(str)," -> ",trim(str2)
 call delete(func)
 
 endsubroutine

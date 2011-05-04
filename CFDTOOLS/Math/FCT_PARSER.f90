@@ -183,15 +183,17 @@ iop = min_op
 do while ((.not.found).and.(iop <= max_op))  ! ---------- loop on binary operators
 
   !-------------------------------------------------------
-  ! look for LAST binary operator in string 
+  ! look for LAST binary operator in string (istr index)
   ! this is to handle unexpected effect of non-symmetric operators: - and /
 
   istr   = 0
   pos    = lstr        ! force first loop
+
   do while (pos /= 0)
     pos = index_oper(str(istr+1:lstr), trim(op2name(iop)))    ! FIRST index of operator
     istr = istr+pos
   enddo
+  !print*,istr,trim(op2name(iop))
 
   !-------------------------------------------------------
   ! operator (iop) not found -> next operator
@@ -225,37 +227,38 @@ do while ((.not.found).and.(iop <= max_op))  ! ---------- loop on binary operato
   ! operator (iop) found at consistent position
   elseif ((istr >= 2).and.(istr <= lstr-1)) then
 
-    ! -- check xx.yyE-zz floating point number
-    if ((index(        "eE", str(istr-1:istr-1)) > 0).and.& ! Exponent symbol (R4,R8,R16)
-        (index(        "-+", str(istr  :istr  )) > 0).and.& ! Exponent sign
-        (index("0123456789", str(istr+1:istr+1)) > 0)) then ! Exponent leading figure
-      pos = istr-1
-      fig = .false.
-      dot = 0
-      do while ((dot<2).and.(pos>1))
-        if (index("0123456789", str(pos-1:pos-1)) > 0) then
-          fig = .true.
-        elseif (index(     ".", str(pos-1:pos-1)) > 0) then
-          dot = dot+1
-        else
-          pos = 2
-        endif
-        pos = pos-1
-!print*, 'v:"',str(1:lstr),':',pos,':',str(pos:pos),'"'
-      enddo
-      if (fig.and.(pos==1).and.(dot<2)) then
-        pos = istr
-        do while (index("0123456789", str(pos+1:pos+1)) > 0)
-          pos = pos+1
-!print*, 'w:"',str(pos:pos),'"'
-        enddo
-        if (index(str(istr:istr),"-") > 0) & ! replace xx.yyE-zz by xx.yy/1Ezz
-          call string_to_node(str(1:istr-2)//"/1E"//str(istr+1:lstr), node)
-        if (index(str(istr:istr),"+") > 0) & ! replace xx.yyE+zz by xx.yyEzz
-          call string_to_node(str(1:istr-2)//  "E"//str(istr+1:lstr), node)
-        found = .true.
-      endif
-    endif
+!!$    ! -- check xx.yyE-zz floating point number
+!!$    if ((index(        "eE", str(istr-1:istr-1)) > 0).and.& ! Exponent symbol (R4,R8,R16)
+!!$        (index(        "-+", str(istr  :istr  )) > 0).and.& ! Exponent sign
+!!$        (index("0123456789", str(istr+1:istr+1)) > 0)) then ! Exponent leading figure
+!!$      pos = istr-1
+!!$      fig = .false.
+!!$      dot = 0
+!!$      do while ((dot<2).and.(pos>1))
+!!$        if (index("0123456789", str(pos-1:pos-1)) > 0) then
+!!$          fig = .true.
+!!$        elseif (index(     ".", str(pos-1:pos-1)) > 0) then
+!!$          dot = dot+1
+!!$        else
+!!$          pos = 2
+!!$        endif
+!!$        pos = pos-1
+!!$
+!!$      enddo
+!!$      print*, 'v:',istr,trim(str)
+!!$      if (fig.and.(pos==1).and.(dot<2)) then
+!!$        pos = istr
+!!$        do while (index("0123456789", str(pos+1:pos+1)) > 0)
+!!$          pos = pos+1
+!!$        enddo
+!!$        print*, 'w:',istr,trim(str)
+!!$        if (index(str(istr:istr),"-") > 0) & ! replace xx.yyE-zz by xx.yy/1Ezz
+!!$          call string_to_node(str(1:istr-2)//"/1E"//str(istr+1:lstr), node)
+!!$        if (index(str(istr:istr),"+") > 0) & ! replace xx.yyE+zz by xx.yyEzz
+!!$          call string_to_node(str(1:istr-2)//  "E"//str(istr+1:lstr), node)
+!!$        found = .true.
+!!$      endif
+!!$    endif
 
     ! -- if xx.yyE-zz floating point number not found, create node, split string and parse substrings
     if (.not.found) then
@@ -349,7 +352,20 @@ if (iop == ibk1) then     ! -------- oper = '(' -----------------
   ind = iop               ! looking for '(' and found
 
 elseif (iop < ibk1) then  ! -------- manage oper first ----------
-  ind = iop               ! looking for operator and found
+
+  ind = iop       ! found OPERATOR
+
+  ! --- check if operator + or - are from scientific notation 
+  if ((iop >= 3).and.(iop < lstr)) then          
+    if ((index(         "-+", str(iop  :iop  )) > 0).and.& ! Exponent sign
+        (index(         "eE", str(iop-1:iop-1)) > 0).and.& ! Exponent symbol
+        (index(".0123456789", str(iop-2:iop-2)) > 0).and.& ! preceding dot or figure
+        (index( "0123456789", str(iop+1:iop+1)) > 0)) then ! preceding dot or figure
+      ! not actual operator, recursive search of "oper" after current position
+      ind  = iop + index_oper(str(iop+1:lstr), strop)    ! look for oper after brackets
+      if (ind == iop) ind = 0                            ! if not found, ind is set to 0
+    endif
+  endif
 
 elseif (iop > ibk1) then  ! -------- manage '('  first ----------
 
