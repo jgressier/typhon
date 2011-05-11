@@ -13,6 +13,8 @@ use OUTPUT
 use USTMESH
 use DEFFIELD
 use MENU_SOLVER
+use TYPHON_FMT
+use TYFMT_SOL
 
 implicit none
 
@@ -26,8 +28,10 @@ type(st_ustmesh) :: umesh             ! maillage et connectivites
 type(st_grid)    :: grid               ! grid and its field
 
 ! -- Internal variables --
-integer                 :: i, cgnsunit, ier, isca, ivec, ic
+integer                 :: i, ier, isca, ivec, ic, iunit
 type(st_field), pointer :: field
+type(st_deftyphon)      :: deftyphon
+type(st_ustmesh)        :: p_umesh        ! 
 
 ! -- BODY --
 
@@ -36,9 +40,7 @@ call print_info(8, ". initializing and allocating fields")
 ! allocation des fields
 
 select case(defsolver%typ_solver)
-case(solNS)
-  field=>newfield(grid, defsolver%nsca, defsolver%nvec, umesh%ncell, umesh%nface)
-case(solKDIF)
+case(solNS, solKDIF)
   field=>newfield(grid, defsolver%nsca, defsolver%nvec, umesh%ncell, umesh%nface) 
 case default
   call error_stop("Internal error (init_gridfield_ust): unknown solver type")
@@ -69,15 +71,30 @@ do i = 1, defsolver%ninit
 
   case(init_cgns)
 
-    call print_info(5,"  > CGNS file initialization")
-    call cg_open_f(trim(defsolver%defmesh%filename), MODE_READ, cgnsunit, ier)
+    call print_info(5,"  > CGNS file initialization: "//trim(defsolver%defmesh%filename))
+    !! iunit = getnew_io_unit() ! defined by cg_open_f
+    call cg_open_f(trim(defsolver%defmesh%filename), MODE_READ, iunit, ier)
     if (ier /= 0) call erreur("Fatal CGNS IO", "cannot open "//trim(defsolver%defmesh%filename))
-    call readcgns_sol(cgnsunit, defsolver%defmesh%icgnsbase, defsolver%defmesh%icgnszone, &
+    call readcgns_sol(iunit, defsolver%defmesh%icgnsbase, defsolver%defmesh%icgnszone, &
                       umesh, field%etatprim) 
-    call cg_close_f(cgnsunit, ier)
+    call cg_close_f(iunit, ier)
     if (ier /= 0) call error_stop("Fatal CGNS IO: cannot close "//trim(defsolver%defmesh%filename))
 
-  case default
+  case(init_typhon)
+
+    call print_info(5,"  > TYPHON solution initialization: "//trim(defsolver%defmesh%filename))
+    iunit = getnew_io_unit() 
+    call typhon_openread(iunit, trim(defsolver%defmesh%filename), deftyphon)
+
+    call typhonread_ustmesh(deftyphon%defxbin, p_umesh) !! DEV: must SKIP reading
+    !call delete_ustmesh_subelements(umesh)
+    call delete_ustmesh(p_umesh)
+
+    call typhonread_sol(deftyphon%defxbin, umesh, field%etatprim)
+
+    call close_io_unit(iunit)
+
+  case(init_def) 
      
     call print_info(5,"  > USER defined initialization")
     select case(defsolver%typ_solver)
@@ -91,6 +108,8 @@ do i = 1, defsolver%ninit
       call error_stop("Internal error (init_gridfield_ust): unknown solver type")
     endselect
 
+  case default
+    call error_stop("Internal error (init_gridfield_ust): unknown initialization option")
   endselect
 
 enddo

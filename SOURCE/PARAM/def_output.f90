@@ -38,10 +38,23 @@ call print_info(2,"* Definition of output parameters")
 pblock => block
 call seekrpmblock(pblock, "OUTPUT", 0, pcour, nkey)
 
-world%noutput = nkey 
-allocate(world%output(world%noutput))
+world%noutput = nkey+1                 ! add automatic restart
+allocate(world%output(world%noutput))   
 
-do io = 1, world%noutput 
+!-----------------------------------------------------------
+! define automatic restart file
+
+io = world%noutput
+world%output(io)%format   = fmt_TYPHON
+world%output(io)%basename = "restart"  ! '.tys'
+world%output(io)%dataset  = dataset_cell
+world%output(io)%period   = huge(world%output(io)%period)
+world%output(io)%refframe = mrfdata_relative
+
+!-----------------------------------------------------------
+! parse only BLOCK definition 
+
+do io = 1, nkey   ! parse only BLOCK definition
 
   ! -- lecture du format
 

@@ -93,7 +93,11 @@ integer,          intent(in)  :: n
 
   bc%family = nom
   bc%nface  = n
-  allocate(bc%iface(n))
+  if (n == 0) then
+    nullify(bc%iface)
+  else
+    allocate(bc%iface(n))
+  endif
   nullify(bc%bocofield)  
   nullify(bc%itag)
   call new_genericfield(bc%avg_quant, 0, 0, 0, 0)   ! initialization
@@ -112,7 +116,7 @@ implicit none
 type(st_ustboco) :: bc
 integer          :: i
 
-  deallocate(bc%iface)
+  if (associated(bc%iface)) deallocate(bc%iface)
   if (bc%idefboco <= 0) call delete(bc%gridcon)
 
   if (associated(bc%itag)) deallocate(bc%itag)

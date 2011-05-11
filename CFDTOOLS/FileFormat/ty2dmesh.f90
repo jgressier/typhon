@@ -84,9 +84,9 @@ if (filename == "") then
   print*,"  -ny 100   : number of J-cells"
   print*,"  -lx 1     : domain length"
   print*,"  -ly 1     : domain height"
-  print*,"  -quad     : generates quad"
-  print*,"  -tri      : generates tri (split each quad)"
-  print*,"  -tri4     : generates tri (split each quad into 4 tri)"
+  print*,"  -quad     : generates quad (default)"
+  print*,"  -tri      : generates tri  (split each quad)"
+  print*,"  -tri4     : generates tri  (split each quad into 4 tri)"
   call cfd_error("missing file name")
 else
   filename = trim(filename)//"."//xtyext_mesh

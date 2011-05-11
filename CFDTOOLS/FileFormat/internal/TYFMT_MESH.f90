@@ -17,8 +17,15 @@ implicit none
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
-! -- XBIN DATA section TYPE --
-
+!------------------------------------------------------------------------------!
+! ST_DEFTYPHON
+!------------------------------------------------------------------------------!
+type st_deftymesh
+  integer(xbinkip) :: ncell, nface, nvtex
+  integer(xbinkip) :: ncellsections
+  integer(xbinkip) :: nfacesections
+  integer(xbinkip) :: nmark
+endtype st_deftymesh
 
 contains 
 !------------------------------------------------------------------------------!
@@ -371,7 +378,7 @@ endif
 !  call cfd_error("XBIN/TYPHON error: expecting parameters in CELL data section")
 !endif
 
-boco%family    = trim(xbindata%name)
+call new_ustboco(boco, trim(xbindata%name), 0)
 boco%ilocation = iloc_elemface
 boco%ntag      = xbindata%nelem
 allocate(boco%itag(1:boco%ntag))

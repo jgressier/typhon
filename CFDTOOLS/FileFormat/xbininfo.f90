@@ -7,12 +7,13 @@ program xbininfo
 
 use IOCFD
 use IO_UNIT
+use ENDIAN
 use XBIN_DATA
 use STRING
 
 implicit none
 
-integer, parameter :: tab1 = 15
+integer, parameter :: tab1 = 17
 !------------------------------------------------------------------------------!
 integer                     :: nargs       ! number of command line arguments
 integer                     :: iunit       ! IO unit
@@ -23,7 +24,16 @@ type(st_xbindatasection)    :: xbindata    ! xbin data section
 integer                     :: idatasec
 
 !------------------------------------------------------------------------------!
-print*,'--- XBININFO ---'
+call print_cfdtools_header("XBININFO")
+
+select case(native_endianness())
+case(fmt_littleendian)
+  print*,'native byte order: little endian'
+case(fmt_bigendian)
+  print*,'native byte order: big endian'
+case(fmt_unknown)
+  print*,'native byte order: unknown representation'
+endselect
 
 !------------------------------
 ! parse arguments
@@ -46,11 +56,7 @@ call xbin_openread(iunit, trim(filename), defxbin)
 print*,fill('file',        tab1),': ',trim(filename)
 print*,fill('XBIN version',tab1),': ',trim(strof(defxbin%xbin_version)),&
                                  ' (max:',trim(strof(xbin_maxver)),')'
-if (defxbin%bigendian) then
-  print*,fill('endianness',  tab1),': bigendian'
-else
-  print*,fill('endianness',  tab1),': littleendian'
-endif
+print*,fill('endianness',  tab1),': ',trim(byteorder_str(defxbin%byteorder))
 
 idatasec = 0
 do while (.not.xbin_eof(defxbin))

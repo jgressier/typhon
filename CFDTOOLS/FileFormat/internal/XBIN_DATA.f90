@@ -12,6 +12,7 @@ implicit none
 ! -- Global Variables -------------------------------------------
 
 integer, parameter :: xbin_namelen = 32
+
 ! -- datatype --
 
 integer(xbinkpp),   parameter :: xbindatatype_undefined      = -1   !
@@ -98,7 +99,7 @@ character(len=30) :: strout
   case(xbindatatype_real_indarray)
     strout = "indexed real array"
   case default
-     call cfd_error(xbin_prefix//"unknown data type") 
+     call xbin_error("unknown data type") 
   endselect
 
 endfunction xbindataname
@@ -167,13 +168,14 @@ integer :: info
   read(defxbin%iunit, iostat=info) xbindata%datatype,   xbindata%name,      &
                                    xbindata%groupindex, xbindata%usertype,  &
                                    xbindata%intsize
-  if (info /= 0) call cfd_error(xbin_prefix//"unable to read data header 2") 
+  if (info /= 0) call xbin_error("unable to read data header 2") 
+
   if (xbindata%intsize /= xbinkip) &
-     call cfd_error(xbin_prefix//"unexpected integer size in file (section "&
+     call xbin_error("unexpected integer size in file (section "&
                                //trim(xbindata%name)//")") 
   read(defxbin%iunit) xbindata%realsize
   if (xbindata%realsize /= xbinkrp) &
-     call cfd_error(xbin_prefix//"unexpected real size in file (section "&
+     call xbin_error("unexpected real size in file (section "&
                                //trim(xbindata%name)//")") 
   read(defxbin%iunit) xbindata%nparam
   if (xbindata%nparam >= 1) then
@@ -191,7 +193,7 @@ integer :: info
   case(xbindatatype_int_indarray, xbindatatype_real_indarray)
     read(defxbin%iunit) xbindata%nelem, xbindata%dim
   case default
-     call cfd_error(xbin_prefix//" unknown data type (xbin_readdatahead)") 
+     call xbin_error(" unknown data type (xbin_readdatahead)") 
   endselect
 
 endsubroutine xbin_readdatahead
@@ -209,7 +211,7 @@ type(st_xbindatasection) :: xbindata
 integer :: info
 
   if (xbindata%datatype <= 0) then
-    call cfd_error(xbin_prefix//" unknown data type (xbin_writedatahead)")
+    call xbin_error("unknown data type (xbin_writedatahead)")
   endif
 
   write(defxbin%iunit) xbindata%datatype,   &
@@ -266,7 +268,7 @@ real(xbinkrp),    allocatable :: rarray(:)
     deallocate(rarray)
     call xbin_readend(defxbin)
   case default
-     call cfd_error(xbin_prefix//" unknown data type (xbin_skipdata)") 
+     call xbin_error(" unknown data type (xbin_skipdata)") 
   endselect
 
 endsubroutine xbin_skipdata
@@ -339,7 +341,7 @@ integer(xbinkip) :: i1, dim
   case(xbindatatype_int_ordarray)
     read(defxbin%iunit) array(1:xbindata%nelem)
   case default
-    call cfd_error(xbin_prefix//" unexpected data type reading ordered integer array")
+    call xbin_error(" unexpected data type reading ordered integer array")
   endselect
   call xbin_readend(defxbin)
 
@@ -422,7 +424,7 @@ integer :: info, i
      iindex(1:xbindata%nelem) = (/ (xbindata%firstindex+i, i=0, xbindata%nelem-1) /)
      read(defxbin%iunit) iarray(1:xbindata%dim, 1:xbindata%nelem)
   case default
-    call cfd_error(xbin_prefix//" unexpected data type reading indirect ordered integer array")
+    call xbin_error(" unexpected data type reading indirect ordered integer array")
   endselect
   call xbin_readend(defxbin)
   
@@ -502,7 +504,7 @@ real(xbinkrp)              :: array(1:xbindata%nelem)
   case(xbindatatype_real_ordarray)
     read(defxbin%iunit) array(1:xbindata%nelem)
   case default
-    call cfd_error(xbin_prefix//" unexpected data type reading ordered real array")
+    call xbin_error(" unexpected data type reading ordered real array")
   endselect
   call xbin_readend(defxbin)
   
@@ -524,7 +526,7 @@ real(xbinkrp)              :: array(1:xbindata%dim, 1:xbindata%nelem)
   case(xbindatatype_real_ordarray)
     read(defxbin%iunit) array(1:xbindata%dim, 1:xbindata%nelem)
   case default
-    call cfd_error(xbin_prefix//" unexpected data type reading ordered real array")
+    call xbin_error("unexpected data type reading ordered real array")
   endselect
   call xbin_readend(defxbin)
   

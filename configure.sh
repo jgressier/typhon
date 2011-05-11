@@ -59,8 +59,8 @@ check_f90compiler() {
       success $F90C
       F90C=${F90C##*/}
       case $SYS-$F90C in
-	  *ifc|*ifort) F90_FB="-fPIC -implicitnone -convert big_endian" ;;
-	  *gfortran)   F90_FB="-fPIC -fimplicit-none -fconvert=big-endian -ffree-line-length-none" ;;
+	  *ifc|*ifort) F90_FB="-fPIC -implicitnone" ;;
+	  *gfortran)   F90_FB="-fPIC -fimplicit-none -ffree-line-length-none" ;;
 	  *)           F90_FB="" ;;
       esac
       export F90_FB

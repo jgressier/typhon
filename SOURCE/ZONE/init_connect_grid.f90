@@ -60,7 +60,7 @@ grid%umesh%ncell_lim = 0     ! initialisation du compteur de cellules limites
 ! Loop on all grid boco 
 !---------------------------------------------------------------------------------------
 do ib = 1, grid%umesh%nboco
-  print*,ib
+
   if (grid%umesh%boco(ib)%nface == 0) cycle
 
   grid%umesh%boco(ib)%idefboco = inull         ! initialization to bad value

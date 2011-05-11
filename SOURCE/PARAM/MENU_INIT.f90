@@ -28,10 +28,11 @@ integer(kpp), parameter :: init_nonunif = 20
 
 ! -- Way of definition of initialization --
 
-integer(kpp), parameter :: init_def   = 100   
-integer(kpp), parameter :: init_cgns  = 101
-integer(kpp), parameter :: init_file  = 110
-integer(kpp), parameter :: init_udf   = 120
+integer(kpp), parameter :: init_def    = 100   
+integer(kpp), parameter :: init_cgns   = 101
+integer(kpp), parameter :: init_typhon = 105
+integer(kpp), parameter :: init_file   = 110
+integer(kpp), parameter :: init_udf    = 120
 
 ! -- DECLARATIONS -----------------------------------------------------------
 

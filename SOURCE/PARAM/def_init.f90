@@ -57,6 +57,8 @@ do i = 1, n_init
   call rpmgetkeyvalstr(pcour, "TYPE", str, "DEFINITION")
   if (samestring(str, "DEFINITION"))  defsolver%init(i)%type = init_def
   if (samestring(str, "CGNS"))        defsolver%init(i)%type = init_cgns
+  if (samestring(str, "TYPHON"))      defsolver%init(i)%type = init_typhon
+  if (samestring(str, "TYS"))         defsolver%init(i)%type = init_typhon
   if (samestring(str, "FILE"))        defsolver%init(i)%type = init_file
   if (samestring(str, "UDF"))         defsolver%init(i)%type = init_udf
 
@@ -93,7 +95,7 @@ do i = 1, n_init
     call rpmgetkeyvalstr(pcour, "INIT_FILE", str) 
     defsolver%init(i)%file = trim(str)
 
-  case(init_udf, init_cgns)
+  case(init_udf, init_cgns, init_typhon)
     ! nothing to do
 
   case default
@@ -104,7 +106,6 @@ enddo
 
 
 endsubroutine def_init
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !
