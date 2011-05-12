@@ -43,6 +43,7 @@ LOCALLINKOPT=-L$(PRJLIBDIR) $(LIBDEPS:%=-l%) ../../tecio/tecio.a
 
 this.f90exe= xbininfo.f90    \
              ty2dmesh.f90    \
+             ty3dmesh.f90    \
              typhon2vtk.f90  \
              typhon2tecplot.f90  \
 

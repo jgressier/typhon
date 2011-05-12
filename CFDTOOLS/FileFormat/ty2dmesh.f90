@@ -107,7 +107,7 @@ case default
   call cfd_error("unknown mesh type")
 endselect
 
-call init_ustmesh(umesh, geo_2d, 1)
+call init_ustmesh(umesh, 1)
 
 !------------------------------
 ! creates VERTICES

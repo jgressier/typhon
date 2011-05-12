@@ -418,11 +418,11 @@ integer :: info, i
 
   select case(xbindata%datatype)
   case(xbindatatype_int_indarray)
-    read(defxbin%iunit) iindex(1:xbindata%nelem)
-    read(defxbin%iunit) iarray(1:xbindata%dim, 1:xbindata%nelem)
+    read(defxbin%iunit) iindex(:)   ! iindex(1:xbindata%nelem)
+    read(defxbin%iunit) iarray(:,:) ! iarray(1:xbindata%dim, 1:xbindata%nelem)
   case(xbindatatype_int_ordarray)
-     iindex(1:xbindata%nelem) = (/ (xbindata%firstindex+i, i=0, xbindata%nelem-1) /)
-     read(defxbin%iunit) iarray(1:xbindata%dim, 1:xbindata%nelem)
+    iindex(1:xbindata%nelem) = (/ (xbindata%firstindex+i, i=0, xbindata%nelem-1) /)
+    read(defxbin%iunit) iarray(1:xbindata%dim, 1:xbindata%nelem)
   case default
     call xbin_error(" unexpected data type reading indirect ordered integer array")
   endselect
@@ -524,7 +524,7 @@ real(xbinkrp)              :: array(1:xbindata%dim, 1:xbindata%nelem)
 
   select case(xbindata%datatype)
   case(xbindatatype_real_ordarray)
-    read(defxbin%iunit) array(1:xbindata%dim, 1:xbindata%nelem)
+    read(defxbin%iunit) array(:,:) ! array(1:xbindata%dim, 1:xbindata%nelem)
   case default
     call xbin_error("unexpected data type reading ordered real array")
   endselect

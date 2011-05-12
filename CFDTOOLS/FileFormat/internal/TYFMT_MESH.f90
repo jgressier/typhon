@@ -72,7 +72,7 @@ type(st_elemvtex)        :: elemvtex
 integer :: info
 type(st_xbindatasection)      :: xbindata
 integer(xbinkip), allocatable :: icell(:,:)
-integer(xbinkip)              :: nelem, nvtex
+integer(xbinkip)              :: nelem, nvtex, ic
 
 !------------------------------------------------------------------------------!
 ! define ELEMENT header
@@ -87,7 +87,9 @@ call xbin_defdatasection(xbindata, xbinty_cells, "CELLS", &
 nelem  = elemvtex%nelem
 nvtex  = elemvtex%nvtex
 allocate(icell(1:nvtex, 1:nelem))
-icell(1:nvtex, 1:nelem) = transpose(elemvtex%elemvtex(1:nelem,1:nvtex))
+do ic = 1, nelem
+  icell(1:nvtex, ic) = elemvtex%elemvtex(ic,1:nvtex) 
+enddo
 
 call xbin_writedata_indint(defxbin, xbindata, nelem, elemvtex%ielem, nvtex, icell)
 call delete_xbindata(xbindata)
@@ -106,10 +108,10 @@ integer(xbinkpp)         :: xbintype
 ! -- OUTPUTS --
 type(st_elemvtex)        :: elemvtex
 ! -- private data --
-integer :: info
+integer                       :: info
 type(st_xbindatasection)      :: xbindata
 integer(xbinkip), allocatable :: icell(:,:)
-integer(xbinkip)              :: nelem, nvtex
+integer(xbinkip)              :: nelem, nvtex, ic
 
 !------------------------------------------------------------------------------!
 ! check ELEMENT header
@@ -144,7 +146,10 @@ allocate(icell(1:nvtex, 1:nelem))
 call xbin_readdata_indint(defxbin, xbindata, elemvtex%ielem, icell)
 
 allocate(elemvtex%elemvtex(1:nelem,1:nvtex))
-elemvtex%elemvtex(1:nelem,1:nvtex) = transpose(icell(1:nvtex, 1:nelem))
+do ic = 1, nelem
+  elemvtex%elemvtex(ic,1:nvtex) = icell(1:nvtex, ic)
+enddo
+
 elemvtex%nelem    = nelem
 elemvtex%nvtex    = nvtex
 if (nvtex_element(elemvtex%elemtype) /= elemvtex%nvtex) then

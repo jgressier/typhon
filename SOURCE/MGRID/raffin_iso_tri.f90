@@ -52,7 +52,7 @@ cnv     = 3     ! nb of vertices per SV cell
 !--------------------------------------------------------------------
 ! initialize and allocate new USTMESH
 
-call init_ustmesh(newmesh, umesh%geotyp, umesh%id)
+call init_ustmesh(newmesh, umesh%id)
 
 newmesh%nvtex        = umesh%nvtex + &                                  ! existing vertices
                        umesh%nface                                      ! new face nodes 
@@ -344,6 +344,8 @@ do if = newmesh%nface_int+1, newmesh%nface
   newmesh%boco(ib)%nface = newmesh%boco(ib)%nface + 1
   newmesh%boco(ib)%iface(newmesh%boco(ib)%nface) = if
 enddo
+
+call check_ustmesh_elements(newmesh)
 
 endsubroutine raffin_iso_tri
 

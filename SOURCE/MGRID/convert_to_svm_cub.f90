@@ -55,7 +55,7 @@ nfgauss = defspat%svm%nb_facepoints
 !--------------------------------------------------------------------
 ! initialize and allocate new USTMESH
 
-call init_ustmesh(newmesh, umesh%geotyp, umesh%id)
+call init_ustmesh(newmesh, umesh%id)
 
 newmesh%nvtex        = umesh%nvtex + &                                  ! existing vertices
                        umesh%ncell_int * defspat%svm%intnode + &        ! internal SV nodes
@@ -483,6 +483,7 @@ do if = newmesh%nface_int+1, newmesh%nface
   newmesh%boco(ib)%iface(newmesh%boco(ib)%nface) = if
 enddo
 
+call check_ustmesh_elements(newmesh)
 
 endsubroutine convert_to_svm_cub
 

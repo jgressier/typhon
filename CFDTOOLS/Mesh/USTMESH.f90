@@ -30,7 +30,7 @@ implicit none
 type st_ustmesh
   integer(kip)          :: id                    ! domain id
   integer(kip)          :: level                 ! multigrid level
-  integer(kpp)          :: geotyp                ! mesh type (cf MESHGEOM)
+  !integer(kpp)          :: geotyp                ! mesh type (cf MESHGEOM)
   integer(kpp)          :: elemdim               ! mesh dimension
   integer(kip)          :: nvtex, nface, ncell   ! number of vertices, faces and cells
   integer(kip)          :: nface_int, ncell_int  ! number of internal faces and cells
@@ -83,14 +83,14 @@ endsubroutine new_ustmesh
 !------------------------------------------------------------------------------!
 ! Procedure : Initialization of USTMESH structure
 !------------------------------------------------------------------------------!
-subroutine init_ustmesh(umesh, geotyp, id)
+subroutine init_ustmesh(umesh, id)
 implicit none
 type(st_ustmesh) :: umesh
 integer(kpp)     :: geotyp
 integer(kip)     :: id
 
   umesh%id     = id
-  umesh%geotyp = geotyp
+  !umesh%geotyp = 0 ! geotyp
   umesh%elemdim = 0
   umesh%level  = 0
   umesh%nvtex  = 0
@@ -120,9 +120,9 @@ integer :: ielem
       umesh%elemdim = max(umesh%elemdim, dim_element(umesh%cellvtex%elem(ielem)))
     enddo
   endif
-  if (umesh%elemdim /= geodim(umesh)) then
-    call cfd_error("inconsistent mesh and element dimension (USTMESH)")
-  endif
+  !if (umesh%elemdim /= geodim(umesh)) then
+  !  call cfd_error("inconsistent mesh and element dimension (USTMESH)")
+  !endif
   umesh%ncell_int = number_element(umesh%cellvtex, dim=umesh%elemdim)
 
 endsubroutine check_ustmesh_elements
@@ -135,16 +135,17 @@ integer function geodim(umesh)
   implicit none
   type(st_ustmesh) :: umesh
   
-  select case(umesh%geotyp)
-  case(geo_1D)
-    geodim = 1
-  case(geo_2D, geo_2Daxi, geo_2Dcurv)
-    geodim = 2
-  case(geo_3D)
-    geodim = 3
-  case default
-    call cfd_error("unknown mesh type (USTMESH/geodim)")
-  endselect
+!!$  select case(umesh%geotyp)
+!!$  case(geo_1D)
+!!$    geodim = 1
+!!$  case(geo_2D, geo_2Daxi, geo_2Dcurv)
+!!$    geodim = 2
+!!$  case(geo_3D)
+!!$    geodim = 3
+!!$  case default
+!!$    call cfd_error("unknown mesh type (USTMESH/geodim)")
+!!$  endselect
+  geodim = umesh%elemdim
   
 endfunction geodim
 

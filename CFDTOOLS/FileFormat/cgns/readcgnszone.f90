@@ -87,12 +87,12 @@ endselect
 
 select case(idim)    ! transfer mesh dimension 
 case(2)
-  call init_ustmesh(umesh, geo_2d, 1)   ! default values initialization
   call cfd_print("    mesh is 2D (planar)")
 case(3)
-  call init_ustmesh(umesh, geo_3d, 1)   ! default values initialization
   call cfd_print("    mesh is 3D")
 endselect
+
+call init_ustmesh(umesh, 1)   ! default values initialization
 
 !-----------------------------------------------------------------
 ! Read CGNS vertices

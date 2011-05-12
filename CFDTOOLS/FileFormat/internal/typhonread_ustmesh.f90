@@ -29,7 +29,7 @@ integer(xbinkip)              :: ncellsections, nfacesections
 
 ! -- BODY --
 
-call init_ustmesh(umesh, geo_2d, 1)   ! default values initialization
+call init_ustmesh(umesh, 1)   ! default values initialization
 
 ! -- dimensions --
 

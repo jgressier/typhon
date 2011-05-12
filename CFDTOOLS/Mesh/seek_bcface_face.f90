@@ -76,8 +76,6 @@ do it = 1, ustboco%ntag
 
 enddo ! loop on tags
 
-call cfd_warning("tagged face not found in computed limit faces")
-
 if (notfound1 > 0) call cfd_print('      '//trim(strof(notfound1))//' tags not found as original face element !')
 if (notfound2 > 0) call cfd_print('      '//trim(strof(notfound2))//' face element not found as boundary face !')
 call cfd_print('      > '//trim(strof(nf))//' mesh faces tagged')
