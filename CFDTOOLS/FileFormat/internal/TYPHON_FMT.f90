@@ -13,8 +13,8 @@ implicit none
 
 ! -- Global Variables -------------------------------------------
 
-integer(xbinkip),  parameter :: xty_defaultver  = 1
-integer(xbinkip),  parameter :: xty_maxver      = 1
+integer(xbinkip),  parameter :: xty_defaultver  = 2
+integer(xbinkip),  parameter :: xty_maxver      = 2
 
 character(len=3),  parameter :: xtyext_mesh    = "tym"
 character(len=3),  parameter :: xtyext_sol     = "tys"
@@ -24,14 +24,21 @@ character(len=3),  parameter :: xtyext_sol     = "tys"
 
 ! -- XBIN DATA section TYPE --
 
-integer(xbinkpp), parameter :: xbinty_filedef = 1   ! DATA section for FILE definition
-integer(xbinkpp), parameter :: xbinty_meshdef = 10  ! DATA section for FILE definition
+integer(xbinkpp), parameter :: xbinty_filedef = 1   ! DATA section for FILE definition (header)
+
+integer(xbinkpp), parameter :: xbinty_meshdef  = 10  ! DATA section file type definition
+integer(xbinkpp), parameter :: xbinty_solution = 30  ! DATA section file type definition
+
 ! -- MESH definition --
+
+integer(xbinkpp), parameter :: mesh_full      = 11
+integer(xbinkpp), parameter :: mesh_shared    = 15
+integer(xbinkpp), parameter :: mesh_sharedcon = 20
+
 integer(xbinkpp), parameter :: xbinty_nodes    = 11  ! DATA section for FILE definition
 integer(xbinkpp), parameter :: xbinty_cells    = 12  ! DATA section for FILE definition
 integer(xbinkpp), parameter :: xbinty_faces    = 15  ! DATA section for FILE definition
 integer(xbinkpp), parameter :: xbinty_marks    = 20  ! DATA section for FILE definition
-integer(xbinkpp), parameter :: xbinty_solution = 30  ! DATA section for FILE definition
 integer(xbinkpp), parameter :: xbinty_scalar   = 31  ! DATA section for FILE definition
 integer(xbinkpp), parameter :: xbinty_vector   = 32  ! DATA section for FILE definition
 
@@ -55,6 +62,7 @@ type st_deftyphon
   type(st_defxbin) :: defxbin
   integer(xbinkip) :: xty_version
   integer(xbinkip) :: xty_filetype
+  integer(xbinkip) :: meshdef      ! mesh definition
   integer(xbinkip) :: nb_mesh      ! number of mesh parts
   integer(xbinkip) :: nb_sol       ! number of solution per mesh part
 endtype st_deftyphon
@@ -80,7 +88,8 @@ call xbin_defdatasection(xbindata, xbinty_filedef, "FILE_HEADER", &
      (/ xty_defaultver,          &    ! TYPHON internal format version
         deftyphon%xty_filetype,  &    ! type of TYPHON file (mesh, solution, ...)
         deftyphon%nb_mesh,       &    ! number of grids/meshes
-        deftyphon%nb_sol         &    ! number of solution per mesh
+        deftyphon%nb_sol,        &    ! number of solution per mesh
+        deftyphon%meshdef        &    ! mesh type definition
       /) )
 
 call xbin_writedata_nodata(deftyphon%defxbin, xbindata)
@@ -103,14 +112,30 @@ type(st_xbindatasection)      :: xbindata
 
 call xbin_readdatahead(deftyphon%defxbin, xbindata)
 
-if (xbindata%nparam >= 4) then
+if (xbindata%nparam >= 1) then
+  deftyphon%xty_version  = xbindata%param(1)
+else
+  call cfd_error("XBIN/TYPHON error: expecting parameters in TYPHON header, unable to read version number")
+endif
+
+select case (deftyphon%xty_version)
+case(1)
+  if (xbindata%nparam /= 4) call cfd_error("XBIN/TYPHON error: bad number parameters in TYPHON header")
   deftyphon%xty_version  = xbindata%param(1)
   deftyphon%xty_filetype = xbindata%param(2)
   deftyphon%nb_mesh      = xbindata%param(3)
   deftyphon%nb_sol       = xbindata%param(4)
-else
-  call cfd_error("XBIN/TYPHON error: expecting parameters in TYPHON header")
-endif
+  deftyphon%meshdef      = mesh_full
+case(2)
+  if (xbindata%nparam /= 5) call cfd_error("XBIN/TYPHON error: bad number parameters in TYPHON header")
+  deftyphon%xty_version  = xbindata%param(1)
+  deftyphon%xty_filetype = xbindata%param(2)
+  deftyphon%nb_mesh      = xbindata%param(3)
+  deftyphon%nb_sol       = xbindata%param(4)
+  deftyphon%meshdef      = xbindata%param(5)
+case default
+  call cfd_error("XBIN/TYPHON error: unexpected version number")
+endselect
 
 call xbin_skipdata(deftyphon%defxbin, xbindata)
 
@@ -139,13 +164,14 @@ endsubroutine typhon_openread
 !------------------------------------------------------------------------------!
 ! open XBIN TYPHON
 !------------------------------------------------------------------------------!
-subroutine typhon_openwrite(iunit, filename, deftyphon, nbmesh, nbsol)
+subroutine typhon_openwrite(iunit, filename, deftyphon, nbmesh, nbsol, meshdef)
 implicit none
 ! -- INPUTS --
 integer            :: iunit
 character(len=*)   :: filename
-integer            :: nbmesh
-integer, optional  :: nbsol
+integer(xbinkip)            :: nbmesh
+integer(xbinkip), optional  :: nbsol
+integer(xbinkpp), optional  :: meshdef
 ! -- OUTPUTS --
 type(st_deftyphon) :: deftyphon
 ! -- private data --
@@ -156,11 +182,19 @@ type(st_deftyphon) :: deftyphon
   else
     deftyphon%nb_sol = 0
   endif
+
+  if (present(meshdef)) then
+    deftyphon%meshdef = meshdef
+  else
+    deftyphon%meshdef = mesh_full
+  endif
+
   if (deftyphon%nb_sol == 0) then
     deftyphon%xty_filetype = xty_file_mesh
   else
     deftyphon%xty_filetype = xty_file_sol
   endif
+
   deftyphon%nb_mesh = nbmesh   
   
   call xbin_openwrite(iunit, filename, deftyphon%defxbin)

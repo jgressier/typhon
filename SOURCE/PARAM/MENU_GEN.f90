@@ -65,6 +65,9 @@ endtype mnu_project
 type mnu_output
   integer(kpp)            :: dataset       ! data set to save
   integer(kpp)            :: location      ! data location
+  integer(kip)            :: index         ! solution index
+  integer(xbinkpp)        :: meshdef       ! mesh writing method (see TYFMT_MESH)
+  logical                 :: savedmesh     ! reference mesh saved
   character               :: format        ! output format
   character(len=longname) :: basename      ! base name for files
   character(len=longname) :: filename      ! file name from basename

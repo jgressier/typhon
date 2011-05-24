@@ -18,8 +18,8 @@ integer,           parameter :: xbinkrp = 8
 integer,           parameter :: xbinkip = 4
 integer,           parameter :: kendian = 4
 integer(kendian),  parameter :: endian_test     = 1*256**3 + 2*256**2 + 3*256 + 4  
-integer(xbinver),  parameter :: xbin_defaultver = 1
-integer(xbinver),  parameter :: xbin_maxver     = 1
+integer(xbinver),  parameter :: xbin_defaultver = 2
+integer(xbinver),  parameter :: xbin_maxver     = 2
 character(len=4),  parameter :: xbin_strheader  = "XBIN"
 character(len=11), parameter :: xbin_prefix     = "[XBIN lib] "
 character(len=3),  parameter :: xbin_endsection = "END"
@@ -129,7 +129,7 @@ integer                            :: info
     call xbin_error("this file has not a XBIN header") 
 
   read(defxbin%iunit, iostat=info) ver(1:xbinver)  ! read version number, big endian like
-  if (info /=0) call xbin_error("IO error reading XBIN version") 
+  if (info /=0) call xbin_error("IO error reading XBIN version number") 
   defxbin%xbin_version = big_endian(ver, xbinver)
   if (defxbin%xbin_version > xbin_maxver) &
     call xbin_error("XBIN version number ("//trim(strof(defxbin%xbin_version))//") too high") 

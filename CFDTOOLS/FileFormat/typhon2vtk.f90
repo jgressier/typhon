@@ -100,11 +100,11 @@ print*,'* Opening TYPHON file: '//trim(inputfile)//"."//xtyext_sol
 iunit1 = getnew_io_unit()
 call typhon_openread(iunit1, trim(inputfile)//"."//xtyext_sol, deftyphon)
 
-call typhonread_ustmesh(deftyphon%defxbin, umesh)
+call typhonread_ustmesh(deftyphon, umesh)
 
 call delete_ustmesh_subelements(umesh)
 
-call typhonread_sol(deftyphon%defxbin, umesh, gfield)
+call typhonread_sol(deftyphon, umesh, gfield)
 
 call close_io_unit(iunit1)
 

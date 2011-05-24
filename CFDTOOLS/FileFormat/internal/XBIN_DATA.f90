@@ -11,7 +11,8 @@ implicit none
 
 ! -- Global Variables -------------------------------------------
 
-integer, parameter :: xbin_namelen = 32
+integer, parameter :: xbin_namelen   = 32
+integer, parameter :: xbin_strlen    = 160
 
 ! -- datatype --
 
@@ -21,8 +22,6 @@ integer(xbinkpp),   parameter :: xbindatatype_int_ordarray   = 10   !          o
 integer(xbinkpp),   parameter :: xbindatatype_int_indarray   = 15   ! indirect ordered int  array
 integer(xbinkpp),   parameter :: xbindatatype_real_ordarray  = 20   !          ordered real array
 integer(xbinkpp),   parameter :: xbindatatype_real_indarray  = 25   ! indirect ordered real array
-
-
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
@@ -67,6 +66,8 @@ type st_xbindatasection
   integer(xbinkip)            :: dim, nelem, firstindex               ! size of DATA arrays
                                                                       !   data(dim, nelem)
                                                                       !   index(nelem)
+  integer(xbinkpp)            :: strlen                               ! string length (since v2)       
+  character(len=xbin_strlen)  :: string
   integer(xbinkip) :: expected_totdatasize  ! expected size after header
   integer(xbinkip) :: current_totdatasize
 endtype st_xbindatasection
@@ -118,6 +119,7 @@ type(st_xbindatasection) :: xbindata
 xbindata%groupindex      = 0
 xbindata%usertype        = 0
 xbindata%nparam          = 0
+xbindata%strlen          = 0
 if (associated(xbindata%param)) deallocate(xbindata%param)
 
 endsubroutine delete_xbindata
@@ -126,12 +128,13 @@ endsubroutine delete_xbindata
 !------------------------------------------------------------------------------!
 ! read and write HEADER
 !------------------------------------------------------------------------------!
-subroutine xbin_defdatasection(xbindata, usertype, name, param)
+subroutine xbin_defdatasection(xbindata, usertype, name, param, string)
 implicit none
 ! -- INPUTS --
 integer(xbinkpp)           :: usertype
 character(len=*)           :: name
 integer(xbinkip), optional :: param(:)
+character(len=*), optional :: string
 ! -- OUTPUTS --
 type(st_xbindatasection) :: xbindata
 ! -- private data --
@@ -149,7 +152,13 @@ else
   xbindata%nparam          = 0
   nullify(xbindata%param)
 endif
-
+if (present(string)) then
+  xbindata%strlen = len_trim(string)
+  xbindata%string = trim(string) 
+else
+  xbindata%strlen = 0
+  xbindata%string = ""
+endif
 endsubroutine xbin_defdatasection
 
 
@@ -167,16 +176,16 @@ integer :: info
 
   read(defxbin%iunit, iostat=info) xbindata%datatype,   xbindata%name,      &
                                    xbindata%groupindex, xbindata%usertype,  &
-                                   xbindata%intsize
+                                   xbindata%intsize,    xbindata%realsize
+  ! -- check --
+ 
   if (info /= 0) call xbin_error("unable to read data header 2") 
 
   if (xbindata%intsize /= xbinkip) &
-     call xbin_error("unexpected integer size in file (section "&
-                               //trim(xbindata%name)//")") 
-  read(defxbin%iunit) xbindata%realsize
+     call xbin_error("unexpected integer size in file (section "//trim(xbindata%name)//")") 
   if (xbindata%realsize /= xbinkrp) &
-     call xbin_error("unexpected real size in file (section "&
-                               //trim(xbindata%name)//")") 
+     call xbin_error("unexpected real size in file (section "//trim(xbindata%name)//")") 
+
   read(defxbin%iunit) xbindata%nparam
   if (xbindata%nparam >= 1) then
     allocate(xbindata%param(1:xbindata%nparam))
@@ -184,6 +193,16 @@ integer :: info
   else
     nullify(xbindata%param)
   endif
+
+  ! -- since V2 --
+
+  if (defxbin%xbin_version >=2) then
+    read(defxbin%iunit) xbindata%strlen                     ! read string size
+    xbindata%string = ""                                    ! initialize max length
+    if (xbindata%strlen >= 1) read(defxbin%iunit) xbindata%string(1:xbindata%strlen)
+  endif
+
+  ! -- end of header / start data section itself --
 
   select case(xbindata%datatype)
   case(xbindatatype_nodata)
@@ -224,6 +243,10 @@ integer :: info
   if (xbindata%nparam >= 1) then
     write(defxbin%iunit) xbindata%param(1:xbindata%nparam)
   endif
+
+  ! -- since V2 --
+  write(defxbin%iunit) xbindata%strlen
+  if (xbindata%strlen >=1) write(defxbin%iunit) xbindata%string(1:xbindata%strlen)
 
 endsubroutine xbin_writedatahead
 
@@ -421,8 +444,10 @@ integer :: info, i
     read(defxbin%iunit) iindex(:)   ! iindex(1:xbindata%nelem)
     read(defxbin%iunit) iarray(:,:) ! iarray(1:xbindata%dim, 1:xbindata%nelem)
   case(xbindatatype_int_ordarray)
-    iindex(1:xbindata%nelem) = (/ (xbindata%firstindex+i, i=0, xbindata%nelem-1) /)
-    read(defxbin%iunit) iarray(1:xbindata%dim, 1:xbindata%nelem)
+    do i = 1, xbindata%nelem
+      iindex(i) = xbindata%firstindex-1 + i
+    enddo
+    read(defxbin%iunit) iarray(:,:)
   case default
     call xbin_error(" unexpected data type reading indirect ordered integer array")
   endselect
@@ -540,4 +565,5 @@ endmodule XBIN_DATA
 !
 ! June 2010: created, writing data sections
 ! Apr  2011: reading data sections
+! May  2011: optionally write string in data header
 !------------------------------------------------------------------------------!

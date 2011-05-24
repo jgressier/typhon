@@ -28,10 +28,10 @@ contains
 !------------------------------------------------------------------------------!
 ! write SOLUTION 
 !------------------------------------------------------------------------------!
-subroutine typhonwrite_sol(defxbin, umesh, gfield)
+subroutine typhonwrite_sol(deftyphon, umesh, gfield)
 implicit none
 ! -- INPUTS --
-type(st_defxbin)         :: defxbin
+type(st_deftyphon)       :: deftyphon
 type(st_ustmesh)         :: umesh
 type(st_genericfield)    :: gfield
 ! -- OUTPUTS --
@@ -48,7 +48,7 @@ nelem = gfield%dim
 
 call xbin_defdatasection(xbindata, xbinty_solution, "SOLUTION", &
                          (/ nelem, gfield%nscal, gfield%nvect /) )
-call xbin_writedata_nodata(defxbin, xbindata)
+call xbin_writedata_nodata(deftyphon%defxbin, xbindata)
 call delete_xbindata(xbindata)
 
 !------------------------------------------------------------------------------!
@@ -57,7 +57,7 @@ call delete_xbindata(xbindata)
 do isca = 1, gfield%nscal
   call xbin_defdatasection(xbindata, xbinty_scalar, quantity_name(gfield%tabscal(isca)%quantity_id), &
                            (/ gfield%tabscal(isca)%quantity_id /) )
-  call xbin_writedata_ordreal(defxbin, xbindata, nelem, gfield%tabscal(isca)%scal(1:nelem))
+  call xbin_writedata_ordreal(deftyphon%defxbin, xbindata, nelem, gfield%tabscal(isca)%scal(1:nelem))
   call delete_xbindata(xbindata)
 enddo
 
@@ -71,7 +71,7 @@ do ivec = 1, gfield%nvect
     sol(2,i) = gfield%tabvect(ivec)%vect(i)%y
     sol(3,i) = gfield%tabvect(ivec)%vect(i)%z
   enddo
-  call xbin_writedata_ordreal(defxbin, xbindata, nelem, dim, sol)
+  call xbin_writedata_ordreal(deftyphon%defxbin, xbindata, nelem, dim, sol)
   call delete_xbindata(xbindata)
 enddo
 deallocate(sol)
@@ -81,10 +81,10 @@ endsubroutine typhonwrite_sol
 !------------------------------------------------------------------------------!
 ! read SOLUTION 
 !------------------------------------------------------------------------------!
-subroutine typhonread_sol(defxbin, umesh, gfield)
+subroutine typhonread_sol(deftyphon, umesh, gfield)
 implicit none
 ! -- INPUTS --
-type(st_defxbin)         :: defxbin
+type(st_deftyphon)       :: deftyphon
 type(st_ustmesh)         :: umesh
 ! -- OUTPUTS --
 type(st_genericfield)    :: gfield
@@ -97,8 +97,8 @@ integer(xbinkip)           :: dim, nelem, nsca, nvec, i, isca, ivec
 !------------------------------------------------------------------------------!
 ! define  header
 
-call xbin_readdatahead(defxbin, xbindata)
-call xbin_skipdata(defxbin, xbindata)
+call xbin_readdatahead(deftyphon%defxbin, xbindata)
+call xbin_skipdata(deftyphon%defxbin, xbindata)
 
 if (xbindata%usertype /= xbinty_solution) then
   call cfd_error("XBIN/TYPHON error: expecting SOLUTION data section")
@@ -120,24 +120,24 @@ call new_genericfield(gfield, nelem, nsca, nvec, 0)
 ! read SCALARS & VECTORS
 
 do isca = 1, gfield%nscal
-  call xbin_readdatahead(defxbin, xbindata)
+  call xbin_readdatahead(deftyphon%defxbin, xbindata)
   if (xbindata%usertype /= xbinty_scalar) then
     call cfd_error("XBIN/TYPHON error: expecting SCALAR SOLUTION data section")
   endif
   gfield%tabscal(isca)%quantity_id = xbindata%param(1)
-  call xbin_readdata_ordreal(defxbin, xbindata, gfield%tabscal(isca)%scal(1:nelem))
+  call xbin_readdata_ordreal(deftyphon%defxbin, xbindata, gfield%tabscal(isca)%scal(1:nelem))
   call delete_xbindata(xbindata)
 enddo
 
 dim = 3
 allocate(sol(1:dim,1:nelem))
 do ivec = 1, gfield%nvect
-  call xbin_readdatahead(defxbin, xbindata)
+  call xbin_readdatahead(deftyphon%defxbin, xbindata)
   if (xbindata%usertype /= xbinty_vector) then
     call cfd_error("XBIN/TYPHON error: expecting VECTOR SOLUTION data section")
   endif
   gfield%tabvect(ivec)%quantity_id = xbindata%param(1)
-  call xbin_readdata_ordreal(defxbin, xbindata, sol)
+  call xbin_readdata_ordreal(deftyphon%defxbin, xbindata, sol)
   do i = 1, nelem
     gfield%tabvect(ivec)%vect(i)%x = sol(1,i)
     gfield%tabvect(ivec)%vect(i)%y = sol(2,i)

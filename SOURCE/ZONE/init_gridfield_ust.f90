@@ -86,11 +86,15 @@ do i = 1, defsolver%ninit
     iunit = getnew_io_unit() 
     call typhon_openread(iunit, trim(defsolver%defmesh%filename), deftyphon)
 
-    call typhonread_ustmesh(deftyphon%defxbin, p_umesh) !! DEV: must SKIP reading
+    call typhonread_ustmesh(deftyphon, p_umesh) !! DEV: must SKIP reading
     !call delete_ustmesh_subelements(umesh)
     call delete_ustmesh(p_umesh)
 
-    call typhonread_sol(deftyphon%defxbin, umesh, field%etatprim)
+    if (deftyphon%nb_sol >= 1) then
+      call typhonread_sol(deftyphon, umesh, field%etatprim)
+    else
+      call error_stop("Initialization: missing solution in TYPHON input file")
+    endif
 
     call close_io_unit(iunit)
 

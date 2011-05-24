@@ -187,9 +187,10 @@ do i = 1, nvar
   write(deftec%iunit) real(minval(value(1:nvalue,i)), 8), real(maxval(value(1:nvalue,i)), 8)
 enddo
 
-do i = 1, nvar
-  write(deftec%iunit) value(1:nvalue,i)
-enddo
+write(deftec%iunit) value(:,:)
+!do i = 1, nvar
+!  write(deftec%iunit) value(1:nvalue,i)
+!enddo
 
 endsubroutine tecwrite_data
 

@@ -37,7 +37,7 @@ pgrid => zone%gridlist%first
 select case(defio%format)
 
 case(fmt_TYPHON)
-  call typhonwrite_sol(defio%deftyphon%defxbin, pgrid%umesh, pgrid%info%field_loc%etatprim)
+  call typhonwrite_sol(defio%deftyphon, pgrid%umesh, pgrid%info%field_loc%etatprim)
 
 case(fmt_TECPLOT)
   call error_stop("(Internal error) Unable to use general output with TECPLOT format")

@@ -5,7 +5,7 @@
 !   Write the field of each zone
 !
 !------------------------------------------------------------------------------!
-subroutine output_zone(nom, defio, zone, winfo)
+subroutine output_zone(defio, zone, winfo)
 
 use TYPHMAKE
 use OUTPUT
@@ -17,7 +17,6 @@ USE MODINFO
 implicit none
 
 ! -- INPUTS --
-character(len=*), intent(in) :: nom       ! filename
 type(mnu_output)             :: defio     ! output parameter
 type(st_zone)                :: zone      ! zone
 type(st_info)                :: winfo     ! world info
@@ -67,9 +66,15 @@ case default
 endselect
 
 if (mpi_run) then
-  defio%filename = trim(nom)//"_p"//strof_full_int(myprocid,3)
+  defio%filename = trim(defio%basename)//".p"//strof_full_int(myprocid,3)
 else
-  defio%filename = trim(nom)
+  defio%filename = trim(defio%basename)
+endif
+
+if (defio%index == 0) then
+  ! nothing to do
+else
+  defio%filename = trim(defio%filename)//"."//strof_full_int(defio%index, 4)
 endif
 
 select case(defio%format)

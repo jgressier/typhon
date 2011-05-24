@@ -27,7 +27,6 @@ this.f90modules= \
 this.f90= $(this.f90modules) \
   internal/importtyphon_mesh.f90   \
   internal/typhonread_ustmesh.f90  \
-  internal/typhonwrite_ustmesh.f90 \
   cgns/importcgns_mesh.f90     \
   cgns/readcgns_sol.f90        \
   cgns/readcgns_ustboco.f90    \

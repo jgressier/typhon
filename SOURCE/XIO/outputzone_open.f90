@@ -45,7 +45,7 @@ case(fmt_TYPHON)
   if (defio%iunit <= 0) call error_stop("IO unit management: impossible to find free unit")
   nbmesh = 1
   nbsol  = 1
-  call typhon_openwrite(defio%iunit, trim(defio%filename)//trim(suffix), defio%deftyphon, nbmesh, nbsol)
+  call typhon_openwrite(defio%iunit, trim(defio%filename)//trim(suffix), defio%deftyphon, nbmesh, nbsol, defio%meshdef)
 
 case(fmt_VTK)
 

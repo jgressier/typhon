@@ -36,7 +36,7 @@ call cfd_print("* READING TYPHON INTERNAL MESH: "//trim(defmesh%filename))
 iunit = getnew_io_unit()
 call typhon_openread(iunit, trim(defmesh%filename), deftyphon)
 
-call typhonread_ustmesh(deftyphon%defxbin, umesh)
+call typhonread_ustmesh(deftyphon, umesh)
 
 endsubroutine importtyphon_mesh
 !------------------------------------------------------------------------------!

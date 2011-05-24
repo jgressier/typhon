@@ -45,11 +45,13 @@ allocate(world%output(world%noutput))
 ! define automatic restart file
 
 io = world%noutput
-world%output(io)%format   = fmt_TYPHON
-world%output(io)%basename = "restart"  ! '.tys'
-world%output(io)%dataset  = dataset_cell
-world%output(io)%period   = huge(world%output(io)%period)
-world%output(io)%refframe = mrfdata_relative
+world%output(io)%format    = fmt_TYPHON
+world%output(io)%basename  = "restart"  ! '.tys'
+world%output(io)%dataset   = dataset_cell
+world%output(io)%meshdef   = mesh_full
+world%output(io)%savedmesh = .false.
+world%output(io)%period    = huge(world%output(io)%period)
+world%output(io)%refframe  = mrfdata_relative
 
 !-----------------------------------------------------------
 ! parse only BLOCK definition 
@@ -93,6 +95,21 @@ do io = 1, nkey   ! parse only BLOCK definition
   endselect
   world%output(io)%basename = basename(str, suffix)
 
+  ! --- type of mesh output --- 
+
+  call rpmgetkeyvalstr(pcour, "MESH", str, "SHARED")    ! default is shared, even not possible with all formats
+
+  world%output(io)%meshdef = inull
+  if (samestring(str,"FULL"))       world%output(io)%meshdef = mesh_full
+  if (samestring(str,"SHARED"))     world%output(io)%meshdef = mesh_shared
+  if (samestring(str,"SHAREDCON"))  world%output(io)%meshdef = mesh_sharedcon
+  if (world%output(io)%meshdef == inull) call error_stop("parameter reading: unknown dataset option (MESH key)")
+
+  world%output(io)%savedmesh = .false.
+  call print_info(20,"    mesh definition type:"//trim(str))
+
+  call rpmgetkeyvalint(pcour, "PERIOD",  world%output(io)%period, huge(world%output(io)%period))
+
   ! --- type of output --- 
 
   call rpmgetkeyvalstr(pcour, "TYPE", str, "CELL")
@@ -107,7 +124,7 @@ do io = 1, nkey   ! parse only BLOCK definition
   if (samestring(str,"BOCONODE"))   world%output(io)%dataset = dataset_boconode
   if (world%output(io)%dataset == inull) call error_stop("parameter reading: unknown dataset option")
 
-  call print_info(20,"    data set type:"//trim(str))
+  call print_info(20,"           data set type:"//trim(str))
 
   call rpmgetkeyvalint(pcour, "PERIOD",  world%output(io)%period, huge(world%output(io)%period))
 
@@ -119,7 +136,6 @@ do io = 1, nkey   ! parse only BLOCK definition
   if (samestring(str,"RELATIVE"))  world%output(io)%refframe = mrfdata_relative
   if (samestring(str,"ABSOLUTE"))  world%output(io)%refframe = mrfdata_absolute
   if (world%output(io)%refframe == inull) call error_stop("parameter reading: unknown dataset option")
-
 
 enddo
 
@@ -134,4 +150,5 @@ endsubroutine def_output
 ! fev  2007 : Traduction en anglais
 ! Mar  2009 : CGNS file
 ! Mar  2011 : Definition of reference frame
+! May  2011 : Definition of mesh sharing 
 !------------------------------------------------------------------------------!

@@ -72,6 +72,7 @@ do while (.not.xbin_eof(defxbin))
   if (xbindata%nparam >= 1) then
     print*,fill('', tab1),': ',xbindata%param(:)
   endif
+  print*,fill('  string', tab1),': ',trim(xbindata%string)
   print*,fill('  data type', tab1),': ',trim(xbindataname(xbindata))
   if (xbindata%dim == 0) then
     print*,fill('  data size', tab1),': ',trim(strof(xbindata%nelem))

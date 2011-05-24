@@ -36,20 +36,22 @@ do i = 1, world%noutput
 
     do iz = 1, world%prj%nzone
 
-      nom = trim(world%output(i)%basename)//trim(world%zone(iz)%name)
+      !nom = trim(world%output(i)%basename)//trim(world%zone(iz)%name)
 
       select case(position)
       case(end_calc)
+        world%output(i)%index = 0   ! if 0, end of cycle
         ! nothing to add
       case(end_cycle)
-        nom = trim(nom)//"_cyc"//strof_full_int(world%info%icycle, 4)
+        world%output(i)%index = world%info%icycle
+        !nom = trim(nom)//"_cyc"//strof_full_int(world%info%icycle, 4)
       case(in_cycle)
         call print_warning("check output_result call with in_cycle parameter")
       case default
         call erreur("Internal error (output_result)","unknown position parameter in output")
       endselect
 
-      call output_zone(trim(nom), world%output(i), world%zone(iz), world%info)
+      call output_zone(world%output(i), world%zone(iz), world%info)
 
     enddo
 

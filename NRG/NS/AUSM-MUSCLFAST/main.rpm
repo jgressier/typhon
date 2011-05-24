@@ -11,7 +11,7 @@ ENDBLOCK
 
 BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
   FORMAT = VTK
-  FILE   = "typhon" 
+  FILE   = "typhonNS" 
 ENDBLOCK
 
 BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )

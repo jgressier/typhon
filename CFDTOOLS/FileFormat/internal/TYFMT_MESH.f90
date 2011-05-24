@@ -21,43 +21,187 @@ implicit none
 ! ST_DEFTYPHON
 !------------------------------------------------------------------------------!
 type st_deftymesh
-  integer(xbinkip) :: ncell, nface, nvtex
-  integer(xbinkip) :: ncellsections
-  integer(xbinkip) :: nfacesections
-  integer(xbinkip) :: nmark
+  integer(xbinkip)           :: ncell, nface, nvtex
+  integer(xbinkip)           :: ncellsections, nfacesections
+  integer(xbinkip)           :: ncellmark,     nfacemark
+  character(len=xbin_strlen) :: sharedmesh
 endtype st_deftymesh
 
 contains 
 !------------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------------!
-! write 
+! Write a USTMESH structure to XBIN format
 !------------------------------------------------------------------------------!
-subroutine typhonwrite_zonemesh(defxbin)
+subroutine typhonwrite_ustmesh(deftyphon, umesh, meshfilename)
 implicit none
 ! -- INPUTS --
-type(st_defxbin)         :: defxbin
-type(st_xbindatasection) :: xbindata
+type(st_deftyphon)         :: deftyphon
+type(st_ustmesh)           :: umesh
+character(len=*), optional :: meshfilename
+! -- OUTPUTS --
+! -- private data --
+integer :: info
+type(st_xbindatasection)      :: xbindata
+integer(xbinkip)              :: ielem
+
+! -- BODY --
+
+!------------------------------------------------------------------------------!
+! write GRID header
+
+select case(deftyphon%meshdef)
+case(mesh_full)
+  call typhonwrite_umeshheader(deftyphon, umesh)
+case(mesh_shared, mesh_sharedcon)
+  if (present(meshfilename)) then
+    call typhonwrite_umeshheader(deftyphon, umesh, meshfilename)
+  else
+    call cfd_error("TYPHON format IO: missing shared mesh filename")
+  endif
+case default
+  call cfd_error("TYPHON format IO: unknown mesh definition")
+endselect
+
+!------------------------------------------------------------------------------!
+! write CELL elements (if mesh_full only)
+
+if (deftyphon%meshdef == mesh_full) then
+  do ielem = 1, umesh%cellvtex%nsection
+    call typhonwrite_elemvtex(deftyphon%defxbin, umesh%cellvtex%elem(ielem))
+  enddo
+endif
+
+!------------------------------------------------------------------------------!
+! write NODES coordinates (if mesh_full or mesh_sharedcon)
+
+if (deftyphon%meshdef /= mesh_shared) then
+  call typhonwrite_nodes(deftyphon%defxbin, umesh%mesh)
+endif
+
+!------------------------------------------------------------------------------!
+! write BC FACES coordinates (if mesh_full only)
+
+if (deftyphon%meshdef == mesh_full) then
+  call typhonwrite_bcfaces_bcmarks(deftyphon%defxbin, umesh)
+endif
+
+endsubroutine typhonwrite_ustmesh
+
+!------------------------------------------------------------------------------!
+! write USTMESH header
+!------------------------------------------------------------------------------!
+subroutine typhonwrite_umeshheader(deftyphon, umesh, meshfilename)
+implicit none
+! -- INPUTS --
+type(st_deftyphon)         :: deftyphon
+type(st_ustmesh)           :: umesh
+character(len=*), optional :: meshfilename
 ! -- OUTPUTS --
 ! -- private data --
 integer                       :: info
-integer(xbinkip)              :: ngrid
+type(st_xbindatasection)      :: xbindata
+character(len=xbin_strlen)    :: filename
+integer(xbinkip)              :: ncell, nface, nvtex, nfacemark, ncellmark
+integer(xbinkip)              :: ncellsections, nfacesections
 
-! -- write ZONE info -- 
+! -- BODY --
 
-ngrid = 1
+ncell         = umesh%ncell_int
+nface         = umesh%nface_lim
+nvtex         = umesh%nvtex
+nfacemark     = umesh%nboco
+ncellmark     = 0
+ncellsections = umesh%cellvtex%nsection
+nfacesections = 1
 
-! File definition
+if (present(meshfilename)) then
+  filename = meshfilename
+else
+  filename = ""
+endif
 
-call xbin_defdatasection(xbindata, xbinty_filedef, "MESH", &
-     (/ xty_defaultver, &    ! TYPHON internal format version
-        xty_file_mesh,  &    ! this file is a MESH file ".tyg"
-        ngrid           &    ! number of grids
-      /) )
-call xbin_writedata_nodata(defxbin, xbindata)
+!------------------------------------------------------------------------------!
+! write GRID header
 
-endsubroutine typhonwrite_zonemesh
+call xbin_defdatasection(xbindata, xbinty_meshdef, "USTMESH", &
+      (/ xty_grid_umesh, &    ! GRID type
+         ncell,          &    ! number of interior cells
+         nface,          &    ! number of faces (boco, marked, ...)
+         nvtex,          &    ! number of number of vertices
+         ncellsections,  &    ! number of cell sections
+         nfacesections,  &    ! number of face sections
+         ncellmark,      &    ! number of mark sections
+         nfacemark       &    ! number of mark sections
+       /), trim(filename) )
+call xbin_writedata_nodata(deftyphon%defxbin, xbindata)
+call delete_xbindata(xbindata)
 
+endsubroutine typhonwrite_umeshheader
+
+!------------------------------------------------------------------------------!
+! read USTMESH header
+!------------------------------------------------------------------------------!
+subroutine typhonread_umeshheader(deftyphon, umesh, deftymesh)
+implicit none
+! -- INPUTS --
+type(st_deftyphon)         :: deftyphon
+type(st_ustmesh)           :: umesh
+! -- OUTPUTS --
+type(st_deftymesh)       :: deftymesh
+! -- private data --
+integer :: info
+type(st_xbindatasection)      :: xbindata
+integer(xbinkpp)              :: nparam
+integer(xbinkip), allocatable :: param(:)
+integer(xbinkip)              :: ncell, nface, nvtex, ncellmark, nfacemark, ielem, ib
+integer(xbinkip)              :: ncellsections, nfacesections
+
+! -- BODY --
+
+!------------------------------------------------------------------------------!
+! read GRID header
+
+call xbin_readdatahead(deftyphon%defxbin, xbindata)
+call xbin_skipdata(deftyphon%defxbin, xbindata)
+
+select case(deftyphon%xty_version)
+case(1)
+  if (xbindata%usertype /= xbinty_filedef) call cfd_error("XBIN/TYPHON error: expecting USTMESH data section")
+case(2)
+  if (xbindata%usertype /= xbinty_meshdef) call cfd_error("XBIN/TYPHON error: expecting USTMESH data section")
+case default
+  call cfd_error("XBIN/TYPHON error: unexpected version number")
+endselect
+
+select case (deftyphon%xty_version)
+case(1)
+  if (xbindata%nparam /= 7) call cfd_error("XBIN/TYPHON error: bad number parameters in USTMESH header")
+  deftymesh%ncell         = xbindata%param(2)
+  deftymesh%nface         = xbindata%param(3)
+  deftymesh%nvtex         = xbindata%param(4)
+  deftymesh%ncellsections = xbindata%param(5)
+  deftymesh%nfacesections = xbindata%param(6)
+  deftymesh%ncellmark     = 0
+  deftymesh%nfacemark     = xbindata%param(7)
+case(2)
+  if (xbindata%nparam /= 8) call cfd_error("XBIN/TYPHON error: bad number parameters in USTMESH header")
+  deftymesh%ncell         = xbindata%param(2)
+  deftymesh%nface         = xbindata%param(3)
+  deftymesh%nvtex         = xbindata%param(4)
+  deftymesh%ncellsections = xbindata%param(5)
+  deftymesh%nfacesections = xbindata%param(6)
+  deftymesh%ncellmark     = xbindata%param(7)
+  deftymesh%nfacemark     = xbindata%param(8)
+case default
+  call cfd_error("XBIN/TYPHON error: unexpected version number")
+endselect
+
+deftymesh%sharedmesh = xbindata%string
+
+call delete_xbindata(xbindata)
+
+endsubroutine typhonread_umeshheader
 
 !------------------------------------------------------------------------------!
 ! write ELEMVTEX
