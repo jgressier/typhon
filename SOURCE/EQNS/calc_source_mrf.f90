@@ -31,15 +31,10 @@ type(st_field) :: field
 ! INTERNAL
 integer   :: ic	! index on cells
 real(krp) :: rho, mass
-real(krp) :: om_osc
-type(v3d) :: speed
-type(v3d) :: radius
-type(v3d) :: omega
-type(v3d) :: dotomega
+real(krp) :: rot_om, trn_om
+type(v3d) :: speed, radius, omega, dotomega
 
-type(v3d) :: centrifugal
-type(v3d) :: coriolis
-type(v3d) :: rotacc
+type(v3d) :: centrifugal, coriolis, linacc, rotacc
 type(v3d) :: deltamomentum
 real(krp) :: deltaenergy
 
@@ -61,9 +56,21 @@ select case(mrf%type)
     field%residu%tabscal(2)%scal(ic) = field%residu%tabscal(2)%scal(ic) + (speed .scal. deltamomentum)
   enddo
 
+ case(mrf_trans_osc)
+
+  trn_om   = 2._krp*pi/mrf%trn_period
+  do ic = 1, umesh%ncell_int
+    rho    = field%etatcons%tabscal(1)%scal(ic)
+    speed  = field%etatcons%tabvect(1)%vect(ic) / rho
+    mass   = umesh%mesh%volume(ic,1,1) * rho
+    deltamomentum = -mass*(mrf%acceleration - trn_om**2 * mrf%trn_ampl * sin(trn_om * curtime + mrf%trn_phi) * mrf%trn_dir)
+    field%residu%tabvect(1)%vect(ic) = field%residu%tabvect(1)%vect(ic) + deltamomentum
+    field%residu%tabscal(2)%scal(ic) = field%residu%tabscal(2)%scal(ic) + (speed .scal. deltamomentum)
+  enddo
+
  case(mrf_rot_cst)
 
-  omega = mrf%omega * mrf%axis
+  omega = mrf%omega * mrf%rot_axis
 
   do ic = 1, umesh%ncell_int
     rho    = field%etatcons%tabscal(1)%scal(ic)
@@ -82,9 +89,34 @@ select case(mrf%type)
 
  case(mrf_rot_osc)
 
-  om_osc   = 2._krp*pi/mrf%osc_period
-  omega    = (mrf%omega + om_osc * mrf%osc_angle * cos(om_osc*curtime + mrf%phi) )*mrf%axis
-  dotomega = (        -om_osc**2 * mrf%osc_angle * sin(om_osc*curtime + mrf%phi) )*mrf%axis
+  rot_om   = 2._krp*pi/mrf%rot_period
+  omega    = (mrf%omega + rot_om * mrf%rot_ampl * cos(rot_om*curtime + mrf%rot_phi) )*mrf%rot_axis
+  dotomega = (        -rot_om**2 * mrf%rot_ampl * sin(rot_om*curtime + mrf%rot_phi) )*mrf%rot_axis
+
+  do ic = 1, umesh%ncell_int
+
+    rho    = field%etatcons%tabscal(1)%scal(ic)
+    speed  = field%etatcons%tabvect(1)%vect(ic) / rho
+    mass   = umesh%mesh%volume(ic,1,1) * rho
+    radius = umesh%mesh%centre(ic,1,1) - mrf%center
+
+    centrifugal = omega .vect. (omega .vect. radius)
+    coriolis    = 2._krp * (omega .vect. speed)
+    rotacc      = dotomega .vect. radius
+
+    deltamomentum = -mass*(centrifugal+coriolis+rotacc)
+    !deltaenergy = mass*(-(speed.scal.omega)*(radius.scal.omega) + (speed.scal.radius)*abs(omega)**2 -(speed.scal.rotacc)) NON-CONSERVATIVE?
+    deltaenergy = speed.scal.deltamomentum
+    field%residu%tabvect(1)%vect(ic) = field%residu%tabvect(1)%vect(ic) + deltamomentum
+    field%residu%tabscal(2)%scal(ic) = field%residu%tabscal(2)%scal(ic) + deltaenergy
+  enddo
+
+ case(mrf_comb_osc)
+
+  trn_om   = 2._krp*pi/mrf%trn_period
+  rot_om   = 2._krp*pi/mrf%rot_period
+  omega    = (mrf%omega + rot_om * mrf%rot_ampl * cos(rot_om*curtime + mrf%rot_phi) )*mrf%rot_axis
+  dotomega = (        -rot_om**2 * mrf%rot_ampl * sin(rot_om*curtime + mrf%rot_phi) )*mrf%rot_axis
 
   do ic = 1, umesh%ncell_int
 
@@ -93,13 +125,12 @@ select case(mrf%type)
     mass   = umesh%mesh%volume(ic,1,1) * rho
     radius = umesh%mesh%centre(ic,1,1) - mrf%center
   
+    linacc      = mrf%acceleration - trn_om**2 * mrf%trn_ampl * sin(trn_om * curtime + mrf%trn_phi) * mrf%trn_dir
     centrifugal = omega .vect. (omega .vect. radius)
     coriolis    = 2._krp * (omega .vect. speed)
     rotacc      = dotomega .vect. radius
 
-    !deltamomentum = mass*(-mrf%linacc-centrifugal-coriolis-rotacc)
-    deltamomentum = -mass*(centrifugal+coriolis+rotacc)
-    !deltaenergy = mass*(-(speed.scal.omega)*(radius.scal.omega) + (speed.scal.radius)*abs(omega)**2 -(speed.scal.rotacc)) NON-CONSERVATIVE?
+    deltamomentum = -mass*(linacc+centrifugal+coriolis+rotacc)
     deltaenergy = speed.scal.deltamomentum
     field%residu%tabvect(1)%vect(ic) = field%residu%tabvect(1)%vect(ic) + deltamomentum
     field%residu%tabscal(2)%scal(ic) = field%residu%tabscal(2)%scal(ic) + deltaenergy
@@ -114,5 +145,6 @@ end subroutine calc_source_mrf
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! jan  2010 : creation, MRF source terms(A. Gardi & JG)
+! Jan  2011 : creation, MRF source terms(A. Gardi & JG)
+! May  2011 : addition of missing cases (mrf_trans_osc, mrf_comb_osc) and global revision
 !------------------------------------------------------------------------------!

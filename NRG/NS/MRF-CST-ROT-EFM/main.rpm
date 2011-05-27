@@ -34,6 +34,8 @@ ENDBLOCK
 
 BLOCK:MRF
   NAME      = steady_rotation
+  INPUT     = ABSOLUTE
+  OUTPUT    = RELATIVE
   TYPE      = ROTATION
   OMEGA     = 25.
 ENDBLOCK

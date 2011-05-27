@@ -33,7 +33,7 @@ type(v3d)              :: wall_velocity    ! fields
 ! -- BODY --
 
 ! MRF wall movement contributes
-if (defmrf%type /= mrf_none) then
+if (defmrf%type /= mrf_none .and. defmrf%input == mrfdata_absolute) then
   call mrfvel_abs2rel(defmrf, curtime, iface%centre, wall_velocity)
 endif
 

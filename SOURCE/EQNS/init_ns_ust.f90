@@ -206,14 +206,11 @@ endselect
 
 ! -- MRF update --
 
-select case(defmrf%type)
-case(mrf_none) 
-  ! nothing to do
-case default
+if (defmrf%type /= mrf_none .and. defmrf%input == mrfdata_absolute) then
   do ic = 1, ncell
     call mrfvel_abs2rel(defmrf, 0._krp, umesh%mesh%centre(ic,1,1), field%etatprim%tabvect(1)%vect(ic))
   enddo
-endselect
+endif
 
 
 ! -------- SUBROUTINES ------------

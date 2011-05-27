@@ -75,7 +75,7 @@ call pi_ti_ps_dir2nspri(defns%properties(1), nf, pi(1:nf), ti(1:nf), ps(1:nf), d
                         nspri) 
 
 ! BOundary COnditions transformation in the Moving Reference Frame
-if (mrf%type /= mrf_none) then
+if (mrf%type /= mrf_none .and. mrf%input == mrfdata_absolute) then
   do ifb = 1, nf
     if   = ustboco%iface(ifb)
     pos  = umesh%mesh%iface(if,1,1)%centre
