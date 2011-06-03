@@ -16,6 +16,7 @@ use TYPHMAKE      ! Definition de la precision
 use QUANTITY      ! CFDTOOLS module: quantity id and names
 use MESHPARAMS
 use MESHMRF
+use DEFPROBE      ! Definition des capteurs
 use MENU_ALE
 use MENU_NUM      ! Definition des parametres numeriques d'integration
 use MENU_NS       ! Definition des solveurs type NS
@@ -23,7 +24,6 @@ use MENU_KDIF     ! Definition des solveurs type Equation de diffusion
 use MENU_VORTEX   ! Definition des solveurs type VORTEX (lagrangien)
 use MENU_BOCO     ! Definition des conditions limites
 use MENU_INIT     ! Definition de l'initialisation
-use MENU_PROBE    ! Definition des capteurs
 use MENU_AMR      ! Definition des parametres de raffinement
 use MENU_MPI      ! MPI parameters
 
@@ -66,7 +66,7 @@ type mnu_solver
   type(mnu_init),    pointer :: init(:)      ! Initial conditions
   type(mnu_boco),    pointer :: boco(:)      ! BOundary COnditions
   type(mnu_connect), pointer :: connect(:)   ! Internal connections
-  type(mnu_probe),   pointer :: probe(:)     ! Probes
+  type(st_defprobe), pointer :: probe(:)     ! Probes
 endtype mnu_solver
 
 

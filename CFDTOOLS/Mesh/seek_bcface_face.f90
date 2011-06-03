@@ -78,7 +78,6 @@ enddo ! loop on tags
 
 if (notfound1 > 0) call cfd_print('      '//trim(strof(notfound1))//' tags not found as original face element !')
 if (notfound2 > 0) call cfd_print('      '//trim(strof(notfound2))//' face element not found as boundary face !')
-call cfd_print('      > '//trim(strof(nf))//' mesh faces tagged')
 
 call deletetag_ustboco(ustboco)
 call new_ustboco(ustboco, ustboco%family, nf)

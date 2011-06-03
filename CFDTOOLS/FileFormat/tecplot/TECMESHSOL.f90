@@ -222,11 +222,16 @@ do ielem = 1, umesh%cellvtex%nsection
     case(elem_tetra4)
       call cfd_error("internal error: tetra element not yet implemented")
     case(elem_pyra5)
-      call cfd_error("internal error: pyra element not yet implemented")
+      do i = 1, umesh%cellvtex%elem(ielem)%nelem
+        cellvtex(1:nvtex,       umesh%cellvtex%elem(ielem)%ielem(i)) = umesh%cellvtex%elem(ielem)%elemvtex(i,1:nvtex)
+        cellvtex(nvtex+1:nvtex, umesh%cellvtex%elem(ielem)%ielem(i)) = umesh%cellvtex%elem(ielem)%elemvtex(i,nvtex)
+      enddo
     case(elem_penta6)
       call cfd_error("internal error: penta element not yet implemented")
     case(elem_hexa8)
-      call cfd_error("internal error: hexa element not yet implemented")
+      do i = 1, umesh%cellvtex%elem(ielem)%nelem
+        cellvtex(1:maxnvtex, umesh%cellvtex%elem(ielem)%ielem(i)) = umesh%cellvtex%elem(ielem)%elemvtex(i,1:nvtex)
+      enddo
     case default
       call cfd_error("internal error: unknown typhon element type")
     endselect
@@ -235,7 +240,9 @@ do ielem = 1, umesh%cellvtex%nsection
 
 enddo
 
-write(deftec%iunit) cellvtex-1_teckip
+cellvtex = cellvtex-1_teckip
+
+write(deftec%iunit) cellvtex
 
 if (info /=0) call cfd_error("unable to write tecplot connectivity")
 

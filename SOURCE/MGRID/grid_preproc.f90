@@ -10,6 +10,7 @@ use TYPHMAKE
 use OUTPUT
 use MGRID
 use MESHPARAMS
+use MESHCONNECT
 
 implicit none
 
@@ -26,7 +27,9 @@ logical                :: facetag
 
 facetag = ( defmesh%splitmesh /= split_none )
 
-call create_face_connect(facetag, grid%umesh)
+call print_info(10,"* compute FACE connectivity")
+
+call create_face_connect(facetag, grid%umesh, verbose=1)
 
   
 endsubroutine grid_preproc

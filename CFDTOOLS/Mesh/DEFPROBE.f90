@@ -1,17 +1,15 @@
 !------------------------------------------------------------------------------!
-! MODULE : MENU_PROBE                  Auteur : J. Gressier
+! MODULE : DEFPROBE                       Auteur : J. Gressier
 !                                         Date   : Juillet 2003
 ! Fonction                                Modif  : (cf Historique)
 !   Definition des structures pour les entrees du programme TYPHON
 !   Structures pour la definition des capteurs
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
-module MENU_PROBE
+module DEFPROBE
 
-use TYPHMAKE   
-use GEO3D      
+use MESHPREC   
+use VEC3D      
 use FCT_NODE   ! symbolic functions
 
 implicit none
@@ -39,7 +37,7 @@ integer(kpp), parameter :: prb_iter   = 3       ! pour chaque iteration interne 
 !------------------------------------------------------------------------------!
 ! structure MNU_PROBE : options numeriques les capteurs
 !------------------------------------------------------------------------------!
-type mnu_probe
+type st_defprobe
   integer(kpp)          :: type        ! type de capteur
   integer(kpp)          :: store       ! type de stockage
   logical               :: write       ! ecriture des donnees
@@ -53,13 +51,13 @@ type mnu_probe
   real(krp)             :: result
   real(krp)             :: volume
   type(v3d)             :: center, dir ! vecteurs centre et direction (si necessaire)
-endtype mnu_probe
+endtype st_defprobe
 
 
 ! -- INTERFACES -------------------------------------------------------------
 
 interface delete
-  module procedure delete_mnu_probe
+  module procedure delete_defprobe
 endinterface
 
 ! -- Fonctions et Operateurs ------------------------------------------------
@@ -69,24 +67,24 @@ endinterface
 contains
 
 !------------------------------------------------------------------------------!
-! Procedure : desallocation d'une structure MNU_PROBE
+! Procedure : desallocation d'une structure ST_PROBE
 !------------------------------------------------------------------------------!
-subroutine delete_mnu_probe(defcapteur)
+subroutine delete_defprobe(defcapteur)
 implicit none
-type(mnu_probe)  :: defcapteur
+type(st_defprobe)  :: defcapteur
 
   !print*,'!! DEBUG destruction de structure "parametres" a completer'
 
-endsubroutine delete_mnu_probe
+endsubroutine delete_defprobe
 
 
-
-endmodule MENU_PROBE
+endmodule DEFPROBE
 !------------------------------------------------------------------------------!
 ! Changes history
 !
 ! juil 2003: Created
 ! June 2009: add volumic computation
+! June 2011: moved from SOURCE/PARAM to CFDTOOLS/Mesh
 !------------------------------------------------------------------------------!
 
 

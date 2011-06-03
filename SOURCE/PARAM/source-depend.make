@@ -19,7 +19,6 @@ PARAM_MOD = MENU_ALE.$(MODEXT)      \
             MENU_INVERSE.$(MODEXT)  \
             MENU_MPI.$(MODEXT)      \
             MENU_NUM.$(MODEXT)      \
-            MENU_PROBE.$(MODEXT)    \
             MENU_SOLVER.$(MODEXT)   \
 
 # Objects

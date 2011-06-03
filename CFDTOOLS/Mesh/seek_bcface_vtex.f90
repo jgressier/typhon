@@ -44,8 +44,6 @@ do if = umesh%nface_int+1, umesh%nface_int+umesh%nface_lim
   endif
 enddo
 
-call cfd_print('      '//trim(strof(nf))//' mesh faces tagged')
-
 call deletetag_ustboco(ustboco)
 call new_ustboco(ustboco, ustboco%family, nf)
 ustboco%ilocation   = iloc_face
