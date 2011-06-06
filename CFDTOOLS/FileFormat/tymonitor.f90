@@ -149,6 +149,7 @@ do icycle = imin, imax
   call typhonread_sol(deftyphon, umesh, gfield)
 
   do ip = 1, nprobe
+    print*,'* computing probe '//strof(ip,2)
     call prb_vol_init(probe(ip))
     call prb_vol_calc(probe(ip), umesh, gfield)
     write(probe(ip)%unit,'(i5,e16.8)') icycle, probe(ip)%result  
@@ -215,6 +216,7 @@ subroutine create_probe(probe, type, str)
   call convert_to_funct(str(ieq+1:len_trim(str)), probe%quantity, info)  
   if (info /= 0) &
        call cfd_error("unable to process symbolic function from "//trim(str))
+  print*,'# probe ',str(1:10),':',trim(str)
 endsubroutine create_probe
 
 endprogram tymonitor

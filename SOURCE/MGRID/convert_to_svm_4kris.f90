@@ -11,6 +11,7 @@ use OUTPUT
 use USTMESH
 use MESHBASE
 use MESHPARAMS
+use MESHCONNECT
 use MENU_NUM
 
 implicit none
@@ -35,11 +36,7 @@ integer                :: intv(9)          ! internal vtex definition
 integer                :: nfgauss          ! number of integration points per face (defspat%svm)
 integer                :: ielem, ielemquad, nquad, ielempent,npent,ielemhexa, nhexa
 type(st_connect)       :: cell_fvtex       ! cell to face.midpoint connectivity
-type(st_connect)       :: face_cell, &     ! temporary connectivity
-                          face_vtex, &     ! temporary connectivity
-                          vtex_face, &     ! temporary connectivity
-                          Ltag, Rtag       ! temporary connectivity
-integer, allocatable   :: nfaceofvtex(:)   ! number of faces which share "this" vertex
+type(st_ustmesh)       :: umeshcon
 integer, allocatable   :: faceboco(:)      ! face to boco type connectivity
 logical                :: rightface
 real(krp)              :: alpha, beta,gamma,delta      ! geometric coefficient for the split
@@ -419,16 +416,13 @@ enddo
 
 nRface = newmesh%nface-newmesh%nface_intsvm
 
-call new_connect(face_cell, nRface, 2)       ; face_cell%nbnodes = 0 ; face_cell%fils = 0
-call new_connect(face_vtex, nRface, fnv)     ; face_vtex%nbnodes = 0
-call new_connect(Ltag,      nRface, nfgauss) ; Ltag%fils(:,:) = 0
-call new_connect(Rtag,      nRface, nfgauss) ; Rtag%fils(:,:) = 0
+call new_connect(umeshcon%facecell,  nRface, 2)       ; umeshcon%facecell%nbnodes = 0 ; umeshcon%facecell%fils = 0
+call new_connect(umeshcon%facevtex,  nRface, fnv)     ; umeshcon%facevtex%nbnodes = 0
+call new_connect(umeshcon%face_Ltag, nRface, nfgauss) ; umeshcon%face_Ltag%fils(:,:) = 0
+call new_connect(umeshcon%face_Rtag, nRface, nfgauss) ; umeshcon%face_Rtag%fils(:,:) = 0
 
-call new_connect(vtex_face, newmesh%nvtex, 20)    ! 20 face per vertex max
-vtex_face%fils(:,:) = 0                           ! initialization
-
-allocate(nfaceofvtex(newmesh%nvtex))
-nfaceofvtex(1:newmesh%nvtex) = 0
+call new_genconnect(umeshcon%vtexface, newmesh%nvtex, 10, initdim=0)    ! 10 face per vertex as initial guess
+!umeshcon%vtexface%fils(:,:) = 0                           ! initialization
 
 call print_info(20, "    . creating"//strof(nRface,7)//" Riemann  CV faces")
 
@@ -440,51 +434,51 @@ do ic = 1, umesh%ncell_int
 
   icv  = ic0 + 1 !!!! CV1
   face = (/ cellv(1), facev(1) /)
-  call ust_create_face(fnv, icv, face, 1, face_vtex, face_cell, Ltag, Rtag, vtex_face, nfaceofvtex)
+  call ust_create_face(fnv, icv, face, 1, umeshcon)
   face = (/ facev(9), cellv(1) /)
-  call ust_create_face(fnv, icv, face, 12, face_vtex, face_cell, Ltag, Rtag, vtex_face, nfaceofvtex)
+  call ust_create_face(fnv, icv, face, 12, umeshcon)
 
   icv  = ic0 + 2 !!!! CV2
   face = (/ facev(3), cellv(2) /)
-  call ust_create_face(fnv, icv, face, 4, face_vtex, face_cell, Ltag, Rtag, vtex_face, nfaceofvtex)
+  call ust_create_face(fnv, icv, face, 4, umeshcon)
   face = (/ cellv(2), facev(4) /)
-  call ust_create_face(fnv, icv, face, 5, face_vtex, face_cell, Ltag, Rtag, vtex_face, nfaceofvtex)
+  call ust_create_face(fnv, icv, face, 5, umeshcon)
 
   icv  = ic0 + 3 !!!! CV3
   face = (/ facev(6), cellv(3) /)
-  call ust_create_face(fnv, icv, face, 8, face_vtex, face_cell, Ltag, Rtag, vtex_face, nfaceofvtex)
+  call ust_create_face(fnv, icv, face, 8, umeshcon)
   face = (/ cellv(3), facev(7) /)
-  call ust_create_face(fnv, icv, face, 9, face_vtex, face_cell, Ltag, Rtag, vtex_face, nfaceofvtex)
+  call ust_create_face(fnv, icv, face, 9, umeshcon)
 
   icv  = ic0 + 4 !!!! CV4
   face = (/ facev(1), facev(2) /)
-  call ust_create_face(fnv, icv, face, 2, face_vtex, face_cell, Ltag, Rtag, vtex_face, nfaceofvtex)
+  call ust_create_face(fnv, icv, face, 2, umeshcon)
 
   icv  = ic0 + 5 !!!! CV5
   face = (/ facev(2), facev(3) /)
-  call ust_create_face(fnv, icv, face, 3, face_vtex, face_cell, Ltag, Rtag, vtex_face, nfaceofvtex)
+  call ust_create_face(fnv, icv, face, 3, umeshcon)
 
   icv  = ic0 + 6 !!!! CV6
   face = (/ facev(4), facev(5) /)
-  call ust_create_face(fnv, icv, face, 6, face_vtex, face_cell, Ltag, Rtag, vtex_face, nfaceofvtex)
+  call ust_create_face(fnv, icv, face, 6, umeshcon)
 
   icv  = ic0 + 7 !!!! CV7
   face = (/ facev(5), facev(6) /)
-  call ust_create_face(fnv, icv, face, 7, face_vtex, face_cell, Ltag, Rtag, vtex_face, nfaceofvtex)
+  call ust_create_face(fnv, icv, face, 7, umeshcon)
 
   icv  = ic0 + 8 !!!! CV8
   face = (/ facev(7), facev(8) /)
-  call ust_create_face(fnv, icv, face, 10, face_vtex, face_cell, Ltag, Rtag, vtex_face, nfaceofvtex)
+  call ust_create_face(fnv, icv, face, 10, umeshcon)
 
   icv  = ic0 + 9 !!!! CV9
   face = (/ facev(8), facev(9) /)
-  call ust_create_face(fnv, icv, face, 11, face_vtex, face_cell, Ltag, Rtag, vtex_face, nfaceofvtex)
+  call ust_create_face(fnv, icv, face, 11, umeshcon)
 
 enddo
 
 ! --- check created faces ---
 
-if (count(face_cell%fils(:,2) == 0) /= newmesh%nface_lim) &
+if (count(umeshcon%facecell%fils(:,2) == 0) /= newmesh%nface_lim) &
   call erreur("Spectral Volume Mesh creation", "bad number of boundering faces")
 
 ! --- Riemann faces : Transfer from temporary connectivities ---
@@ -493,17 +487,17 @@ ifR = newmesh%nface_intsvm
 ifl = newmesh%nface_int
 
 do if = 1, nRface
-  if (face_cell%fils(if, 2) == 0) then  ! --- this face is a boundering face
+  if (umeshcon%facecell%fils(if, 2) == 0) then  ! --- this face is a boundering face
     ifl = ifl +1
     iif = ifl
   else                                  ! --- this face is an internal Riemann face
     ifR = ifR +1
     iif = ifR
   endif
-  newmesh%facecell %fils(iif, 1:2)       = face_cell%fils(if, 1:2)
-  newmesh%facevtex %fils(iif, 1:fnv)     = face_vtex%fils(if, 1:fnv)
-  newmesh%face_Ltag%fils(iif, 1:nfgauss) = Ltag     %fils(if, 1:nfgauss)
-  newmesh%face_Rtag%fils(iif, 1:nfgauss) = Rtag     %fils(if, 1:nfgauss)
+  newmesh%facecell %fils(iif, 1:2)       = umeshcon%facecell%fils(if, 1:2)
+  newmesh%facevtex %fils(iif, 1:fnv)     = umeshcon%facevtex%fils(if, 1:fnv)
+  newmesh%face_Ltag%fils(iif, 1:nfgauss) = umeshcon%face_Ltag%fils(if, 1:nfgauss)
+  newmesh%face_Rtag%fils(iif, 1:nfgauss) = umeshcon%face_Rtag%fils(if, 1:nfgauss)
 enddo
 
 if (ifR /= newmesh%nface_int) &
@@ -512,7 +506,7 @@ if (ifR /= newmesh%nface_int) &
 !--------------------------------------------------------------------
 ! delete
 call delete(cell_fvtex)
-
+call delete(umeshcon)
 
 !!$!--------------------------------------------------------------------
 !!$! BOCO transfer !!!!!!!!!!!!!!!!!!! a given cell can be neighbour of many BOCOs !!!!!!!!!!!!!!!!!!!!!!!!
@@ -582,7 +576,6 @@ enddo
 call check_ustmesh_elements(newmesh)
 
 endsubroutine convert_to_svm_4kris
-
 !------------------------------------------------------------------------------!
 ! Change history
 !

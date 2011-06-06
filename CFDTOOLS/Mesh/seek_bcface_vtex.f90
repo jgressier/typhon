@@ -7,7 +7,7 @@
 !------------------------------------------------------------------------------!
 subroutine seek_bcface_vtex(ustboco, umesh) 
 
-use USTMESH       ! Definition des structures maillage non structure
+use MESHCONNECT
 use IOCFD
 
 implicit none 

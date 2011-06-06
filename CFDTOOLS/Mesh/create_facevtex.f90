@@ -12,10 +12,10 @@
 ! temps de calcul lors du test des redondances de faces.
 !
 !------------------------------------------------------------------------------!
-subroutine create_facevtex(facetag, nvtex, cellvtex, face_cell, face_vtex, Ltag, Rtag) 
+subroutine create_facevtex(facetag, nvtex, cellvtex, umeshcon) 
 
 use IOCFD
-use USTMESH       ! Definition des structures maillage non structure
+use MESHCONNECT
 
 implicit none 
 
@@ -25,20 +25,14 @@ integer               :: nvtex           ! nombre total de sommets
 type(st_genelemvtex)  :: cellvtex        ! 
 
 ! -- OUTPUTS --
-type(st_connect)      :: face_cell, &    ! conn. Typhon       : face -> cellules
-                         face_vtex, &    ! conn. Typhon       : face -> sommets
-                         Ltag, Rtag      ! left and right tag (face index in cell)
+type(st_ustmesh)      :: umeshcon        ! facecell, facevtex, face_Ltag, face_Rtag, vtexface connectivity
 
 ! -- Internal variables --
-integer, parameter    :: nmax_face = 100 ! nb max de face dans la connectivite vtex->face
+integer, parameter    :: nmax_face = 8   ! nb max de face dans la connectivite vtex->face
                                          ! (moyenne de 30 pour des TETRA)
-type(st_connect)      :: vtex_face       ! connectivite intermediaire sommets -> faces
 integer               :: i, j, ic, icell ! indices de boucles
 integer, dimension(:), allocatable &
                       :: face, element   ! face, element intermediaires
-integer, dimension(:), allocatable &
-                      :: nface           ! number of faces which share this vertex
-
 integer               :: ns, isect       ! nombre de sommets de la face courante, index de section
 integer               :: iprop, maxdim
 
@@ -61,16 +55,13 @@ enddo
 ! allocation de la connectivite intermediaire VTEX -> FACE 
 ! utile pour la recherche optimale de face existante
 
-call new_connect(vtex_face, nvtex, nmax_face)
-vtex_face%fils(:,:) = 0                    ! initialization
+call new_genconnect(umeshcon%vtexface, nvtex, nmax_face, initdim=0)
 
-allocate(nface(nvtex))                     ! number of faces shared by a vertex
-nface(:) = 0
+!umeshcon%vtexface%fils(:,:) = 0                    ! initialization
 
-! allocation de structures de travail
+! temporary face with max number of vertices
+allocate(face(umeshcon%facevtex%nbfils)) 
 
-allocate(face(face_vtex%nbfils))      ! allocation d'une face au nb max de sommets
-   
 !-------------------------------------------
 ! BOUCLE sur les SECTIONS
 
@@ -86,7 +77,6 @@ do isect = 1, cellvtex%nsection          ! loop on element section
 
   case(elem_BAR2)  ! skipping BAR element
 
-
   case(elem_TRI3)  ! trois faces (cotes) pour chacune deux sommets
 
     call cfd_print("  . creating faces of TRI3")
@@ -97,13 +87,13 @@ do isect = 1, cellvtex%nsection          ! loop on element section
       ns = 2              ! nombre de sommets par face (BAR_2)
       ! FACE 1 : BAR_2
       face(1:ns) = (/ element(1), element(2) /)
-      call ust_create_face(ns, icell, face, iprop*3, face_vtex, face_cell, Ltag, Rtag, vtex_face, nface)
+      call ust_create_face(ns, icell, face, iprop*3, umeshcon)
       ! FACE 2 : BAR_2
       face(1:ns) = (/ element(2), element(3) /)
-      call ust_create_face(ns, icell, face, iprop*1, face_vtex, face_cell, Ltag, Rtag, vtex_face, nface)
+      call ust_create_face(ns, icell, face, iprop*1, umeshcon)
       ! FACE 3 : BAR_2
       face(1:ns) = (/ element(3), element(1) /)
-      call ust_create_face(ns, icell, face, iprop*2, face_vtex, face_cell, Ltag, Rtag, vtex_face, nface)
+      call ust_create_face(ns, icell, face, iprop*2, umeshcon)
     enddo
 
   case(elem_QUAD4) ! quatre faces (cotes) pour chacune deux sommets
@@ -116,16 +106,16 @@ do isect = 1, cellvtex%nsection          ! loop on element section
       ns = 2            ! nombre de sommets par face (BAR_2)
       ! FACE 1 : BAR_2
       face(1:ns) = (/ element(1), element(2) /)
-      call ust_create_face(ns, icell, face, 0, face_vtex, face_cell, Ltag, Rtag, vtex_face, nface)
+      call ust_create_face(ns, icell, face, 0, umeshcon)
       ! FACE 2 : BAR_2
       face(1:ns) = (/ element(2), element(3) /)
-      call ust_create_face(ns, icell, face, 0, face_vtex, face_cell, Ltag, Rtag, vtex_face, nface)
+      call ust_create_face(ns, icell, face, 0, umeshcon)
       ! FACE 3 : BAR_2
       face(1:ns) = (/ element(3), element(4) /)
-      call ust_create_face(ns, icell, face, 0, face_vtex, face_cell, Ltag, Rtag, vtex_face, nface)
+      call ust_create_face(ns, icell, face, 0, umeshcon)
       ! FACE 4 : BAR_2
       face(1:ns) = (/ element(4), element(1) /)
-      call ust_create_face(ns, icell, face, 0, face_vtex, face_cell, Ltag, Rtag, vtex_face, nface)
+      call ust_create_face(ns, icell, face, 0, umeshcon)
     enddo
 
   case(elem_TETRA4) ! quatre faces (triangles) pour chacune trois sommets
@@ -138,16 +128,16 @@ do isect = 1, cellvtex%nsection          ! loop on element section
       ns = 3            ! nombre de sommets par face (TRI_3)
       ! FACE 1 : TRI_3
       face(1:ns) = (/ element(1), element(3), element(2) /)
-      call ust_create_face(ns, icell, face, 0, face_vtex, face_cell, Ltag, Rtag, vtex_face, nface)
+      call ust_create_face(ns, icell, face, 0, umeshcon)
       ! FACE 2 : TRI_3
       face(1:ns) = (/ element(1), element(2), element(4) /)
-      call ust_create_face(ns, icell, face, 0, face_vtex, face_cell, Ltag, Rtag, vtex_face, nface)
+      call ust_create_face(ns, icell, face, 0, umeshcon)
       ! FACE 3 : TRI_3
       face(1:ns) = (/ element(2), element(3), element(4) /)
-      call ust_create_face(ns, icell, face, 0, face_vtex, face_cell, Ltag, Rtag, vtex_face, nface)
+      call ust_create_face(ns, icell, face, 0, umeshcon)
       ! FACE 4 : TRI_3
       face(1:ns) = (/ element(3), element(1), element(4) /)
-      call ust_create_face(ns, icell, face, 0, face_vtex, face_cell, Ltag, Rtag, vtex_face, nface)
+      call ust_create_face(ns, icell, face, 0, umeshcon)
     enddo
 
   case(elem_PYRA5) ! 1 quadrangle (4 sommets) et 4 triangles par element PYRA
@@ -164,21 +154,21 @@ do isect = 1, cellvtex%nsection          ! loop on element section
       ns = 3            ! nombre de sommets par face (TRI_3)
       ! FACE 1 : TRI_3
       face(1:ns) = (/ element(1), element(2), element(3) /)
-      call ust_create_face(ns, icell, face, 0, face_vtex, face_cell, Ltag, Rtag, vtex_face, nface)
+      call ust_create_face(ns, icell, face, 0, umeshcon)
       ! FACE 2 : TRI_3
       face(1:ns) = (/ element(4), element(5), element(6) /)
-      call ust_create_face(ns, icell, face, 0, face_vtex, face_cell, Ltag, Rtag, vtex_face, nface)
+      call ust_create_face(ns, icell, face, 0, umeshcon)
 
       ns = 4            ! nombre de sommets par face (QUAD_3)
       ! FACE 3 : QUAD_4
       face(1:ns) = (/ element(1), element(3), element(6), element(4) /)
-      call ust_create_face(ns, icell, face, 0, face_vtex, face_cell, Ltag, Rtag, vtex_face, nface)
+      call ust_create_face(ns, icell, face, 0, umeshcon)
       ! FACE 4 : QUAD_4
       face(1:ns) = (/ element(1), element(2), element(5), element(4) /)
-      call ust_create_face(ns, icell, face, 0, face_vtex, face_cell, Ltag, Rtag, vtex_face, nface)
+      call ust_create_face(ns, icell, face, 0, umeshcon)
       ! FACE 5 : QUAD_4
       face(1:ns) = (/ element(2), element(3), element(6), element(5) /)
-      call ust_create_face(ns, icell, face, 0, face_vtex, face_cell, Ltag, Rtag, vtex_face, nface)
+      call ust_create_face(ns, icell, face, 0, umeshcon)
     enddo
     ! CF PDF : CGNS SIDS pages 21-23
 
@@ -192,22 +182,22 @@ do isect = 1, cellvtex%nsection          ! loop on element section
       ns = 4            ! nombre de sommets par face (QUAD_4)
       ! FACE 1 : QUAD_4
       face(1:ns) = (/ element(1), element(2), element(3), element(4) /)
-      call ust_create_face(ns, icell, face, 0, face_vtex, face_cell, Ltag, Rtag, vtex_face, nface)
+      call ust_create_face(ns, icell, face, 0, umeshcon)
       ! FACE 2 : QUAD_4
       face(1:ns) = (/ element(1), element(2), element(6), element(5) /)
-      call ust_create_face(ns, icell, face, 0, face_vtex, face_cell, Ltag, Rtag, vtex_face, nface)
+      call ust_create_face(ns, icell, face, 0, umeshcon)
       ! FACE 3 : QUAD_4
       face(1:ns) = (/ element(5), element(6), element(7), element(8) /)
-      call ust_create_face(ns, icell, face, 0, face_vtex, face_cell, Ltag, Rtag, vtex_face, nface)
+      call ust_create_face(ns, icell, face, 0, umeshcon)
       ! FACE 4 : QUAD_4
       face(1:ns) = (/ element(4), element(3), element(7), element(8) /)
-      call ust_create_face(ns, icell, face, 0, face_vtex, face_cell, Ltag, Rtag, vtex_face, nface)
+      call ust_create_face(ns, icell, face, 0, umeshcon)
       ! FACE 5 : QUAD_4
       face(1:ns) = (/ element(1), element(4), element(8), element(5) /)
-      call ust_create_face(ns, icell, face, 0, face_vtex, face_cell, Ltag, Rtag, vtex_face, nface)
+      call ust_create_face(ns, icell, face, 0, umeshcon)
       ! FACE 6 : QUAD_4
       face(1:ns) = (/ element(2), element(3), element(7), element(6) /)
-      call ust_create_face(ns, icell, face, 0, face_vtex, face_cell, Ltag, Rtag, vtex_face, nface)
+      call ust_create_face(ns, icell, face, 0, umeshcon)
     enddo
     ! CF PDF : CGNS SIDS pages 21-23
 
@@ -215,7 +205,7 @@ do isect = 1, cellvtex%nsection          ! loop on element section
     call cfd_error("Development: unexpected type of element")
   endselect
 
-  !print*,'moyenne des connections:',sum(vtex_face%nface(1:nvtex))/real(nvtex,krp)
+  !print*,'moyenne des connections:',sum(umeshcon%vtexface%nface(1:nvtex))/real(nvtex,krp)
 
   deallocate(element)
 
@@ -224,16 +214,14 @@ enddo
 
 ! --- desallocation ---
 
-deallocate(face, nface)
-call delete(vtex_face)
-
+deallocate(face)
 
 !-------------------------
 endsubroutine create_facevtex
 !------------------------------------------------------------------------------!
 ! Changes History
 !
-! nov  2002 : creation de la procedure
+! nov  2002 : created
 ! juin 2004 : ajout de construction de PRISM (PENTA_6) et HEXA
 !             connectivite vtex->face commune a toutes les familles volumiques
 ! July 2007: transfer sub-routines to USTMESH module

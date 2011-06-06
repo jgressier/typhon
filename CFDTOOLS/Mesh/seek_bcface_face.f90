@@ -5,15 +5,16 @@
 !   Looking for "typhon internal" boundary faces with element face tags
 !
 !------------------------------------------------------------------------------!
-subroutine seek_bcface_face(ustboco, umesh) 
+subroutine seek_bcface_face(ustboco, umesh, vtexface) 
 
-use USTMESH       ! Definition des structures maillage non structure
+use MESHCONNECT
 use IOCFD
 use STRING
 
 implicit none 
 
 ! -- INPUTS --
+type(st_genconnect) :: vtexface
 
 ! -- INPUTS/OUTPUTS --
 type(st_ustboco)  :: ustboco      ! original tags
@@ -60,8 +61,9 @@ do it = 1, ustboco%ntag
   enddo ! loop on element section
 
   if (allocated(face)) then
-    iface = scan_bocoface(face(1:nvtex), nvtex, umesh)
-    if (iface > 0) then
+    !iface = scanface_allface(face(1:nvtex), nvtex, umesh, umesh%nface_int+1)
+    iface = scanface_vtexface(face, nvtex, umesh%facevtex, vtexface)   ! return 0 if not found
+    if (iface > umesh%nface_int) then
       nf = nf + 1
       listface(nf) = iface
     else

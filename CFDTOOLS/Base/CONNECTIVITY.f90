@@ -7,6 +7,8 @@
 
 module CONNECTIVITY
 
+use IOCFD
+
 implicit none
 
 ! -- Variables globales du module -------------------------------------------
@@ -19,9 +21,8 @@ implicit none
 ! structure ST_ELEMC : Definition d'un element de connectivite 
 !------------------------------------------------------------------------------!
 type st_elemc
-  integer                 :: nbfils      ! nombre de connectivites
-  integer, dimension(:), pointer &
-                          :: fils        ! definition de la connectivite
+  integer          :: nelem     ! nombre de connectivites
+  integer, pointer :: elem(:)   ! definition de la connectivite
 endtype st_elemc
 
 
@@ -40,9 +41,8 @@ endtype st_connect
 ! structure ST_GENCONNECT : Definition de connectivite a nombre de fils variables
 !------------------------------------------------------------------------------!
 type st_genconnect
-  integer                 :: nbnodes     ! nombre de d'ensemble connectivites
-  type(st_elemc), dimension(:), pointer &
-                          :: noeud       ! nombre de fils pour chaque noeud
+  integer                               :: nbnodes   ! number of nodes
+  type(st_elemc), dimension(:), pointer :: node      ! node array
 endtype st_genconnect
 
 
@@ -51,7 +51,11 @@ endtype st_genconnect
 ! -- INTERFACES -------------------------------------------------------------
 
 interface new
-  module procedure new_elemc, new_connect, new_genconnect, new_genconnect2
+  module procedure new_elemc, new_connect
+endinterface
+
+interface new_genconnect
+  module procedure new_genconnect_empty, new_genconnect_nelem, new_genconnect_arraynelem
 endinterface
 
 interface delete
@@ -91,10 +95,24 @@ implicit none
 type(st_elemc) :: conn
 integer        :: dim
 
-  conn%nbfils  = dim
-  allocate(conn%fils(dim))
+  conn%nelem  = dim
+  allocate(conn%elem(dim))
 
 endsubroutine new_elemc
+
+
+!------------------------------------------------------------------------------!
+! Procedure : allocation d'une structure ELEMC
+!------------------------------------------------------------------------------!
+subroutine new_elemc_copy(conn, conn2)
+implicit none
+type(st_elemc) :: conn, conn2
+
+  conn%nelem  = conn2%nelem
+  allocate(conn%elem(size(conn2%elem)))
+  conn%elem = conn2%elem
+
+endsubroutine new_elemc_copy
 
 
 !------------------------------------------------------------------------------!
@@ -104,7 +122,7 @@ logical function allocated_elemc(conn)
 implicit none
 type(st_elemc) :: conn
 
-  allocated_elemc = associated(conn%fils)
+  allocated_elemc = associated(conn%elem)
 
 endfunction allocated_elemc
 
@@ -115,7 +133,7 @@ endfunction allocated_elemc
 subroutine new_connect(conn, nbnodes, nbfils)
 implicit none
 type(st_connect) :: conn
-integer             :: nbnodes, nbfils
+integer          :: nbnodes, nbfils
 
   conn%nbnodes = nbnodes
   conn%nbfils  = nbfils
@@ -188,8 +206,8 @@ subroutine delete_elemc(conn)
 implicit none
 type(st_elemc) :: conn
 
-  conn%nbfils = 0
-  if (associated(conn%fils)) deallocate(conn%fils)
+  conn%nelem = 0
+  if (associated(conn%elem)) deallocate(conn%elem)
 
 endsubroutine delete_elemc
 
@@ -210,38 +228,62 @@ endsubroutine delete_connect
 !------------------------------------------------------------------------------!
 ! Procedure : allocation d'une structure GENCONNECT sans nombre de fils
 !------------------------------------------------------------------------------!
-subroutine new_genconnect(conn, nbnodes)
+subroutine new_genconnect_empty(conn, nbnodes)
   implicit none
   type(st_genconnect) :: conn
   integer             :: nbnodes
   integer             :: i
 
   conn%nbnodes = nbnodes
-  allocate(conn%noeud(nbnodes))
+  allocate(conn%node(nbnodes))
   do i = 1, nbnodes
-    conn%noeud(i)%nbfils = 0
+    conn%node(i)%nelem = 0
   enddo
 
-endsubroutine new_genconnect
+endsubroutine new_genconnect_empty
 
 
 !------------------------------------------------------------------------------!
 ! Procedure : allocation d'une structure GENCONNECT avec nombre de fils
 !------------------------------------------------------------------------------!
-subroutine new_genconnect2(conn, nbnodes, nbfils)
+subroutine new_genconnect_nelem(conn, nbnodes, nelem, initdim)
   implicit none
   type(st_genconnect) :: conn
-  integer             :: nbnodes, nbfils(nbnodes)
+  integer             :: nbnodes, nelem
+  integer, optional   :: initdim
+  integer             :: i, idim
+
+  if (present(initdim)) then
+    idim = initdim
+  else
+    idim = nelem
+  endif
+  conn%nbnodes = nbnodes
+  allocate(conn%node(nbnodes))
+  do i = 1, nbnodes
+    conn%node(i)%nelem = idim
+    allocate(conn%node(i)%elem(nelem))
+  enddo
+
+endsubroutine new_genconnect_nelem
+
+!------------------------------------------------------------------------------!
+! Procedure : allocation d'une structure GENCONNECT avec nombre de fils
+!------------------------------------------------------------------------------!
+subroutine new_genconnect_arraynelem(conn, nbnodes, nelem)
+  implicit none
+  type(st_genconnect) :: conn
+  integer             :: nbnodes, nelem(nbnodes)
   integer             :: i
 
   conn%nbnodes = nbnodes
-  allocate(conn%noeud(nbnodes))
+  allocate(conn%node(nbnodes))
   do i = 1, nbnodes
-    conn%noeud(i)%nbfils = nbfils(i)
-    allocate(conn%noeud(i)%fils(nbfils(i)))
+    conn%node(i)%nelem = nelem(i)
+    allocate(conn%node(i)%elem(nelem(i)))
   enddo
 
-endsubroutine new_genconnect2
+endsubroutine new_genconnect_arraynelem
 
 
 !------------------------------------------------------------------------------!
@@ -250,16 +292,61 @@ endsubroutine new_genconnect2
 subroutine delete_genconnect(conn)
   implicit none
   type(st_genconnect) :: conn
-  integer             :: nbnodes
   integer             :: i
 
-  do i = 1, nbnodes
-    if (conn%noeud(i)%nbfils /= 0) deallocate(conn%noeud(i)%fils)
-  enddo
-  deallocate(conn%noeud)
+  if (conn%nbnodes /= 0) then
+    do i = 1, conn%nbnodes
+      if (conn%node(i)%nelem /= 0) deallocate(conn%node(i)%elem)
+    enddo
+    deallocate(conn%node)
+  endif
   conn%nbnodes = 0
 
 endsubroutine delete_genconnect
+
+
+!------------------------------------------------------------------------------!
+! Procedure : desallocation d'une structure GENCONNECT
+!------------------------------------------------------------------------------!
+subroutine add_element(conn, inode, ielem, resize)
+  implicit none
+  type(st_genconnect) :: conn
+  integer             :: inode, ielem
+  integer, optional   :: resize
+  type(st_elemc)      :: elemc
+
+  if ((conn%nbnodes /= 0).and.associated(conn%node)) then
+    if (associated(conn%node(inode)%elem)) then             ! --- array already exists ---
+      if (size(conn%node(inode)%elem) >= conn%node(inode)%nelem+1) then  ! -- size is sufficient
+        conn%node(inode)%nelem = conn%node(inode)%nelem+1                ! add one element
+        conn%node(inode)%elem(conn%node(inode)%nelem) = ielem            ! define element
+      else                                                               ! -- need to resize
+        call new_elemc_copy(elemc, conn%node(inode))
+        call delete_elemc(conn%node(inode))
+        if (present(resize)) then
+          allocate(conn%node(inode)%elem(elemc%nelem+resize))
+        else
+          allocate(conn%node(inode)%elem(elemc%nelem+1))
+        endif
+        conn%node(inode)%nelem = elemc%nelem+1
+        conn%node(inode)%elem(1:elemc%nelem)          = elemc%elem(1:elemc%nelem)
+        conn%node(inode)%elem(conn%node(inode)%nelem) = ielem
+        call delete_elemc(elemc)
+      endif
+    else                                                    ! --- array does not exist ---
+      if (present(resize)) then
+        allocate(conn%node(inode)%elem(resize))
+      else
+        allocate(conn%node(inode)%elem(1))
+      endif
+      conn%node(inode)%nelem   = 1
+      conn%node(inode)%elem(1) = ielem
+    endif
+  else
+    call cfd_error("cannot add element, connectivity not initialized")
+  endif
+
+endsubroutine add_element
 
 
 !------------------------------------------------------------------------------!

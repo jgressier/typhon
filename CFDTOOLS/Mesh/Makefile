@@ -33,7 +33,6 @@ this.f90modules=   \
 
 this.f90= $(this.f90modules) \
   create_facevtex.f90        \
-  reorder_ustconnect.f90     \
   seek_bcface_face.f90       \
   seek_bcface_vtex.f90       \
 
