@@ -31,57 +31,45 @@ integer(kip)           :: isplit
 
     ! -- if needed, split mesh into spectral volume subcells --
 
+    pgrid%umesh_legacy = pgrid%umesh
+
     select case(zone%defsolver%defmesh%splitmesh)
     case(split_none)
       ! nothing to do
     case(split_svm2quad)
-      call convert_to_svm(zone%defsolver%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh)
-      call delete(pgrid%umesh)
-      pgrid%umesh = newmesh
+      call convert_to_svm(zone%defsolver%defmesh, zone%defsolver%defspat, pgrid%umesh_legacy, pgrid%umesh)
     case(split_svm3wang)
-     alpha = 1._krp /  4._krp
-     beta  = 1._krp /  3._krp
-      call convert_to_svm_cub(zone%defsolver%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh,alpha,beta)
-      call delete(pgrid%umesh)
-      pgrid%umesh = newmesh
+      alpha = 1._krp /  4._krp
+      beta  = 1._krp /  3._krp
+      call convert_to_svm_cub(zone%defsolver%defmesh, zone%defsolver%defspat, pgrid%umesh_legacy, pgrid%umesh, alpha,beta)
     case(split_svm3kris)
-     alpha = 91._krp /  1000._krp
-     beta  = 18._krp /  100._krp
-      call convert_to_svm_cub(zone%defsolver%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh,alpha,beta)
-      call delete(pgrid%umesh)
-      pgrid%umesh = newmesh
+      alpha = 91._krp /  1000._krp
+      beta  = 18._krp /  100._krp
+      call convert_to_svm_cub(zone%defsolver%defmesh, zone%defsolver%defspat, pgrid%umesh_legacy, pgrid%umesh, alpha, beta)
     case(split_svm3kris2)
-     alpha = 0.1093621117_krp
-     beta  = 0.1730022492_krp
-      call convert_to_svm_cub(zone%defsolver%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh,alpha,beta)
-      call delete(pgrid%umesh)
-      pgrid%umesh = newmesh
+      alpha = 0.1093621117_krp
+      beta  = 0.1730022492_krp
+      call convert_to_svm_cub(zone%defsolver%defmesh, zone%defsolver%defspat, pgrid%umesh_legacy, pgrid%umesh, alpha, beta)
     case(split_svm4wang)
-      call convert_to_svm_4wang(zone%defsolver%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh)
-      call delete(pgrid%umesh)
-      pgrid%umesh = newmesh
+      call convert_to_svm_4wang(zone%defsolver%defmesh, zone%defsolver%defspat, pgrid%umesh_legacy, pgrid%umesh)
     case(split_svm4kris)
-     alpha = 78._krp / 1000._krp
-     beta  = 104._krp / 1000._krp
-     gamma = 52._krp / 1000._krp
-     delta = 351._krp / 1000._krp
-      call convert_to_svm_4kris(zone%defsolver%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh,alpha,beta,gamma,delta)
-      call delete(pgrid%umesh)
-      pgrid%umesh = newmesh
+      alpha = 78._krp / 1000._krp
+      beta  = 104._krp / 1000._krp
+      gamma = 52._krp / 1000._krp
+      delta = 351._krp / 1000._krp
+      call convert_to_svm_4kris(zone%defsolver%defmesh, zone%defsolver%defspat, pgrid%umesh_legacy, pgrid%umesh, alpha,beta,gamma,delta)
     case(split_svm4kris2)
-     alpha = 0.0326228301_krp
-     beta  = 0.042508082_krp
-     gamma = 0.0504398911_krp
-     delta = 0.1562524902_krp
-      call convert_to_svm_4kris(zone%defsolver%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh,alpha,beta,gamma,delta)
-      call delete(pgrid%umesh)
-      pgrid%umesh = newmesh
+      alpha = 0.0326228301_krp
+      beta  = 0.042508082_krp
+      gamma = 0.0504398911_krp
+      delta = 0.1562524902_krp
+      call convert_to_svm_4kris(zone%defsolver%defmesh, zone%defsolver%defspat, pgrid%umesh_legacy, pgrid%umesh, alpha,beta,gamma,delta)
     case(split_iso_tri)
-     do isplit=1, zone%defsolver%defmesh%nsplit
-      call raffin_iso_tri(zone%defsolver%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh)
-      call delete(pgrid%umesh)
-      pgrid%umesh = newmesh
-     enddo
+      do isplit=1, zone%defsolver%defmesh%nsplit
+        call raffin_iso_tri(zone%defsolver%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh)
+        call delete(pgrid%umesh)
+        pgrid%umesh = newmesh
+      enddo
     case default
       call error_stop('Internal error: unknown splitting method (initzone_mesh)')
     endselect

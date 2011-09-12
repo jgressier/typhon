@@ -31,6 +31,9 @@ integer(kpp), parameter :: dataset_svcell   = 11
 integer(kpp), parameter :: dataset_bococell = 15
 integer(kpp), parameter :: dataset_boconode = 16
 
+integer(kpp), parameter :: meshlevel_current = 31
+integer(kpp), parameter :: meshlevel_legacy  = 32
+
 ! -- Constants for TIME INTEGRATION management
 
 character, parameter :: time_steady            = 'S'
@@ -66,6 +69,7 @@ type mnu_output
   integer(kpp)            :: dataset       ! data set to save
   integer(kpp)            :: location      ! data location
   integer(kip)            :: index         ! solution index
+  integer(kpp)            :: meshlevel     ! solution index
   integer(xbinkpp)        :: meshdef       ! mesh writing method (see TYFMT_MESH)
   logical                 :: savedmesh     ! reference mesh saved
   character               :: format        ! output format

@@ -30,8 +30,6 @@ r  = (1.+(gamma-1)/2*mach**2)**(gamma/(gamma-1))
 str="(1.+(gamma-1)/2*sqr(mach))^(gamma/(gamma-1))"
 call test_real(str, r)
 
-
-
 contains
 
 subroutine test_real(str, x)

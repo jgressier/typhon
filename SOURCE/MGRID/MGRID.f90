@@ -106,7 +106,8 @@ type st_grid
   type(st_gridlist)          :: children   ! grid list of children
   type(st_grid),     pointer :: next       ! next sister in grid list
 
-  type(st_ustmesh)        :: umesh      ! maillage non structure (geometry + connectivity)
+  type(st_ustmesh)        :: umesh          ! maillage non structure (geometry + connectivity)
+  type(st_ustmesh)        :: umesh_legacy
 
   !logical, dimension(:), pointer  :: need_rf
   !integer, dimension(:), pointer  :: tab_intcell ! tableau des cellules de la grille mere 

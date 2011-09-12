@@ -18,4 +18,23 @@ print*,"3",index_oper(str,"3")
 print*,"+",index_oper(str,"+")
 print*,"cos",index_oper(str,"cos")
 
+str=" 1.E-9 + (.9622504E-0-1.E-009)*step(-2-X)"
+call test_parse(str)
+
+contains 
+
+subroutine test_parse(str)
+implicit none
+character(len=*)   :: str
+character(len=128) :: str2
+type(st_fct_node)  :: func
+integer            :: ierr
+
+call string_to_funct(str, func, ierr)
+call fct_node_to_str(func, str2)
+print*,trim(str)," -> ",trim(str2)
+call delete(func)
+
+endsubroutine
+
 endprogram

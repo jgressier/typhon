@@ -13,8 +13,8 @@ implicit none
 
 ! -- Global Variables -------------------------------------------
 
-integer(xbinkip),  parameter :: xty_defaultver  = 2
-integer(xbinkip),  parameter :: xty_maxver      = 2
+integer(xbinkip),  parameter :: xty_defaultver  = 3
+integer(xbinkip),  parameter :: xty_maxver      = 3
 
 character(len=3),  parameter :: xtyext_mesh    = "tym"
 character(len=3),  parameter :: xtyext_sol     = "tys"
@@ -126,7 +126,7 @@ case(1)
   deftyphon%nb_mesh      = xbindata%param(3)
   deftyphon%nb_sol       = xbindata%param(4)
   deftyphon%meshdef      = mesh_full
-case(2)
+case(2:)
   if (xbindata%nparam /= 5) call cfd_error("XBIN/TYPHON error: bad number parameters in TYPHON header")
   deftyphon%xty_version  = xbindata%param(1)
   deftyphon%xty_filetype = xbindata%param(2)

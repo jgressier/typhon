@@ -48,6 +48,7 @@ io = world%noutput
 world%output(io)%format    = fmt_TYPHON
 world%output(io)%basename  = "restart"  ! '.tys'
 world%output(io)%dataset   = dataset_cell
+world%output(io)%meshlevel = meshlevel_legacy
 world%output(io)%meshdef   = mesh_full
 world%output(io)%savedmesh = .false.
 world%output(io)%period    = huge(world%output(io)%period)
@@ -106,7 +107,20 @@ do io = 1, nkey   ! parse only BLOCK definition
   if (world%output(io)%meshdef == inull) call error_stop("parameter reading: unknown dataset option (MESH key)")
 
   world%output(io)%savedmesh = .false.
-  call print_info(20,"    mesh definition type:"//trim(str))
+  call print_info(20,"    mesh definition type: "//trim(str))
+
+  ! --- type of mesh output --- 
+
+  call rpmgetkeyvalstr(pcour, "MESHLEVEL", str, "CURRENT")    ! default is current computed mesh (except restart file)
+
+  world%output(io)%meshlevel = inull
+  if (samestring(str,"LEGACY"))     world%output(io)%meshlevel = meshlevel_legacy
+  if (samestring(str,"CURRENT"))    world%output(io)%meshlevel = meshlevel_current
+  if (world%output(io)%meshlevel == inull) call error_stop("parameter reading: unknown dataset option (MESHLEVEL key)")
+
+  call print_info(20,"    mesh level output   : "//trim(str))
+
+  ! --- output period --- 
 
   call rpmgetkeyvalint(pcour, "PERIOD",  world%output(io)%period, huge(world%output(io)%period))
 

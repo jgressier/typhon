@@ -19,6 +19,16 @@ implicit none
 
 ! -- Module global variables ------------------------------------------------
 
+integer(kpp), parameter :: sol_undefined  = 1
+integer(kpp), parameter :: sol_cell       = 2
+integer(kpp), parameter :: sol_node       = 5
+integer(kpp), parameter :: sol_svm2quad   = 20
+integer(kpp), parameter :: sol_svm3wang   = 30
+integer(kpp), parameter :: sol_svm3kris   = 31
+integer(kpp), parameter :: sol_svm3kris2  = 32
+integer(kpp), parameter :: sol_svm4wang   = 40
+integer(kpp), parameter :: sol_svm4kris   = 41
+integer(kpp), parameter :: sol_svm4kris2  = 42
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
@@ -29,6 +39,8 @@ implicit none
 type st_genericfield
   integer      :: nscal, nvect, ntens        ! field dimensions
   integer      :: dim                        ! number of values
+  integer      :: ncell, dof                 ! number of cells and degree of freedom per cell
+  integer(kpp) :: type                       ! type of solution
   type(st_genericfield),           pointer :: next      ! chained list pointer
   type(st_scafield), dimension(:), pointer :: tabscal   ! scalar fields
   type(st_vecfield), dimension(:), pointer :: tabvect   ! vector fields
@@ -131,6 +143,7 @@ integer               :: i
   gfield%nscal     = n_scal
   gfield%nvect     = n_vect
   gfield%ntens     = n_tens
+  gfield%type      = sol_undefined
 
   nullify(gfield%next)
 
