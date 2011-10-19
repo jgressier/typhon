@@ -19,6 +19,7 @@ implicit none
 
 integer(kpp), parameter :: split_none      = 0
 integer(kpp), parameter :: split_iso_tri   = 11
+integer(kpp), parameter :: split_iso_quad  = 12
 integer(kpp), parameter :: split_svm2quad  = 21
 integer(kpp), parameter :: split_svm2tri   = 22
 integer(kpp), parameter :: split_svm3wang  = 31

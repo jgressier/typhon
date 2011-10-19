@@ -121,6 +121,10 @@ if (samestring(str,"SVM4KRIS"))  defmesh%splitmesh = split_svm4kris
 if (samestring(str,"SVM4KRIS2")) defmesh%splitmesh = split_svm4kris2
 if (samestring(str,"ISO-TRI"))  then 
   defmesh%splitmesh = split_iso_tri
+  call rpmgetkeyvalint(pcour, "NSPLIT", defmesh%nsplit, 1)
+endif
+if (samestring(str,"ISO-QUAD"))  then 
+  defmesh%splitmesh = split_iso_quad
   call rpmgetkeyvalint(pcour, "NSPLIT", defmesh%nsplit, 1)  
 endif
 
@@ -142,7 +146,9 @@ case(split_svm4kris)
 case(split_svm4kris2)
   call print_info(20, "  . split mesh : SVM4 KRIS OPTIMIZED 2")
 case(split_iso_tri)
-  call print_info(20, "  . split mesh : ISO REFINEMENT")
+  call print_info(20, "  . split mesh : ISO TRI REFINEMENT")
+case(split_iso_quad)
+  call print_info(20, "  . split mesh : ISO QUAD REFINEMENT")
 case default
   call error_stop("parameters parsing: unknown splitmesh parameter -> "//trim(str))
 endselect

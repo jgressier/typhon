@@ -70,6 +70,12 @@ integer(kip)           :: isplit
         call delete(pgrid%umesh)
         pgrid%umesh = newmesh
       enddo
+    case(split_iso_quad)
+      do isplit=1, zone%defsolver%defmesh%nsplit
+        call raffin_iso_quad(zone%defsolver%defmesh, zone%defsolver%defspat, pgrid%umesh, newmesh)
+        call delete(pgrid%umesh)
+        pgrid%umesh = newmesh
+      enddo
     case default
       call error_stop('Internal error: unknown splitting method (initzone_mesh)')
     endselect
