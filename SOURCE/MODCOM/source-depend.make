@@ -12,7 +12,6 @@ MODCOM_LIB = $(PRJLIBDIR)/libt_modcom.a
 MODCOM_MOD = COMMTAG.$(MODEXT)          \
              CONNECT_CSR.$(MODEXT)      \
              GENLIB.$(MODEXT)           \
-             GEO2D.$(MODEXT)            \
              LAPACK.$(MODEXT)           \
              LIBSORT.$(MODEXT)          \
              MODINFO.$(MODEXT)          \

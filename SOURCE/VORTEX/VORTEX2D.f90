@@ -13,7 +13,7 @@ module VORTEX2D
 
 use TYPHMAKE     ! declaration des precisions
 use MATH         ! constantes et fonctions mathematiques
-use GEO2D        ! module de gestion de vecteurs 2D
+use VEC2D        ! module de gestion de vecteurs 2D
 
 ! -- DECLARATIONS -----------------------------------------------------------
 

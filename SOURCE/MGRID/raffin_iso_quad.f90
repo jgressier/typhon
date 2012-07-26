@@ -42,7 +42,7 @@ logical                :: rightface
 
 ! -- BODY --
 
-call print_info(10, "  . converting to SVM mesh...")
+call print_info(10, "  . isotropic (quad) mesh refinement...")
 
 fnv     = 2     ! nb of vertices per face
 cnv     = 4     ! nb of vertices per SV cell

@@ -12,7 +12,7 @@
 module PAN2D_LIN
 
 use TYPHMAKE     ! declaration des precisions
-use GEO2D        ! module de gestion de vecteurs 2D
+use VEC2D        ! module de gestion de vecteurs 2D
 use GEO3D
 use VORTEX2D
 

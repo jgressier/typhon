@@ -92,7 +92,7 @@ type(st_genericfield)    :: gfield
 integer :: info
 type(st_xbindatasection)   :: xbindata
 real(xbinkrp), allocatable :: sol(:,:)
-integer(xbinkip)           :: dim, nelem, nsca, nvec, ncell, dof, meshtype
+integer(xbinkip)           :: dim, nelem, nsca, nvec, ncell, dof, fieldtype
 integer                    :: i, isca, ivec
 
 !------------------------------------------------------------------------------!
@@ -105,25 +105,30 @@ if (xbindata%usertype /= xbinty_solution) then
   call cfd_error("XBIN/TYPHON error: expecting SOLUTION data section")
 endif
 
+!print*,xbindata%nparam,'//',xbindata%param
+
 select case (deftyphon%xty_version)
 case(1:2)
-  if (xbindata%nparam /= 3) then
+  if (xbindata%nparam == 3) then
     nelem         = xbindata%param(1)
     nsca          = xbindata%param(2)
     nvec          = xbindata%param(3)
+    fieldtype     = sol_cell
+    dof           = 1
+    ncell         = nelem
   else
-    call cfd_error("XBIN/TYPHON error: expecting parameters in SOLUTION data section")
+    call cfd_error("XBIN/TYPHON error: expecting 3 parameters in SOLUTION data section")
   endif
 case(3:xty_maxver)
-  if (xbindata%nparam /= 6) then
-    meshtype      = xbindata%param(1)
+  if (xbindata%nparam == 6) then
+    fieldtype     = xbindata%param(1)
     nelem         = xbindata%param(2)
     ncell         = xbindata%param(3)
     dof           = xbindata%param(4)
     nsca          = xbindata%param(5)
     nvec          = xbindata%param(6)
   else
-    call cfd_error("XBIN/TYPHON error: expecting parameters in SOLUTION data section")
+    call cfd_error("XBIN/TYPHON error: expecting 6 parameters in SOLUTION data section")
   endif
 case default
   call cfd_error("XBIN/TYPHON error: unexpected version number")
@@ -132,7 +137,7 @@ endselect
 call delete_xbindata(xbindata)
 
 call new_genericfield(gfield, nelem, nsca, nvec, 0)
-gfield%type  = meshtype
+gfield%type  = fieldtype
 gfield%ncell = ncell
 gfield%dof   = dof
 
