@@ -42,7 +42,7 @@ $(PRJINCDIR)/%.$(MODEXT):
 $(PRJOBJDIR)/%.o: 
 	@echo \* OBJECT: options [$(F90OPT)] : $*.o from $<
 	@if [[ ! -d $(PRJOBJDIR) ]] ; then mkdir $(PRJOBJDIR) ; fi
-	@$(F90C) $(F90OPT) $(PRJINCOPT) -c $< -o $(PRJOBJDIR)/$*.o
+	@command="$(F90C) $(F90OPT) $(PRJINCOPT) -c $< -o $(PRJOBJDIR)/$*.o" ; $$command || echo $$command
 
 $(PRJEXEDIR)/%: $(PRJOBJDIR)/%.o $(LIBDEPS:%=$(PRJLIBDIR)/lib%.$(LIBSTA))
 	@echo \* "EXE   ": options [$(F90OPT)] : $* from $<

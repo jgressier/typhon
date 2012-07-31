@@ -1,8 +1,8 @@
 ##!/bin/sh
 
-echo ------------------------------------------------------------------
-echo TYPHON configuration
-echo ------------------------------------------------------------------
+echo "------------------------------------------------------------------------"
+echo "TYPHON configuration"
+echo "------------------------------------------------------------------------"
 
 TOOLSCONF=TOOLS/configure
 
@@ -81,17 +81,23 @@ check_f90conformance() {
   cd $TMPDIR
   rm * 2> /dev/null
   cp $LOCALDIR/$TOOLSCONF/f90conformance.f90 .
-  $F90C $f90options f90conformance.f90 -o f90test >> $conflog 2>&1
-  if [ $? ] ; then
+  command="$F90C $f90options f90conformance.f90 -o f90test"
+  echo $command >> $conflog 2>&1
+  echo >> $conflog 2>&1
+  $command >> $conflog 2>&1
+  echo >> $conflog 2>&1
+  if [ $? -eq 0 ] ; then
     success "successfully compiled"
     ./f90test > /dev/null 2>&1
-    if [ $? ] ; then
+    if [ $? -eq 0 ] ; then
       success "checked"
     else
       fail "execution failed"
+      FTN_ERR=1
     fi
   else
     fail "compiler error"
+    FTN_ERR=1
   fi
   cd $LOCALDIR
   }
@@ -194,7 +200,7 @@ check_f90module() {
   rm * 2> /dev/null
   cp $LOCALDIR/$TOOLSCONF/module.f90 .
   $F90C -c module.f90 > /dev/null 2>&1
-  if [ $? ] ; then
+  if [ $? -eq 0 ] ; then
     module=$(ls modulename.* 2> /dev/null)
     if [ -n "$module" ] ; then
       F90modext=${module#*.}
@@ -212,9 +218,11 @@ check_f90module() {
       export F90modext F90modcase
     else
       fail "no module output found"
+      FTN_ERR=1
     fi
   else
     fail "error when compiling"
+    FTN_ERR=1
   fi
   cd $LOCALDIR
   }
@@ -259,24 +267,32 @@ fi
 
 ### REVIEW ###
 
-[[ -z "$F90C" ]]         && error   "no fortran compiler found: impossible to build TYPHON"
-#[[ -z "$LIB_blas"   ]]   && error   "BLAS   not available: impossible to build TYPHON"
-#[[ -z "$LIB_lapack" ]]   && error   "LAPACK not available: impossible to build TYPHON"
-[[ -z "$LIB_cgns"   ]]   && error   "CGNS   not available: impossible to build TYPHON"
-[[ -z "$LIB_metis"  ]]   && error   "METIS  not available: TYPHON will not feature automatic distribution"
-[[ -z "$MPILIB"     ]]   && warning "MPI    not available: TYPHON will not feature parallel computation"
+impossible="impossible to build TYPHON"
+no_feature="TYPHON will not feature"
 
-echo Configuration ended
+[[ -z "$F90C" ]]       && error   "no fortran compiler found: $impossible"
+[[ -n "$FTN_ERR" ]]    && error   "fortran compile/run error: $impossible"
+#[[ -z "$LIB_blas"   ]] && error   "BLAS   not available: $impossible"
+#[[ -z "$LIB_lapack" ]] && error   "LAPACK not available: $impossible"
+[[ -z "$LIB_cgns"   ]] && error   "CGNS   not available: $impossible"
+[[ -z "$LIB_metis"  ]] && error   "METIS  not available: $no_feature automatic distribution"
+[[ -z "$MPILIB"     ]] && warning "MPI    not available: $no_feature parallel computation"
+
+echo "------------------------------------------------------------------------"
+echo "Configuration ended"
 
 ### SHELL CONFIGURATION ###
-echo Writing Shell configuration \($SHELLCONF\)...
+echo "------------------------------------------------------------------------"
+echo "Writing Shell configuration \($SHELLCONF\)..."
 rm $SHELLCONF 2> /dev/null
 for VAR in SYS PROC DIFF ; do
-  echo export $VAR=\"$(printenv $VAR)\" >> $SHELLCONF
+  echo "export $VAR=\"$(printenv $VAR)\"" >> $SHELLCONF
 done
+echo "Done"
 
 ### MAKEFILE CONFIGURATION ###
-echo Writing Makefile configuration \($MAKECONF\)...
+echo "------------------------------------------------------------------------"
+echo "Writing Makefile configuration \($MAKECONF\)..."
 mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
 {
   echo "# This file was created by $(basename $0)"
@@ -301,8 +317,10 @@ mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
   echo "#MPIOPT      = \$(mpif90 --showme:compile)"
   echo "#MPILIB      = \$(mpif90 --showme:link)"
 } > $MAKECONF
-echo Done
-echo ------------------------------------------------------------------
+echo "Done"
+
+echo "------------------------------------------------------------------------"
 echo
 echo "to build TYPHON : make all"
 echo
+echo "------------------------------------------------------------------------"
