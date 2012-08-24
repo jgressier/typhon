@@ -15,6 +15,7 @@ program main
 use TYPHMAKE    ! default accuracy
 use VARCOM      ! common variables and types
 use OUTPUT      ! definition des procedures et unites pour les sorties
+use TIMER
 use MODWORLD    ! global data & structure for the computation
 use MENU_GEN    ! general parameters for the project
 
@@ -23,6 +24,7 @@ implicit none
 ! -- Variables locale --
 
 type(st_world) :: loc_world      ! structure encapsulant toutes les donnees TYPHON
+integer        :: itimer_init, itimer_tot
 
 character(len=6), parameter :: version = "0.5.0"
 
@@ -40,6 +42,9 @@ call print_info(0,"******************************************************")
 write(str_w,*)    "  TYPHON V ",version,' (',trim(svnrev),')'
 call print_info(0,adjustl(str_w))
 call print_info(0,"******************************************************")
+
+itimer_tot  = realtime_start()
+itimer_init = realtime_start()
 
 call init_varcom()
 
@@ -71,6 +76,9 @@ if (mpi_run) then
   call mpi_strategy_post(loc_world)
 endif
 
+write(str_w, "(a,e13.4)") "> user initialization time: ", realtime_stop(itimer_init)
+call print_info(10, str_w)
+
 !###### INTEGRATION ET RESOLUTION
 
 select case(loc_world%prj%action)
@@ -93,6 +101,8 @@ call delete(loc_world)
 !###### Desallocation
 
 call print_etape("> End of process")
+write(str_w, "(a,e13.4)") "> total user time: ", realtime_stop(itimer_tot)
+
 call finalize_exch(loc_world%info)
 
 !#########

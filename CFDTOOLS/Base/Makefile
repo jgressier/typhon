@@ -23,6 +23,7 @@ this.f90modules= \
   MESHPREC.f90     \
   PACKET.f90       \
   STRING.f90       \
+  TIMER.f90        \
 
 this.f90= $(this.f90modules) \
 

@@ -9,6 +9,7 @@ subroutine integration(lworld)
 
 use TYPHMAKE
 use STRING
+use TIMER
 use OUTPUT
 use VARCOM
 use MODWORLD
@@ -21,9 +22,10 @@ type(st_world) :: lworld
 
 ! -- Internal variables --
 type(st_grid), pointer :: pgrid
-real(krp)              :: cpu_start, cpu_end, curtime
+real(krp)              :: curtime, cputime, realtime
 integer, dimension(:), allocatable &
                        :: exchcycle ! indices des cycles d'echange pour les differents couplages de zones
+integer                :: icputimer, irealtimer
 integer                :: ir, izone, if, ib, ic, ierr
 integer                :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
 
@@ -57,7 +59,8 @@ do izone = 1, lworld%prj%nzone
   enddo
 enddo
 
-call cpu_time(cpu_start)
+icputimer  = cputime_start()
+irealtimer = realtime_start()
 
 !--------------------------------------------------------
 ! INTEGRATION
@@ -150,11 +153,14 @@ enddo
 ! END OF INTEGRATION
 !--------------------------------------------------------
 
-call cpu_time(cpu_end)
+cputime  = cputime_stop(icputimer)
+realtime = realtime_stop(irealtimer)
 
-write(str_w, "(a,e13.4)") "CPU   integration time: ", cpu_end-cpu_start
+write(str_w, "(a,e13.4)") "user  integration time: ", realtime
 call print_info(10, str_w)
-write(str_w, "(a,e13.4)") "CPU average cycle time: ", (cpu_end-cpu_start)/lworld%info%icycle
+write(str_w, "(a,e13.4)") "CPU   integration time: ", cputime
+call print_info(10, str_w)
+write(str_w, "(a,e13.4)") "CPU average cycle time: ", cputime/lworld%info%icycle
 call print_info(10, str_w)
 
 ! Mise a jour des variables primitives

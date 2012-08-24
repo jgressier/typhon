@@ -50,6 +50,7 @@ integer                            ::  cur_adjncy    ! Other variable
 
 integer, dimension(:), allocatable :: tab_parts      ! Number of cells in each parts
 integer                            :: i, j, k  ! compteur de boucle
+integer                            :: partmin, partmax, partavg
 
 ! -- BODY --
 
@@ -97,7 +98,12 @@ do i = 1, npart
   tab_parts(i) = count(partition(1:ncell) == i)
 enddo
 
-write(str_w,*) "size of parts:",tab_parts(1:npart)
+! -- parts stats --
+partmin = minval(tab_parts(1:npart))
+partmax = maxval(tab_parts(1:npart))
+partavg = sum(tab_parts(1:npart))/npart
+write(str_w,'(a,i8,a,i8,a,i8,a,g5.1,a)') "    part sizes:",partmin,'(min) /',partavg,'(avg) /',partmax,&
+  '(max) and',real(partmax-partmin)/partavg*100,' %deviation'
 call print_info(10,trim(str_w))
 
 

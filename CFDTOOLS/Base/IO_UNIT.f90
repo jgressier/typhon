@@ -7,14 +7,16 @@ module IO_UNIT
 
 implicit none
 
-! -- PARAMETERS -------------------------------------------------------------
+! -- PUBLIC DATA -------------------------------------------------------------
 
-integer, parameter ::io_unit_min = 100
-integer, parameter ::io_unit_max = 500
+!integer :: getnew_io_unit
 
-logical, dimension(io_unit_min:io_unit_max) :: io_unit_state = .false.
+! -- PRIVATE DATA -------------------------------------------------------------
 
+integer, private, parameter ::io_unit_min = 100
+integer, private, parameter ::io_unit_max = 500
 
+logical, private, dimension(io_unit_min:io_unit_max) :: io_unit_state = .false.
 
 ! -- INTERFACES -------------------------------------------------------------
 
@@ -26,6 +28,7 @@ contains
 !------------------------------------------------------------------------------!
 ! getnew_io_unit: get first unused unit, -1 if not found
 !------------------------------------------------------------------------------!
+
 integer function getnew_io_unit()
 implicit none
 integer :: i 
