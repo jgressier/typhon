@@ -29,16 +29,20 @@
 
 #-----------------------------------------------------------------
 case $1 in
-  lower) changecase="A-Z a-z" ;;
-  upper) changecase="a-z A-Z" ;;
+  lower) trchangecase="A-Z a-z" ;;
+  upper) trchangecase="a-z A-Z" ;;
   *)     echo Panic: unknown option :$1: ; exit 1 ;;
 esac
+shift
 
-USE=$(echo use | tr $changecase)
+USE=$(echo use | tr $trchangecase)
+
+sedrmcomment="s/ *!.*//"
+sededithead="s/^ *$USE /    \$(PRJINCDIR)\\//"
+sededittail="s/ *$/.\$(MODEXT) \\\\/"
 
 #-----------------------------------------------------------------
 # try to get optional ROOT folder
-shift
 ROOTDIR=${1:-.}
 
 TARGET=$ROOTDIR/depends.make
@@ -48,30 +52,32 @@ echo Building module dependencies in $TARGET
 
 rm $TARGET 2> /dev/null
 
-echo \# This file has been created automatically      > $TARGET
-echo \# It can be overwritten                        >> $TARGET
-echo \# \(manual modifications are not recommended\) >> $TARGET
+echo "# This file has been created automatically"    > $TARGET
+echo "# It can be overwritten"                      >> $TARGET
+echo "# (manual modifications are not recommended)" >> $TARGET
 
 for fic in $(find $ROOTDIR -name '*.f90' | grep -v '/.#') ; do
 
   basename=$(basename $fic .f90)
+
+  moduledepend=$(
+    grep -i '^ *use ' $fic |
+      tr   $trchangecase   |
+      sed "$sedrmcomment;$sededithead;$sededittail"
+    )
   #
 
   # MODULE
 
   if [ -n "$(grep -i '^ *module ' $fic)" ] ; then
-    modulebase=$(basename $fic .f90 | tr $changecase)
+    modulebase=$(basename $fic .f90 | tr $trchangecase)
     echo $modulebase.source:=$fic >> $TARGET
     echo $modulebase.object:=$basename.o >> $TARGET
     echo $basename.target: '$(PRJINCDIR)/'$modulebase.'$(MODEXT)'  >> $TARGET
     echo >> $TARGET
     echo ${modulebase}.'$(MODEXT): $(PRJINCDIR)/'${modulebase}.'$(MODEXT)' >> $TARGET
     echo '$(PRJINCDIR)/'${modulebase}.'$(MODEXT)': $fic \\ >> $TARGET
-    grep -i '^ *use ' $fic       | 
-      sed 's/!.*$//'             | 
-      tr   $changecase           |
-      sed 's/ *$/.$(MODEXT) \\/' | 
-      sed "s/^ *$USE /    \$(PRJINCDIR)\\//" >> $TARGET
+    echo -e "${moduledepend:-\c}" >> $TARGET
     echo >> $TARGET
   fi
 
@@ -79,11 +85,7 @@ for fic in $(find $ROOTDIR -name '*.f90' | grep -v '/.#') ; do
 
   #echo $modulebase.objsrc:=$fic >> $TARGET
   echo '$(PRJOBJDIR)/'$basename.o: $fic \\   >> $TARGET
-  grep -i '^ *use ' $fic       | 
-    sed 's/!.*$//'             | 
-    tr   $changecase           |
-    sed 's/ *$/.$(MODEXT) \\/' | 
-    sed "s/^ *$USE /    \$(PRJINCDIR)\\//" >> $TARGET
+  echo -e "${moduledepend:-\c}" >> $TARGET
   echo >> $TARGET
 
 done

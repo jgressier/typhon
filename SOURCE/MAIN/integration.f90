@@ -76,8 +76,8 @@ do while (.not. lworld%info%fin_integration)
     str_w = "* CYCLE "//strof(lworld%info%icycle)
     !write(str_w,'(a,a)') "* CYCLE ",strof(lworld%info%icycle,3)
   case(time_unsteady, time_unsteady_inverse)
-    write(str_w,'(a,i5,a,g10.4)') "* CYCLE", lworld%info%icycle, &
-                                  " : t = ",  lworld%info%curtps
+    write(str_w,'(a,i5,a,g11.4)') "* CYCLE", lworld%info%icycle, &
+                                  " : t =",  lworld%info%curtps
   !case(periodique)
   !  write(str_w,'(a,i5)') "* CYCLE", lworld%info%icycle
   case default
@@ -110,14 +110,14 @@ do while (.not. lworld%info%fin_integration)
   select case(lworld%prj%time_model)
 
   case(time_steady)
-    write(str_w,'(a,g10.4)') "  Residue in cycle = ", log10(lworld%info%cur_res/lworld%info%residu_ref)
+    write(str_w,'(a,g11.4)') "  Residue in cycle =", log10(lworld%info%cur_res/lworld%info%residu_ref)
     if (lworld%info%cur_res/lworld%info%residu_ref <= lworld%prj%residumax) then
       lworld%info%fin_integration = .true.
     endif
     if (lworld%info%icycle == lworld%prj%ncycle) then
       lworld%info%fin_integration = .true.
       write(uf_stdout,'(a)')   " Maximum number of cycles reached"
-      write(uf_log,'(a,g10.4)') "Maximum number of cycles reached, RESIDUE = ",&
+      write(uf_log,'(a,g11.4)') "Maximum number of cycles reached, RESIDUE =",&
                            log10(lworld%info%cur_res/lworld%info%residu_ref)
     endif
     call print_info(6,str_w)

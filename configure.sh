@@ -283,7 +283,7 @@ echo "Configuration ended"
 
 ### SHELL CONFIGURATION ###
 echo "------------------------------------------------------------------------"
-echo "Writing Shell configuration \($SHELLCONF\)..."
+echo "Writing Shell configuration ($SHELLCONF)..."
 rm $SHELLCONF 2> /dev/null
 for VAR in SYS PROC DIFF ; do
   echo "export $VAR=\"$(printenv $VAR)\"" >> $SHELLCONF
@@ -292,7 +292,7 @@ echo "Done"
 
 ### MAKEFILE CONFIGURATION ###
 echo "------------------------------------------------------------------------"
-echo "Writing Makefile configuration \($MAKECONF\)..."
+echo "Writing Makefile configuration ($MAKECONF)..."
 mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
 {
   echo "# This file was created by $(basename $0)"

@@ -72,7 +72,7 @@ BC1: do ib1 = 1, nbc
         loc_vf%value(icp) = - max(0._krp, umesh%mesh%iface(indf1,1,1)%normale.scal.dist) &
                              *min(0._krp, umesh%mesh%iface(indf2,1,1)%normale.scal.dist) 
         if (loc_vf%value(icp) <= tol*ndist2) loc_vf%value(icp) = 0._krp
-        loc_vf%value(icp) = loc_vf%value(icp) / (pi*ndist2**2)
+        loc_vf%value(icp) = loc_vf%value(icp) / (PIcst*ndist2**2)
       enddo
     enddo
 
@@ -131,7 +131,7 @@ BC1: do ib1 = 1, nbc
             loc_vf%value(icp) = - max(0._krp, umesh%mesh%iface(indf1,1,1)%normale.scal.dist) &
                                  *min(0._krp, umesh%mesh%iface(indf2,1,1)%normale.scal.dist) 
             if (loc_vf%value(icp) <= tol*ndist2) loc_vf%value(icp) = 0._krp
-            loc_vf%value(icp) = loc_vf%value(icp) / (pi*ndist2**2)
+            loc_vf%value(icp) = loc_vf%value(icp) / (PIcst*ndist2**2)
           enddo
         enddo
 

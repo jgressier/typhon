@@ -2,8 +2,8 @@
 ! Procedure : calc_flux_hllc                    Authors : J. Gressier
 !
 ! Function
-!   Computation of HLLC flux for Euler equations
-!   (Batten variant)
+!   Computation of HLLC (Batten variant) flux for Euler equations
+!   (+ kinetic and kinetic-beta variant)
 !
 ! Defaults/Limitations/Misc :
 !
@@ -42,16 +42,36 @@ type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 ! -- Internal variables --
 integer                 :: if
 type(st_nsetat)         :: roe
-type(v3d)               :: fn, rvst
-real(krp), dimension(nflux) :: sl, sr, vnl, vnr, al, ar, mnl, mnr
+type(v3d)               :: rvst
+type(v3d), dimension(nflux) :: fn
+real(krp), dimension(nflux) :: sl, sr
+real(krp), dimension(nflux) :: vnl, vnr, al, ar
+real(krp), dimension(nflux) :: mnl, mnr
+real(krp)               :: cl, cr
 real(krp)               :: g, ig1, iks
-real(krp)               :: am, vm, rel, rer, rqL, rqR
+real(krp)               :: am, vm
+real(krp)               :: rel, rer
+real(krp)               :: beta
+real(krp)               :: rqL, rqR
+real(krp)               :: modml, modmr, kinwl, kinwr, kindl, kindr, f1, f2
 real(krp)               :: Sst, rst, pst, rest
 
 ! -- Body --
 
 g   = defsolver%defns%properties(1)%gamma
 ig1 = 1._krp/(g - 1._krp)
+f1  = sqrt(0.5_krp*g)
+f2  = 0.5_krp/sqrt(PIcst)
+
+select case(defspat%sch_hyp)
+case(sch_hllc)
+case(sch_hllck)
+  beta = 1._krp
+case(sch_hllckb)
+  beta = sqrt((g - 1._krp)/(2*g))
+case default
+  call error_stop("internal error: numerical scheme not implemented (flux computation)")
+endselect
 
 ! -- Pre-processing --
 
@@ -62,23 +82,46 @@ call calc_roe_states(defsolver%defns%properties(1), nflux, cell_l, cell_r, roe)
 !-------------------------------
 ! Flux computation
 
-al(1:nflux) = sqrt(g*cell_l%pressure(1:nflux)/cell_l%density(1:nflux)) ! speed of sound       (left  state)
-ar(1:nflux) = sqrt(g*cell_r%pressure(1:nflux)/cell_r%density(1:nflux)) !                      (right state)
+fn(1:nflux)  = face(1:nflux)%normale
+
+vnl(1:nflux) = cell_l%velocity(1:nflux).scal.fn(1:nflux)       ! face normal velocity (left  state)
+vnr(1:nflux) = cell_r%velocity(1:nflux).scal.fn(1:nflux)       !                      (right state)
+al(1:nflux)  = sqrt(g*cell_l%pressure(1:nflux)/cell_l%density(1:nflux)) ! speed of sound       (left  state)
+ar(1:nflux)  = sqrt(g*cell_r%pressure(1:nflux)/cell_r%density(1:nflux)) !                      (right state)
 
 do if = 1, nflux
 
-  fn      = face(if)%normale
-  vnl(if) = cell_l%velocity(if).scal.fn                ! face normal velocity (left  state)
-  vnr(if) = cell_r%velocity(if).scal.fn                !                      (right state)
-  vm  =    roe%velocity(if).scal.fn                    !                      (roe average state)
+  !!fn  = face(if)%normale
+  !!vnl = cell_l%velocity(if).scal.fn(if)            ! face normal velocity (left  state)
+  !!vnr = cell_r%velocity(if).scal.fn(if)            !                      (right state)
+  !!al  = sqrt(g*cell_l%pressure(if)/cell_l%density(if)) ! speed of sound       (left  state)
+  !!ar  = sqrt(g*cell_r%pressure(if)/cell_r%density(if)) !                      (right state)
+
+  cl  = al(if)/f1                                           ! modified speed of sound for EFM (left  state)
+  cr  = ar(if)/f1                                           !                                 (right state)
+
+  vm  = roe%velocity(if).scal.fn(if)                   !                      (roe average state)
   am  = sqrt(g*   roe%pressure(if)/   roe%density(if)) !                      (roe average state)
 
   ! volumic total energy (left and right)
   rel = ig1*cell_l%pressure(if) + .5_krp*cell_l%density(if)*sqrabs(cell_l%velocity(if))
   rer = ig1*cell_r%pressure(if) + .5_krp*cell_r%density(if)*sqrabs(cell_r%velocity(if))
 
-  sl(if)  = min(vnl(if)-al(if), vm-am)                  ! left  highest wave speed
-  sr(if)  = max(vnr(if)+ar(if), vm+am)                  ! right highest wave speed
+select case(defspat%sch_hyp)
+case(sch_hllc)
+  sl(if) = min(vnl(if)-al(if), vm-am)              ! left  highest wave speed
+  sr(if) = max(vnr(if)+ar(if), vm+am)              ! right highest wave speed
+case(sch_hllck, &
+     sch_hllckb)
+  modml = vnl(if)/cl - f1*beta
+  modmr = vnr(if)/cr + f1*beta
+  kinwl = 0.5_krp*(1.0_krp - erf(modml))
+  kinwr = 0.5_krp*(1.0_krp + erf(modmr))
+  kindl = - f2*exp(-modml*modml)
+  kindr = + f2*exp(-modmr*modmr)
+  sl(if) = min(cl*(modml*kinwl+kindl), vm-am)
+  sr(if) = max(cr*(modmr*kinwr+kindr), vm+am)
+endselect
 
   !-----------------------------
   ! FULLY UPWIND
@@ -86,14 +129,14 @@ do if = 1, nflux
     flux%tabscal(1)%scal(ideb-1+if) = vnl(if)*cell_l%density(if)             ! mass flux
     flux%tabscal(2)%scal(ideb-1+if) = vnl(if)*(rel + cell_l%pressure(if))    ! energy flux
     flux%tabvect(1)%vect(ideb-1+if) = (vnl(if)*cell_l%density(if))*cell_l%velocity(if) &
-                                    + cell_l%pressure(if)*fn             ! momentum flux
+                                    + cell_l%pressure(if)*fn(if)         ! momentum flux
   !-----------------------------
   ! FULLY UPWIND
   elseif (sr(if) <= 0._krp) then
     flux%tabscal(1)%scal(ideb-1+if) = vnr(if)*cell_r%density(if)             ! mass flux
     flux%tabscal(2)%scal(ideb-1+if) = vnr(if)*(rer + cell_r%pressure(if))    ! energy flux
     flux%tabvect(1)%vect(ideb-1+if) = (vnr(if)*cell_r%density(if))*cell_r%velocity(if) &
-                                    + cell_r%pressure(if)*fn             ! momentum flux
+                                    + cell_r%pressure(if)*fn(if)         ! momentum flux
   !-----------------------------
   ! COMPUTATION OF CONTACT WAVE
   else
@@ -105,19 +148,22 @@ do if = 1, nflux
       iks  = 1._krp/(sl(if) - Sst)
       rst  = rqL*iks
       pst  = cell_l%pressure(if) - rqL*(vnl(if)-Sst)
-      rvst = iks*( (rqL*cell_l%velocity(if)) + (pst-cell_l%pressure(if))*fn )
+      rvst = iks*( (rqL*cell_l%velocity(if)) + (pst-cell_l%pressure(if))*fn(if) )
       rest = iks*(rel*(sl(if)-vnl(if)) - cell_l%pressure(if)*vnl(if) + pst*Sst)
     else
       iks  = 1._krp/(sr(if) - Sst)
       rst  = rqR*iks
       pst  = cell_r%pressure(if) - rqR*(vnr(if)-Sst)
-      rvst = iks*( (rqR*cell_r%velocity(if)) + (pst-cell_r%pressure(if))*fn )
+      rvst = iks*( (rqR*cell_r%velocity(if)) + (pst-cell_r%pressure(if))*fn(if) )
       rest = iks*(rer*(sr(if)-vnr(if)) - cell_r%pressure(if)*vnr(if) + pst*Sst)
     endif
 
-    flux%tabscal(1)%scal(ideb-1+if) = Sst*rst                ! mass flux
-    flux%tabscal(2)%scal(ideb-1+if) = Sst*(rest + pst)       ! energy flux
-    flux%tabvect(1)%vect(ideb-1+if) = (Sst*rvst) + (pst*fn)  ! momentum flux
+  ! mass flux
+    flux%tabscal(1)%scal(ideb-1+if) = Sst*rst
+  ! energy flux
+    flux%tabscal(2)%scal(ideb-1+if) = Sst*(rest + pst)
+  ! momentum flux
+    flux%tabvect(1)%vect(ideb-1+if) = (Sst*rvst) + (pst*fn(if))
   endif
 
 enddo
@@ -144,8 +190,8 @@ if (calc_jac) then
     sr(1:nflux) = max(sr(1:nflux), 0._krp)
     call calc_jac_hlldiag(defsolver, defspat, nflux, face,          &
                           cell_l, cell_r, sl, sr, vnl, vnr, ideb, jacL, jacR)
-
-  case default ! --- errors will be checked in calc_jac_gencall
+  case default
+  ! --- errors will be checked in calc_jac_gencall
     mnl(1:nflux) = vnl(1:nflux)/al(1:nflux)
     mnr(1:nflux) = vnr(1:nflux)/ar(1:nflux)
     call calc_jac_gencall(defsolver, defspat, nflux, face,          &
@@ -162,4 +208,5 @@ endsubroutine calc_flux_hllc
 !
 ! Jul 2005 : creation, HLLC flux
 ! Aug 2005 : call to jacobian matrices
+! Sep 2012 : kinetic evaluations
 !------------------------------------------------------------------------------!

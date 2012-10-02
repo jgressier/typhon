@@ -11,7 +11,6 @@ MATH_LIB = $(PRJLIBDIR)/libt_math.a
 # Modules
 MATH_MOD = INTEGRATION.$(MODEXT) \
            INTERPOL.$(MODEXT)    \
-           MATH.$(MODEXT)        \
            MATRIX.$(MODEXT)      \
            MATRIX_ARRAY.$(MODEXT)\
            SPARSE_MAT.$(MODEXT)  \

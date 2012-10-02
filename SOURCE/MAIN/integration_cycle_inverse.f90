@@ -61,7 +61,7 @@ nfut  = lworld%prj%inverse%ncyc_futur
 nmes  = lworld%prj%inverse%nmes
 nflux = lworld%prj%inverse%nflux
 
-write(str_w,'(a,g10.4)') "  inverse computation at time =",lworld%info%curtps
+write(str_w,'(a,g11.4)') "  inverse computation at time =",lworld%info%curtps
 call print_info(7,str_w)
 
 !-------------------------------------------------------------------------------------

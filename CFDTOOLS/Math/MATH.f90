@@ -12,7 +12,7 @@ implicit none
 
 ! -- Variables globales du module -------------------------------------------
 
-double precision, parameter :: pi = 3.1415926535897931
+double precision, parameter :: PIcst = 3.141592653589793238462643
 
 !------------------------------------------------------------------------------!
 !    DECLARATIONS

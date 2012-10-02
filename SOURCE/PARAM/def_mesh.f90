@@ -192,10 +192,10 @@ if (defmesh%nperiodicity >= 1) then
       defmesh%periodicity(ip)%axis = defmesh%periodicity(ip)%axis / abs(defmesh%periodicity(ip)%axis)
       if (rpm_existkey(pcour, "ROTATION_ANGLE")) then
        call rpmgetkeyvalreal(pcour, "ROTATION_ANGLE", x)
-       defmesh%periodicity(ip)%angle = x/180._krp*pi
+       defmesh%periodicity(ip)%angle = x/180._krp*PIcst
       else
        call rpmgetkeyvalreal(pcour, "ROTATION_NUMBER", x)
-       defmesh%periodicity(ip)%angle = 2._krp*pi/x
+       defmesh%periodicity(ip)%angle = 2._krp*PIcst/x
       endif
     case default
       call error_stop("parameters parsing: periodicity model")

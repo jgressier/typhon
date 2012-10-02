@@ -114,7 +114,7 @@ case(1)
     defmrf%rot_axis = v3d_of(str, info)     
     if (rpm_existkey(pcour, "OMEGA_RPM")) then
       call rpmgetkeyvalreal(pcour, "OMEGA_RPM",  omega_rpm)
-      defmrf%omega = 2._krp*pi*omega_rpm/60._krp
+      defmrf%omega = 2._krp*PIcst*omega_rpm/60._krp
     else
       call rpmgetkeyvalreal(pcour, "OMEGA",  defmrf%omega)
     endif
@@ -127,12 +127,12 @@ case(1)
     defmrf%rot_axis = v3d_of(str, info)     
     if (rpm_existkey(pcour, "OMEGA_RPM")) then
       call rpmgetkeyvalreal(pcour, "OMEGA_RPM",  omega_rpm)
-      defmrf%omega = 2._krp*pi*omega_rpm/60._krp
+      defmrf%omega = 2._krp*PIcst*omega_rpm/60._krp
     else
       call rpmgetkeyvalreal(pcour, "OMEGA",  defmrf%omega, 0._krp)
     endif
     call rpmgetkeyvalreal(pcour, "ROT_AMPL",  defmrf%rot_ampl)
-    defmrf%rot_ampl = pi/180._krp*defmrf%rot_ampl
+    defmrf%rot_ampl = PIcst/180._krp*defmrf%rot_ampl
     call rpmgetkeyvalreal(pcour, "ROT_PERIOD", defmrf%rot_period)
     if (abs(defmrf%rot_period) < epsilon(1._krp)) then
       call error_stop("parameters parsing: invalid (null) ROT_PERIOD for the rotationally oscillating reference frame")
@@ -151,12 +151,12 @@ case(1)
     defmrf%velocity = v3d_of(str, info)     
     if (rpm_existkey(pcour, "OMEGA_RPM")) then
       call rpmgetkeyvalreal(pcour, "OMEGA_RPM",  omega_rpm)
-      defmrf%omega = 2._krp*pi*omega_rpm/60._krp
+      defmrf%omega = 2._krp*PIcst*omega_rpm/60._krp
     else
       call rpmgetkeyvalreal(pcour, "OMEGA",  defmrf%omega, 0._krp)
     endif
     call rpmgetkeyvalreal(pcour, "ROT_AMPL",  defmrf%rot_ampl)
-    defmrf%rot_ampl = pi/180._krp*defmrf%rot_ampl
+    defmrf%rot_ampl = PIcst/180._krp*defmrf%rot_ampl
     call rpmgetkeyvalreal(pcour, "ROT_PERIOD", defmrf%rot_period)
     if (abs(defmrf%rot_period) < epsilon(1._krp)) then
       call error_stop("parameters parsing: invalid (null) ROT_PERIOD for the rotationally oscillating reference frame")

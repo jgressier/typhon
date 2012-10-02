@@ -74,9 +74,11 @@ case(solNS)
   if (samestring(str,"EFMO"))            defspat%sch_hyp = sch_efmo
   if (samestring(str,"HLL"))             defspat%sch_hyp = sch_hlle
   if (samestring(str,"HLLE"))            defspat%sch_hyp = sch_hlle
-  if (samestring(str,"HLLK"))            defspat%sch_hyp = sch_hllk
+  if (samestring(str,"HLLEK"))           defspat%sch_hyp = sch_hllek
+  if (samestring(str,"HLLEKB"))          defspat%sch_hyp = sch_hllekb
   if (samestring(str,"HLLC"))            defspat%sch_hyp = sch_hllc
   if (samestring(str,"HLLCK"))           defspat%sch_hyp = sch_hllck
+  if (samestring(str,"HLLCKB"))          defspat%sch_hyp = sch_hllckb
   if (samestring(str,"STEGER-WARMING"))  defspat%sch_hyp = sch_stegwarm
   if (samestring(str,"VANLEER"))         defspat%sch_hyp = sch_vanleer
   if (samestring(str,"VLEER"))           defspat%sch_hyp = sch_vanleer
@@ -95,8 +97,16 @@ case(solNS)
     call print_info(7,"  numerical flux : Roe")
   case(sch_hlle)
     call print_info(7,"  numerical flux : HLLE")
+  case(sch_hllek)
+    call print_info(7,"  numerical flux : HLLEK")
+  case(sch_hllekb)
+    call print_info(7,"  numerical flux : HLLEK(B)")
   case(sch_hllc)
     call print_info(7,"  numerical flux : HLLC")
+  case(sch_hllck)
+    call print_info(7,"  numerical flux : HLLCK")
+  case(sch_hllckb)
+    call print_info(7,"  numerical flux : HLLCK(B)")
   case(sch_vanleer)
     call print_info(7,"  numerical flux : Van Leer")
   case(sch_ausmm)
@@ -108,7 +118,7 @@ case(solNS)
   case(sch_efm)
     call print_info(7,"  numerical flux : EFM/KFVS)")
   case default
-    call erreur("parameters parsing","unknown numerical scheme")
+    call erreur("parameters parsing","'"//trim(str)//"' unknown numerical scheme")
   endselect
 
   !-----------------------------------------

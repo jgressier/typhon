@@ -7,6 +7,7 @@
 !------------------------------------------------------------------------------!
 module MESHMRF
 
+use MATH
 use VEC3D
 use IOCFD
 
@@ -86,14 +87,14 @@ case(mrf_trans_lin)
   velocity = velocity - mrfvelocity
 
 case(mrf_trans_osc)
-  trn_om = 2._krp*acos(-1._krp)/mrf%trn_period   ! DEV: must use MATH module in future
+  trn_om  = 2._krp*PIcst/mrf%trn_period
   mrfvelocity = mrf%velocity + time * mrf%acceleration  &
                 + trn_om * mrf%trn_ampl * cos(trn_om*time + mrf%trn_phi) * mrf%trn_dir
   velocity = velocity - mrfvelocity
 
 case(mrf_rot_cst)
-  theta =  mrf%omega * time
-  omega =  mrf%omega * mrf%rot_axis
+  theta   =  mrf%omega * time
+  omega   =  mrf%omega * mrf%rot_axis
   ! Boundary Vabs rotation due to MRF position (theta(t))
   call rot(velocity, mrf%rot_axis, -theta)
   ! Vabs -> Vrel thanks to MRF velocity (omega(t) x r)
@@ -102,9 +103,9 @@ case(mrf_rot_cst)
   velocity    = velocity - mrfvelocity
 
 case(mrf_rot_osc)
-  rot_om = 2._krp*acos(-1._krp)/mrf%rot_period   ! DEV: must use MATH module in future
-  theta =  mrf%omega*time    + mrf%rot_ampl * sin(rot_om*time + mrf%rot_phi)
-  omega = (mrf%omega  + rot_om*mrf%rot_ampl * cos(rot_om*time + mrf%rot_phi)) * mrf%rot_axis
+  rot_om  = 2._krp*PIcst/mrf%rot_period
+  theta   =  mrf%omega*time    + mrf%rot_ampl * sin(rot_om*time + mrf%rot_phi)
+  omega   = (mrf%omega  + rot_om*mrf%rot_ampl * cos(rot_om*time + mrf%rot_phi)) * mrf%rot_axis
   ! Boundary Vabs rotation due to MRF position (theta(t))
   call rot(velocity, mrf%rot_axis, -theta)
   ! Vabs -> Vrel thanks to MRF velocity (omega(t) x r)
@@ -113,10 +114,10 @@ case(mrf_rot_osc)
   velocity    = velocity - mrfvelocity
 
 case(mrf_comb_osc)
-  trn_om = 2._krp*acos(-1._krp)/mrf%trn_period   ! DEV: must use MATH module in future
-  rot_om = 2._krp*acos(-1._krp)/mrf%rot_period   ! DEV: must use MATH module in future
-  theta =  mrf%omega*time    + mrf%rot_ampl * sin(rot_om*time + mrf%rot_phi)
-  omega = (mrf%omega  + rot_om*mrf%rot_ampl * cos(rot_om*time + mrf%rot_phi)) * mrf%rot_axis
+  trn_om  = 2._krp*PIcst/mrf%trn_period
+  rot_om  = 2._krp*PIcst/mrf%rot_period
+  theta   =  mrf%omega*time    + mrf%rot_ampl * sin(rot_om*time + mrf%rot_phi)
+  omega   = (mrf%omega  + rot_om*mrf%rot_ampl * cos(rot_om*time + mrf%rot_phi)) * mrf%rot_axis
   ! Boundary Vabs rotation due to MRF position (theta(t))
   call rot(velocity, mrf%rot_axis, -theta)
   ! Vabs -> Vrel thanks to MRF velocity (linear translation, omega(t) x r, oscillating translation)
@@ -155,14 +156,14 @@ case(mrf_trans_lin)
   velocity = velocity + mrfvelocity
 
 case(mrf_trans_osc)
-  trn_om = 2._krp*acos(-1._krp)/mrf%trn_period   ! DEV: must use MATH module in future
+  trn_om  = 2._krp*PIcst/mrf%trn_period
   mrfvelocity = mrf%velocity + time * mrf%acceleration  &
                 + trn_om * mrf%trn_ampl * cos(trn_om*time + mrf%trn_phi) * mrf%trn_dir
   velocity = velocity + mrfvelocity
 
 case(mrf_rot_cst)
-  theta =  mrf%omega * time
-  omega =  mrf%omega * mrf%rot_axis
+  theta   =  mrf%omega * time
+  omega   =  mrf%omega * mrf%rot_axis
   ! Vabs -> Vrel thanks to MRF velocity (omega(t) x r)
   radius      =  pos - mrf%center
   mrfvelocity = omega .vect. radius
@@ -171,9 +172,9 @@ case(mrf_rot_cst)
   call rot(velocity, mrf%rot_axis, theta)
 
 case(mrf_rot_osc)
-  rot_om = 2._krp*acos(-1._krp)/mrf%rot_period   ! DEV: must use MATH module in future
-  theta =  mrf%omega*time    + mrf%rot_ampl * sin(rot_om*time + mrf%rot_phi)
-  omega = (mrf%omega  + rot_om*mrf%rot_ampl * cos(rot_om*time + mrf%rot_phi)) * mrf%rot_axis
+  rot_om  = 2._krp*PIcst/mrf%rot_period
+  theta   =  mrf%omega*time    + mrf%rot_ampl * sin(rot_om*time + mrf%rot_phi)
+  omega   = (mrf%omega  + rot_om*mrf%rot_ampl * cos(rot_om*time + mrf%rot_phi)) * mrf%rot_axis
   ! Vabs -> Vrel thanks to MRF velocity (omega(t) x r)
   radius      =  pos - mrf%center
   mrfvelocity = omega .vect. radius
@@ -182,10 +183,10 @@ case(mrf_rot_osc)
   call rot(velocity, mrf%rot_axis, theta)
 
 case(mrf_comb_osc)
-  trn_om = 2._krp*acos(-1._krp)/mrf%trn_period   ! DEV: must use MATH module in future
-  rot_om = 2._krp*acos(-1._krp)/mrf%rot_period   ! DEV: must use MATH module in future
-  theta =  mrf%omega*time    + mrf%rot_ampl * sin(rot_om*time + mrf%rot_phi)
-  omega = (mrf%omega  + rot_om*mrf%rot_ampl * cos(rot_om*time + mrf%rot_phi)) * mrf%rot_axis
+  trn_om  = 2._krp*PIcst/mrf%trn_period
+  rot_om  = 2._krp*PIcst/mrf%rot_period
+  theta   =  mrf%omega*time    + mrf%rot_ampl * sin(rot_om*time + mrf%rot_phi)
+  omega   = (mrf%omega  + rot_om*mrf%rot_ampl * cos(rot_om*time + mrf%rot_phi)) * mrf%rot_axis
   ! Vabs -> Vrel thanks to MRF velocity (linear translation, omega(t) x r, oscillating translation)
   radius      =  pos - mrf%center
   mrfvelocity = mrf%velocity + time * mrf%acceleration + omega .vect. radius  &
@@ -224,13 +225,13 @@ case(mrf_none)
 
 case(mrf_trans_lin)
   mrfdisplacement = time * mrf%velocity + (0.5_krp * time**2 * mrf%acceleration)
-  vertex = vertex + mrfdisplacement
+  vertex  = vertex + mrfdisplacement
 
 case(mrf_trans_osc)
-  trn_om = 2._krp*acos(-1._krp)/mrf%trn_period   ! DEV: must use MATH module in future
+  trn_om  = 2._krp*PIcst/mrf%trn_period
   mrfdisplacement = time * mrf%velocity + (0.5_krp * time**2 * mrf%acceleration)  &
                 + mrf%trn_ampl * sin(trn_om*time + mrf%trn_phi) * mrf%trn_dir
-  vertex = vertex + mrfdisplacement
+  vertex  = vertex + mrfdisplacement
 
 case(mrf_rot_cst)
   theta   =  mrf%omega * time
@@ -239,15 +240,15 @@ case(mrf_rot_cst)
   vertex  =  mrf%center + radius
 
 case(mrf_rot_osc)
-  rot_om  = 2._krp*acos(-1._krp)/mrf%rot_period   ! DEV: must use MATH module in future
+  rot_om  = 2._krp*PIcst/mrf%rot_period
   theta   =  mrf%omega*time    + mrf%rot_ampl * sin(rot_om*time + mrf%rot_phi)
   radius  =  vertex - mrf%center
   call rot(radius, mrf%rot_axis, theta)
   vertex  =  mrf%center + radius
 
 case(mrf_comb_osc)
-  trn_om = 2._krp*acos(-1._krp)/mrf%trn_period   ! DEV: must use MATH module in future
-  rot_om  = 2._krp*acos(-1._krp)/mrf%rot_period   ! DEV: must use MATH module in future
+  trn_om  = 2._krp*PIcst/mrf%trn_period
+  rot_om  = 2._krp*PIcst/mrf%rot_period
   theta   =  mrf%omega*time    + mrf%rot_ampl * sin(rot_om*time + mrf%rot_phi)
   radius  =  vertex - mrf%center
   call rot(radius, mrf%rot_axis, theta)

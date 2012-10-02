@@ -130,13 +130,13 @@ integer ntot, ilig
       if (present(defval)) then
         res = defval
       else
-        call rpmerr("Le mot-clef "//trim(key)//" n'existe pas")
+        call rpmerr("Keyword "//trim(key)//" is not defined")
       endif
     case(1)
       call rpmgetvalreal(block%txt(ilig), res)
       block%flagtxt(ilig) = .true.
     case(2:)
-      call rpmerr("Le mot-clef "//trim(key)//" n'est pas unique")
+      call rpmerr("Keyword "//trim(key)//" is multiply defined")
   endselect
   
 endsubroutine rpmgetkeyvalrealsp
@@ -166,13 +166,13 @@ integer ntot, ilig
       if (present(defval)) then
         res = defval
       else
-        call rpmerr("Le mot-clef "//trim(key)//" n'existe pas")
+        call rpmerr("Keyword "//trim(key)//" is not defined")
       endif
     case(1)
       call rpmgetvalreal(block%txt(ilig), res)
       block%flagtxt(ilig) = .true.
     case(2:)
-      call rpmerr("Le mot-clef "//trim(key)//" n'est pas unique")
+      call rpmerr("Keyword "//trim(key)//" is multiply defined")
   endselect
   
 endsubroutine rpmgetkeyvalrealdp
@@ -216,13 +216,13 @@ integer ntot, ilig
       if (present(defval)) then
         res = defval
       else
-        call rpmerr("Le mot-clef "//trim(key)//" n'existe pas")
+        call rpmerr("Keyword "//trim(key)//" is not defined")
       endif
     case(1)
       call rpmgetvalstr(block%txt(ilig), res)
       block%flagtxt(ilig) = .true.
     case(2:)
-      call rpmerr("Le mot-clef "//trim(key)//" n'est pas unique")
+      call rpmerr("Keyword "//trim(key)//" is multiply defined")
   endselect
 
 endsubroutine rpmgetkeyvalstr
@@ -267,13 +267,13 @@ integer ntot, ilig
       if (present(defval)) then
         res = defval
       else
-        call rpmerr("Le mot-clef "//trim(key)//" n'existe pas")
+        call rpmerr("Keyword "//trim(key)//" is not defined")
       endif
     case(1)
       call rpmgetvalint(block%txt(ilig), res)
       block%flagtxt(ilig) = .true.
     case(2:)
-      call rpmerr("Le mot-clef "//trim(key)//" n'est pas unique")
+      call rpmerr("Keyword "//trim(key)//" is multiply defined")
   endselect
 
 endsubroutine rpmgetkeyvalint

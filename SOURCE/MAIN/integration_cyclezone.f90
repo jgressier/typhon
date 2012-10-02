@@ -58,7 +58,7 @@ case(time_steady)
   call print_info(7,str_w)
 
 case(time_unsteady)
-  write(str_w,'(a,i5,a,g10.4)') "  zone",lzone%id," at time =",lzone%info%cycle_start
+  write(str_w,'(a,i5,a,g11.4)') "  zone",lzone%id," at time =",lzone%info%cycle_start
   call print_info(7,str_w)
 
 case(time_unsteady_inverse)

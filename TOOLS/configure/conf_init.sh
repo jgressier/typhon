@@ -1,13 +1,20 @@
 
 configure_help() {
+  echo
   echo "TYPHON configuration help"
+  echo
   echo "  The TYPHONPATH variable should be set to find external libraries and include files:"
   echo "    * libraries     will be searched in \$TYPHONPATH/lib"
   echo "    * include files will be searched in \$TYPHONPATH/include"
+  echo
   echo "  This can be done e.g. if the DAEPDIR variable is set by:"
+  echo
   echo "    export TYPHONPATH=/my_usr:\$DAEPDIR/x86_64-Linux"
+  echo
   echo "  or:"
+  echo
   echo "    TYPHONPATH=/my_usr:\$DAEPDIR/x86_64-Linux $0"
+  echo
   case "${DAEPDIR:-}" in
     "") echo "  The DAEPDIR variable is currently unset"
         for dir in /usr/local/aero /opt/aero "" ; do

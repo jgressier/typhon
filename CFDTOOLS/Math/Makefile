@@ -16,6 +16,7 @@ LIBNAME:=libcfdmath
 this.library: $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
 
 this.f90modules= \
+  MATH.f90 \
   VEC2D.f90         \
   VEC3D.f90         \
   FCT_CONTAINER.f90 \

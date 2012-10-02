@@ -126,7 +126,7 @@ real, dimension(2) :: cp1, cp2    ! donnees pour la definition de la droite
 real               :: integ_trap_cylsp
 ! -- Debut de la procedure --
 
-  integ_trap_cylsp = .5*(cp1(2) + cp2(2)) * pi * (cp2(1)**2-cp1(1)**2)
+  integ_trap_cylsp = .5*(cp1(2) + cp2(2)) * PIcst * (cp2(1)**2-cp1(1)**2)
   
 endfunction integ_trap_cylsp
 !------------------------------------------------------------------------------!
@@ -151,7 +151,7 @@ double precision, dimension(2) :: cp1, cp2    ! donnees pour la definition de la
 double precision               :: integ_trap_cyldp
 ! -- Debut de la procedure --
 
-  integ_trap_cyldp = .5*(cp1(2) + cp2(2)) * pi * (cp2(1)**2-cp1(1)**2)
+  integ_trap_cyldp = .5*(cp1(2) + cp2(2)) * PIcst * (cp2(1)**2-cp1(1)**2)
   
 endfunction integ_trap_cyldp
 !------------------------------------------------------------------------------!

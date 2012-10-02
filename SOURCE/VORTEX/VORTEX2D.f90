@@ -17,7 +17,7 @@ use VEC2D        ! module de gestion de vecteurs 2D
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
-real(krp), parameter :: i2pi = .5_krp/pi      !   1/(2*pi)
+real(krp), parameter :: i2pi = .5_krp/PIcst   !   1/(2*pi)
 
 ! -- types --
 

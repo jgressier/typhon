@@ -7,6 +7,7 @@
 !------------------------------------------------------------------------------!
 module MESHGEOM
 
+use MATH
 use VEC3D
 use TENSOR3
 use MESHBASE
@@ -308,7 +309,7 @@ real(krp)       :: two_pi
 
 ! -- BODY --
 
-two_pi = 2._krp*acos(-1._krp)
+two_pi = 2._krp*PIcst
 
 ! les centres de gravite et les volumes des cellules elementaires sont
 ! indexes selon l'index de face. On doit utiliser la connectivite

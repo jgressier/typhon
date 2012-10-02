@@ -40,60 +40,74 @@ type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 
 ! -- Internal variables --
 integer                 :: if
-type(v3d)               :: fn, rvst
-real(krp), dimension(nflux) :: sl, sr, vnl, vnr
+type(v3d), dimension(nflux) :: fn
+real(krp), dimension(nflux) :: sl, sr
+real(krp)               :: vnl, vnr, al, ar
+real(krp)               :: cl, cr
 real(krp)               :: g, ig1, iks
-real(krp)               :: al, ar, vm, rel, rer, rqL, rqR
+real(krp)               :: rel, rer
 real(krp)               :: Sst, rst, pst, rest
-real(krp)               :: ml, mr, erfl, erfr, expl, expr, f1, f2, PI
+real(krp)               :: modml, modmr, kinwl, kinwr, kindl, kindr, f1, f2
 
 ! -- Body --
 
 g   = defsolver%defns%properties(1)%gamma
 ig1 = 1._krp/(g - 1._krp)
-PI  = 4.0_krp*atan(1.0_krp)
 f1  = sqrt(0.5_krp*g)
-f2  = 1.0_krp/sqrt(2.0_krp*PI*g)
+f2  = 0.5_krp/sqrt(PIcst)
 
 ! -- Pre-processing --
 
 !-------------------------------
 ! Flux computation
 
+fn(1:nflux)  = face(1:nflux)%normale
+
+!!vnl(1:nflux) = cell_l%velocity(1:nflux).scal.fn(1:nflux)       ! face normal velocity (left  state)
+!!vnr(1:nflux) = cell_r%velocity(1:nflux).scal.fn(1:nflux)       !                      (right state)
+!!al(1:nflux)  = sqrt(g*cell_l%pressure(1:nflux)/cell_l%density(1:nflux)) ! speed of sound       (left  state)
+!!ar(1:nflux)  = sqrt(g*cell_r%pressure(1:nflux)/cell_r%density(1:nflux)) !                      (right state)
+
 do if = 1, nflux
 
-  fn      = face(if)%normale
-  vnl(if) = cell_l%velocity(if).scal.fn                ! face normal velocity (left  state)
-  vnr(if) = cell_r%velocity(if).scal.fn                !                      (right state)
-  al  = sqrt(g*cell_l%pressure(if)/cell_l%density(if)) ! sound speed          (left state)
+  !!fn  = face(if)%normale
+  vnl = cell_l%velocity(if).scal.fn(if)            ! face normal velocity (left  state)
+  vnr = cell_r%velocity(if).scal.fn(if)            !                      (right state)
+  al  = sqrt(g*cell_l%pressure(if)/cell_l%density(if)) ! speed of sound       (left  state)
   ar  = sqrt(g*cell_r%pressure(if)/cell_r%density(if)) !                      (right state)
-  ml  = f1*vnl(if)/al
-  mr  = f1*vnr(if)/ar
+
+  cl  = al/f1                                           ! modified speed of sound for EFM (left  state)
+  cr  = ar/f1                                           !                                 (right state)
+
 
   ! volumic total energy (left and right)
   rel = ig1*cell_l%pressure(if) + .5_krp*cell_l%density(if)*sqrabs(cell_l%velocity(if))
   rer = ig1*cell_r%pressure(if) + .5_krp*cell_r%density(if)*sqrabs(cell_r%velocity(if))
 
+  modml = vnl/cl
+  modmr = vnr/cr
+
+
   ! error function
-  erfl= 0.5_krp*(1.0_krp + erf(ml))
-  erfr= 0.5_krp*(1.0_krp - erf(mr))
+  kinwl = 0.5_krp*(1.0_krp + erf(modml))
+  kinwr = 0.5_krp*(1.0_krp - erf(modmr))
 
   ! exponential function
-  expl= f2*al*exp(-ml*ml)
-  expr= f2*ar*exp(-mr*mr)
+  kindl =   f2*exp(-modml*modml)
+  kindr = - f2*exp(-modmr*modmr)
 
   !-----------------------------
   ! numericalflux
-  flux%tabscal(1)%scal(ideb-1+if) = cell_l%density(if) * ( vnl(if) * erfl + expl) + &
-                                    cell_r%density(if) * ( vnr(if) * erfr - expr)
-  flux%tabscal(2)%scal(ideb-1+if) = (rel + cell_l%pressure(if)) * vnl(if) * erfl + &
-                                    (rer + cell_r%pressure(if)) * vnr(if) * erfr + &
-                                    (rel + 0.5_krp*cell_l%pressure(if)) * expl - &
-                                    (rer + 0.5_krp*cell_r%pressure(if)) * expr
-  flux%tabvect(1)%vect(ideb-1+if) = (cell_l%pressure(if) * erfl  + &
-                                     cell_r%pressure(if) * erfr ) * fn + &
-                                     (vnl(if) * erfl + expl) * cell_l%density(if) * cell_l%velocity(if) + &
-                                     (vnr(if) * erfr - expr) * cell_r%density(if) * cell_r%velocity(if)
+  flux%tabscal(1)%scal(ideb-1+if) = cell_l%density(if) * ( vnl * kinwl + cl*kindl) + &
+                                    cell_r%density(if) * ( vnr * kinwr + cr*kindr)
+  flux%tabscal(2)%scal(ideb-1+if) = (rel + cell_l%pressure(if)) * vnl * kinwl + &
+                                    (rer + cell_r%pressure(if)) * vnr * kinwr + &
+                                    (rel + 0.5_krp*cell_l%pressure(if)) * cl*kindl + &
+                                    (rer + 0.5_krp*cell_r%pressure(if)) * cr*kindr
+  flux%tabvect(1)%vect(ideb-1+if) = (cell_l%pressure(if) * kinwl  + &
+                                     cell_r%pressure(if) * kinwr ) * fn(if) + &
+                                     (vnl * kinwl + cl*kindl) * cell_l%density(if) * cell_l%velocity(if) + &
+                                     (vnr * kinwr + cr*kindr) * cell_r%density(if) * cell_r%velocity(if)
 enddo
 
 !--------------------------------------------------------------

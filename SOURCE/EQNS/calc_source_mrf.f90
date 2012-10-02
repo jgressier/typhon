@@ -58,7 +58,7 @@ select case(mrf%type)
 
  case(mrf_trans_osc)
 
-  trn_om   = 2._krp*pi/mrf%trn_period
+  trn_om   = 2._krp*PIcst/mrf%trn_period
   do ic = 1, umesh%ncell_int
     rho    = field%etatcons%tabscal(1)%scal(ic)
     speed  = field%etatcons%tabvect(1)%vect(ic) / rho
@@ -89,7 +89,7 @@ select case(mrf%type)
 
  case(mrf_rot_osc)
 
-  rot_om   = 2._krp*pi/mrf%rot_period
+  rot_om   = 2._krp*PIcst/mrf%rot_period
   omega    = (mrf%omega + rot_om * mrf%rot_ampl * cos(rot_om*curtime + mrf%rot_phi) )*mrf%rot_axis
   dotomega = (        -rot_om**2 * mrf%rot_ampl * sin(rot_om*curtime + mrf%rot_phi) )*mrf%rot_axis
 
@@ -113,8 +113,8 @@ select case(mrf%type)
 
  case(mrf_comb_osc)
 
-  trn_om   = 2._krp*pi/mrf%trn_period
-  rot_om   = 2._krp*pi/mrf%rot_period
+  trn_om   = 2._krp*PIcst/mrf%trn_period
+  rot_om   = 2._krp*PIcst/mrf%rot_period
   omega    = (mrf%omega + rot_om * mrf%rot_ampl * cos(rot_om*curtime + mrf%rot_phi) )*mrf%rot_axis
   dotomega = (        -rot_om**2 * mrf%rot_ampl * sin(rot_om*curtime + mrf%rot_phi) )*mrf%rot_axis
 

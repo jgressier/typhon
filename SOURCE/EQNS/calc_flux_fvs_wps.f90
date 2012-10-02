@@ -40,7 +40,7 @@ type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 integer                 :: if
 real(krp), dimension(nflux) &
                         :: al, ar, mp, mm, pp, pm, El, Er, mnl, mnr
-real(krp)               :: g, ig1, iks, km, kd, PI
+real(krp)               :: g, ig1, iks, km, kd
 
 ! -- Body --
 
@@ -89,9 +89,8 @@ case(sch_wps_vleer)
     pm(1:nflux) = -mm(1:nflux)*(2._krp+mnr(1:nflux))
   endwhere
 case(sch_wps_efm)
-  PI  = 4.0_krp*atan(1.0_krp)
   km  = sqrt(0.5_krp*g)
-  kd  = 1.0_krp/sqrt(2.0_krp*PI*g)
+  kd  = 1.0_krp/sqrt(2.0_krp*PIcst*g)
   pp(1:nflux) = 0.5_krp*(1.0_krp + erf(km*mnl(1:nflux)))
   pm(1:nflux) = 0.5_krp*(1.0_krp - erf(km*mnr(1:nflux)))
   mp(1:nflux) = mnl(1:nflux)*pp(1:nflux) + kd*exp(-(km*mnl(1:nflux))**2)

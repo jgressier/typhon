@@ -54,11 +54,11 @@ case(sch_rusanov)
   call calc_flux_rusanov(defsolver, defspat, nflux, face,      &
                       QL, QR, flux, ideb,                      &
                       calc_jac, jacL, jacR)
-case(sch_hlle)
+case(sch_hlle, sch_hllek, sch_hllekb)
   call calc_flux_hlle(defsolver, defspat, nflux, face,         &
                       QL, QR, flux, ideb,                      &
                       calc_jac, jacL, jacR)
-case(sch_hllc)
+case(sch_hllc, sch_hllck, sch_hllckb)
   call calc_flux_hllc(defsolver, defspat, nflux, face,         &
                       QL, QR, flux, ideb,                      &
                       calc_jac, jacL, jacR)
