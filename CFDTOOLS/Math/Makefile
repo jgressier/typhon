@@ -38,7 +38,7 @@ this.f90exe= \
   check_fct_env.f90       \
   check_fct_eval.f90      \
   check_fct_parser.f90    \
-  check_fctmemoryleak.f90 \
+  check_fct_memoryleak.f90 \
 
 this.tools: $(this.f90exe:%.f90=$(PRJEXEDIR)/%)
 
