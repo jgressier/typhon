@@ -21,7 +21,9 @@ call string_to_funct(str, func, ierr)
 
 ni = 50
 
-open (unit=6, carriagecontrol='fortran')
+#ifdef __INTEL_COMPILER
+  open (unit=6, carriagecontrol='fortran')
+#endif
 do i = 1, ni
   bar(i:i) = "="
 enddo

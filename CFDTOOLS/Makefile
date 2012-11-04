@@ -17,6 +17,7 @@ all:
 	@(cd Mesh ;       make opt=$(opt))
 	@(cd FileFormat ; make opt=$(opt))
 clean:
+	@rm include/*.$(MODEXT)
 	@(cd Base ;       make clean )
 	@(cd Math ;       make clean )
 	@(cd Models ;     make clean )

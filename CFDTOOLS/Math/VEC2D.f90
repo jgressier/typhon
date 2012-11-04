@@ -59,7 +59,7 @@ interface operator(.vect.)
   module procedure v2d_vectorial_product
 endinterface
 
-interface rot
+interface rot2d   ! gfortran: interface incompatibility with VEC3D
   module procedure v2d_rot, v2d_rot_a
 endinterface
 

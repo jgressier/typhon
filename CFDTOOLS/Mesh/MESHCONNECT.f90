@@ -87,13 +87,15 @@ do ielem = 1, umesh%cellvtex%nsection
   maxvtex = max(maxvtex, nvtexperface_element(umesh%cellvtex%elem(ielem)%elemtype))
 enddo
 
-! -- connectivite intermediaire face->sommets --
+! -- temporary connectivity face->vertex --
+
+call init_ustmesh(umeshcon, 0)
 
 call new(umeshcon%facevtex, nface, maxvtex)         ! nface is only is estimated size
 umeshcon%facevtex%nbnodes   = 0                     ! set face counter to zero (not yet created)
 umeshcon%facevtex%fils(:,:) = 0                     ! initialization
 
-! -- connectivite intermediaire face->cellules --
+! -- temporary connectivity face->cells --
 call new(umeshcon%facecell, nface, 2)               ! nface is only is estimated size
 umeshcon%facecell%nbnodes   = 0                     ! reinitialisation : nombre de faces crees
 umeshcon%facecell%fils(:,:) = 0                     ! initialisation de la connectivite
@@ -370,7 +372,6 @@ subroutine ust_create_face(nsom, icell, face, face_prop, umeshcon)
 
   else ! ---------- face already exists: no creation / current cell is right cell ---------
 
-    !print*,'oldface',face
     if (umeshcon%facecell%fils(iface,2) /= 0) then
       call cfd_error("cell->face conversion error, bad connectivity : 3 cells found for only one face")
     endif
@@ -562,7 +563,6 @@ do if = 1, ntotface
 enddo
 call delete(conn)
 
-!print*,st_allocated(umesh%face_Ltag)
 if (st_allocated(umesh%face_Ltag)) then
   conn = copy(umesh%face_Ltag)
   do if = 1, ntotface
@@ -571,7 +571,6 @@ if (st_allocated(umesh%face_Ltag)) then
   call delete(conn)
 endif
 
-!print*,st_allocated(umesh%face_Rtag)
 if (st_allocated(umesh%face_Rtag)) then
   conn = copy(umesh%face_Rtag)
   do if = 1, ntotface

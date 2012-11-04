@@ -62,9 +62,12 @@ type(st_defxbin) :: defxbin
 ! -- private data --
 integer info
 
-  xbin_eof = eof(defxbin%iunit)
-  !inquire(defxbin%iunit, iostat=info)
-  !xbin_eof = is_iostat_end(info)
+#ifdef __INTEL_COMPILER
+  xbin_eof = eof(defxbin%iunit)  ! intrinsic INTEL fortran
+#else
+  inquire(defxbin%iunit, iostat=info)   ! fortran norm but does not work
+  xbin_eof = is_iostat_end(info)
+#endif
 
 endfunction xbin_eof
 

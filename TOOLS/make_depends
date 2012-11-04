@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Script:            make_depends
 # Created by         Jeremie Gressier

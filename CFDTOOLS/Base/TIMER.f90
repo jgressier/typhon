@@ -32,7 +32,7 @@ contains
 !----------------------------------------------------------------------------------------
 ! start system clock reading and provide index for stopping
 !----------------------------------------------------------------------------------------
-integer function realtime_start
+integer function realtime_start()
 implicit none
 integer          :: new_index, dim
 integer, pointer :: ptimer(:)
@@ -83,7 +83,7 @@ endfunction realtime_stop
 !----------------------------------------------------------------------------------------
 ! start system clock reading and provide index for stopping
 !----------------------------------------------------------------------------------------
-integer function cputime_start
+integer function cputime_start()
 implicit none
 integer          :: new_index, dim
 integer, pointer :: ptimer(:)

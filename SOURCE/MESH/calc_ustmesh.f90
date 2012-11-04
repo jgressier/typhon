@@ -17,7 +17,7 @@
 !   changent).
 !
 !------------------------------------------------------------------------------!
-subroutine calc_ustmesh(umesh, defmesh)
+subroutine calc_ustmesh(defmesh, umesh)
 
 use TYPHMAKE
 use OUTPUT
@@ -36,7 +36,7 @@ type(st_ustmesh) :: umesh
 ! -- Ouputs --
 
 ! -- Internal variables --
-integer                                :: i
+integer     :: i
 
 ! -- BODY --
 
@@ -51,7 +51,7 @@ call test_ustmesh(umesh)
 
 ! -- allocate cells & face (vertices are already allocated) --
 
-call new_mesh(umesh%mesh, umesh%ncell, umesh%nface, 0)
+call alloc_mesh(umesh%mesh, umesh%ncell, umesh%nface, 0)
 
 !-------------------------------------------------------------------
 ! geometry computation

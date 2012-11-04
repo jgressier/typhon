@@ -1,3 +1,5 @@
+.PHONY: all help cfdtools seq mpi clean
+
 help:
 	@echo "-----------------------------------------------------------------"
 	@echo "TYPHON & CFDtools project"

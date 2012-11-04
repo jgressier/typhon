@@ -47,6 +47,7 @@ call print_info(10, "  . isotropic (quad) mesh refinement...")
 fnv     = 2     ! nb of vertices per face
 cnv     = 4     ! nb of vertices per SV cell
 nfgauss = 1
+
 !--------------------------------------------------------------------
 ! initialize and allocate new USTMESH
 
@@ -181,8 +182,6 @@ do if = 1, umesh%nface
    endif
 enddo
 
-
-
 !--------------------------------------------------------------------
 ! Create CONTROL VOLUMES (CV) as SV subcells
 
@@ -250,9 +249,9 @@ do ic = 1, umesh%ncell_int
   newmesh%face_Rtag%fils(ifn+4, 1)  = 12
 enddo
 
-
-
 ! --- Riemann faces from original mesh faces (temporary connectivities) ---
+
+call init_ustmesh(umeshcon, 0)
 
 nRface = newmesh%nface-newmesh%nface_intsvm
 call new_connect(umeshcon%facecell,  nRface, 2)       ; umeshcon%facecell%nbnodes = 0 ; umeshcon%facecell%fils = 0

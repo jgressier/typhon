@@ -76,9 +76,6 @@ call calc_connface(zone1%gridlist%first%umesh, zone1%gridlist%first%umesh%boco(n
                    zone2%gridlist%first%umesh, zone2%gridlist%first%umesh%boco(nbc2), &
                    zone2%coupling(ncoupl2)%zcoupling%connface)
 
-  write(uf_log,"(a,5i)")"conn de zones : ", &
-                     zone1%coupling(ncoupl1)%zcoupling%connface(1:5:1)!! DEBUG
-
 ! Initialisation des conditions aux limites au raccord
 call update_couplingboco(zone1, zone2, nbc1, nbc2, ncoupl1, raccord)
 

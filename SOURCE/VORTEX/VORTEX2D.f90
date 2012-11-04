@@ -49,7 +49,7 @@ type(sng_vortex2d) :: vort    ! source   de la vitesse induite
   type(v2d) :: CM    ! distance source/position
 
   CM = pos - vort%center
-  vel_induc_vort2d = i2pi * vort%intensity / abs(CM)**2 * rot(CM)
+  vel_induc_vort2d = i2pi * vort%intensity / abs(CM)**2 * v2d_rot(CM)
 
 endfunction vel_induc_vort2d
 

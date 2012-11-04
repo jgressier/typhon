@@ -73,7 +73,7 @@ integer              :: info
 defvtk%iunit = iunit
 defvtk%type  = vtk_bin
 
-open(unit=iunit, file=trim(filename), convert='BIG_ENDIAN', form='binary', iostat = info)
+open(unit=iunit, file=trim(filename), convert='BIG_ENDIAN', form='unformatted', iostat = info)
 call writestr(iunit, '# vtk DataFile Version 2.0')
 call writestr(iunit, 'TYPHON')
 call writestr(iunit, 'BINARY')

@@ -59,8 +59,8 @@ check_f90compiler() {
       success $F90C
       F90C=${F90C##*/}
       case $SYS-$F90C in
-	  *ifc|*ifort) F90_FB="-fPIC -implicitnone" ;;
-	  *gfortran)   F90_FB="-fPIC -fimplicit-none -ffree-line-length-none" ;;
+	  *ifc|*ifort) F90_FB="-fpp -fPIC -implicitnone" ;;
+	  *gfortran)   F90_FB="-cpp -fPIC -fimplicit-none -ffree-line-length-none" ;;
 	  *)           F90_FB="" ;;
       esac
       export F90_FB
@@ -123,7 +123,7 @@ check_f90opti() {
 check_f90debug() {
   case $SYS-$F90C in
     *ifc|*ifort) F90_DEBUG="-g -traceback -CB -CU" ;;
-    *)           F90_DEBUG="-g" ;;
+    *)           F90_DEBUG="-g -fbacktrace -fcheck=all" ;;
   esac
   export F90_DEBUG
   success "$F90_DEBUG"

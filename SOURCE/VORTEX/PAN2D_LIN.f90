@@ -62,10 +62,10 @@ real(krp)      :: dth, af, d1, d2, dl, dgdl, lndr, up, vp
   af  = atan2(dx%y, dx%x)
   d1  = abs(r1)
   d2  = abs(r2)
-  dl = xcomp(rot(v2d(dx%x, dx%y), -af))
+  dl = xcomp(rot2d(v2d(dx%x, dx%y), -af))
   !print*,'test dl:',dl, abs(dx)
   !dl = abs(dx)
-  dp = rot(v2d(r1%x, r1%y), -af)
+  dp = rot2d(v2d(r1%x, r1%y), -af)
   dgdl = (g2 - g1) / dl
   lndr = log(d2/d1)
 
@@ -75,7 +75,7 @@ real(krp)      :: dth, af, d1, d2, dl, dgdl, lndr, up, vp
   vi%y = -i2pi*((g1+dgdl*dp%x)*lndr + g2-g1 - dp%y*dgdl*dth)
 
   ! rotation du vecteur vitesse induit dans le plan d'origine
-  vel_induc_pvortlin2d = v3d_of(rot(vi, af))
+  vel_induc_pvortlin2d = v3d_of(rot2d(vi, af))
 
 endfunction vel_induc_pvortlin2d
 
@@ -103,9 +103,9 @@ real(krp)      :: dth, af, d1, d2, dl, dgdl, lndr, up, vp
   af  = atan2(dx%y, dx%x)
   d1  = abs(r1)
   d2  = abs(r2)
-  dl = xcomp(rot(v2d(dx%x, dx%y), -af))
+  dl = xcomp(rot2d(v2d(dx%x, dx%y), -af))
   !dl  = abs(dx)
-  dp  = rot(v2d(r1%x, r1%y), -af)
+  dp  = rot2d(v2d(r1%x, r1%y), -af)
   lndr = log(d2/d1)
 
   ! vitesse induite dans le repere de la face (panneau) par g1 unitaire
@@ -113,14 +113,14 @@ real(krp)      :: dth, af, d1, d2, dl, dgdl, lndr, up, vp
   vi%y = -i2pi*((1._krp - dp%x/dl)*lndr -1._krp + dp%y/dl*dth)
 
   ! coefficient c1 : vitesse normale induite par g1 unitaire
-  c1 = v3d_of(rot(vi, af)).scal.n
+  c1 = v3d_of(rot2d(vi, af)).scal.n
 
   ! vitesse induite dans le repere de la face (panneau) par g2 unitaire
   vi%x = -i2pi*(dp%y/dl*lndr + dp%x/dl*dth)
   vi%y = -i2pi*(dp%x/dl*lndr + 1._krp - dp%y/dl*dth)
 
   ! coefficient c2 : vitesse normale induite par g2 unitaire
-  c2 = v3d_of(rot(vi, af)).scal.n
+  c2 = v3d_of(rot2d(vi, af)).scal.n
 
 endsubroutine coef_induc_pvortlin2d
 

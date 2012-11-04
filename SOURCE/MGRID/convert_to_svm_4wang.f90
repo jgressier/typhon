@@ -391,6 +391,8 @@ enddo
 
 ! --- Riemann faces from original mesh faces (temporary connectivities) ---
 
+call init_ustmesh(umeshcon, 0)
+
 nRface = newmesh%nface-newmesh%nface_intsvm
 
 call new_connect(umeshcon%facecell, nRface, 2)       ; umeshcon%facecell%nbnodes = 0 ; umeshcon%facecell%fils = 0

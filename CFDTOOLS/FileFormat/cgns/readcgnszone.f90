@@ -52,6 +52,11 @@ select case(itype)
 endselect
 
 !-----------------------------------------------------------------
+! Initialization of USTMESH
+
+call init_ustmesh(umesh, 1)   ! default values initialization
+
+!-----------------------------------------------------------------
 ! read CGNS ZONE information
 
 call cg_zone_read_f(unit, ib, iz, cgnsname, size, ier)
@@ -83,7 +88,7 @@ select case(itype)
 endselect
 
 !-----------------------------------------------------------------
-! Initialization of USTMESH
+! mesh geometric property
 
 select case(idim)    ! transfer mesh dimension 
 case(2)
@@ -91,8 +96,6 @@ case(2)
 case(3)
   call cfd_print("    mesh is 3D")
 endselect
-
-call init_ustmesh(umesh, 1)   ! default values initialization
 
 !-----------------------------------------------------------------
 ! Read CGNS vertices

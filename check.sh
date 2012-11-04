@@ -1,4 +1,4 @@
-#!/bin/sh -u
+#!/bin/bash
 #
 # Check non-regression of all NRG cases containing nrgconf.sh
 #
@@ -62,9 +62,9 @@ fi
 
 # --- get options ---
 #
-OPTS=$(getopt -o hd:lk -l diff-cmd: -n "$SCRIPTNAME" -- "$@")
-[[ $? != 0 ]] && usage 1
-eval set -- "$OPTS"
+#OPTS=$(getopt -o hd:lk -l diff-cmd: -n "$SCRIPTNAME" -- "$@")
+#[[ $? != 0 ]] && usage 1
+#eval set -- "$OPTS"
 
 # --- parse options ---
 #
@@ -74,14 +74,15 @@ keeptmpdir=0
 patlist=()
 while true ; do
   case "$1" in
-    -h) usage 0 ;;
+    -h) shift ; usage 0 ;;
     -d|--diff-cmd)
-        shift ; diffcmd=$1 ;;
-    -l) list=1 ;;
-    -k) keeptmpdir=1 ;;
+        shift ; diffcmd=$1 ; shift ;;
+    -l) shift ; list=1 ;;
+    -k) shift ; keeptmpdir=1 ;;
     --) shift ; break ;;
+    *) break;;
   esac
-  shift
+  # shift
 done
 
 # --- check patterns ---

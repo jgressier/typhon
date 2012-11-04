@@ -193,7 +193,7 @@ character(len=len(str)) :: str2
 
   select case(node%type_node)
   case(node_cst)
-    write(str,'(pg20.4)') node%container%r
+    write(str,'(g20.4)') node%container%r  ! gfortran does not allow PG descriptor
     str = adjustl(str)
   case(node_var)
     str = node%container%name

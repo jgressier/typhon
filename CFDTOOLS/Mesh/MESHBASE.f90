@@ -71,9 +71,23 @@ contains
 
 
 !------------------------------------------------------------------------------!
-! Procedure : allocation d'une structure MESH
+! Procedure : initialization and allocation of MESH structure
 !------------------------------------------------------------------------------!
 subroutine new_mesh(mesh, ncell, nface, nvtex)
+implicit none
+type(st_mesh) :: mesh
+integer       :: ncell, nface, nvtex
+
+  call init_mesh(mesh)
+  call alloc_mesh(mesh, ncell, nface, nvtex)
+  
+endsubroutine new_mesh
+
+
+!------------------------------------------------------------------------------!
+! Procedure : (partial) allocation of MESH structure
+!------------------------------------------------------------------------------!
+subroutine alloc_mesh(mesh, ncell, nface, nvtex)
 implicit none
 type(st_mesh) :: mesh
 integer       :: ncell, nface, nvtex
@@ -92,17 +106,23 @@ integer       :: ncell, nface, nvtex
     allocate(mesh%vertex(1:nvtex, 1,1))
   endif
 
-endsubroutine new_mesh
+endsubroutine alloc_mesh
 
 
 !------------------------------------------------------------------------------!
-! Procedure : allocation d'une structure MESH
+! Procedure : initialization of MESH structure
 !------------------------------------------------------------------------------!
 subroutine init_mesh(mesh)
 implicit none
 type(st_mesh) :: mesh
 integer       :: ncell, nface, nvtex
 
+  mesh%idim = 0
+  mesh%jdim = 0
+  mesh%kdim = 0
+  mesh%nface = 0
+  mesh%nvtex = 0
+  mesh%ncell = 0
   nullify(mesh%centre)
   nullify(mesh%volume)
   nullify(mesh%iface)
@@ -122,7 +142,6 @@ type(st_mesh) :: mesh
   if (associated(mesh%volume)) deallocate(mesh%volume)
   if (associated(mesh%iface))  deallocate(mesh%iface) 
   if (associated(mesh%vertex)) deallocate(mesh%vertex)
-
   
 endsubroutine delete_mesh
 

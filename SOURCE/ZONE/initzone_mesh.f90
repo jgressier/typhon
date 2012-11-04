@@ -1,5 +1,5 @@
 !------------------------------------------------------------------------------!
-! Procedure : init_maillage               Auteur : J. Gressier
+! Procedure : init_zone_mesh              Auteur : J. Gressier
 !                                         Date   : Novembre 2002
 ! Fonction                                Modif  : (cf historique)
 !   Calcul et initialisation du maillage
@@ -8,6 +8,7 @@
 subroutine initzone_mesh(zone)
 
 use TYPHMAKE
+use MESHPARAMS
 use VARCOM
 use OUTPUT
 use DEFZONE
@@ -82,7 +83,7 @@ integer(kip)           :: isplit
 
     ! -- compute geometrical properties of CELLS / FACES of the mesh --
 
-    call calc_ustmesh(pgrid%umesh, zone%defsolver%defmesh)
+    call calc_ustmesh(zone%defsolver%defmesh, pgrid%umesh)
 
     pgrid => pgrid%next
 

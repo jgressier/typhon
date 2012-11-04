@@ -34,14 +34,15 @@ subroutine printrpmblock(iu, block, debug)
 ! -- Declaration des entrees --
   integer           :: iu      ! numero d'unite pour l'ecriture
   type(rpmblock)    :: block   ! bloc a ecrire
-  logical, optional :: debug 
+!  logical, optional :: debug 
+  logical :: debug 
 
 ! -- Declaration des variables internes --
   integer i
 
 ! -- Debut de la procedure --
 
-  if (.not.present(debug)) debug = .false.
+  !if (.not.present(debug)) debug = .false.
 
   write(iu,*) 'BLOCK: ',block%name
   do i = 1, block%nblig
@@ -87,7 +88,7 @@ subroutine printrpm_unread(iu, block)
 
   if (.not.block%flagblock) then
     write(iu,*) " Attention : bloc RPM ",trim(block%name)," non traite"
-    call printrpmblock(iu, block)
+    call printrpmblock(iu, block, .false.)
   else
     do i = 1, block%nblig                   ! Ecriture des lignes
       if (.not.block%flagtxt(i)) &

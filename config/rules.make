@@ -1,6 +1,6 @@
 # ----- Compiling rules ----- 
 #
-AR=ar ruv
+AR=ar ru
 LIBSTA=a
 LIBDYN=so
 
