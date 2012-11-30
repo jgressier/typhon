@@ -120,6 +120,7 @@ integer(kpp), parameter :: dis_full = 10    ! evaluation complete (ponderee de 1
 ! -- Constants for gradients construction method (gradmeth)
 integer(kpp), parameter :: grad_lsq  = 10     ! least square method
 integer(kpp), parameter :: grad_lsqw = 12     ! weighted least square method
+integer(kpp), parameter :: grad_gauss = 20    ! Gauss Theorem
 
 ! -- Constants for implicit resolution method
 integer(kpp), parameter :: alg_undef     =  -1
@@ -280,6 +281,7 @@ defspat%gradmeth = inull
 
 if (samestring(str,"LSQ"))   defspat%gradmeth = grad_lsq
 if (samestring(str,"W-LSQ")) defspat%gradmeth = grad_lsqw
+if (samestring(str,"GAUSS")) defspat%gradmeth = grad_gauss
 
 if (defspat%gradmeth == inull) &
      call erreur("parameters parsing","unknown GRADIENT computation method")
@@ -287,6 +289,7 @@ if (defspat%gradmeth == inull) &
 select case(defspat%gradmeth)
 case(grad_lsq)
 case(grad_lsqw)
+case(grad_gauss)
 endselect
 
 endsubroutine get_gradientmethod

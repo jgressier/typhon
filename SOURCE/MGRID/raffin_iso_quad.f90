@@ -31,7 +31,7 @@ integer                :: iv0, ic1, ic2, fnv, cnv, nRface, icv
 integer                :: i, iif, ifR, ifl, iv1, iv2, ib, ifb, ibdef, ifsv
 integer                :: cellv(4)         ! cell/vtex definition
 integer                :: facev(4)         ! CV face vtex definition
-integer                :: face (2), CVface(2), SVface(2)         ! face definition
+integer                :: face(2), CVface(2), SVface(2)         ! face definition
 integer                :: intv(2)          ! internal vtex definition
 integer                :: nfgauss          ! number of integration points per face (defspat%svm)
 integer                :: ielem, ielemtri, ielemquad, nquad
@@ -330,9 +330,6 @@ if (ifR /= newmesh%nface_int) &
 ! delete
 call delete(cell_fvtex)
 call delete(umeshcon)
-!--------------------------------------------------------------------
-! reordering faces
-!call reorder_ustconnect(O, umesh)
 
 !!$!--------------------------------------------------------------------
 !!$! BOCO transfer !!!!!!!!!!!!!!!!!!! a given cell can be neighbour of many BOCOs !!!!!!!!!!!!!!!!!!!!!!!!
@@ -347,27 +344,6 @@ do ib = 1, umesh%nboco
   newmesh%boco(ib)%idefboco = umesh%boco(ib)%idefboco   ! save BOCO index in defsolver
   newmesh%boco(ib)%nface    = 0                         ! reinit face counter
 enddo
-
-!!$! --- define SVM boco ---
-!!$
-!!$do if = newmesh%nface_int+1, newmesh%nface
-!!$  ic  = newmesh%facecell%fils(if,1)         ! internal      CV cell in newmesh
-!!$  ic0 = ((ic-1)/defspat%svm%cv_split)+1     ! corresponding SV cell in umesh
-!!$  ib  = cellboco(ic0)
-!!$  !
-!!$  print*,if,ic,ic0,ib
-!!$  newmesh%boco(ib)%nface                         = newmesh%boco(ib)%nface + 1
-!!$  newmesh%boco(ib)%iface(newmesh%boco(ib)%nface) = if
-!!$enddo
-!!$
-!!$! --- check boco numbers ---
-!!$
-!!$do ib = 1, newmesh%nboco
-!!$  if (size(newmesh%boco(ib)%iface) == newmesh%boco(ib)%nface) &
-!!$    call erreur("Spectral volume creation", "unexpected number of boundering face for "//trim(newmesh%boco(ib)%family))
-!!$enddo
-!!$
-!!$deallocate(cellboco)
 
 allocate(faceboco(newmesh%nface_int+1:newmesh%nface))
 faceboco(newmesh%nface_int+1:newmesh%nface) = 0

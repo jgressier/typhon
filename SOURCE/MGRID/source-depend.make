@@ -26,6 +26,7 @@ MGRID_OBJ = $(MGRID_MOD:.$(MODEXT)=.o)      \
             calcboco_ust_sym.o           \
             calc_gradient.o            \
             calc_gradient_limite.o     \
+            calc_gradient_gauss.o     \
             convert_to_svm.o           \
             convert_to_svm_cub.o       \
             convert_to_svm_4wang.o     \

@@ -75,8 +75,18 @@ enddo
 if (defsolver%defspat%calc_grad) then
   pgrid => gridlist%first
   do while (associated(pgrid))
+
+select case(defsolver%defspat%gradmeth)
+case(grad_gauss)
+    call calc_gradient_gauss(defsolver, defsolver%defspat, pgrid,                 &
+                       pgrid%info%field_loc%etatprim, pgrid%info%field_loc%gradient)
+case(grad_lsq,grad_lsqw)
     call calc_gradient(defsolver, defsolver%defspat, pgrid,                 &
                        pgrid%info%field_loc%etatprim, pgrid%info%field_loc%gradient)
+case default
+  call erreur("Internal error", "unknown GRADIENT computation method")
+endselect
+
     call calc_gradient_limite(defsolver, pgrid%umesh, pgrid%info%field_loc%gradient)
 
     call calcboco_connect(defsolver, defsolver%defspat, pgrid, bccon_cell_grad)
