@@ -79,7 +79,7 @@ info = 0
 deftec%iunit    = iunit 
 deftec%filename = trim(filename)
 
-open(iunit, file=filename, status='unknown', form='unformatted') ! INTEL fortran 'binary'
+open(iunit, file=filename, status='unknown', form='unformatted', access='stream') ! INTEL fortran 'binary'
 
 write(iunit) "#!TDV112"
 write(iunit) 1_teckip
