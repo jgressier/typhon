@@ -34,7 +34,7 @@ type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 
 ! -- Internal variables --
 integer               :: if, if_abs
-real(krp)             :: id
+real(krp)             :: id, igm1, Vn
 type(v3d)             :: face_velocity
 real(krp), dimension(1:nflux) :: dHL, dHR, rhoL,rhoR,rhoH,prL,prR,prH,energy
 type(v3d), dimension(1:nflux) :: vL, vR, velH, momentum
@@ -57,6 +57,8 @@ do if = 1, nflux
   dHR(if) = id*dHR(if)
 enddo
 
+igm1 = 1./(defsolver%defns%properties(1)%gamma-1._krp) ! heat capacity
+
 vL(1:nflux) = QL%velocity(1:nflux)
 vR(1:nflux) = QR%velocity(1:nflux)
 velH(1:nflux) = dHR(1:nflux)*vL(1:nflux) + dHL(1:nflux)*vR(1:nflux)
@@ -70,21 +72,21 @@ prR(1:nflux) = QR%pressure(1:nflux)
 prH(1:nflux) = dHR(1:nflux)*prL(1:nflux) + dHL(1:nflux)*prR(1:nflux)
 
 momentum(1:nflux) = rhoH(1:nflux)*velH(1:nflux)
-energy(1:nflux) = prH(1:nflux) + 0.5*rhoH(1:nflux)*(sqrabs(velH(1:nflux)))
+energy(1:nflux) = igm1*prH(1:nflux) + 0.5*rhoH(1:nflux)*(sqrabs(velH(1:nflux)))
 ! ENDPART
 
 ! FLUX EVALUATION
 do if = 1, nflux
   if_abs = ista-1+if
-  
+  Vn     = (defsolver%defale%face_velocity(if_abs) .scal. umesh%mesh%iface(if_abs, 1, 1)%normale)
   ! mass flux
-  flux%tabscal(1)%scal(if_abs) = flux%tabscal(1)%scal(if_abs) - (defsolver%defale%face_velocity(if_abs) .scal. umesh%mesh%iface(if_abs, 1, 1)%normale) * rhoH(if)
+  flux%tabscal(1)%scal(if_abs) = flux%tabscal(1)%scal(if_abs) - Vn * rhoH(if)
 
   ! momentum flux
-  flux%tabvect(1)%vect(if_abs) = flux%tabvect(1)%vect(if_abs) - (defsolver%defale%face_velocity(if_abs) .scal. umesh%mesh%iface(if_abs, 1, 1)%normale) * momentum(if)
+  flux%tabvect(1)%vect(if_abs) = flux%tabvect(1)%vect(if_abs) - Vn * momentum(if)
 
   ! energy flux
-  flux%tabscal(2)%scal(if_abs) = flux%tabscal(2)%scal(if_abs) - (defsolver%defale%face_velocity(if_abs) .scal. umesh%mesh%iface(if_abs, 1, 1)%normale) * energy(if)
+  flux%tabscal(2)%scal(if_abs) = flux%tabscal(2)%scal(if_abs) - Vn * energy(if)
 enddo
 
 endselect

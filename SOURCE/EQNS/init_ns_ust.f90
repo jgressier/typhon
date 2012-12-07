@@ -46,7 +46,9 @@ integer                           :: cgnsunit
 
 ! -- BODY --
 
-ncell = umesh%ncell_int
+!
+! ncell = umesh%ncell_int   ! ncell_int should be sufficient but primitives variables are computed on ncell
+ncell = umesh%ncell
 
 !!! DEV !!! should not directly use gamma
 gamma = defns%properties(1)%gamma

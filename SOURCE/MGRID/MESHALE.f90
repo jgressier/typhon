@@ -40,7 +40,7 @@ type(st_ustmesh)            :: umesh
 ! --- IN/OUTPUTS ---
 type(mnu_ale)               :: defale
 ! -- Internal variables --
-integer                     :: ifc
+integer                     :: ifc, ic
 
 ! -- BODY --
 ! Initialization (ONLY THE VERY FIRST CYCLE)
@@ -48,12 +48,18 @@ if (.not.associated(defale%original_vertex)) then
   allocate(defale%original_vertex(1:umesh%nvtex))
   defale%original_vertex = umesh%mesh%vertex(:,1,1)
   allocate(defale%old_facecentres(1:umesh%nface))
+  allocate(defale%old_volume(1:umesh%ncell))
   allocate(defale%face_velocity(1:umesh%nface))
 endif
 
 ! Saving the old face centres, for face velocity evaluation (ALL CYCLES)
 do ifc = 1, umesh%nface
   defale%old_facecentres(ifc) = umesh%mesh%iface(ifc,1,1)%centre
+enddo
+
+! Saving the old volumes, for conservative balance correction (ALL CYCLES)
+do ic = 1, umesh%ncell_int
+  defale%old_volume(ic) = umesh%mesh%volume(ic,1,1)
 enddo
 
 endsubroutine ale_initcycle

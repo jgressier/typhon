@@ -80,6 +80,8 @@ endselect
 
 call flux_to_res(grid%dtloc, grid%umesh, flux, grid%info%field_loc%residu, calc_jac, jacL, jacR)
 
+call ale_correction(defsolver, grid%umesh, grid%info%field_loc)
+
 !-----------------------------------------------------------------------
 ! BOCO HISTORY
 !-----------------------------------------------------------------------
@@ -128,6 +130,43 @@ case(tps_impl, tps_dualt)
 
 endselect
 
+!------------------------------------------------------------------------------!
+contains
+
+subroutine ale_correction(defsolver, umesh, field)
+implicit none
+
+! -- INPUTS --
+type(mnu_solver) :: defsolver        ! solver parameters
+type(st_ustmesh) :: umesh            ! mesh properties
+
+! -- INPUT/OUTPUT --
+type(st_field)   :: field            ! champ de residus
+
+! -- Private DATA --
+integer               :: ic   ! index de cellules
+integer               :: ip   ! index de variables
+real(krp)             :: dv   ! volume difference
+
+select case(defsolver%defale%type)
+case(ale_none)   
+case(ale_global, ale_body)
+  !$OMP PARALLEL DO private(ic, ip, dv)
+  do ic = 1, umesh%ncell_int
+    dv = (defsolver%defale%old_volume(ic) - umesh%mesh%volume(ic,1,1))/umesh%mesh%volume(ic,1,1)
+    do ip = 1, field%residu%nscal
+      field%residu%tabscal(ip)%scal(ic) =  field%residu%tabscal(ip)%scal(ic) + dv*field%etatcons%tabscal(ip)%scal(ic)
+    enddo
+    do ip = 1, field%residu%nvect
+      field%residu%tabvect(ip)%vect(ic) = field%residu%tabvect(ip)%vect(ic) + dv*field%etatcons%tabvect(ip)%vect(ic) 
+    enddo
+  enddo
+  !$OMP END PARALLEL DO
+case default
+  call cfd_error("unknown ALE parameter (integration_grid)")
+endselect
+
+endsubroutine
 
 endsubroutine integration_grid
 !------------------------------------------------------------------------------!

@@ -36,7 +36,9 @@ type mnu_ale
   real(krp)                :: body_maxradius   ! maximum dimension of the body / 2
   real(krp)                :: closest_boundary ! radial distance of the closest volume boundary
   real(krp), dimension(:), pointer :: weight ! weight function for the BODY interpolated mesh movement
-  type(v3d), dimension(:), pointer :: original_vertex, old_facecentres, face_velocity
+  real(krp), dimension(:), pointer :: old_volume       ! previous mesh volumes
+  type(v3d), dimension(:), pointer :: old_facecentres  ! previous mesh face centers
+  type(v3d), dimension(:), pointer :: original_vertex, face_velocity
 endtype mnu_ale
 
 ! -- INTERFACES -------------------------------------------------------------
@@ -63,6 +65,7 @@ type(mnu_ale)               :: defale
   nullify(defale%weight)
   nullify(defale%original_vertex)
   nullify(defale%old_facecentres)
+  nullify(defale%old_volume)
   nullify(defale%face_velocity)
 endsubroutine init_defale
 
