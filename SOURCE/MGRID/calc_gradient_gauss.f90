@@ -32,8 +32,9 @@ type(st_genericfield) :: grad        ! champ des gradients
 
 ! -- Internal variables --
 real(krp), allocatable :: rhs(:,:)    ! second membre
-real(krp)              :: dsca        ! variation de variable scalaire
-type(v3d)              :: dvec        ! variation de variable vectorielle
+real(krp)              :: surf        ! surface
+real(krp)              :: vol         ! vol
+type(v3d)              :: fn          ! normale
 integer                :: ic, nc      ! indice et nombre de cellules internes
 integer                :: dec         ! index shifting (pack & unpack)
 integer                :: dim         ! full state size
@@ -41,11 +42,6 @@ integer                :: if, nf, nfi ! indice et nombre de faces totales et int
 integer                :: nv          ! nombre de variables
 integer                :: is, iv      ! indice de variable scalaire et vectorielle
 integer                :: ic1, ic2    ! indices de cellules (gauche et droite de face)
-integer                :: info, xinfo ! retour d'info des routines LAPACK
-integer, pointer      :: ifsta(:), ifend(:)     ! starting and ending index
-integer, pointer      :: icsta(:), icend(:)     ! starting and ending index
-integer               :: ifb, fbuf, nfblock     ! buffer size for face
-integer               :: icb, cbuf, ncblock     ! buffer size 
 
 ! -- BODY --
 
@@ -53,7 +49,6 @@ integer               :: icb, cbuf, ncblock     ! buffer size
 ! need OPTIMIZATION
 ! - splitting of loops into packets
 ! - define some calls (check efficiency)
-! - memorize geometrical matrix
 
 
 ! ?? OPTIMISATION par interface variable/tableaux et resolution en un seul coup
@@ -80,49 +75,50 @@ do if = 1, nf
 
   ic1  = grid%umesh%facecell%fils(if,1)
   ic2  = grid%umesh%facecell%fils(if,2)
-
+  surf = grid%umesh%mesh%iface(if,1,1)%surface 
+  fn = grid%umesh%mesh%iface(if,1,1)%normale
   do is = 1, gfield%nscal
     dec = is-dim
-    rhs(1, ic1*dim+dec) = rhs(1, ic1*dim+dec) + gfield%tabscal(is)%scal(ic1) * grid%umesh%mesh%iface(if,1,1)%normale%x * grid%umesh%mesh%iface(if,1,1)%surface 
-    rhs(2, ic1*dim+dec) = rhs(2, ic1*dim+dec) + gfield%tabscal(is)%scal(ic1) * grid%umesh%mesh%iface(if,1,1)%normale%y * grid%umesh%mesh%iface(if,1,1)%surface
-    rhs(3, ic1*dim+dec) = rhs(3, ic1*dim+dec) + gfield%tabscal(is)%scal(ic1) * grid%umesh%mesh%iface(if,1,1)%normale%z * grid%umesh%mesh%iface(if,1,1)%surface
+    rhs(1, ic1*dim+dec) = rhs(1, ic1*dim+dec) + gfield%tabscal(is)%scal(ic1) * fn%x * surf
+    rhs(2, ic1*dim+dec) = rhs(2, ic1*dim+dec) + gfield%tabscal(is)%scal(ic1) * fn%y * surf
+    rhs(3, ic1*dim+dec) = rhs(3, ic1*dim+dec) + gfield%tabscal(is)%scal(ic1) * fn%z * surf
     if (if <= nfi) then
-      rhs(1, ic2*dim+dec) = rhs(1, ic2*dim+dec) + gfield%tabscal(is)%scal(ic2) * grid%umesh%mesh%iface(if,1,1)%normale%x * grid%umesh%mesh%iface(if,1,1)%surface
-      rhs(2, ic2*dim+dec) = rhs(2, ic2*dim+dec) + gfield%tabscal(is)%scal(ic2) * grid%umesh%mesh%iface(if,1,1)%normale%y * grid%umesh%mesh%iface(if,1,1)%surface
-      rhs(3, ic2*dim+dec) = rhs(3, ic2*dim+dec) + gfield%tabscal(is)%scal(ic2) * grid%umesh%mesh%iface(if,1,1)%normale%z * grid%umesh%mesh%iface(if,1,1)%surface
+      rhs(1, ic2*dim+dec) = rhs(1, ic2*dim+dec) + gfield%tabscal(is)%scal(ic2) * fn%x * surf
+      rhs(2, ic2*dim+dec) = rhs(2, ic2*dim+dec) + gfield%tabscal(is)%scal(ic2) * fn%y * surf
+      rhs(3, ic2*dim+dec) = rhs(3, ic2*dim+dec) + gfield%tabscal(is)%scal(ic2) * fn%z * surf
     endif
   enddo
 
   do iv = 1, gfield%nvect
     ! -- X component --
     dec = gfield%nscal-dim + 3*(iv-1) +1
-    rhs(1, ic1*dim+dec) = rhs(1, ic1*dim+dec) + gfield%tabvect(iv)%vect(ic1)%x * grid%umesh%mesh%iface(if,1,1)%normale%x  * grid%umesh%mesh%iface(if,1,1)%surface
-    rhs(2, ic1*dim+dec) = rhs(2, ic1*dim+dec) + gfield%tabvect(iv)%vect(ic1)%x * grid%umesh%mesh%iface(if,1,1)%normale%y  * grid%umesh%mesh%iface(if,1,1)%surface
-    rhs(3, ic1*dim+dec) = rhs(3, ic1*dim+dec) + gfield%tabvect(iv)%vect(ic1)%x * grid%umesh%mesh%iface(if,1,1)%normale%z  * grid%umesh%mesh%iface(if,1,1)%surface
+    rhs(1, ic1*dim+dec) = rhs(1, ic1*dim+dec) + gfield%tabvect(iv)%vect(ic1)%x * fn%x  * surf
+    rhs(2, ic1*dim+dec) = rhs(2, ic1*dim+dec) + gfield%tabvect(iv)%vect(ic1)%x * fn%y  * surf
+    rhs(3, ic1*dim+dec) = rhs(3, ic1*dim+dec) + gfield%tabvect(iv)%vect(ic1)%x * fn%z  * surf
     if (if <= nfi) then
-    rhs(1, ic2*dim+dec) = rhs(1, ic2*dim+dec) + gfield%tabvect(iv)%vect(ic2)%x * grid%umesh%mesh%iface(if,1,1)%normale%x * grid%umesh%mesh%iface(if,1,1)%surface 
-    rhs(2, ic2*dim+dec) = rhs(2, ic2*dim+dec) + gfield%tabvect(iv)%vect(ic2)%x * grid%umesh%mesh%iface(if,1,1)%normale%y * grid%umesh%mesh%iface(if,1,1)%surface 
-    rhs(3, ic2*dim+dec) = rhs(3, ic2*dim+dec) + gfield%tabvect(iv)%vect(ic2)%x * grid%umesh%mesh%iface(if,1,1)%normale%z * grid%umesh%mesh%iface(if,1,1)%surface 
+    rhs(1, ic2*dim+dec) = rhs(1, ic2*dim+dec) + gfield%tabvect(iv)%vect(ic2)%x * fn%x * surf
+    rhs(2, ic2*dim+dec) = rhs(2, ic2*dim+dec) + gfield%tabvect(iv)%vect(ic2)%x * fn%y * surf
+    rhs(3, ic2*dim+dec) = rhs(3, ic2*dim+dec) + gfield%tabvect(iv)%vect(ic2)%x * fn%z * surf
     endif
     ! -- Y component --
     dec = gfield%nscal-dim + 3*(iv-1) +2
-    rhs(1, ic1*dim+dec) = rhs(1, ic1*dim+dec) + gfield%tabvect(iv)%vect(ic1)%y * grid%umesh%mesh%iface(if,1,1)%normale%x  * grid%umesh%mesh%iface(if,1,1)%surface
-    rhs(2, ic1*dim+dec) = rhs(2, ic1*dim+dec) + gfield%tabvect(iv)%vect(ic1)%y * grid%umesh%mesh%iface(if,1,1)%normale%y  * grid%umesh%mesh%iface(if,1,1)%surface
-    rhs(3, ic1*dim+dec) = rhs(3, ic1*dim+dec) + gfield%tabvect(iv)%vect(ic1)%y * grid%umesh%mesh%iface(if,1,1)%normale%z  * grid%umesh%mesh%iface(if,1,1)%surface
+    rhs(1, ic1*dim+dec) = rhs(1, ic1*dim+dec) + gfield%tabvect(iv)%vect(ic1)%y * fn%x  * surf
+    rhs(2, ic1*dim+dec) = rhs(2, ic1*dim+dec) + gfield%tabvect(iv)%vect(ic1)%y * fn%y  * surf
+    rhs(3, ic1*dim+dec) = rhs(3, ic1*dim+dec) + gfield%tabvect(iv)%vect(ic1)%y * fn%z  * surf
     if (if <= nfi) then
-    rhs(1, ic2*dim+dec) = rhs(1, ic2*dim+dec) + gfield%tabvect(iv)%vect(ic2)%y * grid%umesh%mesh%iface(if,1,1)%normale%x * grid%umesh%mesh%iface(if,1,1)%surface 
-    rhs(2, ic2*dim+dec) = rhs(2, ic2*dim+dec) + gfield%tabvect(iv)%vect(ic2)%y * grid%umesh%mesh%iface(if,1,1)%normale%y * grid%umesh%mesh%iface(if,1,1)%surface 
-    rhs(3, ic2*dim+dec) = rhs(3, ic2*dim+dec) + gfield%tabvect(iv)%vect(ic2)%y * grid%umesh%mesh%iface(if,1,1)%normale%z * grid%umesh%mesh%iface(if,1,1)%surface 
+    rhs(1, ic2*dim+dec) = rhs(1, ic2*dim+dec) + gfield%tabvect(iv)%vect(ic2)%y * fn%x * surf
+    rhs(2, ic2*dim+dec) = rhs(2, ic2*dim+dec) + gfield%tabvect(iv)%vect(ic2)%y * fn%y * surf
+    rhs(3, ic2*dim+dec) = rhs(3, ic2*dim+dec) + gfield%tabvect(iv)%vect(ic2)%y * fn%z * surf
     endif
     ! -- Z component --
     dec = gfield%nscal-dim + 3*(iv-1) +3
-    rhs(1, ic1*dim+dec) = rhs(1, ic1*dim+dec) + gfield%tabvect(iv)%vect(ic1)%z * grid%umesh%mesh%iface(if,1,1)%normale%x  * grid%umesh%mesh%iface(if,1,1)%surface
-    rhs(2, ic1*dim+dec) = rhs(2, ic1*dim+dec) + gfield%tabvect(iv)%vect(ic1)%z * grid%umesh%mesh%iface(if,1,1)%normale%y  * grid%umesh%mesh%iface(if,1,1)%surface
-    rhs(3, ic1*dim+dec) = rhs(3, ic1*dim+dec) + gfield%tabvect(iv)%vect(ic1)%z * grid%umesh%mesh%iface(if,1,1)%normale%z  * grid%umesh%mesh%iface(if,1,1)%surface
+    rhs(1, ic1*dim+dec) = rhs(1, ic1*dim+dec) + gfield%tabvect(iv)%vect(ic1)%z * fn%x  * surf
+    rhs(2, ic1*dim+dec) = rhs(2, ic1*dim+dec) + gfield%tabvect(iv)%vect(ic1)%z * fn%y  * surf
+    rhs(3, ic1*dim+dec) = rhs(3, ic1*dim+dec) + gfield%tabvect(iv)%vect(ic1)%z * fn%z  * surf
     if (if <= nfi) then
-    rhs(1, ic2*dim+dec) = rhs(1, ic2*dim+dec) + gfield%tabvect(iv)%vect(ic2)%z * grid%umesh%mesh%iface(if,1,1)%normale%x  * grid%umesh%mesh%iface(if,1,1)%surface
-    rhs(2, ic2*dim+dec) = rhs(2, ic2*dim+dec) + gfield%tabvect(iv)%vect(ic2)%z * grid%umesh%mesh%iface(if,1,1)%normale%y  * grid%umesh%mesh%iface(if,1,1)%surface
-    rhs(3, ic2*dim+dec) = rhs(3, ic2*dim+dec) + gfield%tabvect(iv)%vect(ic2)%z * grid%umesh%mesh%iface(if,1,1)%normale%z  * grid%umesh%mesh%iface(if,1,1)%surface
+    rhs(1, ic2*dim+dec) = rhs(1, ic2*dim+dec) + gfield%tabvect(iv)%vect(ic2)%z * fn%x  * surf
+    rhs(2, ic2*dim+dec) = rhs(2, ic2*dim+dec) + gfield%tabvect(iv)%vect(ic2)%z * fn%y  * surf
+    rhs(3, ic2*dim+dec) = rhs(3, ic2*dim+dec) + gfield%tabvect(iv)%vect(ic2)%z * fn%z  * surf
     endif
   enddo
 
@@ -135,13 +131,14 @@ enddo
 
 do ic = 1, nc
   dec = (ic-1)*dim
+  vol = grid%umesh%mesh%volume(ic,1,1)
   do is = 1, gfield%nscal
-    grad%tabvect(is)%vect(ic) = v3d_of(rhs(1:3,dec+is))/grid%umesh%mesh%volume(ic,1,1)
+    grad%tabvect(is)%vect(ic) = v3d_of(rhs(1:3,dec+is))/vol
   enddo
   do iv = 1, gfield%nvect
-    grad%tabtens(iv)%tens(ic)%mat(1,1:3) = rhs(1:3,dec+gfield%nscal+(iv-1)*3+1)/grid%umesh%mesh%volume(ic,1,1)
-    grad%tabtens(iv)%tens(ic)%mat(2,1:3) = rhs(1:3,dec+gfield%nscal+(iv-1)*3+2)/grid%umesh%mesh%volume(ic,1,1)
-    grad%tabtens(iv)%tens(ic)%mat(3,1:3) = rhs(1:3,dec+gfield%nscal+(iv-1)*3+3)/grid%umesh%mesh%volume(ic,1,1)
+    grad%tabtens(iv)%tens(ic)%mat(1,1:3) = rhs(1:3,dec+gfield%nscal+(iv-1)*3+1)/vol
+    grad%tabtens(iv)%tens(ic)%mat(2,1:3) = rhs(1:3,dec+gfield%nscal+(iv-1)*3+2)/vol
+    grad%tabtens(iv)%tens(ic)%mat(3,1:3) = rhs(1:3,dec+gfield%nscal+(iv-1)*3+3)/vol
   enddo
 enddo
 

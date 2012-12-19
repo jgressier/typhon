@@ -58,8 +58,19 @@ call new_buf_index(umesh%nface, face_buffer, nblock, ista, iend)
 !$OMP PARALLEL private(ib, QL, QR, cg_l, cg_r, gradL, gradR, buf) shared (flux, jacL, jacR)
 
 allocate(  cg_l(face_buffer),   cg_r(face_buffer))
-call new(gradL, face_buffer, field%gradient%nscal, field%gradient%nvect, field%gradient%ntens)
-call new(gradR, face_buffer, field%gradient%nscal, field%gradient%nvect, field%gradient%ntens)
+ if(defsolver%defspat%gradmeth.eq.grad_svm) then 
+      call new(gradL, face_buffer, 0, field%etatprim%nscal, field%etatprim%nvect)
+      call new(gradR, face_buffer, 0, field%etatprim%nscal, field%etatprim%nvect)
+
+      call init_genericfield(gradL, 0._krp, v3d_zero)
+      call init_genericfield(gradR, 0._krp, v3d_zero)
+
+ else
+      call new(gradL, face_buffer, field%gradient%nscal, field%gradient%nvect, field%gradient%ntens)
+      call new(gradR, face_buffer, field%gradient%nscal, field%gradient%nvect, field%gradient%ntens)
+endif
+
+
 
 !$OMP DO 
 
@@ -112,15 +123,24 @@ do ib = 1, nblock
     cg_l(1:buf) = umesh%mesh%centre(umesh%facecell%fils(ista(ib):iend(ib),1), 1, 1)
     cg_r(1:buf) = umesh%mesh%centre(umesh%facecell%fils(ista(ib):iend(ib),2), 1, 1)
 
-    ! -- redirection of gradients
-    call distrib_field(field%gradient, umesh%facecell, ista(ib), iend(ib), &
+         
+     if(defsolver%defspat%gradmeth.eq.grad_svm) then 
+        call hres_ns_gradsvm(defspat, buf, ista(ib), umesh, field%etatprim, &
+                     gradL, gradR, ista(ib))
+
+       call calc_flux_viscous_svm(defsolver, defspat,                        &
+                           buf, ista(ib), umesh%mesh%iface(ista(ib):iend(ib), 1, 1), &
+                           cg_l, cg_r, QL, QR, gradL, gradR, flux)
+     else
+      ! -- redirection of gradients
+      call distrib_field(field%gradient, umesh%facecell, ista(ib), iend(ib), &
                        gradL, gradR, 1)
 
-    call calc_flux_viscous(defsolver, defspat,                        &
+      call calc_flux_viscous(defsolver, defspat,                        &
                            buf, ista(ib), umesh%mesh%iface(ista(ib):iend(ib), 1, 1), &
                            cg_l, cg_r, QL, QR, gradL, gradR, flux,        &
                            calc_jac, jacL, jacR)
-
+     endif
   case(eqNSLAMaxi)
      call error_stop("development: axisymmetric NS not implemented")   
 

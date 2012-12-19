@@ -121,6 +121,7 @@ integer(kpp), parameter :: dis_full = 10    ! evaluation complete (ponderee de 1
 integer(kpp), parameter :: grad_lsq  = 10     ! least square method
 integer(kpp), parameter :: grad_lsqw = 12     ! weighted least square method
 integer(kpp), parameter :: grad_gauss = 20    ! Gauss Theorem
+integer(kpp), parameter :: grad_svm  = 30    ! direct SVM Gradient evaluation
 
 ! -- Constants for implicit resolution method
 integer(kpp), parameter :: alg_undef     =  -1
@@ -202,6 +203,7 @@ type mnu_svm
   integer(kpp)      :: nb_subfaces          ! number of sub faces      (by cell) (internal + original*split)
   integer(kpp)      :: nb_facepoints        ! number of integration points by face
   real(krp),pointer :: interp_weights(:,:)  ! weights for cell to face Gauss points interpolation
+  real(krp),pointer :: grad_interp_weights(:,:,:)  ! weights for gradients evaluation on Gauss points
 
 endtype mnu_svm
 
@@ -282,6 +284,7 @@ defspat%gradmeth = inull
 if (samestring(str,"LSQ"))   defspat%gradmeth = grad_lsq
 if (samestring(str,"W-LSQ")) defspat%gradmeth = grad_lsqw
 if (samestring(str,"GAUSS")) defspat%gradmeth = grad_gauss
+if (samestring(str,"GSVM"))   defspat%gradmeth = grad_svm
 
 if (defspat%gradmeth == inull) &
      call erreur("parameters parsing","unknown GRADIENT computation method")
@@ -1042,6 +1045,592 @@ case default
 endselect
 
 endsubroutine init_svmweights
+
+
+
+!-------------------------------------------------------------------------
+! init SVM gradient weights
+!-------------------------------------------------------------------------
+subroutine init_gradsvmweights(defsvm)
+implicit none
+! -- parameters --
+type(mnu_svm) :: defsvm
+! -- internal --
+integer(kpp) :: i
+real(krp), dimension(1:7,1:6,1:2) :: k
+real(krp), dimension(1:10,1:10,1:2) :: k4
+real(krp), dimension(1:12,1:10,1:2) :: kk4
+
+! -- body --
+
+
+allocate(defsvm%grad_interp_weights(1:defsvm%nb_subfaces*defsvm%nb_facepoints, &
+                               1:defsvm%cv_split,1:2))
+
+select case(defsvm%sv_order)
+
+case(svm_3) ! 36 Gauss pts, 6 coeff per point, 7 independent points
+
+select case(defsvm%sv_partition)
+
+  case(svm_3wang) !weights for alpha=1/4 and beta =1/3 : ORIGINAL PARTITION BY WANG
+
+!Gauss point1
+  k(1,1,1:2) = (/-5.751340285 ,-3.297029136 /)
+  k(1,2,1:2) = (/-2.023184945 ,1.589555599 /)
+  k(1,3,1:2) = (/0.3446439020 ,-3.088974854 /)
+  k(1,4,1:2) = (/9.016846272 ,-5.634662673 /)
+  k(1,5,1:2) = (/-1.842026161 ,-.4484404109 /)
+  k(1,6,1:2) = (/0.2550612173 ,10.87955148 /)
+!Gauss point2 coefficients
+  k(2,1,1:2) = (/-4.496605943 ,-2.508380890 /)
+  k(2,2,1:2) = (/-.7684506031 ,.800907353 /)
+  k(2,3,1:2) = (/.2333994140 ,-3.088974854 /)
+  k(2,4,1:2) = (/6.106380016 ,-5.634662673 /)
+  k(2,5,1:2) = (/-1.585905131 ,1.379789613 /)
+  k(2,6,1:2) = (/.5111822479 ,9.051321454 /)
+!Gauss point3 coefficients
+  k(3,1,1:2) = (/-3.118812012 ,-1.642385013 /)
+  k(3,2,1:2) = (/.609343328 ,-.065088524 /)
+  k(3,3,1:2) =  (/.1112444880 ,-3.088974854 /)
+  k(3,4,1:2) = (/2.910466256 ,-5.634662673 /)
+  k(3,5,1:2) = (/-1.304664720 ,3.387325509 /)
+  k(3,6,1:2) = (/.7924226584 ,7.043785558 /)
+ !Gauss point19 coefficients
+  k(4,1,1:2) = (/-3.870680315 ,-2.147002561 /)
+  k(4,2,1:2) = (/-.4758469438 ,.5849550990 /)
+  k(4,3,1:2) = (/.1926811053 ,-2.727596524 /)
+  k(4,4,1:2) = (/5.041075429 ,-5.357478387 /)
+  k(4,5,1:2) = (/-1.105807864 ,1.656973898 /)
+  k(4,6,1:2) = (/.2185785882 ,7.990148473 /)
+!Gauss point20 coefficients 
+  k(5,1,1:2) = (/-3.415354039 ,-1.948346848 /)
+  k(5,2,1:2) = (/-.9311732206 ,.7836108122 /)
+  k(5,3,1:2) = (/.1926811053 ,-1.740292566 /)
+  k(5,4,1:2) = (/5.041075429 ,-4.600196833 /)
+  k(5,5,1:2) = (/-.0502787680 ,.586025429 /)
+  k(5,6,1:2) = (/-.8369505076 ,6.919200004 /)
+!Gauss point31 coefficients 
+  k(6,1,1:2) = (/-2.622767426 ,-1.514255480 /)
+  k(6,2,1:2) = (/-.8052305455 ,.6403715957 /)
+  k(6,3,1:2) = (/.1519627967 ,-1.017535906 /)
+  k(6,4,1:2) = (/3.975770843 ,-4.045828261 /)
+  k(6,5,1:2) = (/.816168964 ,.4712153702 /)
+  k(6,6,1:2) = (/-1.515904632 ,5.466032681 /)
+!Gauss point32 coefficients
+  k(7,1,1:2) = (/-.912706808 ,-.5269515211 /)
+  k(7,2,1:2) = (/-.005822480 ,.0503790629 /)
+  k(7,3,1:2) = (/.04071830863 ,-.030231948 /)
+  k(7,4,1:2) = (/1.065304587 ,-3.288546707 /)
+  k(7,5,1:2) = (/2.127819089 ,1.228496925 /)
+  k(7,6,1:2) = (/-2.315312696 ,2.566854188 /)
+ 
+  case(svm_3kris) !weights for alpha=91/1000 and beta=18/100 : OPTIMISED PARTITION BY ABEELE
+
+!Gauss point1
+  k(1,1,1:2) = (/-4.356795967 ,-2.501654679 /)
+  k(1,2,1:2) = (/-1.708340643 ,1.687193540 /)
+  k(1,3,1:2) = (/.5950806640 ,-2.470001255 /)
+  k(1,4,1:2) = (/8.216144480 ,-6.070980043 /)
+  k(1,5,1:2) = (/-1.815780046 ,-.8585994887 /)
+  k(1,6,1:2) = (/-.9303084890 ,10.21404192 /)
+!Gauss point2 coefficients 
+  k(2,1,1:2) = (/-4.025394440 ,-2.272774312 /)
+  k(2,2,1:2) = (/-1.376939116 ,1.458313173 /)
+  k(2,3,1:2) = (/.5300497658 ,-2.470001255 /)
+  k(2,4,1:2) = (/7.318277540 ,-6.070980043 /)
+  k(2,5,1:2) = (/-1.665732654 ,-.2535858661 /)
+  k(2,6,1:2) = (/-.7802610964 ,9.609028302 /)
+!Gauss point3 coefficients 
+  k(3,1,1:2) = (/-2.813713645 ,-1.435934639 /)
+  k(3,2,1:2) = (/-.165258321 ,.621473500 /)
+  k(3,3,1:2) = (/.2922817292 ,-2.470001255 /)
+  k(3,4,1:2) = (/4.035467899 ,-6.070980043 /)
+  k(3,5,1:2) = (/-1.117124609 ,1.958484168 /)
+  k(3,6,1:2) = (/-.2316530517 ,7.396958268 /)
+ !Gauss point19 coefficients 
+  k(4,1,1:2) = (/-3.773686954 ,-2.127450927 /)
+  k(4,2,1:2) = (/-1.268741415 ,1.355070318 /)
+  k(4,3,1:2) = (/.4947376812 ,-2.324677870 /)
+  k(4,4,1:2) = (/6.830731553 ,-5.914431180 /)
+  k(4,5,1:2) = (/-1.394582069 ,-.0970370031 /)
+  k(4,6,1:2) = (/-.8884587971 ,9.108526661 /)
+!Gauss point20 coefficients 
+  k(5,1,1:2) = (/-3.417410840 ,-1.959300424 /)
+  k(5,2,1:2) = (/-1.304541327 ,1.301885961 /)
+  k(5,3,1:2) = (/.4632941700 ,-1.927647000 /)
+  k(5,4,1:2) = (/6.396598087 ,-5.486731731 /)
+  k(5,5,1:2) = (/-.8038322855 ,-.2743511768 /)
+  k(5,6,1:2) = (/-1.334107805 ,8.346144369 /)
+!Gauss point31 coefficients
+  k(6,1,1:2) = (/-2.378342388 ,-1.504841695 /)
+  k(6,2,1:2) = (/-1.253230362 ,1.003281046 /)
+  k(6,3,1:2) = (/.3563116320 ,-1.389412240 /)
+  k(6,4,1:2) = (/4.919514322 ,-4.906921124 /)
+  k(6,5,1:2) = (/.748511370 ,.0840090729 /)
+  k(6,6,1:2) = (/-2.392764573 ,6.713884939 /)
+!Gauss point32 coefficients
+  k(7,1,1:2) = (/-.686061150 ,-.4313878593 /)
+  k(7,2,1:2) = (/-.2870158359 ,.2406616057 /)
+  k(7,3,1:2) = (/.0954734140 ,-.315958405 /)
+  k(7,4,1:2) = (/1.318179888 ,-3.750548541 /)
+  k(7,5,1:2) = (/2.309978322 ,1.240381656 /)
+  k(7,6,1:2) = (/-2.750554639 ,3.016851542 /)
+
+
+endselect
+
+do i=1,2
+  defsvm%grad_interp_weights(  1, 1:defsvm%cv_split,i) = (/ k(1,1,i), k(1,2,i), k(1,3,i) , k(1,4,i), k(1,5,i), k(1,6,i)/)!
+  defsvm%grad_interp_weights(  2, 1:defsvm%cv_split,i) = (/ k(2,1,i), k(2,2,i), k(2,3,i) , k(2,4,i), k(2,5,i), k(2,6,i)/)!
+  defsvm%grad_interp_weights(  3, 1:defsvm%cv_split,i) = (/ k(3,1,i), k(3,2,i), k(3,3,i) , k(3,4,i), k(3,5,i), k(3,6,i)/)!
+
+  defsvm%grad_interp_weights(  4, 1:defsvm%cv_split,i) = (/ k(3,2,i), k(3,1,i), k(3,3,i) , k(3,4,i), k(3,6,i), k(3,5,i)/)
+  defsvm%grad_interp_weights(  5, 1:defsvm%cv_split,i) = (/ k(2,2,i), k(2,1,i), k(2,3,i) , k(2,4,i), k(2,6,i), k(2,5,i)/)
+  defsvm%grad_interp_weights(  6, 1:defsvm%cv_split,i) = (/ k(1,2,i), k(1,1,i), k(1,3,i) , k(1,4,i), k(1,6,i), k(1,5,i)/)
+  defsvm%grad_interp_weights(  7, 1:defsvm%cv_split,i) = (/ k(1,3,i), k(1,1,i), k(1,2,i) , k(1,6,i), k(1,4,i), k(1,5,i)/)
+  defsvm%grad_interp_weights(  8, 1:defsvm%cv_split,i) = (/ k(2,3,i), k(2,1,i), k(2,2,i) , k(2,6,i), k(2,4,i), k(2,5,i)/)
+  defsvm%grad_interp_weights(  9, 1:defsvm%cv_split,i) = (/ k(3,3,i), k(3,1,i), k(3,2,i) , k(3,6,i), k(3,4,i), k(3,5,i)/)
+  defsvm%grad_interp_weights( 10, 1:defsvm%cv_split,i) = (/ k(3,3,i), k(3,2,i), k(3,1,i) , k(3,5,i), k(3,4,i), k(3,6,i)/)
+  defsvm%grad_interp_weights( 11, 1:defsvm%cv_split,i) = (/ k(2,3,i), k(2,2,i), k(2,1,i) , k(2,5,i), k(2,4,i), k(2,6,i)/)
+  defsvm%grad_interp_weights( 12, 1:defsvm%cv_split,i) = (/ k(1,3,i), k(1,2,i), k(1,1,i) , k(1,5,i), k(1,4,i), k(1,6,i)/)
+  defsvm%grad_interp_weights( 13, 1:defsvm%cv_split,i) = (/ k(1,2,i), k(1,3,i), k(1,1,i) , k(1,5,i), k(1,6,i), k(1,4,i)/)
+  defsvm%grad_interp_weights( 14, 1:defsvm%cv_split,i) = (/ k(2,2,i), k(2,3,i), k(2,1,i) , k(2,5,i), k(2,6,i), k(2,4,i)/)
+  defsvm%grad_interp_weights( 15, 1:defsvm%cv_split,i) = (/ k(3,2,i), k(3,3,i), k(3,1,i) , k(3,5,i), k(3,6,i), k(3,4,i)/)
+  defsvm%grad_interp_weights( 16, 1:defsvm%cv_split,i) = (/ k(3,1,i), k(3,3,i), k(3,2,i) , k(3,6,i), k(3,5,i), k(3,4,i)/)
+  defsvm%grad_interp_weights( 17, 1:defsvm%cv_split,i) = (/ k(2,1,i), k(2,3,i), k(2,2,i) , k(2,6,i), k(2,5,i), k(2,4,i)/)
+  defsvm%grad_interp_weights( 18, 1:defsvm%cv_split,i) = (/ k(1,1,i), k(1,3,i), k(1,2,i) , k(1,6,i), k(1,5,i), k(1,4,i)/)
+
+  defsvm%grad_interp_weights( 19, 1:defsvm%cv_split,i) = (/ k(4,1,i), k(4,2,i), k(4,3,i) , k(4,4,i), k(4,5,i), k(4,6,i)/)!
+  defsvm%grad_interp_weights( 20, 1:defsvm%cv_split,i) = (/ k(5,1,i), k(5,2,i), k(5,3,i) , k(5,4,i), k(5,5,i), k(5,6,i)/)!
+                                                   
+  defsvm%grad_interp_weights( 21, 1:defsvm%cv_split,i) = (/ k(4,2,i), k(4,1,i), k(4,3,i) , k(4,4,i), k(4,6,i), k(4,5,i)/)
+  defsvm%grad_interp_weights( 22, 1:defsvm%cv_split,i) = (/ k(5,2,i), k(5,1,i), k(5,3,i) , k(5,4,i), k(5,6,i), k(5,5,i)/)
+  defsvm%grad_interp_weights( 23, 1:defsvm%cv_split,i) = (/ k(4,3,i), k(4,1,i), k(4,2,i) , k(4,6,i), k(4,4,i), k(4,5,i)/)
+  defsvm%grad_interp_weights( 24, 1:defsvm%cv_split,i) = (/ k(5,3,i), k(5,1,i), k(5,2,i) , k(5,6,i), k(5,4,i), k(5,5,i)/)
+  defsvm%grad_interp_weights( 25, 1:defsvm%cv_split,i) = (/ k(4,3,i), k(4,2,i), k(4,1,i) , k(4,5,i), k(4,4,i), k(4,6,i)/)
+  defsvm%grad_interp_weights( 26, 1:defsvm%cv_split,i) = (/ k(5,3,i), k(5,2,i), k(5,1,i) , k(5,5,i), k(5,4,i), k(5,6,i)/)
+  defsvm%grad_interp_weights( 27, 1:defsvm%cv_split,i) = (/ k(4,2,i), k(4,3,i), k(4,1,i) , k(4,5,i), k(4,6,i), k(4,4,i)/)
+  defsvm%grad_interp_weights( 28, 1:defsvm%cv_split,i) = (/ k(5,2,i), k(5,3,i), k(5,1,i) , k(5,5,i), k(5,6,i), k(5,4,i)/)
+  defsvm%grad_interp_weights( 29, 1:defsvm%cv_split,i) = (/ k(4,1,i), k(4,3,i), k(4,2,i) , k(4,6,i), k(4,5,i), k(4,4,i)/)
+  defsvm%grad_interp_weights( 30, 1:defsvm%cv_split,i) = (/ k(5,1,i), k(5,3,i), k(5,2,i) , k(5,6,i), k(5,5,i), k(5,4,i)/)
+                                                   
+  defsvm%grad_interp_weights( 31, 1:defsvm%cv_split,i) = (/ k(6,1,i), k(6,2,i), k(6,3,i) , k(6,4,i), k(6,5,i), k(6,6,i)/)!
+  defsvm%grad_interp_weights( 32, 1:defsvm%cv_split,i) = (/ k(7,1,i), k(7,2,i), k(7,3,i) , k(7,4,i), k(7,5,i), k(7,6,i)/)!
+                                                    
+  defsvm%grad_interp_weights( 33, 1:defsvm%cv_split,i) = (/ k(6,2,i), k(6,1,i), k(6,3,i) , k(6,4,i), k(6,6,i), k(6,5,i)/)
+  defsvm%grad_interp_weights( 34, 1:defsvm%cv_split,i) = (/ k(7,2,i), k(7,1,i), k(7,3,i) , k(7,4,i), k(7,6,i), k(7,5,i)/)
+  defsvm%grad_interp_weights( 35, 1:defsvm%cv_split,i) = (/ k(6,3,i), k(6,2,i), k(6,1,i) , k(6,5,i), k(6,4,i), k(6,6,i)/)
+  defsvm%grad_interp_weights( 36, 1:defsvm%cv_split,i) = (/ k(7,3,i), k(7,2,i), k(7,1,i) , k(7,5,i), k(7,4,i), k(7,6,i)/)
+enddo
+
+  if (size(defsvm%grad_interp_weights, 1) /= 36) call erreur("SVM initialization", "bad array size")
+
+case(svm_4) ! 54 Gauss pts, 10 coeff per point
+
+select case(defsvm%sv_partition)
+
+  case(svm_4wang)   ! 10 independent points
+!Gauss point1 coefficients
+  k4(1,1,1:2) =(/-9.8865833  , -5.6835032/)
+  k4(1,2,1:2) =(/2.1803442   , -1.2845983/)
+  k4(1,3,1:2) =(/-.043556227 , 2.8979661 /)
+  k4(1,4,1:2) =(/13.895132   , -7.1458566/)
+  k4(1,5,1:2) =(/-6.1648763  , 3.5409676 /)
+  k4(1,6,1:2) =(/.39822952   , .030248573/)
+  k4(1,7,1:2) =(/.40628618   , .030267319/)
+  k4(1,8,1:2) =(/-.026156644 , -7.9486713/)
+  k4(1,9,1:2) =(/1.3118652   , 15.728525 /)
+  k4(1,10,1:2)=(/-2.0706844  , -.16534599/)
+!Gauss point2 coefficients           
+  k4(2,1,1:2) =(/-8.5550812  , -4.8514533/)
+  k4(2,2,1:2) =(/1.4592683   , -.80099442/)
+  k4(2,3,1:2) =(/-.040106053 , 2.9632647 /)
+  k4(2,4,1:2) =(/11.380679   , -7.4123379/)
+  k4(2,5,1:2) =(/-4.2627520  , 2.4279620 /)
+  k4(2,6,1:2) =(/.33605575   , -.46263949/)
+  k4(2,7,1:2) =(/.38869959   , -.54885300/)
+  k4(2,8,1:2) =(/-.038680844 , -7.8957643/)
+  k4(2,9,1:2) =(/1.2385791   , 13.992146 /)
+  k4(2,10,1:2)=(/-1.9066614  , 2.5886692 /)
+!Gauss point3 coefficients
+  k4(3,1,1:2) =(/-5.3349926  , -2.8462315/)
+  k4(3,2,1:2) =(/-.08508374  , .24767703 /)
+  k4(3,3,1:2) =(/-.030634667 , 3.1148359 /)
+  k4(3,4,1:2) =(/5.4143228   , -7.8514339/)
+  k4(3,5,1:2) =(/.0226448    , -.33500460/)
+  k4(3,6,1:2) =(/.16302110   , -1.3431152/)
+  k4(3,7,1:2) =(/.34149420   , -2.0270934/)
+  k4(3,8,1:2) =(/-.074135373 , -7.6389691/)
+  k4(3,9,1:2) =(/1.0397503   , 9.6980500 /)
+  k4(3,10,1:2)=(/-1.4563871  , 8.9812850 /)
+ !Gauss point4 coefficients
+  k4(4,1,1:2) =(/-.2539137    ,.2714454   /)
+  k4(4,2,1:2) =(/-1.1983914   ,1.1004554  /)
+  k4(4,3,1:2) =(/-.008208535  ,3.3118979  /)
+  k4(4,4,1:2) =(/-3.240045    ,-7.1817765 /)
+  k4(4,5,1:2) =(/4.696877     ,-5.1677563 /)
+  k4(4,6,1:2) =(/-.26045597   ,-.6655735  /)
+  k4(4,7,1:2) =(/.23599527    ,-4.8752007 /)
+  k4(4,8,1:2) =(/-.16435669   ,-6.3788983 /)
+  k4(4,9,1:2) =(/.58273759    ,2.2928976  /)
+  k4(4,10,1:2)=(/-.39023774   ,17.292509  /)
+!Gauss point25 coefficients
+  k4(5,1,1:2) =(/-7.6157415   ,-4.3118182 /)
+  k4(5,2,1:2) =(/1.2360375    ,-.65078451 /)
+  k4(5,3,1:2) =(/-.019303859  ,2.6419259  /)
+  k4(5,4,1:2) =(/10.011044    ,-7.1826286 /)
+  k4(5,5,1:2) =(/-3.6287545   ,2.0528825  /)
+  k4(5,6,1:2) =(/.17199691    ,-.53221046 /)
+  k4(5,7,1:2) =(/.20683057    ,-.62211450 /)
+  k4(5,8,1:2) =(/-.025714399  ,-7.0552264 /)
+  k4(5,9,1:2) =(/.68275735    ,12.672474  /)
+  k4(5,10,1:2)=(/-1.0191524   ,2.9874992  /)
+!Gauss point26 coefficients
+  k4(6,1,1:2) =(/-6.3841055   ,-3.6640395 /)
+  k4(6,2,1:2) =(/1.2862341    ,-.68511006 /)
+  k4(6,3,1:2) =(/.030892913   ,1.7709898  /)
+  k4(6,4,1:2) =(/8.7137211    ,-6.3585505 /)
+  k4(6,5,1:2) =(/-3.6615990   ,2.0947616  /)
+  k4(6,6,1:2) =(/-.20082600   ,-.29947279 /)
+  k4(6,7,1:2) =(/-.21837812   ,-.28963715 /)
+  k4(6,8,1:2) =(/-.006173169  ,-4.9537265 /)
+  k4(6,9,1:2) =(/-.66695166   ,10.828962  /)
+  k4(6,10,1:2)=(/1.1071853    ,1.5558240  /)
+!Gauss point27 coefficients
+  k4(7,1,1:2) =(/.76561659   ,.84633076  /)
+  k4(7,2,1:2) =(/-.76561659  ,.84633076  /)
+  k4(7,3,1:2) =(/ 0.         ,2.9722406  /)
+  k4(7,4,1:2) =(/-4.3507790  ,-6.0539558 /)
+  k4(7,5,1:2) =(/4.3507790   ,-6.0539558 /)
+  k4(7,6,1:2) =(/-.22727402  ,.43173215  /)
+  k4(7,7,1:2) =(/.10346834   ,-5.1696014 /)
+  k4(7,8,1:2) =(/-.10346834  ,-5.1696014 /)
+  k4(7,9,1:2) =(/.22727402   ,.43173215  /)
+  k4(7,10,1:2)=(/ 0.         ,16.918747  /)
+!Gauss point28 coefficients
+  k4(8,1,1:2) =(/.89817150   ,.85938460  /)
+  k4(8,2,1:2) =(/-.89817150  ,.85938460  /)
+  k4(8,3,1:2) =(/ 0.         ,2.0721534  /)
+  k4(8,4,1:2) =(/-3.9971753  ,-5.3130562 /)
+  k4(8,5,1:2) =(/3.9971753   ,-5.3130562 /)
+  k4(8,6,1:2) =(/.25868858   ,.12394829  /)
+  k4(8,7,1:2) =(/-.11777662  ,-3.8351545 /)
+  k4(8,8,1:2) =(/.11777662   ,-3.8351545 /)
+  k4(8,9,1:2) =(/-.25868858  ,.12394829  /)
+  k4(8,10,1:2)=(/ 0.         ,14.257601  /)
+!Gauss point43 coefficients
+  k4(9,1,1:2) =(/-3.7362887   ,-2.0413472 /)
+  k4(9,2,1:2) =(/.06722873    ,.12078950  /)
+  k4(9,3,1:2) =(/.037935400   ,1.5872451  /)
+  k4(9,4,1:2) =(/4.0561629    ,-6.3656452 /)
+  k4(9,5,1:2) =(/-.4362381    ,.08228027  /)
+  k4(9,6,1:2) =(/-.16910588   ,-.9942007  /)
+  k4(9,7,1:2) =(/-.32000671   ,-1.0505723 /)
+  k4(9,8,1:2) =(/.033213518   ,-4.2459181 /)
+  k4(9,9,1:2) =(/-.98114509   ,7.2107522  /)
+  k4(9,10,1:2)=(/1.4482441    ,5.6966160  /)
+!Gauss point44 coefficients
+  k4(10,1,1:2) =(/.2457092    ,.4416047   /)
+  k4(10,2,1:2) =(/-1.2288310  ,1.0209473  /)
+  k4(10,3,1:2) =(/.010164760  ,1.7551560  /)
+  k4(10,4,1:2) =(/-2.947279   ,-5.7791667 /)
+  k4(10,5,1:2) =(/3.917235    ,-4.0514505 /)
+  k4(10,6,1:2) =(/.26620259   ,-.8571806  /)
+  k4(10,7,1:2) =(/-.22154192  ,-2.8967098 /)
+  k4(10,8,1:2) =(/.14469592   ,-3.7529003 /)
+  k4(10,9,1:2) =(/-.57441141  ,1.3413305  /)
+  k4(10,10,1:2)=(/.38805585   ,12.778370  /)
+
+do i=1,2    
+  defsvm%grad_interp_weights(1, 1:defsvm%cv_split,i)  = (/ k4(1,1,i), k4(1,2,i), k4(1,3,i) , k4(1,4,i), k4(1,5,i), k4(1,6,i),k4(1,7,i),k4(1,8,i),k4(1,9,i),k4(1,10,i)/)!
+  defsvm%grad_interp_weights(8, 1:defsvm%cv_split,i)  = (/ k4(1,2,i), k4(1,1,i), k4(1,3,i) , k4(1,5,i), k4(1,4,i), k4(1,9,i),k4(1,8,i),k4(1,7,i),k4(1,6,i),k4(1,10,i)/)
+  defsvm%grad_interp_weights(9, 1:defsvm%cv_split,i)  = (/ k4(1,3,i), k4(1,1,i), k4(1,2,i) , k4(1,8,i), k4(1,9,i), k4(1,4,i),k4(1,5,i),k4(1,6,i),k4(1,7,i),k4(1,10,i)/)
+  defsvm%grad_interp_weights(16, 1:defsvm%cv_split,i) = (/ k4(1,3,i), k4(1,2,i), k4(1,1,i) , k4(1,7,i), k4(1,6,i), k4(1,5,i),k4(1,4,i),k4(1,9,i),k4(1,8,i),k4(1,10,i)/)
+  defsvm%grad_interp_weights(17, 1:defsvm%cv_split,i) = (/ k4(1,2,i), k4(1,3,i), k4(1,1,i) , k4(1,6,i), k4(1,7,i), k4(1,8,i),k4(1,9,i),k4(1,4,i),k4(1,5,i),k4(1,10,i)/)
+  defsvm%grad_interp_weights(24, 1:defsvm%cv_split,i) = (/ k4(1,1,i), k4(1,3,i), k4(1,2,i) , k4(1,9,i), k4(1,8,i), k4(1,7,i),k4(1,6,i),k4(1,5,i),k4(1,4,i),k4(1,10,i)/)
+         
+  defsvm%grad_interp_weights(2, 1:defsvm%cv_split,i)  = (/ k4(2,1,i), k4(2,2,i), k4(2,3,i) , k4(2,4,i), k4(2,5,i), k4(2,6,i),k4(2,7,i),k4(2,8,i),k4(2,9,i),k4(2,10,i)/)!
+  defsvm%grad_interp_weights(7, 1:defsvm%cv_split,i)  = (/ k4(2,2,i), k4(2,1,i), k4(2,3,i) , k4(2,5,i), k4(2,4,i), k4(2,9,i),k4(2,8,i),k4(2,7,i),k4(2,6,i),k4(2,10,i)/)
+  defsvm%grad_interp_weights(10, 1:defsvm%cv_split,i) = (/ k4(2,3,i), k4(2,1,i), k4(2,2,i) , k4(2,8,i), k4(2,9,i), k4(2,4,i),k4(2,5,i),k4(2,6,i),k4(2,7,i),k4(2,10,i)/)
+  defsvm%grad_interp_weights(15, 1:defsvm%cv_split,i) = (/ k4(2,3,i), k4(2,2,i), k4(2,1,i) , k4(2,7,i), k4(2,6,i), k4(2,5,i),k4(2,4,i),k4(2,9,i),k4(2,8,i),k4(2,10,i)/)
+  defsvm%grad_interp_weights(18, 1:defsvm%cv_split,i) = (/ k4(2,2,i), k4(2,3,i), k4(2,1,i) , k4(2,6,i), k4(2,7,i), k4(2,8,i),k4(2,9,i),k4(2,4,i),k4(2,5,i),k4(2,10,i)/)
+  defsvm%grad_interp_weights(23, 1:defsvm%cv_split,i) = (/ k4(2,1,i), k4(2,3,i), k4(2,2,i) , k4(2,9,i), k4(2,8,i), k4(2,7,i),k4(2,6,i),k4(2,5,i),k4(2,4,i),k4(2,10,i)/)
+
+  defsvm%grad_interp_weights(3, 1:defsvm%cv_split,i)  = (/ k4(3,1,i), k4(3,2,i), k4(3,3,i) , k4(3,4,i), k4(3,5,i), k4(3,6,i),k4(3,7,i),k4(3,8,i),k4(3,9,i),k4(3,10,i)/)!
+  defsvm%grad_interp_weights(6, 1:defsvm%cv_split,i)  = (/ k4(3,2,i), k4(3,1,i), k4(3,3,i) , k4(3,5,i), k4(3,4,i), k4(3,9,i),k4(3,8,i),k4(3,7,i),k4(3,6,i),k4(3,10,i)/)
+  defsvm%grad_interp_weights(11, 1:defsvm%cv_split,i) = (/ k4(3,3,i), k4(3,1,i), k4(3,2,i) , k4(3,8,i), k4(3,9,i), k4(3,4,i),k4(3,5,i),k4(3,6,i),k4(3,7,i),k4(3,10,i)/)
+  defsvm%grad_interp_weights(14, 1:defsvm%cv_split,i) = (/ k4(3,3,i), k4(3,2,i), k4(3,1,i) , k4(3,7,i), k4(3,6,i), k4(3,5,i),k4(3,4,i),k4(3,9,i),k4(3,8,i),k4(3,10,i)/)
+  defsvm%grad_interp_weights(19, 1:defsvm%cv_split,i) = (/ k4(3,2,i), k4(3,3,i), k4(3,1,i) , k4(3,6,i), k4(3,7,i), k4(3,8,i),k4(3,9,i),k4(3,4,i),k4(3,5,i),k4(3,10,i)/)
+  defsvm%grad_interp_weights(22, 1:defsvm%cv_split,i) = (/ k4(3,1,i), k4(3,3,i), k4(3,2,i) , k4(3,9,i), k4(3,8,i), k4(3,7,i),k4(3,6,i),k4(3,5,i),k4(3,4,i),k4(3,10,i)/)
+
+  defsvm%grad_interp_weights(4, 1:defsvm%cv_split,i)  = (/ k4(4,1,i), k4(4,2,i), k4(4,3,i) , k4(4,4,i), k4(4,5,i), k4(4,6,i),k4(4,7,i),k4(4,8,i),k4(4,9,i),k4(4,10,i)/)!
+  defsvm%grad_interp_weights(5, 1:defsvm%cv_split,i)  = (/ k4(4,2,i), k4(4,1,i), k4(4,3,i) , k4(4,5,i), k4(4,4,i), k4(4,9,i),k4(4,8,i),k4(4,7,i),k4(4,6,i),k4(4,10,i)/)
+  defsvm%grad_interp_weights(12, 1:defsvm%cv_split,i) = (/ k4(4,3,i), k4(4,1,i), k4(4,2,i) , k4(4,8,i), k4(4,9,i), k4(4,4,i),k4(4,5,i),k4(4,6,i),k4(4,7,i),k4(4,10,i)/)
+  defsvm%grad_interp_weights(13, 1:defsvm%cv_split,i) = (/ k4(4,3,i), k4(4,2,i), k4(4,1,i) , k4(4,7,i), k4(4,6,i), k4(4,5,i),k4(4,4,i),k4(4,9,i),k4(4,8,i),k4(4,10,i)/)
+  defsvm%grad_interp_weights(20, 1:defsvm%cv_split,i) = (/ k4(4,2,i), k4(4,3,i), k4(4,1,i) , k4(4,6,i), k4(4,7,i), k4(4,8,i),k4(4,9,i),k4(4,4,i),k4(4,5,i),k4(4,10,i)/)
+  defsvm%grad_interp_weights(21, 1:defsvm%cv_split,i) = (/ k4(4,1,i), k4(4,3,i), k4(4,2,i) , k4(4,9,i), k4(4,8,i), k4(4,7,i),k4(4,6,i),k4(4,5,i),k4(4,4,i),k4(4,10,i)/)
+
+  defsvm%grad_interp_weights(25, 1:defsvm%cv_split,i) = (/ k4(5,1,i), k4(5,2,i), k4(5,3,i) , k4(5,4,i), k4(5,5,i), k4(5,6,i),k4(5,7,i),k4(5,8,i),k4(5,9,i),k4(5,10,i)/)!
+  defsvm%grad_interp_weights(29, 1:defsvm%cv_split,i) = (/ k4(5,2,i), k4(5,1,i), k4(5,3,i) , k4(5,5,i), k4(5,4,i), k4(5,9,i),k4(5,8,i),k4(5,7,i),k4(5,6,i),k4(5,10,i)/)
+  defsvm%grad_interp_weights(31, 1:defsvm%cv_split,i) = (/ k4(5,3,i), k4(5,1,i), k4(5,2,i) , k4(5,8,i), k4(5,9,i), k4(5,4,i),k4(5,5,i),k4(5,6,i),k4(5,7,i),k4(5,10,i)/)
+  defsvm%grad_interp_weights(35, 1:defsvm%cv_split,i) = (/ k4(5,3,i), k4(5,2,i), k4(5,1,i) , k4(5,7,i), k4(5,6,i), k4(5,5,i),k4(5,4,i),k4(5,9,i),k4(5,8,i),k4(5,10,i)/)
+  defsvm%grad_interp_weights(37, 1:defsvm%cv_split,i) = (/ k4(5,2,i), k4(5,3,i), k4(5,1,i) , k4(5,6,i), k4(5,7,i), k4(5,8,i),k4(5,9,i),k4(5,4,i),k4(5,5,i),k4(5,10,i)/)
+  defsvm%grad_interp_weights(41, 1:defsvm%cv_split,i) = (/ k4(5,1,i), k4(5,3,i), k4(5,2,i) , k4(5,9,i), k4(5,8,i), k4(5,7,i),k4(5,6,i),k4(5,5,i),k4(5,4,i),k4(5,10,i)/)
+
+  defsvm%grad_interp_weights(26, 1:defsvm%cv_split,i) = (/ k4(6,1,i), k4(6,2,i), k4(6,3,i) , k4(6,4,i), k4(6,5,i), k4(6,6,i),k4(6,7,i),k4(6,8,i),k4(6,9,i),k4(6,10,i)/)!
+  defsvm%grad_interp_weights(30, 1:defsvm%cv_split,i) = (/ k4(6,2,i), k4(6,1,i), k4(6,3,i) , k4(6,5,i), k4(6,4,i), k4(6,9,i),k4(6,8,i),k4(6,7,i),k4(6,6,i),k4(6,10,i)/)
+  defsvm%grad_interp_weights(32, 1:defsvm%cv_split,i) = (/ k4(6,3,i), k4(6,1,i), k4(6,2,i) , k4(6,8,i), k4(6,9,i), k4(6,4,i),k4(6,5,i),k4(6,6,i),k4(6,7,i),k4(6,10,i)/)
+  defsvm%grad_interp_weights(36, 1:defsvm%cv_split,i) = (/ k4(6,3,i), k4(6,2,i), k4(6,1,i) , k4(6,7,i), k4(6,6,i), k4(6,5,i),k4(6,4,i),k4(6,9,i),k4(6,8,i),k4(6,10,i)/)
+  defsvm%grad_interp_weights(38, 1:defsvm%cv_split,i) = (/ k4(6,2,i), k4(6,3,i), k4(6,1,i) , k4(6,6,i), k4(6,7,i), k4(6,8,i),k4(6,9,i),k4(6,4,i),k4(6,5,i),k4(6,10,i)/)
+  defsvm%grad_interp_weights(42, 1:defsvm%cv_split,i) = (/ k4(6,1,i), k4(6,3,i), k4(6,2,i) , k4(6,9,i), k4(6,8,i), k4(6,7,i),k4(6,6,i),k4(6,5,i),k4(6,4,i),k4(6,10,i)/)
+
+  defsvm%grad_interp_weights(27, 1:defsvm%cv_split,i) = (/ k4(7,1,i), k4(7,2,i), k4(7,3,i) , k4(7,4,i), k4(7,5,i), k4(7,6,i),k4(7,7,i),k4(7,8,i),k4(7,9,i),k4(7,10,i)/)!
+  defsvm%grad_interp_weights(33, 1:defsvm%cv_split,i) = (/ k4(7,3,i), k4(7,1,i), k4(7,2,i) , k4(7,8,i), k4(7,9,i), k4(7,4,i),k4(7,5,i),k4(7,6,i),k4(7,7,i),k4(7,10,i)/)
+  defsvm%grad_interp_weights(39, 1:defsvm%cv_split,i) = (/ k4(7,1,i), k4(7,3,i), k4(7,2,i) , k4(7,9,i), k4(7,8,i), k4(7,7,i),k4(7,6,i),k4(7,5,i),k4(7,4,i),k4(7,10,i)/)
+                                                               
+  defsvm%grad_interp_weights(28, 1:defsvm%cv_split,i) = (/ k4(8,1,i), k4(8,2,i), k4(8,3,i) , k4(8,4,i), k4(8,5,i), k4(8,6,i),k4(8,7,i),k4(8,8,i),k4(8,9,i),k4(8,10,i)/)!
+  defsvm%grad_interp_weights(34, 1:defsvm%cv_split,i) = (/ k4(8,3,i), k4(8,1,i), k4(8,2,i) , k4(8,8,i), k4(8,9,i), k4(8,4,i),k4(8,5,i),k4(8,6,i),k4(8,7,i),k4(8,10,i)/)
+  defsvm%grad_interp_weights(40, 1:defsvm%cv_split,i) = (/ k4(8,1,i), k4(8,3,i), k4(8,2,i) , k4(8,9,i), k4(8,8,i), k4(8,7,i),k4(8,6,i),k4(8,5,i),k4(8,4,i),k4(8,10,i)/)
+
+  defsvm%grad_interp_weights(43, 1:defsvm%cv_split,i) = (/ k4(9,1,i), k4(9,2,i), k4(9,3,i) , k4(9,4,i), k4(9,5,i), k4(9,6,i),k4(9,7,i),k4(9,8,i),k4(9,9,i),k4(9,10,i)/)!
+  defsvm%grad_interp_weights(46, 1:defsvm%cv_split,i) = (/ k4(9,2,i), k4(9,1,i), k4(9,3,i) , k4(9,5,i), k4(9,4,i), k4(9,9,i),k4(9,8,i),k4(9,7,i),k4(9,6,i),k4(9,10,i)/)
+  defsvm%grad_interp_weights(47, 1:defsvm%cv_split,i) = (/ k4(9,3,i), k4(9,1,i), k4(9,2,i) , k4(9,8,i), k4(9,9,i), k4(9,4,i),k4(9,5,i),k4(9,6,i),k4(9,7,i),k4(9,10,i)/)
+  defsvm%grad_interp_weights(50, 1:defsvm%cv_split,i) = (/ k4(9,3,i), k4(9,2,i), k4(9,1,i) , k4(9,7,i), k4(9,6,i), k4(9,5,i),k4(9,4,i),k4(9,9,i),k4(9,8,i),k4(9,10,i)/)
+  defsvm%grad_interp_weights(51, 1:defsvm%cv_split,i) = (/ k4(9,2,i), k4(9,3,i), k4(9,1,i) , k4(9,6,i), k4(9,7,i), k4(9,8,i),k4(9,9,i),k4(9,4,i),k4(9,5,i),k4(9,10,i)/)
+  defsvm%grad_interp_weights(54, 1:defsvm%cv_split,i) = (/ k4(9,1,i), k4(9,3,i), k4(9,2,i) , k4(9,9,i), k4(9,8,i), k4(9,7,i),k4(9,6,i),k4(9,5,i),k4(9,4,i),k4(9,10,i)/)
+                                                  
+  defsvm%grad_interp_weights(44, 1:defsvm%cv_split,i) = (/ k4(10,1,i), k4(10,2,i), k4(10,3,i) , k4(10,4,i), k4(10,5,i), k4(10,6,i),k4(10,7,i),k4(10,8,i),k4(10,9,i),k4(10,10,i)/)!
+  defsvm%grad_interp_weights(45, 1:defsvm%cv_split,i) = (/ k4(10,2,i), k4(10,1,i), k4(10,3,i) , k4(10,5,i), k4(10,4,i), k4(10,9,i),k4(10,8,i),k4(10,7,i),k4(10,6,i),k4(10,10,i)/)
+  defsvm%grad_interp_weights(48, 1:defsvm%cv_split,i) = (/ k4(10,3,i), k4(10,1,i), k4(10,2,i) , k4(10,8,i), k4(10,9,i), k4(10,4,i),k4(10,5,i),k4(10,6,i),k4(10,7,i),k4(10,10,i)/)
+  defsvm%grad_interp_weights(49, 1:defsvm%cv_split,i) = (/ k4(10,3,i), k4(10,2,i), k4(10,1,i) , k4(10,7,i), k4(10,6,i), k4(10,5,i),k4(10,4,i),k4(10,9,i),k4(10,8,i),k4(10,10,i)/)
+  defsvm%grad_interp_weights(52, 1:defsvm%cv_split,i) = (/ k4(10,2,i), k4(10,3,i), k4(10,1,i) , k4(10,6,i), k4(10,7,i), k4(10,8,i),k4(10,9,i),k4(10,4,i),k4(10,5,i),k4(10,10,i)/)
+  defsvm%grad_interp_weights(53, 1:defsvm%cv_split,i) = (/ k4(10,1,i), k4(10,3,i), k4(10,2,i) , k4(10,9,i), k4(10,8,i), k4(10,7,i),k4(10,6,i),k4(10,5,i),k4(10,4,i),k4(10,10,i)/)
+
+enddo
+  if (size(defsvm%grad_interp_weights, 1) /= 54) call erreur("SVM initialization", "bad array size")
+
+  case(svm_4kris)   ! 12 independent points
+ !Gauss point1 coefficients
+  kk4(1,1,1:2) =(/-8.8134792  , -5.0076949  /)
+  kk4(1,2,1:2) =(/1.3368011   , -1.2156379  /)
+  kk4(1,3,1:2) =(/-.45432143  , 2.1986910   /)
+  kk4(1,4,1:2) =(/14.638626   , -10.393476  /)
+  kk4(1,5,1:2) =(/-5.4193208  , 4.6260857   /)
+  kk4(1,6,1:2) =(/1.6948153   , -.91594220  /)
+  kk4(1,7,1:2) =(/.36463723   , 1.6422402   /)
+  kk4(1,8,1:2) =(/1.2676350   , -8.0614289  /)
+  kk4(1,9,1:2) =(/-.87272444  , 18.016237   /)
+  kk4(1,10,1:2)=(/-3.7426690  , -.88907361  /)
+!Gauss point2 coefficients
+  kk4(2,1,1:2) =(/-7.4865112  , -4.0362328  /)
+  kk4(2,2,1:2) =(/.70618894   , -.59735689  /)
+  kk4(2,3,1:2) =(/-.41200727  , 2.4284578   /)
+  kk4(2,4,1:2) =(/11.580180   , -10.518968  /)
+  kk4(2,5,1:2) =(/-3.2195339  , 3.1017161   /)
+  kk4(2,6,1:2) =(/1.2110805   , -1.3847338  /)
+  kk4(2,7,1:2) =(/.46060733   , .73304134   /)
+  kk4(2,8,1:2) =(/1.0196399   , -8.0668565  /)
+  kk4(2,9,1:2) =(/-.46555671  , 15.784158   /)
+  kk4(2,10,1:2)=(/-3.3940878  , 2.5567751   /)
+!Gauss point3 coefficients
+  kk4(3,1,1:2) =(/-4.7483824  , -2.0617023  /)
+  kk4(3,2,1:2) =(/-.39806848  , .54849910   /)
+  kk4(3,3,1:2) =(/-.31272485  , 2.8794497   /)
+  kk4(3,4,1:2) =(/5.4123434   , -10.497057  /)
+  kk4(3,5,1:2) =(/.9336170    , -.15858308  /)
+  kk4(3,6,1:2) =(/.24691240   , -1.9667860  /)
+  kk4(3,7,1:2) =(/.61982953   , -1.2248509  /)
+  kk4(3,8,1:2) =(/.50371877   , -7.9042153  /)
+  kk4(3,9,1:2) =(/.31896060   , 11.064875   /)
+  kk4(3,10,1:2)=(/-2.5762059  , 9.3203704   /)
+!Gauss point4 coefficients
+  kk4(4,1,1:2) =(/-.4408945   , .8620208   /)
+  kk4(4,2,1:2) =(/-.9380930   , 1.5614221  /)
+  kk4(4,3,1:2) =(/-.08379437  , 3.4484163  /)
+  kk4(4,4,1:2) =(/-3.420863   , -8.7556708 /)
+  kk4(4,5,1:2) =(/5.121258    , -5.9854850 /)
+  kk4(4,6,1:2) =(/-1.0632726  , -.5409207  /)
+  kk4(4,7,1:2) =(/.63445905   , -4.8021028 /)
+  kk4(4,8,1:2) =(/-.33340525  , -6.5918329 /)
+  kk4(4,9,1:2) =(/1.2148978   , 2.9509025  /)
+  kk4(4,10,1:2)=(/-.69029227  , 17.853250  /)
+!Gauss point25 coefficients
+  kk4(5,1,1:2) =(/-6.8343389  , -3.6671825  /)
+  kk4(5,2,1:2) =(/.61643167   , -.48380934  /)
+  kk4(5,3,1:2) =(/-.35207149  , 2.2459274   /)
+  kk4(5,4,1:2) =(/10.511911   , -10.163165  /)
+  kk4(5,5,1:2) =(/-2.7847165  , 2.7263035   /)
+  kk4(5,6,1:2) =(/.96715183   , -1.3583055  /)
+  kk4(5,7,1:2) =(/.31059649   , .53289489   /)
+  kk4(5,8,1:2) =(/.93707392   , -7.4001255  /)
+  kk4(5,9,1:2) =(/-.77212910  , 14.664371   /)
+  kk4(5,10,1:2)=(/-2.5999089  , 2.9030905   /)
+!Gauss point26 coefficients
+  kk4(6,1,1:2) =(/-6.3214893  , -3.5764255  /)
+  kk4(6,2,1:2) =(/.94377292   , -.73791741  /)
+  kk4(6,3,1:2) =(/-.23063807  , 1.5714336   /)
+  kk4(6,4,1:2) =(/10.463775   , -9.1436701  /)
+  kk4(6,5,1:2) =(/-3.6085434  , 3.1469583   /)
+  kk4(6,6,1:2) =(/.72595195   , -.89537883  /)
+  kk4(6,7,1:2) =(/-.15292029  , .81721437   /)
+  kk4(6,8,1:2) =(/.91720400   , -5.6512241  /)
+  kk4(6,9,1:2) =(/-1.9583588  , 13.759069   /)
+  kk4(6,10,1:2)=(/-.77875306  , .70993998   /)
+!Gauss point27 coefficients
+  kk4(7,1,1:2) =(/.56543801   , 1.2520638   /)
+  kk4(7,2,1:2) =(/-.56543801  , 1.2520638   /)
+  kk4(7,3,1:2) =(/ 0.         , 2.5569127   /)
+  kk4(7,4,1:2) =(/-4.2402246  , -6.5365160  /)
+  kk4(7,5,1:2) =(/4.2402246   , -6.5365160  /)
+  kk4(7,6,1:2) =(/-.56840265  , .63977494   /)
+  kk4(7,7,1:2) =(/.20257803   , -4.3784393  /)
+  kk4(7,8,1:2) =(/-.20257803  , -4.3784393  /)
+  kk4(7,9,1:2) =(/.56840265   , .63977494   /)
+  kk4(7,10,1:2)=(/ 0.         , 15.489321   /)
+!Gauss point28 coefficients
+  kk4(8,1,1:2) =(/.47268392   , 1.3337394   /)
+  kk4(8,2,1:2) =(/-.47268392  , 1.3337394   /)
+  kk4(8,3,1:2) =(/0.          , 3.2314065   /)
+  kk4(8,4,1:2) =(/-4.6280697  , -7.2565908  /)
+  kk4(8,5,1:2) =(/4.6280697   , -7.2565908  /)
+  kk4(8,6,1:2) =(/-1.0409177  , .86096256   /)
+  kk4(8,7,1:2) =(/.42440145   , -5.3950497  /)
+  kk4(8,8,1:2) =(/-.42440145  , -5.3950497  /)
+  kk4(8,9,1:2) =(/1.0409177   , .86096256   /)
+  kk4(8,10,1:2)=(/0.          , 17.682471   /)
+!Gauss point43 coefficients
+  kk4(9,1,1:2) =(/-4.7585583   , -2.7473548   /)
+  kk4(9,2,1:2) =(/.82135212    , -.55867118   /)
+  kk4(9,3,1:2) =(/-.073147440  , .99064737    /)
+  kk4(9,4,1:2) =(/8.1157064    , -8.0210351   /)
+  kk4(9,5,1:2) =(/-2.8736603   , 2.4582790    /)
+  kk4(9,6,1:2) =(/.17071491    , -.72264096   /)
+  kk4(9,7,1:2) =(/-.54046801   , .50916378    /)
+  kk4(9,8,1:2) =(/.69210178    , -3.7178025   /)
+  kk4(9,9,1:2) =(/-2.8885670   , 11.038926    /)
+  kk4(9,10,1:2)=(/1.3345259    , .77048881    /)
+!Gauss point44 coefficients
+  kk4(10,1,1:2) =(/-1.7488650  , -1.0097076  /)
+  kk4(10,2,1:2) =(/.21616307   , .032055195  /)
+  kk4(10,3,1:2) =(/.13584207   , .17117520   /)
+  kk4(10,4,1:2) =(/3.0382814   , -6.0160416  /)
+  kk4(10,5,1:2) =(/-.61459679  , .60591074   /)
+  kk4(10,6,1:2) =(/-.48411602  , -.71208049  /)
+  kk4(10,7,1:2) =(/-.85873785  , -.06321678  /)
+  kk4(10,8,1:2) =(/.21743568   , -.83521168  /)
+  kk4(10,9,1:2) =(/-3.6909043  , 5.6392491   /)
+  kk4(10,10,1:2)=(/3.7894981   , 2.1878677   /)
+!Gauss point49 coefficients
+  kk4(11,1,1:2) =(/-.52861197  , -.051543085  /)
+  kk4(11,2,1:2) =(/-.50867133  , .65348846    /)
+  kk4(11,3,1:2) =(/.09193354   , .39947557    /)
+  kk4(11,4,1:2) =(/.03423639   , -5.7654937   /)
+  kk4(11,5,1:2) =(/1.6060357   , -1.2839696   /)
+  kk4(11,6,1:2) =(/-.25197412  , -1.0274205   /)
+  kk4(11,7,1:2) =(/-.58420805  , -.64237828   /)
+  kk4(11,8,1:2) =(/.15019533   , -1.1648397   /)
+  kk4(11,9,1:2) =(/-2.5735452  , 3.2709550    /)
+  kk4(11,10,1:2)=(/2.5646105   , 5.6117257    /)
+!Gauss point50 coefficients
+  kk4(12,1,1:2) =(/.34908743   , .96210027  /)
+  kk4(12,2,1:2) =(/-.86360203  , 1.2481175  /)
+  kk4(12,3,1:2) =(/-.00955891  , 1.7879145  /)
+  kk4(12,4,1:2) =(/-3.2855627  , -6.3285209 /)
+  kk4(12,5,1:2) =(/3.9705933   , -4.9590823 /)
+  kk4(12,6,1:2) =(/-.19361326  , -.29622993 /)
+  kk4(12,7,1:2) =(/-.00961532  , -2.9149587 /)
+  kk4(12,8,1:2) =(/.02943082   , -3.4673390 /)
+  kk4(12,9,1:2) =(/-.16155584  , 1.2407731  /)
+  kk4(12,10,1:2)=(/.1743960    , 12.727225  /)
+
+do i=1,2
+  defsvm%grad_interp_weights(1, 1:defsvm%cv_split,i)  = (/ kk4(1,1,i), kk4(1,2,i), kk4(1,3,i) , kk4(1,4,i), kk4(1,5,i), kk4(1,6,i),kk4(1,7,i),kk4(1,8,i),kk4(1,9,i),kk4(1,10,i)/)!
+  defsvm%grad_interp_weights(8, 1:defsvm%cv_split,i)  = (/ kk4(1,2,i), kk4(1,1,i), kk4(1,3,i) , kk4(1,5,i), kk4(1,4,i), kk4(1,9,i),kk4(1,8,i),kk4(1,7,i),kk4(1,6,i),kk4(1,10,i)/)
+  defsvm%grad_interp_weights(9, 1:defsvm%cv_split,i)  = (/ kk4(1,3,i), kk4(1,1,i), kk4(1,2,i) , kk4(1,8,i), kk4(1,9,i), kk4(1,4,i),kk4(1,5,i),kk4(1,6,i),kk4(1,7,i),kk4(1,10,i)/)
+  defsvm%grad_interp_weights(16, 1:defsvm%cv_split,i) = (/ kk4(1,3,i), kk4(1,2,i), kk4(1,1,i) , kk4(1,7,i), kk4(1,6,i), kk4(1,5,i),kk4(1,4,i),kk4(1,9,i),kk4(1,8,i),kk4(1,10,i)/)
+  defsvm%grad_interp_weights(17, 1:defsvm%cv_split,i) = (/ kk4(1,2,i), kk4(1,3,i), kk4(1,1,i) , kk4(1,6,i), kk4(1,7,i), kk4(1,8,i),kk4(1,9,i),kk4(1,4,i),kk4(1,5,i),kk4(1,10,i)/)
+  defsvm%grad_interp_weights(24, 1:defsvm%cv_split,i) = (/ kk4(1,1,i), kk4(1,3,i), kk4(1,2,i) , kk4(1,9,i), kk4(1,8,i), kk4(1,7,i),kk4(1,6,i),kk4(1,5,i),kk4(1,4,i),kk4(1,10,i)/)
+
+  defsvm%grad_interp_weights(2, 1:defsvm%cv_split,i)  = (/ kk4(2,1,i), kk4(2,2,i), kk4(2,3,i) , kk4(2,4,i), kk4(2,5,i), kk4(2,6,i),kk4(2,7,i),kk4(2,8,i),kk4(2,9,i),kk4(2,10,i)/)!
+  defsvm%grad_interp_weights(7, 1:defsvm%cv_split,i)  = (/ kk4(2,2,i), kk4(2,1,i), kk4(2,3,i) , kk4(2,5,i), kk4(2,4,i), kk4(2,9,i),kk4(2,8,i),kk4(2,7,i),kk4(2,6,i),kk4(2,10,i)/)
+  defsvm%grad_interp_weights(10, 1:defsvm%cv_split,i) = (/ kk4(2,3,i), kk4(2,1,i), kk4(2,2,i) , kk4(2,8,i), kk4(2,9,i), kk4(2,4,i),kk4(2,5,i),kk4(2,6,i),kk4(2,7,i),kk4(2,10,i)/)
+  defsvm%grad_interp_weights(15, 1:defsvm%cv_split,i) = (/ kk4(2,3,i), kk4(2,2,i), kk4(2,1,i) , kk4(2,7,i), kk4(2,6,i), kk4(2,5,i),kk4(2,4,i),kk4(2,9,i),kk4(2,8,i),kk4(2,10,i)/)
+  defsvm%grad_interp_weights(18, 1:defsvm%cv_split,i) = (/ kk4(2,2,i), kk4(2,3,i), kk4(2,1,i) , kk4(2,6,i), kk4(2,7,i), kk4(2,8,i),kk4(2,9,i),kk4(2,4,i),kk4(2,5,i),kk4(2,10,i)/)
+  defsvm%grad_interp_weights(23, 1:defsvm%cv_split,i) = (/ kk4(2,1,i), kk4(2,3,i), kk4(2,2,i) , kk4(2,9,i), kk4(2,8,i), kk4(2,7,i),kk4(2,6,i),kk4(2,5,i),kk4(2,4,i),kk4(2,10,i)/)
+
+  defsvm%grad_interp_weights(3, 1:defsvm%cv_split,i)  = (/ kk4(3,1,i), kk4(3,2,i), kk4(3,3,i) , kk4(3,4,i), kk4(3,5,i), kk4(3,6,i),kk4(3,7,i),kk4(3,8,i),kk4(3,9,i),kk4(3,10,i)/)!
+  defsvm%grad_interp_weights(6, 1:defsvm%cv_split,i)  = (/ kk4(3,2,i), kk4(3,1,i), kk4(3,3,i) , kk4(3,5,i), kk4(3,4,i), kk4(3,9,i),kk4(3,8,i),kk4(3,7,i),kk4(3,6,i),kk4(3,10,i)/)
+  defsvm%grad_interp_weights(11, 1:defsvm%cv_split,i) = (/ kk4(3,3,i), kk4(3,1,i), kk4(3,2,i) , kk4(3,8,i), kk4(3,9,i), kk4(3,4,i),kk4(3,5,i),kk4(3,6,i),kk4(3,7,i),kk4(3,10,i)/)
+  defsvm%grad_interp_weights(14, 1:defsvm%cv_split,i) = (/ kk4(3,3,i), kk4(3,2,i), kk4(3,1,i) , kk4(3,7,i), kk4(3,6,i), kk4(3,5,i),kk4(3,4,i),kk4(3,9,i),kk4(3,8,i),kk4(3,10,i)/)
+  defsvm%grad_interp_weights(19, 1:defsvm%cv_split,i) = (/ kk4(3,2,i), kk4(3,3,i), kk4(3,1,i) , kk4(3,6,i), kk4(3,7,i), kk4(3,8,i),kk4(3,9,i),kk4(3,4,i),kk4(3,5,i),kk4(3,10,i)/)
+  defsvm%grad_interp_weights(22, 1:defsvm%cv_split,i) = (/ kk4(3,1,i), kk4(3,3,i), kk4(3,2,i) , kk4(3,9,i), kk4(3,8,i), kk4(3,7,i),kk4(3,6,i),kk4(3,5,i),kk4(3,4,i),kk4(3,10,i)/)
+
+  defsvm%grad_interp_weights(4, 1:defsvm%cv_split,i)  = (/ kk4(4,1,i), kk4(4,2,i), kk4(4,3,i) , kk4(4,4,i), kk4(4,5,i), kk4(4,6,i),kk4(4,7,i),kk4(4,8,i),kk4(4,9,i),kk4(4,10,i)/)!
+  defsvm%grad_interp_weights(5, 1:defsvm%cv_split,i)  = (/ kk4(4,2,i), kk4(4,1,i), kk4(4,3,i) , kk4(4,5,i), kk4(4,4,i), kk4(4,9,i),kk4(4,8,i),kk4(4,7,i),kk4(4,6,i),kk4(4,10,i)/)
+  defsvm%grad_interp_weights(12, 1:defsvm%cv_split,i) = (/ kk4(4,3,i), kk4(4,1,i), kk4(4,2,i) , kk4(4,8,i), kk4(4,9,i), kk4(4,4,i),kk4(4,5,i),kk4(4,6,i),kk4(4,7,i),kk4(4,10,i)/)
+  defsvm%grad_interp_weights(13, 1:defsvm%cv_split,i) = (/ kk4(4,3,i), kk4(4,2,i), kk4(4,1,i) , kk4(4,7,i), kk4(4,6,i), kk4(4,5,i),kk4(4,4,i),kk4(4,9,i),kk4(4,8,i),kk4(4,10,i)/)
+  defsvm%grad_interp_weights(20, 1:defsvm%cv_split,i) = (/ kk4(4,2,i), kk4(4,3,i), kk4(4,1,i) , kk4(4,6,i), kk4(4,7,i), kk4(4,8,i),kk4(4,9,i),kk4(4,4,i),kk4(4,5,i),kk4(4,10,i)/)
+  defsvm%grad_interp_weights(21, 1:defsvm%cv_split,i) = (/ kk4(4,1,i), kk4(4,3,i), kk4(4,2,i) , kk4(4,9,i), kk4(4,8,i), kk4(4,7,i),kk4(4,6,i),kk4(4,5,i),kk4(4,4,i),kk4(4,10,i)/)
+
+  defsvm%grad_interp_weights(25, 1:defsvm%cv_split,i) = (/ kk4(5,1,i), kk4(5,2,i), kk4(5,3,i) , kk4(5,4,i), kk4(5,5,i), kk4(5,6,i),kk4(5,7,i),kk4(5,8,i),kk4(5,9,i),kk4(5,10,i)/)!
+  defsvm%grad_interp_weights(29, 1:defsvm%cv_split,i) = (/ kk4(5,2,i), kk4(5,1,i), kk4(5,3,i) , kk4(5,5,i), kk4(5,4,i), kk4(5,9,i),kk4(5,8,i),kk4(5,7,i),kk4(5,6,i),kk4(5,10,i)/)
+  defsvm%grad_interp_weights(31, 1:defsvm%cv_split,i) = (/ kk4(5,3,i), kk4(5,1,i), kk4(5,2,i) , kk4(5,8,i), kk4(5,9,i), kk4(5,4,i),kk4(5,5,i),kk4(5,6,i),kk4(5,7,i),kk4(5,10,i)/)
+  defsvm%grad_interp_weights(35, 1:defsvm%cv_split,i) = (/ kk4(5,3,i), kk4(5,2,i), kk4(5,1,i) , kk4(5,7,i), kk4(5,6,i), kk4(5,5,i),kk4(5,4,i),kk4(5,9,i),kk4(5,8,i),kk4(5,10,i)/)
+  defsvm%grad_interp_weights(37, 1:defsvm%cv_split,i) = (/ kk4(5,2,i), kk4(5,3,i), kk4(5,1,i) , kk4(5,6,i), kk4(5,7,i), kk4(5,8,i),kk4(5,9,i),kk4(5,4,i),kk4(5,5,i),kk4(5,10,i)/)
+  defsvm%grad_interp_weights(41, 1:defsvm%cv_split,i) = (/ kk4(5,1,i), kk4(5,3,i), kk4(5,2,i) , kk4(5,9,i), kk4(5,8,i), kk4(5,7,i),kk4(5,6,i),kk4(5,5,i),kk4(5,4,i),kk4(5,10,i)/)
+
+  defsvm%grad_interp_weights(26, 1:defsvm%cv_split,i) = (/ kk4(6,1,i), kk4(6,2,i), kk4(6,3,i) , kk4(6,4,i), kk4(6,5,i), kk4(6,6,i),kk4(6,7,i),kk4(6,8,i),kk4(6,9,i),kk4(6,10,i)/)!
+  defsvm%grad_interp_weights(30, 1:defsvm%cv_split,i) = (/ kk4(6,2,i), kk4(6,1,i), kk4(6,3,i) , kk4(6,5,i), kk4(6,4,i), kk4(6,9,i),kk4(6,8,i),kk4(6,7,i),kk4(6,6,i),kk4(6,10,i)/)
+  defsvm%grad_interp_weights(32, 1:defsvm%cv_split,i) = (/ kk4(6,3,i), kk4(6,1,i), kk4(6,2,i) , kk4(6,8,i), kk4(6,9,i), kk4(6,4,i),kk4(6,5,i),kk4(6,6,i),kk4(6,7,i),kk4(6,10,i)/)
+  defsvm%grad_interp_weights(36, 1:defsvm%cv_split,i) = (/ kk4(6,3,i), kk4(6,2,i), kk4(6,1,i) , kk4(6,7,i), kk4(6,6,i), kk4(6,5,i),kk4(6,4,i),kk4(6,9,i),kk4(6,8,i),kk4(6,10,i)/)
+  defsvm%grad_interp_weights(38, 1:defsvm%cv_split,i) = (/ kk4(6,2,i), kk4(6,3,i), kk4(6,1,i) , kk4(6,6,i), kk4(6,7,i), kk4(6,8,i),kk4(6,9,i),kk4(6,4,i),kk4(6,5,i),kk4(6,10,i)/)
+  defsvm%grad_interp_weights(42, 1:defsvm%cv_split,i) = (/ kk4(6,1,i), kk4(6,3,i), kk4(6,2,i) , kk4(6,9,i), kk4(6,8,i), kk4(6,7,i),kk4(6,6,i),kk4(6,5,i),kk4(6,4,i),kk4(6,10,i)/)
+
+  defsvm%grad_interp_weights(27, 1:defsvm%cv_split,i) = (/ kk4(7,1,i), kk4(7,2,i), kk4(7,3,i) , kk4(7,4,i), kk4(7,5,i), kk4(7,6,i),kk4(7,7,i),kk4(7,8,i),kk4(7,9,i),kk4(7,10,i)/)!
+  defsvm%grad_interp_weights(33, 1:defsvm%cv_split,i) = (/ kk4(7,3,i), kk4(7,1,i), kk4(7,2,i) , kk4(7,8,i), kk4(7,9,i), kk4(7,4,i),kk4(7,5,i),kk4(7,6,i),kk4(7,7,i),kk4(7,10,i)/)
+  defsvm%grad_interp_weights(39, 1:defsvm%cv_split,i) = (/ kk4(7,1,i), kk4(7,3,i), kk4(7,2,i) , kk4(7,9,i), kk4(7,8,i), kk4(7,7,i),kk4(7,6,i),kk4(7,5,i),kk4(7,4,i),kk4(7,10,i)/)
+                                                        
+  defsvm%grad_interp_weights(28, 1:defsvm%cv_split,i) = (/ kk4(8,1,i), kk4(8,2,i), kk4(8,3,i) , kk4(8,4,i), kk4(8,5,i), kk4(8,6,i),kk4(8,7,i),kk4(8,8,i),kk4(8,9,i),kk4(8,10,i)/)!
+  defsvm%grad_interp_weights(34, 1:defsvm%cv_split,i) = (/ kk4(8,3,i), kk4(8,1,i), kk4(8,2,i) , kk4(8,8,i), kk4(8,9,i), kk4(8,4,i),kk4(8,5,i),kk4(8,6,i),kk4(8,7,i),kk4(8,10,i)/)
+  defsvm%grad_interp_weights(40, 1:defsvm%cv_split,i) = (/ kk4(8,1,i), kk4(8,3,i), kk4(8,2,i) , kk4(8,9,i), kk4(8,8,i), kk4(8,7,i),kk4(8,6,i),kk4(8,5,i),kk4(8,4,i),kk4(8,10,i)/)
+                                                  
+  defsvm%grad_interp_weights(43, 1:defsvm%cv_split,i) = (/ kk4(9,1,i), kk4(9,2,i), kk4(9,3,i) , kk4(9,4,i), kk4(9,5,i), kk4(9,6,i),kk4(9,7,i),kk4(9,8,i),kk4(9,9,i),kk4(9,10,i)/)!
+  defsvm%grad_interp_weights(45, 1:defsvm%cv_split,i) = (/ kk4(9,3,i), kk4(9,1,i), kk4(9,2,i) , kk4(9,8,i), kk4(9,9,i), kk4(9,4,i),kk4(9,5,i),kk4(9,6,i),kk4(9,7,i),kk4(9,10,i)/)
+  defsvm%grad_interp_weights(47, 1:defsvm%cv_split,i) = (/ kk4(9,2,i), kk4(9,3,i), kk4(9,1,i) , kk4(9,6,i), kk4(9,7,i), kk4(9,8,i),kk4(9,9,i),kk4(9,4,i),kk4(9,5,i),kk4(9,10,i)/)
+
+  defsvm%grad_interp_weights(44, 1:defsvm%cv_split,i) = (/ kk4(10,1,i), kk4(10,2,i), kk4(10,3,i) , kk4(10,4,i), kk4(10,5,i), kk4(10,6,i),kk4(10,7,i),kk4(10,8,i),kk4(10,9,i),kk4(10,10,i)/)!
+  defsvm%grad_interp_weights(46, 1:defsvm%cv_split,i) = (/ kk4(10,3,i), kk4(10,1,i), kk4(10,2,i) , kk4(10,8,i), kk4(10,9,i), kk4(10,4,i),kk4(10,5,i),kk4(10,6,i),kk4(10,7,i),kk4(10,10,i)/)
+  defsvm%grad_interp_weights(48, 1:defsvm%cv_split,i) = (/ kk4(10,2,i), kk4(10,3,i), kk4(10,1,i) , kk4(10,6,i), kk4(10,7,i), kk4(10,8,i),kk4(10,9,i),kk4(10,4,i),kk4(10,5,i),kk4(10,10,i)/)
+
+  defsvm%grad_interp_weights(49, 1:defsvm%cv_split,i) = (/ kk4(11,1,i), kk4(11,2,i), kk4(11,3,i) , kk4(11,4,i), kk4(11,5,i), kk4(11,6,i),kk4(11,7,i),kk4(11,8,i),kk4(11,9,i),kk4(11,10,i)/)!
+  defsvm%grad_interp_weights(52, 1:defsvm%cv_split,i) = (/ kk4(11,2,i), kk4(11,1,i), kk4(11,3,i) , kk4(11,5,i), kk4(11,4,i), kk4(11,9,i),kk4(11,8,i),kk4(11,7,i),kk4(11,6,i),kk4(11,10,i)/)
+  defsvm%grad_interp_weights(53, 1:defsvm%cv_split,i) = (/ kk4(11,3,i), kk4(11,1,i), kk4(11,2,i) , kk4(11,8,i), kk4(11,9,i), kk4(11,4,i),kk4(11,5,i),kk4(11,6,i),kk4(11,7,i),kk4(11,10,i)/)
+  defsvm%grad_interp_weights(56, 1:defsvm%cv_split,i) = (/ kk4(11,3,i), kk4(11,2,i), kk4(11,1,i) , kk4(11,7,i), kk4(11,6,i), kk4(11,5,i),kk4(11,4,i),kk4(11,9,i),kk4(11,8,i),kk4(11,10,i)/)
+  defsvm%grad_interp_weights(57, 1:defsvm%cv_split,i) = (/ kk4(11,2,i), kk4(11,3,i), kk4(11,1,i) , kk4(11,6,i), kk4(11,7,i), kk4(11,8,i),kk4(11,9,i),kk4(11,4,i),kk4(11,5,i),kk4(11,10,i)/)
+  defsvm%grad_interp_weights(60, 1:defsvm%cv_split,i) = (/ kk4(11,1,i), kk4(11,3,i), kk4(11,2,i) , kk4(11,9,i), kk4(11,8,i), kk4(11,7,i),kk4(11,6,i),kk4(11,5,i),kk4(11,4,i),kk4(11,10,i)/)
+
+
+  defsvm%grad_interp_weights(50, 1:defsvm%cv_split,i) = (/ kk4(12,1,i), kk4(12,2,i), kk4(12,3,i) , kk4(12,4,i), kk4(12,5,i), kk4(12,6,i),kk4(12,7,i),kk4(12,8,i),kk4(12,9,i),kk4(12,10,i)/)!
+  defsvm%grad_interp_weights(51, 1:defsvm%cv_split,i) = (/ kk4(12,2,i), kk4(12,1,i), kk4(12,3,i) , kk4(12,5,i), kk4(12,4,i), kk4(12,9,i),kk4(12,8,i),kk4(12,7,i),kk4(12,6,i),kk4(12,10,i)/)
+  defsvm%grad_interp_weights(54, 1:defsvm%cv_split,i) = (/ kk4(12,3,i), kk4(12,1,i), kk4(12,2,i) , kk4(12,8,i), kk4(12,9,i), kk4(12,4,i),kk4(12,5,i),kk4(12,6,i),kk4(12,7,i),kk4(12,10,i)/)
+  defsvm%grad_interp_weights(55, 1:defsvm%cv_split,i) = (/ kk4(12,3,i), kk4(12,2,i), kk4(12,1,i) , kk4(12,7,i), kk4(12,6,i), kk4(12,5,i),kk4(12,4,i),kk4(12,9,i),kk4(12,8,i),kk4(12,10,i)/)
+  defsvm%grad_interp_weights(58, 1:defsvm%cv_split,i) = (/ kk4(12,2,i), kk4(12,3,i), kk4(12,1,i) , kk4(12,6,i), kk4(12,7,i), kk4(12,8,i),kk4(12,9,i),kk4(12,4,i),kk4(12,5,i),kk4(12,10,i)/)
+  defsvm%grad_interp_weights(59, 1:defsvm%cv_split,i) = (/ kk4(12,1,i), kk4(12,3,i), kk4(12,2,i) , kk4(12,9,i), kk4(12,8,i), kk4(12,7,i),kk4(12,6,i),kk4(12,5,i),kk4(12,4,i),kk4(12,10,i)/)
+
+enddo
+  if (size(defsvm%grad_interp_weights, 1) /= 60) call erreur("SVM initialization", "bad array size")
+
+  case(svm_4kris2)   ! 12 independent points ... to be continued ...
+  call erreur("parameters parsing","unknown SVM method (init_gradsvmweights)")
+
+endselect
+
+case default
+  call erreur("parameters parsing","unknown SVM method (init_gradsvmweights)")
+endselect
+
+endsubroutine init_gradsvmweights
 
 
 endmodule MENU_NUM

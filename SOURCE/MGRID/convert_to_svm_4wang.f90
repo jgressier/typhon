@@ -25,7 +25,7 @@ type(st_ustmesh)      :: umesh        ! ustmesh to convert
 type(st_ustmesh)      :: newmesh      ! new ustmesh (split and converted)
 
 ! -- Internal variables --
-type(v3d)              :: node
+type(v3d)              :: node,dx1,dx2
 integer                :: ic, ic0, icn, if, ifn, iv ,icnh,icnq ! cell, face, vtex index
 integer                :: iv0, ic1, ic2, fnv, cnv, nRface, icv
 integer                :: i, iif, ifR, ifl, iv1, iv2, ib, ifb, ibdef, ifsv
@@ -40,10 +40,13 @@ type(st_ustmesh)       :: umeshcon
 integer, allocatable   :: faceboco(:)      ! face to boco type connectivity
 logical                :: rightface
 real(krp)              :: alpha, beta      ! geometric coefficient for the split
+real(krp)              :: sqrt3,det
+
 ! -- BODY --
 
 alpha = 1._krp / 15._krp
 beta = 2._krp / 15._krp
+sqrt3 = sqrt(3._krp)
 
 call print_info(10, "  . converting to SVM mesh...")
 
@@ -75,6 +78,30 @@ newmesh%mesh%info = umesh%mesh%info
 ! -- allocate only vertices array --
 !
 call new_mesh(newmesh%mesh, 0, 0, newmesh%nvtex) 
+
+
+! -- if needed, compute gradient interpolation coefficients for gradsvm --
+if(defspat%gradmeth.eq.grad_svm)then
+ call alloc_mesh_metricsvm(newmesh%mesh, 4*umesh%cellvtex%elem(ielem)%nelem)
+do ic = 1, umesh%cellvtex%elem(ielem)%nelem
+   
+  iv0  = umesh%cellvtex%elem(ielem)%elemvtex(ic,1)
+  iv1  = umesh%cellvtex%elem(ielem)%elemvtex(ic,2)
+  iv2  = umesh%cellvtex%elem(ielem)%elemvtex(ic,3)
+
+  dx1   = umesh%mesh%vertex(iv1, 1, 1)- umesh%mesh%vertex(iv0, 1, 1)       ! first face of cell
+  dx2   = umesh%mesh%vertex(iv2, 1, 1)- umesh%mesh%vertex(iv0, 1, 1)       ! second face of cell
+  det   = 1._krp/(dx1%x * dx2%y - dx1%y * dx2%x) 
+
+ newmesh%mesh%metricsvm(4*(ic-1)+1,1,1)= det * (dx2%y - 0.5 * dx1%y) 
+ newmesh%mesh%metricsvm(4*(ic-1)+2,1,1)= det * (-sqrt3 * 0.5 * dx1%y)
+ newmesh%mesh%metricsvm(4*(ic-1)+3,1,1)= det * (dx2%x - 0.5 * dx1%x)
+ newmesh%mesh%metricsvm(4*(ic-1)+4,1,1)= det * (sqrt3 * 0.5 * dx1%x)
+
+enddo
+endif
+
+
 !--------------------------------------------------------------------
 ! Create new mesh NODES
 

@@ -83,6 +83,8 @@ case(grad_gauss)
 case(grad_lsq,grad_lsqw)
     call calc_gradient(defsolver, defsolver%defspat, pgrid,                 &
                        pgrid%info%field_loc%etatprim, pgrid%info%field_loc%gradient)
+case(grad_svm)
+    ! if needed, computed locally
 case default
   call erreur("Internal error", "unknown GRADIENT computation method")
 endselect

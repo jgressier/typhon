@@ -50,6 +50,8 @@ type st_mesh
                   :: iface !, jface, kface   ! tableaux de faces
   real(krp), dimension(:,:,:), pointer &
                   :: volume                ! volume des cellules
+  real(krp), dimension(:,:,:), pointer &
+                  :: metricsvm                ! transformation of a triangular cell (SV) to a standard triangle
 endtype st_mesh
 
 ! -- INTERFACES -------------------------------------------------------------
@@ -108,7 +110,20 @@ integer       :: ncell, nface, nvtex
 
 endsubroutine alloc_mesh
 
+!------------------------------------------------------------------------------!
+! Procedure : (partial) allocation of metricsvm MESH structure
+! transformation of a triangular cell (SV) to a standard triangle
+!------------------------------------------------------------------------------!
+subroutine alloc_mesh_metricsvm(mesh, ncoeff)
+implicit none
+type(st_mesh) :: mesh
+integer       :: ncoeff
 
+  if (ncoeff /= 0) then
+    allocate(mesh%metricsvm(1:ncoeff, 1,1))
+  endif
+
+endsubroutine alloc_mesh_metricsvm
 !------------------------------------------------------------------------------!
 ! Procedure : initialization of MESH structure
 !------------------------------------------------------------------------------!

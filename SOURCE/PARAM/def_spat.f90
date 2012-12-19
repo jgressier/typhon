@@ -335,6 +335,21 @@ case(solNS)
        call erreur("parameters parsing","unexpected post limiter")
   call print_info(7,"    post-limiter: "//trim(str))
 
+  ! ---  Gradient evaluation for SVM --------------- 
+
+if (defspat%gradmeth.eq.grad_svm) then
+     if (defspat%svm%sv_order.ge.3) then
+      call init_gradsvmweights(defspat%svm)
+     else
+      call print_info(7,"  SVM2: gradient evaluation changed to GAUSS Method")
+    defspat%gradmeth=grad_gauss
+      endif
+endif
+
+
+
+
+
 case(solKDIF)
 
   defspat%calc_hresQ = .false.

@@ -37,7 +37,6 @@ real(krp)                 :: weights(1:defspat%svm%cv_split)
 
 ! -- BODY --
 
-!!!!!! CANNOT HANDLE MULTIPLE GAUSS POINTS !!!!!!!!
 
 ncv = defspat%svm%cv_split
 

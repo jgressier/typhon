@@ -30,9 +30,10 @@ integer(kip)           :: isplit
 
   do while (associated(pgrid))
 
+    pgrid%umesh_legacy = pgrid%umesh
+
     ! -- if needed, split mesh into spectral volume subcells --
 
-    pgrid%umesh_legacy = pgrid%umesh
 
     select case(zone%defsolver%defmesh%splitmesh)
     case(split_none)
