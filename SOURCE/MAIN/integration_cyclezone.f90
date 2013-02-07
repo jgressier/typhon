@@ -49,7 +49,7 @@ lzone%info%cur_res     = lzone%info%residu_ref   ! defined or initialized in int
 lzone%info%cycle_time  = 0._krp
 lzone%info%end_cycle   = .false.
 
-! -- CYCLE header --
+! -- CYCLE output header --
 
 select case(lzone%info%time_model)
 
@@ -66,6 +66,9 @@ case(time_unsteady_inverse)
 case default
   call erreur("internal error (integration_cyclezone)", "unknown time model")
 endselect
+
+! -- CYCLE initialization --
+
 
 
 !----------------------------------
@@ -143,7 +146,7 @@ do while (.not.lzone%info%end_cycle)
   select case(lzone%defsolver%typ_solver)
 
   case(solKDIF, solNS)
-    call integzone_tstep_usttree(dt, lzone)
+    call integzone_tstep_gridtree(dt, lzone)
 
   case default
     call erreur("internal error (integration_cyclezone)","unknown solver")

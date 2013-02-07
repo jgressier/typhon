@@ -58,19 +58,8 @@ call new_buf_index(umesh%nface, face_buffer, nblock, ista, iend)
 !$OMP PARALLEL private(ib, QL, QR, cg_l, cg_r, gradL, gradR, buf) shared (flux, jacL, jacR)
 
 allocate(  cg_l(face_buffer),   cg_r(face_buffer))
- if(defsolver%defspat%gradmeth.eq.grad_svm) then 
-      call new(gradL, face_buffer, 0, field%etatprim%nscal, field%etatprim%nvect)
-      call new(gradR, face_buffer, 0, field%etatprim%nscal, field%etatprim%nvect)
-
-      call init_genericfield(gradL, 0._krp, v3d_zero)
-      call init_genericfield(gradR, 0._krp, v3d_zero)
-
- else
-      call new(gradL, face_buffer, field%gradient%nscal, field%gradient%nvect, field%gradient%ntens)
-      call new(gradR, face_buffer, field%gradient%nscal, field%gradient%nvect, field%gradient%ntens)
-endif
-
-
+call new_genfield(gradL, face_buffer, 0, field%etatcons%nscal, field%etatcons%nvect)
+call new_genfield(gradR, face_buffer, 0, field%etatcons%nscal, field%etatcons%nvect)
 
 !$OMP DO 
 

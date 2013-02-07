@@ -5,7 +5,7 @@
 !   Time Integration during one timestep of the whole UST grid TREE structure
 !
 !------------------------------------------------------------------------------!
-subroutine integzone_tstep_usttree(dt, zone)
+subroutine integzone_tstep_gridtree(dt, zone)
 
 use TYPHMAKE
 use OUTPUT
@@ -28,25 +28,30 @@ real(krp)              :: curtime
 
 ! -- Body --
 
-!----------------------------------
-! ALE MESH MOVEMENT STEP
 
-  curtime = zone%info%cycle_start + zone%info%cycle_time
-  pgrid => zone%gridlist%first
-  do while (associated(pgrid))
-    call ale_meshupdate(pgrid%umesh, zone%defsolver, pgrid%optmem%gradcond_computed, curtime, dt) !1:zone%defsolver%nboco
-    pgrid => pgrid%next
-  enddo
+!! THIS ROUTINE SHOULD TRAVEL IN ALL LEVEL OF GRID TREE
+
+!----------------------------------
+! Initialization
+
+curtime = zone%info%cycle_start + zone%info%cycle_time
+pgrid => zone%gridlist%first
+do while (associated(pgrid))
+
+  call alloc_res(pgrid%info%field_loc)    ! internal test of allocation
+  call alloc_cellgrad(pgrid%info%field_loc)   ! MUST BE TESTED
+  call alloc_facegrad(pgrid%info%field_loc)   ! MUST BE TESTED
+
+  call ale_meshupdate(pgrid%umesh, zone%defsolver, pgrid%optmem%gradcond_computed, curtime, dt) !1:zone%defsolver%nboco
+  pgrid => pgrid%next
+enddo
 
 
 call integ_treelevel(dt, zone%info, zone%defsolver, &
                      zone%gridlist, zone%coupling, zone%ncoupling)
 
-
-
 !-----------------------------
-endsubroutine integzone_tstep_usttree
-
+endsubroutine integzone_tstep_gridtree
 !------------------------------------------------------------------------------!
 ! Changes history
 !------------------------------------------------------------------------------!

@@ -68,26 +68,26 @@ do while(associated(pgrid))
 
 enddo
 
-    
 ! -------------------------------------------------------------------------------
 ! GRADIENTS OF EACH GRID OF ONE LEVEL (only if necessary)
 
 if (defsolver%defspat%calc_grad) then
+
   pgrid => gridlist%first
   do while (associated(pgrid))
 
-select case(defsolver%defspat%gradmeth)
-case(grad_gauss)
-    call calc_gradient_gauss(defsolver, defsolver%defspat, pgrid,                 &
+    select case(defsolver%defspat%gradmeth)
+    case(grad_gauss)
+      call calc_gradient_gauss(defsolver, defsolver%defspat, pgrid,                 &
                        pgrid%info%field_loc%etatprim, pgrid%info%field_loc%gradient)
-case(grad_lsq,grad_lsqw)
-    call calc_gradient(defsolver, defsolver%defspat, pgrid,                 &
+    case(grad_lsq,grad_lsqw)
+      call calc_gradient(defsolver, defsolver%defspat, pgrid,                 &
                        pgrid%info%field_loc%etatprim, pgrid%info%field_loc%gradient)
-case(grad_svm)
-    ! if needed, computed locally
-case default
-  call erreur("Internal error", "unknown GRADIENT computation method")
-endselect
+    case(grad_svm)
+      ! if needed, computed locally 
+    case default
+      call error_stop("Internal error: unknown GRADIENT computation method")
+    endselect
 
     call calc_gradient_limite(defsolver, pgrid%umesh, pgrid%info%field_loc%gradient)
 
@@ -149,7 +149,6 @@ do while (associated(pgrid))
 
   pgrid => pgrid%next
 enddo
-
 
 endsubroutine calc_rhs
 

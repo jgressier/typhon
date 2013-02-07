@@ -89,14 +89,14 @@ allocate(sol(ngrid))
 ! allocations
 pgrid => gridlist%first
 do igrid = 1, ngrid
-  call new(r1(igrid), pgrid%field%etatcons)
-  call new(p1(igrid), pgrid%field%etatcons)
+  call new_genfield(r1(igrid), pgrid%field%etatcons)
+  call new_genfield(p1(igrid), pgrid%field%etatcons)
   do jk = 1, nkrylov
-    call new(w1(jk,igrid), pgrid%field%etatcons)
-    call new(v1(jk,igrid), pgrid%field%etatcons)
+    call new_genfield(w1(jk,igrid), pgrid%field%etatcons)
+    call new_genfield(v1(jk,igrid), pgrid%field%etatcons)
   enddo
-  call new(uref(igrid), pgrid%field%etatcons)
-  call new(sol(igrid), pgrid%field%etatcons)
+  call new_genfield(uref(igrid), pgrid%field%etatcons)
+  call new_genfield(sol(igrid), pgrid%field%etatcons)
   pgrid => pgrid%next
 enddo
 rref => p1

@@ -47,7 +47,7 @@ integer(xbinkip)           :: nelem, dim, i, isca, ivec
 nelem = gfield%dim
 
 call xbin_defdatasection(xbindata, xbinty_solution, "SOLUTION", &
-                         (/ gfield%type, nelem, gfield%ncell, gfield%dof, gfield%nscal, gfield%nvect /) )
+                         (/ gfield%soltype, nelem, gfield%ncell, gfield%ndof, gfield%nscal, gfield%nvect /) )
 call xbin_writedata_nodata(deftyphon%defxbin, xbindata)
 call delete_xbindata(xbindata)
 
@@ -92,7 +92,7 @@ type(st_genericfield)    :: gfield
 integer :: info
 type(st_xbindatasection)   :: xbindata
 real(xbinkrp), allocatable :: sol(:,:)
-integer(xbinkip)           :: dim, nelem, nsca, nvec, ncell, dof, fieldtype
+integer(xbinkip)           :: dim, nelem, nsca, nvec, ncell, ndof, fieldtype
 integer                    :: i, isca, ivec
 
 !------------------------------------------------------------------------------!
@@ -114,7 +114,7 @@ case(1:2)
     nsca          = xbindata%param(2)
     nvec          = xbindata%param(3)
     fieldtype     = sol_cell
-    dof           = 1
+    ndof          = 1
     ncell         = nelem
   else
     call cfd_error("XBIN/TYPHON error: expecting 3 parameters in SOLUTION data section")
@@ -124,7 +124,7 @@ case(3:xty_maxver)
     fieldtype     = xbindata%param(1)
     nelem         = xbindata%param(2)
     ncell         = xbindata%param(3)
-    dof           = xbindata%param(4)
+    ndof          = xbindata%param(4)
     nsca          = xbindata%param(5)
     nvec          = xbindata%param(6)
   else
@@ -137,9 +137,9 @@ endselect
 call delete_xbindata(xbindata)
 
 call new_genericfield(gfield, nelem, nsca, nvec, 0)
-gfield%type  = fieldtype
-gfield%ncell = ncell
-gfield%dof   = dof
+gfield%soltype  = fieldtype
+gfield%ncell    = ncell
+gfield%ndof     = ndof
 
 !------------------------------------------------------------------------------!
 ! read SCALARS & VECTORS

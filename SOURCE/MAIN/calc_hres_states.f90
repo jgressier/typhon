@@ -38,7 +38,7 @@ real(krp) :: klim
 
 call new_buf_index(grid%umesh%nface, face_buffer, nblock, ista, iend)
 
-call alloc_hres_states(field, grid%umesh%nface)
+call alloc_hres_states(field)
 
 !$OMP PARALLEL DO private(ib, buf) shared (field, ista, iend)
 

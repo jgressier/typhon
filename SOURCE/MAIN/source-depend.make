@@ -47,7 +47,7 @@ MAIN_OBJ = $(MAIN_MOD:.$(MODEXT)=.o)   \
            integration_cyclezone.o  \
            integration_grid.o       \
            integzone_tstep_lagrange.o \
-           integzone_tstep_usttree.o  \
+           integzone_tstep_gridtree.o  \
            integ_treelevel.o        \
            inverse_calc_sensi.o     \
            mpi_strategy_pre.o       \

@@ -45,6 +45,7 @@ type mnu_solver
   integer            :: typ_solver      ! type de solveur (cf definitions VARCOM) 
   integer            :: nequat          ! nombre d'equations
   integer            :: nsca, nvec      ! scalar and vector numbers
+  integer            :: ndof, nfgauss   ! dimension of cell basis and face representation
   real(krp), pointer :: refsca(:)       ! reference value for scalars
   real(krp), pointer :: refvec(:)       ! reference value for vectors
   integer, pointer   :: idsca(:)        ! names for primitive scalars 

@@ -59,8 +59,8 @@ do i = 1, nf
   uLR(i) = uLR(i)/dLR(i)
 enddo
 
-call new(gprimL, nf, fprim%nscal, fprim%nvect, 0)
-call new(gprimR, nf, fprim%nscal, fprim%nvect, 0)
+call new_genfield(gprimL, nf, fprim%nscal, fprim%nvect, 0)
+call new_genfield(gprimR, nf, fprim%nscal, fprim%nvect, 0)
 
 !------------------------------------------------------------------------------
 ! for each side of a face

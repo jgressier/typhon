@@ -43,20 +43,11 @@ lworld%info%fin_integration = .false.
 allocate(exchcycle(lworld%prj%ncoupling))
 exchcycle(:) = 1 ! initialisation a 1 : 1er echange au 1er cycle, a partir des conditions initiales
 
-! allocation des champs de residus et gradients
+! initialization
 
 do izone = 1, lworld%prj%nzone
-
   lworld%zone(izone)%info%iter_tot   = 0
   lworld%zone(izone)%info%time_model = lworld%prj%time_model
-
-  pgrid => lworld%zone(izone)%gridlist%first
-  do while (associated(pgrid))
-    call alloc_res(pgrid%info%field_loc)
-    !! DEV : l'allocation ne doit se faire que dans certains cas
-    call alloc_grad(pgrid%info%field_loc)
-    pgrid => pgrid%next
-  enddo
 enddo
 
 icputimer  = cputime_start()
@@ -209,7 +200,7 @@ do izone = 1, lworld%prj%nzone
  select case(lworld%zone(izone)%defsolver%typ_solver)    ! DEV : en attendant homogeneisation
  case(solKDIF)                                           ! de l'acces des champs dans
    call dealloc_res(lworld%zone(izone)%gridlist%first%info%field_loc)       ! les structures MGRID
-   call dealloc_grad(lworld%zone(izone)%gridlist%first%info%field_loc)
+   call dealloc_cellgrad(lworld%zone(izone)%gridlist%first%info%field_loc)
  case(solVORTEX)
  endselect
 enddo

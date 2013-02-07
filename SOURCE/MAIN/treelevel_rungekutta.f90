@@ -49,7 +49,7 @@ allocate( u0(1:ngrid))
 
 pgrid => gridlist%first
 do igrid = 1, ngrid
-  call new(u0(igrid), pgrid%field%etatcons)
+  call new_genfield(u0(igrid), pgrid%field%etatcons)
   call transfer(u0(igrid), pgrid%field%etatcons)
   pgrid => pgrid%next
 enddo
@@ -83,7 +83,7 @@ rkstage: do istage = 1, nstage
 
   do igrid = 1, ngrid
     rhs(istage, igrid) = pgrid%field%residu                  ! copy pointers (move allocation)
-    call new(pgrid%field%residu, pgrid%field%residu)         ! reallocate residu field
+    call new_genfield(pgrid%field%residu, pgrid%field%residu)         ! reallocate residu field
     pgrid => pgrid%next
   enddo
 

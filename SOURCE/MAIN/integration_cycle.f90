@@ -34,8 +34,6 @@ real(krp) :: wcur_res
 
 ! -- Body --
 
-
-
 ! -- Procedure d'echange, en debut de cycle
 
 if (ncoupling > 0) then
@@ -53,14 +51,9 @@ do ir = 1, ncoupling
 
     select case(lworld%prj%time_model)
      
-     case(time_unsteady)
-     ! reinitialisation a 0 des tableaux de cumul de flux pour la correction 
-     ! de flux
-     !print*, "correction de flux", lworld%zone(iz1)%coupling(ncoupl1)%zcoupling%etatcons%tabscal(1)%scal(1), &
-     !        lworld%zone(iz1)%coupling(ncoupl1)%zcoupling%etatcons%tabscal(2)%scal(1), &
-     !        lworld%zone(iz1)%coupling(ncoupl1)%zcoupling%etatcons%tabscal(3)%scal(1)
-     lworld%zone(iz1)%coupling(ncoupl1)%zcoupling%etatcons%tabscal(1)%scal(:) = 0._krp
-     lworld%zone(iz2)%coupling(ncoupl2)%zcoupling%etatcons%tabscal(1)%scal(:) = 0._krp
+    case(time_unsteady)
+      lworld%zone(iz1)%coupling(ncoupl1)%zcoupling%etatcons%tabscal(1)%scal(:) = 0._krp
+      lworld%zone(iz2)%coupling(ncoupl2)%zcoupling%etatcons%tabscal(1)%scal(:) = 0._krp
 
     endselect
 

@@ -59,7 +59,7 @@ endselect
 
 ! -- source terms and flux allocation (structure similar to field%etatcons) --
 
-call new(flux, grid%umesh%nface, grid%info%field_loc%nscal, grid%info%field_loc%nvect, 0)
+call new_genfield(flux, grid%umesh%nface, grid%info%field_loc%nscal, grid%info%field_loc%nvect, 0)
 call init_genericfield(grid%info%field_loc%residu, 0._krp, v3d(0._krp, 0._krp, 0._krp))
 
 ! The whole mesh can be split here into fixed sized blocks

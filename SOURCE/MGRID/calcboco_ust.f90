@@ -42,25 +42,25 @@ do ib = 1, grid%umesh%nboco
   idef = grid%umesh%boco(ib)%idefboco
   if (idef >= 1) then
 
-  ! Traitement des conditions aux limites communes aux solveurs
+  ! --- Common (geometrical) BOCO ---
 
   select case(defsolver%boco(idef)%typ_boco)
 
   case(bc_geo_sym)
     call calcboco_ust_sym(defsolver%boco(idef), defsolver%defale, defsolver%defmrf, &
            grid%umesh%boco(ib), grid%umesh, grid%info%field_loc, curtime)
-    !call erreur("Developpement","'bc_geo_sym' : Cas non implemente")
     
   case(bc_geo_period)
-    call erreur("Developpement","'bc_geo_period' : Cas non implemente")
+    call error_stop("not expected to manage 'bc_geo_period' in this routine")
     
   case(bc_geo_extrapol)
     call calcboco_ust_extrapol(defsolver%boco(idef), grid%umesh%boco(ib), grid%umesh, grid%info%field_loc)
 
 ! PROVISOIRE : a retirer
   case(bc_connect_match)
-    call erreur("Developpement","'bc_connection' : Cas non implemente")
+    call error_stop("!!!DEV!!! 'bc_connection' : Cas non implemente")
 
+  ! --- Solver dependent BOCO ---
   case default 
 
     select case(defsolver%typ_solver)
@@ -71,7 +71,7 @@ do ib = 1, grid%umesh%nboco
       case(solVORTEX)
         ! rien a faire
       case default
-         call erreur("incoherence interne (def_boco)","solveur inconnu")
+        call error_stop("unknown solver (calcboco_ust)")
     endselect
 
   endselect
@@ -80,9 +80,7 @@ do ib = 1, grid%umesh%nboco
 
 enddo
 
-
 endsubroutine calcboco_ust
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !

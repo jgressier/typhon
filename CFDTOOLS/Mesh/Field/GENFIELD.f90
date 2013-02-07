@@ -19,9 +19,15 @@ implicit none
 
 ! -- Module global variables ------------------------------------------------
 
+!!!!!!! CONSTANTS are used in TYPHON internal format !!!!!!!
+!!!!!!! can add constants but must not be changed    !!!!!!!
+
 integer(kpp), parameter :: sol_undefined  = 1
 integer(kpp), parameter :: sol_cell       = 2
 integer(kpp), parameter :: sol_node       = 5
+integer(kpp), parameter :: sol_cellgrad   = 10
+integer(kpp), parameter :: sol_nodegrad   = 12
+integer(kpp), parameter :: sol_facegrad   = 15
 integer(kpp), parameter :: sol_svm2quad   = 20
 integer(kpp), parameter :: sol_svm3wang   = 30
 integer(kpp), parameter :: sol_svm3kris   = 31
@@ -39,8 +45,8 @@ integer(kpp), parameter :: sol_svm4kris2  = 42
 type st_genericfield
   integer      :: nscal, nvect, ntens        ! field dimensions
   integer      :: dim                        ! number of values
-  integer      :: ncell, dof                 ! number of cells and degree of freedom per cell
-  integer(kpp) :: type                       ! type of solution
+  integer      :: ncell, ndof                ! number of cells and degree of freedom per cell
+  integer(kpp) :: soltype                    ! type of solution
   type(st_genericfield),           pointer :: next      ! chained list pointer
   type(st_scafield), dimension(:), pointer :: tabscal   ! scalar fields
   type(st_vecfield), dimension(:), pointer :: tabvect   ! vector fields
@@ -50,7 +56,7 @@ endtype st_genericfield
 
 ! -- INTERFACES -------------------------------------------------------------
 
-interface new
+interface new_genfield
   module procedure new_genericfield, new_genericfield_st
 endinterface
 
@@ -132,19 +138,23 @@ contains
 !------------------------------------------------------------------------------!
 ! Procedure : ST_GENERICFIELD structure allocation
 !------------------------------------------------------------------------------!
-subroutine new_genericfield(gfield, dim, n_scal, n_vect, n_tens)
+subroutine new_genericfield(gfield, dim, n_scal, n_vect, n_tens, soltype)
 implicit none
-type(st_genericfield) :: gfield                  ! generic field
-integer               :: dim                     ! cell number
-integer               :: n_scal, n_vect, n_tens  ! numbers of fields
-integer               :: i
+type(st_genericfield)  :: gfield                  ! generic field
+integer                :: dim                     ! cell number
+integer                :: n_scal, n_vect, n_tens  ! numbers of fields
+integer                :: i
+integer(kpp), optional :: soltype
 
   gfield%dim       = dim
   gfield%nscal     = n_scal
   gfield%nvect     = n_vect
   gfield%ntens     = n_tens
-  gfield%type      = sol_undefined
-
+  if (present(soltype)) then
+    gfield%soltype   = soltype
+  else  
+    gfield%soltype   = sol_undefined
+  endif
   nullify(gfield%next)
 
   if (gfield%nscal > 0) then
@@ -178,7 +188,7 @@ subroutine new_genericfield_st(newfield, oldfield)
 implicit none
 type(st_genericfield) :: newfield, oldfield     ! generic fields (new and original)
 
-  call new(newfield, oldfield%dim, oldfield%nscal, oldfield%nvect, oldfield%ntens)
+  call new_genfield(newfield, oldfield%dim, oldfield%nscal, oldfield%nvect, oldfield%ntens)
 
 endsubroutine new_genericfield_st
 
@@ -250,7 +260,7 @@ type(st_genericfield), pointer :: gfield
 integer                        :: dim,nscal,nvect,ntens
 
   allocate(pgfield)
-  call new(pgfield,dim,nscal,nvect,ntens)
+  call new_genfield(pgfield,dim,nscal,nvect,ntens)
   pgfield%next => gfield
 
 endfunction insert_newgfield

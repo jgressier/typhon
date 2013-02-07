@@ -433,7 +433,7 @@ integer                 :: dim, nscal, nvect, ncell, nface
 
   if (grid%nfield == 1) then
    allocate(pfield)
-   call new(pfield,grid%nfield,nscal,nvect,ncell,nface)
+   call new_field(pfield,grid%nfield,nscal,nvect,ncell,nface)
    nullify(pfield%next)
   else
     pfield => insert_newfield(grid%field,grid%nfield,nscal,nvect,ncell,nface)

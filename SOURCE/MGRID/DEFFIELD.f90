@@ -30,21 +30,24 @@ implicit none
 !------------------------------------------------------------------------------!
 
 type st_field
-  integer                 :: id              ! numero de champ
-  type(st_field), pointer :: next            ! pointeur pour liste chaÓnÈe
-  integer                 :: nscal, nvect    ! dimension de base des champs
-  integer                 :: ncell, nface    ! nombre de cellules et faces
+  integer                 :: id              ! id number of field
+  type(st_field), pointer :: next            ! pointer in chained list
+  integer                 :: nscal, nvect    ! dimension of PDE problem
+  integer                 :: ncell, nface    ! number of cells and faces
+  integer                 :: ndof,  nfgauss   ! dimension of cell and face representation 
   logical                 :: allocqref       ! allocation of qref field
-  logical                 :: allocgrad       ! allocation of gradients
+  logical                 :: allocgrad       ! allocation of cell averaged gradients
   logical                 :: allocres        ! allocation of residuals
   logical                 :: allocprim       ! allocation of primitive variables
   logical                 :: allocqhres      ! allocation of high order extrapolated states
+  logical                 :: allocfacegrad   ! allocation of face extrapolated gradients
   logical                 :: calcgrad        ! use of gradients
   type(st_genericfield)   :: qref            ! reference field
   type(st_genericfield)   :: etatcons        ! conservative variables
   type(st_genericfield)   :: etatprim        ! primitive variables
   type(st_genericfield)   :: gradient        ! gradients of primitive variables
   type(st_genericfield)   :: cell_l, cell_r  ! high order extrapolated states
+  type(st_genericfield)   :: grad_l, grad_r  ! high order extrapolated gradients
   type(st_genericfield)   :: residu          ! residuals of conservative variables
 endtype st_field
 
@@ -52,14 +55,13 @@ endtype st_field
 
 ! -- INTERFACES -------------------------------------------------------------
 
-interface new
-  module procedure new_field
-endinterface
+!interface new ! interfaces are not so readable in software dev
+!  module procedure new_field
+!endinterface
 
-interface delete
+interface delete  ! 
   module procedure delete_field
 endinterface
-
 
 ! -- Functions and Operators ------------------------------------------------
 
@@ -70,7 +72,7 @@ contains
 !------------------------------------------------------------------------------!
 ! Procedure : gradients allocation
 !------------------------------------------------------------------------------!
-subroutine alloc_grad(field)
+subroutine alloc_cellgrad(field)
 implicit none
 type(st_field) :: field
 
@@ -78,16 +80,16 @@ type(st_field) :: field
     call print_info(90,"!!! gradients array already allocated !!!")
   else
     field%allocgrad = .true.
-    call new(field%gradient, field%etatcons%dim, 0, field%etatcons%nscal, field%etatcons%nvect)
+    call new_genfield(field%gradient, field%etatcons%dim, 0, field%etatcons%nscal, field%etatcons%nvect)
   endif
 
-endsubroutine alloc_grad
+endsubroutine alloc_cellgrad
 
 
 !------------------------------------------------------------------------------!
 ! Procedure : gradients deallocation
 !------------------------------------------------------------------------------!
-subroutine dealloc_grad(field)
+subroutine dealloc_cellgrad(field)
 implicit none
 type(st_field) :: field
 
@@ -98,7 +100,7 @@ type(st_field) :: field
     call print_info(90,"!!! unable to deallocate : gradients array not allocated !!!")
   endif
 
-endsubroutine dealloc_grad
+endsubroutine dealloc_cellgrad
 
 
 !------------------------------------------------------------------------------!
@@ -112,7 +114,7 @@ type(st_field) :: field
     call print_info(90,"!!! residuals array already allocated !!!")
   else
     field%allocres = .true.
-    call new(field%residu, field%etatcons%dim,   field%etatcons%nscal, &
+    call new_genfield(field%residu, field%etatcons%dim,   field%etatcons%nscal, &
                            field%etatcons%nvect, field%etatcons%ntens)
   endif
 
@@ -147,7 +149,7 @@ type(st_field) :: field
     call print_info(90,"!!! primitive variables array already allocated !!!")
   else
     field%allocprim = .true.
-    call new(field%etatprim, field%etatcons%dim,   field%etatcons%nscal, &
+    call new_genfield(field%etatprim, field%etatcons%dim,   field%etatcons%nscal, &
                              field%etatcons%nvect, field%etatcons%ntens)
   endif
 
@@ -174,18 +176,17 @@ endsubroutine dealloc_prim
 !------------------------------------------------------------------------------!
 ! Procedure : allocation of high order extrapolated states
 !------------------------------------------------------------------------------!
-subroutine alloc_hres_states(field, nf)
+subroutine alloc_hres_states(field)
 implicit none
 type(st_field) :: field
-integer       :: nf
 
   if (field%allocqhres) then
-    if (nf /= field%cell_l%dim) call erreur("Fatal allocation error", &
-                                            "high order extrapolated array already allocated with bad size")
+    !  call cfd_error("Fatal allocation error: high order extrapolated array already allocated with bad size")
+    ! supposed to be allocated at same size
   else
     field%allocqhres = .true.
-    call new(field%cell_l, nf,   field%etatcons%nscal, field%etatcons%nvect, field%etatcons%ntens)
-    call new(field%cell_r, nf,   field%etatcons%nscal, field%etatcons%nvect, field%etatcons%ntens)
+    call new_genfield(field%cell_l, field%nface, field%etatcons%nscal, field%etatcons%nvect, field%etatcons%ntens)
+    call new_genfield(field%cell_r, field%nface, field%etatcons%nscal, field%etatcons%nvect, field%etatcons%ntens)
   endif
 
 endsubroutine alloc_hres_states
@@ -204,10 +205,48 @@ integer       :: i
     call delete(field%cell_l)
     call delete(field%cell_r)
   else
-    call print_info(90,"!!! unable to deallocate : high order extrapolated states array not allocated !!!")
+    call print_info(90,"!!! unable to deallocate : face based gradient array not allocated !!!")
   endif
 
 endsubroutine dealloc_hres_states
+
+
+!------------------------------------------------------------------------------!
+! Procedure : allocation of face gradients
+!------------------------------------------------------------------------------!
+subroutine alloc_facegrad(field)
+implicit none
+type(st_field) :: field
+
+  if (field%allocfacegrad) then
+    !  call cfd_error("Fatal allocation error: face gradients already allocated with bad size")
+    ! supposed to be allocated at same size
+  else
+    field%allocfacegrad = .true.
+    call new_genfield(field%grad_l, field%nface, 0, field%etatcons%nscal, field%etatcons%nvect)
+    call new_genfield(field%grad_r, field%nface, 0, field%etatcons%nscal, field%etatcons%nvect)
+  endif
+
+endsubroutine alloc_facegrad
+
+
+!------------------------------------------------------------------------------!
+! Procedure : deallocation of face gradients
+!------------------------------------------------------------------------------!
+subroutine dealloc_facegrad(field)
+implicit none
+type(st_field) :: field
+integer       :: i
+
+  if (field%allocfacegrad) then
+    field%allocfacegrad = .false.
+    call delete(field%grad_l)
+    call delete(field%grad_r)
+  else
+    call print_info(90,"!!! unable to deallocate : face gradients array not allocated !!!")
+  endif
+
+endsubroutine dealloc_facegrad
 
 
 !------------------------------------------------------------------------------!
@@ -221,7 +260,7 @@ type(st_field) :: field
     call print_info(90,"!!! reference variables array already allocated !!!")
   else
     field%allocqref = .true.
-    call new(field%qref, field%etatcons%dim,   field%etatcons%nscal, &
+    call new_genfield(field%qref, field%etatcons%dim,   field%etatcons%nscal, &
                          field%etatcons%nvect, field%etatcons%ntens)
   endif
 
@@ -248,26 +287,38 @@ endsubroutine dealloc_qref
 !------------------------------------------------------------------------------!
 ! Procedure : allocation d'une structure FIELD
 !------------------------------------------------------------------------------!
-subroutine new_field(field, id, n_scal, n_vect, ncell, nface)
+subroutine new_field(field, id, n_scal, n_vect, ncell, nface, ndof, nfgauss)
 implicit none
-type(st_field) :: field             ! champ a creer
-integer        :: ncell, nface      ! nombre de cellules et faces
-integer        :: n_scal, n_vect    ! nombre de scalaires, vecteurs et tenseurs
-integer        :: id                ! numero de champ
+type(st_field)    :: field             ! champ a creer
+integer           :: ncell, nface      ! nombre de cellules et faces
+integer           :: n_scal, n_vect    ! nombre de scalaires, vecteurs et tenseurs
+integer, optional :: ndof, nfgauss      ! 
+integer           :: id                ! numero de champ
 
   field%id        = id
   field%ncell     = ncell
   field%nface     = nface
   field%nscal     = n_scal
   field%nvect     = n_vect
+  if (present(ndof)) then
+    field%ndof = ndof
+  else   
+    field%ndof = 1
+  endif
+  if (present(nfgauss)) then
+    field%nfgauss = nfgauss
+  else   
+    field%nfgauss = 1
+  endif
 
-  call new(field%etatcons, ncell, n_scal, n_vect, 0)
-  field%allocgrad  = .false.
-  field%allocres   = .false.
-  field%allocprim  = .false.
-  field%allocqref  = .false.
-  field%allocQhres = .false.
-
+  call new_genfield(field%etatcons, ncell, n_scal, n_vect, 0)
+  field%allocgrad     = .false.
+  field%allocfacegrad = .false.
+  field%allocres      = .false.
+  field%allocprim     = .false.
+  field%allocqref     = .false.
+  field%allocQhres    = .false.
+  field%allocfacegrad = .false.
 endsubroutine new_field
 
 
@@ -280,11 +331,12 @@ type(st_field) :: field             ! champ a creer
 
   call delete(field%etatcons)
 
-  if (field%allocgrad)  call dealloc_grad(field)
+  if (field%allocgrad)  call dealloc_cellgrad(field)
   if (field%allocres)   call dealloc_res (field)
   if (field%allocprim)  call dealloc_prim(field)
   if (field%allocqref)  call dealloc_qref(field)
-  if (field%allocqhres) call dealloc_hres_states(field)
+  if (field%allocqhres )   call dealloc_hres_states(field)
+  if (field%allocfacegrad) call dealloc_facegrad(field)
 
 endsubroutine delete_field
 
@@ -300,7 +352,7 @@ integer                 :: n_scal,n_vect,ncell,nface
 integer                 :: id
 
   allocate(pfield)
-  call new(pfield,id,n_scal,n_vect,ncell,nface)
+  call new_field(pfield,id,n_scal,n_vect,ncell,nface)
   pfield%next => field
 
 endfunction insert_newfield
@@ -324,7 +376,7 @@ type(st_field), pointer :: pfield, dfield
 endsubroutine delete_chainedfield
 
 !------------------------------------------------------------------------------
-! ProcÈdure : transfert de champ : rfield reÁoit ifield
+! Proc√àdure : transfert de champ : rfield re√Åoit ifield
 !------------------------------------------------------------------------------
 subroutine transfer_field(rfield, ifield)
 implicit none
