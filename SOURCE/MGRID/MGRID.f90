@@ -9,10 +9,11 @@
 
 module MGRID
 
-use TYPHMAKE      ! Definition de la precision/donnees informatiques
-use USTMESH       ! Definition des maillages non structures
-use DEFFIELD      ! Definition des champs physiques
-use GEO3D        ! module de definition des vecteurs et operateurs associes
+use TYPHMAKE     ! Definition of int/real representation
+use USTMESH      ! Definition of unstructured mesh
+use STRMESH      ! Definition of (cartesian) structured mesh
+use DEFFIELD     ! Definition of fields
+!use GEO3D        ! module de definition des vecteurs et operateurs associes
 use GRID_CONNECT
 
 
@@ -21,6 +22,12 @@ implicit none
 
 ! -- Variables globales du module -------------------------------------------
 
+
+! -- type of grid/mesh/domain definition (gridtype attribute) --
+
+integer(kpp), parameter :: grid_ust      = 10
+integer(kpp), parameter :: grid_str      = 20
+!integer(kpp), parameter :: grid_octtree  = 30
 
 
 ! -- DECLARATIONS -----------------------------------------------------------
@@ -31,7 +38,9 @@ implicit none
 type st_infogrid
   integer                 :: id                ! grid index
   integer                 :: mpi_cpu           ! CPU/process  index
+  integer(kpp)            :: gridtype          ! grid type 
   integer                 :: l                 ! Refinement level
+  real(krp)               :: volume            ! geometrical volume of grid
   type(st_field), pointer :: field_loc         ! pointer to instantaneous field
   type(st_field), pointer :: field_cyclestart  ! pointer to starting cycle field
 endtype st_infogrid
@@ -47,43 +56,40 @@ endtype st_grd_optmem
 !------------------------------------------------------------------------------!
 ! Definition ST_CELLEXT : liste chainee de connectivites vers cellules externes
 !------------------------------------------------------------------------------!
-type st_cellext
-   
-  integer                 :: id  ! corresponding grid for each neighbour cell
-  integer                 :: icell    ! cell id in the curent grid
-  integer                 :: tarcell  ! cell id in the target grid
-  integer                 :: mpi_cpu  ! proc of cell id
-  type(st_grid), pointer  :: targrid
-  type(st_cellext), pointer :: next
-endtype st_cellext
-
+!type st_cellext   
+!  integer                 :: id  ! corresponding grid for each neighbour cell
+!  integer                 :: icell    ! cell id in the curent grid
+!  integer                 :: tarcell  ! cell id in the target grid
+!  integer                 :: mpi_cpu  ! proc of cell id
+!  type(st_grid), pointer  :: targrid
+!  type(st_cellext), pointer :: next
+!endtype st_cellext
 
 !------------------------------------------------------------------------------!
 ! Definition ST_RCVDATA : reception des données de l'extérieur
 !------------------------------------------------------------------------------!
-type st_rcvdata
-  DOUBLE PRECISION , dimension(:), pointer :: ext_data
-endtype st_rcvdata
-
-
+!type st_rcvdata
+!  DOUBLE PRECISION , dimension(:), pointer :: ext_data
+!endtype st_rcvdata
+!
+!
 !------------------------------------------------------------------------------!
 ! Definition ST_SNDDATA : envoi des données de l'extérieur
 !------------------------------------------------------------------------------!
-type st_snddata
-  DOUBLE PRECISION , dimension(:), pointer :: ext_data
-endtype st_snddata
+!type st_snddata
+!  DOUBLE PRECISION , dimension(:), pointer :: ext_data
+!endtype st_snddata
 
 
 !-------------------------------------------------------------------------
 ! Definition of st_subcell
 !-------------------------------------------------------------------------
-
-type st_subcell
-   integer                                 :: degree  ! nb of subcell per cell
-   integer                                 :: ncell_int ! nb of cells
-   integer, dimension(:), pointer          :: id
-   integer, dimension(:,:), pointer        :: intcell
-endtype st_subcell
+!type st_subcell
+!   integer                                 :: degree  ! nb of subcell per cell
+!   integer                                 :: ncell_int ! nb of cells
+!   integer, dimension(:), pointer          :: id
+!   integer, dimension(:,:), pointer        :: intcell
+!endtype st_subcell
 
 
 !------------------------------------------------------------------------------!
@@ -108,6 +114,7 @@ type st_grid
 
   type(st_ustmesh)        :: umesh          ! maillage non structure (geometry + connectivity)
   type(st_ustmesh)        :: umesh_legacy
+  type(st_strmesh)        :: strmesh        ! structured mesh
 
   !logical, dimension(:), pointer  :: need_rf
   !integer, dimension(:), pointer  :: tab_intcell ! tableau des cellules de la grille mere 
@@ -170,9 +177,9 @@ type(st_gridlist), optional, target  :: gridlist
 !  else
 !    nullify(grid%family)
 !  endif
-
-  grid%nbocofield = 0
-  grid%nfield     = 0
+  grid%info%gridtype = -1
+  grid%nbocofield    = 0
+  grid%nfield        = 0
 
   grid%optmem%gradcond_computed = .false.
   nullify(grid%optmem%gradcond)
@@ -433,7 +440,7 @@ integer                 :: dim, nscal, nvect, ncell, nface
 
   if (grid%nfield == 1) then
    allocate(pfield)
-   call new_field(pfield,grid%nfield,nscal,nvect,ncell,nface)
+   call new_field(pfield, grid%nfield, nscal, nvect, ncell, nface)
    nullify(pfield%next)
   else
     pfield => insert_newfield(grid%field,grid%nfield,nscal,nvect,ncell,nface)
@@ -446,111 +453,109 @@ endfunction newfield
 !------------------------------------------------------------------------------!
 ! Procedure : insertion d'un type cellext dans une liste chainee
 !------------------------------------------------------------------------------
-subroutine insert_cellext(grid, icell, tarcell, cellext_list)
-implicit none
-
-! input
-type(st_grid), target        :: grid   ! numero de la grille cible
-integer                      :: icell, tarcell
-! output
-type(st_cellext), pointer    :: cellext_list ! pointeur de la liste chainee
-
-! intern
-type(st_cellext), pointer    :: cellext ! pointeur de la liste chainee
-
-
-allocate(cellext)
-allocate(cellext%targrid)
-allocate(cellext%next)
-
-
-! creation
-cellext%icell=icell
-cellext%tarcell=tarcell
-cellext%id=grid%info%id
-cellext%mpi_cpu=grid%info%mpi_cpu
-cellext%targrid=>grid
-
-! add to the list
-if(.NOT. associated(cellext_list)) then
-   allocate(cellext_list)
-   cellext_list=>cellext
-   nullify(cellext_list%next)
-else
-   cellext%next=>cellext_list
-   cellext_list=>cellext
-end if
-
-endsubroutine insert_cellext
+!subroutine insert_cellext(grid, icell, tarcell, cellext_list)
+!implicit none
+!
+!! input
+!type(st_grid), target        :: grid   ! numero de la grille cible
+!integer                      :: icell, tarcell
+!! output
+!type(st_cellext), pointer    :: cellext_list ! pointeur de la liste chainee
+!
+!! intern
+!type(st_cellext), pointer    :: cellext ! pointeur de la liste chainee
+!
+!
+!allocate(cellext)
+!allocate(cellext%targrid)
+!allocate(cellext%next)
+!
+!
+!! creation
+!cellext%icell=icell
+!cellext%tarcell=tarcell
+!cellext%id=grid%info%id
+!cellext%mpi_cpu=grid%info%mpi_cpu
+!cellext%targrid=>grid
+!
+!! add to the list
+!if(.NOT. associated(cellext_list)) then
+!   allocate(cellext_list)
+!   cellext_list=>cellext
+!   nullify(cellext_list%next)
+!else
+!   cellext%next=>cellext_list
+!   cellext_list=>cellext
+!end if
+!
+!endsubroutine insert_cellext
 
 !------------------------------------------------------------------------------!
 ! Procedure : recherche de l'element de numero icell dans cellext_list
 !             et le retourne dans cellext
 !------------------------------------------------------------------------------
-subroutine search_cellext(icell, cellext_list, cellext, found)
-implicit none
-
-! input
-integer                      :: icell
-logical                      :: found
-type(st_cellext), pointer    :: cellext_list ! pointeur de la liste chainee
-
-! output
-type(st_cellext)    :: cellext ! element a trouver
-
-! intern
-type(st_cellext), pointer    :: pcellext ! element en cours
-
-allocate(pcellext)
-found=.false.
-
-if(associated(cellext_list)) then
-   pcellext=>cellext_list
-   found=.true.
-   do while(pcellext%icell /= icell .AND. found)
-      if(associated(pcellext%next)) then
-         pcellext=>pcellext%next
-      else
-         found=.false.
-      end if
-   end do
-else
-   found=.false.
-end if
-
-cellext=pcellext
-
-endsubroutine search_cellext
-
+!subroutine search_cellext(icell, cellext_list, cellext, found)
+!implicit none
+!
+!! input
+!integer                      :: icell
+!logical                      :: found
+!type(st_cellext), pointer    :: cellext_list ! pointeur de la liste chainee
+!
+!! output
+!type(st_cellext)    :: cellext ! element a trouver
+!
+!! intern
+!type(st_cellext), pointer    :: pcellext ! element en cours
+!
+!allocate(pcellext)
+!found=.false.
+!
+!if(associated(cellext_list)) then
+!   pcellext=>cellext_list
+!   found=.true.
+!   do while(pcellext%icell /= icell .AND. found)
+!      if(associated(pcellext%next)) then
+!         pcellext=>pcellext%next
+!      else
+!         found=.false.
+!      end if
+!   end do
+!else
+!   found=.false.
+!end if
+!
+!cellext=pcellext
+!
+!endsubroutine search_cellext
 
 !-------------------------------------------------------------------------
 !     new_subcell : creation of a new subcell struct
 !-------------------------------------------------------------------------
-
-subroutine new_subcell(subcell, degree, ncell_int)
-  
-  ! input
-  integer          :: degree
-  integer          :: ncell_int
-  
-  ! output
-  type(st_subcell) :: subcell
-  
-  ! Procedure
-  
-  ! allocation
-  allocate(subcell%id(ncell_int))
-  !allocate(subcell%subgrid(ncell_int))
-  allocate(subcell%intcell(ncell_int,degree))
-  
-  ! affectation
-  subcell%degree=degree
-  subcell%ncell_int=ncell_int
-  subcell%id=0
-  subcell%intcell=0
-  
-end subroutine new_subcell
-
+!subroutine new_subcell(subcell, degree, ncell_int)
+!  
+!  ! input
+!  integer          :: degree
+!  integer          :: ncell_int
+!  
+!  ! output
+!  type(st_subcell) :: subcell
+!  
+!  ! Procedure
+!  
+!  ! allocation
+!  allocate(subcell%id(ncell_int))
+!  !allocate(subcell%subgrid(ncell_int))
+!  allocate(subcell%intcell(ncell_int,degree))
+!  
+!  ! affectation
+!  subcell%degree=degree
+!  subcell%ncell_int=ncell_int
+!  subcell%id=0
+!  subcell%intcell=0
+!  
+!end subroutine new_subcell
+!
 
 
 endmodule MGRID

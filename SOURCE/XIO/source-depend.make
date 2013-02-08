@@ -14,7 +14,6 @@ XIO_MOD = REPRISE.$(MODEXT)
 # Objects
 XIO_OBJ = $(XIO_MOD:.$(MODEXT)=.o)  \
           comp_flux.o            \
-          output_tec_str.o       \
           output_tec_ust.o       \
           output_tec_ust_ctr.o   \
           output_tec_ust_boco.o  \

@@ -29,7 +29,6 @@ ZONE_OBJ := $(ZONE_MOD:.$(MODEXT)=.o)       \
             init_ustboco_kutta.o         \
             init_ustboco_singpanel.o     \
             initzone_field.o             \
-            initzone_mesh.o              \
             prb_boco_field.o             \
             prb_zone_vol.o               \
             split_zone.o                 \

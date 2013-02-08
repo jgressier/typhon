@@ -11,7 +11,6 @@ MESH_LIB = $(PRJLIBDIR)/libt_mesh.a
 # Modules
 MESH_MOD = \
            GEO3D.$(MODEXT)        \
-           STRMESH.$(MODEXT)      \
 
 # Objects
 MESH_OBJ = $(MESH_MOD:.$(MODEXT)=.o)  \

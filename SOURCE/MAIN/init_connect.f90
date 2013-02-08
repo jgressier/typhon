@@ -30,13 +30,23 @@ pgrid => zone%gridlist%first
 
 do while (associated(pgrid))
 
-  select case(zone%defsolver%typ_solver)
+  solver: select case(zone%defsolver%typ_solver)
 
   case(solVORTEX, solNS, solKDIF)
-    call init_connect_grid(zone%defsolver, pgrid)
-    
+  
+    gridtype: select case(pgrid%info%gridtype)
+    case(grid_ust)
+      call init_connect_grid(zone%defsolver, pgrid) ! must be renamed to UST treatment
+
+    case(grid_str)     
+      ! DEV : nothing to fdo (for now)
+      
+    case default
+      call error_stop("unknown type of grid (init_connect)")
+    endselect gridtype
+      
   case default
-  endselect
+  endselect solver
 
    pgrid => pgrid%next
 

@@ -28,6 +28,7 @@ this.f90modules=   \
   MESHPARAMS.f90   \
   TENSOR3.f90      \
   USTMESH.f90      \
+  STRMESH.f90      \
   Field/BASEFIELD.f90  \
   Field/GENFIELD.f90   \
 

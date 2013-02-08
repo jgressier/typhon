@@ -28,18 +28,20 @@ do izone = 1, world%prj%nzone
   select case(world%zone(izone)%defsolver%defmesh%format)
 
   case(fmt_CGNS)
+    pgrid%info%gridtype = grid_ust
     call importcgns_mesh(world%zone(izone)%defsolver%defmesh, pgrid%umesh)
 
   case(fmt_TYPHON)
+    pgrid%info%gridtype = grid_ust
     call importtyphon_mesh(world%zone(izone)%defsolver%defmesh, pgrid%umesh)
 
+  case(fmt_AUTOBLOCK)
+    pgrid%info%gridtype = grid_str
+    call create_autoblockmesh(world%zone(izone)%defsolver%defmesh, pgrid%strmesh)
+    
   case default
     call error_stop("reading mesh: unknown mesh format")
   endselect
-
-  !--------------------------------
-
-  call zone_preproc(world%zone(izone))
 
 enddo
 
@@ -49,4 +51,5 @@ endsubroutine readallmesh
 !
 ! Nov  2002: creation
 ! June 2010: lecture_maillage.f90 -> readallmesh.f90, add internal TYPHON format
+! Feb  2013: add structured block auto-blocking
 !------------------------------------------------------------------------------!

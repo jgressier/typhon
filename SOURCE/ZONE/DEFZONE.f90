@@ -13,9 +13,6 @@ use TYPHMAKE      ! Definition de la precision/donnees informatiques
 use MODINFO       ! Information pour la gestion de l'integration
 use MENU_SOLVER   ! Definition des solveurs
 use MGRID         ! Definition des grilles
-use STRMESH       ! Definition des maillages structures
-use USTMESH       ! Definition des maillages non structures
-!use BOUND        ! Librairie de definition des conditions aux limites
 use MENU_ZONECOUPLING ! Definition des structures d'echange entre zones
 use DEFFIELD      ! Donnees des champs physiques
 use DEFCAPTEURS   ! Donnees des capteurs 

@@ -35,7 +35,7 @@ enddo
 
 call print_info(5,"* Computing mesh properties")
 do izone = 1, world%prj%nzone
-  call initzone_mesh(world%zone(izone))
+  call zone_preproc(world%zone(izone))
 enddo
 
 !--------------------------------------------------------------------

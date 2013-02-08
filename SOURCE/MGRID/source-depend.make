@@ -37,6 +37,7 @@ MGRID_OBJ = $(MGRID_MOD:.$(MODEXT)=.o)      \
             extractpart_grid.o         \
             getpart_grid.o             \
             grid_preproc.o             \
+            grid_ustpreproc.o          \
             gmres_free.o               \
             integ_ustboco.o            \
             postlimit_monotonic.o      \

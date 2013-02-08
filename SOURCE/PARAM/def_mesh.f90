@@ -52,29 +52,40 @@ if (nkey /= 1) call error_stop("parameter parsing: BLOCK:MESH not found (or conf
 call rpmgetkeyvalstr(pcour, "FORMAT", str)
 defmesh%format = cnull
 
-if (samestring(str,"CGNS"))     defmesh%format = fmt_CGNS
-if (samestring(str,"INTERNAL")) defmesh%format = fmt_TYPHON
-if (samestring(str,"TYPHON"))   defmesh%format = fmt_TYPHON
-if (samestring(str,"TYM"))      defmesh%format = fmt_TYPHON
+if (samestring(str,"CGNS"))      defmesh%format = fmt_CGNS
+if (samestring(str,"INTERNAL"))  defmesh%format = fmt_TYPHON
+if (samestring(str,"TYPHON"))    defmesh%format = fmt_TYPHON
+if (samestring(str,"TYM"))       defmesh%format = fmt_TYPHON
+if (samestring(str,"AUTOBLOCK")) defmesh%format = fmt_AUTOBLOCK
 
 select case(defmesh%format)
 case(fmt_CGNS)
   call print_info(20, "  . mesh format : CGNS")
   call rpmgetkeyvalint(pcour, "CGNSBASE", defmesh%icgnsbase, 1)
   call rpmgetkeyvalint(pcour, "CGNSZONE", defmesh%icgnszone, 1)
+  call rpmgetkeyvalstr(pcour, "FILE", str)
+  defmesh%filename = str
 case(fmt_TYPHON)
   call print_info(20, "  . mesh format : TYPHON internal")
+  call rpmgetkeyvalstr(pcour, "FILE", str)
+  defmesh%filename = str
+case(fmt_AUTOBLOCK)
+  call print_info(20, "  . mesh format : AUTOBLOCK")
+  call rpmgetkeyvalint(pcour, "NI", defmesh%ni)
+  call rpmgetkeyvalint(pcour, "NJ", defmesh%nj)
+  call rpmgetkeyvalint(pcour, "NK", defmesh%nk, 0_kip)
+  call rpmgetkeyvalreal(pcour, "LX", defmesh%lx, 1._krp)
+  call rpmgetkeyvalreal(pcour, "LY", defmesh%ly, 1._krp)
+  call rpmgetkeyvalreal(pcour, "LZ", defmesh%lz, 1._krp)
 case default
   call error_stop("parameters parsing: unknown mesh format -> "//trim(str))
 endselect
 
 ! -- read mesh file name --
 
-call rpmgetkeyvalstr(pcour, "FILE", str)
-call print_info(20, "  . mesh file   : "//trim(str))
-defmesh%filename = str
+call print_info(20, "  . mesh file   : "//trim(defmesh%filename))
 
-! -- read scale factor (default 1.) or morphing functions
+! -- read scale factor (default 1.) 
 
 defmesh%scaling = rpm_existkey(pcour, "SCALE")
 
@@ -82,6 +93,8 @@ if (defmesh%scaling) then
   call rpmgetkeyvalreal(pcour, "SCALE", defmesh%scale)
   call print_info(20, "  . scale factor: "//strof(defmesh%scale))
 endif
+
+! -- read morphing functions
 
 defmesh%morphing =    rpm_existkey(pcour, "MORPH_X") &
                   .or.rpm_existkey(pcour, "MORPH_Y") &
@@ -204,7 +217,6 @@ if (defmesh%nperiodicity >= 1) then
   enddo
 endif
 
-
 endsubroutine def_mesh
 !------------------------------------------------------------------------------!
 ! Changes history
@@ -213,4 +225,5 @@ endsubroutine def_mesh
 ! sept 2005: add scale factor
 ! oct  2007: splitting option
 ! June 2010: TYPHON internal format
+! Feb  2013: add auto-blocking
 !------------------------------------------------------------------------------!

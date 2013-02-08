@@ -42,12 +42,13 @@ integer(kpp), parameter :: geo_3D     = 30
 character, parameter   :: fmt_CGNS        = 'C'   ! format CGNS
 character, parameter   :: fmt_CGNS_linked = 'D'   ! format CGNS with common linked mesh
 character, parameter   :: fmt_TYPHON      = 'Y'   ! format TYPHON MESH/solution
+character, parameter   :: fmt_AUTOBLOCK   = 'A'   ! internal auto-blocking
 character, parameter   :: fmt_TECPLOT     = 'T'   ! format TECPLOT (ascii)
 character, parameter   :: fmt_VIGIE       = 'V'   ! format VIGIE
 character, parameter   :: fmt_VTK         = 'K'   ! format VTK (ascii)
 character, parameter   :: fmt_VTKBIN      = 'I'   ! format VTK Binary
 
-! -- Constants for PERIODICITY defintion
+! -- Constants for PERIODICITY definition
 
 integer(kpp), parameter :: per_trans = 2
 integer(kpp), parameter :: per_rot   = 3
@@ -74,6 +75,8 @@ type mnu_mesh
   character               :: format      ! cf VARCOM
   character(len=longname) :: filename    ! nom de fichier
   integer(kpp)          :: geo         ! geometric param
+  integer(kip)          :: ni, nj, nk  ! size of mesh if autoblocking 
+  real(krp)             :: lx, ly, lz  ! dimension of block if autoblocking 
   integer(kpp)          :: splitmesh   ! split method
   integer(kip)          :: nsplit      ! number of split application
   integer(kip)          :: nperiodicity ! number of periodicity
