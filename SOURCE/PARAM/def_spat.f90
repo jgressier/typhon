@@ -74,9 +74,11 @@ case(solNS)
   if (samestring(str,"EFMO"))            defspat%sch_hyp = sch_efmo
   if (samestring(str,"HLL"))             defspat%sch_hyp = sch_hlle
   if (samestring(str,"HLLE"))            defspat%sch_hyp = sch_hlle
+  if (samestring(str,"HLLEB"))           defspat%sch_hyp = sch_hlleb
   if (samestring(str,"HLLEK"))           defspat%sch_hyp = sch_hllek
   if (samestring(str,"HLLEKB"))          defspat%sch_hyp = sch_hllekb
   if (samestring(str,"HLLC"))            defspat%sch_hyp = sch_hllc
+  if (samestring(str,"HLLCB"))           defspat%sch_hyp = sch_hllcb
   if (samestring(str,"HLLCK"))           defspat%sch_hyp = sch_hllck
   if (samestring(str,"HLLCKB"))          defspat%sch_hyp = sch_hllckb
   if (samestring(str,"STEGER-WARMING"))  defspat%sch_hyp = sch_stegwarm
@@ -97,12 +99,16 @@ case(solNS)
     call print_info(7,"  numerical flux : Roe")
   case(sch_hlle)
     call print_info(7,"  numerical flux : HLLE")
+  case(sch_hlleb)
+    call print_info(7,"  numerical flux : HLLE(B)")
   case(sch_hllek)
     call print_info(7,"  numerical flux : HLLEK")
   case(sch_hllekb)
     call print_info(7,"  numerical flux : HLLEK(B)")
   case(sch_hllc)
     call print_info(7,"  numerical flux : HLLC")
+  case(sch_hllcb)
+    call print_info(7,"  numerical flux : HLLC(B)")
   case(sch_hllck)
     call print_info(7,"  numerical flux : HLLCK")
   case(sch_hllckb)
@@ -369,11 +375,12 @@ endsubroutine def_spat
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! nov  2002 : creation, lecture de bloc vide
-! oct  2003 : choix de la methode de calcul des flux dissipatifs
-! mars 2004 : traitement dans le cas solVORTEX
-! july 2004 : NS solver parameters
-! nov  2004 : NS high resolution parameters
-! jan  2006 : basic parameter routines moved to MENU_NUM
-! apr  2007 : add SVM method parameters
+! Nov  2002 : creation, lecture de bloc vide
+! Oct  2003 : choix de la methode de calcul des flux dissipatifs
+! Mar  2004 : traitement dans le cas solVORTEX
+! Jul  2004 : NS solver parameters
+! Nov  2004 : NS high resolution parameters
+! Jan  2006 : basic parameter routines moved to MENU_NUM
+! Apr  2007 : add SVM method parameters
+! Feb  2013 : kinetic/beta evaluations for hllc and hlle
 !------------------------------------------------------------------------------!

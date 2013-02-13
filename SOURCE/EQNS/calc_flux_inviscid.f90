@@ -54,11 +54,11 @@ case(sch_rusanov)
   call calc_flux_rusanov(defsolver, defspat, nflux, face,      &
                       QL, QR, flux, ideb,                      &
                       calc_jac, jacL, jacR)
-case(sch_hlle, sch_hllek, sch_hllekb)
+case(sch_hlle, sch_hlleb, sch_hllek, sch_hllekb)
   call calc_flux_hlle(defsolver, defspat, nflux, face,         &
                       QL, QR, flux, ideb,                      &
                       calc_jac, jacL, jacR)
-case(sch_hllc, sch_hllck, sch_hllckb)
+case(sch_hllc, sch_hllcb, sch_hllck, sch_hllckb)
   call calc_flux_hllc(defsolver, defspat, nflux, face,         &
                       QL, QR, flux, ideb,                      &
                       calc_jac, jacL, jacR)
@@ -83,4 +83,5 @@ endsubroutine calc_flux_inviscid
 ! Changes history
 !
 ! Nov 2007 : creation, INVISCID flux
+! Feb  2013 : kinetic/beta evaluations for hllc and hlle
 !------------------------------------------------------------------------------!

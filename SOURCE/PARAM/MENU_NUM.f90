@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------!
-! MODULE : MENU_NUM                                 Authors : J. Gressier
-!                                                   Created : May 2002
+! MODULE : MENU_NUM                                 Authors : J. Gressier, O. Chikhaoui
+!
 ! Fonction
 !   Definition des structures pour les entrees du programme TYPHON
 !   Structures pour les options numeriques
@@ -40,10 +40,12 @@ integer(kpp), parameter :: sch_roe        = 10
 integer(kpp), parameter :: sch_osher_no   = 15
 integer(kpp), parameter :: sch_osher_io   = 16
 integer(kpp), parameter :: sch_hllr       = 20
-integer(kpp), parameter :: sch_hlle       = 22
+integer(kpp), parameter :: sch_hlle       = 21
+integer(kpp), parameter :: sch_hlleb      = 22
 integer(kpp), parameter :: sch_hllek      = 23
 integer(kpp), parameter :: sch_hllekb     = 24
-integer(kpp), parameter :: sch_hllc       = 26
+integer(kpp), parameter :: sch_hllc       = 25
+integer(kpp), parameter :: sch_hllcb      = 26
 integer(kpp), parameter :: sch_hllck      = 27
 integer(kpp), parameter :: sch_hllckb     = 28
 integer(kpp), parameter :: sch_stegwarm   = 30
@@ -1637,10 +1639,11 @@ endmodule MENU_NUM
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! mai  2002 : creation du module
-! aout 2003 : parametres pour l'integration temporelle (Fourier, residu)
-! sept 2003 : parametres pour l'integration spatiale (calcul de gradients)
-! jan  2006 : gradient computation method (local routine to get parameters)
+! May  2002 : creation du module
+! Aug  2003 : parametres pour l'integration temporelle (Fourier, residu)
+! Sep  2003 : parametres pour l'integration spatiale (calcul de gradients)
+! Jan  2006 : gradient computation method (local routine to get parameters)
 ! Nov  2007 : Runge-Kutta parameters
 ! Jul  2010 : number of Krylov vectors
+! Feb  2013 : kinetic/beta evaluations for hllc and hlle
 !------------------------------------------------------------------------------!

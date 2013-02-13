@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------!
-! Procedure : raffin_iso_tri                Authors : o.Chikhaoui
-!                                           Date    : jui 2009
+! Procedure : raffin_iso_tri                Authors : O. Chikhaoui
+!
 ! Fonction 
 !   Split triangular cells into 4 isometric triangles
 !
@@ -41,7 +41,7 @@ logical                :: rightface
 
 ! -- BODY --
 
-call print_info(10, "  . Iso Tri refinement mesh...")
+call print_info(10, "  . Isotropic (tri) mesh refinement...")
 
 fnv     = 2     ! nb of vertices per face
 cnv     = 3     ! nb of vertices per SV cell
@@ -80,11 +80,11 @@ call new_mesh(newmesh%mesh, 0, 0, newmesh%nvtex)
 !
 newmesh%mesh%vertex(1:umesh%nvtex, 1, 1) = umesh%mesh%vertex(1:umesh%nvtex, 1, 1) 
 
-! -- check there are only tri --
+! -- check there are only tris --
 !
 ielem = getindex_genelemvtex(umesh%cellvtex, elem_tri3)
 if ((ielem /= 0).and.(umesh%ncell_int /= umesh%cellvtex%elem(ielem)%nelem)) then
-  call error_stop("REFINEMENT can only be used with original TRI cells")
+  call error_stop("This REFINEMENT can only be used with original TRI cells")
 endif
 
 
@@ -108,45 +108,45 @@ do if = 1, umesh%nface
   cellv(1:3)= umesh%cellvtex%elem(ielem)%elemvtex(ic1, 1:3)
   if (facev(1).eq.cellv(1)) then
     if (facev(2).eq.cellv(2)) then
-  cell_fvtex%fils(ic1,1) = iv0+if
+      cell_fvtex%fils(ic1,1) = iv0+if
     else 
-  cell_fvtex%fils(ic1,3) = iv0+if
+      cell_fvtex%fils(ic1,3) = iv0+if
     endif  
   elseif(facev(1).eq.cellv(2)) then
     if (facev(2).eq.cellv(3)) then
-  cell_fvtex%fils(ic1,2) = iv0+if
+      cell_fvtex%fils(ic1,2) = iv0+if
     else 
-  cell_fvtex%fils(ic1,1) = iv0+if
+      cell_fvtex%fils(ic1,1) = iv0+if
     endif  
   elseif(facev(1).eq.cellv(3)) then
     if (facev(2).eq.cellv(1)) then
-  cell_fvtex%fils(ic1,3) = iv0+if
+      cell_fvtex%fils(ic1,3) = iv0+if
     else 
-  cell_fvtex%fils(ic1,2) = iv0+if
+      cell_fvtex%fils(ic1,2) = iv0+if
     endif  
-   endif
+  endif
 
   if (ic2 /= 0) then 
-  cellv(1:3)= umesh%cellvtex%elem(ielem)%elemvtex(ic2, 1:3)
-  if (facev(1).eq.cellv(1)) then
-    if (facev(2).eq.cellv(2)) then
-  cell_fvtex%fils(ic2,1) = iv0+if
-    else 
-  cell_fvtex%fils(ic2,3) = iv0+if
-    endif  
-  elseif(facev(1).eq.cellv(2)) then
-    if (facev(2).eq.cellv(3)) then
-  cell_fvtex%fils(ic2,2) = iv0+if
-    else 
-  cell_fvtex%fils(ic2,1) = iv0+if
-    endif  
-  elseif(facev(1).eq.cellv(3)) then
-    if (facev(2).eq.cellv(1)) then
-  cell_fvtex%fils(ic2,3) = iv0+if
-    else 
-  cell_fvtex%fils(ic2,2) = iv0+if
-    endif  
-   endif
+    cellv(1:3) = umesh%cellvtex%elem(ielem)%elemvtex(ic2, 1:3)
+    if (facev(1).eq.cellv(1)) then
+      if (facev(2).eq.cellv(2)) then
+        cell_fvtex%fils(ic2,1) = iv0+if
+      else 
+        cell_fvtex%fils(ic2,3) = iv0+if
+      endif  
+    elseif(facev(1).eq.cellv(2)) then
+      if (facev(2).eq.cellv(3)) then
+        cell_fvtex%fils(ic2,2) = iv0+if
+      else 
+        cell_fvtex%fils(ic2,1) = iv0+if
+      endif  
+    elseif(facev(1).eq.cellv(3)) then
+      if (facev(2).eq.cellv(1)) then
+        cell_fvtex%fils(ic2,3) = iv0+if
+      else 
+        cell_fvtex%fils(ic2,2) = iv0+if
+      endif  
+    endif
   endif
 
 enddo
@@ -157,12 +157,13 @@ enddo
 ntri = 4 *umesh%cellvtex%elem(ielem)%nelem               ! define number of  new TRI (TRI => 4TRI)
 
 call addelem_genelemvtex(newmesh%cellvtex)                          ! add a ELEMVTEX section
+
 ielemtri = newmesh%cellvtex%nsection
 ntri = 4 *umesh%cellvtex%elem(ielem)%nelem               ! define number of  new TRI (TRI => 4TRI)
 
 call new_elemvtex(newmesh%cellvtex%elem(ielemtri), ntri, elem_tri3)      ! allocation
-newmesh%cellvtex%elem(ielemtri)%ielem(1:ntri) = (/ (ic, ic=1, ntri) /)   ! numbering
 
+newmesh%cellvtex%elem(ielemtri)%ielem(1:ntri) = (/ (ic, ic=1, ntri) /)   ! numbering
 
 call print_info(20, "    . creating"//strof(ntri,7)//" CV cells")
 
@@ -330,8 +331,10 @@ do if = newmesh%nface_int+1, newmesh%nface
 
   enddo bocoloop
 
-  if (ibdef == 0) call erreur("mesh refinment", "BOCO not found for CV face")
+  if (ibdef == 0) call erreur("mesh refinement", "BOCO not found for CV face")
+
   faceboco(if) = ibdef
+
 enddo
 
 ! --- redistribute boco defs ---
@@ -349,5 +352,5 @@ endsubroutine raffin_iso_tri
 !------------------------------------------------------------------------------!
 ! Change history
 !
-! jui  2009: created
+! Jul  2009: created
 !------------------------------------------------------------------------------!

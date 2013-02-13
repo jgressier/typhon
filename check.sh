@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/bin/bash -u
 #
 # Check non-regression of all NRG cases containing nrgconf.sh
 #
-bar="------------------------------------------------------------------------"
+bar=$(printf "%79s" | tr ' ' =)
 
 # --- print usage ---
 #
@@ -72,17 +72,22 @@ diffcmd=
 list=0
 keeptmpdir=0
 patlist=()
-while true ; do
+while [ ${#} -gt 0 ] ; do
   case "$1" in
-    -h) shift ; usage 0 ;;
-    -d|--diff-cmd)
-        shift ; diffcmd=$1 ; shift ;;
-    -l) shift ; list=1 ;;
-    -k) shift ; keeptmpdir=1 ;;
+    -h) usage 0 ;;
+    -d|--diff-cmd) shift
+        if [ $# -gt 0 ] ; then
+          diffcmd=$1
+        else
+          echo "ERROR: no diff command:"
+          usage 1
+        fi ;;
+    -l) list=1 ;;
+    -k) keeptmpdir=1 ;;
     --) shift ; break ;;
-    *) break;;
+    *)  break ;;
   esac
-  # shift
+  shift
 done
 
 # --- check patterns ---
@@ -143,16 +148,14 @@ if [ $list -eq 1 ] ; then
   exit 0
 fi
 
-typeset -i ncol0=1
-for CASE in "${LISTCASES[@]}" ; do
-  i=$(echo $CASE | wc -c)
-  if [ $i -gt $ncol0 ] ; then ncol0=i ; fi
-done
-
 # --- print parameter ---
 #
-typeset -i ncol1=ncol0+20 ; col1="\\033[${ncol1}G"
-typeset -i ncol2=ncol1+25 ; col2="\\033[${ncol2}G"
+scol0=
+for CASE in "${LISTCASES[@]}" ; do
+  scol0=$(printf "%${#scol0}s" "${CASE//?/ }")
+done
+scol1=$scol0$(printf "%15s")
+ncol2=24
 
 # --- tests ---
 #
@@ -164,7 +167,8 @@ for CASE in "${LISTCASES[@]}" ; do
   # init
   CASEDIR=$NRGDIR/$CASE
   # print
-  echo -n checking $CASE ...
+  string="checking $CASE ..."
+  printf "$string" ; remain=${scol1/${string//?/?}/}
   # configure
   . $CASEDIR/$REFCONF
   # create dir
@@ -176,14 +180,14 @@ for CASE in "${LISTCASES[@]}" ; do
   # execute
   hostname > hostfile
   echo "$bar"  >> $HOMEDIR/check.log
-  echo $CASE >> $HOMEDIR/check.log
-  echo '#' "$bar" >> $HOMEDIR/diff.log
-  echo '#' $CASE  >> $HOMEDIR/diff.log
+  echo "$CASE" >> $HOMEDIR/check.log
+  echo '#' "$bar"  >> $HOMEDIR/diff.log
+  echo '#' "$CASE" >> $HOMEDIR/diff.log
   case $TYPE_EXE in
     seq) $EXEDIR/Typhon-$TYPE_EXE >> $HOMEDIR/check.log 2>&1 ;;
     mpi) mpirun -np ${MPIPROCS:-2} -machinefile hostfile \
          $EXEDIR/Typhon-$TYPE_EXE >> $HOMEDIR/check.log 2>&1 ;;
-    *)   echo -e ${col1}$fic unknown typhon executable ;;
+    *)   printf "$remain%s %s\n" "$TYPE_EXE" "unknown typhon executable" ;;
   esac
   if [ $? -eq 0 ] ; then
     for fic in $TO_CHECK ; do
@@ -191,34 +195,35 @@ for CASE in "${LISTCASES[@]}" ; do
         fics=( $fic $CASEDIR/$fic )
         $DIFFCOM ${fics[@]} >> diff.log 2>&1
         case $? in
-          0) echo -e ${col1}$fic ${col2}identical ;;
-          1) echo -e ${col1}$fic ${col2}changed
+          0) printf "$remain%-${ncol2}s %s\n" "$fic" "identical" ;;
+          1) printf "$remain%-${ncol2}s %s\n" "$fic" "changed"
              echo diff ${fics[@]} >> $HOMEDIR/diff.log
              cat diff.log >> $HOMEDIR/diff.log ;;
-          *) echo -e ${col1}$fic ${col2}comparison failed ;;
+          *) printf "$remain%-${ncol2}s %s\n" "$fic" "comparison failed" ;;
         esac
         rm -f diff.log
       else
-        echo -e ${col1}$fic ${col2}missing
+        printf "$remain%-${ncol2}s %s\n" "$fic" "missing"
       fi
+      remain=$scol1
     done
   else
-    echo -e ${col2}computation failed
+    printf "$remain%-${ncol2}s %s\n" "??" "computation failed"
   fi
   if [ $keeptmpdir -eq 0 ] ; then
     rm -f $TMPDIR/$CASE/* 2> /dev/null
   fi
 done
-
 echo "$bar"
+
 if [ $HOMEDIR = $ORIGDIR ] ; then
   echo check.log diff.log
 else
   echo $HOMEDIR/check.log
   echo $HOMEDIR/diff.log
 fi
-
 echo "$bar"
+
 if [ $keeptmpdir -eq 1 ] ; then
   echo "files kept in   : $TMPDIR"
   echo "$bar"

@@ -1,8 +1,10 @@
 !------------------------------------------------------------------------------!
-! Procedure : calc_roe_states              Auteur : J. Gressier
-!                                         Date   : July 2004
-! Fonction                                Modif  : (cf historique)
-!   Computation of HLLE flux for Euler equations
+! Procedure : calc_roe_states                   Authors : J. Gressier
+!
+! Function
+!   Computation of roe states for Euler equations
+!
+! Defaults/Limitations/Misc :
 !
 !------------------------------------------------------------------------------!
 subroutine calc_roe_states(fluid, nf, cell_l, cell_r, roe)
@@ -14,12 +16,12 @@ use GEO3D
 
 implicit none
 
-! -- INPUTS --
-type(st_espece)       :: fluid            ! parametres de definition du fluide
-integer               :: nf               ! nombre de flux (face) a calculer
-type(st_nsetat)       :: cell_l, cell_r   ! champs des valeurs primitives
+! -- Inputs --
+type(st_espece)       :: fluid            ! fluid definition parameters
+integer               :: nf               ! number of fluxes
+type(st_nsetat)       :: cell_l, cell_r   ! primitive variables array
 
-! -- OUTPUTS --
+! -- Outputs --
 type(st_nsetat)       :: roe              ! roe state average
 
 ! -- Internal variables --
@@ -28,7 +30,7 @@ real(krp)             :: gig1
 real(krp)             :: hil, hir, him    ! mass total enthalpy
 real(krp), dimension(nf) :: t1, t2, kl, kr     ! automatic real arrays
 
-! -- BODY --
+! -- Body --
 
 gig1 = fluid%gamma / (fluid%gamma - 1._krp)
 
@@ -56,6 +58,6 @@ endsubroutine calc_roe_states
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! July 2004 : creation, Roe average state computation
-! Mar  2006 : array optimizations
+! Jul 2004 : creation, Roe average state computation
+! Mar 2006 : array optimizations
 !------------------------------------------------------------------------------!

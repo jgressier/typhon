@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------!
-! Procedure : convert_to_svm                Authors : O.Chikhaoui
-!                                           Date    : Oct 2011
+! Procedure : convert_to_svm                Authors : O. Chikhaoui
+!
 ! Fonction 
 !   Split quad cells into 4 isometric quads
 !
@@ -42,7 +42,7 @@ logical                :: rightface
 
 ! -- BODY --
 
-call print_info(10, "  . isotropic (quad) mesh refinement...")
+call print_info(10, "  . Isotropic (quad) mesh refinement...")
 
 fnv     = 2     ! nb of vertices per face
 cnv     = 4     ! nb of vertices per SV cell
@@ -67,7 +67,6 @@ newmesh%nface = newmesh%nface_int + newmesh%nface_lim
 newmesh%ncell = newmesh%ncell_int + newmesh%ncell_lim
 
 newmesh%mesh%info = umesh%mesh%info
-
 
 ! -- allocate only vertices array --
 !
@@ -97,7 +96,6 @@ endif
 
 ! -- create internal nodes of SV cells --
 !
-
 do ic = 1, umesh%cellvtex%elem(ielem)%nelem
   iv   = umesh%cellvtex%elem(ielem)%elemvtex(ic,1)          ! first node of cell
   node = umesh%mesh%vertex(iv, 1, 1)                        ! initialize sum of nodes
@@ -128,58 +126,59 @@ do if = 1, umesh%nface
   cellv(1:4) = umesh%cellvtex%elem(ielem)%elemvtex(ic1, 1:4)
   if (facev(1).eq.cellv(1)) then
     if (facev(2).eq.cellv(2)) then
-  cell_fvtex%fils(ic1,1) = iv0+if
+      cell_fvtex%fils(ic1,1) = iv0+if
     else 
-  cell_fvtex%fils(ic1,4) = iv0+if
+      cell_fvtex%fils(ic1,4) = iv0+if
     endif  
   elseif(facev(1).eq.cellv(2)) then
     if (facev(2).eq.cellv(3)) then
-  cell_fvtex%fils(ic1,2) = iv0+if
+      cell_fvtex%fils(ic1,2) = iv0+if
     else 
-  cell_fvtex%fils(ic1,1) = iv0+if
+      cell_fvtex%fils(ic1,1) = iv0+if
     endif  
   elseif(facev(1).eq.cellv(3)) then
     if (facev(2).eq.cellv(4)) then
-  cell_fvtex%fils(ic1,3) = iv0+if
+      cell_fvtex%fils(ic1,3) = iv0+if
     else 
-  cell_fvtex%fils(ic1,2) = iv0+if
+      cell_fvtex%fils(ic1,2) = iv0+if
     endif  
   elseif(facev(1).eq.cellv(4)) then
     if (facev(2).eq.cellv(1)) then
-  cell_fvtex%fils(ic1,4) = iv0+if
+      cell_fvtex%fils(ic1,4) = iv0+if
     else 
-  cell_fvtex%fils(ic1,3) = iv0+if
+      cell_fvtex%fils(ic1,3) = iv0+if
     endif 
-   endif
+  endif
 
   if (ic2 /= 0) then 
-  cellv(1:4)= umesh%cellvtex%elem(ielem)%elemvtex(ic2, 1:4)
-  if (facev(1).eq.cellv(1)) then
-    if (facev(2).eq.cellv(2)) then
-  cell_fvtex%fils(ic2,1) = iv0+if
-    else 
-  cell_fvtex%fils(ic2,4) = iv0+if
-    endif  
-  elseif(facev(1).eq.cellv(2)) then
-    if (facev(2).eq.cellv(3)) then
-  cell_fvtex%fils(ic2,2) = iv0+if
-    else 
-  cell_fvtex%fils(ic2,1) = iv0+if
-    endif  
-  elseif(facev(1).eq.cellv(3)) then
-    if (facev(2).eq.cellv(4)) then
-  cell_fvtex%fils(ic2,3) = iv0+if
-    else 
-  cell_fvtex%fils(ic2,2) = iv0+if
-    endif  
-  elseif(facev(1).eq.cellv(4)) then
-    if (facev(2).eq.cellv(1)) then
-  cell_fvtex%fils(ic2,4) = iv0+if
-    else 
-  cell_fvtex%fils(ic2,3) = iv0+if
-    endif 
-   endif
-   endif
+    cellv(1:4) = umesh%cellvtex%elem(ielem)%elemvtex(ic2, 1:4)
+    if (facev(1).eq.cellv(1)) then
+      if (facev(2).eq.cellv(2)) then
+        cell_fvtex%fils(ic2,1) = iv0+if
+      else 
+        cell_fvtex%fils(ic2,4) = iv0+if
+      endif  
+    elseif(facev(1).eq.cellv(2)) then
+      if (facev(2).eq.cellv(3)) then
+        cell_fvtex%fils(ic2,2) = iv0+if
+      else 
+        cell_fvtex%fils(ic2,1) = iv0+if
+      endif  
+    elseif(facev(1).eq.cellv(3)) then
+      if (facev(2).eq.cellv(4)) then
+        cell_fvtex%fils(ic2,3) = iv0+if
+      else 
+        cell_fvtex%fils(ic2,2) = iv0+if
+      endif  
+    elseif(facev(1).eq.cellv(4)) then
+      if (facev(2).eq.cellv(1)) then
+        cell_fvtex%fils(ic2,4) = iv0+if
+      else 
+        cell_fvtex%fils(ic2,3) = iv0+if
+      endif 
+    endif
+  endif
+
 enddo
 
 !--------------------------------------------------------------------
@@ -187,7 +186,7 @@ enddo
 
 call addelem_genelemvtex(newmesh%cellvtex)                          ! add a ELEMVTEX section
 
-ielemquad =1
+ielemquad = 1
 nquad = 4 *umesh%cellvtex%elem(ielem)%nelem               ! define number of QUAD (QUAD => 4 QUAD)
 
 call new_elemvtex(newmesh%cellvtex%elem(ielemquad), nquad, elem_quad4)      ! allocation
@@ -221,6 +220,7 @@ call new_connect(newmesh%face_Ltag, newmesh%nface, nfgauss) ; newmesh%face_Ltag%
 call new_connect(newmesh%face_Rtag, newmesh%nface, nfgauss) ; newmesh%face_Rtag%fils(:,:) = 0
 
 ! --- internal faces ---
+
 call print_info(20, "    . creating"//strof(newmesh%nface_intsvm,7)//" internal CV faces")
 
 do ic = 1, umesh%ncell_int
@@ -254,6 +254,7 @@ enddo
 call init_ustmesh(umeshcon, 0)
 
 nRface = newmesh%nface-newmesh%nface_intsvm
+
 call new_connect(umeshcon%facecell,  nRface, 2)       ; umeshcon%facecell%nbnodes = 0 ; umeshcon%facecell%fils = 0
 call new_connect(umeshcon%facevtex,  nRface, fnv)     ; umeshcon%facevtex%nbnodes = 0
 call new_connect(umeshcon%face_Ltag, nRface, nfgauss) ; umeshcon%face_Ltag%fils(:,:) = 0
@@ -265,9 +266,11 @@ call new_genconnect(umeshcon%vtexface, newmesh%nvtex, 10, initdim=0)    ! 10 fac
 call print_info(20, "    . creating"//strof(nRface,7)//" Riemann  CV faces")
 
 do ic = 1, umesh%ncell_int
+
   ic0     = (ic-1)*4      ! CV index offset
   facev(1:cell_fvtex%nbfils) = cell_fvtex%fils(ic, 1:cell_fvtex%nbfils)  ! CV face  vertices
   cellv(1:cnv)               = umesh%cellvtex%elem(ielem)%elemvtex(ic, 1:cnv)
+
   !
   ! -- 'CV 1' Riemann faces --
   icv  = ic0 + 1
@@ -392,10 +395,10 @@ do if = newmesh%nface_int+1, newmesh%nface
   newmesh%boco(ib)%iface(newmesh%boco(ib)%nface) = if
 enddo
 
-
 call check_ustmesh_elements(newmesh)
 
 endsubroutine raffin_iso_quad
+
 !------------------------------------------------------------------------------!
 ! Change history
 !
