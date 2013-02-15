@@ -36,7 +36,7 @@ character(len=10)     :: suffix
 select case(defio%format)
 
 case(fmt_TECPLOT)
-  call error_stop("'Internal error) Unable to use general output with TECPLOT format")
+  call error_stop("Internal error (outputzone_open): Unable to use general output with TECPLOT format")
 
 case(fmt_TYPHON)
 

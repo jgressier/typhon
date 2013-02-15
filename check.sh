@@ -31,7 +31,7 @@ function usage() {
 }
 
 echo "$bar"
-echo TYPHON non regression check
+echo "TYPHON non regression check"
 echo "$bar"
 
 # --- directory initialization ---
@@ -44,19 +44,17 @@ export  EXEDIR=$HOMEDIR/SOURCE
 export  BINDIR=$HOMEDIR/bin
 export  NRGDIR=$HOMEDIR/NRG
 export MESHDIR=$HOMEDIR/NRG/COMMON
-export  TMPDIR=/tmp/typhon.$$
-if [ -e $TMPDIR ] ; then
-  echo "$TMPDIR exists"
-  while [ -e $TMPDIR ] ; do
-    TMPDIR=$TMPDIR.0
-  done
+export  TMPDIR=$(mktemp -d /tmp/typhon.${SCRIPTNAME%.sh}.XXXXXXXX)
+if [ $? -ne 0 ] ; then
+  echo "could not create temporary directory"
+  exit 1
 fi
 
 # --- directory check ---
 #
 if [ ! -d $MESHDIR ] ; then
-  echo directory $MESHDIR not found
-  echo $HOMEDIR/$SCRIPTNAME is not in a valid typhon directory
+  echo "directory $MESHDIR not found"
+  echo "$HOMEDIR/$SCRIPTNAME is not in a valid typhon directory"
   exit 1
 fi
 
@@ -120,7 +118,6 @@ export REFCONF=nrgconf.sh
 export DIFFCOM=$DIFF
 export LD_LIBRARY_PATH=$EXEDIR/Lib:$LD_LIBRARY_PATH
 
-mkdir $TMPDIR
 if [ $keeptmpdir -eq 0 ] ; then
   trap "rm -Rf $TMPDIR" 0 2
 fi
@@ -168,7 +165,7 @@ for CASE in "${LISTCASES[@]}" ; do
   CASEDIR=$NRGDIR/$CASE
   # print
   string="checking $CASE ..."
-  printf "$string" ; remain=${scol1/${string//?/?}/}
+  printf "$string" ; repl=${string//?/?} ; remain=${scol1/$repl/}
   # configure
   . $CASEDIR/$REFCONF
   # create dir

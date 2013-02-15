@@ -1,123 +1,121 @@
 !------------------------------------------------------------------------------!
-! Procedure : readrpmblock                Auteur : J. Gressier
-!                                         Date   : Fevrier 2002
-! Fonction                                Modif  :
-!   Lecture et mise en buffer des blocs de lignes dans des structures
-!   RPMBLOCK gérées en liste.
+! Procedure : readrpmblock                Author : J. Gressier
+!                                         Date   : Feb 2002
+!                                         Modif  :
+! Function :
+!   Reading and buffering of line blocks in RPMBLOCK structures
+!   managed as lists.
 !
-! Defauts/Limitations/Divers :
+! Defaults/Limitations/Misc :
 !
 !------------------------------------------------------------------------------!
 subroutine readrpmblock(nio, nerr, iaff, firstblock)
   use STRING
-  implicit none 
+  implicit none
 
-! -- Declaration des entrées --
-  integer nio    ! numero d'unite pour la lecture 
-  integer nerr   ! type d'erreur en lecture de paramètres
-  integer iaff   ! choix d'affichage des informations en lecture
+! -- Inputs --
+  integer nio    ! unit number to read
+  integer nerr   ! error type at parameter reading
+  integer iaff   ! information display option
 
-! -- Declaration des sorties --
-  type(rpmblock), pointer  :: firstblock    ! pointeur premier bloc RPM
+! -- Outputs --
+  type(rpmblock), pointer  :: firstblock    ! first RPM block pointer
 
-! -- Declaration des variables internes --
-  integer, parameter       :: dimbuf = 100  ! taille du buffer ligne
-  integer                  :: lectstat      ! statut de la lecture
-  integer                  :: ilig          ! numero de ligne
-  integer                  :: nbloc         ! nombre de bloc
-  integer                  :: posc          ! position de caractère
-  logical                  :: inblock       ! bloc en cours de traitement
-  character(len=dimrpmlig) :: strc           ! chaîne courante
+! -- Internal variables --
+  integer, parameter       :: dimbuf = 100  ! size of line buffer
+  integer                  :: lectstat      ! reading status
+  integer                  :: ilig          ! line number
+  integer                  :: nbloc         ! block number
+  integer                  :: posc          ! character position
+  logical                  :: inblock       ! block being processed
+  character(len=dimrpmlig) :: strc          ! current string
   character(len=dimrpmlig), dimension(:), allocatable &
                            :: buffer
   type(rpmblock), pointer  :: newblock, blockcourant
   type(rpmdata),  pointer  :: newdata,  datacourant
-  
-! -- Debut de la procedure --
+
+! -- Body --
   lectstat = 0
   ilig     = 1
   inblock  = .false.
   nullify(firstblock)
   allocate(buffer(dimbuf))
-  
+
   do while ((lectstat == 0).and.(ilig <= dimbuf))
-  
+
     read(unit=nio, fmt='(a)', iostat=lectstat) strc
     if (lectstat == 0) then
-      if (iaff >= 4) write(nerr,*) "RPM: lecture - ",ilig," : ",trim(strc)
+      if (iaff >= 4) write(nerr,*) "RPM: reading - ",ilig," : ",trim(strc)
       buffer(ilig) = trait_rpmlig(strc)
     else
       buffer(ilig) = ""
-      if (iaff >= 2) write(nerr,*) "RPM: Fin de fichier"
+      if (iaff >= 2) write(nerr,*) "RPM: end of file"
     endif
-    
+
     if (len_trim(buffer(ilig)) /= 0) then
-    
-      ! ----- test de début de bloc -----
+
+      ! ----- test beginning of block -----
       posc = index(buffer(ilig),':')
       if (samestring(buffer(ilig)(1:posc-1), 'BLOCK')) then
-        if (ilig > 1) call rpmerr("Instructions inattendues&
-                                  & avant définition de bloc")
-        if (inblock) call rpmerr("Bloc précédent non terminé")
+        if (ilig > 1) call rpmerr("Unexpected data before block definition")
+        if (inblock) call rpmerr("Incomplete previous block")
 
-        ! le bloc est supposé valide
+        ! the block is assumed to be valid
         inblock = .true.
         buffer(ilig) = adjustl(buffer(ilig)(posc+1:))
-        call create_rpmblock(newblock, trim(buffer(ilig)))  ! alloc. et init.
+        call create_rpmblock(newblock, trim(buffer(ilig)))  ! alloc. and init.
         if (associated(firstblock)) then
-          blockcourant%next => newblock  ! définition du lien de liste chaînée
+          blockcourant%next => newblock  ! definition of chaind list link
         else
-          firstblock => newblock         ! définition du premier bloc
+          firstblock => newblock         ! definition of first block
         endif
-        blockcourant => newblock         ! redéfinition du bloc courant
-        if (iaff >= 2) write(nerr,*) "RPM: Lecture de bloc : ",trim(newblock%name)
-        cycle                            ! on évite l'incrémentation de ilig
+        blockcourant => newblock         ! redefinition of current block
+        if (iaff >= 2) write(nerr,*) "RPM: reading block : ",trim(newblock%name)
+        cycle                            ! avoid ilig increment
       endif
-      
-      ! ----- test de fin de bloc -----
+
+      ! ----- test end of bloc -----
       if (samestring(trim(buffer(ilig)), 'ENDBLOCK')) then
-        if (.not.inblock) call rpmerr("Fin de bloc inattendue")
+        if (.not.inblock) call rpmerr("Unexpected end of block")
         call set_rpmblock(blockcourant, ilig-1, buffer(1:ilig-1))
-          ! on ne compte pas la ligne ENDBLOCK
-        ! ré-initialisation des données courantes
+        ! The ENDBLOCK line is not counted for
+        ! re-initialization of current data
         ilig    = 1
         inblock = .false.
-        cycle   ! on saute les traitements suivants
+        cycle   ! trailing processes are skipped
       endif
-      
-      ! ----- test de fin de bloc de données (incorrect) -----
+
+      ! ----- test end of data block (incorrect) -----
       if (samestring(trim(buffer(ilig)), 'ENDDATA')) then
-        call rpmerr("Fin de bloc de données inattendue")
-      endif 
-      
-      !print*,'test test'
-      ! ----- test de début de bloc de données -----
+        call rpmerr("Unexpected end of data block")
+      endif
+
+      ! ----- test beginning of data block -----
       posc = index(buffer(ilig),'=')
       if (samestring(buffer(ilig)(1:posc-1), 'DATA')) then
-        ! lecture du bloc DATA
-        !print*,"test entrée data"
-        call readrpmdata(nio, newdata, buffer(ilig), iaff)  
-        ! définition des liens de liste chaînée
+        ! reading of DATA block
+        call readrpmdata(nio, newdata, buffer(ilig), iaff)
+        ! definition of chained list links
         if (associated(blockcourant%data)) then
           datacourant%next => newdata
         else
           blockcourant%data => newdata
         endif
         datacourant => newdata
-        if (iaff >= 2) write(nerr,*) "RPM: Lecture de bloc de données : ",&
+        if (iaff >= 2) write(nerr,*) "RPM: reading data block : ",&
                                      datacourant%nbvar," variables"
-        cycle   ! on saute les traitements suivants
-      endif ! on arrive directement à la ligne ENDDATA
+        cycle   ! trailing processes are skipped
+      endif ! directly to ENDDATA line
 
-      ! ----- on est alors dans une instruction interne de block -----
+      ! ----- inside block internal instruction -----
       ilig = ilig + 1
     endif
   enddo
-  
-  if (inblock) call rpmerr("Le bloc courant n'a pas été terminé")
-  if (ilig > dimbuf) call rpmerr("Taille maximale du buffer de bloc dépassée")
+
+  if (inblock) call rpmerr("Still looking for end of block")
+  if (ilig > dimbuf) call rpmerr("maximal block buffer size exceeded")
   deallocate(buffer)
-  
+
 endsubroutine readrpmblock
 !------------------------------------------------------------------------------!
 
@@ -125,86 +123,85 @@ endsubroutine readrpmblock
 
 
 !------------------------------------------------------------------------------!
-! Procédure : readrpmdata                 Auteur : J. Gressier
-!                                         Date   : Fevrier 2002
-! Fonction                                Modif  :
-!   Lecture d'un bloc de données commençant par DATA, terminé par ENDDATA,
-!   renvoie le pointeur d'une structure RPMDATA
+! Procedure : readrpmdata                 Author : J. Gressier
+!                                         Date   : Feb 2002
+!                                         Modif  :
+! Function :
+!   Reading data blocks starting/ending with DATA/ENDDATA.
+!   Returns RPMDATA structure pointer
 !
-! Defauts/Limitations/Divers :
+! Defaults/Limitations/Misc :
 !
 !------------------------------------------------------------------------------!
-subroutine readrpmdata(nio, pdata, entete, iaff)
+subroutine readrpmdata(nio, pdata, header, iaff)
   use STRING
-  implicit none 
+  implicit none
 
-! -- Declaration des entrées --
-  integer           :: nio    ! n° d'unite pour la lecture des paramètres
-  integer           :: iaff   ! choix d'affichage des actions
-  character(len=*)  :: entete ! entete du bloc DATA, à traiter   
+! -- Inputs --
+  integer           :: nio    ! unit number to read
+  integer           :: iaff   ! action display option
+  character(len=*)  :: header ! DATA block header, to be processed
 
-! -- Declaration des sorties --
-  type(rpmdata), pointer :: pdata ! pointeur sur la structure DATA
+! -- Outputs --
+  type(rpmdata), pointer :: pdata ! pointer to DATA structure
 
-! -- Declaration des variables internes --
+! -- Internal variables --
   integer, parameter                :: dimbuffer = 200
-  integer                           :: lectstat    ! statut de la lecture
-  integer                           :: n, i, pos      
-  real, dimension(:,:), allocatable :: buffer      ! buffer avant affectation
-  character(len=dimrpmlig)          :: strc         ! ligne intermédiaire
+  integer                           :: lectstat    ! reading status
+  integer                           :: n, i, pos
+  real, dimension(:,:), allocatable :: buffer      ! buffer before assignment
+  character(len=dimrpmlig)          :: strc        ! temporary line
   logical                           :: fin         ! test
 
-! -- Debut de la procedure --
+! -- Body --
 
-  !print*,"cdata 1"
   call create_rpmdata(pdata)
-  !print*,"cdata 2"
-  
-  ! Calcul du nombre de variables
-  strc = adjustl(entete(index(entete,'=')+1:))  ! Extraction de DATA=
-  pdata%nbvar = numbchar(strc,',') + 1
-  if (iaff >= 4) write(6,*) "DATA variables : ",pdata%nbvar," trouvées"
 
-  ! Extraction des noms de variables 
+  ! Compute the number of variables
+  strc = adjustl(header(index(header,'=')+1:))  ! Extraction of DATA=
+  pdata%nbvar = numbchar(strc,',') + 1
+  if (iaff >= 4) write(6,*) "DATA : ",pdata%nbvar," variables found"
+
+  ! Extraction of variables names
   allocate(pdata%name(pdata%nbvar))
   do n = 1, pdata%nbvar
-    if (n == pdata%nbvar) then  ! dernière variable, à traiter sans virgule
+    if (n == pdata%nbvar) then  ! last variable, process without comma
       pdata%name(n) = trim(strc)
     else
-      pos = index(strc,',')  
-      pdata%name(n) = strc(1:pos-1)  ! extraction du nom
-      strc = adjustl(strc(pos+1:))    ! décalage
+      pos = index(strc,',')
+      pdata%name(n) = strc(1:pos-1)  ! name extraction
+      strc = adjustl(strc(pos+1:))   ! shift
     endif
     if (len_trim(pdata%name(n)) == 0) call rpmerr("Nom de variable incorrect")
-    ! vérification de non redondance des noms de variables
+    ! check for variables names redundancy
     do i = 1, n-1
       if (samestring(pdata%name(n),pdata%name(i))) &
-        call rpmerr("Nom de variable redondant")
+        call rpmerr("Redundant variable name")
     enddo
   enddo
   if (iaff >= 4) write(6,*) "DATA variables : ",pdata%name
 
-  ! Lecture des données
+  ! Data reading
   allocate(buffer(pdata%nbvar, dimbuffer))
   n   = 0
   fin = .false.
   do while ((n < dimbuffer).and.(.not.fin))
    read(unit=nio, fmt='(a)', iostat=lectstat) strc
    strc = trait_rpmlig(strc)
-   if (lectstat /= 0) call rpmerr("Erreur de lecture de fichier inattendue")
+   if (lectstat /= 0) call rpmerr("Unexpected file read error")
    if (samestring(strc,'ENDDATA')) then
      fin = .true.
    else
      n = n + 1
      read(strc,*,iostat=lectstat) buffer(:,n)
-     if (lectstat /= 0) call rpmerr("Données incohérentes")
+     if (lectstat /= 0) call rpmerr("Incoherent data")
    endif
   enddo
   pdata%nbpts = n
   allocate(pdata%tab(pdata%nbvar,pdata%nbpts))
   pdata%tab = buffer(:,1:pdata%nbpts)
   deallocate(buffer)
-  
+
 endsubroutine readrpmdata
 !------------------------------------------------------------------------------!
 
@@ -212,49 +209,51 @@ endsubroutine readrpmdata
 
 
 !------------------------------------------------------------------------------!
-! Fonction : trait_rpmlig                 Auteur : J. Gressier
-!                                         Date   : Fevrier 2002
-! Fonction                                Modif  :
-!   Traitement d'une ligne d'un fichier RPM
-!   . Suppression des espaces en début de chaine
-!   . Suppression des chaines débutant par ! ou # (rpmcommentchar)
-!   . Mise en caractères majuscule sauf chaîne entre "
+! Procedure : trait_rpmlig                Author : J. Gressier
+!                                         Date   : Feb 2002
+!                                         Modif  :
+! Function :
+!   Processing a line of RPM file
+!   . Remove leading space in string
+!   . Remove string starting with ! or # (rpmcommentchar)
+!   . Change to uppercase except for string between "quotes"
 !
-! Defauts/Limitations/Divers :
+! Defaults/Limitations/Misc :
 !
 !------------------------------------------------------------------------------!
 function trait_rpmlig(strin) result(strout)
 
   use STRING
-  implicit none 
+  implicit none
 
-! -- Declaration des Parametres --
+! -- Inputs --
   character(len=dimrpmlig), intent(in)   :: strin
+! -- Outputs --
   character(len=len(strin))              :: strout
 
-! -- Declaration des variables internes --
+! -- Internal variables --
   character(len=len(strin)) :: s
-  integer                   :: ipos 
+  integer                   :: ipos
   logical                   :: inquote
 
-! -- Debut de la procedure --
+! -- Body --
 
-  ! recherche de caractères de début de commentaire
+  ! Search for comment starting characters
   ipos = scan(strin, rpmcommentchar)
   if (ipos >= 1) then
-    ! extraction de chaîne hors commentaires et mise en majuscules
+    ! remove comments and change to uppercase
     s = rpmuppercase(strin(1:ipos-1))
-    ! suppression des espaces en début de chaîne
+    ! remove leading space
     s = adjustl(s)
   else
-    ! mise en majuscules et suppression des espaces en début
+    ! change to uppercase and remove leading space
     s = adjustl(rpmuppercase(strin))
   endif
   strout = s
-  
+
 contains
 !------------------------------------------------------------------------------!
-! mise en majuscule sauf chaîne entre "
+! hange to uppercase except for string between quotes ("")
 !------------------------------------------------------------------------------!
 function rpmuppercase(strc)
 implicit none
@@ -262,14 +261,14 @@ character(len=*)        :: strc
 character(len=len(strc)) :: rpmuppercase
 integer   :: i
 logical   :: inquote
-  
+
   rpmuppercase = strc
   inquote      = .false.
   do i = 1, len(rpmuppercase)
     if (rpmuppercase(i:i) == rpmquotechar) inquote = .not.inquote
     if (.not.inquote) rpmuppercase(i:i) = uppercase(rpmuppercase(i:i))
   enddo
-  ! Pas de test si il y a un (") fermant le premier (")
+  ! No test for opening '"' without closing '"'
 
 endfunction rpmuppercase
 

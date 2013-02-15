@@ -1,66 +1,67 @@
 !------------------------------------------------------------------------------!
-! rpmgetvalreal : renvoie la valeur du second membre de la ligne (str) en real(sp)
+! rpmgetvalreal : returns the RHS of line/string "str" as a real(sp)
 !------------------------------------------------------------------------------!
 subroutine rpmgetvalrealsp(str, res)
-implicit none 
-character(len=*)  :: str  ! ligne contenant la valeur    (entrée)
-real(4)           :: res  ! resultat, valeur de la ligne (sortie)
-
-! -- Declaration des variables internes --
+implicit none
+! -- Inputs --
+character(len=*), intent(in) :: str  ! line holding the value    (input)
+! -- Outputs --
+real(4)        , intent(out) :: res  ! result, value on the line (output)
+! -- Internal variables --
 integer           :: i, iores
 
-! -- Debut de la procedure --
+! -- Body --
 
   i = index(str, '=')
   read(str(i+1:), *, iostat=iores) res
-  if (iores /= 0) call rpmerr("Lecture de nombre réel impossible")
+  if (iores /= 0) call rpmerr("Floating point read failed")
 
 endsubroutine rpmgetvalrealsp
 !------------------------------------------------------------------------------!
 
 
 !------------------------------------------------------------------------------!
-! rpmgetvalreal : renvoie la valeur du second membre de la ligne (str) en real
+! rpmgetvalreal : returns the RHS of line/string "str" as a real
 !------------------------------------------------------------------------------!
 subroutine rpmgetvalrealdp(str, res)
-implicit none 
-character(len=*)  :: str  ! ligne contenant la valeur    (entrée)
-real(8)           :: res  ! resultat, valeur de la ligne (sortie)
-
-! -- Declaration des variables internes --
+implicit none
+! -- Inputs --
+character(len=*), intent(in) :: str  ! line holding the value    (input)
+! -- Outputs --
+real(8)        , intent(out) :: res  ! result, value on the line (output)
+! -- Internal variables --
 integer           :: i, iores
 
-! -- Debut de la procedure --
+! -- Body --
 
   i = index(str, '=')
   read(str(i+1:), *, iostat=iores) res
-  if (iores /= 0) call rpmerr("Lecture de nombre réel impossible")
+  if (iores /= 0) call rpmerr("Floating point read failed")
 
 endsubroutine rpmgetvalrealdp
 !------------------------------------------------------------------------------!
 
 
 !------------------------------------------------------------------------------!
-! rpmgetvalstr : renvoie la valeur du second membre de la ligne (str) en chaine
+! rpmgetvalstr : returns the RHS of line/string "str" as a string
 !------------------------------------------------------------------------------!
 subroutine rpmgetvalstr(str, res)
-implicit none 
-
-! -- Declaration des entrées --
+implicit none
+! -- Inputs --
 character(len=*), intent(in) :: str  ! ligne contenant la valeur
-! -- Declaration des sorties --
+! -- Outputs --
 !character(len=len_trim(str)) :: res  ! resultat, valeur de la ligne
-character(len=dimrpmlig) :: res  ! resultat, valeur de la ligne
-
-! -- Declaration des variables internes --
+character(len=dimrpmlig) &
+               , intent(out) :: res  ! resultat, valeur de la ligne
+! -- Internal variables --
 integer i, iores
 
-! -- Debut de la procedure --
+! -- Body --
 
-  i   = index(str, '=')                   ! extraction de la chaine suivant =
+  i   = index(str, '=')                   ! extraction of the string after "="
   res = trim(adjustl(str(i+1:len(str))))
 
-  i   = len_trim(res)                     ! test de chaine entre quotes  
+  i   = len_trim(res)                     ! test string between quotes
   if ((res(1:1) == rpmquotechar).and.(res(i:i) == rpmquotechar)) then
     res = res(2:i-1)
   endif
@@ -70,24 +71,22 @@ endsubroutine rpmgetvalstr
 
 
 !------------------------------------------------------------------------------!
-! rpmgetvalint : renvoie la valeur du second membre de la ligne (str) en entier
+! rpmgetvalint : returns the RHS of line/string "str" as an integer
 !------------------------------------------------------------------------------!
 subroutine rpmgetvalint(str, res)
-implicit none 
-
-! -- Declaration des entrées --
-character(len=*)  :: str  ! ligne contenant la valeur
-! -- Declaration des sorties --
-integer           :: res  ! resultat, valeur de la ligne
-
-! -- Declaration des variables internes --
+implicit none
+! -- Inputs --
+character(len=*), intent(in) :: str  ! ligne contenant la valeur
+! -- Outputs --
+integer        , intent(out) :: res  ! resultat, valeur de la ligne
+! -- Internal variables --
 integer i, iores
 
-! -- Debut de la procedure --
+! -- Body --
 
   i = index(str, '=')
   read(str(i+1:), *, iostat=iores) res
-  if (iores /= 0) call rpmerr("Lecture d'entier impossible")
+  if (iores /= 0) call rpmerr("Integer read failed")
 
 endsubroutine rpmgetvalint
 !------------------------------------------------------------------------------!
@@ -95,36 +94,36 @@ endsubroutine rpmgetvalint
 
 
 !------------------------------------------------------------------------------!
-! Procedure : rpmgetkeyvalrealsp/dp       Auteur : J. Gressier
-!                                         Date   : Fevrier 2002
-! Fonction                                Modif  : Juillet 2003
-!   Cherche dans le block (block), la clef (key) et renvoie le resultat (res)
-!   attendu de type real. 
+! Procedure : rpmgetkeyvalrealsp/dp       Author : J. Gressier
+!                                         Date   : Feb 2002
+!                                         Modif  : Jul 2003
+! Function :
+!   Searches the "block" for the "key" and returns the expected result ("res")
+!   of type real.
 !
-! Defauts/Limitations/Divers :
-!   La clef est censée être unique dans le bloc donné. Il y a génération
-!   d'une erreur dans le cas contraire. Si la clef n'existe pas, la valeur
-!   par défaut est affectée si elle est fournie.
-!   ! La clef doit être en majuscules !
+! Defaults/Limitations/Misc :
+!   The key is supposed to be unique in the block.
+!   An error is raised otherwise.
+!   If the key is not found, the default value is used if provided.
+!   ! The key must be in UPPERCASE !
 !
 !------------------------------------------------------------------------------!
 subroutine rpmgetkeyvalrealsp(block, key, res, defval)
-implicit none 
+implicit none
 
-! -- Declaration des entrées --
-type(rpmblock), pointer :: block  ! block censé contenir la clef
-character(len=*)        :: key    ! clef à rechercher
-real(4), optional       :: defval ! valeur par défaut
-! -- Declaration des sorties --
-real(4)                 :: res    ! resultat, valeur de la clef
-
-! -- Declaration des variables internes --
+! -- Inputs --
+type(rpmblock), pointer :: block  ! Block looked for the key
+character(len=*)        :: key    ! searched key
+real(4), optional       :: defval ! default value
+! -- Outputs --
+real(4), intent(out)    :: res    ! result, key value
+! -- Internal variables --
 integer ntot, ilig
 
-! -- Debut de la procedure --
+! -- Body --
 
   call seekinrpmblock(block, key, 0, ilig, ntot)
-  
+
   select case(ntot)
     case(0)
       if (present(defval)) then
@@ -138,29 +137,28 @@ integer ntot, ilig
     case(2:)
       call rpmerr("Keyword "//trim(key)//" is multiply defined")
   endselect
-  
+
 endsubroutine rpmgetkeyvalrealsp
 !------------------------------------------------------------------------------!
 
 
 !------------------------------------------------------------------------------!
 subroutine rpmgetkeyvalrealdp(block, key, res, defval)
-implicit none 
+implicit none
 
-! -- Declaration des entrées --
-type(rpmblock), pointer :: block  ! block censé contenir la clef
-character(len=*)        :: key    ! clef à rechercher
-real(8), optional       :: defval ! valeur par défaut
-! -- Declaration des sorties --
-real(8)                 :: res    ! resultat, valeur de la clef
-
-! -- Declaration des variables internes --
+! -- Inputs --
+type(rpmblock), pointer :: block  ! Block looked for the key
+character(len=*)        :: key    ! searched key
+real(8), optional       :: defval ! default value
+! -- Outputs --
+real(8), intent(out)    :: res    ! result, key value
+! -- Internal variables --
 integer ntot, ilig
 
-! -- Debut de la procedure --
+! -- Body --
 
   call seekinrpmblock(block, key, 0, ilig, ntot)
-  
+
   select case(ntot)
     case(0)
       if (present(defval)) then
@@ -174,43 +172,42 @@ integer ntot, ilig
     case(2:)
       call rpmerr("Keyword "//trim(key)//" is multiply defined")
   endselect
-  
+
 endsubroutine rpmgetkeyvalrealdp
 !------------------------------------------------------------------------------!
 
 
 !------------------------------------------------------------------------------!
-! Procedure : rpmgetkeyvalstr             Auteur : J. Gressier
-!                                         Date   : Fevrier 2002
-! Fonction                                Modif  : Novembre 2002
-!   Cherche dans le block (block), la clef (key) et renvoie le resultat (res)
-!   attendu de type character(*). 
+! Procedure : rpmgetkeyvalstr             Author : J. Gressier
+!                                         Date   : Feb 2002
+!                                         Modif  : Nov 2002
+! Function :
+!   Searches the "block" for the "key" and returns the expected result ("res")
+!   of type character(*).
 !
-! Defauts/Limitations/Divers :
-!   La clef est censée être unique dans le bloc donné. Il y a génération
-!   d'une erreur dans le cas contraire. Si la clef n'existe pas, la valeur
-!   par défaut est affectée si elle est fournie.
-!   ! La clef doit être en majuscules !
+! Defaults/Limitations/Misc :
+!   The key is supposed to be unique in the block.
+!   An error is raised otherwise.
+!   If the key is not found, the default value is used if provided.
+!   ! The key must be in UPPERCASE !
 !
 !------------------------------------------------------------------------------!
 subroutine rpmgetkeyvalstr(block, key, res, defval)
-implicit none 
+implicit none
 
-! -- Declaration des entrées --
-type(rpmblock), pointer    :: block  ! block censé contenir la clef
-character(len=*)           :: key    ! clef à rechercher
-character(len=*), optional :: defval ! valeur par défaut
-
-! -- Declaration des sorties --
-character(len=*), intent(out) :: res    ! resultat, valeur de la clef
-
-! -- Declaration des variables internes --
+! -- Inputs --
+type(rpmblock), pointer    :: block  ! Block looked for the key
+character(len=*)           :: key    ! searched key
+character(len=*), optional :: defval ! default value
+! -- Outputs --
+character(len=*), intent(out) :: res    ! result, key value
+! -- Internal variables --
 integer ntot, ilig
 
-! -- Debut de la procedure --
+! -- Body --
 
   call seekinrpmblock(block, key, 0, ilig, ntot)
-  
+
   select case(ntot)
     case(0)
       if (present(defval)) then
@@ -231,37 +228,36 @@ endsubroutine rpmgetkeyvalstr
 
 
 !------------------------------------------------------------------------------!
-! Procedure : rpmgetkeyvalint             Auteur : J. Gressier
-!                                         Date   : Fevrier 2002
-! Fonction                                Modif  : Novembre 2002
-!   Cherche dans le block (block), la clef (key) et renvoie le resultat (res)
-!   attendu de type real. 
+! Procedure : rpmgetkeyvalint             Author : J. Gressier
+!                                         Date   : Feb 2002
+!                                         Modif  : Nov 2002
+! Function :
+!   Searches the "block" for the "key" and returns the expected result ("res")
+!   of type real.
 !
-! Defauts/Limitations/Divers :
-!   La clef est censée être unique dans le bloc donné. Il y a génération
-!   d'une erreur dans le cas contraire. Si la clef n'existe pas, la valeur
-!   par défaut est affectée si elle est fournie.
-!   ! La clef doit être en majuscules !
+! Defaults/Limitations/Misc :
+!   The key is supposed to be unique in the block.
+!   An error is raised otherwise.
+!   If the key is not found, the default value is used if provided.
+!   ! The key must be in UPPERCASE !
 !
 !------------------------------------------------------------------------------!
 subroutine rpmgetkeyvalint(block, key, res, defval)
-implicit none 
+implicit none
 
-! -- Declaration des entrées --
-type(rpmblock), pointer :: block  ! block censé contenir la clef
-character(len=*)        :: key    ! clef à rechercher
-integer, optional       :: defval ! valeur par défaut
-
-! -- Declaration des sorties --
-integer                 :: res    ! resultat, valeur de la clef
-
-! -- Declaration des variables internes --
+! -- Inputs --
+type(rpmblock), pointer :: block  ! Block looked for the key
+character(len=*)        :: key    ! searched key
+integer, optional       :: defval ! default value
+! -- Outputs --
+integer, intent(out)    :: res    ! result, key value
+! -- Internal variables --
 integer ntot, ilig
 
-! -- Debut de la procedure --
+! -- Body --
 
   call seekinrpmblock(block, key, 0, ilig, ntot)
-  
+
   select case(ntot)
     case(0)
       if (present(defval)) then

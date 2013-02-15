@@ -146,11 +146,11 @@ case(init_def)  ! --- initialization through FCT functions ---
 
     ! -- check positivity --
     nc = count(density(1:buf) <= 0._krp)
-    if (nc > 0) call erreur("Initialization", "user parameters produce negative densities (" &
-                            //trim(strof(nc))//" cells)" )
+    if (nc > 0) call erreur("Initialization", "user parameters produce " &
+                            //"negative densities ("//trim(strof(nc))//" cells)" )
     nc = count(pstat(1:buf) <= 0._krp)
-    if (nc > 0) call erreur("Initialization", "user parameters produce negative pressures (" &
-                            //trim(strof(nc))//" cells)" )
+    if (nc > 0) call erreur("Initialization", "user parameters produce " &
+                            //"negative pressures ("//trim(strof(nc))//" cells)" )
     
     ! -- compute velocity (from mach number) --
     if (.not.init%ns%is_velocity) then

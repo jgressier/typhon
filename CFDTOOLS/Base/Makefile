@@ -18,6 +18,7 @@ this.library: $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
 this.f90modules= \
   CONNECTIVITY.f90 \
   ENDIAN.f90       \
+  FTNARGS.f90      \
   IO_UNIT.f90      \
   IOCFD.f90        \
   MESHPREC.f90     \

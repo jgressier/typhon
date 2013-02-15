@@ -12,23 +12,54 @@ use USTMESH
 use XBIN_IO
 use TYPHON_FMT
 use TYFMT_MESH
+use FTNARGS
 
 implicit none
 
 !------------------------------------------------------------------------------!
 integer            :: nargs, iunit
-character(len=160) :: filename, str_opt, str_val
+character(len=256) :: filename, str_opt, str_val
+character(len=16)  :: str_ndir
 type(st_deftyphon) :: deftyphon
-integer(kip)       :: nx, ny
+integer(kip), target  :: ni, nj
+integer(kip), pointer :: ndir
+integer(kip), target  :: niwjmin, niwjmax, njwimin, njwimax
+integer(kip), pointer :: nsdir
+logical, target    :: errisjmin, errisjmax, errjsimin, errjsimax, spliterr
+logical, pointer   :: errdir
 real(krp)          :: lx, ly
 type(st_ustmesh)   :: umesh
-integer(kpp)       :: itype, ielem, type_mesh
+type(v3d), dimension(:,:,:), pointer :: vertex
+type(st_elemvtex), pointer :: elem
+integer(kpp)       :: itype, ielem, type_mesh, type_stor
 !---------------------------
-integer(kip)       :: i, j, iv, ivc, ic, nelem, nvtex, iarg
+logical, parameter :: lincr = .TRUE.
+logical, parameter :: lnoblk = .TRUE.
+integer(kip)       :: ierr
+integer(kip), parameter :: nsplit = 64
+integer(kip), dimension(nsplit), target :: isjmin, isjmax, jsimin, jsimax
+integer(kip), dimension(:), pointer :: wsdir
+integer(kip)       :: dimspl
+character(len=16)  :: strnsp
+character(len=256) :: bcstr
+!---------------------------
+integer(kip)       :: i, j, iv, ic, nelem, nvtex, iarg, nn, ii, jj, iboco
+integer(kip)       :: iva, ivb, ivc, ivd, ivm
 !------------------------------------------------------------------------------!
+integer(kpp), parameter :: ni_default = 100
+integer(kpp), parameter :: nj_default = 100
 integer(kpp), parameter :: mesh_quad = 1
 integer(kpp), parameter :: mesh_tri  = 2
 integer(kpp), parameter :: mesh_tri4 = 4
+logical, target    :: isjminread, isjmaxread, jsiminread, jsimaxread
+logical, pointer   :: wread ! list of windows is read
+logical, target    :: splitjmin, splitjmax, splitimin, splitimax
+logical, pointer   :: sread ! list of splits is read
+logical            :: typeread, fileread
+logical, target    :: niread, njread
+logical, pointer   :: dread
+character, parameter :: sep = ':'
+character          :: ced ! character for expected direction
 
 call print_cfdtools_header("TY2DMESH")
 
@@ -37,75 +68,515 @@ call print_cfdtools_header("TY2DMESH")
 
 ! default values
 
+dimspl = nsplit-2
+strnsp = strof(dimspl)
+
 lx = 1._krp
 ly = 1._krp
-nx = 100
-ny = 100
+ni = 0
+nj = 0
 filename  = ""
-type_mesh = mesh_quad
+type_mesh = 0
 
 nargs    = command_argument_count()
 iarg     = 1
 
+niwjmin = 0
+niwjmax = 0
+njwimin = 0
+njwimax = 0
+
+isjminread = .FALSE.
+isjmaxread = .FALSE.
+jsiminread = .FALSE.
+jsimaxread = .FALSE.
+splitjmin = .FALSE.
+splitjmax = .FALSE.
+splitimin = .FALSE.
+splitimax = .FALSE.
+typeread = .FALSE.
+fileread = .FALSE.
+niread = .FALSE.
+njread = .FALSE.
+
 do while (iarg <= nargs)
-  call get_command_argument(iarg, str_opt)
-  iarg = iarg + 1
-  if     (str_opt == "-nx")  then
-    call get_command_argument(iarg, str_val)
-    iarg = iarg + 1
-    read(str_val, *) nx
-  elseif (str_opt == "-ny")  then
-    call get_command_argument(iarg, str_val)
-    iarg = iarg + 1
-    read(str_val, *) ny
-  elseif (str_opt == "-lx")  then
-    call get_command_argument(iarg, str_val)
-    iarg = iarg + 1
-    read(str_val, *) lx
-  elseif (str_opt == "-ly")  then
-    call get_command_argument(iarg, str_val)
-    iarg = iarg + 1
-    read(str_val, *) ly
-  elseif (str_opt == "-quad") then
+  call read_command_argument(iarg, str_opt, lincr)
+  select case(str_opt)
+  ! number of cells or window sizes array
+  case ("-nx","-ni", &
+        "-ny","-nj")
+    ! change to "ni" or "nj"
+    str_ndir = str_tr(str_opt(2:), 'xy', 'ij')
+    ! other direction
+    ced      = str_tr(str_ndir(2:2), 'ij', 'ji')
+    ! pointers
+    select case(str_ndir)
+    case("ni")
+      ndir => ni
+      dread => niread
+    case("nj")
+      ndir => nj
+      dread => njread
+    endselect
+    ! read number or string
+    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
+    call read_command_argument(iarg, ndir, lincr, ierr, str_opt)
+    ! if number
+    if (ierr==0) then
+      ! check no redefinition
+      if (dread) call cfd_error("too many "//trim(str_ndir)//" definitions")
+      ! set size read
+      dread = .TRUE.
+    ! if string
+    else
+      ! pointers
+      select case(str_opt)
+      case ("jmin")
+        nsdir => niwjmin
+        wsdir => isjmin
+        sread => splitjmin
+        wread => isjminread
+      case ("jmax")
+        nsdir => niwjmax
+        wsdir => isjmax
+        sread => splitjmax
+        wread => isjmaxread
+      case ("imin")
+        nsdir => njwimin
+        wsdir => jsimin
+        sread => splitimin
+        wread => jsiminread
+      case ("imax")
+        nsdir => njwimax
+        wsdir => jsimax
+        sread => splitimax
+        wread => jsimaxread
+      case default
+        call cfd_error("integer, '"//ced//"min' or '"//ced//"max' expected after "// &
+                       trim(str_ndir)//" direction, found '"//trim(str_opt)//"'")
+      endselect
+      ! check string : "j(min|max)" for "ni", "i(min|max)" for "nj"
+      if (str_opt(1:1)/=ced) then
+        call cfd_error("'"//ced//"min' or '"//ced//"max' expected after "// &
+                       trim(str_ndir)//" direction, found '"//trim(str_opt)//"'")
+      endif
+      ! check no redefinition
+      if (wread .OR. sread) call cfd_error("too many "//trim(str_opt)//" definitions")
+      ! set window read
+      wread = .TRUE.
+      ! read window sizes array
+      if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
+      call read_command_argument(iarg, str_val, lincr)
+      call splitstring_integer(str_val, nsdir, wsdir(2:nsplit-1), ierr, sep)
+      if (ierr/=0) call cfd_error("'"//sep//"'-separated list of sizes expected after "// &
+                                  "'"//trim(str_opt)//"', found '"//trim(str_val)//"'")
+      ! check array size
+      if (nsdir<0) then
+        call cfd_error("too many windows: "// &
+                       trim(strof(-nsdir))//" > "//trim(strnsp)//" ( "//trim(str_val)//" )")
+      endif
+      ! sum-up sizes for positions
+      wsdir(1) = 0
+      do ii = 1,nsdir
+        wsdir(ii+1) = wsdir(ii)+wsdir(ii+1)
+      enddo
+    endif
+  ! length in x direction
+  case ("-lx")
+    ! read real
+    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
+    call read_command_argument(iarg, lx, lincr, ierr, str_val)
+    if (ierr/=0) call cfd_error("real expected after '"//trim(str_opt)//"'"// &
+                                ", found '"//trim(str_val)//"'")
+  ! length in y direction
+  case ("-ly")
+    ! read real
+    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
+    call read_command_argument(iarg, ly, lincr, ierr, str_val)
+    if (ierr/=0) call cfd_error("real expected after '"//trim(str_opt)//"'"// &
+                                ", found '"//trim(str_val)//"'")
+  ! split positions array
+  case ("-nisjmin","--nisplitjmin", &
+        "-nisjmax","--nisplitjmax", &
+        "-njsimin","--njsplitimin", &
+        "-njsimax","--njsplitimax")
+    ! change to "-n?s?(min|max)"
+    if (str_opt(1:2)=="--") str_opt = str_opt(2:)
+    if (str_opt(5:8)=="plit") str_opt(5:) = str_opt(9:)
+    ! get "n? ?(min|max)"
+    str_ndir = str_tr(str_opt(2:), "s", " ")
+    ! pointers
+    select case(str_opt)
+    case("-nisjmin")
+      nsdir => niwjmin
+      wsdir => isjmin
+      sread => splitjmin
+      wread => isjminread
+    case("-nisjmax")
+      nsdir => niwjmax
+      wsdir => isjmax
+      sread => splitjmax
+      wread => isjmaxread
+    case("-njsimin")
+      nsdir => njwimin
+      wsdir => jsimin
+      sread => splitimin
+      wread => jsiminread
+    case("-njsimax")
+      nsdir => njwimax
+      wsdir => jsimax
+      sread => splitimax
+      wread => jsimaxread
+    endselect
+    ! check no redefinition
+    if (wread .OR. sread) call cfd_error("too many "//trim(str_opt)//" definitions")
+    ! set split read
+    sread = .TRUE.
+    ! read number of split positions
+    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
+    call read_command_argument(iarg, nsdir, lincr, ierr, str_val)
+    if (ierr/=0) call cfd_error("integer expected after '"//trim(str_opt)//"'"// &
+                                ", found '"//trim(str_val)//"'")
+    ! check array size
+    if (nsdir<0 .OR. nsdir>dimspl) then
+      call cfd_error("too many windows: "//trim(strof(nsdir))//" > "//trim(strnsp))
+    endif
+    ! read split positions array
+    wsdir(1) = 0
+    do ii = 2, nsdir+1
+      if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
+      call read_command_argument(iarg, wsdir(ii), lincr, ierr, str_val)
+      print*,"wsdir("//trim(strof(ii))//") = "//trim(strof(wsdir(ii)))
+      if (ierr/=0) call cfd_error("integers expected after '"//trim(str_opt)//"'"// &
+                                  ", found '"//trim(str_val)//"'")
+    enddo
+  ! mesh types
+  case ("-quad")
+    type_stor = type_mesh
     type_mesh = mesh_quad
-  elseif (str_opt == "-tri") then
+    if (typeread .AND. type_stor/=type_mesh) then
+      call cfd_error("too many mesh types ("//trim(strof(type_stor))// &
+                                        ", "//trim(strof(type_mesh))//")")
+    endif
+    typeread = .TRUE.
+  case ("-tri")
+    type_stor = type_mesh
     type_mesh = mesh_tri
-  elseif (str_opt == "-tri4") then
+    if (typeread .AND. type_stor/=type_mesh) then
+      call cfd_error("too many mesh types ("//trim(strof(type_stor))// &
+                                        ", "//trim(strof(type_mesh))//")")
+    endif
+    typeread = .TRUE.
+  case ("-tri4")
+    type_stor = type_mesh
     type_mesh = mesh_tri4
- else
+    if (typeread .AND. type_stor/=type_mesh) then
+      call cfd_error("too many mesh types ("//trim(strof(type_stor))// &
+                                        ", "//trim(strof(type_mesh))//")")
+    endif
+    typeread = .TRUE.
+  case default
+    if (fileread) then
+      call cfd_error("too many filenames ("//trim(filename)// &
+                                       ", "//trim(str_opt)//")")
+    endif
     filename = basename(trim(str_opt), xtyext_mesh)
+    fileread = .TRUE.
+  endselect
+enddo
+
+! check i dimensions
+if (niread) then
+  ! if i-dimension was read
+  spliterr = .FALSE.
+  ! sum of i-window sizes on jmin must fit if read
+  if (isjminread .AND. ni/=isjmin(niwjmin+1)) spliterr = .TRUE.
+  ! sum of i-window sizes on jmax must fit if read
+  if (isjmaxread .AND. ni/=isjmax(niwjmax+1)) spliterr = .TRUE.
+else
+  ! if i-dimension was not read
+  ! sum of i-window sizes on jmin and jmax must fit if both read
+  spliterr = isjminread .AND. isjmaxread .AND. &
+             isjmin(niwjmin+1)/=isjmax(niwjmax+1)
+endif
+! error
+if (spliterr) then
+  if (niread) write(6,'(x,2a)') 'ni (read) = ',trim(strof(ni))
+  if (isjminread) then
+    write(6,'(x,2a,x,$)') 'ni (jmin) = ',trim(strof(isjmin(niwjmin+1)))
+    ced = '('
+    do i = 1, niwjmin+1
+      write(6,'(2a,$)') ced,trim(strof(isjmin(i)))
+      ced = sep
+    enddo
+    write(6,'(a)') ')'
+    endif
+  if (isjmaxread) then
+    write(6,'(x,2a,x,$)') 'ni (jmax) = ',trim(strof(isjmax(niwjmax+1)))
+    ced = '('
+    do i = 1, niwjmax+1
+      write(6,'(2a,$)') ced,trim(strof(isjmax(i)))
+      ced = sep
+    enddo
+    write(6,'(a)') ')'
+  endif
+  call cfd_error('wrong sizes in I-direction')
+endif
+
+! check j dimensions
+if (njread) then
+  ! if j-dimension was read
+  spliterr = .FALSE.
+  ! sum of j-window sizes on imin must fit if read
+  if (jsiminread .AND. nj/=jsimin(njwimin+1)) spliterr = .TRUE.
+  ! sum of j-window sizes on imax must fit if read
+  if (jsimaxread .AND. nj/=jsimax(njwimax+1)) spliterr = .TRUE.
+else
+  ! if j-dimension was not read
+  ! sum of j-window sizes on imin and imax must fit if both read
+  spliterr = jsiminread .AND. jsimaxread .AND. &
+             jsimin(njwimin+1)/=jsimax(njwimax+1)
+endif
+! error
+if (spliterr) then
+  if (njread) write(6,'(x,2a)') 'nj (read) = ',trim(strof(nj))
+  if (jsiminread) then
+    write(6,'(x,2a,x,$)') 'nj (imin) = ',trim(strof(jsimin(njwimin+1)))
+    ced = '('
+    do j = 1, njwimin+1
+      write(6,'(2a,$)') ced,trim(strof(jsimin(j)))
+      ced = sep
+    enddo
+    write(6,'(a)') ')'
+  endif
+  if (jsimaxread) then
+    write(6,'(x,2a,x,$)') 'nj (imax) = ',trim(strof(jsimax(njwimax+1)))
+    ced = '('
+    do j = 1, njwimax+1
+      write(6,'(2a,$)') ced,trim(strof(jsimax(j)))
+      ced = sep
+    enddo
+    write(6,'(a)') ')'
+  endif
+  call cfd_error('wrong sizes in J-direction')
+endif
+
+! set i-dimension if not read
+if (.NOT. niread) then
+  if     (isjminread) then
+    ni = isjmin(niwjmin+1)
+  elseif (isjmaxread) then
+    ni = isjmax(niwjmax+1)
+  else
+    ni = ni_default
+  endif
+endif
+! if jmin split was read then add last position
+if (splitjmin) then
+  niwjmin = niwjmin+1
+  isjmin(niwjmin+1) = ni
+endif
+! if jmax split was read then add last position
+if (splitjmax) then
+  niwjmax = niwjmax+1
+  isjmax(niwjmax+1) = ni
+endif
+
+! set j-dimension if not read
+if (.NOT. njread) then
+  if     (jsiminread) then
+    nj = jsimin(njwimin+1)
+  elseif (jsimaxread) then
+    nj = jsimax(njwimax+1)
+  else
+    nj = nj_default
+  endif
+endif
+! if imin split was read then add last position
+if (splitimin) then
+  njwimin = njwimin+1
+  jsimin(njwimin+1) = nj
+endif
+! if imax split was read then add last position
+if (splitimax) then
+  njwimax = njwimax+1
+  jsimax(njwimax+1) = nj
+endif
+
+!------------------------------------------------------------
+! default: creates a (NI_DEF)x(NJ_DEF) uniform mesh in 1x1 box
+!------------------------------------------------------------
+
+if (type_mesh==0) type_mesh = mesh_quad
+
+select case(type_mesh)
+case(mesh_quad)
+  print*,'creating '  //trim(strof(ni))//'x'//trim(strof(nj))//' 2D quad mesh'
+case(mesh_tri)
+  print*,'creating 2x'//trim(strof(ni))//'x'//trim(strof(nj))//' 2D tri mesh'
+case(mesh_tri4)
+  print*,'creating 4x'//trim(strof(ni))//'x'//trim(strof(nj))//' 2D tri mesh'
+case default
+  call cfd_error('unknown mesh type')
+endselect
+
+do nn = 1, 4
+  select case(nn)
+  case(1)
+    errdir => errisjmin
+    nsdir => niwjmin
+    wsdir => isjmin
+    ndir => ni
+    str_ndir = 'I'
+    str_opt = 'J-min'
+  case(2)
+    errdir => errisjmax
+    nsdir => niwjmax
+    wsdir => isjmax
+    ndir => ni
+    str_ndir = 'I'
+    str_opt = 'J-max'
+  case(3)
+    errdir => errjsimin
+    nsdir => njwimin
+    wsdir => jsimin
+    ndir => nj
+    str_ndir = 'J'
+    str_opt = 'I-min'
+  case(4)
+    errdir => errjsimax
+    nsdir => njwimax
+    wsdir => jsimax
+    ndir => nj
+    str_ndir = 'J'
+    str_opt = 'I-max'
+  endselect
+  errdir = .FALSE.
+  if (nsdir<=1) nsdir = 1
+  if (.TRUE.) then
+    wsdir(      1) = 0
+    wsdir(nsdir+1) = ndir
+    write(6,'(x,4a,i2)') trim(str_ndir),'-windows [sizes] on ', &
+                         trim(str_opt),' boundary: ',nsdir
+    do ii = 1,nsdir
+      write(6,'(3x,a1,a1,i2,a4,i3,a2,i3,a2,i3,a1)') &
+            trim(str_ndir),'(',ii,') : ',wsdir(ii),' -',wsdir(ii+1), &
+            ' [',wsdir(ii+1)-wsdir(ii),']'
+      if (wsdir(ii+1)<=wsdir(ii)) then
+        errdir = .TRUE.
+        print*,'    ** error **'
+      endif
+    enddo
   endif
 enddo
 
+!errisjmin = .false.
+!if (niwjmin/=0) then
+!  isjmin(        1) = 0
+!  isjmin(niwjmin+1) = ni
+!  print*,'I-splits [sizes] on J-min boundary: '//trim(strof(niwjmin))
+!  do ii = 1,niwjmin
+!    errisjmin = errisjmin .OR. (isjmin(ii)<=0)
+    !isjmin(ii) = isjmin(ii) + isjmin(ii-1)
+!    print*,'    I('//trim(strof(ii))//') = '//trim(strof(isjmin(ii)))// &
+!               ' ['//trim(strof(isjmin(ii)-isjmin(ii-1)))//']'
+!  enddo
+!    print*,'    I('//trim(strof(ii))//') = '//trim(strof(isjmin(ii)))// &
+!               ' ['//trim(strof(isjmin(ii)-isjmin(ii-1)))//']'
+!  errisjmin = errisjmin .OR. (ni<=isjmin(niwjmin))
+!endif
+
+!errisjmax = .false.
+!if (niwjmax/=0) then
+!  isjmax(        1) = 0
+!  isjmax(niwjmax+1) = ni
+!  print*,'I-splits [sizes] on J-max boundary: '//trim(strof(niwjmax))
+!  do ii = 1, niwjmax
+!    errisjmax = errisjmax .OR. (isjmax(ii)<=0)
+    !isjmax(ii) = isjmax(ii) + isjmax(ii-1)
+!    print*,'    I('//trim(strof(ii))//') = '//trim(strof(isjmax(ii)))// &
+!               ' ['//trim(strof(isjmax(ii)-isjmax(ii-1)))//']'
+!  enddo
+!    print*,'    I('//trim(strof(ii))//') = '//trim(strof(isjmax(ii)))// &
+!               ' ['//trim(strof(isjmax(ii)-isjmax(ii-1)))//']'
+!  errisjmax = errisjmax .OR. (ni<=isjmax(niwjmax))
+!endif
+
+!errjsimin = .false.
+!if (njwimin/=0) then
+!  jsimin(        1) = 0
+!  jsimin(njwimin+2) = nj
+!  print*,'J-splits [sizes] on I-min boundary: '//trim(strof(njwimin))
+!  do jj = 1, njwimin+1
+!    errjsimin = errjsimin .OR. (jsimin(jj)<=0)
+    !jsimin(jj) = jsimin(jj) + jsimin(jj-1)
+!    print*,'    J('//trim(strof(jj))//') = '//trim(strof(jsimin(jj)))// &
+!               ' ['//trim(strof(jsimin(jj)-jsimin(jj-1)))//']'
+!  enddo
+!    print*,'    J('//trim(strof(jj))//') = '//trim(strof(jsimin(jj)))// &
+!               ' ['//trim(strof(jsimin(jj)-jsimin(jj-1)))//']'
+!  errjsimin = errjsimin .OR. (nj<=jsimin(njwimin+1))
+!endif
+
+!errjsimax = .false.
+!if (njwimax/=0) then
+!  jsimax(        1) = 0
+!  jsimax(njwimax+2) = nj
+!  print*,'J-splits [sizes] on I-max boundary: '//trim(strof(njwimax))
+!  do jj = 1, njwimax+1
+!    errjsimax = errjsimax .OR. (jsimax(jj)<=0)
+    !jsimax(jj) = jsimax(jj) + jsimax(jj-1)
+!    print*,'    J('//trim(strof(jj))//') = '//trim(strof(jsimax(jj)))// &
+!               ' ['//trim(strof(jsimax(jj)-jsimax(jj-1)))//']'
+!  enddo
+!    print*,'    J('//trim(strof(jj))//') = '//trim(strof(jsimax(jj)))// &
+!               ' ['//trim(strof(jsimax(jj)-jsimax(jj-1)))//']'
+!  errjsimax = errjsimax .OR. (nj<=jsimax(njwimax+1))
+!endif
+
+spliterr = errisjmin .OR. errisjmax .OR. errjsimin .OR. errjsimax
+if (spliterr) then
+  print*,'***'
+  if (errisjmin) print*,'*** I-splits on I-min boundary are wrong-sized'
+  if (errisjmax) print*,'*** I-splits on I-max boundary are wrong-sized'
+  if (errjsimin) print*,'*** J-splits on J-min boundary are wrong-sized'
+  if (errjsimax) print*,'*** J-splits on J-max boundary are wrong-sized'
+  print*,'***'
+  call cfd_error('wrong splits')
+endif
+
 if (filename == "") then
   print*,"command line: ty2dmesh [options] filename.tym"
+  print*
   print*,"available options:"
-  print*,"  -nx 100   : number of I-cells"
-  print*,"  -ny 100   : number of J-cells"
-  print*,"  -lx 1     : domain length"
-  print*,"  -ly 1     : domain height"
-  print*,"  -quad     : generates quad (default)"
-  print*,"  -tri      : generates tri  (split each quad)"
-  print*,"  -tri4     : generates tri  (split each quad into 4 tri)"
+  print*
+  print*,"  -nx|-ni NI : number of I-cells (ex.: -ni 128, default "//trim(strof(ni_default))//")"
+  print*,"  -ny|-nj NJ : number of J-cells (ex.: -nj  64, default "//trim(strof(nj_default))//")"
+  print*
+  print*,"  -nx|-ni jmin|jmax NI(1)"//sep//"..."//sep//"NI(NWI) :"
+  print*,"                   list of I-window lengths on jmin|jmax boundary"
+  print*,"  -ny|-nj imin|imax NJ(1)"//sep//"..."//sep//"NJ(NWJ) :"
+  print*,"                   list of J-window lengths on imin|imax boundary"
+  print*
+  print*,"  -lx LX     : domain length (ex.: -lx 2.5, default 1)"
+  print*,"  -ly LY     : domain height (ex.: -ly 1.5, default 1)"
+  print*
+  print*,"  -nisjmin|--nisplitjmin NSI I(1) ... I(NSI) :"
+  print*,"  -nisjmax|--nisplitjmax NSI I(1) ... I(NSI) :"
+  print*,"  -njsimin|--njsplitimin NSJ J(1) ... J(NSJ) :"
+  print*,"  -njsimax|--njsplitimax NSJ J(1) ... J(NSI) :"
+  print*,"               number of I/J-dir-splits for the I/J-min/max boundary"
+  print*,"               and list of split positions"
+  print*
+  print*,"  -quad      : generates quad (default)"
+  print*,"  -tri       : generates tri  (split each quad)"
+  print*,"  -tri4      : generates tri  (split each quad into 4 tri)"
+  print*
+  print*,repeat('-',40)
   call cfd_error("missing file name")
 else
   filename = trim(filename)//"."//xtyext_mesh
 endif
-
-!------------------------------------------------------------
-! default: creates a 100x100 uniform mesh in 1x1 box
-!------------------------------------------------------------
-
-select case(type_mesh)
-case(mesh_quad)
-  print*,'creating '//trim(strof(nx))//'x'//trim(strof(ny))//' 2D quad mesh'
-case(mesh_tri)
-  print*,'creating 2x'//trim(strof(nx))//'x'//trim(strof(ny))//' 2D tri mesh'
-case(mesh_tri4)
-  print*,'creating 4x'//trim(strof(nx))//'x'//trim(strof(ny))//' 2D tri mesh'
-case default
-  call cfd_error("unknown mesh type")
-endselect
 
 call init_ustmesh(umesh, 1)
 
@@ -116,9 +587,9 @@ print*,'. vertices'
 
 select case(type_mesh)
 case(mesh_quad, mesh_tri)
-  umesh%mesh%nvtex  = (nx+1)*(ny+1)
+  umesh%mesh%nvtex  = (ni+1)*(nj+1)
 case(mesh_tri4)
-  umesh%mesh%nvtex  = (nx+1)*(ny+1)+nx*ny
+  umesh%mesh%nvtex  = (ni+1)*(nj+1)+ni*nj
 case default
   call cfd_error("unknown mesh type")
 endselect
@@ -126,19 +597,23 @@ endselect
 umesh%nvtex       = umesh%mesh%nvtex                   ! nb of vertices (redundant)
 
 allocate(umesh%mesh%vertex(1:umesh%mesh%nvtex, 1, 1))
-do i = 1, nx+1
-  do j = 1, ny+1
-    iv = (i-1)*(ny+1)+j
-    umesh%mesh%vertex(iv, 1, 1) = v3d( (i-1)*(lx/nx), (j-1)*(ly/ny), 0._krp )
+vertex => umesh%mesh%vertex
+do i = 1, ni+1
+  do j = 1, nj+1
+    iv = (i-1)*(nj+1)+j
+    vertex(iv, 1, 1) = v3d( (i-1)*(lx/ni), (j-1)*(ly/nj), 0._krp )
   enddo
 enddo
 if (type_mesh == mesh_tri4) then
-do i = 1, nx
-  do j = 1, ny
-    iv  = (i-1)*(ny+1)+j
-    ivc = (nx+1)*(ny+1)+(i-1)*ny+j
-    umesh%mesh%vertex(ivc, 1,1) = .25_krp*(umesh%mesh%vertex(iv, 1,1)      + umesh%mesh%vertex(iv+1, 1,1)    &
-                                         + umesh%mesh%vertex(iv+ny+1, 1,1) + umesh%mesh%vertex(iv+ny+2, 1,1) )
+do i = 1, ni
+  do j = 1, nj
+    iva = (i-1)*(nj+1)+j   ! lower left  corner
+    ivb = iva+1            ! upper left  corner
+    ivc = iva  +(nj+1)     ! lower right corner
+    ivd = iva+1+(nj+1)     ! upper right corner
+    ivm = (ni+1)*(nj+1)+(i-1)*nj+j
+    vertex(ivm, 1,1) = .25_krp*(vertex(iva, 1,1) + vertex(ivb, 1,1)   &
+                              + vertex(ivc, 1,1) + vertex(ivd, 1,1) )
   enddo
 enddo
 endif
@@ -150,15 +625,15 @@ select case(type_mesh)
 case(mesh_quad)
   print*,'. QUAD elements'
   itype = elem_quad4
-  nelem = nx*ny
+  nelem = ni*nj
 case(mesh_tri)
   print*,'. TRI elements (QUAD split into 2 TRI)'
   itype = elem_tri3
-  nelem = 2*nx*ny
+  nelem = 2*ni*nj
 case(mesh_tri4)
   print*,'. TRI elements (QUAD split into 4 TRI)'
   itype = elem_tri3
-  nelem = 4*nx*ny
+  nelem = 4*ni*nj
 case default
   call cfd_error("unknown mesh type")
 endselect
@@ -170,31 +645,35 @@ if (ielem /= 0) call cfd_error("element section already exists")
 call addelem_genelemvtex(umesh%cellvtex)
 ielem = umesh%cellvtex%nsection
 call new_elemvtex(umesh%cellvtex%elem(ielem), nelem, itype)
-nvtex = umesh%cellvtex%elem(ielem)%nvtex
+elem => umesh%cellvtex%elem(ielem)
+nvtex = elem%nvtex
 
-do i = 1, nx
-  do j = 1, ny
-    ic = (i-1)*ny+j         ! QUAD cell index
-    iv = (i-1)*(ny+1)+j     ! bottom left corner
+do i = 1, ni
+  do j = 1, nj
+    ic  = (i-1)*nj+j       ! QUAD cell index
+    iva = (i-1)*(nj+1)+j   ! lower left  corner
+    ivb = iva+1            ! upper left  corner
+    ivc = iva  +(nj+1)     ! lower right corner
+    ivd = iva+1+(nj+1)     ! upper right corner
     select case(type_mesh)
     case(mesh_quad)
-      umesh%cellvtex%elem(ielem)%elemvtex(ic, 1:nvtex) = (/ iv, iv+(ny+1), iv+(ny+1)+1, iv+1 /)
-      umesh%cellvtex%elem(ielem)%ielem   (ic)          = ic
+      elem%elemvtex(ic, 1:nvtex) = (/ iva, ivc, ivd, ivb /)
+      elem%ielem   (ic)          = ic
     case(mesh_tri)
-      umesh%cellvtex%elem(ielem)%elemvtex(2*ic-1, 1:nvtex) = (/ iv, iv+(ny+1), iv+1 /)
-      umesh%cellvtex%elem(ielem)%ielem   (2*ic-1)          = 2*ic-1
-      umesh%cellvtex%elem(ielem)%elemvtex(2*ic, 1:nvtex)   = (/ iv+1, iv+(ny+1), iv+(ny+1)+1 /)
-      umesh%cellvtex%elem(ielem)%ielem   (2*ic)            = 2*ic
+      elem%elemvtex(2*ic-1, 1:nvtex) = (/ iva, ivc, ivb /)
+      elem%ielem   (2*ic-1         ) = 2*ic-1
+      elem%elemvtex(2*ic  , 1:nvtex) = (/ ivb, ivc, ivd /)
+      elem%ielem   (2*ic           ) = 2*ic
     case(mesh_tri4)
-      ivc = (nx+1)*(ny+1)+(i-1)*ny+j
-      umesh%cellvtex%elem(ielem)%elemvtex(4*ic-3, 1:nvtex) = (/ iv, iv+(ny+1), ivc /)
-      umesh%cellvtex%elem(ielem)%ielem   (4*ic-3)          = 4*ic-3
-      umesh%cellvtex%elem(ielem)%elemvtex(4*ic-2, 1:nvtex) = (/ iv+(ny+1), iv+(ny+1)+1, ivc /)
-      umesh%cellvtex%elem(ielem)%ielem   (4*ic-2)          = 4*ic-2
-      umesh%cellvtex%elem(ielem)%elemvtex(4*ic-1, 1:nvtex) = (/ iv+(ny+1)+1, iv+1, ivc /)
-      umesh%cellvtex%elem(ielem)%ielem   (4*ic-1)          = 4*ic-1
-      umesh%cellvtex%elem(ielem)%elemvtex(4*ic  , 1:nvtex) = (/ iv+1, iv, ivc /)
-      umesh%cellvtex%elem(ielem)%ielem   (4*ic  )          = 4*ic
+      ivm = (ni+1)*(nj+1)+(i-1)*nj+j   ! center vertex
+      elem%elemvtex(4*ic-3, 1:nvtex) = (/ iva, ivc, ivm /)
+      elem%ielem   (4*ic-3         ) = 4*ic-3
+      elem%elemvtex(4*ic-2, 1:nvtex) = (/ ivc, ivd, ivm /)
+      elem%ielem   (4*ic-2         ) = 4*ic-2
+      elem%elemvtex(4*ic-1, 1:nvtex) = (/ ivd, ivb, ivm /)
+      elem%ielem   (4*ic-1         ) = 4*ic-1
+      elem%elemvtex(4*ic  , 1:nvtex) = (/ ivb, iva, ivm /)
+      elem%ielem   (4*ic           ) = 4*ic
     endselect
   enddo
 enddo
@@ -204,36 +683,74 @@ enddo
 !------------------------------
 print*,'. BC faces'
 
-nelem = 2*(nx+ny)
+nelem = 2*(ni+nj)
 call new(umesh%facevtex, nelem, 2)
 umesh%nface     = nelem
 umesh%nface_lim = nelem
 
-do j = 1, ny
-  umesh%facevtex%fils(   j, 1:2) = (/ j, j+1 /)         ! IMIN faces
-  iv = (i-1)*(ny+1)                                ! bottom right corner
-  umesh%facevtex%fils(ny+j, 1:2) = (/ iv+j, iv+j+1 /)   ! IMAX faces
+do j = 1, nj
+  umesh%facevtex%fils(   j, 1:2) = (/    j,    j+1 /)   ! IMIN faces
+  iv = (i-1)*(nj+1)                                     ! bottom right corner
+  umesh%facevtex%fils(nj+j, 1:2) = (/ iv+j, iv+j+1 /)   ! IMAX faces
 enddo
-do i = 1, nx
-  umesh%facevtex%fils(2*ny   +i, 1:2) = (/ (i-1)*(ny+1)+1,     i*(ny+1)+1 /) ! JMIN faces
-  umesh%facevtex%fils(2*ny+nx+i, 1:2) = (/     i*(ny+1),   (i+1)*(ny+1)   /) ! JMAX faces
+do i = 1, ni
+  umesh%facevtex%fils(2*nj   +i, 1:2) = (/ (i-1)*(nj+1)+1,     i*(nj+1)+1 /) ! JMIN faces
+  umesh%facevtex%fils(2*nj+ni+i, 1:2) = (/     i*(nj+1),   (i+1)*(nj+1)   /) ! JMAX faces
 enddo
 
 !------------------------------
 ! BC marks
 !------------------------------
-print*,'. BC marks (IMIN, IMAX, JMIN, JMAX)'
+bcstr = '. BC marks'
+bcstr = trim(bcstr)//' (IMIN'
+if (njwimin>1) bcstr = trim(bcstr)//'[1:'//trim(strof(njwimin))//']'
+bcstr = trim(bcstr)//', IMAX'
+if (njwimax>1) bcstr = trim(bcstr)//'[1:'//trim(strof(njwimax))//']'
+bcstr = trim(bcstr)//', JMIN'
+if (niwjmin>1) bcstr = trim(bcstr)//'[1:'//trim(strof(niwjmin))//']'
+bcstr = trim(bcstr)//', JMAX'
+if (niwjmax>1) bcstr = trim(bcstr)//'[1:'//trim(strof(niwjmax))//']'
+bcstr = trim(bcstr)//')'
 
-call createboco(umesh, 4)       ! creates 4 boco (IMIN, IMAX, JMIN, JMAX)
+print*,trim(bcstr)
 
-call new_ustboco(umesh%boco(1), "IMIN", ny)
-umesh%boco(1)%iface(1:ny) = (/ (j, j=1,ny) /)
-call new_ustboco(umesh%boco(2), "IMAX", ny)
-umesh%boco(2)%iface(1:ny) = (/ (ny+j, j=1,ny) /)
-call new_ustboco(umesh%boco(3), "JMIN", nx)
-umesh%boco(3)%iface(1:nx) = (/ (2*ny+i, i=1,nx) /)
-call new_ustboco(umesh%boco(4), "JMAX", nx)
-umesh%boco(4)%iface(1:nx) = (/ (2*ny+nx+i, i=1,nx) /)
+call createboco(umesh, niwjmin+niwjmax+njwimin+njwimax)   ! creates 4 boco
+                                                          ! (IMIN, IMAX, JMIN, JMAX)
+                                                          ! plus splits
+
+iboco = 0
+do jj = 1, njwimin
+  str_opt = "IMIN"
+  if (njwimin>1) str_opt = "IMIN"//trim(strof(jj))
+  print*,trim(str_opt)
+  iboco = iboco + 1
+  call new_ustboco(umesh%boco(iboco), trim(str_opt), jsimin(jj+1)-jsimin(jj))
+  umesh%boco(iboco)%iface(1:jsimin(jj+1)-jsimin(jj)) = (/ (j, j=jsimin(jj)+1,jsimin(jj+1)) /)
+enddo
+do jj = 1, njwimax
+  str_opt = "IMAX"
+  if (njwimax>1) str_opt = "IMAX"//trim(strof(jj))
+  print*,trim(str_opt)
+  iboco = iboco + 1
+  call new_ustboco(umesh%boco(iboco), trim(str_opt), jsimax(jj+1)-jsimax(jj))
+  umesh%boco(iboco)%iface(1:jsimax(jj+1)-jsimax(jj)) = (/ (nj+j, j=jsimax(jj)+1,jsimax(jj+1)) /)
+enddo
+do ii = 1, niwjmin
+  str_opt = "JMIN"
+  if (niwjmin>1) str_opt = "JMIN"//trim(strof(ii))
+  print*,trim(str_opt)
+  iboco = iboco + 1
+  call new_ustboco(umesh%boco(iboco), trim(str_opt), isjmin(ii+1)-isjmin(ii))
+  umesh%boco(iboco)%iface(1:isjmin(ii+1)-isjmin(ii)) = (/ (2*nj+i, i=isjmin(ii)+1,isjmin(ii+1)) /)
+enddo
+do ii = 1, niwjmax
+  str_opt = "JMAX"
+  if (niwjmax>1) str_opt = "JMAX"//trim(strof(ii))
+  print*,trim(str_opt)
+  iboco = iboco + 1
+  call new_ustboco(umesh%boco(iboco), trim(str_opt), isjmax(ii+1)-isjmax(ii))
+  umesh%boco(iboco)%iface(1:isjmax(ii+1)-isjmax(ii)) = (/ (2*nj+ni+i, i=isjmax(ii)+1,isjmax(ii+1)) /)
+enddo
 
 !------------------------------------------------------------
 ! Create mesh file

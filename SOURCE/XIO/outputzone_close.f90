@@ -31,7 +31,7 @@ integer               :: info
 select case(defio%format)
 
 case(fmt_TECPLOT)
-  call error_stop("'Internal error) Unable to use general output with TECPLOT format")
+  call error_stop("Internal error (outputzone_close): Unable to use general output with TECPLOT format")
 case(fmt_VTK, fmt_VTKBIN, fmt_TYPHON)
   call close_io_unit(defio%iunit)
 case(fmt_CGNS, fmt_CGNS_linked)

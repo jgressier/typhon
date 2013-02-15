@@ -34,6 +34,7 @@ function usage() {
   echo "       -x <patlist>: excludes comma-separated pattern list"
   echo "       -X: ignores builtin exclude pattern list"
   echo "       -L: prints exclude pattern list"
+  echo "       -v: verbose"
   echo "       --: end of options"
   echo
   echo "       <subroutinename>: to be processed"
@@ -92,8 +93,8 @@ excludebtin=(
   writereturn
 )
 
-excludebtin=( $(echo ${excludebtin[@]/#/^}) )
-excludebtin=( $(echo ${excludebtin[@]/%/$}) )
+excludebtin=( "${excludebtin[@]/#/^}" )
+excludebtin=( "${excludebtin[@]/%/$}" )
 
 excludeargs=()
 
@@ -128,17 +129,17 @@ separe[$print2        ]=linehd
 # --- definition of arbo function ---
 ########################################################################
 function arbo() {
-  local myhead myname islast i n file list tabl f isdone app lev
-  typeset -i i n lev
+  local myhead myname islast i n file list tabl f isdone app levl
+  typeset -i i n levl
   myhead="$1" ; shift
   myname="$1" ; shift
   islast="$1" ; shift
-  lev="$1" ; shift
+  levl="$1" ; shift
 #
 # -- check if subroutine already done --
 #
-  for h in "${alreadydone[@]:-}" ; do
-    if [ "$h" = $myname ] ; then
+  for str in "${alreadydone[@]:-}" ; do
+    if [ "$str" = $myname ] ; then
       isdone=1
       break
     fi
@@ -146,34 +147,35 @@ function arbo() {
 #
 # -- check calls if level not too high --
 #
-  if [ $lev -lt $nblevl ] ; then
+  if [ $levl -lt $nblevl ] ; then
     file=$(echo $SOURCEDIR/*/${myname}.f90)
     if [ -f "$file" ] ; then
 #
 # -- build call list if subroutine file exists
 #
-      list=( $(grep '^\([^!]*[) ]\)*call ' $file 2>/dev/null | sed 's/"[^"]*"//g' | \
-               sed 's/(/ (/g;s/call /\ncall /g' | grep call | awk '{print $2}' | \
-               grep -v "${excludeopts[@]}") )
+      rem=
+      list=( $(grep '^\([^!]*[) ]\)*call ' $file 2>/dev/null \
+               | sed 's/"[^"]*"//g'      ${rem:+} \
+               | sed 's/(/ (/g'          ${rem:+} \
+               | sed 's/call /\ncall /g' ${rem:+} \
+               | grep '^call '           ${rem:+} \
+               | awk '{print $2}'        ${rem:+} \
+               | grep -v "${excludeopts[@]}") )
 #
 # -- append (*) if subroutine already done and wrappable --
 #
-      if [ ${#list[@]} -gt 0 ] ; then
-        app=${isdone:+" (*)"}
+      if [ ${#list[@]} -gt 0 ] && [ -n "${isdone:-}" ] ; then
+        app=" ($wrapstr)"
+        wrapstr="*"
       fi
     else
 #
 # -- append (?) if subroutine file not found --
 #
       list=()
-      app=" (?)"
+      app=" ($unknstr)"
+      unknstr="?"
     fi
-  fi
-#
-# -- add subroutine to table of already done subroutines --
-#
-  if [ -z ${isdone:-} ] ; then
-    alreadydone+=("$myname")
   fi
 #
 # -- header print --
@@ -187,7 +189,13 @@ function arbo() {
 #
 # -- check called subroutines if current subroutine not already done --
 #
-  if [ $lev -lt $nblevl ] && [ ${#list[@]} -gt 0 ] && [ -z ${isdone:-} ] ; then
+  if [ $levl -lt $nblevl ] && [ ${#list[@]} -gt 0 ] && [ -z ${isdone:-} ] ; then
+#
+# -- add subroutine to table of already done subroutines --
+#
+    if [ -z ${isdone:-} ] ; then
+      alreadydone+=("$myname")
+    fi
 #
 # -- remove duplicate subroutine names --
 #
@@ -203,7 +211,7 @@ function arbo() {
 #
     n=${#tabl[@]}-1
     for i in ${!tabl[@]} ; do
-      arbo "${myhead}" "${tabl[i]}" $((i==n?1:0)) $((lev+dlev))
+      arbo "${myhead}" "${tabl[i]}" $((i==n?1:0)) $((levl+dlevl))
     done
   fi
 }
@@ -211,7 +219,7 @@ function arbo() {
 ########################################################################
 # --- get options ---
 ########################################################################
-OPTS=$(getopt -o hl:d:prn:o:x:XL -n "$SCRIPTNAME" -- "$@")
+OPTS=$(getopt -o hl:d:prn:o:x:XLv -n "$SCRIPTNAME" -- "$@")
 [[ $? != 0 ]] && usage 1
 eval set -- "$OPTS"
 
@@ -219,27 +227,35 @@ eval set -- "$OPTS"
 # --- parse options ---
 ########################################################################
 print=0
-nbcols=1 ; isnbcl=
-nblevl=1 ; dlev=0
+nbcols=1
+nblevl=1
+dlevl=0
+isnbcl=
 btnexc=
 lstexc=
+verbose=
 while true ; do
   case "$1" in
     -h) usage 0 ;;
-    -l) shift ; nblevl=$1 ; dlev=1 ;;
+    -l) shift ; nblevl=$1 ; dlevl=1 ;;
     -d) shift ; srcdir=$1 ;;
     -p) print=1 ;;
     -r) psopt="-r" ;;
     -n) shift ; nbcols=$1 ; isnbcl=is_set ;;
     -o) shift ; output=$1 ;;
-    -x) shift ; IFS=',' eval read -a x '<<<' "'$1'"
+    -x) shift ; eval IFS="','" read -a x '<<<' "'$1'"
+              # IFS=',' read -a x <<< "$1" : pb reconnaissance syntaxe...
                 excludeargs+=("${x[@]}") ;;
     -X) btnexc=is_set ;;
     -L) lstexc=is_set ;;
+    -v) verbose=is_set ;;
     --) shift ; break ;;
   esac
   shift
 done
+
+wrapstr="*${verbose:+ : previously unwrapped}"
+unknstr="?${verbose:+ : not found}"
 
 if [ ! -z "${srcdir:-}" ] ; then
   if [ ! -d "$srcdir" ] ; then
@@ -288,20 +304,26 @@ fi
 if [ "$isnbcl" ] && [ $print = 0 ] ; then
   warning "<nbcols> is ignored in default output"
 fi
-if [ $print = 1 ] && [ -z "${output:-}" ] ; then
-  error "<outfile> must be provided for postscript output"
-fi
-if [ ! -z "${output:-}" ] ; then
-  [[ $print = 1 ]] && output="${output%.ps}.ps"
-  if [ -f "$output" ] ; then
-    error "<outfile> already exists :" \
-          "\"$output\""
+if [ $print = 1 ] ; then
+  if [ -z "${output:=}" ] ; then
+    error "<outfile> must be provided for postscript output"
+  else
+    output="${output%.ps}.ps"
   fi
 fi
-tmpout="/tmp/$SCRIPTNAME.tmpout.$$"
-while [ -f "$tmpout" ] ; do
-  tmpout="$tmpout."
-done
+if [ ! -z "${output:=}" ] ; then
+  if [ -f "$output" ] ; then
+    error "<outfile> already exists :" "\"$output\""
+  fi
+fi
+# tmpout=$(mktemp /tmp/$SCRIPTNAME.XXXXXXXX.out)
+# older versions of mktemp only allow trailing X's 
+tmptmp=$(mktemp /tmp/${SCRIPTNAME%.sh}.XXXXXXXX)
+if [ $? -ne 0 ] ; then
+  error "could not create temporary file"
+fi
+tmpout=$tmptmp.out
+mv $tmptmp $tmpout
 
 if [ ${#} -eq 0 ] ; then
   usage 0
@@ -311,7 +333,7 @@ listsub=$(grep 'subroutine ' */*.f90 | grep '.f90: *subroutine ')
 
 listsub=( $(echo "$listsub" | sed 's/\.f90:/.f90 /;s/ *(.*//' | awk '{print $3,$1}' | sort | awk '{print $1}') )
 
-listcal=( $(echo "${listsub[@]:-}" | sed 's/\.f90:/.f90 /;s/ *(.*//' | awk '{print $3,$1}' | sort | awk '{print $2}') )
+#listcal=( $(echo "${listsub[@]:-}" | sed 's/\.f90:/.f90 /;s/ *(.*//' | awk '{print $3,$1}' | sort | awk '{print $2}') )
 
 for i in $(seq 20) ; do
   sep=$(printf "%s%s" "${sep:-}" "${separe[$print]}")

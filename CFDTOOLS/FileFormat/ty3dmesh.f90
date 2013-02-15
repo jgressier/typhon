@@ -12,21 +12,28 @@ use USTMESH
 use XBIN_IO
 use TYPHON_FMT
 use TYFMT_MESH
+use FTNARGS
 
 implicit none
 
 !------------------------------------------------------------------------------!
 integer            :: nargs, iunit
-character(len=160) :: filename, str_opt, str_val
+character(len=256) :: filename, str_opt, str_val
 type(st_deftyphon) :: deftyphon
 integer(kip)       :: nx, ny, nz
 real(krp)          :: lx, ly, lz
 type(st_ustmesh)   :: umesh
+type(v3d), dimension(:,:,:), pointer :: vertex
+type(st_elemvtex), pointer :: elem
 integer(kpp)       :: itype, ielem, type_mesh
+!---------------------------
+logical, parameter :: lincr = .TRUE.
+integer(kip)       :: ierr
 !---------------------------
 integer(kip)       :: i, j, k, iv, ivc, ic, nelem, nvtex, iarg, offset, dim, iloc
 !------------------------------------------------------------------------------!
 integer(kpp), parameter :: mesh_hexa = 1
+logical                 :: fileread
 
 call print_cfdtools_header("TY3DMESH")
 
@@ -47,54 +54,62 @@ type_mesh = mesh_hexa
 nargs    = command_argument_count()
 iarg     = 1
 
-do while (iarg <= nargs)
-  call get_command_argument(iarg, str_opt)
-  iarg = iarg + 1
-  if     (str_opt == "-nx")  then
-    call get_command_argument(iarg, str_val)
-    iarg = iarg + 1
-    read(str_val, *) nx
-  elseif (str_opt == "-ny")  then
-    call get_command_argument(iarg, str_val)
-    iarg = iarg + 1
-    read(str_val, *) ny
-  elseif (str_opt == "-nz")  then
-    call get_command_argument(iarg, str_val)
-    iarg = iarg + 1
-    read(str_val, *) nz
-  elseif (str_opt == "-lx")  then
-    call get_command_argument(iarg, str_val)
-    iarg = iarg + 1
-    read(str_val, *) lx
-  elseif (str_opt == "-ly")  then
-    call get_command_argument(iarg, str_val)
-    iarg = iarg + 1
-    read(str_val, *) ly
-  elseif (str_opt == "-lz")  then
-    call get_command_argument(iarg, str_val)
-    iarg = iarg + 1
-    read(str_val, *) lz
-  elseif (str_opt == "-hexa") then
-    type_mesh = mesh_hexa
-  else
-    filename = basename(trim(str_opt), xtyext_mesh)
-  endif
-enddo
+fileread = .FALSE.
 
-if (filename == "") then
-  print*,"command line: ty3dmesh [options] filename.tym"
-  print*,"available options:"
-  print*,"  -nx 50    : number of I-cells"
-  print*,"  -ny 50    : number of J-cells"
-  print*,"  -nz 50    : number of K-cells"
-  print*,"  -lx 1     : domain length"
-  print*,"  -ly 1     : domain height"
-  print*,"  -lz 1     : domain depth"
-  print*,"  -hexa     : generates hexa (default)"
-  call cfd_error("missing file name")
-else
-  filename = trim(filename)//"."//xtyext_mesh
-endif
+do while (iarg <= nargs)
+  call read_command_argument(iarg, str_opt, lincr)
+  select case(str_opt)
+  ! number of cells in x direction
+  case ("-nx")
+    ! read integer
+    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
+    call read_command_argument(iarg, nx, lincr, ierr, str_val)
+    if (ierr/=0) call cfd_error("expected integer after '-nx', found '"//trim(str_val)//"'")
+  ! number of cells in y direction
+  case ("-ny")
+    ! read integer
+    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
+    call read_command_argument(iarg, ny, lincr, ierr, str_val)
+    if (ierr/=0) call cfd_error("expected integer after '-ny', found '"//trim(str_val)//"'")
+  ! number of cells in z direction
+  case ("-nz")
+    ! read integer
+    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
+    call read_command_argument(iarg, nz, lincr, ierr, str_val)
+    if (ierr/=0) call cfd_error("expected integer after '-nz', found '"//trim(str_val)//"'")
+  ! length in x direction
+  case ("-lx")
+    ! read real
+    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
+    call read_command_argument(iarg, lx, lincr, ierr, str_val)
+    if (ierr/=0) call cfd_error("real expected after '"//trim(str_opt)//"'"// &
+                                ", found '"//trim(str_val)//"'")
+  ! length in y direction
+  case ("-ly")
+    ! read real
+    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
+    call read_command_argument(iarg, ly, lincr, ierr, str_val)
+    if (ierr/=0) call cfd_error("real expected after '"//trim(str_opt)//"'"// &
+                                ", found '"//trim(str_val)//"'")
+  ! length in z direction
+  case ("-lz")
+    ! read real
+    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
+    call read_command_argument(iarg, lz, lincr, ierr, str_val)
+    if (ierr/=0) call cfd_error("real expected after '"//trim(str_opt)//"'"// &
+                                ", found '"//trim(str_val)//"'")
+  ! mesh types
+  case ("-hexa")
+    type_mesh = mesh_hexa
+  case default
+    if (fileread) then
+      call cfd_error("too many filenames ("//trim(filename)// &
+                                       ", "//trim(str_opt)//")")
+    endif
+    filename = basename(trim(str_opt), xtyext_mesh)
+    fileread = .TRUE.
+  endselect
+enddo
 
 !------------------------------------------------------------
 ! default: creates a 50x50x50 uniform mesh in 1x1x1 box
@@ -106,6 +121,27 @@ case(mesh_hexa)
 case default
   call cfd_error("unknown mesh type")
 endselect
+
+if (filename == "") then
+  print*,"command line: ty3dmesh [options] filename.tym"
+  print*
+  print*,"available options:"
+  print*
+  print*,"  -nx 50    : number of I-cells"
+  print*,"  -ny 50    : number of J-cells"
+  print*,"  -nz 50    : number of K-cells"
+  print*
+  print*,"  -lx 1     : domain length"
+  print*,"  -ly 1     : domain height"
+  print*,"  -lz 1     : domain depth"
+  print*
+  print*,"  -hexa     : generates hexa (default)"
+  print*
+  print*,repeat('-',40)
+  call cfd_error("missing file name")
+else
+  filename = trim(filename)//"."//xtyext_mesh
+endif
 
 call init_ustmesh(umesh, 1)
 
@@ -124,11 +160,12 @@ endselect
 umesh%nvtex       = umesh%mesh%nvtex                   ! nb of vertices (redundant)
 
 allocate(umesh%mesh%vertex(1:umesh%mesh%nvtex, 1, 1))
+vertex => umesh%mesh%vertex
 do i = 1, nx+1
   do j = 1, ny+1
     do k = 1, nz+1
       iv = unsnode(i, j, k)
-      umesh%mesh%vertex(iv, 1, 1) = v3d( (i-1)*(lx/nx), (j-1)*(ly/ny), (k-1)*(lz/nz) )
+      vertex(iv, 1, 1) = v3d( (i-1)*(lx/nx), (j-1)*(ly/ny), (k-1)*(lz/nz) )
     enddo
   enddo
 enddo
@@ -152,7 +189,8 @@ if (ielem /= 0) call cfd_error("element section already exists")
 call addelem_genelemvtex(umesh%cellvtex)
 ielem = umesh%cellvtex%nsection
 call new_elemvtex(umesh%cellvtex%elem(ielem), nelem, itype)
-nvtex = umesh%cellvtex%elem(ielem)%nvtex
+elem => umesh%cellvtex%elem(ielem)
+nvtex = elem%nvtex
 
 do i = 1, nx
   do j = 1, ny
@@ -160,15 +198,15 @@ do i = 1, nx
       ic = ((i-1)*ny+j-1)*nz+k             ! HEXA cell index
       select case(type_mesh)
       case(mesh_hexa)
-        umesh%cellvtex%elem(ielem)%ielem   (ic)    = ic
-        umesh%cellvtex%elem(ielem)%elemvtex(ic, 1) = unsnode(i,   j,   k) 
-        umesh%cellvtex%elem(ielem)%elemvtex(ic, 2) = unsnode(i+1, j,   k) 
-        umesh%cellvtex%elem(ielem)%elemvtex(ic, 3) = unsnode(i+1, j+1, k) 
-        umesh%cellvtex%elem(ielem)%elemvtex(ic, 4) = unsnode(i,   j+1, k) 
-        umesh%cellvtex%elem(ielem)%elemvtex(ic, 5) = unsnode(i,   j,   k+1) 
-        umesh%cellvtex%elem(ielem)%elemvtex(ic, 6) = unsnode(i+1, j,   k+1) 
-        umesh%cellvtex%elem(ielem)%elemvtex(ic, 7) = unsnode(i+1, j+1, k+1)
-        umesh%cellvtex%elem(ielem)%elemvtex(ic, 8) = unsnode(i,   j+1, k+1)
+        elem%ielem   (ic)    = ic
+        elem%elemvtex(ic, 1) = unsnode(i  , j  , k  ) 
+        elem%elemvtex(ic, 2) = unsnode(i+1, j  , k  ) 
+        elem%elemvtex(ic, 3) = unsnode(i+1, j+1, k  ) 
+        elem%elemvtex(ic, 4) = unsnode(i  , j+1, k  ) 
+        elem%elemvtex(ic, 5) = unsnode(i  , j  , k+1) 
+        elem%elemvtex(ic, 6) = unsnode(i+1, j  , k+1) 
+        elem%elemvtex(ic, 7) = unsnode(i+1, j+1, k+1)
+        elem%elemvtex(ic, 8) = unsnode(i  , j+1, k+1)
       endselect
     enddo
   enddo
@@ -185,6 +223,9 @@ call new(umesh%facevtex, nelem, nvtex)
 umesh%nface     = nelem
 umesh%nface_lim = nelem
 
+!------------------------------
+! BC marks
+!------------------------------
 print*,'. BC marks (IMIN, IMAX, JMIN, JMAX)'
 
 call createboco(umesh, 6)       ! creates 6 boco (IMIN, IMAX, JMIN, JMAX, KMIN, KMAX)

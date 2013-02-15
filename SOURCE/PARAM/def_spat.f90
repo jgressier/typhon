@@ -122,7 +122,7 @@ case(solNS)
   case(sch_hwps_efm)
     call print_info(7,"  numerical flux : EFM (Hanel variant)")
   case(sch_efm)
-    call print_info(7,"  numerical flux : EFM/KFVS)")
+    call print_info(7,"  numerical flux : EFM/KFVS")
   case default
     call erreur("parameters parsing","'"//trim(str)//"' unknown numerical scheme")
   endselect
