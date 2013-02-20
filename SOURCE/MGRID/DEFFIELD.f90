@@ -111,7 +111,7 @@ implicit none
 type(st_field) :: field
 
   if (field%allocres) then
-    call print_info(90,"!!! residuals array already allocated !!!")
+    ! NO MESSAGE // call print_info(90,"!!! residuals array already allocated !!!")
   else
     field%allocres = .true.
     call new_genfield(field%residu, field%etatcons%dim,   field%etatcons%nscal, &
@@ -376,7 +376,7 @@ type(st_field), pointer :: pfield, dfield
 endsubroutine delete_chainedfield
 
 !------------------------------------------------------------------------------
-! ProcÈdure : transfert de champ : rfield reÁoit ifield
+! Routine : transfer of ifield to rfield
 !------------------------------------------------------------------------------
 subroutine transfer_field(rfield, ifield)
 implicit none
@@ -397,6 +397,8 @@ call transfer(rfield%etatprim,ifield%etatprim)
 call transfer(rfield%qref,ifield%qref)
 call transfer(rfield%cell_l,ifield%cell_l)
 call transfer(rfield%cell_r,ifield%cell_r)
+call transfer(rfield%grad_l,ifield%grad_l)
+call transfer(rfield%grad_r,ifield%grad_r)
 call transfer(rfield%gradient,ifield%gradient)
 call transfer(rfield%residu,ifield%residu)
 

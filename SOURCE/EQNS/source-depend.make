@@ -22,8 +22,8 @@ EQNS_OBJ := $(EQNS_MOD:.$(MODEXT)=.o)    \
             calc_flux_efm.o           \
             calc_flux_rusanov.o       \
             calc_flux_inviscid.o      \
-            calc_flux_viscous.o       \
-            calc_flux_viscous_svm.o   \
+            calc_flux_viscous_cell.o  \
+            calc_flux_viscous_face.o  \
             calc_flux_ale.o           \
             calc_source_ext.o         \
             calc_source_mrf.o         \
@@ -48,7 +48,6 @@ EQNS_OBJ := $(EQNS_MOD:.$(MODEXT)=.o)    \
             hres_ns_musclfast.o       \
             hres_ns_muscluns.o        \
             hres_ns_svm.o             \
-            hres_ns_gradsvm.o         \
             init_boco_ns.o            \
             init_ns_ust.o             \
             integration_ns_ust.o      \

@@ -14,6 +14,7 @@ use MGRID
 use MENU_SOLVER
 use MODINFO
 use MENU_ZONECOUPLING
+use MESHALE
 
 implicit none
 
@@ -31,9 +32,35 @@ type(mnu_zonecoupling), dimension(1:ncoupling) &
 
 ! -- Internal variables --
 type(st_grid), pointer :: pgrid
-integer                :: if
+real(krp)              :: curtime
 
-! -- Body --
+! -- BODY --
+
+!----------------------------------
+! Initialization
+
+curtime = info%cycle_start + info%cycle_time
+pgrid => gridlist%first
+do while (associated(pgrid))
+
+  call alloc_res(pgrid%info%field_loc)    ! internal test of allocation
+  if (defsolver%defspat%calc_cellgrad) call alloc_cellgrad(pgrid%info%field_loc)  
+  if (defsolver%defspat%calc_facegrad) call alloc_facegrad(pgrid%info%field_loc)
+
+  select case(pgrid%info%gridtype)
+  case(grid_ust)
+    call ale_meshupdate(pgrid%umesh, defsolver, pgrid%optmem%gradcond_computed, curtime, dt) !1:zone%defsolver%nboco
+  case(grid_str)
+    ! nothing to do
+  case default
+    call error_stop("Development: unknown type of grid (integ_treelevel)")
+  endselect
+
+  pgrid => pgrid%next
+enddo
+
+!----------------------------------
+! Time integration
 
 select case(defsolver%deftime%tps_meth)
 
@@ -44,10 +71,10 @@ case(tps_rk2, tps_rk2ssp, tps_rk3ssp, tps_rk4)
   call treelevel_rungekutta(dt, info, defsolver, gridlist, coupling, ncoupling)
 
 case(tps_dualt)
-  call erreur("development","DUAL TIME method  not yet implemented")
+  call error_stop("Development: DUAL TIME method  not yet implemented (integ_treelevel)")
 
 case default
-  call erreur("Development","unknown integration method (integ_treelevel)")
+  call error_stop("Development: unknown integration method (integ_treelevel)")
 endselect
 
 ! -- update main field of each grid with (last) RHS --

@@ -1,58 +1,61 @@
 !------------------------------------------------------------------------------!
-! Procedure : hres_ns_gradsvm
+! Procedure : calc_gradface_svm
 !                                
 ! Fonction
 !   High order Gradient SVM interpolation 
 !
 !------------------------------------------------------------------------------!
-subroutine hres_ns_gradsvm(defspat, nf, ideb, umesh, fprim, gradL, gradR, ic0)
+subroutine calc_gradface_svm(defspat, umesh, fprim, gradL, gradR)
 
 use TYPHMAKE
 use OUTPUT
-use VARCOM
+use PACKET
 use MENU_NUM
 use USTMESH
 use GENFIELD
-use EQNS
-use GEO3D
-use LIMITER
-use MENU_SOLVER
 use MESHBASE
 use DEFFIELD
-use TENSOR3
-use MATRIX_ARRAY
 
 implicit none
 
 ! -- INPUTS --
 type(mnu_spat)        :: defspat          ! parametres d'integration spatiale
-integer               :: nf, ideb         ! face number and first index
 type(st_ustmesh)      :: umesh            ! unstructured mesh definition
 type(st_genericfield) :: fprim            ! primitive variables fields
-integer(kip)          :: ic0              ! cell field offset
-
 
 ! -- OUTPUTS --
 type(st_genericfield) :: gradL, gradR     ! left & right gradients
 
 ! -- Internal variables --
-integer                   :: i, if, ic, isca, ivec
+integer                   :: i, if, isca, ivec
 integer                   :: isv, icv1, icv2, ncv,icv
 integer                   :: isvface
+integer                   :: ib, buf, nblock
+integer, pointer          :: ista(:), iend(:)  ! starting and ending index
 real(krp)                 :: weights1(1:defspat%svm%cv_split,1:2),weights2(1:defspat%svm%cv_split,1:2)
 real(krp)                 :: metric(1:4)      
 
 ! -- BODY --
+
+call new_buf_index(umesh%nface, face_buffer, nblock, ista, iend)
+
+!$OMP PARALLEL DO private(ib, buf, weights1, weights2, metric) shared (fprim, ista, iend)
+
+do ib = 1, nblock
+
+  buf = iend(ib)-ista(ib)+1
+
 !------------------------------------------------------------------------------
 ! SVM Gradient SCALAR interpolation
 !------------------------------------------------------------------------------
 ncv = defspat%svm%cv_split
+
 do isca = 1, fprim%nscal
+!! PERFO : test switch of both isca / iface loops
+!! PERFO : factorize indirection of weights into buf arrays
+  do i = 1, buf      ! indirection loop on faces (index in packet)
 
-  do i = 1, nf      ! indirection loop on faces (index in packet)
-
-    if = ideb-1+i                    ! (face index)
-    ic = ic0 -1+i
+    if = ista(ib)-1+i                    ! (face index)
 
     ! -- left side --
 
@@ -107,10 +110,9 @@ enddo
 !------------------------------------------------------------------------------
 do ivec = 1, fprim%nvect
 
-  do i = 1, nf      ! indirection loop on faces (index in packet)
+  do i = 1, buf      ! indirection loop on faces (index in packet)
 
-    if = ideb-1+i                    ! (face index)
-    ic = ic0 -1+i
+    if = ista(ib)-1+i                    ! (face index)
 
     ! -- left side --
     isv  = (umesh%facecell%fils(if,1)-1) / ncv + 1
@@ -160,7 +162,7 @@ do ivec = 1, fprim%nvect
      weights2(1:ncv,1:2)=defspat%svm%grad_interp_weights(2*umesh%face_Rtag%fils(if, 1)  , 1:ncv,1:2) !2nd gauss point
      metric(1:4) = umesh%mesh%metricsvm(isv:isv+3  ,1,1)
 
-      do icv= icv1, icv2 ! boucle sur les CV du SV
+      do icv = icv1, icv2 ! boucle sur les CV du SV
       gradR%tabtens(ivec)%tens(i)%mat(1,1) = gradR%tabtens(ivec)%tens(i)%mat(1,1) +.5_krp * (&
         (weights1(icv-icv1+1,1) * fprim%tabvect(ivec)%vect(icv)%x)* metric(1)&
       + (weights1(icv-icv1+1,2) * fprim%tabvect(ivec)%vect(icv)%x)* metric(2)&
@@ -194,8 +196,16 @@ do ivec = 1, fprim%nvect
 enddo
 !------------------------------------------------------------------------------
 
-endsubroutine hres_ns_gradsvm
+  !----------------------------------------------------------------------
+  ! end of nblock
+enddo
+!$OMP END PARALLEL DO
+
+deallocate(ista, iend)
+
+
+endsubroutine calc_gradface_svm
 !------------------------------------------------------------------------------!
 ! Changes history
-! Mar  2008 : created, generic SVM interpolation (now only applied with svm2quad
+! Feb  2013: gradient interpolation
 !------------------------------------------------------------------------------!

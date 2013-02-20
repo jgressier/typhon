@@ -58,8 +58,23 @@ call new_buf_index(umesh%nface, face_buffer, nblock, ista, iend)
 !$OMP PARALLEL private(ib, QL, QR, cg_l, cg_r, gradL, gradR, buf) shared (flux, jacL, jacR)
 
 allocate(  cg_l(face_buffer),   cg_r(face_buffer))
-call new_genfield(gradL, face_buffer, 0, field%etatcons%nscal, field%etatcons%nvect)
-call new_genfield(gradR, face_buffer, 0, field%etatcons%nscal, field%etatcons%nvect)
+
+fluidmodel0: select case(defsolver%defns%typ_fluid)
+case(eqEuler, eqEulerAxi)
+  ! nothing to allocate
+case(eqNSLam, eqRANS)
+  viscscheme: select case(defspat%sch_dis)
+  case(dis_celldif2, dis_cellavg2, dis_cellfull)
+    call new_genfield(gradL, face_buffer, 0, field%etatcons%nscal, field%etatcons%nvect)
+    call new_genfield(gradR, face_buffer, 0, field%etatcons%nscal, field%etatcons%nvect)
+  case(dis_facecentered, dis_facepenalty)
+    ! nothing to do
+  case default
+    call error_stop("internal error: unknown dissipative flux scheme (integration_ns_ust:1)")
+  endselect viscscheme
+case default
+  call error_stop("viscous flux computation: unknown model (integration_ns_ust:1)")
+endselect fluidmodel0
 
 !$OMP DO 
 
@@ -67,7 +82,7 @@ do ib = 1, nblock
 
   buf = iend(ib)-ista(ib)+1
 
-  ! pointers links
+  ! pointers links to face extrapolated values
   QL%density  => field%cell_l%tabscal(1)%scal(ista(ib):iend(ib))
   QR%density  => field%cell_r%tabscal(1)%scal(ista(ib):iend(ib))
   QL%pressure => field%cell_l%tabscal(2)%scal(ista(ib):iend(ib))
@@ -102,34 +117,39 @@ do ib = 1, nblock
   !----------------------------------------------------------------------
   ! computation of VISCOUS fluxes
   !----------------------------------------------------------------------
-  select case(defsolver%defns%typ_fluid)
+  fluidmodel: select case(defsolver%defns%typ_fluid)
 
   case(eqEULER, eqEULERaxi)
     ! nothing to do
 
   case(eqNSLAM)
-    ! -- redirection of cell centers 
-    cg_l(1:buf) = umesh%mesh%centre(umesh%facecell%fils(ista(ib):iend(ib),1), 1, 1)
-    cg_r(1:buf) = umesh%mesh%centre(umesh%facecell%fils(ista(ib):iend(ib),2), 1, 1)
+ 
+    viscousscheme: select case(defspat%sch_dis)
+    case(dis_celldif2, dis_cellavg2, dis_cellfull)
 
-         
-     if(defsolver%defspat%gradmeth.eq.grad_svm) then 
-        call hres_ns_gradsvm(defspat, buf, ista(ib), umesh, field%etatprim, &
-                     gradL, gradR, ista(ib))
+      ! -- redirection of cell centers 
+      cg_l(1:buf) = umesh%mesh%centre(umesh%facecell%fils(ista(ib):iend(ib),1), 1, 1)
+      cg_r(1:buf) = umesh%mesh%centre(umesh%facecell%fils(ista(ib):iend(ib),2), 1, 1)
 
-       call calc_flux_viscous_svm(defsolver, defspat,                        &
-                           buf, ista(ib), umesh%mesh%iface(ista(ib):iend(ib), 1, 1), &
-                           cg_l, cg_r, QL, QR, gradL, gradR, flux)
-     else
-      ! -- redirection of gradients
+      ! -- redirection of gradients (cell to face)
       call distrib_field(field%gradient, umesh%facecell, ista(ib), iend(ib), &
                        gradL, gradR, 1)
 
-      call calc_flux_viscous(defsolver, defspat,                        &
+      call calc_flux_viscous_cell(defsolver, defspat,                     &
                            buf, ista(ib), umesh%mesh%iface(ista(ib):iend(ib), 1, 1), &
                            cg_l, cg_r, QL, QR, gradL, gradR, flux,        &
                            calc_jac, jacL, jacR)
-     endif
+
+    case(dis_facecentered, dis_facepenalty)
+
+       call calc_flux_viscous_face(defsolver, defspat,                        &
+                           buf, ista(ib), umesh%mesh%iface(ista(ib):iend(ib), 1, 1), &
+                           cg_l, cg_r, QL, QR, gradL, gradR, flux) 
+
+    case default
+      call error_stop("internal error: unknown dissipative flux scheme (integration_ns_ust:2)")
+    endselect viscousscheme
+              
   case(eqNSLAMaxi)
      call error_stop("development: axisymmetric NS not implemented")   
 
@@ -137,8 +157,8 @@ do ib = 1, nblock
     call error_stop("development: turbulence modeling not implemented")   
 
   case default
-    call error_stop("viscous flux computation: unknown model")
-  endselect
+    call error_stop("viscous flux computation: unknown model (integration_ns_ust:2)")
+  endselect fluidmodel
 
   !----------------------------------------------------------------------
   ! end of nblock

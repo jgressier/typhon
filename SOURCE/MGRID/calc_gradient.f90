@@ -73,7 +73,7 @@ allocate(dcg(3,nf))
 allocate(rhs(3,nc*dim))    ! allocation
 
 select case(defspat%gradmeth)
-case(grad_lsq)
+case(cellgrad_lsq)
   !$OMP PARALLEL DO private(if, ic1, ic2)
   do if = 1, nf
     ic1  = grid%umesh%facecell%fils(if,1)
@@ -81,7 +81,7 @@ case(grad_lsq)
     dcg(1:3,if) = tab(grid%umesh%mesh%centre(ic2,1,1) - grid%umesh%mesh%centre(ic1,1,1))
   enddo
   !$OMP END PARALLEL DO
-case(grad_lsqw)
+case(cellgrad_lsqw)
   !$OMP PARALLEL DO private(if, ic1, ic2, dvec)
   do if = 1, nf
     ic1  = grid%umesh%facecell%fils(if,1)
@@ -91,7 +91,7 @@ case(grad_lsqw)
   enddo
   !$OMP END PARALLEL DO
 case default
-  call erreur("Internal error", "unknown GRADIENT computation method")
+  call error_stop("Internal error: unknown GRADIENT computation method")
 endselect
 
 !-----------------------------------------------------------------------------

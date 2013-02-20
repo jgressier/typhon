@@ -58,13 +58,13 @@ grid%optmem%gradcond_computed = .true.
 !    (toutes les faces, meme limites, doivent avoir un centre de cellule)
 
 select case(defspat%gradmeth)
-case(grad_lsq)
+case(cellgrad_lsq)
   do if = 1, nf
     ic1 = grid%umesh%facecell%fils(if,1)
     ic2 = grid%umesh%facecell%fils(if,2)
     dcg(if) = grid%umesh%mesh%centre(ic2,1,1) - grid%umesh%mesh%centre(ic1,1,1) 
   enddo
-case(grad_lsqw)
+case(cellgrad_lsqw)
   do if = 1, nf
     ic1  = grid%umesh%facecell%fils(if,1)
     ic2  = grid%umesh%facecell%fils(if,2)
@@ -72,7 +72,7 @@ case(grad_lsqw)
     dcg(if) = dcg(if)/sqrabs(dcg(if))
   enddo
 case default
-  call erreur("Internal error", "unknown GRADIENT computation method")
+  call error_stop("Internal error: unknown GRADIENT computation method (precalc_grad_lsq)")
 endselect
 
 

@@ -28,7 +28,7 @@ use MATRIX_ARRAY
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(mnu_solver)      :: defsolver        ! parametres de definition du solveur
 type(mnu_spat)        :: defspat          ! parametres d'integration spatiale
 integer               :: nflux            ! nombre de flux (face) a calculer
@@ -43,12 +43,11 @@ type(v3d),         dimension(1:nflux) &
 integer(kip)          :: ideb
 logical               :: calc_jac         ! choix de calcul de la jacobienne
 
-
-! -- Declaration des sorties --
+! -- OUTPUTS --
 real(krp), dimension(nflux, defsolver%nequat) :: flux
 type(st_mattab)         :: jacL, jacR  ! jacobiennes associees (gauche et droite)
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 real(krp), parameter      :: theta = 1._krp
 real(krp), dimension(:), allocatable &
                           :: kH, dHR, dHL, dLR  ! voir allocation
@@ -64,7 +63,8 @@ real(krp)                 :: id, pscal          ! reels temporaires
 type(v3d)                 :: vi                 ! vecteur intermediaire
 integer                   :: if
 
-! -- Debut de la procedure --
+! -- BODY --
+
 allocate( kH(nflux))    ! conductivite en H, centre de face
 allocate(dHR(nflux))    ! distance HR, rapportee a HL+HR
 allocate(dHL(nflux))    ! distance HL, rapportee a HL+HR
@@ -99,7 +99,7 @@ case(mat_KNL)
   enddo
 
 case(mat_XMAT)
-  call erreur("Material properties","Fully non linear material not yet implemented")
+  call error_stop("Material properties: Fully non linear material not yet implemented")
 
 endselect
 
@@ -117,18 +117,18 @@ case(matiso_ISO)
   ! k(H) = k(T(H)) avec T(H) = a.T(L) + b.T(R)
 
   select case(defspat%sch_dis)
-  case(dis_dif2) ! formulation compacte, non consistance si vLR et n non alignes
+  case(dis_celldif2) ! formulation compacte, non consistance si vLR et n non alignes
     do if = 1, nflux
       flux(if,1)  = - kH(if) * (cell_r(if) - cell_l(if)) &
                              * (vLR(if).scal.face(if)%normale) / (dLR(if)**2)
     enddo
 
-  case(dis_avg2) ! formulation consistante, moyenne ponderee des gradients
+  case(dis_cellavg2) ! formulation consistante, moyenne ponderee des gradients
     do if = 1, nflux
       flux(if,1)  = - kH(if) * ((dHL(if)*grad_r(if) + dHR(if)*grad_l(if)).scal.face(if)%normale)
     enddo
 
-  case(dis_full)
+  case(dis_cellfull)
     do if = 1, nflux
       pscal = (vLR(if).scal.face(if)%normale) / (dLR(if)**2)
       Fcomp = pscal * (cell_r(if) - cell_l(if))
@@ -140,7 +140,7 @@ case(matiso_ISO)
   endselect
 
 case(matiso_ANISO)
-  call erreur("Development", "Constant anisotropy not yet implemented")
+  call error_stop("Development: Constant anisotropy not yet implemented")
 
 case(matiso_UDF)
   !--------------------------------------------------------------
@@ -162,7 +162,7 @@ case(matiso_UDF)
   deallocate(anisok)
 
 case default
-  call erreur("Development", "Undefined isotropic/anisotropic definition")
+  call error_stop("Development: Undefined isotropic/anisotropic definition")
 endselect
 
 !--------------------------------------------------------------
@@ -176,12 +176,9 @@ if (calc_jac) then
   enddo
 endif
 
-
 deallocate(kH, dHR, dHL, dLR, vLR)
 
-
 endsubroutine calc_kdif_flux
-
 !------------------------------------------------------------------------------!
 ! Change history
 !

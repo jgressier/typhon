@@ -38,20 +38,13 @@ character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
 call print_info(5,"- Definition of spatial numerical parameters")
 
-! -- Initialisation --
-
-defspat%calc_grad = .false.
-
 ! -- Recherche du BLOCK:SPAT_PARAM --
 
 pblock => block
 call seekrpmblock(pblock, "SPAT_PARAM", 0, pcour, nkey)
 
 ! DEV : est-ce que la presence du bloc est obligatoire ?
-if (nkey /= 1) call erreur("parameters parsing", &
-                           "SPAT_PARAM block not found")
-
-defspat%calc_grad = .false.
+if (nkey /= 1) call error_stop("parameters parsing: SPAT_PARAM block not found")
 
 select case(defsolver%typ_solver)
 
@@ -124,7 +117,7 @@ case(solNS)
   case(sch_efm)
     call print_info(7,"  numerical flux : EFM/KFVS")
   case default
-    call erreur("parameters parsing","'"//trim(str)//"' unknown numerical scheme")
+    call error_stop("parameters parsing: "//trim(str)//"' unknown numerical scheme")
   endselect
 
   !-----------------------------------------
@@ -158,24 +151,17 @@ case(solNS)
   case(jac_vlh)
     call print_info(7,"  approximate jacobian: van Leer / Hanel")
    case default
-    call erreur("parameters parsing","unknown jacobian")
-  endselect
-
-  !-----------------------------------------
-  ! Dissipative flux method
-
-  select case(defsolver%defns%typ_fluid)
-  case(eqEULER, eqEULERaxi)
-  case(eqNSLAM, eqRANS)
-    call get_dissipmethod(pcour, "DISSIPATIVE_FLUX", defspat)
-  case default
-    call erreur("parameters parsing","unexpected fluid dynamical model")
+    call error_stop("parameters parsing: unknown jacobian")
   endselect
 
   !-----------------------------------------
   ! High resolution method
 
-  defspat%method = cnull
+  defsolver%defspat%calc_cellgrad = .false.
+  defsolver%defspat%calc_facegrad = .false.
+  defspat%gradmeth = gradnone
+  defspat%method   = cnull
+  
   call rpmgetkeyvalstr(pcour, "HIGHRES", str, "NONE")
   if (samestring(str,"NONE"))       defspat%method = hres_none
   if (samestring(str,"MUSCL"))      defspat%method = hres_muscl
@@ -187,7 +173,7 @@ case(solNS)
   if (samestring(str,"SDM"))        defspat%method = hres_sdm
   
   if (defspat%method == cnull) &
-    call erreur("parameters parsing","unexpected high resolution method")
+    call error_stop("parameters parsing: unexpected high resolution method")
     
   select case(defspat%method)
 
@@ -204,9 +190,6 @@ case(solNS)
     ! -- High resolution order
     !call rpmgetkeyvalint(pcour, "ORDER", defspat%order, 2_kpp)
 
-    ! -- High resolution gradient computation                  
-    call get_gradientmethod(pcour, defspat)
-
     defspat%muscl%limiter = cnull
     call rpmgetkeyvalstr(pcour, "LIMITER", str, "VAN_ALBADA")
     if (samestring(str,"NONE"))        defspat%muscl%limiter = lim_none
@@ -222,7 +205,7 @@ case(solNS)
     call print_info(7,"    limiter     : "//trim(str))
 
     if (defspat%muscl%limiter == cnull) &
-      call erreur("parameters parsing","unexpected high resolution limiter")
+      call error_stop("parameters parsing: unexpected high resolution limiter ")
 
   ! --------------- SVM methods ---------------------
   case(hres_svm)
@@ -301,7 +284,7 @@ case(solNS)
       defmesh%splitmesh = split_svm4kris2
 
     case default
-      call erreur("parameters parsing","unknown SVM method")
+      call error_stop("parameters parsing: unknown SVM method")
     endselect
     
     call init_svmparam(defspat%svm)
@@ -318,13 +301,13 @@ case(solNS)
     case(svm_fluxF)
       call print_info(7,"  SVM flux on Gauss points: averaged fluxes")
     case default
-      call erreur("parameters parsing","unknown method for SVM flux on Gauss points")
+      call error_stop("parameters parsing: unknown method for SVM flux on Gauss points")
   endselect
 
     endif
 
   case default
-    call erreur("parameters parsing","unexpected high resolution method (reading limiter)")
+    call error_stop("parameters parsing: unexpected high resolution method (reading limiter)")
   endselect
 
   ! --- Post-Limitation method ---
@@ -338,49 +321,60 @@ case(solNS)
   if (samestring(str,"BARTH"))       defspat%postlimiter = postlim_barth
   if (samestring(str,"SUPERBARTH"))  defspat%postlimiter = postlim_superbarth
   if (defspat%postlimiter == -1) &
-       call erreur("parameters parsing","unexpected post limiter")
+       call error_stop("parameters parsing: unexpected post limiter")
   call print_info(7,"    post-limiter: "//trim(str))
 
+  !-----------------------------------------
+  ! Gradient and Dissipative flux method
+
+  select case(defsolver%defns%typ_fluid)
+  case(eqEULER, eqEULERaxi)
+    defspat%sch_dis = dis_noflux
+    call get_gradientmethod(pcour, defspat)
+  case(eqNSLAM, eqRANS)
+    call get_dissipmethod(pcour, "DISSIPATIVE_FLUX", defspat)
+  case default
+    call error_stop("parameters parsing: unexpected fluid dynamical model")
+  endselect
+
   ! ---  Gradient evaluation for SVM --------------- 
+  ! must be consistently handled when asking for dissipative method
 
-if (defspat%gradmeth.eq.grad_svm) then
-     if (defspat%svm%sv_order.ge.3) then
-      call init_gradsvmweights(defspat%svm)
-     else
-      call print_info(7,"  SVM2: gradient evaluation changed to GAUSS Method")
-    defspat%gradmeth=grad_gauss
-      endif
-endif
-
-
-
-
+!  if (defspat%gradmeth.eq.grad_svm) then
+!    if (defspat%svm%sv_order.ge.3) then
+!      call init_gradsvmweights(defspat%svm)
+!    else
+!      call print_info(7,"  SVM2: gradient evaluation changed to GAUSS Method")
+!      defspat%gradmeth=grad_gauss
+!    endif
+!  endif
 
 case(solKDIF)
 
+  defspat%calc_cellgrad = .false.
+  defspat%calc_facegrad = .false.
   defspat%calc_hresQ = .false.
 
   ! -- Methode de calcul des flux dissipatifs --
+  defspat%method = hres_none 
   call get_dissipmethod(pcour, "DISSIPATIVE_FLUX", defspat)
 
 case(solVORTEX)
 
 case default
-  call erreur("development","unknown solver (defspat)")
+  call error_stop("internal error: unknown solver (defspat)")
 endselect
 
-
 endsubroutine def_spat
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! Nov  2002 : creation, lecture de bloc vide
-! Oct  2003 : choix de la methode de calcul des flux dissipatifs
-! Mar  2004 : traitement dans le cas solVORTEX
-! Jul  2004 : NS solver parameters
-! Nov  2004 : NS high resolution parameters
-! Jan  2006 : basic parameter routines moved to MENU_NUM
-! Apr  2007 : add SVM method parameters
+! nov  2002 : creation, lecture de bloc vide
+! oct  2003 : choix de la methode de calcul des flux dissipatifs
+! mars 2004 : traitement dans le cas solVORTEX
+! july 2004 : NS solver parameters
+! nov  2004 : NS high resolution parameters
+! jan  2006 : basic parameter routines moved to MENU_NUM
+! apr  2007 : add SVM method parameters
 ! Feb  2013 : kinetic/beta evaluations for hllc and hlle
 !------------------------------------------------------------------------------!

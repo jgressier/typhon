@@ -1,11 +1,11 @@
 !------------------------------------------------------------------------------!
-! Procedure : calc_flux_viscous                 
+! Procedure : calc_flux_viscous_face
 !
 ! Function
 !   Computation of VISCOUS flux for NS equations with SVM method on gauss points
 !
 !------------------------------------------------------------------------------!
-subroutine calc_flux_viscous_svm(defsolver, defspat, nflux, ideb, face, cg_l, cg_r, &
+subroutine calc_flux_viscous_face(defsolver, defspat, nflux, ista, face, cg_l, cg_r, &
                              QL, QR, gradL, gradR, flux)
 use TYPHMAKE
 use OUTPUT
@@ -24,7 +24,7 @@ implicit none
 type(mnu_solver)      :: defsolver        ! solver parameters
 type(mnu_spat)        :: defspat          ! space integration parameters
 integer               :: nflux            ! number of fluxes
-integer               :: ideb             ! index of first flux
+integer               :: ista             ! index of first flux/gradients
 type(st_face), dimension(1:nflux) &
                       :: face             ! geom. data of faces
 type(v3d),     dimension(1:nflux) &
@@ -56,16 +56,16 @@ type(v3d)  :: sigma_n
 real(krp)  :: sigma_vn, addvisc
 real(krp)  :: r_PG, cp, conduct
 real(krp)  :: id
-integer    :: if, i
+integer    :: if, i, iend
 
-! -- Body --
+! -- BODY --
 
-
+iend = ista-1+nflux
 
 ! -- Pre-processing --
 r_PG = defsolver%defns%properties(1)%r_const        ! perfect gas constant
-cp = defsolver%defns%properties(1)%gamma * r_PG / &
-     (defsolver%defns%properties(1)%gamma - 1)      ! heat capacity
+cp   = defsolver%defns%properties(1)%gamma * r_PG / &
+      (defsolver%defns%properties(1)%gamma - 1)      ! heat capacity
 
 !-------------------
 
@@ -80,21 +80,19 @@ rhoH(1:nflux) = 0.5_krp *(QL%density(1:nflux) + QR%density(1:nflux))
 
 ! computation of temperature gradient :
 ! grad(T) = 1 / (density * r) * grad(P) - P/(r * density**2) * grad(density)
-gradTL(1:nflux) = 1._krp/(QL%density(1:nflux) * r_PG) * gradL%tabvect(2)%vect(1:nflux) - &
+gradTL(1:nflux) = 1._krp/(QL%density(1:nflux) * r_PG) * gradL%tabvect(2)%vect(ista:iend) - &
      QL%pressure(1:nflux) / (QL%density(1:nflux)**2 * r_PG) * &
-     gradL%tabvect(1)%vect(1:nflux)
-gradTR(1:nflux) = 1._krp/(QR%density(1:nflux) * r_PG) * gradR%tabvect(2)%vect(1:nflux) - &
+     gradL%tabvect(1)%vect(ista:iend)
+gradTR(1:nflux) = 1._krp/(QR%density(1:nflux) * r_PG) * gradR%tabvect(2)%vect(ista:iend) - &
      QR%pressure(1:nflux) / (QR%density(1:nflux)**2 * r_PG) * &
-     gradR%tabvect(1)%vect(1:nflux)
+     gradR%tabvect(1)%vect(ista:iend)
 
 !enddo
 
 call calc_viscosity(defsolver%defns%properties(1), rhoH(1:nflux), TH(1:nflux), mu(1:nflux))
 
 ! velocity gradient at the face
-gradvH(1:nflux) = 0.5_krp *(gradL%tabtens(1)%tens+gradR%tabtens(1)%tens)
-
-
+gradvH(1:nflux) = 0.5_krp *(gradL%tabtens(1)%tens(ista:iend)+gradR%tabtens(1)%tens(ista:iend))
 
 ! viscous, heat flux
 ! Flux = (sigma . V) . normal + conductivity . grad (T) . normal
@@ -115,27 +113,22 @@ do if = 1, nflux
 
 
   ! momentum flux
-  flux%tabvect(1)%vect(ideb-1+if) = flux%tabvect(1)%vect(ideb-1+if) - (sigma_n)
+  flux%tabvect(1)%vect(ista-1+if) = flux%tabvect(1)%vect(ista-1+if) - (sigma_n)
 
   ! energy flux
-  flux%tabscal(2)%scal(ideb-1+if) = flux%tabscal(2)%scal(ideb-1+if) - sigma_vn
+  flux%tabscal(2)%scal(ista-1+if) = flux%tabscal(2)%scal(ista-1+if) - sigma_vn
 
   ! heat conduction term
   ! thermal conductivity
   conduct = mu(if) * cp / defsolver%defns%properties(1)%prandtl
-  flux%tabscal(2)%scal(ideb-1+if) = flux%tabscal(2)%scal(ideb-1+if)  &
+  flux%tabscal(2)%scal(ista-1+if) = flux%tabscal(2)%scal(ista-1+if)  &
                                      - conduct * gradTH(if)
 
 enddo
 
-
-
-!deallocate()
-
-
-endsubroutine calc_flux_viscous_svm
+endsubroutine calc_flux_viscous_face
 
 !------------------------------------------------------------------------------!
 ! Changes history
-!
+! Feb  2013: created 
 !------------------------------------------------------------------------------!

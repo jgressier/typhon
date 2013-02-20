@@ -19,7 +19,7 @@ use GENFIELD
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 
 integer                      :: nf         ! number of parsed faces
 integer(kpp)                 :: meth       ! method for gradient interpolation
@@ -31,11 +31,11 @@ type(st_face), dimension(nf) :: face       ! geomtrical face array
 real(krp), dimension(nf) ::  qL,  qR   ! left and right quantities (at cell centers)
 type(v3d), dimension(nf) :: dqL, dQR   ! left and right gradients  (at cell centers)
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 real(krp), dimension(nf) :: dqH        ! interpolated face gradients 
 
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 real(krp) :: dLR2(nf)
 real(krp) :: pscal, Favg, Fcomp
 type(v3d) :: vi
@@ -43,10 +43,10 @@ integer   :: if, k, icl, icr
 
 real(krp) :: theta = 1._krp
 
-! -- Debut de la procedure --
+! -- BODY --
 
 if (nf > taille_buffer) then
-  call erreur("Development","interpolation should be used after splitting into packets")
+  call error_stop("Development: interpolation should be used after splitting into packets")
 endif
 
 !--------------------------------------------------------------
@@ -59,7 +59,7 @@ endif
 
 select case(meth)
 
-case(dis_dif2) ! compact formulation, non consistent if vLR and (n) are not aligned
+case(dis_celldif2) ! compact formulation, non consistent if vLR and (n) are not aligned
 
   dLR2(1:nf) = sqrabs(vLR(1:nf))
 
@@ -67,13 +67,13 @@ case(dis_dif2) ! compact formulation, non consistent if vLR and (n) are not alig
     dqH(if)  =  (qR(if) - qL(if)) / dLR2(if) * (vLR(if).scal.face(if)%normale)
   enddo
 
-case(dis_avg2) ! consistent formulation, only weighted average of gradients
+case(dis_cellavg2) ! consistent formulation, only weighted average of gradients
 
   do if = 1, nf
     dqH(if)  = ((ndHL(if)*dqR(if) + ndHR(if)*dqL(if)).scal.face(if)%normale)
   enddo
 
-case(dis_full) ! full consistent formulation, averaged between compact and averaged formulations
+case(dis_cellfull) ! full consistent formulation, averaged between compact and averaged formulations
 
   dLR2(1:nf) = sqrabs(vLR(1:nf))
 

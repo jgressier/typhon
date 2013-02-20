@@ -432,6 +432,30 @@ endsubroutine gfield_transfer_t
 
 
 !------------------------------------------------------------------------------
+! Routine : link pfield to reffield with stagger index
+!------------------------------------------------------------------------------
+!subroutine gfield_link(pfield, reffield, ind)
+!implicit none
+!type(st_genericfield) :: pfield, reffield
+!integer               :: ind, ip
+!
+!do ip = 1, reffield%nscal
+!  pfield%tabscal(ip)%scal => reffield%tabscal(ip)%scal(ind)
+!enddo
+!
+!do ip = 1, reffield%nvect
+!  pfield%tabvect(ip)%vect => reffield%tabvect(ip)%vect(ind)
+!enddo
+!
+!do ip = 1, reffield%ntens
+!  pfield%tabtens(ip)%tens => reffield%tabtens(ip)%tens(ind)
+!enddo
+!
+!endsubroutine gfield_link
+
+
+
+!------------------------------------------------------------------------------
 ! Computing routine : gfield_scale : X = a*X
 !------------------------------------------------------------------------------
 subroutine gfield_scale(x, a)

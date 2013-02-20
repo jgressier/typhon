@@ -1,11 +1,11 @@
 !------------------------------------------------------------------------------!
-! Procedure : calc_flux_viscous                 Authors : J. Gressier
+! Procedure : calc_flux_viscous_cell                 Authors : J. Gressier
 !
 ! Function
 !   Computation of VISCOUS flux for NS equations
 !
 !------------------------------------------------------------------------------!
-subroutine calc_flux_viscous(defsolver, defspat, nflux, ideb, face, cg_l, cg_r, &
+subroutine calc_flux_viscous_cell(defsolver, defspat, nflux, ideb, face, cg_l, cg_r, &
                              QL, QR, gradL, gradR, flux,    &
                              calc_jac, jacL, jacR)
 use TYPHMAKE
@@ -160,7 +160,7 @@ endif
 !deallocate()
 
 
-endsubroutine calc_flux_viscous
+endsubroutine calc_flux_viscous_cell
 
 !------------------------------------------------------------------------------!
 ! Changes history

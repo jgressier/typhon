@@ -71,35 +71,41 @@ enddo
 ! -------------------------------------------------------------------------------
 ! GRADIENTS OF EACH GRID OF ONE LEVEL (only if necessary)
 
-if (defsolver%defspat%calc_grad) then
+if (defsolver%defspat%gradmeth /= gradnone) then
+print*,'calc grad:',defsolver%defspat%calc_cellgrad, defsolver%defspat%calc_facegrad
+pgrid => gridlist%first
+do while (associated(pgrid))
 
-  pgrid => gridlist%first
-  do while (associated(pgrid))
-
-    select case(defsolver%defspat%gradmeth)
-    case(grad_gauss)
-      call calc_gradient_gauss(defsolver, defsolver%defspat, pgrid,                 &
+  select case(defsolver%defspat%gradmeth)
+  !case(gradnone)
+  !  ! nothing to do
+  case(cellgrad_compactgauss)
+    call calc_gradient_gauss(defsolver, defsolver%defspat, pgrid,                 &
                        pgrid%info%field_loc%etatprim, pgrid%info%field_loc%gradient)
-    case(grad_lsq,grad_lsqw)
-      call calc_gradient(defsolver, defsolver%defspat, pgrid,                 &
+  case(cellgrad_lsq, cellgrad_lsqw)
+    call calc_gradient(defsolver, defsolver%defspat, pgrid,                 &
                        pgrid%info%field_loc%etatprim, pgrid%info%field_loc%gradient)
-    case(grad_svm)
-      ! if needed, computed locally 
-    case default
-      call error_stop("Internal error: unknown GRADIENT computation method")
-    endselect
+  case(facegrad_svm)
+    call calc_gradface_svm(defsolver%defspat, pgrid%umesh, pgrid%info%field_loc%etatprim, &
+                           pgrid%info%field_loc%grad_l, pgrid%info%field_loc%grad_r)
 
-    call calc_gradient_limite(defsolver, pgrid%umesh, pgrid%info%field_loc%gradient)
+  case default
+    call error_stop("Internal error: unknown GRADIENT computation method (calc_rhs)")
+  endselect
 
-    call calcboco_connect(defsolver, defsolver%defspat, pgrid, bccon_cell_grad)
-    pgrid => pgrid%next
-  enddo
+  call calc_gradient_limite(defsolver, pgrid%umesh, pgrid%info%field_loc%gradient)
+
+  call calcboco_connect(defsolver, defsolver%defspat, pgrid, bccon_cell_grad)
+  pgrid => pgrid%next
+enddo
+
 endif
 
 ! -------------------------------------------------------------------------------
 ! HIGH ORDER EXTRAPOLATION
 
 if (defsolver%defspat%calc_hresQ) then
+
   pgrid => gridlist%first
   do while (associated(pgrid))
     call calc_hres_states(defsolver, defsolver%defspat, pgrid, pgrid%info%field_loc)
@@ -108,6 +114,7 @@ if (defsolver%defspat%calc_hresQ) then
     endif
     pgrid => pgrid%next
   enddo
+
 endif
 
 ! -------------------------------------------------------------------------------

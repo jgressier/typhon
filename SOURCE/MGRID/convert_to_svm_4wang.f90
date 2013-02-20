@@ -81,7 +81,7 @@ call new_mesh(newmesh%mesh, 0, 0, newmesh%nvtex)
 
 
 ! -- if needed, compute gradient interpolation coefficients for gradsvm --
-if(defspat%gradmeth.eq.grad_svm)then
+if(defspat%gradmeth.eq.facegrad_svm)then
  call alloc_mesh_metricsvm(newmesh%mesh, 4*umesh%cellvtex%elem(ielem)%nelem)
 do ic = 1, umesh%cellvtex%elem(ielem)%nelem
    

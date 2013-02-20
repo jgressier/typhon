@@ -96,9 +96,9 @@ do ifb = 1, ustboco%nface
   ! Conductivity
   conduct = valeur_loi(defsolver%defkdif%materiau%Kd, champ%etatprim%tabscal(1)%scal(ic))
 
-  ! Approximate computation of temperature in factice cells
+  ! Approximate computation of temperature in fictive cells
   ! (for computation of gradients)
-  if (defspat%calc_grad) then
+  if (defspat%calc_cellgrad) then
     gradT = champ%gradient%tabvect(1)%vect(ic)
     gTdc = gradT .scal. dc
     champ%etatprim%tabscal(1)%scal(ighost) = ( (conduct/d) * &

@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------!
-! MODULE : MENU_NUM                                 Authors : J. Gressier, O. Chikhaoui
-!
+! MODULE : MENU_NUM                                 Authors : J. Gressier
+!                                                   Created : May 2002
 ! Fonction
 !   Definition des structures pour les entrees du programme TYPHON
 !   Structures pour les options numeriques
@@ -115,15 +115,19 @@ integer(kpp), parameter :: svm_fluxQ    = 31
 integer(kpp), parameter :: svm_fluxF    = 32
 
 ! -- Constantes pour schema de calcul des flux dissipatifs (sch_dis)
-integer(kpp), parameter :: dis_dif2 = 1     ! difference des 2 etats/face (NON CONSISTANT)
-integer(kpp), parameter :: dis_avg2 = 5     ! moyenne des 2 gradients/face
-integer(kpp), parameter :: dis_full = 10    ! evaluation complete (ponderee de 1 et 5)
+integer(kpp), parameter :: dis_noflux   = 1         ! no dissipative flux
+integer(kpp), parameter :: dis_celldif2 = 2         ! difference des 2 etats/face (NON CONSISTANT)
+integer(kpp), parameter :: dis_cellavg2 = 5         ! moyenne des 2 gradients/face
+integer(kpp), parameter :: dis_cellfull = 10        ! evaluation complete (ponderee de 1 et 5)
+integer(kpp), parameter :: dis_facecentered = 20    ! average of gradients
+integer(kpp), parameter :: dis_facepenalty  = 22    ! Penalty method
 
 ! -- Constants for gradients construction method (gradmeth)
-integer(kpp), parameter :: grad_lsq  = 10     ! least square method
-integer(kpp), parameter :: grad_lsqw = 12     ! weighted least square method
-integer(kpp), parameter :: grad_gauss = 20    ! Gauss Theorem
-integer(kpp), parameter :: grad_svm  = 30    ! direct SVM Gradient evaluation
+integer(kpp), parameter :: gradnone              = 5     ! no gradient computation
+integer(kpp), parameter :: cellgrad_lsq          = 10    ! least square method
+integer(kpp), parameter :: cellgrad_lsqw         = 12    ! weighted least square method
+integer(kpp), parameter :: cellgrad_compactgauss = 20    ! Gauss Theorem
+integer(kpp), parameter :: facegrad_svm          = 30    ! direct SVM Gradient evaluation
 
 ! -- Constants for implicit resolution method
 integer(kpp), parameter :: alg_undef     =  -1
@@ -213,16 +217,17 @@ endtype mnu_svm
 ! structure MNU_SPAT : Options for numerical spatial parameters
 !------------------------------------------------------------------------------!
 type mnu_spat
-  integer(kpp)    :: sch_hyp      ! Numerical scheme for hyperbolic part (waves)
-  integer(kpp)    :: jac_hyp      ! Jacobian Model for hyperbolic fluxes
-  integer(kpp)    :: sch_dis      ! Numerical scheme for diffusive part
-  character       :: method       ! State extrapolation method (M)USCL, (E)NO ...
-  integer(kpp)    :: gradmeth     ! Numerical method for GRADIENT computation
-  integer(kpp)    :: postlimiter  ! Limitation method after reconstruction/extrapolation
-  logical         :: calc_grad    ! internal: needs gradient computation
-  logical         :: calc_hresQ   ! internal: needs high order extrapolation
-  type(mnu_muscl) :: muscl        ! specific parameters for MUSCL method
-  type(mnu_svm)   :: svm          ! specific parameters for SVM   method
+  integer(kpp)    :: sch_hyp       ! Numerical scheme for hyperbolic part (waves)
+  integer(kpp)    :: jac_hyp       ! Jacobian Model for hyperbolic fluxes
+  integer(kpp)    :: sch_dis       ! Numerical scheme for diffusive part
+  character       :: method        ! State extrapolation method (M)USCL, (E)NO ...
+  integer(kpp)    :: gradmeth      ! Numerical method for GRADIENT computation
+  integer(kpp)    :: postlimiter   ! Limitation method after reconstruction/extrapolation
+  logical         :: calc_cellgrad ! internal: needs gradient computation
+  logical         :: calc_facegrad ! internal: needs gradient computation
+  logical         :: calc_hresQ    ! internal: needs high order extrapolation
+  type(mnu_muscl) :: muscl         ! specific parameters for MUSCL method
+  type(mnu_svm)   :: svm           ! specific parameters for SVM   method
 endtype mnu_spat
 
 
@@ -245,26 +250,40 @@ character(len=*), intent(in)  :: keyword
 type(mnu_spat)                :: defspat
 character(len=dimrpmlig)      :: str            ! chaine RPM intermediaire
 
-call rpmgetkeyvalstr(pcour, keyword, str, "FULL")
-defspat%sch_dis = inull
-
-if (samestring(str,"COMPACT")) defspat%sch_dis = dis_dif2
-if (samestring(str,"AVERAGE")) defspat%sch_dis = dis_avg2
-if (samestring(str,"FULL"))    defspat%sch_dis = dis_full
-
-if (defspat%sch_dis == inull) &
-     call erreur("parameters parsing","unknown DISSIPATIVE_FLUX method")
-
-select case(defspat%sch_dis)
-case(dis_dif2)
-
-case(dis_avg2)
-  defspat%calc_grad = .true.
-case(dis_full)
-  defspat%calc_grad = .true.
+select case(defspat%method)
+case(hres_none)
+  call rpmgetkeyvalstr(pcour, keyword, str, "FULL") 
+case(hres_muscl, hres_muscluns,hres_musclfast)
+  call rpmgetkeyvalstr(pcour, keyword, str, "FULL")
+case(hres_svm)
+  call rpmgetkeyvalstr(pcour, keyword, str, "FACE-AVERAGE")
+case default
+  call error_stop("internal error: unknown extrapolation method (get_dissipmethod)")
 endselect
 
+defspat%sch_dis = inull
+
+if (samestring(str,"COMPACT"))      defspat%sch_dis = dis_celldif2
+if (samestring(str,"CELL-AVERAGE")) defspat%sch_dis = dis_cellavg2
+if (samestring(str,"FULL"))         defspat%sch_dis = dis_cellfull
+if (samestring(str,"PENALTY"))      defspat%sch_dis = dis_facepenalty
+if (samestring(str,"FACE-AVERAGE")) defspat%sch_dis = dis_facecentered
+
+if (defspat%sch_dis == inull) &
+     call error_stop("parameters parsing: unknown DISSIPATIVE_FLUX method: "//trim(str))
+
 call get_gradientmethod(pcour, defspat)
+
+select case(defspat%sch_dis)
+case(dis_celldif2)
+  ! no gradient needed
+case(dis_cellavg2, dis_cellfull)
+  if (.not.defspat%calc_cellgrad) call error_stop("inconsistent choice of GRADMETH and DISSIPATIVE_FLUX")
+case(dis_facecentered, dis_facepenalty)
+  if (.not.defspat%calc_facegrad) call error_stop("inconsistent choice of GRADMETH and DISSIPATIVE_FLUX")
+case default
+  call error_stop("internal error: unknown dissipative flux scheme (get_dissipmethod)")
+endselect
 
 endsubroutine get_dissipmethod
 
@@ -276,25 +295,68 @@ subroutine get_gradientmethod(pcour, defspat)
 implicit none
 type(rpmblock), pointer       :: pcour  ! pointeur de bloc RPM
 type(mnu_spat)                :: defspat
-character(len=dimrpmlig)      :: str            ! chaine RPM intermediaire
+character(len=dimrpmlig)      :: str, defmeth       ! chaine RPM intermediaire
 
-defspat%calc_grad = .true.
+select case(defspat%method)
+case(hres_none)
+  select case(defspat%sch_dis)
+  case(dis_noflux, dis_celldif2)
+    defmeth = 'NONE'
+  case(dis_cellfull, dis_cellavg2)
+    defmeth = 'LSQ'
+  case(dis_facecentered, dis_facepenalty)
+    call error_stop("inconsistent choice: face based gradient unavailable for 1st order or MUSCL-fast methods")
+  case default
+    call error_stop("internal error: unknown dissipative flux method (get_gradientmethod)")
+  endselect
 
-call rpmgetkeyvalstr(pcour, "GRADMETH", str, "LSQ")
+case(hres_muscl, hres_muscluns, hres_musclfast)
+  select case(defspat%sch_dis)
+  case(dis_noflux, dis_celldif2, dis_cellfull, dis_cellavg2)
+    defmeth = 'LSQ'
+  case(dis_facecentered, dis_facepenalty)
+    call error_stop("inconsistent choice: face based gradient unavailable for MUSCL methods")
+  case default
+    call error_stop("internal error: unknown dissipative flux method (get_gradientmethod)")
+  endselect
+
+case(hres_svm)
+  select case(defspat%sch_dis)
+  case(dis_noflux, dis_celldif2)
+    defmeth = 'NONE'
+  case(dis_cellfull, dis_cellavg2)
+    defmeth = 'COMPACT-GAUSS'
+  case(dis_facecentered, dis_facepenalty)
+    defmeth = 'FACE-SVM'
+  case default
+    call error_stop("internal error: unknown dissipative flux method (get_gradientmethod)")
+  endselect
+
+case default
+  call error_stop("internal error: unknown extrapolation method (get_gradientmethod)")
+endselect
+
+call rpmgetkeyvalstr(pcour, "GRADMETH", str, trim(defmeth))
+
 defspat%gradmeth = inull
 
-if (samestring(str,"LSQ"))   defspat%gradmeth = grad_lsq
-if (samestring(str,"W-LSQ")) defspat%gradmeth = grad_lsqw
-if (samestring(str,"GAUSS")) defspat%gradmeth = grad_gauss
-if (samestring(str,"GSVM"))   defspat%gradmeth = grad_svm
+if (samestring(str,"NONE"))          defspat%gradmeth = gradnone
+if (samestring(str,"LSQ"))           defspat%gradmeth = cellgrad_lsq
+if (samestring(str,"W-LSQ"))         defspat%gradmeth = cellgrad_lsqw
+if (samestring(str,"COMPACT-GAUSS")) defspat%gradmeth = cellgrad_compactgauss
+if (samestring(str,"FACE-SVM"))      defspat%gradmeth = facegrad_svm
 
 if (defspat%gradmeth == inull) &
-     call erreur("parameters parsing","unknown GRADIENT computation method")
+     call error_stop("parameters parsing: unknown GRADIENT computation method: "//trim(str))
 
 select case(defspat%gradmeth)
-case(grad_lsq)
-case(grad_lsqw)
-case(grad_gauss)
+case(gradnone)
+case(cellgrad_lsq, cellgrad_lsqw, cellgrad_compactgauss)
+  defspat%calc_cellgrad = .true.
+case(facegrad_svm)
+  defspat%calc_facegrad = .true.
+case default
+  call error_stop("internal error: unknown gradient method (get_gradientmethod)")
 endselect
 
 endsubroutine get_gradientmethod
@@ -343,7 +405,7 @@ case(tps_rk4)
   rk%coef(3, 1:3) = (/ 0._krp,  0._krp, 1._krp /)
   rk%coef(4, 1:4) = (/ 1._krp,  2._krp, 2._krp, 1._krp /) / 6._krp
 case default
-  call erreur("parameters parsing","unknown RUNGE KUTTA method")
+  call error_stop("parameters parsing: unknown RUNGE KUTTA method")
 endselect
 
 endsubroutine init_rungekutta
@@ -548,54 +610,54 @@ select case(defsvm%sv_partition)
   case(svm_3kris2) !weights for alpha=0.1093621117 and beta =0.1730022492 : OPTIMISED PARTITION BY ABEELE
 
 !Gauss point1
-  k(1,1) =  1.28944701993
-  k(1,2) =  0.0103882882085
-  k(1,3) =  0.0651156162188
-  k(1,4) = -0.126229145560
-  k(1,5) =  0.102635587273
-  k(1,6) = -0.341357366061
+  k(1,1) =  1.28944701993_krp
+  k(1,2) =  0.0103882882085_krp
+  k(1,3) =  0.0651156162188_krp
+  k(1,4) = -0.126229145560_krp
+  k(1,5) =  0.102635587273_krp
+  k(1,6) = -0.341357366061_krp
 !Gauss point2 coefficients
-  k(2,1) =  1.02577584775
-  k(2,2) = -0.0839351532395
-  k(2,3) =  0.0996328359745
-  k(2,4) =  0.356693891316
-  k(2,5) = -0.0064796292939
-  k(2,6) = -0.391687792499
+  k(2,1) =  1.02577584775_krp
+  k(2,2) = -0.0839351532395_krp
+  k(2,3) =  0.0996328359745_krp
+  k(2,4) =  0.356693891316_krp
+  k(2,5) = -0.0064796292939_krp
+  k(2,6) = -0.391687792499_krp
 !Gauss point3 coefficients
-  k(3,1) =  0.390385234969
-  k(3,2) = -0.214519323766
-  k(3,3) =  0.173486796107
-  k(3,4) =  1.389968846972
-  k(3,5) = -0.264672102711
-  k(3,6) = -0.474649451571
+  k(3,1) =  0.390385234969_krp
+  k(3,2) = -0.214519323766_krp
+  k(3,3) =  0.173486796107_krp
+  k(3,4) =  1.389968846972_krp
+  k(3,5) = -0.264672102711_krp
+  k(3,6) = -0.474649451571_krp
  !Gauss point19 coefficients
-  k(4,1) =  0.885879027380
-  k(4,2) = -0.0966632190484
-  k(4,3) =  0.0749322000852
-  k(4,4) =  0.450383624165
-  k(4,5) = -0.0480832622194
-  k(4,6) = -0.266448370364
+  k(4,1) =  0.885879027380_krp
+  k(4,2) = -0.0966632190484_krp
+  k(4,3) =  0.0749322000852_krp
+  k(4,4) =  0.450383624165_krp
+  k(4,5) = -0.0480832622194_krp
+  k(4,6) = -0.266448370364_krp
 !Gauss point20 coefficients
-  k(5,1) =  0.755327834819
-  k(5,2) = -0.0552290654330
-  k(5,3) = -0.0124743075030
-  k(5,4) =  0.280712020840
-  k(5,5) = -0.0654699723469
-  k(5,6) =  0.0971334896216
+  k(5,1) =  0.755327834819_krp
+  k(5,2) = -0.0552290654330_krp
+  k(5,3) = -0.0124743075030_krp
+  k(5,4) =  0.280712020840_krp
+  k(5,5) = -0.0654699723469_krp
+  k(5,6) =  0.0971334896216_krp
 !Gauss point31 coefficients
-  k(6,1) =  0.394269474653
-  k(6,2) = -0.0814463773805
-  k(6,3) = -0.0814463773805
-  k(6,4) =  0.435664029246
-  k(6,5) = -0.102704778384
-  k(6,6) =  0.435664029246
+  k(6,1) =  0.394269474653_krp
+  k(6,2) = -0.0814463773805_krp
+  k(6,3) = -0.0814463773805_krp
+  k(6,4) =  0.435664029246_krp
+  k(6,5) = -0.102704778384_krp
+  k(6,6) =  0.435664029246_krp
 !Gauss point32 coefficients
-  k(7,1) = -0.0966823063266
-  k(7,2) = -0.139478945801
-  k(7,3) = -0.139478945801
-  k(7,4) =  0.581005928105
-  k(7,5) =  0.213628341733
-  k(7,6) =  0.581005928105
+  k(7,1) = -0.0966823063266_krp
+  k(7,2) = -0.139478945801_krp
+  k(7,3) = -0.139478945801_krp
+  k(7,4) =  0.581005928105_krp
+  k(7,5) =  0.213628341733_krp
+  k(7,6) =  0.581005928105_krp
 
 
 endselect
@@ -643,7 +705,7 @@ endselect
   defsvm%interp_weights( 35, 1:defsvm%cv_split) = (/ k(6,3), k(6,2), k(6,1) , k(6,5), k(6,4), k(6,6)/)
   defsvm%interp_weights( 36, 1:defsvm%cv_split) = (/ k(7,3), k(7,2), k(7,1) , k(7,5), k(7,4), k(7,6)/)
 
-  if (size(defsvm%interp_weights, 1) /= 36) call erreur("SVM initialization", "bad array size")
+  if (size(defsvm%interp_weights, 1) /= 36) call error_stop("SVM initialization: bad array size")
 
 case(svm_4) ! 54 Gauss pts, 10 coeff per point
 
@@ -825,141 +887,141 @@ select case(defsvm%sv_partition)
   defsvm%interp_weights(52, 1:defsvm%cv_split) = (/ k4(10,2), k4(10,3), k4(10,1) , k4(10,6), k4(10,7), k4(10,8),k4(10,9),k4(10,4),k4(10,5),k4(10,10)/)
   defsvm%interp_weights(53, 1:defsvm%cv_split) = (/ k4(10,1), k4(10,3), k4(10,2) , k4(10,9), k4(10,8), k4(10,7),k4(10,6),k4(10,5),k4(10,4),k4(10,10)/)
 
-  if (size(defsvm%interp_weights, 1) /= 54) call erreur("SVM initialization", "bad array size")
+  if (size(defsvm%interp_weights, 1) /= 54) call error_stop("SVM initialization: bad array size")
 
   case(svm_4kris)   ! 12 independent points
  !Gauss point1 coefficients
-  kk4(1,1) = 1.350186571632712
-  kk4(1,2) =-0.004622267015403575
-  kk4(1,3) =-0.03635534870087191
-  kk4(1,4) =-0.1283957991451250
-  kk4(1,5) = 0.02622895306569355
-  kk4(1,6) =-0.01954704109687104
-  kk4(1,7) =-0.04333476514151501
-  kk4(1,8) = 0.1443498783387870
-  kk4(1,9) =-0.3950927984532665
-  kk4(1,10)= 0.1065826165158600
+  kk4(1,1) = 1.350186571632712_krp
+  kk4(1,2) =-0.004622267015403575_krp
+  kk4(1,3) =-0.03635534870087191_krp
+  kk4(1,4) =-0.1283957991451250_krp
+  kk4(1,5) = 0.02622895306569355_krp
+  kk4(1,6) =-0.01954704109687104_krp
+  kk4(1,7) =-0.04333476514151501_krp
+  kk4(1,8) = 0.1443498783387870_krp
+  kk4(1,9) =-0.3950927984532665_krp
+  kk4(1,10)= 0.1065826165158600_krp
 !Gauss point2 coefficients
-  kk4(2,1) = 0.9835240410386652
-  kk4(2,2) = 0.04102022837846748
-  kk4(2,3) =-0.05586217796953953
-  kk4(2,4) = 0.4610003455829734
-  kk4(2,5) =-0.1673253860405332
-  kk4(2,6) = 0.04572072750873149
-  kk4(2,7) =-0.02468996556531046
-  kk4(2,8) = 0.1957886235502523
-  kk4(2,9) =-0.4250631209223152
-  kk4(2,10)=-0.05411331556139172
+  kk4(2,1) = 0.9835240410386652_krp
+  kk4(2,2) = 0.04102022837846748_krp
+  kk4(2,3) =-0.05586217796953953_krp
+  kk4(2,4) = 0.4610003455829734_krp
+  kk4(2,5) =-0.1673253860405332_krp
+  kk4(2,6) = 0.04572072750873149_krp
+  kk4(2,7) =-0.02468996556531046_krp
+  kk4(2,8) = 0.1957886235502523_krp
+  kk4(2,9) =-0.4250631209223152_krp
+  kk4(2,10)=-0.05411331556139172_krp
 !Gauss point3 coefficients
-  kk4(3,1) = 0.3417745757471658
-  kk4(3,2) = 0.05266376003579684
-  kk4(3,3) =-0.09415065694535101
-  kk4(3,4) = 1.346286436345379
-  kk4(3,5) =-0.2756435522082158
-  kk4(3,6) = 0.1206389269298530
-  kk4(3,7) = 0.03320521491529624
-  kk4(3,8) = 0.2754551295023642
-  kk4(3,9) =-0.4306986344858194
-  kk4(3,10)=-0.3695311998364683
+  kk4(3,1) = 0.3417745757471658_krp
+  kk4(3,2) = 0.05266376003579684_krp
+  kk4(3,3) =-0.09415065694535101_krp
+  kk4(3,4) = 1.346286436345379_krp
+  kk4(3,5) =-0.2756435522082158_krp
+  kk4(3,6) = 0.1206389269298530_krp
+  kk4(3,7) = 0.03320521491529624_krp
+  kk4(3,8) = 0.2754551295023642_krp
+  kk4(3,9) =-0.4306986344858194_krp
+  kk4(3,10)=-0.3695311998364683_krp
 !Gauss point4 coefficients
-  kk4(4,1) =-0.2335641982401887
-  kk4(4,2) =-0.1669322780991597
-  kk4(4,3) =-0.1424549867673852
-  kk4(4,4) = 1.436257218449623
-  kk4(4,5) = 0.614599972828722
-  kk4(4,6) =-0.0046714839361168
-  kk4(4,7) = 0.1959882360123814
-  kk4(4,8) = 0.2862184400973558
-  kk4(4,9) =-0.2179819385402839
-  kk4(4,10)=-0.7674589818049491
+  kk4(4,1) =-0.2335641982401887_krp
+  kk4(4,2) =-0.1669322780991597_krp
+  kk4(4,3) =-0.1424549867673852_krp
+  kk4(4,4) = 1.436257218449623_krp
+  kk4(4,5) = 0.614599972828722_krp
+  kk4(4,6) =-0.0046714839361168_krp
+  kk4(4,7) = 0.1959882360123814_krp
+  kk4(4,8) = 0.2862184400973558_krp
+  kk4(4,9) =-0.2179819385402839_krp
+  kk4(4,10)=-0.7674589818049491_krp
 !Gauss point25 coefficients
-  kk4(5,1) = 0.8288889984051868
-  kk4(5,2) = 0.04677743023354147
-  kk4(5,3) =-0.03991604821659466
-  kk4(5,4) = 0.5446044655419009
-  kk4(5,5) =-0.1890638174450713
-  kk4(5,6) = 0.05059205267244342
-  kk4(5,7) =-0.01233887391294805
-  kk4(5,8) = 0.1383331792538543
-  kk4(5,9) =-0.2904387454639018
-  kk4(5,10)=-0.07743864106841123
+  kk4(5,1) = 0.8288889984051868_krp
+  kk4(5,2) = 0.04677743023354147_krp
+  kk4(5,3) =-0.03991604821659466_krp
+  kk4(5,4) = 0.5446044655419009_krp
+  kk4(5,5) =-0.1890638174450713_krp
+  kk4(5,6) = 0.05059205267244342_krp
+  kk4(5,7) =-0.01233887391294805_krp
+  kk4(5,8) = 0.1383331792538543_krp
+  kk4(5,9) =-0.2904387454639018_krp
+  kk4(5,10)=-0.07743864106841123_krp
 !Gauss point26 coefficients
-  kk4(6,1) = 0.7347191718430301
-  kk4(6,2) = 0.03089206178978147
-  kk4(6,3) = 0.009587120631267871
-  kk4(6,4) = 0.2936886640989052
-  kk4(6,5) =-0.1126383616346481
-  kk4(6,6) = 0.02125598318219282
-  kk4(6,7) = 0.005363405730222937
-  kk4(6,8) =-0.03118350891894955
-  kk4(6,9) = 0.07902781467646672
-  kk4(6,10)=-0.03071235139826946
+  kk4(6,1) = 0.7347191718430301_krp
+  kk4(6,2) = 0.03089206178978147_krp
+  kk4(6,3) = 0.009587120631267871_krp
+  kk4(6,4) = 0.2936886640989052_krp
+  kk4(6,5) =-0.1126383616346481_krp
+  kk4(6,6) = 0.02125598318219282_krp
+  kk4(6,7) = 0.005363405730222937_krp
+  kk4(6,8) =-0.03118350891894955_krp
+  kk4(6,9) = 0.07902781467646672_krp
+  kk4(6,10)=-0.03071235139826946_krp
 !Gauss point27 coefficients
-  kk4(7,1) =-0.2181559923787162
-  kk4(7,2) =-0.2181559923787162
-  kk4(7,3) =-0.1142031331798774
-  kk4(7,4) = 0.9929893462207865
-  kk4(7,5) = 0.9929893462207865
-  kk4(7,6) =-0.09934845070431942
-  kk4(7,7) = 0.1946263795788897
-  kk4(7,8) = 0.1946263795788897
-  kk4(7,9) =-0.09934845070431942
-  kk4(7,10)=-0.6260194322534035
+  kk4(7,1) =-0.2181559923787162_krp
+  kk4(7,2) =-0.2181559923787162_krp
+  kk4(7,3) =-0.1142031331798774_krp
+  kk4(7,4) = 0.9929893462207865_krp
+  kk4(7,5) = 0.9929893462207865_krp
+  kk4(7,6) =-0.09934845070431942_krp
+  kk4(7,7) = 0.1946263795788897_krp
+  kk4(7,8) = 0.1946263795788897_krp
+  kk4(7,9) =-0.09934845070431942_krp
+  kk4(7,10)=-0.6260194322534035_krp
 !Gauss point28 coefficients
-  kk4(8,1) =-0.1845434719636343
-  kk4(8,2) =-0.1845434719636343
-  kk4(8,3) =-0.03907751185445954
-  kk4(8,4) = 0.8137520094270351
-  kk4(8,5) = 0.8137520094270351
-  kk4(8,6) =-0.07987703593857617
-  kk4(8,7) = 0.06772188147188028
-  kk4(8,8) = 0.06772188147188028
-  kk4(8,9) =-0.07987703593857617
-  kk4(8,10)=-0.1950292541389505
+  kk4(8,1) =-0.1845434719636343_krp
+  kk4(8,2) =-0.1845434719636343_krp
+  kk4(8,3) =-0.03907751185445954_krp
+  kk4(8,4) = 0.8137520094270351_krp
+  kk4(8,5) = 0.8137520094270351_krp
+  kk4(8,6) =-0.07987703593857617_krp
+  kk4(8,7) = 0.06772188147188028_krp
+  kk4(8,8) = 0.06772188147188028_krp
+  kk4(8,9) =-0.07987703593857617_krp
+  kk4(8,10)=-0.1950292541389505_krp
 !Gauss point43 coefficients
-  kk4(9,1) = 0.4171428636300509
-  kk4(9,2) = 0.04469143885360190
-  kk4(9,3) = 0.04469143885360187
-  kk4(9,4) = 0.3809996057073503
-  kk4(9,5) =-0.1494978760930465
-  kk4(9,6) = 0.01247272805849735
-  kk4(9,7) = 0.01247272805849725
-  kk4(9,8) =-0.1494978760930462
-  kk4(9,9) = 0.3809996057073512
-  kk4(9,10)= 0.005525343317141464
+  kk4(9,1) = 0.4171428636300509_krp
+  kk4(9,2) = 0.04469143885360190_krp
+  kk4(9,3) = 0.04469143885360187_krp
+  kk4(9,4) = 0.3809996057073503_krp
+  kk4(9,5) =-0.1494978760930465_krp
+  kk4(9,6) = 0.01247272805849735_krp
+  kk4(9,7) = 0.01247272805849725_krp
+  kk4(9,8) =-0.1494978760930462_krp
+  kk4(9,9) = 0.3809996057073512_krp
+  kk4(9,10)= 0.005525343317141464_krp
 !Gauss point44 coefficients
-  kk4(10,1) =-0.03372290429346719
-  kk4(10,2) = 0.08422845078964551
-  kk4(10,3) = 0.08422845078964559
-  kk4(10,4) = 0.5279195360563089
-  kk4(10,5) =-0.2373417331142653
-  kk4(10,6) =-0.05641319088329125
-  kk4(10,7) =-0.05641319088329131
-  kk4(10,8) =-0.2373417331142654
-  kk4(10,9) = 0.5279195360563111
-  kk4(10,10)= 0.3969367785966691
+  kk4(10,1) =-0.03372290429346719_krp
+  kk4(10,2) = 0.08422845078964551_krp
+  kk4(10,3) = 0.08422845078964559_krp
+  kk4(10,4) = 0.5279195360563089_krp
+  kk4(10,5) =-0.2373417331142653_krp
+  kk4(10,6) =-0.05641319088329125_krp
+  kk4(10,7) =-0.05641319088329131_krp
+  kk4(10,8) =-0.2373417331142654_krp
+  kk4(10,9) = 0.5279195360563111_krp
+  kk4(10,10)= 0.3969367785966691_krp
 !Gauss point49 coefficients
-  kk4(11,1) =-0.1324880465205211
-  kk4(11,2) = 0.06839911609813847
-  kk4(11,3) = 0.09438486033397265
-  kk4(11,4) = 0.6574368789079342
-  kk4(11,5) =-0.1856491158592828
-  kk4(11,6) =-0.09050328282806565
-  kk4(11,7) =-0.1202638750179787
-  kk4(11,8) =-0.2214388485701374
-  kk4(11,9) = 0.2498587299410721
-  kk4(11,10)= 0.6802635835148674
+  kk4(11,1) =-0.1324880465205211_krp
+  kk4(11,2) = 0.06839911609813847_krp
+  kk4(11,3) = 0.09438486033397265_krp
+  kk4(11,4) = 0.6574368789079342_krp
+  kk4(11,5) =-0.1856491158592828_krp
+  kk4(11,6) =-0.09050328282806565_krp
+  kk4(11,7) =-0.1202638750179787_krp
+  kk4(11,8) =-0.2214388485701374_krp
+  kk4(11,9) = 0.2498587299410721_krp
+  kk4(11,10)= 0.6802635835148674_krp
 !Gauss point50 coefficients
-  kk4(12,1) =-0.1717935614576200
-  kk4(12,2) =-0.1071850079229601
-  kk4(12,3) = 0.03092823558004528
-  kk4(12,4) = 0.7957181895895807
-  kk4(12,5) = 0.4221111503732683
-  kk4(12,6) =-0.05725763709499984
-  kk4(12,7) =-0.05361615040959700
-  kk4(12,8) =-0.05487803385310206
-  kk4(12,9) =-0.06065292890941012
-  kk4(12,10)= 0.2566257441047929
+  kk4(12,1) =-0.1717935614576200_krp
+  kk4(12,2) =-0.1071850079229601_krp
+  kk4(12,3) = 0.03092823558004528_krp
+  kk4(12,4) = 0.7957181895895807_krp
+  kk4(12,5) = 0.4221111503732683_krp
+  kk4(12,6) =-0.05725763709499984_krp
+  kk4(12,7) =-0.05361615040959700_krp
+  kk4(12,8) =-0.05487803385310206_krp
+  kk4(12,9) =-0.06065292890941012_krp
+  kk4(12,10)= 0.2566257441047929_krp
 
   defsvm%interp_weights(1, 1:defsvm%cv_split)  = (/ kk4(1,1), kk4(1,2), kk4(1,3) , kk4(1,4), kk4(1,5), kk4(1,6),kk4(1,7),kk4(1,8),kk4(1,9),kk4(1,10)/)!
   defsvm%interp_weights(8, 1:defsvm%cv_split)  = (/ kk4(1,2), kk4(1,1), kk4(1,3) , kk4(1,5), kk4(1,4), kk4(1,9),kk4(1,8),kk4(1,7),kk4(1,6),kk4(1,10)/)
