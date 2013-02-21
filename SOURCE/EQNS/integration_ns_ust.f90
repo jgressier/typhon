@@ -48,10 +48,12 @@ type(st_nsetat)       :: QL, QR
 type(st_genericfield) :: gradL, gradR         ! nblock size arrays of gradients
 type(v3d), dimension(:), allocatable &
                       :: cg_l, cg_r           ! tableau des centres de cellules a gauche et a droite   
+logical :: allocgrad
 
 ! -- BODY --
 
-if (.not.field%allocqhres) call erreur("Internal error", "Face extrapolated states not defined")
+allocgrad = .false.
+if (.not.field%allocqhres) call error_stop("Internal error: Face extrapolated states not defined")
 
 call new_buf_index(umesh%nface, face_buffer, nblock, ista, iend)
 
@@ -65,6 +67,7 @@ case(eqEuler, eqEulerAxi)
 case(eqNSLam, eqRANS)
   viscscheme: select case(defspat%sch_dis)
   case(dis_celldif2, dis_cellavg2, dis_cellfull)
+    allocgrad = .true.
     call new_genfield(gradL, face_buffer, 0, field%etatcons%nscal, field%etatcons%nvect)
     call new_genfield(gradR, face_buffer, 0, field%etatcons%nscal, field%etatcons%nvect)
   case(dis_facecentered, dis_facepenalty)
@@ -167,8 +170,10 @@ enddo
 !$OMP END DO
 
 deallocate(cg_l, cg_r)
-call delete(gradL)
-call delete(gradR)
+if (allocgrad) then
+  call delete(gradL)
+  call delete(gradR)
+endif
 
 !$OMP END PARALLEL
 

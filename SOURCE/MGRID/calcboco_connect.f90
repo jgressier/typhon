@@ -46,7 +46,8 @@ case(bccon_cell_grad)
   fsend => grid%info%field_loc%gradient
   frecv => grid%info%field_loc%gradient
 case(bccon_face_grad)
-  call error_stop("Internal error: connection mode not yet implemented")
+  fsend => grid%info%field_loc%grad_l
+  frecv => grid%info%field_loc%grad_r  
 case default
   call error_stop("Internal error: unknown connection mode")
 endselect
@@ -77,16 +78,16 @@ do ib = 1, grid%umesh%nboco
       call calcboco_connect_per_match(bccon_mode, defsolver, grid%umesh, fsend, frecv, grid%umesh%boco(ib))
 
     case(gdcon_per_nomatch)
-      call erreur("Development","periodic non matching connection not implemented")
+      call error_stop("Development: periodic non matching connection not implemented")
 
     case(gdcon_coarse_fine)
-      call erreur("Development","coarse/fine connection not implemented")
+      call error_stop("Development: coarse/fine connection not implemented")
 
     case(gdcon_fine_coarse)
-      call erreur("Development","fine/coarse connection not implemented")
+      call error_stop("Development: fine/coarse connection not implemented")
 
     case default
-      call erreur("Internal error","unknown connection parameter")
+      call error_stop("Internal error: unknown connection parameter")
 
     endselect
 

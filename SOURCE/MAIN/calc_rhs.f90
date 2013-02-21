@@ -72,7 +72,7 @@ enddo
 ! GRADIENTS OF EACH GRID OF ONE LEVEL (only if necessary)
 
 if (defsolver%defspat%gradmeth /= gradnone) then
-print*,'calc grad:',defsolver%defspat%calc_cellgrad, defsolver%defspat%calc_facegrad
+
 pgrid => gridlist%first
 do while (associated(pgrid))
 
@@ -82,20 +82,28 @@ do while (associated(pgrid))
   case(cellgrad_compactgauss)
     call calc_gradient_gauss(defsolver, defsolver%defspat, pgrid,                 &
                        pgrid%info%field_loc%etatprim, pgrid%info%field_loc%gradient)
+    ! !!! DEV 
+    ! for viscous fluxes or MUSCL extrapolation at BOCO, must be specific to BOCO physical type
+    call calc_gradient_limite(defsolver, pgrid%umesh, pgrid%info%field_loc%gradient)
+    call calcboco_connect(defsolver, defsolver%defspat, pgrid, bccon_cell_grad)
+
   case(cellgrad_lsq, cellgrad_lsqw)
     call calc_gradient(defsolver, defsolver%defspat, pgrid,                 &
                        pgrid%info%field_loc%etatprim, pgrid%info%field_loc%gradient)
+    ! !!! DEV 
+    ! for viscous fluxes or MUSCL extrapolation at BOCO, must be specific to BOCO physical type
+    call calc_gradient_limite(defsolver, pgrid%umesh, pgrid%info%field_loc%gradient)
+    call calcboco_connect(defsolver, defsolver%defspat, pgrid, bccon_cell_grad)
+
   case(facegrad_svm)
     call calc_gradface_svm(defsolver%defspat, pgrid%umesh, pgrid%info%field_loc%etatprim, &
                            pgrid%info%field_loc%grad_l, pgrid%info%field_loc%grad_r)
+    call calcboco_connect(defsolver, defsolver%defspat, pgrid, bccon_face_grad)
 
   case default
     call error_stop("Internal error: unknown GRADIENT computation method (calc_rhs)")
   endselect
 
-  call calc_gradient_limite(defsolver, pgrid%umesh, pgrid%info%field_loc%gradient)
-
-  call calcboco_connect(defsolver, defsolver%defspat, pgrid, bccon_cell_grad)
   pgrid => pgrid%next
 enddo
 

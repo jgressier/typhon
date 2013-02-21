@@ -77,7 +77,7 @@ implicit none
 type(st_field) :: field
 
   if (field%allocgrad) then
-    call print_info(90,"!!! gradients array already allocated !!!")
+    ! NO MESSAGE // call print_info(90,"!!! gradients array already allocated !!!")
   else
     field%allocgrad = .true.
     call new_genfield(field%gradient, field%etatcons%dim, 0, field%etatcons%nscal, field%etatcons%nvect)
