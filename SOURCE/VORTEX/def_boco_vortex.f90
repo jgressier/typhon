@@ -80,8 +80,8 @@ case(bc_kutta)
   endselect
 
 case default
-  call erreur("Lecture de menu","type de conditions aux limites non reconnu&
-              & pour le solveur VORTEX")
+  call erreur("Lecture de menu","type de conditions aux limites non reconnu"// &
+              " pour le solveur VORTEX")
 endselect
 
 
@@ -94,5 +94,4 @@ endsubroutine def_boco_vortex
 ! fev  2004 : creation de la routine
 ! mars 2004 : lecture de champ infini uniforme
 !------------------------------------------------------------------------------!
-
 

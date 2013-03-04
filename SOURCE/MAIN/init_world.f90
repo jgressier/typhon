@@ -41,8 +41,8 @@ enddo
 !--------------------------------------------------------------------
 ! Initialisation des connectivites cellules/faces/sommets des conditions aux limites
 
-call print_info(5,"* Computing and Initializing connectivities&
-                  & of boundary conditions")
+call print_info(5,"* Computing and Initializing connectivities"// &
+                  " of boundary conditions")
 do izone = 1, world%prj%nzone
   call init_connect(world%zone(izone))
 enddo

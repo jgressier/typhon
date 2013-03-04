@@ -19,7 +19,7 @@ implicit none
 integer,          parameter :: dimrpmlig      = 200
 integer,          parameter :: dimrpmname     = 40
 character(len=*), parameter :: rpmcommentchar = '!#%'
-character,        parameter :: rpmquotechar   = '"'
+character,        parameter :: rpmquotechar   = '"' !'"'
 
 
 !------------------------------------------------------------------------------!

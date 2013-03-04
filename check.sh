@@ -122,7 +122,15 @@ if [ $keeptmpdir -eq 0 ] ; then
   trap "rm -Rf $TMPDIR" 0 2
 fi
 
-rm diff.log check.log 2> /dev/null
+ok=1
+for f in diff.log check.log ; do
+  if [ -e $f ] && [ ! -f $f ] ; then
+    echo "$f is not a regular file" ; ok=0
+  fi
+done
+test $ok = 0 && exit 1
+  
+rm -f diff.log check.log
 
 # --- get list of cases ---
 #
@@ -159,6 +167,21 @@ ncol2=24
 echo diffing with DIFF : $DIFF
 echo "$bar"
 
+function iferror() {
+  test $? -ne 0
+}
+
+function next_case() {
+  test $# -gt 0 && printf "$remain%s\n" "$@"
+  test $keeptmpdir -eq 0 && rm -f $TMPDIR/$CASE/*
+  continue
+}
+
+function next_fic() {
+  test $# -gt 0 && printf "$remain%-${ncol2}s %s\n" "$@"
+  continue
+}
+
 echo diff-command : $DIFFCOM >> $HOMEDIR/diff.log
 for CASE in "${LISTCASES[@]}" ; do
   # init
@@ -168,48 +191,53 @@ for CASE in "${LISTCASES[@]}" ; do
   printf "$string" ; repl=${string//?/?} ; remain=${scol1/$repl/}
   # configure
   . $CASEDIR/$REFCONF
+  iferror && next_case "source NRG/$CASE/$REFCONF: command failed"
   # create dir
   mkdir -p $TMPDIR/$CASE
+  iferror && next_case "mkdir -p $TMPDIR/$CASE: command failed"
   cd $TMPDIR/$CASE
   # copy files
   cp $MESHDIR/$MESHFILE $TMPDIR/$CASE
   cp $CASEDIR/$INPUTFILE $TMPDIR/$CASE
-  # execute
+  # create hostfile
   hostname > hostfile
+  # write headers
   echo "$bar"  >> $HOMEDIR/check.log
   echo "$CASE" >> $HOMEDIR/check.log
   echo '#' "$bar"  >> $HOMEDIR/diff.log
   echo '#' "$CASE" >> $HOMEDIR/diff.log
+  # check executable type
   case $TYPE_EXE in
-    seq) $EXEDIR/Typhon-$TYPE_EXE >> $HOMEDIR/check.log 2>&1 ;;
-    mpi) mpirun -np ${MPIPROCS:-2} -machinefile hostfile \
-         $EXEDIR/Typhon-$TYPE_EXE >> $HOMEDIR/check.log 2>&1 ;;
-    *)   printf "$remain%s %s\n" "$TYPE_EXE" "unknown typhon executable" ;;
+    seq) exehead="" ;;
+    mpi) exehead="mpirun -np ${MPIPROCS:-2} -machinefile hostfile" ;;
+    *)   next_case "\"$TYPE_EXE\": unknown typhon executable type" ;;
   esac
-  if [ $? -eq 0 ] ; then
-    for fic in $TO_CHECK ; do
-      if [ -f "$fic" ] ; then
-        fics=( $fic $CASEDIR/$fic )
-        $DIFFCOM ${fics[@]} >> diff.log 2>&1
-        case $? in
-          0) printf "$remain%-${ncol2}s %s\n" "$fic" "identical" ;;
-          1) printf "$remain%-${ncol2}s %s\n" "$fic" "changed"
-             echo diff ${fics[@]} >> $HOMEDIR/diff.log
-             cat diff.log >> $HOMEDIR/diff.log ;;
-          *) printf "$remain%-${ncol2}s %s\n" "$fic" "comparison failed" ;;
-        esac
-        rm -f diff.log
-      else
-        printf "$remain%-${ncol2}s %s\n" "$fic" "missing"
-      fi
-      remain=$scol1
-    done
-  else
-    printf "$remain%-${ncol2}s %s\n" "??" "computation failed"
-  fi
-  if [ $keeptmpdir -eq 0 ] ; then
-    rm -f $TMPDIR/$CASE/* 2> /dev/null
-  fi
+  # check executable
+  EXE=$EXEDIR/Typhon-$TYPE_EXE
+  test -f $EXE || next_case "\"$EXE\": no such file"
+  test -x $EXE || next_case "\"$EXE\": execute permission denied"
+  # execute
+  $exehead $EXE >> $HOMEDIR/check.log 2>&1
+  iferror && next_case "??   computation failed"
+  for fic in $TO_CHECK ; do
+    test -f "$fic" || next_fic "\"$fic\": file missing"
+    fics=( $fic $CASEDIR/$fic )
+    $DIFFCOM ${fics[@]} >> diff.log 2>&1
+    case $? in
+      0) diff ${fics[@]} >/dev/null 2>&1
+         case $? in
+           0) printf "$remain%-${ncol2}s %s\n" "$fic" "identical" ;;
+           *) printf "$remain%-${ncol2}s %s\n" "$fic" "equal" ;;
+         esac ;;
+      1) printf "$remain%-${ncol2}s %s\n" "$fic" "changed"
+         echo diff ${fics[@]} >> $HOMEDIR/diff.log
+         cat diff.log >> $HOMEDIR/diff.log ;;
+      *) printf "$remain%-${ncol2}s %s\n" "$fic" "comparison failed" ;;
+    esac
+    rm -f diff.log
+    remain=$scol1
+  done
+  next_case
 done
 echo "$bar"
 

@@ -119,7 +119,7 @@ do while (iarg <= nargs)
       dread => njread
     endselect
     ! read number or string
-    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
+    if (iarg>nargs) call cfd_error("missing arguments after '"//trim(str_opt)//"'")
     call read_command_argument(iarg, ndir, lincr, ierr, str_opt)
     ! if number
     if (ierr==0) then
@@ -165,7 +165,7 @@ do while (iarg <= nargs)
       ! set window read
       wread = .TRUE.
       ! read window sizes array
-      if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
+      if (iarg>nargs) call cfd_error("missing arguments after '"//trim(str_opt)//"'")
       call read_command_argument(iarg, str_val, lincr)
       call splitstring_integer(str_val, nsdir, wsdir(2:nsplit-1), ierr, sep)
       if (ierr/=0) call cfd_error("'"//sep//"'-separated list of sizes expected after "// &
@@ -233,7 +233,7 @@ do while (iarg <= nargs)
     ! set split read
     sread = .TRUE.
     ! read number of split positions
-    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
+    if (iarg>nargs) call cfd_error("missing arguments after '"//trim(str_opt)//"'")
     call read_command_argument(iarg, nsdir, lincr, ierr, str_val)
     if (ierr/=0) call cfd_error("integer expected after '"//trim(str_opt)//"'"// &
                                 ", found '"//trim(str_val)//"'")
@@ -244,7 +244,7 @@ do while (iarg <= nargs)
     ! read split positions array
     wsdir(1) = 0
     do ii = 2, nsdir+1
-      if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
+      if (iarg>nargs) call cfd_error("missing arguments after '"//trim(str_opt)//"'")
       call read_command_argument(iarg, wsdir(ii), lincr, ierr, str_val)
       print*,"wsdir("//trim(strof(ii))//") = "//trim(strof(wsdir(ii)))
       if (ierr/=0) call cfd_error("integers expected after '"//trim(str_opt)//"'"// &
@@ -561,10 +561,10 @@ if (filename == "") then
   print*,"  -lx LX     : domain length (ex.: -lx 2.5, default 1)"
   print*,"  -ly LY     : domain height (ex.: -ly 1.5, default 1)"
   print*
-  print*,"  -nisjmin|--nisplitjmin NSI I(1) ... I(NSI) :"
-  print*,"  -nisjmax|--nisplitjmax NSI I(1) ... I(NSI) :"
-  print*,"  -njsimin|--njsplitimin NSJ J(1) ... J(NSJ) :"
-  print*,"  -njsimax|--njsplitimax NSJ J(1) ... J(NSI) :"
+  print*,"  -nisjmin|--nisplitjmin NSI NI(1) ... NI(NSI) :"
+  print*,"  -nisjmax|--nisplitjmax NSI NI(1) ... NI(NSI) :"
+  print*,"  -njsimin|--njsplitimin NSJ NJ(1) ... NJ(NSJ) :"
+  print*,"  -njsimax|--njsplitimax NSJ NJ(1) ... NJ(NSI) :"
   print*,"               number of I/J-dir-splits for the I/J-min/max boundary"
   print*,"               and list of split positions"
   print*

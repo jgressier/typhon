@@ -14,7 +14,7 @@ integer           :: i, iores
 
   i = index(str, '=')
   read(str(i+1:), *, iostat=iores) res
-  if (iores /= 0) call rpmerr("Floating point read failed")
+  if (iores /= 0) call rpmerr("Floating point read failed in"//trim(str))
 
 endsubroutine rpmgetvalrealsp
 !------------------------------------------------------------------------------!
@@ -36,7 +36,7 @@ integer           :: i, iores
 
   i = index(str, '=')
   read(str(i+1:), *, iostat=iores) res
-  if (iores /= 0) call rpmerr("Floating point read failed")
+  if (iores /= 0) call rpmerr("Floating point read failed in"//trim(str))
 
 endsubroutine rpmgetvalrealdp
 !------------------------------------------------------------------------------!
@@ -86,7 +86,7 @@ integer i, iores
 
   i = index(str, '=')
   read(str(i+1:), *, iostat=iores) res
-  if (iores /= 0) call rpmerr("Integer read failed")
+  if (iores /= 0) call rpmerr("Integer read failed in"//trim(str))
 
 endsubroutine rpmgetvalint
 !------------------------------------------------------------------------------!

@@ -9,11 +9,9 @@ configure_help() {
   echo
   echo "  This can be done e.g. if the DAEPDIR variable is set by:"
   echo
-  echo "    export TYPHONPATH=/my_usr:\$DAEPDIR/x86_64-Linux"
-  echo
+  echo "      export TYPHONPATH=\$DAEPDIR/x86_64-Linux"
   echo "  or:"
-  echo
-  echo "    TYPHONPATH=/my_usr:\$DAEPDIR/x86_64-Linux $0"
+  echo "      TYPHONPATH=\$DAEPDIR/x86_64-Linux $0"
   echo
   case "${DAEPDIR:-}" in
     "") echo "  The DAEPDIR variable is currently unset"
@@ -25,34 +23,37 @@ configure_help() {
   esac
   }
 
-check_column=48
+check_column=44
+strcol=$(printf "%${check_column}s")
 
 check() {
-  local com
-  local str len
-  str="checking $1 ..." ; len=$(echo "$str" | wc -c)
+  local str
+  str="checking $1 ..." ; shift
   echo -n "$str"
-  if [ $len -ge $((check_column-4)) ] ; then echo ; fi
-  shift
-  com=$1
-  shift
-  check_$com "$@"
+  str=${str//?/?} ; remain=${strcol%$str}
+  if [ ${#str} -ge $check_column ] ; then echo ; remain=$strcol ; fi
+  check_"$@"
   }
 
 success() {
-  echo -e "\\033[${check_column}G$1"
+  echo -e "${remain}$1"
+  remain=$strcol
   }
 
-fail()    {
-  echo -e "\\033[$((check_column-4))G@@@ $1"
+fail() {
+  if [ ${#remain} -le 4 ] ; then
+    echo ; remain=$strcol
+  fi
+  echo -e "${remain#????}!!! $1"
+  remain=$strcol
   }
 
-warning()    {
-  echo -e "!!! warning !!! $@"
+warning() {
+  echo -e "!!! warning !!! $@ !!!"
   configure_help
   }
 
-error()    {
+error() {
   echo -e "!!!  ERROR  !!! $@  !!!" | sed 's/./@/g'
   echo -e "!!!  ERROR  !!! $@  !!!"
   echo -e "!!!  ERROR  !!! $@  !!!" | sed 's/./@/g'

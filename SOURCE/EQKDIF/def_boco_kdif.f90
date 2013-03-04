@@ -127,8 +127,8 @@ case(bc_wall_hgen)
   endselect
 
 case default
-  call erreur("Lecture de menu","type de conditions aux limites non reconnu&
-              & pour le solveur de conduction")
+  call erreur("Lecture de menu","type de conditions aux limites non reconnu"// &
+              " pour le solveur de conduction")
 endselect
 
 type = typ
