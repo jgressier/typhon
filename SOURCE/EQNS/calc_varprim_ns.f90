@@ -33,7 +33,7 @@ integer, pointer      :: ista(:), iend(:) ! starting and ending index
 
 ! -- BODY --
 
-ncell = field%ncell
+ncell = field%ncell    ! compute on all cells (ghost cells too even if not necessary)
 g1    = defns%properties(1)%gamma - 1._krp
 
 call new_buf_index(ncell, cell_buffer, nblock, ista, iend)

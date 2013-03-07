@@ -33,7 +33,6 @@ MGRID_OBJ = $(MGRID_MOD:.$(MODEXT)=.o)      \
             convert_to_svm_4wang.o     \
             convert_to_svm_4kris.o     \
             raffin_iso_tri.o           \
-            raffin_iso_quad.o          \
             distrib_field.o            \
             extractpart_grid.o         \
             getpart_grid.o             \
@@ -44,6 +43,8 @@ MGRID_OBJ = $(MGRID_MOD:.$(MODEXT)=.o)      \
             postlimit_monotonic.o      \
             postlimit_barth.o          \
             precalc_grad_lsq.o         \
+            splitquadto2x2.o           \
+            splitquadto3x3.o           \
             update_ustboco_ghostcell.o \
             update_ustboco_ghostface.o
             #minmax_limiter.o

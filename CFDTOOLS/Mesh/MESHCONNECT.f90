@@ -354,7 +354,7 @@ subroutine ust_create_face(nsom, icell, face, face_prop, umeshcon)
     newf              = umeshcon%facevtex%nbnodes + 1
     umeshcon%facevtex%nbnodes = newf
     if (newf > size(umeshcon%facevtex%fils, 1)) &
-      call cfd_error("unexpected face in mesh or bad face array allocation >= "//strof(newf))
+      call cfd_error("unexpected face in mesh or under estimated 'face array' allocation >= "//strof(newf))
     umeshcon%facevtex%fils(newf, 1:nsom) = face(1:nsom)
     !
     ! -- update umeshcon%facecell connectivity --

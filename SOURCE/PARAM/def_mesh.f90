@@ -122,26 +122,37 @@ endif
 
 ! -- read split method --
 
+defmesh%defsplit%splitmesh = -1 
+
 call rpmgetkeyvalstr(pcour, "SPLIT", str, "NONE")
-if (samestring(str,"NONE"))      defmesh%splitmesh = split_none
-if (samestring(str,"SVM2TRI"))   defmesh%splitmesh = split_svm2tri
-if (samestring(str,"SVM2QUAD"))  defmesh%splitmesh = split_svm2quad
-if (samestring(str,"SVM3WANG"))  defmesh%splitmesh = split_svm3wang
-if (samestring(str,"SVM3KRIS"))  defmesh%splitmesh = split_svm3kris
-if (samestring(str,"SVM3KRIS2")) defmesh%splitmesh = split_svm3kris2
-if (samestring(str,"SVM4WANG"))  defmesh%splitmesh = split_svm4wang
-if (samestring(str,"SVM4KRIS"))  defmesh%splitmesh = split_svm4kris
-if (samestring(str,"SVM4KRIS2")) defmesh%splitmesh = split_svm4kris2
+if (samestring(str,"NONE"))      defmesh%defsplit%splitmesh = split_none
+if (samestring(str,"SVM2TRI"))   defmesh%defsplit%splitmesh = split_svm2tri
+if (samestring(str,"SVM2QUAD"))  defmesh%defsplit%splitmesh = split_svm2quad
+if (samestring(str,"SVM3WANG"))  defmesh%defsplit%splitmesh = split_svm3wang
+if (samestring(str,"SVM3KRIS"))  defmesh%defsplit%splitmesh = split_svm3kris
+if (samestring(str,"SVM3KRIS2")) defmesh%defsplit%splitmesh = split_svm3kris2
+if (samestring(str,"SVM4WANG"))  defmesh%defsplit%splitmesh = split_svm4wang
+if (samestring(str,"SVM4KRIS"))  defmesh%defsplit%splitmesh = split_svm4kris
+if (samestring(str,"SVM4KRIS2")) defmesh%defsplit%splitmesh = split_svm4kris2
 if (samestring(str,"ISO-TRI"))  then 
-  defmesh%splitmesh = split_iso_tri
-  call rpmgetkeyvalint(pcour, "NSPLIT", defmesh%nsplit, 1)
+  defmesh%defsplit%splitmesh = split_iso_tri
+  call rpmgetkeyvalint(pcour, "NSPLIT", defmesh%defsplit%nsplit, 1)
 endif
 if (samestring(str,"ISO-QUAD"))  then 
-  defmesh%splitmesh = split_iso_quad
-  call rpmgetkeyvalint(pcour, "NSPLIT", defmesh%nsplit, 1)  
+  defmesh%defsplit%splitmesh = split_quad2x2
+  call rpmgetkeyvalint(pcour, "NSPLIT", defmesh%defsplit%nsplit, 1)  
+endif
+if (samestring(str,"QUAD2X2"))  then 
+  defmesh%defsplit%splitmesh = split_quad2x2
+  call rpmgetkeyvalint(pcour, "NSPLIT", defmesh%defsplit%nsplit, 1)  
+endif
+if (samestring(str,"QUAD3X3"))  then 
+  defmesh%defsplit%splitmesh  = split_quad3x3
+  defmesh%defsplit%splitparam = 1._krp/3._krp
+  call rpmgetkeyvalint(pcour, "NSPLIT", defmesh%defsplit%nsplit, 1)  
 endif
 
-select case(defmesh%splitmesh)
+select case(defmesh%defsplit%splitmesh)
 case(split_none)
   ! nothing to write
 case(split_svm2quad)
@@ -160,11 +171,15 @@ case(split_svm4kris2)
   call print_info(20, "  . split mesh : SVM4 KRIS OPTIMIZED 2")
 case(split_iso_tri)
   call print_info(20, "  . split mesh : ISO TRI REFINEMENT")
-case(split_iso_quad)
-  call print_info(20, "  . split mesh : ISO QUAD REFINEMENT")
+case(split_quad2x2)
+  call print_info(20, "  . split mesh : QUAD2x2 REFINEMENT")
+case(split_quad3x3)
+  call print_info(20, "  . split mesh : QUAD3x3 REFINEMENT")
 case default
   call error_stop("parameters parsing: unknown splitmesh parameter -> "//trim(str))
 endselect
+
+defmesh%nfgauss = 1
 
 ! ----------------------------------------------------------------------------
 ! Periodicity BLOCKS

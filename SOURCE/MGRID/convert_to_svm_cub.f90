@@ -51,8 +51,17 @@ call print_info(10, "  . converting to SVM mesh...")
 
 fnv     = 2     ! nb of vertices per face
 cnv     = 3     ! nb of vertices per SV cell
-nfgauss = defspat%svm%nb_facepoints
+nfgauss = defmesh%nfgauss
 
+! -- check there are only tri --
+!
+ielem = getindex_genelemvtex(umesh%cellvtex, elem_tri3)
+if (ielem /= 0) then
+  if (umesh%ncell_int /= umesh%cellvtex%elem(ielem)%nelem) &
+    call error_stop("This REFINEMENT can only be used with original TRI cells (there are not only tri)")
+else
+  call error_stop("This REFINEMENT can only be used with original TRI cells (there is no tri)")
+endif
 
 !--------------------------------------------------------------------
 ! initialize and allocate new USTMESH
@@ -60,14 +69,14 @@ nfgauss = defspat%svm%nb_facepoints
 call init_ustmesh(newmesh, umesh%id)
 
 newmesh%nvtex        = umesh%nvtex + &                                  ! existing vertices
-                       umesh%ncell_int * defspat%svm%intnode + &        ! internal SV nodes
-                       umesh%nface     * (defspat%svm%svface_split-1)   ! new face nodes 
-newmesh%nface_intsvm = umesh%ncell_int * defspat%svm%internal_faces     ! internal SV faces
+                       umesh%ncell_int * defmesh%defsplit%intnode + &        ! internal SV nodes
+                       umesh%nface     * (defmesh%defsplit%svface_split-1)   ! new face nodes 
+newmesh%nface_intsvm = umesh%ncell_int * defmesh%defsplit%internal_faces     ! internal SV faces
 newmesh%nface_int    = newmesh%nface_intsvm + &
-                       umesh%nface_int * defspat%svm%svface_split
-newmesh%nface_lim    = umesh%nface_lim * defspat%svm%svface_split
-newmesh%ncell_int    = umesh%ncell_int * defspat%svm%cv_split
-newmesh%ncell_lim    = umesh%ncell_lim * defspat%svm%cv_split
+                       umesh%nface_int * defmesh%defsplit%svface_split
+newmesh%nface_lim    = umesh%nface_lim * defmesh%defsplit%svface_split
+newmesh%ncell_int    = umesh%ncell_int * defmesh%defsplit%subcell
+newmesh%ncell_lim    = umesh%ncell_lim * defmesh%defsplit%subcell
 
 newmesh%nface = newmesh%nface_int + newmesh%nface_lim
 newmesh%ncell = newmesh%ncell_int + newmesh%ncell_lim
@@ -156,9 +165,9 @@ enddo
 
 ! -- create new SV face nodes --
 !
-iv0 = umesh%nvtex + umesh%ncell_int * defspat%svm%intnode         ! index offset
+iv0 = umesh%nvtex + umesh%ncell_int * defmesh%defsplit%intnode         ! index offset
 
-call new_connect(cell_fvtex, umesh%ncell_int, 3*(defspat%svm%svface_split-1))
+call new_connect(cell_fvtex, umesh%ncell_int, 3*(defmesh%defsplit%svface_split-1))
 cell_fvtex%fils(1:cell_fvtex%nbnodes, 1:cell_fvtex%nbfils) = 0
 
 
@@ -267,9 +276,9 @@ do ic = 1, umesh%ncell_int
   icnp = (ic-1)*3
   cellv(1:3) = umesh%cellvtex%elem(ielem)%elemvtex(ic, 1:3)           ! original vertices 
   intv(1)    = umesh%nvtex + ic                               
-  intv(2)    = umesh%nvtex + umesh%ncell_int + (ic-1) * (defspat%svm%intnode - 1) + 1                         ! other internal vertices
-  intv(3)    = umesh%nvtex + umesh%ncell_int + (ic-1) * (defspat%svm%intnode - 1) + 2
-  intv(4)    = umesh%nvtex + umesh%ncell_int + (ic-1) * (defspat%svm%intnode - 1) + 3
+  intv(2)    = umesh%nvtex + umesh%ncell_int + (ic-1) * (defmesh%defsplit%intnode - 1) + 1                         ! other internal vertices
+  intv(3)    = umesh%nvtex + umesh%ncell_int + (ic-1) * (defmesh%defsplit%intnode - 1) + 2
+  intv(4)    = umesh%nvtex + umesh%ncell_int + (ic-1) * (defmesh%defsplit%intnode - 1) + 3
   facev(1:cell_fvtex%nbfils) = cell_fvtex%fils(ic, 1:cell_fvtex%nbfils)     ! CV face  vertices
 
   ! CV 1 : connected to original vertex 1
@@ -301,12 +310,12 @@ call new_connect(newmesh%face_Rtag, newmesh%nface, nfgauss) ; newmesh%face_Rtag%
 call print_info(20, "    . creating"//strof(newmesh%nface_intsvm,7)//" internal CV faces")
 
 do ic = 1, umesh%ncell_int
-  ifn     = (ic-1)*defspat%svm%internal_faces
+  ifn     = (ic-1)*defmesh%defsplit%internal_faces
   icn = 6*(ic-1)
   intv(1)    = umesh%nvtex + ic                               
-  intv(2)    = umesh%nvtex + umesh%ncell_int + (ic-1) * (defspat%svm%intnode - 1) + 1                         ! other internal vertices
-  intv(3)    = umesh%nvtex + umesh%ncell_int + (ic-1) * (defspat%svm%intnode - 1) + 2
-  intv(4)    = umesh%nvtex + umesh%ncell_int + (ic-1) * (defspat%svm%intnode - 1) + 3
+  intv(2)    = umesh%nvtex + umesh%ncell_int + (ic-1) * (defmesh%defsplit%intnode - 1) + 1                         ! other internal vertices
+  intv(3)    = umesh%nvtex + umesh%ncell_int + (ic-1) * (defmesh%defsplit%intnode - 1) + 2
+  intv(4)    = umesh%nvtex + umesh%ncell_int + (ic-1) * (defmesh%defsplit%intnode - 1) + 3
   facev(1:cell_fvtex%nbfils) = cell_fvtex%fils(ic, 1:cell_fvtex%nbfils)     ! CV face  vertices
 
   ! internal face 1 (separate CV 1 & 4)
@@ -461,7 +470,7 @@ call delete(umeshcon)
 call createboco(newmesh, umesh%nboco)
 
 do ib = 1, umesh%nboco
-  call new_ustboco(newmesh%boco(ib), umesh%boco(ib)%family, umesh%boco(ib)%nface*defspat%svm%svface_split)
+  call new_ustboco(newmesh%boco(ib), umesh%boco(ib)%family, umesh%boco(ib)%nface*defmesh%defsplit%svface_split)
   newmesh%boco(ib)%idefboco = umesh%boco(ib)%idefboco   ! save BOCO index in defsolver
   newmesh%boco(ib)%nface    = 0                         ! reinit face counter
 enddo
@@ -474,7 +483,7 @@ faceboco(newmesh%nface_int+1:newmesh%nface) = 0
 
 call print_info(20, "    . creating BOCO tags")
 
-iv0 = umesh%nvtex + umesh%ncell_int * defspat%svm%intnode         ! index offset
+iv0 = umesh%nvtex + umesh%ncell_int * defmesh%defsplit%intnode         ! index offset
 
 do if = newmesh%nface_int+1, newmesh%nface
 

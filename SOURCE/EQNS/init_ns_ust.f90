@@ -47,8 +47,8 @@ integer                           :: cgnsunit
 ! -- BODY --
 
 !
-! ncell = umesh%ncell_int   ! ncell_int should be sufficient but primitives variables are computed on ncell
-ncell = umesh%ncell
+! ncell_int should be sufficient but primitives variables are computed on ncell
+ncell = umesh%ncell ! _int
 
 !!! DEV !!! should not directly use gamma
 gamma = defns%properties(1)%gamma
@@ -134,7 +134,7 @@ case(init_def)  ! --- initialization through FCT functions ---
         endif
 
       else
-        call compute_tstat
+        call compute_tstat()
         if (init%ns%is_velocity) then   ! Mach number is not defined
           mach(1:buf) = abs(vel(1:buf))/sqrt(gamma*defns%properties(1)%r_const * tstat(1:buf))
         endif
@@ -146,10 +146,10 @@ case(init_def)  ! --- initialization through FCT functions ---
 
     ! -- check positivity --
     nc = count(density(1:buf) <= 0._krp)
-    if (nc > 0) call erreur("Initialization", "user parameters produce " &
+    if (nc > 0) call error_stop("Initialization: user parameters produce " &
                             //"negative densities ("//trim(strof(nc))//" cells)" )
     nc = count(pstat(1:buf) <= 0._krp)
-    if (nc > 0) call erreur("Initialization", "user parameters produce " &
+    if (nc > 0) call error_stop("Initialization: user parameters produce " &
                             //"negative pressures ("//trim(strof(nc))//" cells)" )
     
     ! -- compute velocity (from mach number) --
@@ -188,7 +188,7 @@ case(init_file)
   open(unit=1004, file = init%file, form="formatted")
   read(1004,'(a)') charac
   read(1004,'(a)') charac
-  do ic=1, ncell
+  do ic = 1, ncell
     read(1004,'(8e18.8)') xx, yy, zz, field%etatprim%tabvect(1)%vect(ic)%x, &
                                       field%etatprim%tabvect(1)%vect(ic)%y, &
                                       field%etatprim%tabvect(1)%vect(ic)%z, &
@@ -230,7 +230,6 @@ implicit none
 endsubroutine compute_tstat
 
 endsubroutine init_ns_ust
-
 !------------------------------------------------------------------------------!
 ! Modification history
 !

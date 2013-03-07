@@ -2,7 +2,7 @@
 ! MODULE : MENU_NUM                                 Authors : J. Gressier
 !                                                   Created : May 2002
 ! Fonction
-!   Definition des structures pour les entrees du programme TYPHON
+!   Definiti on des structures pour les entrees du programme TYPHON
 !   Structures pour les options numeriques
 !
 ! Defauts/Limitations/Divers :
@@ -95,17 +95,15 @@ integer(kpp), parameter :: postlim_monotonic2  = 12
 integer(kpp), parameter :: postlim_barth       = 20
 integer(kpp), parameter :: postlim_superbarth  = 21
 
-! -- Constants for SVM order
-integer(kpp), parameter :: svm_2       = 2
-integer(kpp), parameter :: svm_3       = 3
-integer(kpp), parameter :: svm_4       = 4
-
-! -- Constants for SVM splitting
+! -- Constants for SVM methods
 integer(kpp), parameter :: svm_2tri    = 21
 integer(kpp), parameter :: svm_2quad   = 22
+integer(kpp), parameter :: svm_2q2x2b3 = 23
+integer(kpp), parameter :: svm_2q2x2b4 = 24
 integer(kpp), parameter :: svm_3wang   = 31
 integer(kpp), parameter :: svm_3kris   = 32
 integer(kpp), parameter :: svm_3kris2  = 33
+integer(kpp), parameter :: svm_3q3x3b6 = 35
 integer(kpp), parameter :: svm_4wang   = 41
 integer(kpp), parameter :: svm_4kris   = 42
 integer(kpp), parameter :: svm_4kris2  = 43
@@ -199,16 +197,12 @@ endtype mnu_muscl
 ! structure MNU_SVM : Options for  Spectral Volume Method
 !------------------------------------------------------------------------------!
 type mnu_svm
-  integer(kpp)      :: sv_order             ! SV Order (cf constants)
-  integer(kpp)      :: sv_partition         ! SV Type of partition (cf constants)
-  integer(kpp)      :: sv_flux              ! Type of flux integration on gauss points for SVM method
-  integer(kpp)      :: cv_split             ! number of Control Volume (CV subcell) in a SV
-  integer(kpp)      :: svface_split         ! number of subface (CV face) by original face
-  integer(kpp)      :: intnode              ! number of internal added nodes for cell splitting
-  integer(kpp)      :: internal_faces       ! number of internal faces (by cell)
-  integer(kpp)      :: nb_subfaces          ! number of sub faces      (by cell) (internal + original*split)
-  integer(kpp)      :: nb_facepoints        ! number of integration points by face
-  real(krp),pointer :: interp_weights(:,:)  ! weights for cell to face Gauss points interpolation
+  integer(kpp)      :: sv_method                   ! SV method / partition (cf constants)
+  integer(kpp)      :: sv_flux                     ! Type of flux integration on gauss points for SVM method
+  integer(kip)      :: ncv                         ! number of Control Volume (CV subcell) in a SV
+  integer(kip)      :: ncvface                     ! number of sub faces      (by cell) (internal + original*split)  
+  integer(kip)      :: nfgauss                     ! number of integration points by face
+  real(krp),pointer :: interp_weights(:,:)         ! weights for cell to face Gauss points interpolation
   real(krp),pointer :: grad_interp_weights(:,:,:)  ! weights for gradients evaluation on Gauss points
 
 endtype mnu_svm
@@ -410,55 +404,6 @@ endselect
 
 endsubroutine init_rungekutta
 
-
-!-------------------------------------------------------------------------
-! init SVM parameters
-!-------------------------------------------------------------------------
-subroutine init_svmparam(svm)
-implicit none
-! -- parameters --
-type(mnu_svm)    :: svm
-! -- body --
-
-select case(svm%sv_order)
-case(svm_2)
-  svm%cv_split       = 3      ! nb of CV in SV
-  svm%intnode        = 1      ! nb of internal added nodes for cell splitting
-  svm%svface_split   = 2      ! nb of CV face per SV face
-  svm%internal_faces = 3      ! number of internal faces (by cell)
-  svm%nb_subfaces    = 3+2*3  ! total number of sub faces (by cell)
-  svm%nb_facepoints  = 1      ! number of integration points by face
-case(svm_3)
-  svm%cv_split       = 6      ! nb of CV in SV
-  svm%intnode        = 4      ! nb of internal added nodes for cell splitting
-  svm%svface_split   = 3      ! nb of CV face per SV face
-  svm%internal_faces = 9      ! number of internal faces (by cell)
-  svm%nb_subfaces    = 9+3*3  ! total number of sub faces (by cell)
-  svm%nb_facepoints  = 2      ! number of integration points by face
-case(svm_4)
-  svm%cv_split       = 10      ! nb of CV in SV
-  svm%svface_split   = 4      ! nb of CV face per SV face
-  svm%nb_facepoints  = 2      ! number of integration points by face
-  select case(svm%sv_partition)
-    case(svm_4wang)
-     svm%intnode        = 6      ! nb of internal added nodes for cell splitting
-     svm%internal_faces = 15      ! number of internal faces (by cell)
-     svm%nb_subfaces    = 15+4*3  ! total number of sub faces (by cell)
-    case(svm_4kris)
-     svm%intnode        = 9      ! nb of internal added nodes for cell splitting
-     svm%internal_faces = 18      ! number of internal faces (by cell)
-     svm%nb_subfaces    = 18+4*3  ! total number of sub faces (by cell)
-    case(svm_4kris2)
-     svm%intnode        = 9      ! nb of internal added nodes for cell splitting
-     svm%internal_faces = 18      ! number of internal faces (by cell)
-     svm%nb_subfaces    = 18+4*3  ! total number of sub faces (by cell)
-  endselect
-case default
-  call erreur("parameters parsing","unknown SVM order (init_svmparam)")
-endselect
-
-endsubroutine init_svmparam
-
 !-------------------------------------------------------------------------
 ! init SVM weights
 !-------------------------------------------------------------------------
@@ -477,35 +422,54 @@ real(krp), dimension(1:12,1:10) :: kk4
 
 sqrt3 = sqrt(3._krp)
 
-allocate(defsvm%interp_weights(1:defsvm%nb_subfaces*defsvm%nb_facepoints, &
-                               1:defsvm%cv_split))
-
-select case(defsvm%sv_order)
-
-case(svm_2)
+select case(defsvm%sv_method)
+case(svm_2quad)
+  defsvm%ncv     = 3
+  defsvm%ncvface = 9
+  defsvm%nfgauss = 1
+  allocate(defsvm%interp_weights(defsvm%ncvface*defsvm%nfgauss, defsvm%ncv))
+  if (size(defsvm%interp_weights, 1) /= 9) call error_stop("SVM initialization: bad total number Gauss points")
   k1(1) =  4._krp /  3._krp
   k1(2) =  2._krp / 15._krp
   k1(3) = -7._krp / 15._krp
   k1(4) = -1._krp / 15._krp
   k1(5) =  8._krp / 15._krp
-  defsvm%interp_weights(1, 1:defsvm%cv_split) = (/ k1(4), k1(5), k1(5) /)
-  defsvm%interp_weights(2, 1:defsvm%cv_split) = (/ k1(5), k1(4), k1(5) /)
-  defsvm%interp_weights(3, 1:defsvm%cv_split) = (/ k1(5), k1(5), k1(4) /)
-  defsvm%interp_weights(4, 1:defsvm%cv_split) = (/ k1(1), k1(3), k1(2) /)
-  defsvm%interp_weights(5, 1:defsvm%cv_split) = (/ k1(1), k1(2), k1(3) /)
-  defsvm%interp_weights(6, 1:defsvm%cv_split) = (/ k1(2), k1(1), k1(3) /)
-  defsvm%interp_weights(7, 1:defsvm%cv_split) = (/ k1(3), k1(1), k1(2) /)
-  defsvm%interp_weights(8, 1:defsvm%cv_split) = (/ k1(3), k1(2), k1(1) /)
-  defsvm%interp_weights(9, 1:defsvm%cv_split) = (/ k1(2), k1(3), k1(1) /)
-  if (size(defsvm%interp_weights, 1) /= 9) call erreur("SVM initialization", "bad array size")
+  defsvm%interp_weights(1, 1:defsvm%ncv) = (/ k1(4), k1(5), k1(5) /)
+  defsvm%interp_weights(2, 1:defsvm%ncv) = (/ k1(5), k1(4), k1(5) /)
+  defsvm%interp_weights(3, 1:defsvm%ncv) = (/ k1(5), k1(5), k1(4) /)
+  defsvm%interp_weights(4, 1:defsvm%ncv) = (/ k1(1), k1(3), k1(2) /)
+  defsvm%interp_weights(5, 1:defsvm%ncv) = (/ k1(1), k1(2), k1(3) /)
+  defsvm%interp_weights(6, 1:defsvm%ncv) = (/ k1(2), k1(1), k1(3) /)
+  defsvm%interp_weights(7, 1:defsvm%ncv) = (/ k1(3), k1(1), k1(2) /)
+  defsvm%interp_weights(8, 1:defsvm%ncv) = (/ k1(3), k1(2), k1(1) /)
+  defsvm%interp_weights(9, 1:defsvm%ncv) = (/ k1(2), k1(3), k1(1) /)
 
-case(svm_3) ! 36 Gauss pts, 6 coeff per point, 7 independent points
+case(svm_2q2x2b3)
+  defsvm%ncv     = 4
+  defsvm%ncvface = 12
+  defsvm%nfgauss = 1
+  allocate(defsvm%interp_weights(defsvm%ncvface*defsvm%nfgauss, defsvm%ncv))
+  if (size(defsvm%interp_weights, 1) /= 12) call error_stop("SVM initialization: bad total number Gauss points")
+  call error_stop("DEV: not implemented yet")
 
-select case(defsvm%sv_partition)
+case(svm_2q2x2b4)
+  defsvm%ncv     = 4
+  defsvm%ncvface = 12
+  defsvm%nfgauss = 1
+  allocate(defsvm%interp_weights(defsvm%ncvface*defsvm%nfgauss, defsvm%ncv))
 
-  case(svm_3wang) !weights for alpha=1/4 and beta =1/3 : ORIGINAL PARTITION BY WANG
+  if (size(defsvm%interp_weights, 1) /= 12) call error_stop("SVM initialization: bad total number Gauss points")
+  call error_stop("DEV: not implemented yet")
 
-!Gauss point1
+case(svm_3wang) !weights for alpha=1/4 and beta =1/3 : ORIGINAL PARTITION BY WANG
+  defsvm%ncv     = 6
+  defsvm%ncvface = 18
+  defsvm%nfgauss = 2
+  allocate(defsvm%interp_weights(defsvm%ncvface*defsvm%nfgauss, defsvm%ncv))
+
+  ! 36 Gauss pts, 6 coeff per point, 7 independent points
+
+  !Gauss point1
   k(1,1) =  5353._krp /  4017._krp + 2287._krp / 10712._krp * sqrt3  !  1.702377414448907
   k(1,2) =  -263._krp /  4017._krp +  623._krp / 10712._krp * sqrt3  !  0.0352627258945180
   k(1,3) =   781._krp /  4017._krp -  129._krp / 10712._krp * sqrt3  !  0.1735653577754183
@@ -554,8 +518,13 @@ select case(defsvm%sv_partition)
   k(7,4) =  2783._krp /  5356._krp +   45._krp /  2678._krp * sqrt3  !  0.5487088447873784
   k(7,5) =    71._krp /   412._krp +  219._krp /  2678._krp * sqrt3  !  0.3139727882216520
   k(7,6) =  2783._krp /  5356._krp +   45._krp /  2678._krp * sqrt3  !  0.5487088447873784
+  call distrib_svmweights_tri3(defsvm, k)
 
-  case(svm_3kris) !weights for alpha=91/1000 and beta=18/100 : OPTIMISED PARTITION BY ABEELE
+case(svm_3kris) !weights for alpha=91/1000 and beta=18/100 : OPTIMISED PARTITION BY ABEELE
+  defsvm%ncv     = 6
+  defsvm%ncvface = 18
+  defsvm%nfgauss = 2
+  allocate(defsvm%interp_weights(defsvm%ncvface*defsvm%nfgauss, defsvm%ncv))
 
 !Gauss point1
   k(1,1) =  3287080870527984892769449._krp /  2789865336429461513887500._krp + 1418701068984221352033613._krp / 22318922691435692111100000._krp * sqrt3  ! 1.28831976766918
@@ -606,10 +575,15 @@ select case(defsvm%sv_partition)
   k(7,4) = 17289833884649582135671973._krp / 33478384037153538166650000._krp +   25239640854818887127083._krp /   669567680743070763333000._krp * sqrt3  !  .581738081482745
   k(7,5) =  1847754882623218345921973._krp / 33478384037153538166650000._krp +   62290468541230488692083._krp /   669567680743070763333000._krp * sqrt3  !  .216326680870262
   k(7,6) = 17289833884649582135671973._krp / 33478384037153538166650000._krp +   25239640854818887127083._krp /   669567680743070763333000._krp * sqrt3  !  .581738081482761
+  call distrib_svmweights_tri3(defsvm, k)
 
-  case(svm_3kris2) !weights for alpha=0.1093621117 and beta =0.1730022492 : OPTIMISED PARTITION BY ABEELE
+case(svm_3kris2) !weights for alpha=0.1093621117 and beta =0.1730022492 : OPTIMISED PARTITION BY ABEELE
+  defsvm%ncv     = 6
+  defsvm%ncvface = 18
+  defsvm%nfgauss = 2
+  allocate(defsvm%interp_weights(defsvm%ncvface*defsvm%nfgauss, defsvm%ncv))
 
-!Gauss point1
+ !Gauss point1
   k(1,1) =  1.28944701993_krp
   k(1,2) =  0.0103882882085_krp
   k(1,3) =  0.0651156162188_krp
@@ -658,61 +632,16 @@ select case(defsvm%sv_partition)
   k(7,4) =  0.581005928105_krp
   k(7,5) =  0.213628341733_krp
   k(7,6) =  0.581005928105_krp
+  call distrib_svmweights_tri3(defsvm, k)
 
+  ! 54 Gauss pts, 10 coeff per point
+case(svm_4wang)   ! 10 independent points
+  defsvm%ncv     = 10
+  defsvm%ncvface = 27
+  defsvm%nfgauss = 2
+  allocate(defsvm%interp_weights(defsvm%ncvface*defsvm%nfgauss, defsvm%ncv))
 
-endselect
-
-
-  defsvm%interp_weights(  1, 1:defsvm%cv_split) = (/ k(1,1), k(1,2), k(1,3) , k(1,4), k(1,5), k(1,6)/)!
-  defsvm%interp_weights(  2, 1:defsvm%cv_split) = (/ k(2,1), k(2,2), k(2,3) , k(2,4), k(2,5), k(2,6)/)!
-  defsvm%interp_weights(  3, 1:defsvm%cv_split) = (/ k(3,1), k(3,2), k(3,3) , k(3,4), k(3,5), k(3,6)/)!
-
-  defsvm%interp_weights(  4, 1:defsvm%cv_split) = (/ k(3,2), k(3,1), k(3,3) , k(3,4), k(3,6), k(3,5)/)
-  defsvm%interp_weights(  5, 1:defsvm%cv_split) = (/ k(2,2), k(2,1), k(2,3) , k(2,4), k(2,6), k(2,5)/)
-  defsvm%interp_weights(  6, 1:defsvm%cv_split) = (/ k(1,2), k(1,1), k(1,3) , k(1,4), k(1,6), k(1,5)/)
-  defsvm%interp_weights(  7, 1:defsvm%cv_split) = (/ k(1,3), k(1,1), k(1,2) , k(1,6), k(1,4), k(1,5)/)
-  defsvm%interp_weights(  8, 1:defsvm%cv_split) = (/ k(2,3), k(2,1), k(2,2) , k(2,6), k(2,4), k(2,5)/)
-  defsvm%interp_weights(  9, 1:defsvm%cv_split) = (/ k(3,3), k(3,1), k(3,2) , k(3,6), k(3,4), k(3,5)/)
-  defsvm%interp_weights( 10, 1:defsvm%cv_split) = (/ k(3,3), k(3,2), k(3,1) , k(3,5), k(3,4), k(3,6)/)
-  defsvm%interp_weights( 11, 1:defsvm%cv_split) = (/ k(2,3), k(2,2), k(2,1) , k(2,5), k(2,4), k(2,6)/)
-  defsvm%interp_weights( 12, 1:defsvm%cv_split) = (/ k(1,3), k(1,2), k(1,1) , k(1,5), k(1,4), k(1,6)/)
-  defsvm%interp_weights( 13, 1:defsvm%cv_split) = (/ k(1,2), k(1,3), k(1,1) , k(1,5), k(1,6), k(1,4)/)
-  defsvm%interp_weights( 14, 1:defsvm%cv_split) = (/ k(2,2), k(2,3), k(2,1) , k(2,5), k(2,6), k(2,4)/)
-  defsvm%interp_weights( 15, 1:defsvm%cv_split) = (/ k(3,2), k(3,3), k(3,1) , k(3,5), k(3,6), k(3,4)/)
-  defsvm%interp_weights( 16, 1:defsvm%cv_split) = (/ k(3,1), k(3,3), k(3,2) , k(3,6), k(3,5), k(3,4)/)
-  defsvm%interp_weights( 17, 1:defsvm%cv_split) = (/ k(2,1), k(2,3), k(2,2) , k(2,6), k(2,5), k(2,4)/)
-  defsvm%interp_weights( 18, 1:defsvm%cv_split) = (/ k(1,1), k(1,3), k(1,2) , k(1,6), k(1,5), k(1,4)/)
-
-  defsvm%interp_weights( 19, 1:defsvm%cv_split) = (/ k(4,1), k(4,2), k(4,3) , k(4,4), k(4,5), k(4,6)/)!
-  defsvm%interp_weights( 20, 1:defsvm%cv_split) = (/ k(5,1), k(5,2), k(5,3) , k(5,4), k(5,5), k(5,6)/)!
-
-  defsvm%interp_weights( 21, 1:defsvm%cv_split) = (/ k(4,2), k(4,1), k(4,3) , k(4,4), k(4,6), k(4,5)/)
-  defsvm%interp_weights( 22, 1:defsvm%cv_split) = (/ k(5,2), k(5,1), k(5,3) , k(5,4), k(5,6), k(5,5)/)
-  defsvm%interp_weights( 23, 1:defsvm%cv_split) = (/ k(4,3), k(4,1), k(4,2) , k(4,6), k(4,4), k(4,5)/)
-  defsvm%interp_weights( 24, 1:defsvm%cv_split) = (/ k(5,3), k(5,1), k(5,2) , k(5,6), k(5,4), k(5,5)/)
-  defsvm%interp_weights( 25, 1:defsvm%cv_split) = (/ k(4,3), k(4,2), k(4,1) , k(4,5), k(4,4), k(4,6)/)
-  defsvm%interp_weights( 26, 1:defsvm%cv_split) = (/ k(5,3), k(5,2), k(5,1) , k(5,5), k(5,4), k(5,6)/)
-  defsvm%interp_weights( 27, 1:defsvm%cv_split) = (/ k(4,2), k(4,3), k(4,1) , k(4,5), k(4,6), k(4,4)/)
-  defsvm%interp_weights( 28, 1:defsvm%cv_split) = (/ k(5,2), k(5,3), k(5,1) , k(5,5), k(5,6), k(5,4)/)
-  defsvm%interp_weights( 29, 1:defsvm%cv_split) = (/ k(4,1), k(4,3), k(4,2) , k(4,6), k(4,5), k(4,4)/)
-  defsvm%interp_weights( 30, 1:defsvm%cv_split) = (/ k(5,1), k(5,3), k(5,2) , k(5,6), k(5,5), k(5,4)/)
-
-  defsvm%interp_weights( 31, 1:defsvm%cv_split) = (/ k(6,1), k(6,2), k(6,3) , k(6,4), k(6,5), k(6,6)/)!
-  defsvm%interp_weights( 32, 1:defsvm%cv_split) = (/ k(7,1), k(7,2), k(7,3) , k(7,4), k(7,5), k(7,6)/)!
-
-  defsvm%interp_weights( 33, 1:defsvm%cv_split) = (/ k(6,2), k(6,1), k(6,3) , k(6,4), k(6,6), k(6,5)/)
-  defsvm%interp_weights( 34, 1:defsvm%cv_split) = (/ k(7,2), k(7,1), k(7,3) , k(7,4), k(7,6), k(7,5)/)
-  defsvm%interp_weights( 35, 1:defsvm%cv_split) = (/ k(6,3), k(6,2), k(6,1) , k(6,5), k(6,4), k(6,6)/)
-  defsvm%interp_weights( 36, 1:defsvm%cv_split) = (/ k(7,3), k(7,2), k(7,1) , k(7,5), k(7,4), k(7,6)/)
-
-  if (size(defsvm%interp_weights, 1) /= 36) call error_stop("SVM initialization: bad array size")
-
-case(svm_4) ! 54 Gauss pts, 10 coeff per point
-
-select case(defsvm%sv_partition)
-
-  case(svm_4wang)   ! 10 independent points
-!Gauss point1 coefficients
+  !Gauss point1 coefficients
   k4(1,1) = 1768981733._krp /1381048200._krp + 4453635187._krp /43503018300._krp * sqrt3 !1.458217141953126
   k4(1,2) =-42581._krp /197292600._krp - 876224413._krp /43503018300._krp * sqrt3 !-.03510226122972749
   k4(1,3) =-669387319._krp /9667337400._krp + 35661._krp /76724900._krp * sqrt3 !-.06843711892739588
@@ -823,73 +752,77 @@ select case(defsvm%sv_partition)
   k4(10,9) = 19223615355241._krp /138508518802836._krp - 15588348384103._krp /300101790739478._krp * sqrt3 !.04882128546973781
   k4(10,10)= 9199._krp /29575._krp + 12672._krp /207025._krp * sqrt3 !.4170585573409627
 
-  defsvm%interp_weights(1, 1:defsvm%cv_split)  = (/ k4(1,1), k4(1,2), k4(1,3) , k4(1,4), k4(1,5), k4(1,6),k4(1,7),k4(1,8),k4(1,9),k4(1,10)/)!
-  defsvm%interp_weights(8, 1:defsvm%cv_split)  = (/ k4(1,2), k4(1,1), k4(1,3) , k4(1,5), k4(1,4), k4(1,9),k4(1,8),k4(1,7),k4(1,6),k4(1,10)/)
-  defsvm%interp_weights(9, 1:defsvm%cv_split)  = (/ k4(1,3), k4(1,1), k4(1,2) , k4(1,8), k4(1,9), k4(1,4),k4(1,5),k4(1,6),k4(1,7),k4(1,10)/)
-  defsvm%interp_weights(16, 1:defsvm%cv_split) = (/ k4(1,3), k4(1,2), k4(1,1) , k4(1,7), k4(1,6), k4(1,5),k4(1,4),k4(1,9),k4(1,8),k4(1,10)/)
-  defsvm%interp_weights(17, 1:defsvm%cv_split) = (/ k4(1,2), k4(1,3), k4(1,1) , k4(1,6), k4(1,7), k4(1,8),k4(1,9),k4(1,4),k4(1,5),k4(1,10)/)
-  defsvm%interp_weights(24, 1:defsvm%cv_split) = (/ k4(1,1), k4(1,3), k4(1,2) , k4(1,9), k4(1,8), k4(1,7),k4(1,6),k4(1,5),k4(1,4),k4(1,10)/)
+  defsvm%interp_weights(1, 1:defsvm%ncv)  = (/ k4(1,1), k4(1,2), k4(1,3) , k4(1,4), k4(1,5), k4(1,6),k4(1,7),k4(1,8),k4(1,9),k4(1,10)/)!
+  defsvm%interp_weights(8, 1:defsvm%ncv)  = (/ k4(1,2), k4(1,1), k4(1,3) , k4(1,5), k4(1,4), k4(1,9),k4(1,8),k4(1,7),k4(1,6),k4(1,10)/)
+  defsvm%interp_weights(9, 1:defsvm%ncv)  = (/ k4(1,3), k4(1,1), k4(1,2) , k4(1,8), k4(1,9), k4(1,4),k4(1,5),k4(1,6),k4(1,7),k4(1,10)/)
+  defsvm%interp_weights(16, 1:defsvm%ncv) = (/ k4(1,3), k4(1,2), k4(1,1) , k4(1,7), k4(1,6), k4(1,5),k4(1,4),k4(1,9),k4(1,8),k4(1,10)/)
+  defsvm%interp_weights(17, 1:defsvm%ncv) = (/ k4(1,2), k4(1,3), k4(1,1) , k4(1,6), k4(1,7), k4(1,8),k4(1,9),k4(1,4),k4(1,5),k4(1,10)/)
+  defsvm%interp_weights(24, 1:defsvm%ncv) = (/ k4(1,1), k4(1,3), k4(1,2) , k4(1,9), k4(1,8), k4(1,7),k4(1,6),k4(1,5),k4(1,4),k4(1,10)/)
 
-  defsvm%interp_weights(2, 1:defsvm%cv_split)  = (/ k4(2,1), k4(2,2), k4(2,3) , k4(2,4), k4(2,5), k4(2,6),k4(2,7),k4(2,8),k4(2,9),k4(2,10)/)!
-  defsvm%interp_weights(7, 1:defsvm%cv_split)  = (/ k4(2,2), k4(2,1), k4(2,3) , k4(2,5), k4(2,4), k4(2,9),k4(2,8),k4(2,7),k4(2,6),k4(2,10)/)
-  defsvm%interp_weights(10, 1:defsvm%cv_split) = (/ k4(2,3), k4(2,1), k4(2,2) , k4(2,8), k4(2,9), k4(2,4),k4(2,5),k4(2,6),k4(2,7),k4(2,10)/)
-  defsvm%interp_weights(15, 1:defsvm%cv_split) = (/ k4(2,3), k4(2,2), k4(2,1) , k4(2,7), k4(2,6), k4(2,5),k4(2,4),k4(2,9),k4(2,8),k4(2,10)/)
-  defsvm%interp_weights(18, 1:defsvm%cv_split) = (/ k4(2,2), k4(2,3), k4(2,1) , k4(2,6), k4(2,7), k4(2,8),k4(2,9),k4(2,4),k4(2,5),k4(2,10)/)
-  defsvm%interp_weights(23, 1:defsvm%cv_split) = (/ k4(2,1), k4(2,3), k4(2,2) , k4(2,9), k4(2,8), k4(2,7),k4(2,6),k4(2,5),k4(2,4),k4(2,10)/)
+  defsvm%interp_weights(2, 1:defsvm%ncv)  = (/ k4(2,1), k4(2,2), k4(2,3) , k4(2,4), k4(2,5), k4(2,6),k4(2,7),k4(2,8),k4(2,9),k4(2,10)/)!
+  defsvm%interp_weights(7, 1:defsvm%ncv)  = (/ k4(2,2), k4(2,1), k4(2,3) , k4(2,5), k4(2,4), k4(2,9),k4(2,8),k4(2,7),k4(2,6),k4(2,10)/)
+  defsvm%interp_weights(10, 1:defsvm%ncv) = (/ k4(2,3), k4(2,1), k4(2,2) , k4(2,8), k4(2,9), k4(2,4),k4(2,5),k4(2,6),k4(2,7),k4(2,10)/)
+  defsvm%interp_weights(15, 1:defsvm%ncv) = (/ k4(2,3), k4(2,2), k4(2,1) , k4(2,7), k4(2,6), k4(2,5),k4(2,4),k4(2,9),k4(2,8),k4(2,10)/)
+  defsvm%interp_weights(18, 1:defsvm%ncv) = (/ k4(2,2), k4(2,3), k4(2,1) , k4(2,6), k4(2,7), k4(2,8),k4(2,9),k4(2,4),k4(2,5),k4(2,10)/)
+  defsvm%interp_weights(23, 1:defsvm%ncv) = (/ k4(2,1), k4(2,3), k4(2,2) , k4(2,9), k4(2,8), k4(2,7),k4(2,6),k4(2,5),k4(2,4),k4(2,10)/)
 
-  defsvm%interp_weights(3, 1:defsvm%cv_split)  = (/ k4(3,1), k4(3,2), k4(3,3) , k4(3,4), k4(3,5), k4(3,6),k4(3,7),k4(3,8),k4(3,9),k4(3,10)/)!
-  defsvm%interp_weights(6, 1:defsvm%cv_split)  = (/ k4(3,2), k4(3,1), k4(3,3) , k4(3,5), k4(3,4), k4(3,9),k4(3,8),k4(3,7),k4(3,6),k4(3,10)/)
-  defsvm%interp_weights(11, 1:defsvm%cv_split) = (/ k4(3,3), k4(3,1), k4(3,2) , k4(3,8), k4(3,9), k4(3,4),k4(3,5),k4(3,6),k4(3,7),k4(3,10)/)
-  defsvm%interp_weights(14, 1:defsvm%cv_split) = (/ k4(3,3), k4(3,2), k4(3,1) , k4(3,7), k4(3,6), k4(3,5),k4(3,4),k4(3,9),k4(3,8),k4(3,10)/)
-  defsvm%interp_weights(19, 1:defsvm%cv_split) = (/ k4(3,2), k4(3,3), k4(3,1) , k4(3,6), k4(3,7), k4(3,8),k4(3,9),k4(3,4),k4(3,5),k4(3,10)/)
-  defsvm%interp_weights(22, 1:defsvm%cv_split) = (/ k4(3,1), k4(3,3), k4(3,2) , k4(3,9), k4(3,8), k4(3,7),k4(3,6),k4(3,5),k4(3,4),k4(3,10)/)
+  defsvm%interp_weights(3, 1:defsvm%ncv)  = (/ k4(3,1), k4(3,2), k4(3,3) , k4(3,4), k4(3,5), k4(3,6),k4(3,7),k4(3,8),k4(3,9),k4(3,10)/)!
+  defsvm%interp_weights(6, 1:defsvm%ncv)  = (/ k4(3,2), k4(3,1), k4(3,3) , k4(3,5), k4(3,4), k4(3,9),k4(3,8),k4(3,7),k4(3,6),k4(3,10)/)
+  defsvm%interp_weights(11, 1:defsvm%ncv) = (/ k4(3,3), k4(3,1), k4(3,2) , k4(3,8), k4(3,9), k4(3,4),k4(3,5),k4(3,6),k4(3,7),k4(3,10)/)
+  defsvm%interp_weights(14, 1:defsvm%ncv) = (/ k4(3,3), k4(3,2), k4(3,1) , k4(3,7), k4(3,6), k4(3,5),k4(3,4),k4(3,9),k4(3,8),k4(3,10)/)
+  defsvm%interp_weights(19, 1:defsvm%ncv) = (/ k4(3,2), k4(3,3), k4(3,1) , k4(3,6), k4(3,7), k4(3,8),k4(3,9),k4(3,4),k4(3,5),k4(3,10)/)
+  defsvm%interp_weights(22, 1:defsvm%ncv) = (/ k4(3,1), k4(3,3), k4(3,2) , k4(3,9), k4(3,8), k4(3,7),k4(3,6),k4(3,5),k4(3,4),k4(3,10)/)
 
-  defsvm%interp_weights(4, 1:defsvm%cv_split)  = (/ k4(4,1), k4(4,2), k4(4,3) , k4(4,4), k4(4,5), k4(4,6),k4(4,7),k4(4,8),k4(4,9),k4(4,10)/)!
-  defsvm%interp_weights(5, 1:defsvm%cv_split)  = (/ k4(4,2), k4(4,1), k4(4,3) , k4(4,5), k4(4,4), k4(4,9),k4(4,8),k4(4,7),k4(4,6),k4(4,10)/)
-  defsvm%interp_weights(12, 1:defsvm%cv_split) = (/ k4(4,3), k4(4,1), k4(4,2) , k4(4,8), k4(4,9), k4(4,4),k4(4,5),k4(4,6),k4(4,7),k4(4,10)/)
-  defsvm%interp_weights(13, 1:defsvm%cv_split) = (/ k4(4,3), k4(4,2), k4(4,1) , k4(4,7), k4(4,6), k4(4,5),k4(4,4),k4(4,9),k4(4,8),k4(4,10)/)
-  defsvm%interp_weights(20, 1:defsvm%cv_split) = (/ k4(4,2), k4(4,3), k4(4,1) , k4(4,6), k4(4,7), k4(4,8),k4(4,9),k4(4,4),k4(4,5),k4(4,10)/)
-  defsvm%interp_weights(21, 1:defsvm%cv_split) = (/ k4(4,1), k4(4,3), k4(4,2) , k4(4,9), k4(4,8), k4(4,7),k4(4,6),k4(4,5),k4(4,4),k4(4,10)/)
+  defsvm%interp_weights(4, 1:defsvm%ncv)  = (/ k4(4,1), k4(4,2), k4(4,3) , k4(4,4), k4(4,5), k4(4,6),k4(4,7),k4(4,8),k4(4,9),k4(4,10)/)!
+  defsvm%interp_weights(5, 1:defsvm%ncv)  = (/ k4(4,2), k4(4,1), k4(4,3) , k4(4,5), k4(4,4), k4(4,9),k4(4,8),k4(4,7),k4(4,6),k4(4,10)/)
+  defsvm%interp_weights(12, 1:defsvm%ncv) = (/ k4(4,3), k4(4,1), k4(4,2) , k4(4,8), k4(4,9), k4(4,4),k4(4,5),k4(4,6),k4(4,7),k4(4,10)/)
+  defsvm%interp_weights(13, 1:defsvm%ncv) = (/ k4(4,3), k4(4,2), k4(4,1) , k4(4,7), k4(4,6), k4(4,5),k4(4,4),k4(4,9),k4(4,8),k4(4,10)/)
+  defsvm%interp_weights(20, 1:defsvm%ncv) = (/ k4(4,2), k4(4,3), k4(4,1) , k4(4,6), k4(4,7), k4(4,8),k4(4,9),k4(4,4),k4(4,5),k4(4,10)/)
+  defsvm%interp_weights(21, 1:defsvm%ncv) = (/ k4(4,1), k4(4,3), k4(4,2) , k4(4,9), k4(4,8), k4(4,7),k4(4,6),k4(4,5),k4(4,4),k4(4,10)/)
 
-  defsvm%interp_weights(25, 1:defsvm%cv_split) = (/ k4(5,1), k4(5,2), k4(5,3) , k4(5,4), k4(5,5), k4(5,6),k4(5,7),k4(5,8),k4(5,9),k4(5,10)/)!
-  defsvm%interp_weights(29, 1:defsvm%cv_split) = (/ k4(5,2), k4(5,1), k4(5,3) , k4(5,5), k4(5,4), k4(5,9),k4(5,8),k4(5,7),k4(5,6),k4(5,10)/)
-  defsvm%interp_weights(31, 1:defsvm%cv_split) = (/ k4(5,3), k4(5,1), k4(5,2) , k4(5,8), k4(5,9), k4(5,4),k4(5,5),k4(5,6),k4(5,7),k4(5,10)/)
-  defsvm%interp_weights(35, 1:defsvm%cv_split) = (/ k4(5,3), k4(5,2), k4(5,1) , k4(5,7), k4(5,6), k4(5,5),k4(5,4),k4(5,9),k4(5,8),k4(5,10)/)
-  defsvm%interp_weights(37, 1:defsvm%cv_split) = (/ k4(5,2), k4(5,3), k4(5,1) , k4(5,6), k4(5,7), k4(5,8),k4(5,9),k4(5,4),k4(5,5),k4(5,10)/)
-  defsvm%interp_weights(41, 1:defsvm%cv_split) = (/ k4(5,1), k4(5,3), k4(5,2) , k4(5,9), k4(5,8), k4(5,7),k4(5,6),k4(5,5),k4(5,4),k4(5,10)/)
+  defsvm%interp_weights(25, 1:defsvm%ncv) = (/ k4(5,1), k4(5,2), k4(5,3) , k4(5,4), k4(5,5), k4(5,6),k4(5,7),k4(5,8),k4(5,9),k4(5,10)/)!
+  defsvm%interp_weights(29, 1:defsvm%ncv) = (/ k4(5,2), k4(5,1), k4(5,3) , k4(5,5), k4(5,4), k4(5,9),k4(5,8),k4(5,7),k4(5,6),k4(5,10)/)
+  defsvm%interp_weights(31, 1:defsvm%ncv) = (/ k4(5,3), k4(5,1), k4(5,2) , k4(5,8), k4(5,9), k4(5,4),k4(5,5),k4(5,6),k4(5,7),k4(5,10)/)
+  defsvm%interp_weights(35, 1:defsvm%ncv) = (/ k4(5,3), k4(5,2), k4(5,1) , k4(5,7), k4(5,6), k4(5,5),k4(5,4),k4(5,9),k4(5,8),k4(5,10)/)
+  defsvm%interp_weights(37, 1:defsvm%ncv) = (/ k4(5,2), k4(5,3), k4(5,1) , k4(5,6), k4(5,7), k4(5,8),k4(5,9),k4(5,4),k4(5,5),k4(5,10)/)
+  defsvm%interp_weights(41, 1:defsvm%ncv) = (/ k4(5,1), k4(5,3), k4(5,2) , k4(5,9), k4(5,8), k4(5,7),k4(5,6),k4(5,5),k4(5,4),k4(5,10)/)
 
-  defsvm%interp_weights(26, 1:defsvm%cv_split) = (/ k4(6,1), k4(6,2), k4(6,3) , k4(6,4), k4(6,5), k4(6,6),k4(6,7),k4(6,8),k4(6,9),k4(6,10)/)!
-  defsvm%interp_weights(30, 1:defsvm%cv_split) = (/ k4(6,2), k4(6,1), k4(6,3) , k4(6,5), k4(6,4), k4(6,9),k4(6,8),k4(6,7),k4(6,6),k4(6,10)/)
-  defsvm%interp_weights(32, 1:defsvm%cv_split) = (/ k4(6,3), k4(6,1), k4(6,2) , k4(6,8), k4(6,9), k4(6,4),k4(6,5),k4(6,6),k4(6,7),k4(6,10)/)
-  defsvm%interp_weights(36, 1:defsvm%cv_split) = (/ k4(6,3), k4(6,2), k4(6,1) , k4(6,7), k4(6,6), k4(6,5),k4(6,4),k4(6,9),k4(6,8),k4(6,10)/)
-  defsvm%interp_weights(38, 1:defsvm%cv_split) = (/ k4(6,2), k4(6,3), k4(6,1) , k4(6,6), k4(6,7), k4(6,8),k4(6,9),k4(6,4),k4(6,5),k4(6,10)/)
-  defsvm%interp_weights(42, 1:defsvm%cv_split) = (/ k4(6,1), k4(6,3), k4(6,2) , k4(6,9), k4(6,8), k4(6,7),k4(6,6),k4(6,5),k4(6,4),k4(6,10)/)
+  defsvm%interp_weights(26, 1:defsvm%ncv) = (/ k4(6,1), k4(6,2), k4(6,3) , k4(6,4), k4(6,5), k4(6,6),k4(6,7),k4(6,8),k4(6,9),k4(6,10)/)!
+  defsvm%interp_weights(30, 1:defsvm%ncv) = (/ k4(6,2), k4(6,1), k4(6,3) , k4(6,5), k4(6,4), k4(6,9),k4(6,8),k4(6,7),k4(6,6),k4(6,10)/)
+  defsvm%interp_weights(32, 1:defsvm%ncv) = (/ k4(6,3), k4(6,1), k4(6,2) , k4(6,8), k4(6,9), k4(6,4),k4(6,5),k4(6,6),k4(6,7),k4(6,10)/)
+  defsvm%interp_weights(36, 1:defsvm%ncv) = (/ k4(6,3), k4(6,2), k4(6,1) , k4(6,7), k4(6,6), k4(6,5),k4(6,4),k4(6,9),k4(6,8),k4(6,10)/)
+  defsvm%interp_weights(38, 1:defsvm%ncv) = (/ k4(6,2), k4(6,3), k4(6,1) , k4(6,6), k4(6,7), k4(6,8),k4(6,9),k4(6,4),k4(6,5),k4(6,10)/)
+  defsvm%interp_weights(42, 1:defsvm%ncv) = (/ k4(6,1), k4(6,3), k4(6,2) , k4(6,9), k4(6,8), k4(6,7),k4(6,6),k4(6,5),k4(6,4),k4(6,10)/)
 
-  defsvm%interp_weights(27, 1:defsvm%cv_split) = (/ k4(7,1), k4(7,2), k4(7,3) , k4(7,4), k4(7,5), k4(7,6),k4(7,7),k4(7,8),k4(7,9),k4(7,10)/)!
-  defsvm%interp_weights(33, 1:defsvm%cv_split) = (/ k4(7,3), k4(7,1), k4(7,2) , k4(7,8), k4(7,9), k4(7,4),k4(7,5),k4(7,6),k4(7,7),k4(7,10)/)
-  defsvm%interp_weights(39, 1:defsvm%cv_split) = (/ k4(7,1), k4(7,3), k4(7,2) , k4(7,9), k4(7,8), k4(7,7),k4(7,6),k4(7,5),k4(7,4),k4(7,10)/)
+  defsvm%interp_weights(27, 1:defsvm%ncv) = (/ k4(7,1), k4(7,2), k4(7,3) , k4(7,4), k4(7,5), k4(7,6),k4(7,7),k4(7,8),k4(7,9),k4(7,10)/)!
+  defsvm%interp_weights(33, 1:defsvm%ncv) = (/ k4(7,3), k4(7,1), k4(7,2) , k4(7,8), k4(7,9), k4(7,4),k4(7,5),k4(7,6),k4(7,7),k4(7,10)/)
+  defsvm%interp_weights(39, 1:defsvm%ncv) = (/ k4(7,1), k4(7,3), k4(7,2) , k4(7,9), k4(7,8), k4(7,7),k4(7,6),k4(7,5),k4(7,4),k4(7,10)/)
 
-  defsvm%interp_weights(28, 1:defsvm%cv_split) = (/ k4(8,1), k4(8,2), k4(8,3) , k4(8,4), k4(8,5), k4(8,6),k4(8,7),k4(8,8),k4(8,9),k4(8,10)/)!
-  defsvm%interp_weights(34, 1:defsvm%cv_split) = (/ k4(8,3), k4(8,1), k4(8,2) , k4(8,8), k4(8,9), k4(8,4),k4(8,5),k4(8,6),k4(8,7),k4(8,10)/)
-  defsvm%interp_weights(40, 1:defsvm%cv_split) = (/ k4(8,1), k4(8,3), k4(8,2) , k4(8,9), k4(8,8), k4(8,7),k4(8,6),k4(8,5),k4(8,4),k4(8,10)/)
+  defsvm%interp_weights(28, 1:defsvm%ncv) = (/ k4(8,1), k4(8,2), k4(8,3) , k4(8,4), k4(8,5), k4(8,6),k4(8,7),k4(8,8),k4(8,9),k4(8,10)/)!
+  defsvm%interp_weights(34, 1:defsvm%ncv) = (/ k4(8,3), k4(8,1), k4(8,2) , k4(8,8), k4(8,9), k4(8,4),k4(8,5),k4(8,6),k4(8,7),k4(8,10)/)
+  defsvm%interp_weights(40, 1:defsvm%ncv) = (/ k4(8,1), k4(8,3), k4(8,2) , k4(8,9), k4(8,8), k4(8,7),k4(8,6),k4(8,5),k4(8,4),k4(8,10)/)
 
-  defsvm%interp_weights(43, 1:defsvm%cv_split) = (/ k4(9,1), k4(9,2), k4(9,3) , k4(9,4), k4(9,5), k4(9,6),k4(9,7),k4(9,8),k4(9,9),k4(9,10)/)!
-  defsvm%interp_weights(46, 1:defsvm%cv_split) = (/ k4(9,2), k4(9,1), k4(9,3) , k4(9,5), k4(9,4), k4(9,9),k4(9,8),k4(9,7),k4(9,6),k4(9,10)/)
-  defsvm%interp_weights(47, 1:defsvm%cv_split) = (/ k4(9,3), k4(9,1), k4(9,2) , k4(9,8), k4(9,9), k4(9,4),k4(9,5),k4(9,6),k4(9,7),k4(9,10)/)
-  defsvm%interp_weights(50, 1:defsvm%cv_split) = (/ k4(9,3), k4(9,2), k4(9,1) , k4(9,7), k4(9,6), k4(9,5),k4(9,4),k4(9,9),k4(9,8),k4(9,10)/)
-  defsvm%interp_weights(51, 1:defsvm%cv_split) = (/ k4(9,2), k4(9,3), k4(9,1) , k4(9,6), k4(9,7), k4(9,8),k4(9,9),k4(9,4),k4(9,5),k4(9,10)/)
-  defsvm%interp_weights(54, 1:defsvm%cv_split) = (/ k4(9,1), k4(9,3), k4(9,2) , k4(9,9), k4(9,8), k4(9,7),k4(9,6),k4(9,5),k4(9,4),k4(9,10)/)
+  defsvm%interp_weights(43, 1:defsvm%ncv) = (/ k4(9,1), k4(9,2), k4(9,3) , k4(9,4), k4(9,5), k4(9,6),k4(9,7),k4(9,8),k4(9,9),k4(9,10)/)!
+  defsvm%interp_weights(46, 1:defsvm%ncv) = (/ k4(9,2), k4(9,1), k4(9,3) , k4(9,5), k4(9,4), k4(9,9),k4(9,8),k4(9,7),k4(9,6),k4(9,10)/)
+  defsvm%interp_weights(47, 1:defsvm%ncv) = (/ k4(9,3), k4(9,1), k4(9,2) , k4(9,8), k4(9,9), k4(9,4),k4(9,5),k4(9,6),k4(9,7),k4(9,10)/)
+  defsvm%interp_weights(50, 1:defsvm%ncv) = (/ k4(9,3), k4(9,2), k4(9,1) , k4(9,7), k4(9,6), k4(9,5),k4(9,4),k4(9,9),k4(9,8),k4(9,10)/)
+  defsvm%interp_weights(51, 1:defsvm%ncv) = (/ k4(9,2), k4(9,3), k4(9,1) , k4(9,6), k4(9,7), k4(9,8),k4(9,9),k4(9,4),k4(9,5),k4(9,10)/)
+  defsvm%interp_weights(54, 1:defsvm%ncv) = (/ k4(9,1), k4(9,3), k4(9,2) , k4(9,9), k4(9,8), k4(9,7),k4(9,6),k4(9,5),k4(9,4),k4(9,10)/)
 
-  defsvm%interp_weights(44, 1:defsvm%cv_split) = (/ k4(10,1), k4(10,2), k4(10,3) , k4(10,4), k4(10,5), k4(10,6),k4(10,7),k4(10,8),k4(10,9),k4(10,10)/)!
-  defsvm%interp_weights(45, 1:defsvm%cv_split) = (/ k4(10,2), k4(10,1), k4(10,3) , k4(10,5), k4(10,4), k4(10,9),k4(10,8),k4(10,7),k4(10,6),k4(10,10)/)
-  defsvm%interp_weights(48, 1:defsvm%cv_split) = (/ k4(10,3), k4(10,1), k4(10,2) , k4(10,8), k4(10,9), k4(10,4),k4(10,5),k4(10,6),k4(10,7),k4(10,10)/)
-  defsvm%interp_weights(49, 1:defsvm%cv_split) = (/ k4(10,3), k4(10,2), k4(10,1) , k4(10,7), k4(10,6), k4(10,5),k4(10,4),k4(10,9),k4(10,8),k4(10,10)/)
-  defsvm%interp_weights(52, 1:defsvm%cv_split) = (/ k4(10,2), k4(10,3), k4(10,1) , k4(10,6), k4(10,7), k4(10,8),k4(10,9),k4(10,4),k4(10,5),k4(10,10)/)
-  defsvm%interp_weights(53, 1:defsvm%cv_split) = (/ k4(10,1), k4(10,3), k4(10,2) , k4(10,9), k4(10,8), k4(10,7),k4(10,6),k4(10,5),k4(10,4),k4(10,10)/)
+  defsvm%interp_weights(44, 1:defsvm%ncv) = (/ k4(10,1), k4(10,2), k4(10,3) , k4(10,4), k4(10,5), k4(10,6),k4(10,7),k4(10,8),k4(10,9),k4(10,10)/)!
+  defsvm%interp_weights(45, 1:defsvm%ncv) = (/ k4(10,2), k4(10,1), k4(10,3) , k4(10,5), k4(10,4), k4(10,9),k4(10,8),k4(10,7),k4(10,6),k4(10,10)/)
+  defsvm%interp_weights(48, 1:defsvm%ncv) = (/ k4(10,3), k4(10,1), k4(10,2) , k4(10,8), k4(10,9), k4(10,4),k4(10,5),k4(10,6),k4(10,7),k4(10,10)/)
+  defsvm%interp_weights(49, 1:defsvm%ncv) = (/ k4(10,3), k4(10,2), k4(10,1) , k4(10,7), k4(10,6), k4(10,5),k4(10,4),k4(10,9),k4(10,8),k4(10,10)/)
+  defsvm%interp_weights(52, 1:defsvm%ncv) = (/ k4(10,2), k4(10,3), k4(10,1) , k4(10,6), k4(10,7), k4(10,8),k4(10,9),k4(10,4),k4(10,5),k4(10,10)/)
+  defsvm%interp_weights(53, 1:defsvm%ncv) = (/ k4(10,1), k4(10,3), k4(10,2) , k4(10,9), k4(10,8), k4(10,7),k4(10,6),k4(10,5),k4(10,4),k4(10,10)/)
 
   if (size(defsvm%interp_weights, 1) /= 54) call error_stop("SVM initialization: bad array size")
 
-  case(svm_4kris)   ! 12 independent points
+case(svm_4kris)   ! 12 independent points
+  defsvm%ncv     = 10
+  defsvm%ncvface = 30
+  defsvm%nfgauss = 2
+  allocate(defsvm%interp_weights(defsvm%ncvface*defsvm%nfgauss, defsvm%ncv))
  !Gauss point1 coefficients
   kk4(1,1) = 1.350186571632712_krp
   kk4(1,2) =-0.004622267015403575_krp
@@ -1023,94 +956,149 @@ select case(defsvm%sv_partition)
   kk4(12,9) =-0.06065292890941012_krp
   kk4(12,10)= 0.2566257441047929_krp
 
-  defsvm%interp_weights(1, 1:defsvm%cv_split)  = (/ kk4(1,1), kk4(1,2), kk4(1,3) , kk4(1,4), kk4(1,5), kk4(1,6),kk4(1,7),kk4(1,8),kk4(1,9),kk4(1,10)/)!
-  defsvm%interp_weights(8, 1:defsvm%cv_split)  = (/ kk4(1,2), kk4(1,1), kk4(1,3) , kk4(1,5), kk4(1,4), kk4(1,9),kk4(1,8),kk4(1,7),kk4(1,6),kk4(1,10)/)
-  defsvm%interp_weights(9, 1:defsvm%cv_split)  = (/ kk4(1,3), kk4(1,1), kk4(1,2) , kk4(1,8), kk4(1,9), kk4(1,4),kk4(1,5),kk4(1,6),kk4(1,7),kk4(1,10)/)
-  defsvm%interp_weights(16, 1:defsvm%cv_split) = (/ kk4(1,3), kk4(1,2), kk4(1,1) , kk4(1,7), kk4(1,6), kk4(1,5),kk4(1,4),kk4(1,9),kk4(1,8),kk4(1,10)/)
-  defsvm%interp_weights(17, 1:defsvm%cv_split) = (/ kk4(1,2), kk4(1,3), kk4(1,1) , kk4(1,6), kk4(1,7), kk4(1,8),kk4(1,9),kk4(1,4),kk4(1,5),kk4(1,10)/)
-  defsvm%interp_weights(24, 1:defsvm%cv_split) = (/ kk4(1,1), kk4(1,3), kk4(1,2) , kk4(1,9), kk4(1,8), kk4(1,7),kk4(1,6),kk4(1,5),kk4(1,4),kk4(1,10)/)
+  defsvm%interp_weights(1, 1:defsvm%ncv)  = (/ kk4(1,1), kk4(1,2), kk4(1,3) , kk4(1,4), kk4(1,5), kk4(1,6),kk4(1,7),kk4(1,8),kk4(1,9),kk4(1,10)/)!
+  defsvm%interp_weights(8, 1:defsvm%ncv)  = (/ kk4(1,2), kk4(1,1), kk4(1,3) , kk4(1,5), kk4(1,4), kk4(1,9),kk4(1,8),kk4(1,7),kk4(1,6),kk4(1,10)/)
+  defsvm%interp_weights(9, 1:defsvm%ncv)  = (/ kk4(1,3), kk4(1,1), kk4(1,2) , kk4(1,8), kk4(1,9), kk4(1,4),kk4(1,5),kk4(1,6),kk4(1,7),kk4(1,10)/)
+  defsvm%interp_weights(16, 1:defsvm%ncv) = (/ kk4(1,3), kk4(1,2), kk4(1,1) , kk4(1,7), kk4(1,6), kk4(1,5),kk4(1,4),kk4(1,9),kk4(1,8),kk4(1,10)/)
+  defsvm%interp_weights(17, 1:defsvm%ncv) = (/ kk4(1,2), kk4(1,3), kk4(1,1) , kk4(1,6), kk4(1,7), kk4(1,8),kk4(1,9),kk4(1,4),kk4(1,5),kk4(1,10)/)
+  defsvm%interp_weights(24, 1:defsvm%ncv) = (/ kk4(1,1), kk4(1,3), kk4(1,2) , kk4(1,9), kk4(1,8), kk4(1,7),kk4(1,6),kk4(1,5),kk4(1,4),kk4(1,10)/)
 
-  defsvm%interp_weights(2, 1:defsvm%cv_split)  = (/ kk4(2,1), kk4(2,2), kk4(2,3) , kk4(2,4), kk4(2,5), kk4(2,6),kk4(2,7),kk4(2,8),kk4(2,9),kk4(2,10)/)!
-  defsvm%interp_weights(7, 1:defsvm%cv_split)  = (/ kk4(2,2), kk4(2,1), kk4(2,3) , kk4(2,5), kk4(2,4), kk4(2,9),kk4(2,8),kk4(2,7),kk4(2,6),kk4(2,10)/)
-  defsvm%interp_weights(10, 1:defsvm%cv_split) = (/ kk4(2,3), kk4(2,1), kk4(2,2) , kk4(2,8), kk4(2,9), kk4(2,4),kk4(2,5),kk4(2,6),kk4(2,7),kk4(2,10)/)
-  defsvm%interp_weights(15, 1:defsvm%cv_split) = (/ kk4(2,3), kk4(2,2), kk4(2,1) , kk4(2,7), kk4(2,6), kk4(2,5),kk4(2,4),kk4(2,9),kk4(2,8),kk4(2,10)/)
-  defsvm%interp_weights(18, 1:defsvm%cv_split) = (/ kk4(2,2), kk4(2,3), kk4(2,1) , kk4(2,6), kk4(2,7), kk4(2,8),kk4(2,9),kk4(2,4),kk4(2,5),kk4(2,10)/)
-  defsvm%interp_weights(23, 1:defsvm%cv_split) = (/ kk4(2,1), kk4(2,3), kk4(2,2) , kk4(2,9), kk4(2,8), kk4(2,7),kk4(2,6),kk4(2,5),kk4(2,4),kk4(2,10)/)
+  defsvm%interp_weights(2, 1:defsvm%ncv)  = (/ kk4(2,1), kk4(2,2), kk4(2,3) , kk4(2,4), kk4(2,5), kk4(2,6),kk4(2,7),kk4(2,8),kk4(2,9),kk4(2,10)/)!
+  defsvm%interp_weights(7, 1:defsvm%ncv)  = (/ kk4(2,2), kk4(2,1), kk4(2,3) , kk4(2,5), kk4(2,4), kk4(2,9),kk4(2,8),kk4(2,7),kk4(2,6),kk4(2,10)/)
+  defsvm%interp_weights(10, 1:defsvm%ncv) = (/ kk4(2,3), kk4(2,1), kk4(2,2) , kk4(2,8), kk4(2,9), kk4(2,4),kk4(2,5),kk4(2,6),kk4(2,7),kk4(2,10)/)
+  defsvm%interp_weights(15, 1:defsvm%ncv) = (/ kk4(2,3), kk4(2,2), kk4(2,1) , kk4(2,7), kk4(2,6), kk4(2,5),kk4(2,4),kk4(2,9),kk4(2,8),kk4(2,10)/)
+  defsvm%interp_weights(18, 1:defsvm%ncv) = (/ kk4(2,2), kk4(2,3), kk4(2,1) , kk4(2,6), kk4(2,7), kk4(2,8),kk4(2,9),kk4(2,4),kk4(2,5),kk4(2,10)/)
+  defsvm%interp_weights(23, 1:defsvm%ncv) = (/ kk4(2,1), kk4(2,3), kk4(2,2) , kk4(2,9), kk4(2,8), kk4(2,7),kk4(2,6),kk4(2,5),kk4(2,4),kk4(2,10)/)
 
-  defsvm%interp_weights(3, 1:defsvm%cv_split)  = (/ kk4(3,1), kk4(3,2), kk4(3,3) , kk4(3,4), kk4(3,5), kk4(3,6),kk4(3,7),kk4(3,8),kk4(3,9),kk4(3,10)/)!
-  defsvm%interp_weights(6, 1:defsvm%cv_split)  = (/ kk4(3,2), kk4(3,1), kk4(3,3) , kk4(3,5), kk4(3,4), kk4(3,9),kk4(3,8),kk4(3,7),kk4(3,6),kk4(3,10)/)
-  defsvm%interp_weights(11, 1:defsvm%cv_split) = (/ kk4(3,3), kk4(3,1), kk4(3,2) , kk4(3,8), kk4(3,9), kk4(3,4),kk4(3,5),kk4(3,6),kk4(3,7),kk4(3,10)/)
-  defsvm%interp_weights(14, 1:defsvm%cv_split) = (/ kk4(3,3), kk4(3,2), kk4(3,1) , kk4(3,7), kk4(3,6), kk4(3,5),kk4(3,4),kk4(3,9),kk4(3,8),kk4(3,10)/)
-  defsvm%interp_weights(19, 1:defsvm%cv_split) = (/ kk4(3,2), kk4(3,3), kk4(3,1) , kk4(3,6), kk4(3,7), kk4(3,8),kk4(3,9),kk4(3,4),kk4(3,5),kk4(3,10)/)
-  defsvm%interp_weights(22, 1:defsvm%cv_split) = (/ kk4(3,1), kk4(3,3), kk4(3,2) , kk4(3,9), kk4(3,8), kk4(3,7),kk4(3,6),kk4(3,5),kk4(3,4),kk4(3,10)/)
+  defsvm%interp_weights(3, 1:defsvm%ncv)  = (/ kk4(3,1), kk4(3,2), kk4(3,3) , kk4(3,4), kk4(3,5), kk4(3,6),kk4(3,7),kk4(3,8),kk4(3,9),kk4(3,10)/)!
+  defsvm%interp_weights(6, 1:defsvm%ncv)  = (/ kk4(3,2), kk4(3,1), kk4(3,3) , kk4(3,5), kk4(3,4), kk4(3,9),kk4(3,8),kk4(3,7),kk4(3,6),kk4(3,10)/)
+  defsvm%interp_weights(11, 1:defsvm%ncv) = (/ kk4(3,3), kk4(3,1), kk4(3,2) , kk4(3,8), kk4(3,9), kk4(3,4),kk4(3,5),kk4(3,6),kk4(3,7),kk4(3,10)/)
+  defsvm%interp_weights(14, 1:defsvm%ncv) = (/ kk4(3,3), kk4(3,2), kk4(3,1) , kk4(3,7), kk4(3,6), kk4(3,5),kk4(3,4),kk4(3,9),kk4(3,8),kk4(3,10)/)
+  defsvm%interp_weights(19, 1:defsvm%ncv) = (/ kk4(3,2), kk4(3,3), kk4(3,1) , kk4(3,6), kk4(3,7), kk4(3,8),kk4(3,9),kk4(3,4),kk4(3,5),kk4(3,10)/)
+  defsvm%interp_weights(22, 1:defsvm%ncv) = (/ kk4(3,1), kk4(3,3), kk4(3,2) , kk4(3,9), kk4(3,8), kk4(3,7),kk4(3,6),kk4(3,5),kk4(3,4),kk4(3,10)/)
 
-  defsvm%interp_weights(4, 1:defsvm%cv_split)  = (/ kk4(4,1), kk4(4,2), kk4(4,3) , kk4(4,4), kk4(4,5), kk4(4,6),kk4(4,7),kk4(4,8),kk4(4,9),kk4(4,10)/)!
-  defsvm%interp_weights(5, 1:defsvm%cv_split)  = (/ kk4(4,2), kk4(4,1), kk4(4,3) , kk4(4,5), kk4(4,4), kk4(4,9),kk4(4,8),kk4(4,7),kk4(4,6),kk4(4,10)/)
-  defsvm%interp_weights(12, 1:defsvm%cv_split) = (/ kk4(4,3), kk4(4,1), kk4(4,2) , kk4(4,8), kk4(4,9), kk4(4,4),kk4(4,5),kk4(4,6),kk4(4,7),kk4(4,10)/)
-  defsvm%interp_weights(13, 1:defsvm%cv_split) = (/ kk4(4,3), kk4(4,2), kk4(4,1) , kk4(4,7), kk4(4,6), kk4(4,5),kk4(4,4),kk4(4,9),kk4(4,8),kk4(4,10)/)
-  defsvm%interp_weights(20, 1:defsvm%cv_split) = (/ kk4(4,2), kk4(4,3), kk4(4,1) , kk4(4,6), kk4(4,7), kk4(4,8),kk4(4,9),kk4(4,4),kk4(4,5),kk4(4,10)/)
-  defsvm%interp_weights(21, 1:defsvm%cv_split) = (/ kk4(4,1), kk4(4,3), kk4(4,2) , kk4(4,9), kk4(4,8), kk4(4,7),kk4(4,6),kk4(4,5),kk4(4,4),kk4(4,10)/)
+  defsvm%interp_weights(4, 1:defsvm%ncv)  = (/ kk4(4,1), kk4(4,2), kk4(4,3) , kk4(4,4), kk4(4,5), kk4(4,6),kk4(4,7),kk4(4,8),kk4(4,9),kk4(4,10)/)!
+  defsvm%interp_weights(5, 1:defsvm%ncv)  = (/ kk4(4,2), kk4(4,1), kk4(4,3) , kk4(4,5), kk4(4,4), kk4(4,9),kk4(4,8),kk4(4,7),kk4(4,6),kk4(4,10)/)
+  defsvm%interp_weights(12, 1:defsvm%ncv) = (/ kk4(4,3), kk4(4,1), kk4(4,2) , kk4(4,8), kk4(4,9), kk4(4,4),kk4(4,5),kk4(4,6),kk4(4,7),kk4(4,10)/)
+  defsvm%interp_weights(13, 1:defsvm%ncv) = (/ kk4(4,3), kk4(4,2), kk4(4,1) , kk4(4,7), kk4(4,6), kk4(4,5),kk4(4,4),kk4(4,9),kk4(4,8),kk4(4,10)/)
+  defsvm%interp_weights(20, 1:defsvm%ncv) = (/ kk4(4,2), kk4(4,3), kk4(4,1) , kk4(4,6), kk4(4,7), kk4(4,8),kk4(4,9),kk4(4,4),kk4(4,5),kk4(4,10)/)
+  defsvm%interp_weights(21, 1:defsvm%ncv) = (/ kk4(4,1), kk4(4,3), kk4(4,2) , kk4(4,9), kk4(4,8), kk4(4,7),kk4(4,6),kk4(4,5),kk4(4,4),kk4(4,10)/)
 
-  defsvm%interp_weights(25, 1:defsvm%cv_split) = (/ kk4(5,1), kk4(5,2), kk4(5,3) , kk4(5,4), kk4(5,5), kk4(5,6),kk4(5,7),kk4(5,8),kk4(5,9),kk4(5,10)/)!
-  defsvm%interp_weights(29, 1:defsvm%cv_split) = (/ kk4(5,2), kk4(5,1), kk4(5,3) , kk4(5,5), kk4(5,4), kk4(5,9),kk4(5,8),kk4(5,7),kk4(5,6),kk4(5,10)/)
-  defsvm%interp_weights(31, 1:defsvm%cv_split) = (/ kk4(5,3), kk4(5,1), kk4(5,2) , kk4(5,8), kk4(5,9), kk4(5,4),kk4(5,5),kk4(5,6),kk4(5,7),kk4(5,10)/)
-  defsvm%interp_weights(35, 1:defsvm%cv_split) = (/ kk4(5,3), kk4(5,2), kk4(5,1) , kk4(5,7), kk4(5,6), kk4(5,5),kk4(5,4),kk4(5,9),kk4(5,8),kk4(5,10)/)
-  defsvm%interp_weights(37, 1:defsvm%cv_split) = (/ kk4(5,2), kk4(5,3), kk4(5,1) , kk4(5,6), kk4(5,7), kk4(5,8),kk4(5,9),kk4(5,4),kk4(5,5),kk4(5,10)/)
-  defsvm%interp_weights(41, 1:defsvm%cv_split) = (/ kk4(5,1), kk4(5,3), kk4(5,2) , kk4(5,9), kk4(5,8), kk4(5,7),kk4(5,6),kk4(5,5),kk4(5,4),kk4(5,10)/)
+  defsvm%interp_weights(25, 1:defsvm%ncv) = (/ kk4(5,1), kk4(5,2), kk4(5,3) , kk4(5,4), kk4(5,5), kk4(5,6),kk4(5,7),kk4(5,8),kk4(5,9),kk4(5,10)/)!
+  defsvm%interp_weights(29, 1:defsvm%ncv) = (/ kk4(5,2), kk4(5,1), kk4(5,3) , kk4(5,5), kk4(5,4), kk4(5,9),kk4(5,8),kk4(5,7),kk4(5,6),kk4(5,10)/)
+  defsvm%interp_weights(31, 1:defsvm%ncv) = (/ kk4(5,3), kk4(5,1), kk4(5,2) , kk4(5,8), kk4(5,9), kk4(5,4),kk4(5,5),kk4(5,6),kk4(5,7),kk4(5,10)/)
+  defsvm%interp_weights(35, 1:defsvm%ncv) = (/ kk4(5,3), kk4(5,2), kk4(5,1) , kk4(5,7), kk4(5,6), kk4(5,5),kk4(5,4),kk4(5,9),kk4(5,8),kk4(5,10)/)
+  defsvm%interp_weights(37, 1:defsvm%ncv) = (/ kk4(5,2), kk4(5,3), kk4(5,1) , kk4(5,6), kk4(5,7), kk4(5,8),kk4(5,9),kk4(5,4),kk4(5,5),kk4(5,10)/)
+  defsvm%interp_weights(41, 1:defsvm%ncv) = (/ kk4(5,1), kk4(5,3), kk4(5,2) , kk4(5,9), kk4(5,8), kk4(5,7),kk4(5,6),kk4(5,5),kk4(5,4),kk4(5,10)/)
 
-  defsvm%interp_weights(26, 1:defsvm%cv_split) = (/ kk4(6,1), kk4(6,2), kk4(6,3) , kk4(6,4), kk4(6,5), kk4(6,6),kk4(6,7),kk4(6,8),kk4(6,9),kk4(6,10)/)!
-  defsvm%interp_weights(30, 1:defsvm%cv_split) = (/ kk4(6,2), kk4(6,1), kk4(6,3) , kk4(6,5), kk4(6,4), kk4(6,9),kk4(6,8),kk4(6,7),kk4(6,6),kk4(6,10)/)
-  defsvm%interp_weights(32, 1:defsvm%cv_split) = (/ kk4(6,3), kk4(6,1), kk4(6,2) , kk4(6,8), kk4(6,9), kk4(6,4),kk4(6,5),kk4(6,6),kk4(6,7),kk4(6,10)/)
-  defsvm%interp_weights(36, 1:defsvm%cv_split) = (/ kk4(6,3), kk4(6,2), kk4(6,1) , kk4(6,7), kk4(6,6), kk4(6,5),kk4(6,4),kk4(6,9),kk4(6,8),kk4(6,10)/)
-  defsvm%interp_weights(38, 1:defsvm%cv_split) = (/ kk4(6,2), kk4(6,3), kk4(6,1) , kk4(6,6), kk4(6,7), kk4(6,8),kk4(6,9),kk4(6,4),kk4(6,5),kk4(6,10)/)
-  defsvm%interp_weights(42, 1:defsvm%cv_split) = (/ kk4(6,1), kk4(6,3), kk4(6,2) , kk4(6,9), kk4(6,8), kk4(6,7),kk4(6,6),kk4(6,5),kk4(6,4),kk4(6,10)/)
+  defsvm%interp_weights(26, 1:defsvm%ncv) = (/ kk4(6,1), kk4(6,2), kk4(6,3) , kk4(6,4), kk4(6,5), kk4(6,6),kk4(6,7),kk4(6,8),kk4(6,9),kk4(6,10)/)!
+  defsvm%interp_weights(30, 1:defsvm%ncv) = (/ kk4(6,2), kk4(6,1), kk4(6,3) , kk4(6,5), kk4(6,4), kk4(6,9),kk4(6,8),kk4(6,7),kk4(6,6),kk4(6,10)/)
+  defsvm%interp_weights(32, 1:defsvm%ncv) = (/ kk4(6,3), kk4(6,1), kk4(6,2) , kk4(6,8), kk4(6,9), kk4(6,4),kk4(6,5),kk4(6,6),kk4(6,7),kk4(6,10)/)
+  defsvm%interp_weights(36, 1:defsvm%ncv) = (/ kk4(6,3), kk4(6,2), kk4(6,1) , kk4(6,7), kk4(6,6), kk4(6,5),kk4(6,4),kk4(6,9),kk4(6,8),kk4(6,10)/)
+  defsvm%interp_weights(38, 1:defsvm%ncv) = (/ kk4(6,2), kk4(6,3), kk4(6,1) , kk4(6,6), kk4(6,7), kk4(6,8),kk4(6,9),kk4(6,4),kk4(6,5),kk4(6,10)/)
+  defsvm%interp_weights(42, 1:defsvm%ncv) = (/ kk4(6,1), kk4(6,3), kk4(6,2) , kk4(6,9), kk4(6,8), kk4(6,7),kk4(6,6),kk4(6,5),kk4(6,4),kk4(6,10)/)
 
-  defsvm%interp_weights(27, 1:defsvm%cv_split) = (/ kk4(7,1), kk4(7,2), kk4(7,3) , kk4(7,4), kk4(7,5), kk4(7,6),kk4(7,7),kk4(7,8),kk4(7,9),kk4(7,10)/)!
-  defsvm%interp_weights(33, 1:defsvm%cv_split) = (/ kk4(7,3), kk4(7,1), kk4(7,2) , kk4(7,8), kk4(7,9), kk4(7,4),kk4(7,5),kk4(7,6),kk4(7,7),kk4(7,10)/)
-  defsvm%interp_weights(39, 1:defsvm%cv_split) = (/ kk4(7,1), kk4(7,3), kk4(7,2) , kk4(7,9), kk4(7,8), kk4(7,7),kk4(7,6),kk4(7,5),kk4(7,4),kk4(7,10)/)
+  defsvm%interp_weights(27, 1:defsvm%ncv) = (/ kk4(7,1), kk4(7,2), kk4(7,3) , kk4(7,4), kk4(7,5), kk4(7,6),kk4(7,7),kk4(7,8),kk4(7,9),kk4(7,10)/)!
+  defsvm%interp_weights(33, 1:defsvm%ncv) = (/ kk4(7,3), kk4(7,1), kk4(7,2) , kk4(7,8), kk4(7,9), kk4(7,4),kk4(7,5),kk4(7,6),kk4(7,7),kk4(7,10)/)
+  defsvm%interp_weights(39, 1:defsvm%ncv) = (/ kk4(7,1), kk4(7,3), kk4(7,2) , kk4(7,9), kk4(7,8), kk4(7,7),kk4(7,6),kk4(7,5),kk4(7,4),kk4(7,10)/)
 
-  defsvm%interp_weights(28, 1:defsvm%cv_split) = (/ kk4(8,1), kk4(8,2), kk4(8,3) , kk4(8,4), kk4(8,5), kk4(8,6),kk4(8,7),kk4(8,8),kk4(8,9),kk4(8,10)/)!
-  defsvm%interp_weights(34, 1:defsvm%cv_split) = (/ kk4(8,3), kk4(8,1), kk4(8,2) , kk4(8,8), kk4(8,9), kk4(8,4),kk4(8,5),kk4(8,6),kk4(8,7),kk4(8,10)/)
-  defsvm%interp_weights(40, 1:defsvm%cv_split) = (/ kk4(8,1), kk4(8,3), kk4(8,2) , kk4(8,9), kk4(8,8), kk4(8,7),kk4(8,6),kk4(8,5),kk4(8,4),kk4(8,10)/)
-
-
-  defsvm%interp_weights(43, 1:defsvm%cv_split) = (/ kk4(9,1), kk4(9,2), kk4(9,3) , kk4(9,4), kk4(9,5), kk4(9,6),kk4(9,7),kk4(9,8),kk4(9,9),kk4(9,10)/)!
-  defsvm%interp_weights(45, 1:defsvm%cv_split) = (/ kk4(9,3), kk4(9,1), kk4(9,2) , kk4(9,8), kk4(9,9), kk4(9,4),kk4(9,5),kk4(9,6),kk4(9,7),kk4(9,10)/)
-  defsvm%interp_weights(47, 1:defsvm%cv_split) = (/ kk4(9,2), kk4(9,3), kk4(9,1) , kk4(9,6), kk4(9,7), kk4(9,8),kk4(9,9),kk4(9,4),kk4(9,5),kk4(9,10)/)
-
-  defsvm%interp_weights(44, 1:defsvm%cv_split) = (/ kk4(10,1), kk4(10,2), kk4(10,3) , kk4(10,4), kk4(10,5), kk4(10,6),kk4(10,7),kk4(10,8),kk4(10,9),kk4(10,10)/)!
-  defsvm%interp_weights(46, 1:defsvm%cv_split) = (/ kk4(10,3), kk4(10,1), kk4(10,2) , kk4(10,8), kk4(10,9), kk4(10,4),kk4(10,5),kk4(10,6),kk4(10,7),kk4(10,10)/)
-  defsvm%interp_weights(48, 1:defsvm%cv_split) = (/ kk4(10,2), kk4(10,3), kk4(10,1) , kk4(10,6), kk4(10,7), kk4(10,8),kk4(10,9),kk4(10,4),kk4(10,5),kk4(10,10)/)
-
-  defsvm%interp_weights(49, 1:defsvm%cv_split) = (/ kk4(11,1), kk4(11,2), kk4(11,3) , kk4(11,4), kk4(11,5), kk4(11,6),kk4(11,7),kk4(11,8),kk4(11,9),kk4(11,10)/)!
-  defsvm%interp_weights(52, 1:defsvm%cv_split) = (/ kk4(11,2), kk4(11,1), kk4(11,3) , kk4(11,5), kk4(11,4), kk4(11,9),kk4(11,8),kk4(11,7),kk4(11,6),kk4(11,10)/)
-  defsvm%interp_weights(53, 1:defsvm%cv_split) = (/ kk4(11,3), kk4(11,1), kk4(11,2) , kk4(11,8), kk4(11,9), kk4(11,4),kk4(11,5),kk4(11,6),kk4(11,7),kk4(11,10)/)
-  defsvm%interp_weights(56, 1:defsvm%cv_split) = (/ kk4(11,3), kk4(11,2), kk4(11,1) , kk4(11,7), kk4(11,6), kk4(11,5),kk4(11,4),kk4(11,9),kk4(11,8),kk4(11,10)/)
-  defsvm%interp_weights(57, 1:defsvm%cv_split) = (/ kk4(11,2), kk4(11,3), kk4(11,1) , kk4(11,6), kk4(11,7), kk4(11,8),kk4(11,9),kk4(11,4),kk4(11,5),kk4(11,10)/)
-  defsvm%interp_weights(60, 1:defsvm%cv_split) = (/ kk4(11,1), kk4(11,3), kk4(11,2) , kk4(11,9), kk4(11,8), kk4(11,7),kk4(11,6),kk4(11,5),kk4(11,4),kk4(11,10)/)
+  defsvm%interp_weights(28, 1:defsvm%ncv) = (/ kk4(8,1), kk4(8,2), kk4(8,3) , kk4(8,4), kk4(8,5), kk4(8,6),kk4(8,7),kk4(8,8),kk4(8,9),kk4(8,10)/)!
+  defsvm%interp_weights(34, 1:defsvm%ncv) = (/ kk4(8,3), kk4(8,1), kk4(8,2) , kk4(8,8), kk4(8,9), kk4(8,4),kk4(8,5),kk4(8,6),kk4(8,7),kk4(8,10)/)
+  defsvm%interp_weights(40, 1:defsvm%ncv) = (/ kk4(8,1), kk4(8,3), kk4(8,2) , kk4(8,9), kk4(8,8), kk4(8,7),kk4(8,6),kk4(8,5),kk4(8,4),kk4(8,10)/)
 
 
-  defsvm%interp_weights(50, 1:defsvm%cv_split) = (/ kk4(12,1), kk4(12,2), kk4(12,3) , kk4(12,4), kk4(12,5), kk4(12,6),kk4(12,7),kk4(12,8),kk4(12,9),kk4(12,10)/)!
-  defsvm%interp_weights(51, 1:defsvm%cv_split) = (/ kk4(12,2), kk4(12,1), kk4(12,3) , kk4(12,5), kk4(12,4), kk4(12,9),kk4(12,8),kk4(12,7),kk4(12,6),kk4(12,10)/)
-  defsvm%interp_weights(54, 1:defsvm%cv_split) = (/ kk4(12,3), kk4(12,1), kk4(12,2) , kk4(12,8), kk4(12,9), kk4(12,4),kk4(12,5),kk4(12,6),kk4(12,7),kk4(12,10)/)
-  defsvm%interp_weights(55, 1:defsvm%cv_split) = (/ kk4(12,3), kk4(12,2), kk4(12,1) , kk4(12,7), kk4(12,6), kk4(12,5),kk4(12,4),kk4(12,9),kk4(12,8),kk4(12,10)/)
-  defsvm%interp_weights(58, 1:defsvm%cv_split) = (/ kk4(12,2), kk4(12,3), kk4(12,1) , kk4(12,6), kk4(12,7), kk4(12,8),kk4(12,9),kk4(12,4),kk4(12,5),kk4(12,10)/)
-  defsvm%interp_weights(59, 1:defsvm%cv_split) = (/ kk4(12,1), kk4(12,3), kk4(12,2) , kk4(12,9), kk4(12,8), kk4(12,7),kk4(12,6),kk4(12,5),kk4(12,4),kk4(12,10)/)
+  defsvm%interp_weights(43, 1:defsvm%ncv) = (/ kk4(9,1), kk4(9,2), kk4(9,3) , kk4(9,4), kk4(9,5), kk4(9,6),kk4(9,7),kk4(9,8),kk4(9,9),kk4(9,10)/)!
+  defsvm%interp_weights(45, 1:defsvm%ncv) = (/ kk4(9,3), kk4(9,1), kk4(9,2) , kk4(9,8), kk4(9,9), kk4(9,4),kk4(9,5),kk4(9,6),kk4(9,7),kk4(9,10)/)
+  defsvm%interp_weights(47, 1:defsvm%ncv) = (/ kk4(9,2), kk4(9,3), kk4(9,1) , kk4(9,6), kk4(9,7), kk4(9,8),kk4(9,9),kk4(9,4),kk4(9,5),kk4(9,10)/)
+
+  defsvm%interp_weights(44, 1:defsvm%ncv) = (/ kk4(10,1), kk4(10,2), kk4(10,3) , kk4(10,4), kk4(10,5), kk4(10,6),kk4(10,7),kk4(10,8),kk4(10,9),kk4(10,10)/)!
+  defsvm%interp_weights(46, 1:defsvm%ncv) = (/ kk4(10,3), kk4(10,1), kk4(10,2) , kk4(10,8), kk4(10,9), kk4(10,4),kk4(10,5),kk4(10,6),kk4(10,7),kk4(10,10)/)
+  defsvm%interp_weights(48, 1:defsvm%ncv) = (/ kk4(10,2), kk4(10,3), kk4(10,1) , kk4(10,6), kk4(10,7), kk4(10,8),kk4(10,9),kk4(10,4),kk4(10,5),kk4(10,10)/)
+
+  defsvm%interp_weights(49, 1:defsvm%ncv) = (/ kk4(11,1), kk4(11,2), kk4(11,3) , kk4(11,4), kk4(11,5), kk4(11,6),kk4(11,7),kk4(11,8),kk4(11,9),kk4(11,10)/)!
+  defsvm%interp_weights(52, 1:defsvm%ncv) = (/ kk4(11,2), kk4(11,1), kk4(11,3) , kk4(11,5), kk4(11,4), kk4(11,9),kk4(11,8),kk4(11,7),kk4(11,6),kk4(11,10)/)
+  defsvm%interp_weights(53, 1:defsvm%ncv) = (/ kk4(11,3), kk4(11,1), kk4(11,2) , kk4(11,8), kk4(11,9), kk4(11,4),kk4(11,5),kk4(11,6),kk4(11,7),kk4(11,10)/)
+  defsvm%interp_weights(56, 1:defsvm%ncv) = (/ kk4(11,3), kk4(11,2), kk4(11,1) , kk4(11,7), kk4(11,6), kk4(11,5),kk4(11,4),kk4(11,9),kk4(11,8),kk4(11,10)/)
+  defsvm%interp_weights(57, 1:defsvm%ncv) = (/ kk4(11,2), kk4(11,3), kk4(11,1) , kk4(11,6), kk4(11,7), kk4(11,8),kk4(11,9),kk4(11,4),kk4(11,5),kk4(11,10)/)
+  defsvm%interp_weights(60, 1:defsvm%ncv) = (/ kk4(11,1), kk4(11,3), kk4(11,2) , kk4(11,9), kk4(11,8), kk4(11,7),kk4(11,6),kk4(11,5),kk4(11,4),kk4(11,10)/)
+
+
+  defsvm%interp_weights(50, 1:defsvm%ncv) = (/ kk4(12,1), kk4(12,2), kk4(12,3) , kk4(12,4), kk4(12,5), kk4(12,6),kk4(12,7),kk4(12,8),kk4(12,9),kk4(12,10)/)!
+  defsvm%interp_weights(51, 1:defsvm%ncv) = (/ kk4(12,2), kk4(12,1), kk4(12,3) , kk4(12,5), kk4(12,4), kk4(12,9),kk4(12,8),kk4(12,7),kk4(12,6),kk4(12,10)/)
+  defsvm%interp_weights(54, 1:defsvm%ncv) = (/ kk4(12,3), kk4(12,1), kk4(12,2) , kk4(12,8), kk4(12,9), kk4(12,4),kk4(12,5),kk4(12,6),kk4(12,7),kk4(12,10)/)
+  defsvm%interp_weights(55, 1:defsvm%ncv) = (/ kk4(12,3), kk4(12,2), kk4(12,1) , kk4(12,7), kk4(12,6), kk4(12,5),kk4(12,4),kk4(12,9),kk4(12,8),kk4(12,10)/)
+  defsvm%interp_weights(58, 1:defsvm%ncv) = (/ kk4(12,2), kk4(12,3), kk4(12,1) , kk4(12,6), kk4(12,7), kk4(12,8),kk4(12,9),kk4(12,4),kk4(12,5),kk4(12,10)/)
+  defsvm%interp_weights(59, 1:defsvm%ncv) = (/ kk4(12,1), kk4(12,3), kk4(12,2) , kk4(12,9), kk4(12,8), kk4(12,7),kk4(12,6),kk4(12,5),kk4(12,4),kk4(12,10)/)
 
   if (size(defsvm%interp_weights, 1) /= 60) call erreur("SVM initialization", "bad array size")
 
-  case(svm_4kris2)   ! 12 independent points ... to be continued ...
-  call erreur("parameters parsing","unknown SVM method (init_svmweights)")
+case(svm_4kris2)   ! 12 independent points ... to be continued ...
+  defsvm%ncv     = 10
+  defsvm%ncvface = 9
+  defsvm%nfgauss = 1
+  allocate(defsvm%interp_weights(defsvm%ncvface*defsvm%nfgauss, defsvm%ncv))
 
-endselect
+  call error_stop("development: SVM4 Kris 2 method not implemented (init_svmweights)")
 
 case default
-  call erreur("parameters parsing","unknown SVM method (init_svmweights)")
+  call error_stop("internal error: unknown SVM method (init_svmweights)")
 endselect
 
 endsubroutine init_svmweights
 
+!-------------------------------------------------------------------------
+! distribute SVM 3 coefficients on tri
+!-------------------------------------------------------------------------
+subroutine distrib_svmweights_tri3(defsvm, k)
+implicit none
+! -- parameters --
+type(mnu_svm) :: defsvm
+real(krp)     :: k(7,6)
 
+  defsvm%interp_weights(  1, 1:defsvm%ncv) = (/ k(1,1), k(1,2), k(1,3) , k(1,4), k(1,5), k(1,6)/)!
+  defsvm%interp_weights(  2, 1:defsvm%ncv) = (/ k(2,1), k(2,2), k(2,3) , k(2,4), k(2,5), k(2,6)/)!
+  defsvm%interp_weights(  3, 1:defsvm%ncv) = (/ k(3,1), k(3,2), k(3,3) , k(3,4), k(3,5), k(3,6)/)!
+
+  defsvm%interp_weights(  4, 1:defsvm%ncv) = (/ k(3,2), k(3,1), k(3,3) , k(3,4), k(3,6), k(3,5)/)
+  defsvm%interp_weights(  5, 1:defsvm%ncv) = (/ k(2,2), k(2,1), k(2,3) , k(2,4), k(2,6), k(2,5)/)
+  defsvm%interp_weights(  6, 1:defsvm%ncv) = (/ k(1,2), k(1,1), k(1,3) , k(1,4), k(1,6), k(1,5)/)
+  defsvm%interp_weights(  7, 1:defsvm%ncv) = (/ k(1,3), k(1,1), k(1,2) , k(1,6), k(1,4), k(1,5)/)
+  defsvm%interp_weights(  8, 1:defsvm%ncv) = (/ k(2,3), k(2,1), k(2,2) , k(2,6), k(2,4), k(2,5)/)
+  defsvm%interp_weights(  9, 1:defsvm%ncv) = (/ k(3,3), k(3,1), k(3,2) , k(3,6), k(3,4), k(3,5)/)
+  defsvm%interp_weights( 10, 1:defsvm%ncv) = (/ k(3,3), k(3,2), k(3,1) , k(3,5), k(3,4), k(3,6)/)
+  defsvm%interp_weights( 11, 1:defsvm%ncv) = (/ k(2,3), k(2,2), k(2,1) , k(2,5), k(2,4), k(2,6)/)
+  defsvm%interp_weights( 12, 1:defsvm%ncv) = (/ k(1,3), k(1,2), k(1,1) , k(1,5), k(1,4), k(1,6)/)
+  defsvm%interp_weights( 13, 1:defsvm%ncv) = (/ k(1,2), k(1,3), k(1,1) , k(1,5), k(1,6), k(1,4)/)
+  defsvm%interp_weights( 14, 1:defsvm%ncv) = (/ k(2,2), k(2,3), k(2,1) , k(2,5), k(2,6), k(2,4)/)
+  defsvm%interp_weights( 15, 1:defsvm%ncv) = (/ k(3,2), k(3,3), k(3,1) , k(3,5), k(3,6), k(3,4)/)
+  defsvm%interp_weights( 16, 1:defsvm%ncv) = (/ k(3,1), k(3,3), k(3,2) , k(3,6), k(3,5), k(3,4)/)
+  defsvm%interp_weights( 17, 1:defsvm%ncv) = (/ k(2,1), k(2,3), k(2,2) , k(2,6), k(2,5), k(2,4)/)
+  defsvm%interp_weights( 18, 1:defsvm%ncv) = (/ k(1,1), k(1,3), k(1,2) , k(1,6), k(1,5), k(1,4)/)
+
+  defsvm%interp_weights( 19, 1:defsvm%ncv) = (/ k(4,1), k(4,2), k(4,3) , k(4,4), k(4,5), k(4,6)/)!
+  defsvm%interp_weights( 20, 1:defsvm%ncv) = (/ k(5,1), k(5,2), k(5,3) , k(5,4), k(5,5), k(5,6)/)!
+
+  defsvm%interp_weights( 21, 1:defsvm%ncv) = (/ k(4,2), k(4,1), k(4,3) , k(4,4), k(4,6), k(4,5)/)
+  defsvm%interp_weights( 22, 1:defsvm%ncv) = (/ k(5,2), k(5,1), k(5,3) , k(5,4), k(5,6), k(5,5)/)
+  defsvm%interp_weights( 23, 1:defsvm%ncv) = (/ k(4,3), k(4,1), k(4,2) , k(4,6), k(4,4), k(4,5)/)
+  defsvm%interp_weights( 24, 1:defsvm%ncv) = (/ k(5,3), k(5,1), k(5,2) , k(5,6), k(5,4), k(5,5)/)
+  defsvm%interp_weights( 25, 1:defsvm%ncv) = (/ k(4,3), k(4,2), k(4,1) , k(4,5), k(4,4), k(4,6)/)
+  defsvm%interp_weights( 26, 1:defsvm%ncv) = (/ k(5,3), k(5,2), k(5,1) , k(5,5), k(5,4), k(5,6)/)
+  defsvm%interp_weights( 27, 1:defsvm%ncv) = (/ k(4,2), k(4,3), k(4,1) , k(4,5), k(4,6), k(4,4)/)
+  defsvm%interp_weights( 28, 1:defsvm%ncv) = (/ k(5,2), k(5,3), k(5,1) , k(5,5), k(5,6), k(5,4)/)
+  defsvm%interp_weights( 29, 1:defsvm%ncv) = (/ k(4,1), k(4,3), k(4,2) , k(4,6), k(4,5), k(4,4)/)
+  defsvm%interp_weights( 30, 1:defsvm%ncv) = (/ k(5,1), k(5,3), k(5,2) , k(5,6), k(5,5), k(5,4)/)
+
+  defsvm%interp_weights( 31, 1:defsvm%ncv) = (/ k(6,1), k(6,2), k(6,3) , k(6,4), k(6,5), k(6,6)/)!
+  defsvm%interp_weights( 32, 1:defsvm%ncv) = (/ k(7,1), k(7,2), k(7,3) , k(7,4), k(7,5), k(7,6)/)!
+
+  defsvm%interp_weights( 33, 1:defsvm%ncv) = (/ k(6,2), k(6,1), k(6,3) , k(6,4), k(6,6), k(6,5)/)
+  defsvm%interp_weights( 34, 1:defsvm%ncv) = (/ k(7,2), k(7,1), k(7,3) , k(7,4), k(7,6), k(7,5)/)
+  defsvm%interp_weights( 35, 1:defsvm%ncv) = (/ k(6,3), k(6,2), k(6,1) , k(6,5), k(6,4), k(6,6)/)
+  defsvm%interp_weights( 36, 1:defsvm%ncv) = (/ k(7,3), k(7,2), k(7,1) , k(7,5), k(7,4), k(7,6)/)
+
+  if (size(defsvm%interp_weights, 1) /= 36) call error_stop("SVM initialization: bad array size")
+endsubroutine  
 
 !-------------------------------------------------------------------------
 ! init SVM gradient weights
@@ -1121,23 +1109,18 @@ implicit none
 type(mnu_svm) :: defsvm
 ! -- internal --
 integer(kpp) :: i
-real(krp), dimension(1:7,1:6,1:2) :: k
-real(krp), dimension(1:10,1:10,1:2) :: k4
-real(krp), dimension(1:12,1:10,1:2) :: kk4
+real(krp) :: k(7, 6, 2)
+real(krp) :: k4(10, 10, 2)
+real(krp) :: kk4(12, 10, 2)
 
-! -- body --
+! -- BODY --
 
+allocate(defsvm%grad_interp_weights(1:defsvm%ncvface*defsvm%nfgauss, defsvm%ncv, 2))
 
-allocate(defsvm%grad_interp_weights(1:defsvm%nb_subfaces*defsvm%nb_facepoints, &
-                               1:defsvm%cv_split,1:2))
+select case(defsvm%sv_method)
 
-select case(defsvm%sv_order)
-
-case(svm_3) ! 36 Gauss pts, 6 coeff per point, 7 independent points
-
-select case(defsvm%sv_partition)
-
-  case(svm_3wang) !weights for alpha=1/4 and beta =1/3 : ORIGINAL PARTITION BY WANG
+! 36 Gauss pts, 6 coeff per point, 7 independent points
+case(svm_3wang) !weights for alpha=1/4 and beta =1/3 : ORIGINAL PARTITION BY WANG
 
 !Gauss point1
   k(1,1,1:2) = (/-5.751340285 ,-3.297029136 /)
@@ -1189,7 +1172,9 @@ select case(defsvm%sv_partition)
   k(7,5,1:2) = (/2.127819089 ,1.228496925 /)
   k(7,6,1:2) = (/-2.315312696 ,2.566854188 /)
  
-  case(svm_3kris) !weights for alpha=91/1000 and beta=18/100 : OPTIMISED PARTITION BY ABEELE
+  call distrib_svmgradweights_tri3(defsvm, k)
+
+case(svm_3kris) !weights for alpha=91/1000 and beta=18/100 : OPTIMISED PARTITION BY ABEELE
 
 !Gauss point1
   k(1,1,1:2) = (/-4.356795967 ,-2.501654679 /)
@@ -1240,62 +1225,11 @@ select case(defsvm%sv_partition)
   k(7,4,1:2) = (/1.318179888 ,-3.750548541 /)
   k(7,5,1:2) = (/2.309978322 ,1.240381656 /)
   k(7,6,1:2) = (/-2.750554639 ,3.016851542 /)
+ 
+  call distrib_svmgradweights_tri3(defsvm, k)
 
-
-endselect
-
-do i=1,2
-  defsvm%grad_interp_weights(  1, 1:defsvm%cv_split,i) = (/ k(1,1,i), k(1,2,i), k(1,3,i) , k(1,4,i), k(1,5,i), k(1,6,i)/)!
-  defsvm%grad_interp_weights(  2, 1:defsvm%cv_split,i) = (/ k(2,1,i), k(2,2,i), k(2,3,i) , k(2,4,i), k(2,5,i), k(2,6,i)/)!
-  defsvm%grad_interp_weights(  3, 1:defsvm%cv_split,i) = (/ k(3,1,i), k(3,2,i), k(3,3,i) , k(3,4,i), k(3,5,i), k(3,6,i)/)!
-
-  defsvm%grad_interp_weights(  4, 1:defsvm%cv_split,i) = (/ k(3,2,i), k(3,1,i), k(3,3,i) , k(3,4,i), k(3,6,i), k(3,5,i)/)
-  defsvm%grad_interp_weights(  5, 1:defsvm%cv_split,i) = (/ k(2,2,i), k(2,1,i), k(2,3,i) , k(2,4,i), k(2,6,i), k(2,5,i)/)
-  defsvm%grad_interp_weights(  6, 1:defsvm%cv_split,i) = (/ k(1,2,i), k(1,1,i), k(1,3,i) , k(1,4,i), k(1,6,i), k(1,5,i)/)
-  defsvm%grad_interp_weights(  7, 1:defsvm%cv_split,i) = (/ k(1,3,i), k(1,1,i), k(1,2,i) , k(1,6,i), k(1,4,i), k(1,5,i)/)
-  defsvm%grad_interp_weights(  8, 1:defsvm%cv_split,i) = (/ k(2,3,i), k(2,1,i), k(2,2,i) , k(2,6,i), k(2,4,i), k(2,5,i)/)
-  defsvm%grad_interp_weights(  9, 1:defsvm%cv_split,i) = (/ k(3,3,i), k(3,1,i), k(3,2,i) , k(3,6,i), k(3,4,i), k(3,5,i)/)
-  defsvm%grad_interp_weights( 10, 1:defsvm%cv_split,i) = (/ k(3,3,i), k(3,2,i), k(3,1,i) , k(3,5,i), k(3,4,i), k(3,6,i)/)
-  defsvm%grad_interp_weights( 11, 1:defsvm%cv_split,i) = (/ k(2,3,i), k(2,2,i), k(2,1,i) , k(2,5,i), k(2,4,i), k(2,6,i)/)
-  defsvm%grad_interp_weights( 12, 1:defsvm%cv_split,i) = (/ k(1,3,i), k(1,2,i), k(1,1,i) , k(1,5,i), k(1,4,i), k(1,6,i)/)
-  defsvm%grad_interp_weights( 13, 1:defsvm%cv_split,i) = (/ k(1,2,i), k(1,3,i), k(1,1,i) , k(1,5,i), k(1,6,i), k(1,4,i)/)
-  defsvm%grad_interp_weights( 14, 1:defsvm%cv_split,i) = (/ k(2,2,i), k(2,3,i), k(2,1,i) , k(2,5,i), k(2,6,i), k(2,4,i)/)
-  defsvm%grad_interp_weights( 15, 1:defsvm%cv_split,i) = (/ k(3,2,i), k(3,3,i), k(3,1,i) , k(3,5,i), k(3,6,i), k(3,4,i)/)
-  defsvm%grad_interp_weights( 16, 1:defsvm%cv_split,i) = (/ k(3,1,i), k(3,3,i), k(3,2,i) , k(3,6,i), k(3,5,i), k(3,4,i)/)
-  defsvm%grad_interp_weights( 17, 1:defsvm%cv_split,i) = (/ k(2,1,i), k(2,3,i), k(2,2,i) , k(2,6,i), k(2,5,i), k(2,4,i)/)
-  defsvm%grad_interp_weights( 18, 1:defsvm%cv_split,i) = (/ k(1,1,i), k(1,3,i), k(1,2,i) , k(1,6,i), k(1,5,i), k(1,4,i)/)
-
-  defsvm%grad_interp_weights( 19, 1:defsvm%cv_split,i) = (/ k(4,1,i), k(4,2,i), k(4,3,i) , k(4,4,i), k(4,5,i), k(4,6,i)/)!
-  defsvm%grad_interp_weights( 20, 1:defsvm%cv_split,i) = (/ k(5,1,i), k(5,2,i), k(5,3,i) , k(5,4,i), k(5,5,i), k(5,6,i)/)!
-                                                   
-  defsvm%grad_interp_weights( 21, 1:defsvm%cv_split,i) = (/ k(4,2,i), k(4,1,i), k(4,3,i) , k(4,4,i), k(4,6,i), k(4,5,i)/)
-  defsvm%grad_interp_weights( 22, 1:defsvm%cv_split,i) = (/ k(5,2,i), k(5,1,i), k(5,3,i) , k(5,4,i), k(5,6,i), k(5,5,i)/)
-  defsvm%grad_interp_weights( 23, 1:defsvm%cv_split,i) = (/ k(4,3,i), k(4,1,i), k(4,2,i) , k(4,6,i), k(4,4,i), k(4,5,i)/)
-  defsvm%grad_interp_weights( 24, 1:defsvm%cv_split,i) = (/ k(5,3,i), k(5,1,i), k(5,2,i) , k(5,6,i), k(5,4,i), k(5,5,i)/)
-  defsvm%grad_interp_weights( 25, 1:defsvm%cv_split,i) = (/ k(4,3,i), k(4,2,i), k(4,1,i) , k(4,5,i), k(4,4,i), k(4,6,i)/)
-  defsvm%grad_interp_weights( 26, 1:defsvm%cv_split,i) = (/ k(5,3,i), k(5,2,i), k(5,1,i) , k(5,5,i), k(5,4,i), k(5,6,i)/)
-  defsvm%grad_interp_weights( 27, 1:defsvm%cv_split,i) = (/ k(4,2,i), k(4,3,i), k(4,1,i) , k(4,5,i), k(4,6,i), k(4,4,i)/)
-  defsvm%grad_interp_weights( 28, 1:defsvm%cv_split,i) = (/ k(5,2,i), k(5,3,i), k(5,1,i) , k(5,5,i), k(5,6,i), k(5,4,i)/)
-  defsvm%grad_interp_weights( 29, 1:defsvm%cv_split,i) = (/ k(4,1,i), k(4,3,i), k(4,2,i) , k(4,6,i), k(4,5,i), k(4,4,i)/)
-  defsvm%grad_interp_weights( 30, 1:defsvm%cv_split,i) = (/ k(5,1,i), k(5,3,i), k(5,2,i) , k(5,6,i), k(5,5,i), k(5,4,i)/)
-                                                   
-  defsvm%grad_interp_weights( 31, 1:defsvm%cv_split,i) = (/ k(6,1,i), k(6,2,i), k(6,3,i) , k(6,4,i), k(6,5,i), k(6,6,i)/)!
-  defsvm%grad_interp_weights( 32, 1:defsvm%cv_split,i) = (/ k(7,1,i), k(7,2,i), k(7,3,i) , k(7,4,i), k(7,5,i), k(7,6,i)/)!
-                                                    
-  defsvm%grad_interp_weights( 33, 1:defsvm%cv_split,i) = (/ k(6,2,i), k(6,1,i), k(6,3,i) , k(6,4,i), k(6,6,i), k(6,5,i)/)
-  defsvm%grad_interp_weights( 34, 1:defsvm%cv_split,i) = (/ k(7,2,i), k(7,1,i), k(7,3,i) , k(7,4,i), k(7,6,i), k(7,5,i)/)
-  defsvm%grad_interp_weights( 35, 1:defsvm%cv_split,i) = (/ k(6,3,i), k(6,2,i), k(6,1,i) , k(6,5,i), k(6,4,i), k(6,6,i)/)
-  defsvm%grad_interp_weights( 36, 1:defsvm%cv_split,i) = (/ k(7,3,i), k(7,2,i), k(7,1,i) , k(7,5,i), k(7,4,i), k(7,6,i)/)
-enddo
-
-  if (size(defsvm%grad_interp_weights, 1) /= 36) call erreur("SVM initialization", "bad array size")
-
-case(svm_4) ! 54 Gauss pts, 10 coeff per point
-
-select case(defsvm%sv_partition)
-
-  case(svm_4wang)   ! 10 independent points
-!Gauss point1 coefficients
+case(svm_4wang)   ! 10 independent points
+  !Gauss point1 coefficients
   k4(1,1,1:2) =(/-9.8865833  , -5.6835032/)
   k4(1,2,1:2) =(/2.1803442   , -1.2845983/)
   k4(1,3,1:2) =(/-.043556227 , 2.8979661 /)
@@ -1406,75 +1340,9 @@ select case(defsvm%sv_partition)
   k4(10,9,1:2) =(/-.57441141  ,1.3413305  /)
   k4(10,10,1:2)=(/.38805585   ,12.778370  /)
 
-do i=1,2    
-  defsvm%grad_interp_weights(1, 1:defsvm%cv_split,i)  = (/ k4(1,1,i), k4(1,2,i), k4(1,3,i) , k4(1,4,i), k4(1,5,i), k4(1,6,i),k4(1,7,i),k4(1,8,i),k4(1,9,i),k4(1,10,i)/)!
-  defsvm%grad_interp_weights(8, 1:defsvm%cv_split,i)  = (/ k4(1,2,i), k4(1,1,i), k4(1,3,i) , k4(1,5,i), k4(1,4,i), k4(1,9,i),k4(1,8,i),k4(1,7,i),k4(1,6,i),k4(1,10,i)/)
-  defsvm%grad_interp_weights(9, 1:defsvm%cv_split,i)  = (/ k4(1,3,i), k4(1,1,i), k4(1,2,i) , k4(1,8,i), k4(1,9,i), k4(1,4,i),k4(1,5,i),k4(1,6,i),k4(1,7,i),k4(1,10,i)/)
-  defsvm%grad_interp_weights(16, 1:defsvm%cv_split,i) = (/ k4(1,3,i), k4(1,2,i), k4(1,1,i) , k4(1,7,i), k4(1,6,i), k4(1,5,i),k4(1,4,i),k4(1,9,i),k4(1,8,i),k4(1,10,i)/)
-  defsvm%grad_interp_weights(17, 1:defsvm%cv_split,i) = (/ k4(1,2,i), k4(1,3,i), k4(1,1,i) , k4(1,6,i), k4(1,7,i), k4(1,8,i),k4(1,9,i),k4(1,4,i),k4(1,5,i),k4(1,10,i)/)
-  defsvm%grad_interp_weights(24, 1:defsvm%cv_split,i) = (/ k4(1,1,i), k4(1,3,i), k4(1,2,i) , k4(1,9,i), k4(1,8,i), k4(1,7,i),k4(1,6,i),k4(1,5,i),k4(1,4,i),k4(1,10,i)/)
-         
-  defsvm%grad_interp_weights(2, 1:defsvm%cv_split,i)  = (/ k4(2,1,i), k4(2,2,i), k4(2,3,i) , k4(2,4,i), k4(2,5,i), k4(2,6,i),k4(2,7,i),k4(2,8,i),k4(2,9,i),k4(2,10,i)/)!
-  defsvm%grad_interp_weights(7, 1:defsvm%cv_split,i)  = (/ k4(2,2,i), k4(2,1,i), k4(2,3,i) , k4(2,5,i), k4(2,4,i), k4(2,9,i),k4(2,8,i),k4(2,7,i),k4(2,6,i),k4(2,10,i)/)
-  defsvm%grad_interp_weights(10, 1:defsvm%cv_split,i) = (/ k4(2,3,i), k4(2,1,i), k4(2,2,i) , k4(2,8,i), k4(2,9,i), k4(2,4,i),k4(2,5,i),k4(2,6,i),k4(2,7,i),k4(2,10,i)/)
-  defsvm%grad_interp_weights(15, 1:defsvm%cv_split,i) = (/ k4(2,3,i), k4(2,2,i), k4(2,1,i) , k4(2,7,i), k4(2,6,i), k4(2,5,i),k4(2,4,i),k4(2,9,i),k4(2,8,i),k4(2,10,i)/)
-  defsvm%grad_interp_weights(18, 1:defsvm%cv_split,i) = (/ k4(2,2,i), k4(2,3,i), k4(2,1,i) , k4(2,6,i), k4(2,7,i), k4(2,8,i),k4(2,9,i),k4(2,4,i),k4(2,5,i),k4(2,10,i)/)
-  defsvm%grad_interp_weights(23, 1:defsvm%cv_split,i) = (/ k4(2,1,i), k4(2,3,i), k4(2,2,i) , k4(2,9,i), k4(2,8,i), k4(2,7,i),k4(2,6,i),k4(2,5,i),k4(2,4,i),k4(2,10,i)/)
-
-  defsvm%grad_interp_weights(3, 1:defsvm%cv_split,i)  = (/ k4(3,1,i), k4(3,2,i), k4(3,3,i) , k4(3,4,i), k4(3,5,i), k4(3,6,i),k4(3,7,i),k4(3,8,i),k4(3,9,i),k4(3,10,i)/)!
-  defsvm%grad_interp_weights(6, 1:defsvm%cv_split,i)  = (/ k4(3,2,i), k4(3,1,i), k4(3,3,i) , k4(3,5,i), k4(3,4,i), k4(3,9,i),k4(3,8,i),k4(3,7,i),k4(3,6,i),k4(3,10,i)/)
-  defsvm%grad_interp_weights(11, 1:defsvm%cv_split,i) = (/ k4(3,3,i), k4(3,1,i), k4(3,2,i) , k4(3,8,i), k4(3,9,i), k4(3,4,i),k4(3,5,i),k4(3,6,i),k4(3,7,i),k4(3,10,i)/)
-  defsvm%grad_interp_weights(14, 1:defsvm%cv_split,i) = (/ k4(3,3,i), k4(3,2,i), k4(3,1,i) , k4(3,7,i), k4(3,6,i), k4(3,5,i),k4(3,4,i),k4(3,9,i),k4(3,8,i),k4(3,10,i)/)
-  defsvm%grad_interp_weights(19, 1:defsvm%cv_split,i) = (/ k4(3,2,i), k4(3,3,i), k4(3,1,i) , k4(3,6,i), k4(3,7,i), k4(3,8,i),k4(3,9,i),k4(3,4,i),k4(3,5,i),k4(3,10,i)/)
-  defsvm%grad_interp_weights(22, 1:defsvm%cv_split,i) = (/ k4(3,1,i), k4(3,3,i), k4(3,2,i) , k4(3,9,i), k4(3,8,i), k4(3,7,i),k4(3,6,i),k4(3,5,i),k4(3,4,i),k4(3,10,i)/)
-
-  defsvm%grad_interp_weights(4, 1:defsvm%cv_split,i)  = (/ k4(4,1,i), k4(4,2,i), k4(4,3,i) , k4(4,4,i), k4(4,5,i), k4(4,6,i),k4(4,7,i),k4(4,8,i),k4(4,9,i),k4(4,10,i)/)!
-  defsvm%grad_interp_weights(5, 1:defsvm%cv_split,i)  = (/ k4(4,2,i), k4(4,1,i), k4(4,3,i) , k4(4,5,i), k4(4,4,i), k4(4,9,i),k4(4,8,i),k4(4,7,i),k4(4,6,i),k4(4,10,i)/)
-  defsvm%grad_interp_weights(12, 1:defsvm%cv_split,i) = (/ k4(4,3,i), k4(4,1,i), k4(4,2,i) , k4(4,8,i), k4(4,9,i), k4(4,4,i),k4(4,5,i),k4(4,6,i),k4(4,7,i),k4(4,10,i)/)
-  defsvm%grad_interp_weights(13, 1:defsvm%cv_split,i) = (/ k4(4,3,i), k4(4,2,i), k4(4,1,i) , k4(4,7,i), k4(4,6,i), k4(4,5,i),k4(4,4,i),k4(4,9,i),k4(4,8,i),k4(4,10,i)/)
-  defsvm%grad_interp_weights(20, 1:defsvm%cv_split,i) = (/ k4(4,2,i), k4(4,3,i), k4(4,1,i) , k4(4,6,i), k4(4,7,i), k4(4,8,i),k4(4,9,i),k4(4,4,i),k4(4,5,i),k4(4,10,i)/)
-  defsvm%grad_interp_weights(21, 1:defsvm%cv_split,i) = (/ k4(4,1,i), k4(4,3,i), k4(4,2,i) , k4(4,9,i), k4(4,8,i), k4(4,7,i),k4(4,6,i),k4(4,5,i),k4(4,4,i),k4(4,10,i)/)
-
-  defsvm%grad_interp_weights(25, 1:defsvm%cv_split,i) = (/ k4(5,1,i), k4(5,2,i), k4(5,3,i) , k4(5,4,i), k4(5,5,i), k4(5,6,i),k4(5,7,i),k4(5,8,i),k4(5,9,i),k4(5,10,i)/)!
-  defsvm%grad_interp_weights(29, 1:defsvm%cv_split,i) = (/ k4(5,2,i), k4(5,1,i), k4(5,3,i) , k4(5,5,i), k4(5,4,i), k4(5,9,i),k4(5,8,i),k4(5,7,i),k4(5,6,i),k4(5,10,i)/)
-  defsvm%grad_interp_weights(31, 1:defsvm%cv_split,i) = (/ k4(5,3,i), k4(5,1,i), k4(5,2,i) , k4(5,8,i), k4(5,9,i), k4(5,4,i),k4(5,5,i),k4(5,6,i),k4(5,7,i),k4(5,10,i)/)
-  defsvm%grad_interp_weights(35, 1:defsvm%cv_split,i) = (/ k4(5,3,i), k4(5,2,i), k4(5,1,i) , k4(5,7,i), k4(5,6,i), k4(5,5,i),k4(5,4,i),k4(5,9,i),k4(5,8,i),k4(5,10,i)/)
-  defsvm%grad_interp_weights(37, 1:defsvm%cv_split,i) = (/ k4(5,2,i), k4(5,3,i), k4(5,1,i) , k4(5,6,i), k4(5,7,i), k4(5,8,i),k4(5,9,i),k4(5,4,i),k4(5,5,i),k4(5,10,i)/)
-  defsvm%grad_interp_weights(41, 1:defsvm%cv_split,i) = (/ k4(5,1,i), k4(5,3,i), k4(5,2,i) , k4(5,9,i), k4(5,8,i), k4(5,7,i),k4(5,6,i),k4(5,5,i),k4(5,4,i),k4(5,10,i)/)
-
-  defsvm%grad_interp_weights(26, 1:defsvm%cv_split,i) = (/ k4(6,1,i), k4(6,2,i), k4(6,3,i) , k4(6,4,i), k4(6,5,i), k4(6,6,i),k4(6,7,i),k4(6,8,i),k4(6,9,i),k4(6,10,i)/)!
-  defsvm%grad_interp_weights(30, 1:defsvm%cv_split,i) = (/ k4(6,2,i), k4(6,1,i), k4(6,3,i) , k4(6,5,i), k4(6,4,i), k4(6,9,i),k4(6,8,i),k4(6,7,i),k4(6,6,i),k4(6,10,i)/)
-  defsvm%grad_interp_weights(32, 1:defsvm%cv_split,i) = (/ k4(6,3,i), k4(6,1,i), k4(6,2,i) , k4(6,8,i), k4(6,9,i), k4(6,4,i),k4(6,5,i),k4(6,6,i),k4(6,7,i),k4(6,10,i)/)
-  defsvm%grad_interp_weights(36, 1:defsvm%cv_split,i) = (/ k4(6,3,i), k4(6,2,i), k4(6,1,i) , k4(6,7,i), k4(6,6,i), k4(6,5,i),k4(6,4,i),k4(6,9,i),k4(6,8,i),k4(6,10,i)/)
-  defsvm%grad_interp_weights(38, 1:defsvm%cv_split,i) = (/ k4(6,2,i), k4(6,3,i), k4(6,1,i) , k4(6,6,i), k4(6,7,i), k4(6,8,i),k4(6,9,i),k4(6,4,i),k4(6,5,i),k4(6,10,i)/)
-  defsvm%grad_interp_weights(42, 1:defsvm%cv_split,i) = (/ k4(6,1,i), k4(6,3,i), k4(6,2,i) , k4(6,9,i), k4(6,8,i), k4(6,7,i),k4(6,6,i),k4(6,5,i),k4(6,4,i),k4(6,10,i)/)
-
-  defsvm%grad_interp_weights(27, 1:defsvm%cv_split,i) = (/ k4(7,1,i), k4(7,2,i), k4(7,3,i) , k4(7,4,i), k4(7,5,i), k4(7,6,i),k4(7,7,i),k4(7,8,i),k4(7,9,i),k4(7,10,i)/)!
-  defsvm%grad_interp_weights(33, 1:defsvm%cv_split,i) = (/ k4(7,3,i), k4(7,1,i), k4(7,2,i) , k4(7,8,i), k4(7,9,i), k4(7,4,i),k4(7,5,i),k4(7,6,i),k4(7,7,i),k4(7,10,i)/)
-  defsvm%grad_interp_weights(39, 1:defsvm%cv_split,i) = (/ k4(7,1,i), k4(7,3,i), k4(7,2,i) , k4(7,9,i), k4(7,8,i), k4(7,7,i),k4(7,6,i),k4(7,5,i),k4(7,4,i),k4(7,10,i)/)
-                                                               
-  defsvm%grad_interp_weights(28, 1:defsvm%cv_split,i) = (/ k4(8,1,i), k4(8,2,i), k4(8,3,i) , k4(8,4,i), k4(8,5,i), k4(8,6,i),k4(8,7,i),k4(8,8,i),k4(8,9,i),k4(8,10,i)/)!
-  defsvm%grad_interp_weights(34, 1:defsvm%cv_split,i) = (/ k4(8,3,i), k4(8,1,i), k4(8,2,i) , k4(8,8,i), k4(8,9,i), k4(8,4,i),k4(8,5,i),k4(8,6,i),k4(8,7,i),k4(8,10,i)/)
-  defsvm%grad_interp_weights(40, 1:defsvm%cv_split,i) = (/ k4(8,1,i), k4(8,3,i), k4(8,2,i) , k4(8,9,i), k4(8,8,i), k4(8,7,i),k4(8,6,i),k4(8,5,i),k4(8,4,i),k4(8,10,i)/)
-
-  defsvm%grad_interp_weights(43, 1:defsvm%cv_split,i) = (/ k4(9,1,i), k4(9,2,i), k4(9,3,i) , k4(9,4,i), k4(9,5,i), k4(9,6,i),k4(9,7,i),k4(9,8,i),k4(9,9,i),k4(9,10,i)/)!
-  defsvm%grad_interp_weights(46, 1:defsvm%cv_split,i) = (/ k4(9,2,i), k4(9,1,i), k4(9,3,i) , k4(9,5,i), k4(9,4,i), k4(9,9,i),k4(9,8,i),k4(9,7,i),k4(9,6,i),k4(9,10,i)/)
-  defsvm%grad_interp_weights(47, 1:defsvm%cv_split,i) = (/ k4(9,3,i), k4(9,1,i), k4(9,2,i) , k4(9,8,i), k4(9,9,i), k4(9,4,i),k4(9,5,i),k4(9,6,i),k4(9,7,i),k4(9,10,i)/)
-  defsvm%grad_interp_weights(50, 1:defsvm%cv_split,i) = (/ k4(9,3,i), k4(9,2,i), k4(9,1,i) , k4(9,7,i), k4(9,6,i), k4(9,5,i),k4(9,4,i),k4(9,9,i),k4(9,8,i),k4(9,10,i)/)
-  defsvm%grad_interp_weights(51, 1:defsvm%cv_split,i) = (/ k4(9,2,i), k4(9,3,i), k4(9,1,i) , k4(9,6,i), k4(9,7,i), k4(9,8,i),k4(9,9,i),k4(9,4,i),k4(9,5,i),k4(9,10,i)/)
-  defsvm%grad_interp_weights(54, 1:defsvm%cv_split,i) = (/ k4(9,1,i), k4(9,3,i), k4(9,2,i) , k4(9,9,i), k4(9,8,i), k4(9,7,i),k4(9,6,i),k4(9,5,i),k4(9,4,i),k4(9,10,i)/)
-                                                  
-  defsvm%grad_interp_weights(44, 1:defsvm%cv_split,i) = (/ k4(10,1,i), k4(10,2,i), k4(10,3,i) , k4(10,4,i), k4(10,5,i), k4(10,6,i),k4(10,7,i),k4(10,8,i),k4(10,9,i),k4(10,10,i)/)!
-  defsvm%grad_interp_weights(45, 1:defsvm%cv_split,i) = (/ k4(10,2,i), k4(10,1,i), k4(10,3,i) , k4(10,5,i), k4(10,4,i), k4(10,9,i),k4(10,8,i),k4(10,7,i),k4(10,6,i),k4(10,10,i)/)
-  defsvm%grad_interp_weights(48, 1:defsvm%cv_split,i) = (/ k4(10,3,i), k4(10,1,i), k4(10,2,i) , k4(10,8,i), k4(10,9,i), k4(10,4,i),k4(10,5,i),k4(10,6,i),k4(10,7,i),k4(10,10,i)/)
-  defsvm%grad_interp_weights(49, 1:defsvm%cv_split,i) = (/ k4(10,3,i), k4(10,2,i), k4(10,1,i) , k4(10,7,i), k4(10,6,i), k4(10,5,i),k4(10,4,i),k4(10,9,i),k4(10,8,i),k4(10,10,i)/)
-  defsvm%grad_interp_weights(52, 1:defsvm%cv_split,i) = (/ k4(10,2,i), k4(10,3,i), k4(10,1,i) , k4(10,6,i), k4(10,7,i), k4(10,8,i),k4(10,9,i),k4(10,4,i),k4(10,5,i),k4(10,10,i)/)
-  defsvm%grad_interp_weights(53, 1:defsvm%cv_split,i) = (/ k4(10,1,i), k4(10,3,i), k4(10,2,i) , k4(10,9,i), k4(10,8,i), k4(10,7,i),k4(10,6,i),k4(10,5,i),k4(10,4,i),k4(10,10,i)/)
-
-enddo
-  if (size(defsvm%grad_interp_weights, 1) /= 54) call erreur("SVM initialization", "bad array size")
-
-  case(svm_4kris)   ! 12 independent points
+  call distrib_svmgradweights_tri4wang(defsvm, kk4)
+  
+case(svm_4kris)   ! 12 independent points
  !Gauss point1 coefficients
   kk4(1,1,1:2) =(/-8.8134792  , -5.0076949  /)
   kk4(1,2,1:2) =(/1.3368011   , -1.2156379  /)
@@ -1608,93 +1476,244 @@ enddo
   kk4(12,9,1:2) =(/-.16155584  , 1.2407731  /)
   kk4(12,10,1:2)=(/.1743960    , 12.727225  /)
 
-do i=1,2
-  defsvm%grad_interp_weights(1, 1:defsvm%cv_split,i)  = (/ kk4(1,1,i), kk4(1,2,i), kk4(1,3,i) , kk4(1,4,i), kk4(1,5,i), kk4(1,6,i),kk4(1,7,i),kk4(1,8,i),kk4(1,9,i),kk4(1,10,i)/)!
-  defsvm%grad_interp_weights(8, 1:defsvm%cv_split,i)  = (/ kk4(1,2,i), kk4(1,1,i), kk4(1,3,i) , kk4(1,5,i), kk4(1,4,i), kk4(1,9,i),kk4(1,8,i),kk4(1,7,i),kk4(1,6,i),kk4(1,10,i)/)
-  defsvm%grad_interp_weights(9, 1:defsvm%cv_split,i)  = (/ kk4(1,3,i), kk4(1,1,i), kk4(1,2,i) , kk4(1,8,i), kk4(1,9,i), kk4(1,4,i),kk4(1,5,i),kk4(1,6,i),kk4(1,7,i),kk4(1,10,i)/)
-  defsvm%grad_interp_weights(16, 1:defsvm%cv_split,i) = (/ kk4(1,3,i), kk4(1,2,i), kk4(1,1,i) , kk4(1,7,i), kk4(1,6,i), kk4(1,5,i),kk4(1,4,i),kk4(1,9,i),kk4(1,8,i),kk4(1,10,i)/)
-  defsvm%grad_interp_weights(17, 1:defsvm%cv_split,i) = (/ kk4(1,2,i), kk4(1,3,i), kk4(1,1,i) , kk4(1,6,i), kk4(1,7,i), kk4(1,8,i),kk4(1,9,i),kk4(1,4,i),kk4(1,5,i),kk4(1,10,i)/)
-  defsvm%grad_interp_weights(24, 1:defsvm%cv_split,i) = (/ kk4(1,1,i), kk4(1,3,i), kk4(1,2,i) , kk4(1,9,i), kk4(1,8,i), kk4(1,7,i),kk4(1,6,i),kk4(1,5,i),kk4(1,4,i),kk4(1,10,i)/)
-
-  defsvm%grad_interp_weights(2, 1:defsvm%cv_split,i)  = (/ kk4(2,1,i), kk4(2,2,i), kk4(2,3,i) , kk4(2,4,i), kk4(2,5,i), kk4(2,6,i),kk4(2,7,i),kk4(2,8,i),kk4(2,9,i),kk4(2,10,i)/)!
-  defsvm%grad_interp_weights(7, 1:defsvm%cv_split,i)  = (/ kk4(2,2,i), kk4(2,1,i), kk4(2,3,i) , kk4(2,5,i), kk4(2,4,i), kk4(2,9,i),kk4(2,8,i),kk4(2,7,i),kk4(2,6,i),kk4(2,10,i)/)
-  defsvm%grad_interp_weights(10, 1:defsvm%cv_split,i) = (/ kk4(2,3,i), kk4(2,1,i), kk4(2,2,i) , kk4(2,8,i), kk4(2,9,i), kk4(2,4,i),kk4(2,5,i),kk4(2,6,i),kk4(2,7,i),kk4(2,10,i)/)
-  defsvm%grad_interp_weights(15, 1:defsvm%cv_split,i) = (/ kk4(2,3,i), kk4(2,2,i), kk4(2,1,i) , kk4(2,7,i), kk4(2,6,i), kk4(2,5,i),kk4(2,4,i),kk4(2,9,i),kk4(2,8,i),kk4(2,10,i)/)
-  defsvm%grad_interp_weights(18, 1:defsvm%cv_split,i) = (/ kk4(2,2,i), kk4(2,3,i), kk4(2,1,i) , kk4(2,6,i), kk4(2,7,i), kk4(2,8,i),kk4(2,9,i),kk4(2,4,i),kk4(2,5,i),kk4(2,10,i)/)
-  defsvm%grad_interp_weights(23, 1:defsvm%cv_split,i) = (/ kk4(2,1,i), kk4(2,3,i), kk4(2,2,i) , kk4(2,9,i), kk4(2,8,i), kk4(2,7,i),kk4(2,6,i),kk4(2,5,i),kk4(2,4,i),kk4(2,10,i)/)
-
-  defsvm%grad_interp_weights(3, 1:defsvm%cv_split,i)  = (/ kk4(3,1,i), kk4(3,2,i), kk4(3,3,i) , kk4(3,4,i), kk4(3,5,i), kk4(3,6,i),kk4(3,7,i),kk4(3,8,i),kk4(3,9,i),kk4(3,10,i)/)!
-  defsvm%grad_interp_weights(6, 1:defsvm%cv_split,i)  = (/ kk4(3,2,i), kk4(3,1,i), kk4(3,3,i) , kk4(3,5,i), kk4(3,4,i), kk4(3,9,i),kk4(3,8,i),kk4(3,7,i),kk4(3,6,i),kk4(3,10,i)/)
-  defsvm%grad_interp_weights(11, 1:defsvm%cv_split,i) = (/ kk4(3,3,i), kk4(3,1,i), kk4(3,2,i) , kk4(3,8,i), kk4(3,9,i), kk4(3,4,i),kk4(3,5,i),kk4(3,6,i),kk4(3,7,i),kk4(3,10,i)/)
-  defsvm%grad_interp_weights(14, 1:defsvm%cv_split,i) = (/ kk4(3,3,i), kk4(3,2,i), kk4(3,1,i) , kk4(3,7,i), kk4(3,6,i), kk4(3,5,i),kk4(3,4,i),kk4(3,9,i),kk4(3,8,i),kk4(3,10,i)/)
-  defsvm%grad_interp_weights(19, 1:defsvm%cv_split,i) = (/ kk4(3,2,i), kk4(3,3,i), kk4(3,1,i) , kk4(3,6,i), kk4(3,7,i), kk4(3,8,i),kk4(3,9,i),kk4(3,4,i),kk4(3,5,i),kk4(3,10,i)/)
-  defsvm%grad_interp_weights(22, 1:defsvm%cv_split,i) = (/ kk4(3,1,i), kk4(3,3,i), kk4(3,2,i) , kk4(3,9,i), kk4(3,8,i), kk4(3,7,i),kk4(3,6,i),kk4(3,5,i),kk4(3,4,i),kk4(3,10,i)/)
-
-  defsvm%grad_interp_weights(4, 1:defsvm%cv_split,i)  = (/ kk4(4,1,i), kk4(4,2,i), kk4(4,3,i) , kk4(4,4,i), kk4(4,5,i), kk4(4,6,i),kk4(4,7,i),kk4(4,8,i),kk4(4,9,i),kk4(4,10,i)/)!
-  defsvm%grad_interp_weights(5, 1:defsvm%cv_split,i)  = (/ kk4(4,2,i), kk4(4,1,i), kk4(4,3,i) , kk4(4,5,i), kk4(4,4,i), kk4(4,9,i),kk4(4,8,i),kk4(4,7,i),kk4(4,6,i),kk4(4,10,i)/)
-  defsvm%grad_interp_weights(12, 1:defsvm%cv_split,i) = (/ kk4(4,3,i), kk4(4,1,i), kk4(4,2,i) , kk4(4,8,i), kk4(4,9,i), kk4(4,4,i),kk4(4,5,i),kk4(4,6,i),kk4(4,7,i),kk4(4,10,i)/)
-  defsvm%grad_interp_weights(13, 1:defsvm%cv_split,i) = (/ kk4(4,3,i), kk4(4,2,i), kk4(4,1,i) , kk4(4,7,i), kk4(4,6,i), kk4(4,5,i),kk4(4,4,i),kk4(4,9,i),kk4(4,8,i),kk4(4,10,i)/)
-  defsvm%grad_interp_weights(20, 1:defsvm%cv_split,i) = (/ kk4(4,2,i), kk4(4,3,i), kk4(4,1,i) , kk4(4,6,i), kk4(4,7,i), kk4(4,8,i),kk4(4,9,i),kk4(4,4,i),kk4(4,5,i),kk4(4,10,i)/)
-  defsvm%grad_interp_weights(21, 1:defsvm%cv_split,i) = (/ kk4(4,1,i), kk4(4,3,i), kk4(4,2,i) , kk4(4,9,i), kk4(4,8,i), kk4(4,7,i),kk4(4,6,i),kk4(4,5,i),kk4(4,4,i),kk4(4,10,i)/)
-
-  defsvm%grad_interp_weights(25, 1:defsvm%cv_split,i) = (/ kk4(5,1,i), kk4(5,2,i), kk4(5,3,i) , kk4(5,4,i), kk4(5,5,i), kk4(5,6,i),kk4(5,7,i),kk4(5,8,i),kk4(5,9,i),kk4(5,10,i)/)!
-  defsvm%grad_interp_weights(29, 1:defsvm%cv_split,i) = (/ kk4(5,2,i), kk4(5,1,i), kk4(5,3,i) , kk4(5,5,i), kk4(5,4,i), kk4(5,9,i),kk4(5,8,i),kk4(5,7,i),kk4(5,6,i),kk4(5,10,i)/)
-  defsvm%grad_interp_weights(31, 1:defsvm%cv_split,i) = (/ kk4(5,3,i), kk4(5,1,i), kk4(5,2,i) , kk4(5,8,i), kk4(5,9,i), kk4(5,4,i),kk4(5,5,i),kk4(5,6,i),kk4(5,7,i),kk4(5,10,i)/)
-  defsvm%grad_interp_weights(35, 1:defsvm%cv_split,i) = (/ kk4(5,3,i), kk4(5,2,i), kk4(5,1,i) , kk4(5,7,i), kk4(5,6,i), kk4(5,5,i),kk4(5,4,i),kk4(5,9,i),kk4(5,8,i),kk4(5,10,i)/)
-  defsvm%grad_interp_weights(37, 1:defsvm%cv_split,i) = (/ kk4(5,2,i), kk4(5,3,i), kk4(5,1,i) , kk4(5,6,i), kk4(5,7,i), kk4(5,8,i),kk4(5,9,i),kk4(5,4,i),kk4(5,5,i),kk4(5,10,i)/)
-  defsvm%grad_interp_weights(41, 1:defsvm%cv_split,i) = (/ kk4(5,1,i), kk4(5,3,i), kk4(5,2,i) , kk4(5,9,i), kk4(5,8,i), kk4(5,7,i),kk4(5,6,i),kk4(5,5,i),kk4(5,4,i),kk4(5,10,i)/)
-
-  defsvm%grad_interp_weights(26, 1:defsvm%cv_split,i) = (/ kk4(6,1,i), kk4(6,2,i), kk4(6,3,i) , kk4(6,4,i), kk4(6,5,i), kk4(6,6,i),kk4(6,7,i),kk4(6,8,i),kk4(6,9,i),kk4(6,10,i)/)!
-  defsvm%grad_interp_weights(30, 1:defsvm%cv_split,i) = (/ kk4(6,2,i), kk4(6,1,i), kk4(6,3,i) , kk4(6,5,i), kk4(6,4,i), kk4(6,9,i),kk4(6,8,i),kk4(6,7,i),kk4(6,6,i),kk4(6,10,i)/)
-  defsvm%grad_interp_weights(32, 1:defsvm%cv_split,i) = (/ kk4(6,3,i), kk4(6,1,i), kk4(6,2,i) , kk4(6,8,i), kk4(6,9,i), kk4(6,4,i),kk4(6,5,i),kk4(6,6,i),kk4(6,7,i),kk4(6,10,i)/)
-  defsvm%grad_interp_weights(36, 1:defsvm%cv_split,i) = (/ kk4(6,3,i), kk4(6,2,i), kk4(6,1,i) , kk4(6,7,i), kk4(6,6,i), kk4(6,5,i),kk4(6,4,i),kk4(6,9,i),kk4(6,8,i),kk4(6,10,i)/)
-  defsvm%grad_interp_weights(38, 1:defsvm%cv_split,i) = (/ kk4(6,2,i), kk4(6,3,i), kk4(6,1,i) , kk4(6,6,i), kk4(6,7,i), kk4(6,8,i),kk4(6,9,i),kk4(6,4,i),kk4(6,5,i),kk4(6,10,i)/)
-  defsvm%grad_interp_weights(42, 1:defsvm%cv_split,i) = (/ kk4(6,1,i), kk4(6,3,i), kk4(6,2,i) , kk4(6,9,i), kk4(6,8,i), kk4(6,7,i),kk4(6,6,i),kk4(6,5,i),kk4(6,4,i),kk4(6,10,i)/)
-
-  defsvm%grad_interp_weights(27, 1:defsvm%cv_split,i) = (/ kk4(7,1,i), kk4(7,2,i), kk4(7,3,i) , kk4(7,4,i), kk4(7,5,i), kk4(7,6,i),kk4(7,7,i),kk4(7,8,i),kk4(7,9,i),kk4(7,10,i)/)!
-  defsvm%grad_interp_weights(33, 1:defsvm%cv_split,i) = (/ kk4(7,3,i), kk4(7,1,i), kk4(7,2,i) , kk4(7,8,i), kk4(7,9,i), kk4(7,4,i),kk4(7,5,i),kk4(7,6,i),kk4(7,7,i),kk4(7,10,i)/)
-  defsvm%grad_interp_weights(39, 1:defsvm%cv_split,i) = (/ kk4(7,1,i), kk4(7,3,i), kk4(7,2,i) , kk4(7,9,i), kk4(7,8,i), kk4(7,7,i),kk4(7,6,i),kk4(7,5,i),kk4(7,4,i),kk4(7,10,i)/)
-                                                        
-  defsvm%grad_interp_weights(28, 1:defsvm%cv_split,i) = (/ kk4(8,1,i), kk4(8,2,i), kk4(8,3,i) , kk4(8,4,i), kk4(8,5,i), kk4(8,6,i),kk4(8,7,i),kk4(8,8,i),kk4(8,9,i),kk4(8,10,i)/)!
-  defsvm%grad_interp_weights(34, 1:defsvm%cv_split,i) = (/ kk4(8,3,i), kk4(8,1,i), kk4(8,2,i) , kk4(8,8,i), kk4(8,9,i), kk4(8,4,i),kk4(8,5,i),kk4(8,6,i),kk4(8,7,i),kk4(8,10,i)/)
-  defsvm%grad_interp_weights(40, 1:defsvm%cv_split,i) = (/ kk4(8,1,i), kk4(8,3,i), kk4(8,2,i) , kk4(8,9,i), kk4(8,8,i), kk4(8,7,i),kk4(8,6,i),kk4(8,5,i),kk4(8,4,i),kk4(8,10,i)/)
-                                                  
-  defsvm%grad_interp_weights(43, 1:defsvm%cv_split,i) = (/ kk4(9,1,i), kk4(9,2,i), kk4(9,3,i) , kk4(9,4,i), kk4(9,5,i), kk4(9,6,i),kk4(9,7,i),kk4(9,8,i),kk4(9,9,i),kk4(9,10,i)/)!
-  defsvm%grad_interp_weights(45, 1:defsvm%cv_split,i) = (/ kk4(9,3,i), kk4(9,1,i), kk4(9,2,i) , kk4(9,8,i), kk4(9,9,i), kk4(9,4,i),kk4(9,5,i),kk4(9,6,i),kk4(9,7,i),kk4(9,10,i)/)
-  defsvm%grad_interp_weights(47, 1:defsvm%cv_split,i) = (/ kk4(9,2,i), kk4(9,3,i), kk4(9,1,i) , kk4(9,6,i), kk4(9,7,i), kk4(9,8,i),kk4(9,9,i),kk4(9,4,i),kk4(9,5,i),kk4(9,10,i)/)
-
-  defsvm%grad_interp_weights(44, 1:defsvm%cv_split,i) = (/ kk4(10,1,i), kk4(10,2,i), kk4(10,3,i) , kk4(10,4,i), kk4(10,5,i), kk4(10,6,i),kk4(10,7,i),kk4(10,8,i),kk4(10,9,i),kk4(10,10,i)/)!
-  defsvm%grad_interp_weights(46, 1:defsvm%cv_split,i) = (/ kk4(10,3,i), kk4(10,1,i), kk4(10,2,i) , kk4(10,8,i), kk4(10,9,i), kk4(10,4,i),kk4(10,5,i),kk4(10,6,i),kk4(10,7,i),kk4(10,10,i)/)
-  defsvm%grad_interp_weights(48, 1:defsvm%cv_split,i) = (/ kk4(10,2,i), kk4(10,3,i), kk4(10,1,i) , kk4(10,6,i), kk4(10,7,i), kk4(10,8,i),kk4(10,9,i),kk4(10,4,i),kk4(10,5,i),kk4(10,10,i)/)
-
-  defsvm%grad_interp_weights(49, 1:defsvm%cv_split,i) = (/ kk4(11,1,i), kk4(11,2,i), kk4(11,3,i) , kk4(11,4,i), kk4(11,5,i), kk4(11,6,i),kk4(11,7,i),kk4(11,8,i),kk4(11,9,i),kk4(11,10,i)/)!
-  defsvm%grad_interp_weights(52, 1:defsvm%cv_split,i) = (/ kk4(11,2,i), kk4(11,1,i), kk4(11,3,i) , kk4(11,5,i), kk4(11,4,i), kk4(11,9,i),kk4(11,8,i),kk4(11,7,i),kk4(11,6,i),kk4(11,10,i)/)
-  defsvm%grad_interp_weights(53, 1:defsvm%cv_split,i) = (/ kk4(11,3,i), kk4(11,1,i), kk4(11,2,i) , kk4(11,8,i), kk4(11,9,i), kk4(11,4,i),kk4(11,5,i),kk4(11,6,i),kk4(11,7,i),kk4(11,10,i)/)
-  defsvm%grad_interp_weights(56, 1:defsvm%cv_split,i) = (/ kk4(11,3,i), kk4(11,2,i), kk4(11,1,i) , kk4(11,7,i), kk4(11,6,i), kk4(11,5,i),kk4(11,4,i),kk4(11,9,i),kk4(11,8,i),kk4(11,10,i)/)
-  defsvm%grad_interp_weights(57, 1:defsvm%cv_split,i) = (/ kk4(11,2,i), kk4(11,3,i), kk4(11,1,i) , kk4(11,6,i), kk4(11,7,i), kk4(11,8,i),kk4(11,9,i),kk4(11,4,i),kk4(11,5,i),kk4(11,10,i)/)
-  defsvm%grad_interp_weights(60, 1:defsvm%cv_split,i) = (/ kk4(11,1,i), kk4(11,3,i), kk4(11,2,i) , kk4(11,9,i), kk4(11,8,i), kk4(11,7,i),kk4(11,6,i),kk4(11,5,i),kk4(11,4,i),kk4(11,10,i)/)
-
-
-  defsvm%grad_interp_weights(50, 1:defsvm%cv_split,i) = (/ kk4(12,1,i), kk4(12,2,i), kk4(12,3,i) , kk4(12,4,i), kk4(12,5,i), kk4(12,6,i),kk4(12,7,i),kk4(12,8,i),kk4(12,9,i),kk4(12,10,i)/)!
-  defsvm%grad_interp_weights(51, 1:defsvm%cv_split,i) = (/ kk4(12,2,i), kk4(12,1,i), kk4(12,3,i) , kk4(12,5,i), kk4(12,4,i), kk4(12,9,i),kk4(12,8,i),kk4(12,7,i),kk4(12,6,i),kk4(12,10,i)/)
-  defsvm%grad_interp_weights(54, 1:defsvm%cv_split,i) = (/ kk4(12,3,i), kk4(12,1,i), kk4(12,2,i) , kk4(12,8,i), kk4(12,9,i), kk4(12,4,i),kk4(12,5,i),kk4(12,6,i),kk4(12,7,i),kk4(12,10,i)/)
-  defsvm%grad_interp_weights(55, 1:defsvm%cv_split,i) = (/ kk4(12,3,i), kk4(12,2,i), kk4(12,1,i) , kk4(12,7,i), kk4(12,6,i), kk4(12,5,i),kk4(12,4,i),kk4(12,9,i),kk4(12,8,i),kk4(12,10,i)/)
-  defsvm%grad_interp_weights(58, 1:defsvm%cv_split,i) = (/ kk4(12,2,i), kk4(12,3,i), kk4(12,1,i) , kk4(12,6,i), kk4(12,7,i), kk4(12,8,i),kk4(12,9,i),kk4(12,4,i),kk4(12,5,i),kk4(12,10,i)/)
-  defsvm%grad_interp_weights(59, 1:defsvm%cv_split,i) = (/ kk4(12,1,i), kk4(12,3,i), kk4(12,2,i) , kk4(12,9,i), kk4(12,8,i), kk4(12,7,i),kk4(12,6,i),kk4(12,5,i),kk4(12,4,i),kk4(12,10,i)/)
-
-enddo
-  if (size(defsvm%grad_interp_weights, 1) /= 60) call erreur("SVM initialization", "bad array size")
-
-  case(svm_4kris2)   ! 12 independent points ... to be continued ...
-  call erreur("parameters parsing","unknown SVM method (init_gradsvmweights)")
-
-endselect
+  call distrib_svmgradweights_tri4kris(defsvm, kk4)
+  
+case(svm_4kris2)   ! 12 independent points ... to be continued ...
+  call error_stop("gradient weights not implemented for SVM4KRIS2 (init_gradsvmweights)")
 
 case default
-  call erreur("parameters parsing","unknown SVM method (init_gradsvmweights)")
+  call error_stop("internal error: unknown SVM method (init_gradsvmweights)")
 endselect
 
 endsubroutine init_gradsvmweights
+
+!-------------------------------------------------------------------------
+! distribute SVM 3 of gradient coefficients on tri
+!-------------------------------------------------------------------------
+subroutine distrib_svmgradweights_tri3(defsvm, k)
+implicit none
+! -- parameters --
+type(mnu_svm) :: defsvm
+real(krp)     :: k(7, 6, 2)   ! 7 faces, 6 CV, 2 Gauss-points
+integer       :: i
+
+do i=1,2
+  defsvm%grad_interp_weights(  1, 1:defsvm%ncv,i) = (/ k(1,1,i), k(1,2,i), k(1,3,i) , k(1,4,i), k(1,5,i), k(1,6,i)/)!
+  defsvm%grad_interp_weights(  2, 1:defsvm%ncv,i) = (/ k(2,1,i), k(2,2,i), k(2,3,i) , k(2,4,i), k(2,5,i), k(2,6,i)/)!
+  defsvm%grad_interp_weights(  3, 1:defsvm%ncv,i) = (/ k(3,1,i), k(3,2,i), k(3,3,i) , k(3,4,i), k(3,5,i), k(3,6,i)/)!
+
+  defsvm%grad_interp_weights(  4, 1:defsvm%ncv,i) = (/ k(3,2,i), k(3,1,i), k(3,3,i) , k(3,4,i), k(3,6,i), k(3,5,i)/)
+  defsvm%grad_interp_weights(  5, 1:defsvm%ncv,i) = (/ k(2,2,i), k(2,1,i), k(2,3,i) , k(2,4,i), k(2,6,i), k(2,5,i)/)
+  defsvm%grad_interp_weights(  6, 1:defsvm%ncv,i) = (/ k(1,2,i), k(1,1,i), k(1,3,i) , k(1,4,i), k(1,6,i), k(1,5,i)/)
+  defsvm%grad_interp_weights(  7, 1:defsvm%ncv,i) = (/ k(1,3,i), k(1,1,i), k(1,2,i) , k(1,6,i), k(1,4,i), k(1,5,i)/)
+  defsvm%grad_interp_weights(  8, 1:defsvm%ncv,i) = (/ k(2,3,i), k(2,1,i), k(2,2,i) , k(2,6,i), k(2,4,i), k(2,5,i)/)
+  defsvm%grad_interp_weights(  9, 1:defsvm%ncv,i) = (/ k(3,3,i), k(3,1,i), k(3,2,i) , k(3,6,i), k(3,4,i), k(3,5,i)/)
+  defsvm%grad_interp_weights( 10, 1:defsvm%ncv,i) = (/ k(3,3,i), k(3,2,i), k(3,1,i) , k(3,5,i), k(3,4,i), k(3,6,i)/)
+  defsvm%grad_interp_weights( 11, 1:defsvm%ncv,i) = (/ k(2,3,i), k(2,2,i), k(2,1,i) , k(2,5,i), k(2,4,i), k(2,6,i)/)
+  defsvm%grad_interp_weights( 12, 1:defsvm%ncv,i) = (/ k(1,3,i), k(1,2,i), k(1,1,i) , k(1,5,i), k(1,4,i), k(1,6,i)/)
+  defsvm%grad_interp_weights( 13, 1:defsvm%ncv,i) = (/ k(1,2,i), k(1,3,i), k(1,1,i) , k(1,5,i), k(1,6,i), k(1,4,i)/)
+  defsvm%grad_interp_weights( 14, 1:defsvm%ncv,i) = (/ k(2,2,i), k(2,3,i), k(2,1,i) , k(2,5,i), k(2,6,i), k(2,4,i)/)
+  defsvm%grad_interp_weights( 15, 1:defsvm%ncv,i) = (/ k(3,2,i), k(3,3,i), k(3,1,i) , k(3,5,i), k(3,6,i), k(3,4,i)/)
+  defsvm%grad_interp_weights( 16, 1:defsvm%ncv,i) = (/ k(3,1,i), k(3,3,i), k(3,2,i) , k(3,6,i), k(3,5,i), k(3,4,i)/)
+  defsvm%grad_interp_weights( 17, 1:defsvm%ncv,i) = (/ k(2,1,i), k(2,3,i), k(2,2,i) , k(2,6,i), k(2,5,i), k(2,4,i)/)
+  defsvm%grad_interp_weights( 18, 1:defsvm%ncv,i) = (/ k(1,1,i), k(1,3,i), k(1,2,i) , k(1,6,i), k(1,5,i), k(1,4,i)/)
+
+  defsvm%grad_interp_weights( 19, 1:defsvm%ncv,i) = (/ k(4,1,i), k(4,2,i), k(4,3,i) , k(4,4,i), k(4,5,i), k(4,6,i)/)!
+  defsvm%grad_interp_weights( 20, 1:defsvm%ncv,i) = (/ k(5,1,i), k(5,2,i), k(5,3,i) , k(5,4,i), k(5,5,i), k(5,6,i)/)!
+                                                   
+  defsvm%grad_interp_weights( 21, 1:defsvm%ncv,i) = (/ k(4,2,i), k(4,1,i), k(4,3,i) , k(4,4,i), k(4,6,i), k(4,5,i)/)
+  defsvm%grad_interp_weights( 22, 1:defsvm%ncv,i) = (/ k(5,2,i), k(5,1,i), k(5,3,i) , k(5,4,i), k(5,6,i), k(5,5,i)/)
+  defsvm%grad_interp_weights( 23, 1:defsvm%ncv,i) = (/ k(4,3,i), k(4,1,i), k(4,2,i) , k(4,6,i), k(4,4,i), k(4,5,i)/)
+  defsvm%grad_interp_weights( 24, 1:defsvm%ncv,i) = (/ k(5,3,i), k(5,1,i), k(5,2,i) , k(5,6,i), k(5,4,i), k(5,5,i)/)
+  defsvm%grad_interp_weights( 25, 1:defsvm%ncv,i) = (/ k(4,3,i), k(4,2,i), k(4,1,i) , k(4,5,i), k(4,4,i), k(4,6,i)/)
+  defsvm%grad_interp_weights( 26, 1:defsvm%ncv,i) = (/ k(5,3,i), k(5,2,i), k(5,1,i) , k(5,5,i), k(5,4,i), k(5,6,i)/)
+  defsvm%grad_interp_weights( 27, 1:defsvm%ncv,i) = (/ k(4,2,i), k(4,3,i), k(4,1,i) , k(4,5,i), k(4,6,i), k(4,4,i)/)
+  defsvm%grad_interp_weights( 28, 1:defsvm%ncv,i) = (/ k(5,2,i), k(5,3,i), k(5,1,i) , k(5,5,i), k(5,6,i), k(5,4,i)/)
+  defsvm%grad_interp_weights( 29, 1:defsvm%ncv,i) = (/ k(4,1,i), k(4,3,i), k(4,2,i) , k(4,6,i), k(4,5,i), k(4,4,i)/)
+  defsvm%grad_interp_weights( 30, 1:defsvm%ncv,i) = (/ k(5,1,i), k(5,3,i), k(5,2,i) , k(5,6,i), k(5,5,i), k(5,4,i)/)
+                                                   
+  defsvm%grad_interp_weights( 31, 1:defsvm%ncv,i) = (/ k(6,1,i), k(6,2,i), k(6,3,i) , k(6,4,i), k(6,5,i), k(6,6,i)/)!
+  defsvm%grad_interp_weights( 32, 1:defsvm%ncv,i) = (/ k(7,1,i), k(7,2,i), k(7,3,i) , k(7,4,i), k(7,5,i), k(7,6,i)/)!
+                                                    
+  defsvm%grad_interp_weights( 33, 1:defsvm%ncv,i) = (/ k(6,2,i), k(6,1,i), k(6,3,i) , k(6,4,i), k(6,6,i), k(6,5,i)/)
+  defsvm%grad_interp_weights( 34, 1:defsvm%ncv,i) = (/ k(7,2,i), k(7,1,i), k(7,3,i) , k(7,4,i), k(7,6,i), k(7,5,i)/)
+  defsvm%grad_interp_weights( 35, 1:defsvm%ncv,i) = (/ k(6,3,i), k(6,2,i), k(6,1,i) , k(6,5,i), k(6,4,i), k(6,6,i)/)
+  defsvm%grad_interp_weights( 36, 1:defsvm%ncv,i) = (/ k(7,3,i), k(7,2,i), k(7,1,i) , k(7,5,i), k(7,4,i), k(7,6,i)/)
+enddo
+
+if (size(defsvm%grad_interp_weights, 1) /= 36) call error_stop("SVM initialization: bad array size (tri3)")
+
+endsubroutine  
+
+!-------------------------------------------------------------------------
+! distribute SVM 4 of gradient coefficients on tri
+!-------------------------------------------------------------------------
+subroutine distrib_svmgradweights_tri4wang(defsvm, k4)
+implicit none
+! -- parameters --
+type(mnu_svm) :: defsvm
+real(krp)     :: k4(10,10,2)
+integer       :: i
+
+do i=1,2    
+  defsvm%grad_interp_weights(1, 1:defsvm%ncv,i)  = (/ k4(1,1,i), k4(1,2,i), k4(1,3,i) , k4(1,4,i), k4(1,5,i), k4(1,6,i),k4(1,7,i),k4(1,8,i),k4(1,9,i),k4(1,10,i)/)!
+  defsvm%grad_interp_weights(8, 1:defsvm%ncv,i)  = (/ k4(1,2,i), k4(1,1,i), k4(1,3,i) , k4(1,5,i), k4(1,4,i), k4(1,9,i),k4(1,8,i),k4(1,7,i),k4(1,6,i),k4(1,10,i)/)
+  defsvm%grad_interp_weights(9, 1:defsvm%ncv,i)  = (/ k4(1,3,i), k4(1,1,i), k4(1,2,i) , k4(1,8,i), k4(1,9,i), k4(1,4,i),k4(1,5,i),k4(1,6,i),k4(1,7,i),k4(1,10,i)/)
+  defsvm%grad_interp_weights(16, 1:defsvm%ncv,i) = (/ k4(1,3,i), k4(1,2,i), k4(1,1,i) , k4(1,7,i), k4(1,6,i), k4(1,5,i),k4(1,4,i),k4(1,9,i),k4(1,8,i),k4(1,10,i)/)
+  defsvm%grad_interp_weights(17, 1:defsvm%ncv,i) = (/ k4(1,2,i), k4(1,3,i), k4(1,1,i) , k4(1,6,i), k4(1,7,i), k4(1,8,i),k4(1,9,i),k4(1,4,i),k4(1,5,i),k4(1,10,i)/)
+  defsvm%grad_interp_weights(24, 1:defsvm%ncv,i) = (/ k4(1,1,i), k4(1,3,i), k4(1,2,i) , k4(1,9,i), k4(1,8,i), k4(1,7,i),k4(1,6,i),k4(1,5,i),k4(1,4,i),k4(1,10,i)/)
+         
+  defsvm%grad_interp_weights(2, 1:defsvm%ncv,i)  = (/ k4(2,1,i), k4(2,2,i), k4(2,3,i) , k4(2,4,i), k4(2,5,i), k4(2,6,i),k4(2,7,i),k4(2,8,i),k4(2,9,i),k4(2,10,i)/)!
+  defsvm%grad_interp_weights(7, 1:defsvm%ncv,i)  = (/ k4(2,2,i), k4(2,1,i), k4(2,3,i) , k4(2,5,i), k4(2,4,i), k4(2,9,i),k4(2,8,i),k4(2,7,i),k4(2,6,i),k4(2,10,i)/)
+  defsvm%grad_interp_weights(10, 1:defsvm%ncv,i) = (/ k4(2,3,i), k4(2,1,i), k4(2,2,i) , k4(2,8,i), k4(2,9,i), k4(2,4,i),k4(2,5,i),k4(2,6,i),k4(2,7,i),k4(2,10,i)/)
+  defsvm%grad_interp_weights(15, 1:defsvm%ncv,i) = (/ k4(2,3,i), k4(2,2,i), k4(2,1,i) , k4(2,7,i), k4(2,6,i), k4(2,5,i),k4(2,4,i),k4(2,9,i),k4(2,8,i),k4(2,10,i)/)
+  defsvm%grad_interp_weights(18, 1:defsvm%ncv,i) = (/ k4(2,2,i), k4(2,3,i), k4(2,1,i) , k4(2,6,i), k4(2,7,i), k4(2,8,i),k4(2,9,i),k4(2,4,i),k4(2,5,i),k4(2,10,i)/)
+  defsvm%grad_interp_weights(23, 1:defsvm%ncv,i) = (/ k4(2,1,i), k4(2,3,i), k4(2,2,i) , k4(2,9,i), k4(2,8,i), k4(2,7,i),k4(2,6,i),k4(2,5,i),k4(2,4,i),k4(2,10,i)/)
+
+  defsvm%grad_interp_weights(3, 1:defsvm%ncv,i)  = (/ k4(3,1,i), k4(3,2,i), k4(3,3,i) , k4(3,4,i), k4(3,5,i), k4(3,6,i),k4(3,7,i),k4(3,8,i),k4(3,9,i),k4(3,10,i)/)!
+  defsvm%grad_interp_weights(6, 1:defsvm%ncv,i)  = (/ k4(3,2,i), k4(3,1,i), k4(3,3,i) , k4(3,5,i), k4(3,4,i), k4(3,9,i),k4(3,8,i),k4(3,7,i),k4(3,6,i),k4(3,10,i)/)
+  defsvm%grad_interp_weights(11, 1:defsvm%ncv,i) = (/ k4(3,3,i), k4(3,1,i), k4(3,2,i) , k4(3,8,i), k4(3,9,i), k4(3,4,i),k4(3,5,i),k4(3,6,i),k4(3,7,i),k4(3,10,i)/)
+  defsvm%grad_interp_weights(14, 1:defsvm%ncv,i) = (/ k4(3,3,i), k4(3,2,i), k4(3,1,i) , k4(3,7,i), k4(3,6,i), k4(3,5,i),k4(3,4,i),k4(3,9,i),k4(3,8,i),k4(3,10,i)/)
+  defsvm%grad_interp_weights(19, 1:defsvm%ncv,i) = (/ k4(3,2,i), k4(3,3,i), k4(3,1,i) , k4(3,6,i), k4(3,7,i), k4(3,8,i),k4(3,9,i),k4(3,4,i),k4(3,5,i),k4(3,10,i)/)
+  defsvm%grad_interp_weights(22, 1:defsvm%ncv,i) = (/ k4(3,1,i), k4(3,3,i), k4(3,2,i) , k4(3,9,i), k4(3,8,i), k4(3,7,i),k4(3,6,i),k4(3,5,i),k4(3,4,i),k4(3,10,i)/)
+
+  defsvm%grad_interp_weights(4, 1:defsvm%ncv,i)  = (/ k4(4,1,i), k4(4,2,i), k4(4,3,i) , k4(4,4,i), k4(4,5,i), k4(4,6,i),k4(4,7,i),k4(4,8,i),k4(4,9,i),k4(4,10,i)/)!
+  defsvm%grad_interp_weights(5, 1:defsvm%ncv,i)  = (/ k4(4,2,i), k4(4,1,i), k4(4,3,i) , k4(4,5,i), k4(4,4,i), k4(4,9,i),k4(4,8,i),k4(4,7,i),k4(4,6,i),k4(4,10,i)/)
+  defsvm%grad_interp_weights(12, 1:defsvm%ncv,i) = (/ k4(4,3,i), k4(4,1,i), k4(4,2,i) , k4(4,8,i), k4(4,9,i), k4(4,4,i),k4(4,5,i),k4(4,6,i),k4(4,7,i),k4(4,10,i)/)
+  defsvm%grad_interp_weights(13, 1:defsvm%ncv,i) = (/ k4(4,3,i), k4(4,2,i), k4(4,1,i) , k4(4,7,i), k4(4,6,i), k4(4,5,i),k4(4,4,i),k4(4,9,i),k4(4,8,i),k4(4,10,i)/)
+  defsvm%grad_interp_weights(20, 1:defsvm%ncv,i) = (/ k4(4,2,i), k4(4,3,i), k4(4,1,i) , k4(4,6,i), k4(4,7,i), k4(4,8,i),k4(4,9,i),k4(4,4,i),k4(4,5,i),k4(4,10,i)/)
+  defsvm%grad_interp_weights(21, 1:defsvm%ncv,i) = (/ k4(4,1,i), k4(4,3,i), k4(4,2,i) , k4(4,9,i), k4(4,8,i), k4(4,7,i),k4(4,6,i),k4(4,5,i),k4(4,4,i),k4(4,10,i)/)
+
+  defsvm%grad_interp_weights(25, 1:defsvm%ncv,i) = (/ k4(5,1,i), k4(5,2,i), k4(5,3,i) , k4(5,4,i), k4(5,5,i), k4(5,6,i),k4(5,7,i),k4(5,8,i),k4(5,9,i),k4(5,10,i)/)!
+  defsvm%grad_interp_weights(29, 1:defsvm%ncv,i) = (/ k4(5,2,i), k4(5,1,i), k4(5,3,i) , k4(5,5,i), k4(5,4,i), k4(5,9,i),k4(5,8,i),k4(5,7,i),k4(5,6,i),k4(5,10,i)/)
+  defsvm%grad_interp_weights(31, 1:defsvm%ncv,i) = (/ k4(5,3,i), k4(5,1,i), k4(5,2,i) , k4(5,8,i), k4(5,9,i), k4(5,4,i),k4(5,5,i),k4(5,6,i),k4(5,7,i),k4(5,10,i)/)
+  defsvm%grad_interp_weights(35, 1:defsvm%ncv,i) = (/ k4(5,3,i), k4(5,2,i), k4(5,1,i) , k4(5,7,i), k4(5,6,i), k4(5,5,i),k4(5,4,i),k4(5,9,i),k4(5,8,i),k4(5,10,i)/)
+  defsvm%grad_interp_weights(37, 1:defsvm%ncv,i) = (/ k4(5,2,i), k4(5,3,i), k4(5,1,i) , k4(5,6,i), k4(5,7,i), k4(5,8,i),k4(5,9,i),k4(5,4,i),k4(5,5,i),k4(5,10,i)/)
+  defsvm%grad_interp_weights(41, 1:defsvm%ncv,i) = (/ k4(5,1,i), k4(5,3,i), k4(5,2,i) , k4(5,9,i), k4(5,8,i), k4(5,7,i),k4(5,6,i),k4(5,5,i),k4(5,4,i),k4(5,10,i)/)
+
+  defsvm%grad_interp_weights(26, 1:defsvm%ncv,i) = (/ k4(6,1,i), k4(6,2,i), k4(6,3,i) , k4(6,4,i), k4(6,5,i), k4(6,6,i),k4(6,7,i),k4(6,8,i),k4(6,9,i),k4(6,10,i)/)!
+  defsvm%grad_interp_weights(30, 1:defsvm%ncv,i) = (/ k4(6,2,i), k4(6,1,i), k4(6,3,i) , k4(6,5,i), k4(6,4,i), k4(6,9,i),k4(6,8,i),k4(6,7,i),k4(6,6,i),k4(6,10,i)/)
+  defsvm%grad_interp_weights(32, 1:defsvm%ncv,i) = (/ k4(6,3,i), k4(6,1,i), k4(6,2,i) , k4(6,8,i), k4(6,9,i), k4(6,4,i),k4(6,5,i),k4(6,6,i),k4(6,7,i),k4(6,10,i)/)
+  defsvm%grad_interp_weights(36, 1:defsvm%ncv,i) = (/ k4(6,3,i), k4(6,2,i), k4(6,1,i) , k4(6,7,i), k4(6,6,i), k4(6,5,i),k4(6,4,i),k4(6,9,i),k4(6,8,i),k4(6,10,i)/)
+  defsvm%grad_interp_weights(38, 1:defsvm%ncv,i) = (/ k4(6,2,i), k4(6,3,i), k4(6,1,i) , k4(6,6,i), k4(6,7,i), k4(6,8,i),k4(6,9,i),k4(6,4,i),k4(6,5,i),k4(6,10,i)/)
+  defsvm%grad_interp_weights(42, 1:defsvm%ncv,i) = (/ k4(6,1,i), k4(6,3,i), k4(6,2,i) , k4(6,9,i), k4(6,8,i), k4(6,7,i),k4(6,6,i),k4(6,5,i),k4(6,4,i),k4(6,10,i)/)
+
+  defsvm%grad_interp_weights(27, 1:defsvm%ncv,i) = (/ k4(7,1,i), k4(7,2,i), k4(7,3,i) , k4(7,4,i), k4(7,5,i), k4(7,6,i),k4(7,7,i),k4(7,8,i),k4(7,9,i),k4(7,10,i)/)!
+  defsvm%grad_interp_weights(33, 1:defsvm%ncv,i) = (/ k4(7,3,i), k4(7,1,i), k4(7,2,i) , k4(7,8,i), k4(7,9,i), k4(7,4,i),k4(7,5,i),k4(7,6,i),k4(7,7,i),k4(7,10,i)/)
+  defsvm%grad_interp_weights(39, 1:defsvm%ncv,i) = (/ k4(7,1,i), k4(7,3,i), k4(7,2,i) , k4(7,9,i), k4(7,8,i), k4(7,7,i),k4(7,6,i),k4(7,5,i),k4(7,4,i),k4(7,10,i)/)
+                                                               
+  defsvm%grad_interp_weights(28, 1:defsvm%ncv,i) = (/ k4(8,1,i), k4(8,2,i), k4(8,3,i) , k4(8,4,i), k4(8,5,i), k4(8,6,i),k4(8,7,i),k4(8,8,i),k4(8,9,i),k4(8,10,i)/)!
+  defsvm%grad_interp_weights(34, 1:defsvm%ncv,i) = (/ k4(8,3,i), k4(8,1,i), k4(8,2,i) , k4(8,8,i), k4(8,9,i), k4(8,4,i),k4(8,5,i),k4(8,6,i),k4(8,7,i),k4(8,10,i)/)
+  defsvm%grad_interp_weights(40, 1:defsvm%ncv,i) = (/ k4(8,1,i), k4(8,3,i), k4(8,2,i) , k4(8,9,i), k4(8,8,i), k4(8,7,i),k4(8,6,i),k4(8,5,i),k4(8,4,i),k4(8,10,i)/)
+
+  defsvm%grad_interp_weights(43, 1:defsvm%ncv,i) = (/ k4(9,1,i), k4(9,2,i), k4(9,3,i) , k4(9,4,i), k4(9,5,i), k4(9,6,i),k4(9,7,i),k4(9,8,i),k4(9,9,i),k4(9,10,i)/)!
+  defsvm%grad_interp_weights(46, 1:defsvm%ncv,i) = (/ k4(9,2,i), k4(9,1,i), k4(9,3,i) , k4(9,5,i), k4(9,4,i), k4(9,9,i),k4(9,8,i),k4(9,7,i),k4(9,6,i),k4(9,10,i)/)
+  defsvm%grad_interp_weights(47, 1:defsvm%ncv,i) = (/ k4(9,3,i), k4(9,1,i), k4(9,2,i) , k4(9,8,i), k4(9,9,i), k4(9,4,i),k4(9,5,i),k4(9,6,i),k4(9,7,i),k4(9,10,i)/)
+  defsvm%grad_interp_weights(50, 1:defsvm%ncv,i) = (/ k4(9,3,i), k4(9,2,i), k4(9,1,i) , k4(9,7,i), k4(9,6,i), k4(9,5,i),k4(9,4,i),k4(9,9,i),k4(9,8,i),k4(9,10,i)/)
+  defsvm%grad_interp_weights(51, 1:defsvm%ncv,i) = (/ k4(9,2,i), k4(9,3,i), k4(9,1,i) , k4(9,6,i), k4(9,7,i), k4(9,8,i),k4(9,9,i),k4(9,4,i),k4(9,5,i),k4(9,10,i)/)
+  defsvm%grad_interp_weights(54, 1:defsvm%ncv,i) = (/ k4(9,1,i), k4(9,3,i), k4(9,2,i) , k4(9,9,i), k4(9,8,i), k4(9,7,i),k4(9,6,i),k4(9,5,i),k4(9,4,i),k4(9,10,i)/)
+                                                  
+  defsvm%grad_interp_weights(44, 1:defsvm%ncv,i) = (/ k4(10,1,i), k4(10,2,i), k4(10,3,i) , k4(10,4,i), k4(10,5,i), k4(10,6,i),k4(10,7,i),k4(10,8,i),k4(10,9,i),k4(10,10,i)/)!
+  defsvm%grad_interp_weights(45, 1:defsvm%ncv,i) = (/ k4(10,2,i), k4(10,1,i), k4(10,3,i) , k4(10,5,i), k4(10,4,i), k4(10,9,i),k4(10,8,i),k4(10,7,i),k4(10,6,i),k4(10,10,i)/)
+  defsvm%grad_interp_weights(48, 1:defsvm%ncv,i) = (/ k4(10,3,i), k4(10,1,i), k4(10,2,i) , k4(10,8,i), k4(10,9,i), k4(10,4,i),k4(10,5,i),k4(10,6,i),k4(10,7,i),k4(10,10,i)/)
+  defsvm%grad_interp_weights(49, 1:defsvm%ncv,i) = (/ k4(10,3,i), k4(10,2,i), k4(10,1,i) , k4(10,7,i), k4(10,6,i), k4(10,5,i),k4(10,4,i),k4(10,9,i),k4(10,8,i),k4(10,10,i)/)
+  defsvm%grad_interp_weights(52, 1:defsvm%ncv,i) = (/ k4(10,2,i), k4(10,3,i), k4(10,1,i) , k4(10,6,i), k4(10,7,i), k4(10,8,i),k4(10,9,i),k4(10,4,i),k4(10,5,i),k4(10,10,i)/)
+  defsvm%grad_interp_weights(53, 1:defsvm%ncv,i) = (/ k4(10,1,i), k4(10,3,i), k4(10,2,i) , k4(10,9,i), k4(10,8,i), k4(10,7,i),k4(10,6,i),k4(10,5,i),k4(10,4,i),k4(10,10,i)/)
+
+enddo
+if (size(defsvm%grad_interp_weights, 1) /= 54) call error_stop("SVM initialization: bad array size (tri4wang)")
+
+endsubroutine
+
+!-------------------------------------------------------------------------
+! distribute SVM 4 of gradient coefficients on tri
+!-------------------------------------------------------------------------
+subroutine distrib_svmgradweights_tri4kris(defsvm, kk4)
+implicit none
+! -- parameters --
+type(mnu_svm) :: defsvm
+real(krp)     :: kk4(12,10,2)
+integer       :: i
+
+do i=1,2
+  defsvm%grad_interp_weights(1, 1:defsvm%ncv,i)  = (/ kk4(1,1,i), kk4(1,2,i), kk4(1,3,i) , kk4(1,4,i), kk4(1,5,i), kk4(1,6,i),kk4(1,7,i),kk4(1,8,i),kk4(1,9,i),kk4(1,10,i)/)!
+  defsvm%grad_interp_weights(8, 1:defsvm%ncv,i)  = (/ kk4(1,2,i), kk4(1,1,i), kk4(1,3,i) , kk4(1,5,i), kk4(1,4,i), kk4(1,9,i),kk4(1,8,i),kk4(1,7,i),kk4(1,6,i),kk4(1,10,i)/)
+  defsvm%grad_interp_weights(9, 1:defsvm%ncv,i)  = (/ kk4(1,3,i), kk4(1,1,i), kk4(1,2,i) , kk4(1,8,i), kk4(1,9,i), kk4(1,4,i),kk4(1,5,i),kk4(1,6,i),kk4(1,7,i),kk4(1,10,i)/)
+  defsvm%grad_interp_weights(16, 1:defsvm%ncv,i) = (/ kk4(1,3,i), kk4(1,2,i), kk4(1,1,i) , kk4(1,7,i), kk4(1,6,i), kk4(1,5,i),kk4(1,4,i),kk4(1,9,i),kk4(1,8,i),kk4(1,10,i)/)
+  defsvm%grad_interp_weights(17, 1:defsvm%ncv,i) = (/ kk4(1,2,i), kk4(1,3,i), kk4(1,1,i) , kk4(1,6,i), kk4(1,7,i), kk4(1,8,i),kk4(1,9,i),kk4(1,4,i),kk4(1,5,i),kk4(1,10,i)/)
+  defsvm%grad_interp_weights(24, 1:defsvm%ncv,i) = (/ kk4(1,1,i), kk4(1,3,i), kk4(1,2,i) , kk4(1,9,i), kk4(1,8,i), kk4(1,7,i),kk4(1,6,i),kk4(1,5,i),kk4(1,4,i),kk4(1,10,i)/)
+
+  defsvm%grad_interp_weights(2, 1:defsvm%ncv,i)  = (/ kk4(2,1,i), kk4(2,2,i), kk4(2,3,i) , kk4(2,4,i), kk4(2,5,i), kk4(2,6,i),kk4(2,7,i),kk4(2,8,i),kk4(2,9,i),kk4(2,10,i)/)!
+  defsvm%grad_interp_weights(7, 1:defsvm%ncv,i)  = (/ kk4(2,2,i), kk4(2,1,i), kk4(2,3,i) , kk4(2,5,i), kk4(2,4,i), kk4(2,9,i),kk4(2,8,i),kk4(2,7,i),kk4(2,6,i),kk4(2,10,i)/)
+  defsvm%grad_interp_weights(10, 1:defsvm%ncv,i) = (/ kk4(2,3,i), kk4(2,1,i), kk4(2,2,i) , kk4(2,8,i), kk4(2,9,i), kk4(2,4,i),kk4(2,5,i),kk4(2,6,i),kk4(2,7,i),kk4(2,10,i)/)
+  defsvm%grad_interp_weights(15, 1:defsvm%ncv,i) = (/ kk4(2,3,i), kk4(2,2,i), kk4(2,1,i) , kk4(2,7,i), kk4(2,6,i), kk4(2,5,i),kk4(2,4,i),kk4(2,9,i),kk4(2,8,i),kk4(2,10,i)/)
+  defsvm%grad_interp_weights(18, 1:defsvm%ncv,i) = (/ kk4(2,2,i), kk4(2,3,i), kk4(2,1,i) , kk4(2,6,i), kk4(2,7,i), kk4(2,8,i),kk4(2,9,i),kk4(2,4,i),kk4(2,5,i),kk4(2,10,i)/)
+  defsvm%grad_interp_weights(23, 1:defsvm%ncv,i) = (/ kk4(2,1,i), kk4(2,3,i), kk4(2,2,i) , kk4(2,9,i), kk4(2,8,i), kk4(2,7,i),kk4(2,6,i),kk4(2,5,i),kk4(2,4,i),kk4(2,10,i)/)
+
+  defsvm%grad_interp_weights(3, 1:defsvm%ncv,i)  = (/ kk4(3,1,i), kk4(3,2,i), kk4(3,3,i) , kk4(3,4,i), kk4(3,5,i), kk4(3,6,i),kk4(3,7,i),kk4(3,8,i),kk4(3,9,i),kk4(3,10,i)/)!
+  defsvm%grad_interp_weights(6, 1:defsvm%ncv,i)  = (/ kk4(3,2,i), kk4(3,1,i), kk4(3,3,i) , kk4(3,5,i), kk4(3,4,i), kk4(3,9,i),kk4(3,8,i),kk4(3,7,i),kk4(3,6,i),kk4(3,10,i)/)
+  defsvm%grad_interp_weights(11, 1:defsvm%ncv,i) = (/ kk4(3,3,i), kk4(3,1,i), kk4(3,2,i) , kk4(3,8,i), kk4(3,9,i), kk4(3,4,i),kk4(3,5,i),kk4(3,6,i),kk4(3,7,i),kk4(3,10,i)/)
+  defsvm%grad_interp_weights(14, 1:defsvm%ncv,i) = (/ kk4(3,3,i), kk4(3,2,i), kk4(3,1,i) , kk4(3,7,i), kk4(3,6,i), kk4(3,5,i),kk4(3,4,i),kk4(3,9,i),kk4(3,8,i),kk4(3,10,i)/)
+  defsvm%grad_interp_weights(19, 1:defsvm%ncv,i) = (/ kk4(3,2,i), kk4(3,3,i), kk4(3,1,i) , kk4(3,6,i), kk4(3,7,i), kk4(3,8,i),kk4(3,9,i),kk4(3,4,i),kk4(3,5,i),kk4(3,10,i)/)
+  defsvm%grad_interp_weights(22, 1:defsvm%ncv,i) = (/ kk4(3,1,i), kk4(3,3,i), kk4(3,2,i) , kk4(3,9,i), kk4(3,8,i), kk4(3,7,i),kk4(3,6,i),kk4(3,5,i),kk4(3,4,i),kk4(3,10,i)/)
+
+  defsvm%grad_interp_weights(4, 1:defsvm%ncv,i)  = (/ kk4(4,1,i), kk4(4,2,i), kk4(4,3,i) , kk4(4,4,i), kk4(4,5,i), kk4(4,6,i),kk4(4,7,i),kk4(4,8,i),kk4(4,9,i),kk4(4,10,i)/)!
+  defsvm%grad_interp_weights(5, 1:defsvm%ncv,i)  = (/ kk4(4,2,i), kk4(4,1,i), kk4(4,3,i) , kk4(4,5,i), kk4(4,4,i), kk4(4,9,i),kk4(4,8,i),kk4(4,7,i),kk4(4,6,i),kk4(4,10,i)/)
+  defsvm%grad_interp_weights(12, 1:defsvm%ncv,i) = (/ kk4(4,3,i), kk4(4,1,i), kk4(4,2,i) , kk4(4,8,i), kk4(4,9,i), kk4(4,4,i),kk4(4,5,i),kk4(4,6,i),kk4(4,7,i),kk4(4,10,i)/)
+  defsvm%grad_interp_weights(13, 1:defsvm%ncv,i) = (/ kk4(4,3,i), kk4(4,2,i), kk4(4,1,i) , kk4(4,7,i), kk4(4,6,i), kk4(4,5,i),kk4(4,4,i),kk4(4,9,i),kk4(4,8,i),kk4(4,10,i)/)
+  defsvm%grad_interp_weights(20, 1:defsvm%ncv,i) = (/ kk4(4,2,i), kk4(4,3,i), kk4(4,1,i) , kk4(4,6,i), kk4(4,7,i), kk4(4,8,i),kk4(4,9,i),kk4(4,4,i),kk4(4,5,i),kk4(4,10,i)/)
+  defsvm%grad_interp_weights(21, 1:defsvm%ncv,i) = (/ kk4(4,1,i), kk4(4,3,i), kk4(4,2,i) , kk4(4,9,i), kk4(4,8,i), kk4(4,7,i),kk4(4,6,i),kk4(4,5,i),kk4(4,4,i),kk4(4,10,i)/)
+
+  defsvm%grad_interp_weights(25, 1:defsvm%ncv,i) = (/ kk4(5,1,i), kk4(5,2,i), kk4(5,3,i) , kk4(5,4,i), kk4(5,5,i), kk4(5,6,i),kk4(5,7,i),kk4(5,8,i),kk4(5,9,i),kk4(5,10,i)/)!
+  defsvm%grad_interp_weights(29, 1:defsvm%ncv,i) = (/ kk4(5,2,i), kk4(5,1,i), kk4(5,3,i) , kk4(5,5,i), kk4(5,4,i), kk4(5,9,i),kk4(5,8,i),kk4(5,7,i),kk4(5,6,i),kk4(5,10,i)/)
+  defsvm%grad_interp_weights(31, 1:defsvm%ncv,i) = (/ kk4(5,3,i), kk4(5,1,i), kk4(5,2,i) , kk4(5,8,i), kk4(5,9,i), kk4(5,4,i),kk4(5,5,i),kk4(5,6,i),kk4(5,7,i),kk4(5,10,i)/)
+  defsvm%grad_interp_weights(35, 1:defsvm%ncv,i) = (/ kk4(5,3,i), kk4(5,2,i), kk4(5,1,i) , kk4(5,7,i), kk4(5,6,i), kk4(5,5,i),kk4(5,4,i),kk4(5,9,i),kk4(5,8,i),kk4(5,10,i)/)
+  defsvm%grad_interp_weights(37, 1:defsvm%ncv,i) = (/ kk4(5,2,i), kk4(5,3,i), kk4(5,1,i) , kk4(5,6,i), kk4(5,7,i), kk4(5,8,i),kk4(5,9,i),kk4(5,4,i),kk4(5,5,i),kk4(5,10,i)/)
+  defsvm%grad_interp_weights(41, 1:defsvm%ncv,i) = (/ kk4(5,1,i), kk4(5,3,i), kk4(5,2,i) , kk4(5,9,i), kk4(5,8,i), kk4(5,7,i),kk4(5,6,i),kk4(5,5,i),kk4(5,4,i),kk4(5,10,i)/)
+
+  defsvm%grad_interp_weights(26, 1:defsvm%ncv,i) = (/ kk4(6,1,i), kk4(6,2,i), kk4(6,3,i) , kk4(6,4,i), kk4(6,5,i), kk4(6,6,i),kk4(6,7,i),kk4(6,8,i),kk4(6,9,i),kk4(6,10,i)/)!
+  defsvm%grad_interp_weights(30, 1:defsvm%ncv,i) = (/ kk4(6,2,i), kk4(6,1,i), kk4(6,3,i) , kk4(6,5,i), kk4(6,4,i), kk4(6,9,i),kk4(6,8,i),kk4(6,7,i),kk4(6,6,i),kk4(6,10,i)/)
+  defsvm%grad_interp_weights(32, 1:defsvm%ncv,i) = (/ kk4(6,3,i), kk4(6,1,i), kk4(6,2,i) , kk4(6,8,i), kk4(6,9,i), kk4(6,4,i),kk4(6,5,i),kk4(6,6,i),kk4(6,7,i),kk4(6,10,i)/)
+  defsvm%grad_interp_weights(36, 1:defsvm%ncv,i) = (/ kk4(6,3,i), kk4(6,2,i), kk4(6,1,i) , kk4(6,7,i), kk4(6,6,i), kk4(6,5,i),kk4(6,4,i),kk4(6,9,i),kk4(6,8,i),kk4(6,10,i)/)
+  defsvm%grad_interp_weights(38, 1:defsvm%ncv,i) = (/ kk4(6,2,i), kk4(6,3,i), kk4(6,1,i) , kk4(6,6,i), kk4(6,7,i), kk4(6,8,i),kk4(6,9,i),kk4(6,4,i),kk4(6,5,i),kk4(6,10,i)/)
+  defsvm%grad_interp_weights(42, 1:defsvm%ncv,i) = (/ kk4(6,1,i), kk4(6,3,i), kk4(6,2,i) , kk4(6,9,i), kk4(6,8,i), kk4(6,7,i),kk4(6,6,i),kk4(6,5,i),kk4(6,4,i),kk4(6,10,i)/)
+
+  defsvm%grad_interp_weights(27, 1:defsvm%ncv,i) = (/ kk4(7,1,i), kk4(7,2,i), kk4(7,3,i) , kk4(7,4,i), kk4(7,5,i), kk4(7,6,i),kk4(7,7,i),kk4(7,8,i),kk4(7,9,i),kk4(7,10,i)/)!
+  defsvm%grad_interp_weights(33, 1:defsvm%ncv,i) = (/ kk4(7,3,i), kk4(7,1,i), kk4(7,2,i) , kk4(7,8,i), kk4(7,9,i), kk4(7,4,i),kk4(7,5,i),kk4(7,6,i),kk4(7,7,i),kk4(7,10,i)/)
+  defsvm%grad_interp_weights(39, 1:defsvm%ncv,i) = (/ kk4(7,1,i), kk4(7,3,i), kk4(7,2,i) , kk4(7,9,i), kk4(7,8,i), kk4(7,7,i),kk4(7,6,i),kk4(7,5,i),kk4(7,4,i),kk4(7,10,i)/)
+                                                        
+  defsvm%grad_interp_weights(28, 1:defsvm%ncv,i) = (/ kk4(8,1,i), kk4(8,2,i), kk4(8,3,i) , kk4(8,4,i), kk4(8,5,i), kk4(8,6,i),kk4(8,7,i),kk4(8,8,i),kk4(8,9,i),kk4(8,10,i)/)!
+  defsvm%grad_interp_weights(34, 1:defsvm%ncv,i) = (/ kk4(8,3,i), kk4(8,1,i), kk4(8,2,i) , kk4(8,8,i), kk4(8,9,i), kk4(8,4,i),kk4(8,5,i),kk4(8,6,i),kk4(8,7,i),kk4(8,10,i)/)
+  defsvm%grad_interp_weights(40, 1:defsvm%ncv,i) = (/ kk4(8,1,i), kk4(8,3,i), kk4(8,2,i) , kk4(8,9,i), kk4(8,8,i), kk4(8,7,i),kk4(8,6,i),kk4(8,5,i),kk4(8,4,i),kk4(8,10,i)/)
+                                                  
+  defsvm%grad_interp_weights(43, 1:defsvm%ncv,i) = (/ kk4(9,1,i), kk4(9,2,i), kk4(9,3,i) , kk4(9,4,i), kk4(9,5,i), kk4(9,6,i),kk4(9,7,i),kk4(9,8,i),kk4(9,9,i),kk4(9,10,i)/)!
+  defsvm%grad_interp_weights(45, 1:defsvm%ncv,i) = (/ kk4(9,3,i), kk4(9,1,i), kk4(9,2,i) , kk4(9,8,i), kk4(9,9,i), kk4(9,4,i),kk4(9,5,i),kk4(9,6,i),kk4(9,7,i),kk4(9,10,i)/)
+  defsvm%grad_interp_weights(47, 1:defsvm%ncv,i) = (/ kk4(9,2,i), kk4(9,3,i), kk4(9,1,i) , kk4(9,6,i), kk4(9,7,i), kk4(9,8,i),kk4(9,9,i),kk4(9,4,i),kk4(9,5,i),kk4(9,10,i)/)
+
+  defsvm%grad_interp_weights(44, 1:defsvm%ncv,i) = (/ kk4(10,1,i), kk4(10,2,i), kk4(10,3,i) , kk4(10,4,i), kk4(10,5,i), kk4(10,6,i),kk4(10,7,i),kk4(10,8,i),kk4(10,9,i),kk4(10,10,i)/)!
+  defsvm%grad_interp_weights(46, 1:defsvm%ncv,i) = (/ kk4(10,3,i), kk4(10,1,i), kk4(10,2,i) , kk4(10,8,i), kk4(10,9,i), kk4(10,4,i),kk4(10,5,i),kk4(10,6,i),kk4(10,7,i),kk4(10,10,i)/)
+  defsvm%grad_interp_weights(48, 1:defsvm%ncv,i) = (/ kk4(10,2,i), kk4(10,3,i), kk4(10,1,i) , kk4(10,6,i), kk4(10,7,i), kk4(10,8,i),kk4(10,9,i),kk4(10,4,i),kk4(10,5,i),kk4(10,10,i)/)
+
+  defsvm%grad_interp_weights(49, 1:defsvm%ncv,i) = (/ kk4(11,1,i), kk4(11,2,i), kk4(11,3,i) , kk4(11,4,i), kk4(11,5,i), kk4(11,6,i),kk4(11,7,i),kk4(11,8,i),kk4(11,9,i),kk4(11,10,i)/)!
+  defsvm%grad_interp_weights(52, 1:defsvm%ncv,i) = (/ kk4(11,2,i), kk4(11,1,i), kk4(11,3,i) , kk4(11,5,i), kk4(11,4,i), kk4(11,9,i),kk4(11,8,i),kk4(11,7,i),kk4(11,6,i),kk4(11,10,i)/)
+  defsvm%grad_interp_weights(53, 1:defsvm%ncv,i) = (/ kk4(11,3,i), kk4(11,1,i), kk4(11,2,i) , kk4(11,8,i), kk4(11,9,i), kk4(11,4,i),kk4(11,5,i),kk4(11,6,i),kk4(11,7,i),kk4(11,10,i)/)
+  defsvm%grad_interp_weights(56, 1:defsvm%ncv,i) = (/ kk4(11,3,i), kk4(11,2,i), kk4(11,1,i) , kk4(11,7,i), kk4(11,6,i), kk4(11,5,i),kk4(11,4,i),kk4(11,9,i),kk4(11,8,i),kk4(11,10,i)/)
+  defsvm%grad_interp_weights(57, 1:defsvm%ncv,i) = (/ kk4(11,2,i), kk4(11,3,i), kk4(11,1,i) , kk4(11,6,i), kk4(11,7,i), kk4(11,8,i),kk4(11,9,i),kk4(11,4,i),kk4(11,5,i),kk4(11,10,i)/)
+  defsvm%grad_interp_weights(60, 1:defsvm%ncv,i) = (/ kk4(11,1,i), kk4(11,3,i), kk4(11,2,i) , kk4(11,9,i), kk4(11,8,i), kk4(11,7,i),kk4(11,6,i),kk4(11,5,i),kk4(11,4,i),kk4(11,10,i)/)
+
+
+  defsvm%grad_interp_weights(50, 1:defsvm%ncv,i) = (/ kk4(12,1,i), kk4(12,2,i), kk4(12,3,i) , kk4(12,4,i), kk4(12,5,i), kk4(12,6,i),kk4(12,7,i),kk4(12,8,i),kk4(12,9,i),kk4(12,10,i)/)!
+  defsvm%grad_interp_weights(51, 1:defsvm%ncv,i) = (/ kk4(12,2,i), kk4(12,1,i), kk4(12,3,i) , kk4(12,5,i), kk4(12,4,i), kk4(12,9,i),kk4(12,8,i),kk4(12,7,i),kk4(12,6,i),kk4(12,10,i)/)
+  defsvm%grad_interp_weights(54, 1:defsvm%ncv,i) = (/ kk4(12,3,i), kk4(12,1,i), kk4(12,2,i) , kk4(12,8,i), kk4(12,9,i), kk4(12,4,i),kk4(12,5,i),kk4(12,6,i),kk4(12,7,i),kk4(12,10,i)/)
+  defsvm%grad_interp_weights(55, 1:defsvm%ncv,i) = (/ kk4(12,3,i), kk4(12,2,i), kk4(12,1,i) , kk4(12,7,i), kk4(12,6,i), kk4(12,5,i),kk4(12,4,i),kk4(12,9,i),kk4(12,8,i),kk4(12,10,i)/)
+  defsvm%grad_interp_weights(58, 1:defsvm%ncv,i) = (/ kk4(12,2,i), kk4(12,3,i), kk4(12,1,i) , kk4(12,6,i), kk4(12,7,i), kk4(12,8,i),kk4(12,9,i),kk4(12,4,i),kk4(12,5,i),kk4(12,10,i)/)
+  defsvm%grad_interp_weights(59, 1:defsvm%ncv,i) = (/ kk4(12,1,i), kk4(12,3,i), kk4(12,2,i) , kk4(12,9,i), kk4(12,8,i), kk4(12,7,i),kk4(12,6,i),kk4(12,5,i),kk4(12,4,i),kk4(12,10,i)/)
+
+enddo
+if (size(defsvm%grad_interp_weights, 1) /= 60) call error_stop("SVM initialization: bad array size (tri4)")
+
+endsubroutine  
+
 
 
 endmodule MENU_NUM

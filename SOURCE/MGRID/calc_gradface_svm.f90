@@ -27,13 +27,13 @@ type(st_genericfield) :: fprim            ! primitive variables fields
 type(st_genericfield) :: gradL, gradR     ! left & right gradients
 
 ! -- Internal variables --
-integer                   :: i, if, isca, ivec
-integer                   :: isv, icv1, icv2, ncv,icv
-integer                   :: isvface
-integer                   :: ib, buf, nblock
-integer, pointer          :: ista(:), iend(:)  ! starting and ending index
-real(krp)                 :: weights1(1:defspat%svm%cv_split,1:2),weights2(1:defspat%svm%cv_split,1:2)
-real(krp)                 :: metric(1:4)      
+integer                                 :: i, if, isca, ivec
+integer                                 :: isv, icv1, icv2, ncv,icv
+integer                                 :: isvface
+integer                                 :: ib, buf, nblock
+integer, pointer                        :: ista(:), iend(:)  ! starting and ending index
+real(krp), dimension(defspat%svm%ncv,2) :: weights1, weights2
+real(krp)                               :: metric(1:4)      
 
 ! -- BODY --
 
@@ -48,7 +48,7 @@ do ib = 1, nblock
 !------------------------------------------------------------------------------
 ! SVM Gradient SCALAR interpolation
 !------------------------------------------------------------------------------
-ncv = defspat%svm%cv_split
+ncv = defspat%svm%ncv
 
 do isca = 1, fprim%nscal
 !! PERFO : test switch of both isca / iface loops

@@ -53,7 +53,7 @@ case(solNS)
   !-----------------------------------------
   ! Euler numerical Scheme
 
-  defspat%calc_hresQ = .true.
+  defspat%calc_hresQ = .true.   ! needed, even for first order
 
   call rpmgetkeyvalstr(pcour, "SCHEME", str, "HLLC")
   defspat%sch_hyp = inull
@@ -213,84 +213,64 @@ case(solNS)
     call print_info(7,"  Spectral Volume method")
 
     call rpmgetkeyvalstr(pcour, "SVM", str, "2QUAD")
-    if (samestring(str,"2")) then
-       defspat%svm%sv_order = svm_2
-       defspat%svm%sv_partition = svm_2quad
-    endif
-    if (samestring(str,"2TRI"))    then 
-       defspat%svm%sv_order = svm_2
-       defspat%svm%sv_partition = svm_2tri
-    endif
-    if (samestring(str,"2QUAD"))  then
-       defspat%svm%sv_order = svm_2
-       defspat%svm%sv_partition = svm_2quad
-    endif 
-    if (samestring(str,"3"))    then
-       defspat%svm%sv_order = svm_3
-       defspat%svm%sv_partition = svm_3wang
-    endif 
-    if (samestring(str,"3WANG")) then
-       defspat%svm%sv_order = svm_3
-       defspat%svm%sv_partition = svm_3wang
-    endif 
-    if (samestring(str,"3KRIS"))  then
-       defspat%svm%sv_order = svm_3
-       defspat%svm%sv_partition = svm_3kris
-    endif   
-    if (samestring(str,"3KRIS2"))  then
-       defspat%svm%sv_order = svm_3
-       defspat%svm%sv_partition = svm_3kris2
-    endif  
-    if (samestring(str,"4"))    then
-       defspat%svm%sv_order = svm_4
-       defspat%svm%sv_partition = svm_4wang
-    endif 
-    if (samestring(str,"4WANG")) then
-       defspat%svm%sv_order = svm_4
-       defspat%svm%sv_partition = svm_4wang
-    endif 
-    if (samestring(str,"4KRIS")) then
-       defspat%svm%sv_order = svm_4
-       defspat%svm%sv_partition = svm_4KRIS
-    endif 
-    if (samestring(str,"4KRIS2")) then
-       defspat%svm%sv_order = svm_4
-       defspat%svm%sv_partition = svm_4KRIS2
-    endif 
+    if (samestring(str,"2"))       defspat%svm%sv_method = svm_2quad
+    if (samestring(str,"2TRI"))    defspat%svm%sv_method = svm_2tri
+    if (samestring(str,"2QUAD"))   defspat%svm%sv_method = svm_2quad
+    if (samestring(str,"2Q2X2"))   defspat%svm%sv_method = svm_2q2x2b3
+    if (samestring(str,"2Q2X2B3")) defspat%svm%sv_method = svm_2q2x2b3
+    if (samestring(str,"2Q2X2B4")) defspat%svm%sv_method = svm_2q2x2b4
+    if (samestring(str,"3"))       defspat%svm%sv_method = svm_3wang
+    if (samestring(str,"3WANG"))   defspat%svm%sv_method = svm_3wang
+    if (samestring(str,"3KRIS"))   defspat%svm%sv_method = svm_3kris
+    if (samestring(str,"3KRIS2"))  defspat%svm%sv_method = svm_3kris2
+    if (samestring(str,"3Q3X3"))   defspat%svm%sv_method = svm_3q3x3b6
+    if (samestring(str,"3Q3X3B6")) defspat%svm%sv_method = svm_3q3x3b6
+    if (samestring(str,"4"))       defspat%svm%sv_method = svm_4wang
+    if (samestring(str,"4WANG"))   defspat%svm%sv_method = svm_4wang
+    if (samestring(str,"4KRIS"))   defspat%svm%sv_method = svm_4KRIS
+    if (samestring(str,"4KRIS2"))  defspat%svm%sv_method = svm_4KRIS2
 
-    select case(defspat%svm%sv_partition)
+    select case(defspat%svm%sv_method)
     case(svm_2quad)
       call print_info(7,"    second order, splitted into quads (face split)")
-      defmesh%splitmesh = split_svm2quad    
+      defmesh%defsplit%splitmesh    = split_svm2quad    
     case(svm_2tri)
       call print_info(7,"    second order, splitted into tris (vertex split)")
+    case(svm_2q2x2b3)
+      call print_info(7,"    second order, splitted into 2x2 quads (3 polynomials)")
+      defmesh%defsplit%splitmesh    = split_quad2x2
+    case(svm_2q2x2b4)
+      call print_info(7,"    second order, splitted into 2x2 quads (4 polynomials)")
+      defmesh%defsplit%splitmesh    = split_quad2x2
     case(svm_3wang)
       call print_info(7,"    third order, splitted into 3 quads and 3 pentagons: original partition by Wang")
-      defmesh%splitmesh = split_svm3wang
+      defmesh%defsplit%splitmesh = split_svm3wang
     case(svm_3kris)
       call print_info(7,"    third order, splitted into 3 quads and 3 pentagons: 1st optimised partition by Abeele")
-      defmesh%splitmesh = split_svm3kris
+      defmesh%defsplit%splitmesh = split_svm3kris
     case(svm_3kris2)
       call print_info(7,"    third order, splitted into 3 quads and 3 pentagons: 2nd optimised partition by Abeele")
-      defmesh%splitmesh = split_svm3kris2
+      defmesh%defsplit%splitmesh = split_svm3kris2
+    case(svm_3q3x3b6)
+      call print_info(7,"    third order, splitted into 3x3 quads (6 polynomials)")
+      defmesh%defsplit%splitmesh    = split_quad3x3lg
+      defmesh%defsplit%splitparam   = (1._krp-1._krp/sqrt(3._krp))/2._krp
     case(svm_4wang)
       call print_info(7,"    fourth order, splitted into 9 quads and 1 tri (defined as hexa) : original partition by Wang")
-      defmesh%splitmesh = split_svm4wang
+      defmesh%defsplit%splitmesh = split_svm4wang
     case(svm_4kris)
       call print_info(7,"    fourth order, splitted into 3 quads, 6 pents and 1 tri (defined as hexa) : 1st optimised partition by Abeele")
-      defmesh%splitmesh = split_svm4kris
+      defmesh%defsplit%splitmesh = split_svm4kris
     case(svm_4kris2)
       call print_info(7,"    fourth order, splitted into 3 quads, 6 pents and 1 tri (defined as hexa) : 2nd optimised partition by Abeele")
-      defmesh%splitmesh = split_svm4kris2
+      defmesh%defsplit%splitmesh = split_svm4kris2
 
     case default
       call error_stop("parameters parsing: unknown SVM method")
     endselect
     
-    call init_svmparam(defspat%svm)
     call init_svmweights(defspat%svm)
 
-    if (defspat%svm%sv_order.ge.3) then
     call rpmgetkeyvalstr(pcour, "SVMFLUX", str, "QUAD_Q")
     if (samestring(str,"QUAD_Q"))    defspat%svm%sv_flux = svm_fluxQ
     if (samestring(str,"QUAD_F"))    defspat%svm%sv_flux = svm_fluxF
@@ -303,8 +283,6 @@ case(solNS)
     case default
       call error_stop("parameters parsing: unknown method for SVM flux on Gauss points")
   endselect
-
-    endif
 
   case default
     call error_stop("parameters parsing: unexpected high resolution method (reading limiter)")

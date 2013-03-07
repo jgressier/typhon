@@ -106,16 +106,16 @@ do isect = 1, cellvtex%nsection          ! loop on element section
       ns = 2            ! nombre de sommets par face (BAR_2)
       ! FACE 1 : BAR_2
       face(1:ns) = (/ element(1), element(2) /)
-      call ust_create_face(ns, icell, face, 0, umeshcon)
+      call ust_create_face(ns, icell, face, iprop*1, umeshcon)
       ! FACE 2 : BAR_2
       face(1:ns) = (/ element(2), element(3) /)
-      call ust_create_face(ns, icell, face, 0, umeshcon)
+      call ust_create_face(ns, icell, face, iprop*2, umeshcon)
       ! FACE 3 : BAR_2
       face(1:ns) = (/ element(3), element(4) /)
-      call ust_create_face(ns, icell, face, 0, umeshcon)
+      call ust_create_face(ns, icell, face, iprop*3, umeshcon)
       ! FACE 4 : BAR_2
       face(1:ns) = (/ element(4), element(1) /)
-      call ust_create_face(ns, icell, face, 0, umeshcon)
+      call ust_create_face(ns, icell, face, iprop*4, umeshcon)
     enddo
 
   case(elem_TETRA4) ! quatre faces (triangles) pour chacune trois sommets

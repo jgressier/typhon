@@ -230,6 +230,7 @@ call xbin_defdatasection(xbindata, xbinty_cells, "CELLS", &
 
 nelem  = elemvtex%nelem
 nvtex  = elemvtex%nvtex
+
 allocate(icell(1:nvtex, 1:nelem))
 do ic = 1, nelem
   icell(1:nvtex, ic) = elemvtex%elemvtex(ic,1:nvtex) 

@@ -31,11 +31,11 @@ grid%umesh_legacy = grid%umesh
 
 ! -- if needed, split mesh into spectral volume subcells --
 
-    select case(defsolver%defmesh%splitmesh)
+    select case(defsolver%defmesh%defsplit%splitmesh)
     case(split_none)
       ! nothing to do
     case(split_svm2quad)
-      call convert_to_svm(defsolver%defmesh, defsolver%defspat, grid%umesh_legacy, grid%umesh)
+      call convert_to_svm(defsolver%defmesh, grid%umesh_legacy, grid%umesh)
     case(split_svm3wang)
       alpha = 1._krp /  4._krp
       beta  = 1._krp /  3._krp
@@ -63,17 +63,27 @@ grid%umesh_legacy = grid%umesh
       delta = 0.1562524902_krp
       call convert_to_svm_4kris(defsolver%defmesh, defsolver%defspat, grid%umesh_legacy, grid%umesh, alpha,beta,gamma,delta)
     case(split_iso_tri)
-      do isplit = 1, defsolver%defmesh%nsplit
+      do isplit = 1, defsolver%defmesh%defsplit%nsplit
         call raffin_iso_tri(defsolver%defmesh, defsolver%defspat, grid%umesh, newmesh)
-        call delete(grid%umesh)
+        if (isplit > 1) call delete(grid%umesh)
         grid%umesh = newmesh
       enddo
-    case(split_iso_quad)
-      do isplit = 1, defsolver%defmesh%nsplit
-        call raffin_iso_quad(defsolver%defmesh, defsolver%defspat, grid%umesh, newmesh)
-        call delete(grid%umesh)
+    case(split_quad2x2)
+      do isplit = 1, defsolver%defmesh%defsplit%nsplit
+        call splitquadto2x2(defsolver%defmesh, grid%umesh, newmesh)
+        if (isplit > 1) call delete(grid%umesh)
         grid%umesh = newmesh
       enddo
+    case(split_quad3x3)
+      delta = defsolver%defmesh%defsplit%splitparam
+      do isplit = 1, defsolver%defmesh%defsplit%nsplit
+        call splitquadto3x3(defsolver%defmesh, grid%umesh, newmesh, delta)
+        if (isplit > 1) call delete(grid%umesh)
+        grid%umesh = newmesh
+      enddo
+    case(split_quad3x3lg)
+      delta = defsolver%defmesh%defsplit%splitparam
+      call splitquadto3x3(defsolver%defmesh, defsolver%defspat, grid%umesh_legacy, grid%umesh, delta)
     case default
       call error_stop('Internal error: unknown splitting method (grid_ustpreproc)')
     endselect

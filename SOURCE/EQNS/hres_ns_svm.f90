@@ -33,15 +33,15 @@ type(st_genericfield) :: cell_l, cell_r   ! champs des valeurs primitives
 integer                   :: i, if, ic, isca, ivec, ig
 integer                   :: isv, icv1, icv2, ncv
 integer                   :: isvface
-real(krp)                 :: weights(1:defspat%svm%cv_split)
+real(krp)                 :: weights(1:defspat%svm%ncv)
 
 ! -- BODY --
 
 
-ncv = defspat%svm%cv_split
+ncv = defspat%svm%ncv
 
 
-    select case(defspat%svm%nb_facepoints)
+    select case(defspat%svm%nfgauss)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !  SVM 2 : Only one Gauss point per CV face
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -61,7 +61,7 @@ do isca = 1, fprim%nscal
     isv  = (umesh%facecell%fils(if,1)-1) / ncv + 1
     icv1 = (isv-1)*ncv + 1
     icv2 = isv*ncv
-    do ig = 1, defspat%svm%nb_facepoints     ! loop on gauss points
+    do ig = 1, defspat%svm%nfgauss     ! loop on gauss points
       weights(1:ncv) = defspat%svm%interp_weights(umesh%face_Ltag%fils(if, ig), 1:ncv)
       cell_l%tabscal(isca)%scal(ic) = sum(weights(1:ncv) * fprim%tabscal(isca)%scal(icv1:icv2))
     enddo
@@ -73,7 +73,7 @@ do isca = 1, fprim%nscal
     icv2 = isv*ncv
 
     if (umesh%face_Rtag%fils(if, 1) /= 0) then
-       do ig = 1, defspat%svm%nb_facepoints     ! loop on gauss points
+       do ig = 1, defspat%svm%nfgauss     ! loop on gauss points
          weights(1:ncv) = defspat%svm%interp_weights(umesh%face_Rtag%fils(if, ig), 1:ncv)
          cell_r%tabscal(isca)%scal(ic) = sum(weights(1:ncv) * fprim%tabscal(isca)%scal(icv1:icv2))
        enddo
@@ -100,7 +100,7 @@ do ivec = 1, fprim%nvect
     icv1 = (isv-1)*ncv + 1
     icv2 = isv*ncv
 
-    do ig = 1, defspat%svm%nb_facepoints     ! loop on gauss points
+    do ig = 1, defspat%svm%nfgauss     ! loop on gauss points
       weights(1:ncv) = defspat%svm%interp_weights(umesh%face_Ltag%fils(if, ig), 1:ncv)
       cell_l%tabvect(ivec)%vect(ic) = sum(weights(1:ncv) * fprim%tabvect(ivec)%vect(icv1:icv2))
     enddo
@@ -112,7 +112,7 @@ do ivec = 1, fprim%nvect
     icv2 = isv*ncv
 
     if (umesh%face_Rtag%fils(if, 1) /= 0) then
-       do ig = 1, defspat%svm%nb_facepoints     ! loop on gauss points
+       do ig = 1, defspat%svm%nfgauss     ! loop on gauss points
          weights(1:ncv) = defspat%svm%interp_weights(umesh%face_Rtag%fils(if, ig), 1:ncv)
          cell_r%tabvect(ivec)%vect(ic) = sum(weights(1:ncv) * fprim%tabvect(ivec)%vect(icv1:icv2))
        enddo

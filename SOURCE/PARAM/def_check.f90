@@ -23,52 +23,11 @@ type(st_zone) :: zone
 call print_info(5,"- Check parameters consistency and further initialization")
 
 ! -------------------------------------------------
-! define mesh splitting parameters
+! define mesh splitting parameters (according to MESH or SVM definition)
 
-select case(zone%defsolver%defmesh%splitmesh)
-case(split_none)
-case(split_svm2quad)
-  zone%defsolver%defspat%svm%sv_partition = svm_2quad
-  zone%defsolver%defspat%svm%sv_order = svm_2
-  call print_info(10, "  initialize SVM parameters")
-  call init_svmparam(zone%defsolver%defspat%svm)
-case(split_svm3wang)
-  zone%defsolver%defspat%svm%sv_partition = svm_3wang
-  zone%defsolver%defspat%svm%sv_order = svm_3
-  call print_info(10, "  initialize SVM parameters")
-  call init_svmparam(zone%defsolver%defspat%svm)
-case(split_svm3kris)
-  zone%defsolver%defspat%svm%sv_partition = svm_3kris
-  zone%defsolver%defspat%svm%sv_order = svm_3
-  call print_info(10, "  initialize SVM parameters")
-  call init_svmparam(zone%defsolver%defspat%svm)
-case(split_svm3kris2)
-  zone%defsolver%defspat%svm%sv_partition = svm_3kris2
-  zone%defsolver%defspat%svm%sv_order = svm_3
-  call print_info(10, "  initialize SVM parameters")
-  call init_svmparam(zone%defsolver%defspat%svm)
-case(split_svm4wang)
-  zone%defsolver%defspat%svm%sv_partition = svm_4wang
-  zone%defsolver%defspat%svm%sv_order = svm_4
-  call print_info(10, "  initialize SVM parameters")
-  call init_svmparam(zone%defsolver%defspat%svm)
-case(split_svm4kris)
-  zone%defsolver%defspat%svm%sv_partition = svm_4kris
-  zone%defsolver%defspat%svm%sv_order = svm_4
-  call print_info(10, "  initialize SVM parameters")
-  call init_svmparam(zone%defsolver%defspat%svm)
-case(split_svm4kris2)
-  zone%defsolver%defspat%svm%sv_partition = svm_4kris2
-  zone%defsolver%defspat%svm%sv_order = svm_4
-  call print_info(10, "  initialize SVM parameters")
-  call init_svmparam(zone%defsolver%defspat%svm)
-case(split_iso_tri)
-  call print_info(10, " Triangular refinment")
-case(split_iso_quad)
-  call print_info(10, " QUAD refinment")
-case default
-  call erreur("Development", "unknown mesh splitting parameter (def_check)")
-endselect
+call init_splitparam(zone%defsolver%defmesh%defsplit)
+
+zone%defsolver%defmesh%nfgauss = max(zone%defsolver%defmesh%nfgauss, zone%defsolver%defspat%svm%nfgauss)
 
 
 endsubroutine def_check
@@ -78,6 +37,7 @@ endsubroutine def_check
 !
 ! Nov  2007: creation
 ! Mar  2008: SVM parameters
+! Mar  2013: check splitting params
 !------------------------------------------------------------------------------!
 
 

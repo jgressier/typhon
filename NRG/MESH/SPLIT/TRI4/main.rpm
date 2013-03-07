@@ -1,0 +1,77 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON 
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+  NZONE     = 1       
+  COORD     = 2D      
+  TIME      = UNSTEADY 
+  DURATION  = .005
+  NCYCLE    = 10
+ENDBLOCK               
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "" 
+  SOLVER = EULER  
+ENDBLOCK
+
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = INTERNAL
+  FILE   = "tri5x10.tym"
+  SPLIT  = ISO-TRI
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS = EULER
+  GAS      = AIR
+ENDBLOCK
+
+BLOCK:TIME_PARAM 
+  METHOD    = EXPLICIT
+  CFL       = 0.8
+ENDBLOCK
+
+BLOCK:SPAT_PARAM 
+  SCHEME   = VLH
+ENDBLOCK
+
+BLOCK:PROBE
+ NAME     = PAVG
+ TYPE     = VOL_AVERAGE
+ QUANTITY = PS
+ENDBLOCK
+
+BLOCK:INIT
+  P        = 1.0E5
+  T        = 300.
+  MACH     = .2
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = IMIN
+  TYPE   = SYMMETRY
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = IMAX
+  TYPE   = SYMMETRY
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = JMIN
+  TYPE   = SYMMETRY
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = JMAX
+  TYPE   = SYMMETRY
+ENDBLOCK
+
+
+
+
