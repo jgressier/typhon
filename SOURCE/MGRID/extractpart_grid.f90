@@ -7,12 +7,12 @@
 !------------------------------------------------------------------------------!
 subroutine extractpart_grid(fullgrid, ipart, ncell, partition, partgrid)
 
+use VARCOM
 use OUTPUT
 use CONNECTIVITY
 use MGRID
 use USTMESH
 use GRID_CONNECT
-use MESHBASE
 !use SUBGRID
 !use METIS
 
@@ -48,7 +48,8 @@ integer(kip), allocatable, dimension(:) &
 ! ---------------------------------------------
 ! initializing
 
-!partgrid%id = ipart
+partgrid%info%mpi_cpu  = myprocid
+partgrid%info%gridtype = grid_str
 
 ! ---------------------------------------------
 ! compute size of internal/ghost faces & reindexation of faces and cells

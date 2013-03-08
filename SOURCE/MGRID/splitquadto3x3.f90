@@ -213,9 +213,9 @@ do ic = 1, umesh%ncell_int
   ! CV 1-9 
   newmesh%cellvtex%elem(ielem)%elemvtex(icn+1, 1:nv_elem) = (/ cellv(1), facev(1),  intv(1), facev(8) /)
   newmesh%cellvtex%elem(ielem)%elemvtex(icn+2, 1:nv_elem) = (/ facev(1), facev(2),  intv(2),  intv(1) /)
-  newmesh%cellvtex%elem(ielem)%elemvtex(icn+3, 1:nv_elem) = (/ facev(4), cellv(2), facev(3),  intv(2) /)
-  newmesh%cellvtex%elem(ielem)%elemvtex(icn+4, 1:nv_elem) = (/ facev(8), cellv(1), cellv(4), facev(7) /)
-  newmesh%cellvtex%elem(ielem)%elemvtex(icn+5, 1:nv_elem) = (/ cellv(1), cellv(2), cellv(3), cellv(4) /)
+  newmesh%cellvtex%elem(ielem)%elemvtex(icn+3, 1:nv_elem) = (/ facev(2), cellv(2), facev(3),  intv(2) /)
+  newmesh%cellvtex%elem(ielem)%elemvtex(icn+4, 1:nv_elem) = (/ facev(8),  intv(1),  intv(4), facev(7) /)
+  newmesh%cellvtex%elem(ielem)%elemvtex(icn+5, 1:nv_elem) = (/  intv(1),  intv(2),  intv(3),  intv(4) /)
   newmesh%cellvtex%elem(ielem)%elemvtex(icn+6, 1:nv_elem) = (/  intv(2), facev(3), facev(4),  intv(3) /)
   newmesh%cellvtex%elem(ielem)%elemvtex(icn+7, 1:nv_elem) = (/ facev(7),  intv(4), facev(6), cellv(4) /)
   newmesh%cellvtex%elem(ielem)%elemvtex(icn+8, 1:nv_elem) = (/  intv(4),  intv(3), facev(5), facev(6) /)
