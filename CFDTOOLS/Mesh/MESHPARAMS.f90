@@ -231,6 +231,12 @@ case(split_quad3x3)
   defsplit%intnode        = 4      ! nb of internal added nodes for cell splitting
   defsplit%svface_split   = 3      ! nb of CV face per SV face
   defsplit%internal_faces = 12     ! number of internal faces (by SV cell)
+case(split_quad3x3lg)
+  defsplit%splitparam     = (1._krp-1._krp/sqrt(3._krp))/2._krp
+  defsplit%subcell        = 9      ! nb of CV in SV
+  defsplit%intnode        = 4      ! nb of internal added nodes for cell splitting
+  defsplit%svface_split   = 3      ! nb of CV face per SV face
+  defsplit%internal_faces = 12     ! number of internal faces (by SV cell)
 case(split_svm3wang, split_svm3kris, split_svm3kris2)
   defsplit%subcell        = 6      ! nb of CV in SV
   defsplit%intnode        = 4      ! nb of internal added nodes for cell splitting
@@ -252,7 +258,7 @@ case(split_svm4kris2)
   defsplit%intnode        = 9      ! nb of internal added nodes for cell splitting
   defsplit%internal_faces = 18      ! number of internal faces (by cell)
 case default
-  call cfd_error("parameters parsing: unknown splitting method (init_splitparam)")
+  call cfd_error("splitting initialization: unknown splitting method (init_splitparam)")
 endselect
 
 endsubroutine init_splitparam

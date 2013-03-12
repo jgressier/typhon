@@ -75,15 +75,13 @@ grid%umesh_legacy = grid%umesh
         grid%umesh = newmesh
       enddo
     case(split_quad3x3)
-      delta = defsolver%defmesh%defsplit%splitparam
       do isplit = 1, defsolver%defmesh%defsplit%nsplit
-        call splitquadto3x3(defsolver%defmesh, grid%umesh, newmesh, delta)
+        call splitquadto3x3(defsolver%defmesh, grid%umesh, newmesh)
         if (isplit > 1) call delete(grid%umesh)
         grid%umesh = newmesh
       enddo
     case(split_quad3x3lg)
-      delta = defsolver%defmesh%defsplit%splitparam
-      call splitquadto3x3(defsolver%defmesh, defsolver%defspat, grid%umesh_legacy, grid%umesh, delta)
+      call splitquadto3x3(defsolver%defmesh, grid%umesh_legacy, grid%umesh)
     case default
       call error_stop('Internal error: unknown splitting method (grid_ustpreproc)')
     endselect

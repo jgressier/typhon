@@ -5,7 +5,7 @@
 !   Split quad cells into 3x3 quads
 !
 !------------------------------------------------------------------------------!
-subroutine splitquadto3x3(defmesh, umesh, newmesh, delta)
+subroutine splitquadto3x3(defmesh, umesh, newmesh)
 
 use OUTPUT
 use USTMESH
@@ -18,7 +18,6 @@ implicit none
 ! -- INPUTS  --
 type(mnu_mesh)        :: defmesh      ! mesh parameters
 type(st_ustmesh)      :: umesh        ! ustmesh to convert
-real(krp)             :: delta
 
 ! -- OUTPUTS --
 type(st_ustmesh)      :: newmesh      ! new ustmesh (split and converted)
@@ -39,16 +38,18 @@ type(st_connect)       :: cell_fvtex       ! cell to face.midpoint connectivity
 type(st_ustmesh)       :: umeshcon
 integer, allocatable   :: faceboco(:)      ! face to boco type connectivity
 logical                :: rightface
+real(krp)              :: delta
 
 ! -- BODY --
 
-call print_info(10, "  . Isotropic 3x3 (quad) mesh refinement...")
+call print_info(10, "  . 3x3 (quad) mesh refinement...")
 
 ! -- quad splitting --
 nv_elem = 4     ! nb of vertices per SV cell
 nf_elem = 4     ! nb of faces    per SV cell
 fnv     = 2     ! nb of vertices per face
 nfgauss = 1
+delta   = defmesh%defsplit%splitparam
 
 ! -- check there are only quads --
 !

@@ -412,11 +412,14 @@ implicit none
 ! -- parameters --
 type(mnu_svm) :: defsvm
 ! -- internal --
+integer       :: ipf
 real(krp)     :: sqrt3
-real(krp)     :: k1(1:5)
-real(krp), dimension(1:7,1:6) :: k
-real(krp), dimension(1:10,1:10) :: k4
-real(krp), dimension(1:12,1:10) :: kk4
+real(krp)     :: k1(5)
+real(krp)     :: k(7,6)
+real(krp)     :: k4(10,10) 
+real(krp)     :: kk4(12,10)
+real(krp)     :: k2(4)
+real(krp)     :: delta, sumcoef, dev, maxdev
 
 ! -- body --
 
@@ -450,14 +453,30 @@ case(svm_2q2x2b3)
   defsvm%nfgauss = 1
   allocate(defsvm%interp_weights(defsvm%ncvface*defsvm%nfgauss, defsvm%ncv))
   if (size(defsvm%interp_weights, 1) /= 12) call error_stop("SVM initialization: bad total number Gauss points")
-  call error_stop("DEV: not implemented yet")
+  k2(1) = -1._krp / 2._krp
+  k2(2) =  0._krp
+  k2(3) =  1._krp / 2._krp
+  k2(4) =  1._krp
+  
+  defsvm%interp_weights(  1, 1:defsvm%ncv) = (/ k2(4), k2(2), k2(3), k2(1) /)
+  defsvm%interp_weights(  2, 1:defsvm%ncv) = (/ k2(3), k2(3), k2(2), k2(2) /)
+  defsvm%interp_weights(  3, 1:defsvm%ncv) = (/ k2(2), k2(4), k2(1), k2(3) /)
+  defsvm%interp_weights(  4, 1:defsvm%ncv) = (/ k2(3), k2(1), k2(4), k2(2) /)
+  defsvm%interp_weights(  5, 1:defsvm%ncv) = (/ k2(2), k2(2), k2(3), k2(3) /)
+  defsvm%interp_weights(  6, 1:defsvm%ncv) = (/ k2(1), k2(3), k2(2), k2(4) /)
+  defsvm%interp_weights(  7, 1:defsvm%ncv) = (/ k2(4), k2(3), k2(2), k2(1) /)
+  defsvm%interp_weights(  8, 1:defsvm%ncv) = (/ k2(3), k2(2), k2(3), k2(2) /)
+  defsvm%interp_weights(  9, 1:defsvm%ncv) = (/ k2(2), k2(1), k2(4), k2(3) /)
+  defsvm%interp_weights( 10, 1:defsvm%ncv) = (/ k2(3), k2(4), k2(1), k2(2) /)
+  defsvm%interp_weights( 11, 1:defsvm%ncv) = (/ k2(2), k2(3), k2(2), k2(3) /)
+  defsvm%interp_weights( 12, 1:defsvm%ncv) = (/ k2(1), k2(2), k2(3), k2(4) /)
+
 
 case(svm_2q2x2b4)
   defsvm%ncv     = 4
   defsvm%ncvface = 12
   defsvm%nfgauss = 1
   allocate(defsvm%interp_weights(defsvm%ncvface*defsvm%nfgauss, defsvm%ncv))
-
   if (size(defsvm%interp_weights, 1) /= 12) call error_stop("SVM initialization: bad total number Gauss points")
   call error_stop("DEV: not implemented yet")
 
@@ -633,6 +652,232 @@ case(svm_3kris2) !weights for alpha=0.1093621117 and beta =0.1730022492 : OPTIMI
   k(7,5) =  0.213628341733_krp
   k(7,6) =  0.581005928105_krp
   call distrib_svmweights_tri3(defsvm, k)
+
+case(svm_3q3x3b6)
+  defsvm%ncv     = 9
+  defsvm%ncvface = 24
+  defsvm%nfgauss = 1
+  delta = (1._krp-1._krp/sqrt(3._krp))/2._krp
+  allocate(defsvm%interp_weights(defsvm%ncvface*defsvm%nfgauss, defsvm%ncv))
+  if (size(defsvm%interp_weights, 1) /= 24) call error_stop("SVM initialization: bad total number Gauss points")
+
+defsvm%interp_weights(1,1) = (15._krp*delta**2-4._krp*delta-29._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(1,2) = -(21._krp*delta**2-4._krp*delta+8._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(1,3) = (15._krp*delta**2-4._krp*delta+1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(1,4) = (3._krp*delta**2-8._krp*delta-4._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(1,5) = -(15._krp*delta**2-16._krp*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(1,6) = (3._krp*delta**2-8._krp*delta+2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(1,7) = (15._krp*delta-1._krp)/36._krp
+defsvm%interp_weights(1,8) = -(21._krp*delta**2-32._krp*delta-4._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(1,9) = (15._krp*delta**2-16._krp*delta-5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(2,1) = -(21._krp*delta**2-62._krp*delta+29._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(2,2) = (51._krp*delta**2-28._krp*delta-8._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(2,3) = -(21._krp*delta**2-2._krp*delta-1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(2,4) = -(3._krp*delta-2._krp)*(5*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(2,5) = (21._krp*delta**2-20._krp*delta+2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(2,6) = -(15._krp*delta**2-4._krp*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(2,7) = -(21._krp*delta**2-14._krp*delta-1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(2,8) = (3._krp*delta-2._krp)*(17._krp*delta-2._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(2,9) = -(21._krp*delta-5._krp)/36._krp
+defsvm%interp_weights(3,1) = -(21._krp*delta**2-2._krp*delta-1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(3,2) = (51._krp*delta**2-28._krp*delta-8._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(3,3) = -(21._krp*delta**2-62._krp*delta+29._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(3,4) = -(15._krp*delta**2-4._krp*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(3,5) = (21._krp*delta**2-20._krp*delta+2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(3,6) = -(3._krp*delta-2._krp)*(5*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(3,7) = -(21._krp*delta-5._krp)/36._krp
+defsvm%interp_weights(3,8) = (3._krp*delta-2._krp)*(17._krp*delta-2._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(3,9) = -(21._krp*delta**2-14._krp*delta-1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(4,1) = (15._krp*delta**2-4._krp*delta+1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(4,2) = -(21._krp*delta**2-4._krp*delta+8._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(4,3) = (15._krp*delta**2-4._krp*delta-29._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(4,4) = (3._krp*delta**2-8._krp*delta+2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(4,5) = -(15._krp*delta**2-16._krp*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(4,6) = (3._krp*delta**2-8._krp*delta-4._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(4,7) = (15._krp*delta**2-16._krp*delta-5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(4,8) = -(21._krp*delta**2-32._krp*delta-4._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(4,9) = (15._krp*delta-1._krp)/36._krp
+defsvm%interp_weights(5,1) = (24._krp*delta**2-28._krp*delta-5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(5,2) = -(12._krp*delta**2-20._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(5,3) = (24._krp*delta**2-28._krp*delta+7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(5,4) = -(6._krp*delta**2-10._krp*delta+13._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(5,5) = -(4._krp*delta-1._krp)*(6._krp*delta-7._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(5,6) = -(6._krp*delta**2-10._krp*delta+7._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(5,7) = (24._krp*delta**2-28._krp*delta-5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(5,8) = -(12._krp*delta**2-20._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(5,9) = (24._krp*delta**2-28._krp*delta+7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(6,1) = -(12._krp*delta**2-20._krp*delta+5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(6,2) = (6._krp*delta-1._krp)*(10._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(6,3) = -(12._krp*delta**2+4._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(6,4) = -(24._krp*delta**2-34._krp*delta+13._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(6,5) = (12._krp*delta**2-2._krp*delta-7._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(6,6) = -(24._krp*delta**2-22._krp*delta+7._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(6,7) = -(12._krp*delta**2-20._krp*delta+5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(6,8) = (6._krp*delta-1._krp)*(10._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(6,9) = -(12._krp*delta**2+4._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(7,1) = -(12._krp*delta**2+4._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(7,2) = (6._krp*delta-1._krp)*(10._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(7,3) = -(12._krp*delta**2-20._krp*delta+5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(7,4) = -(24._krp*delta**2-22._krp*delta+7._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(7,5) = (12._krp*delta**2-2._krp*delta-7._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(7,6) = -(24._krp*delta**2-34._krp*delta+13._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(7,7) = -(12._krp*delta**2+4._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(7,8) = (6._krp*delta-1._krp)*(10._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(7,9) = -(12._krp*delta**2-20._krp*delta+5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(8,1) = (24._krp*delta**2-28._krp*delta+7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(8,2) = -(12._krp*delta**2-20._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(8,3) = (24._krp*delta**2-28._krp*delta-5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(8,4) = -(6._krp*delta**2-10._krp*delta+7._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(8,5) = -(4._krp*delta-1._krp)*(6._krp*delta-7._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(8,6) = -(6._krp*delta**2-10._krp*delta+13._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(8,7) = (24._krp*delta**2-28._krp*delta+7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(8,8) = -(12._krp*delta**2-20._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(8,9) = (24._krp*delta**2-28._krp*delta-5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(9,1) = (15._krp*delta-1._krp)/36._krp
+defsvm%interp_weights(9,2) = -(21._krp*delta**2-32._krp*delta-4._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(9,3) = (15._krp*delta**2-16._krp*delta-5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(9,4) = (3._krp*delta**2-8._krp*delta-4._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(9,5) = -(15._krp*delta**2-16._krp*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(9,6) = (3._krp*delta**2-8._krp*delta+2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(9,7) = (15._krp*delta**2-4._krp*delta-29._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(9,8) = -(21._krp*delta**2-4._krp*delta+8._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(9,9) = (15._krp*delta**2-4._krp*delta+1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(10,1) = -(21._krp*delta**2-14._krp*delta-1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(10,2) = (3._krp*delta-2._krp)*(17._krp*delta-2._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(10,3) = -(21._krp*delta-5._krp)/36._krp
+defsvm%interp_weights(10,4) = -(3._krp*delta-2._krp)*(5*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(10,5) = (21._krp*delta**2-20._krp*delta+2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(10,6) = -(15._krp*delta**2-4._krp*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(10,7) = -(21._krp*delta**2-62._krp*delta+29._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(10,8) = (51._krp*delta**2-28._krp*delta-8._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(10,9) = -(21._krp*delta**2-2._krp*delta-1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(11,1) = -(21._krp*delta-5._krp)/36._krp
+defsvm%interp_weights(11,2) = (3._krp*delta-2._krp)*(17._krp*delta-2._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(11,3) = -(21._krp*delta**2-14._krp*delta-1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(11,4) = -(15._krp*delta**2-4._krp*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(11,5) = (21._krp*delta**2-20._krp*delta+2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(11,6) = -(3._krp*delta-2._krp)*(5*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(11,7) = -(21._krp*delta**2-2._krp*delta-1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(11,8) = (51._krp*delta**2-28._krp*delta-8._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(11,9) = -(21._krp*delta**2-62._krp*delta+29._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(12,1) = (15._krp*delta**2-16._krp*delta-5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(12,2) = -(21._krp*delta**2-32._krp*delta-4._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(12,3) = (15._krp*delta-1._krp)/36._krp
+defsvm%interp_weights(12,4) = (3._krp*delta**2-8._krp*delta+2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(12,5) = -(15._krp*delta**2-16._krp*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(12,6) = (3._krp*delta**2-8._krp*delta-4._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(12,7) = (15._krp*delta**2-4._krp*delta+1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(12,8) = -(21._krp*delta**2-4._krp*delta+8._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(12,9) = (15._krp*delta**2-4._krp*delta-29._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(13,1) = (15._krp*delta**2-4._krp*delta-29._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(13,2) = (3._krp*delta**2-8._krp*delta-4._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(13,3) = (15._krp*delta-1._krp)/36._krp
+defsvm%interp_weights(13,4) = -(21._krp*delta**2-4._krp*delta+8._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(13,5) = -(15._krp*delta**2-16._krp*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(13,6) = -(21._krp*delta**2-32._krp*delta-4._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(13,7) = (15._krp*delta**2-4._krp*delta+1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(13,8) = (3._krp*delta**2-8._krp*delta+2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(13,9) = (15._krp*delta**2-16._krp*delta-5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(14,1) = -(21._krp*delta**2-62._krp*delta+29._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(14,2) = -(3._krp*delta-2._krp)*(5*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(14,3) = -(21._krp*delta**2-14._krp*delta-1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(14,4) = (51._krp*delta**2-28._krp*delta-8._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(14,5) = (21._krp*delta**2-20._krp*delta+2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(14,6) = (3._krp*delta-2._krp)*(17._krp*delta-2._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(14,7) = -(21._krp*delta**2-2._krp*delta-1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(14,8) = -(15._krp*delta**2-4._krp*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(14,9) = -(21._krp*delta-5._krp)/36._krp
+defsvm%interp_weights(15,1) = -(21._krp*delta**2-2._krp*delta-1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(15,2) = -(15._krp*delta**2-4._krp*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(15,3) = -(21._krp*delta-5._krp)/36._krp
+defsvm%interp_weights(15,4) = (51._krp*delta**2-28._krp*delta-8._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(15,5) = (21._krp*delta**2-20._krp*delta+2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(15,6) = (3._krp*delta-2._krp)*(17._krp*delta-2._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(15,7) = -(21._krp*delta**2-62._krp*delta+29._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(15,8) = -(3._krp*delta-2._krp)*(5*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(15,9) = -(21._krp*delta**2-14._krp*delta-1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(16,1) = (15._krp*delta**2-4._krp*delta+1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(16,2) = (3._krp*delta**2-8._krp*delta+2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(16,3) = (15._krp*delta**2-16._krp*delta-5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(16,4) = -(21._krp*delta**2-4._krp*delta+8._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(16,5) = -(15._krp*delta**2-16._krp*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(16,6) = -(21._krp*delta**2-32._krp*delta-4._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(16,7) = (15._krp*delta**2-4._krp*delta-29._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(16,8) = (3._krp*delta**2-8._krp*delta-4._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(16,9) = (15._krp*delta-1._krp)/36._krp
+defsvm%interp_weights(17,1) = (24._krp*delta**2-28._krp*delta-5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(17,2) = -(6._krp*delta**2-10._krp*delta+13._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(17,3) = (24._krp*delta**2-28._krp*delta-5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(17,4) = -(12._krp*delta**2-20._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(17,5) = -(4._krp*delta-1._krp)*(6._krp*delta-7._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(17,6) = -(12._krp*delta**2-20._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(17,7) = (24._krp*delta**2-28._krp*delta+7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(17,8) = -(6._krp*delta**2-10._krp*delta+7._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(17,9) = (24._krp*delta**2-28._krp*delta+7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(18,1) = -(12._krp*delta**2-20._krp*delta+5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(18,2) = -(24._krp*delta**2-34._krp*delta+13._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(18,3) = -(12._krp*delta**2-20._krp*delta+5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(18,4) = (6._krp*delta-1._krp)*(10._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(18,5) = (12._krp*delta**2-2._krp*delta-7._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(18,6) = (6._krp*delta-1._krp)*(10._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(18,7) = -(12._krp*delta**2+4._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(18,8) = -(24._krp*delta**2-22._krp*delta+7._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(18,9) = -(12._krp*delta**2+4._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(19,1) = -(12._krp*delta**2+4._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(19,2) = -(24._krp*delta**2-22._krp*delta+7._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(19,3) = -(12._krp*delta**2+4._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(19,4) = (6._krp*delta-1._krp)*(10._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(19,5) = (12._krp*delta**2-2._krp*delta-7._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(19,6) = (6._krp*delta-1._krp)*(10._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(19,7) = -(12._krp*delta**2-20._krp*delta+5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(19,8) = -(24._krp*delta**2-34._krp*delta+13._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(19,9) = -(12._krp*delta**2-20._krp*delta+5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(20,1) = (24._krp*delta**2-28._krp*delta+7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(20,2) = -(6._krp*delta**2-10._krp*delta+7._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(20,3) = (24._krp*delta**2-28._krp*delta+7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(20,4) = -(12._krp*delta**2-20._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(20,5) = -(4._krp*delta-1._krp)*(6._krp*delta-7._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(20,6) = -(12._krp*delta**2-20._krp*delta-7._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(20,7) = (24._krp*delta**2-28._krp*delta-5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(20,8) = -(6._krp*delta**2-10._krp*delta+13._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(20,9) = (24._krp*delta**2-28._krp*delta-5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(21,1) = (15._krp*delta-1._krp)/36._krp
+defsvm%interp_weights(21,2) = (3._krp*delta**2-8._krp*delta-4._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(21,3) = (15._krp*delta**2-4._krp*delta-29._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(21,4) = -(21._krp*delta**2-32._krp*delta-4._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(21,5) = -(15._krp*delta**2-16._krp*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(21,6) = -(21._krp*delta**2-4._krp*delta+8._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(21,7) = (15._krp*delta**2-16._krp*delta-5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(21,8) = (3._krp*delta**2-8._krp*delta+2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(21,9) = (15._krp*delta**2-4._krp*delta+1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(22,1) = -(21._krp*delta**2-14._krp*delta-1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(22,2) = -(3._krp*delta-2._krp)*(5*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(22,3) = -(21._krp*delta**2-62._krp*delta+29._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(22,4) = (3._krp*delta-2._krp)*(17._krp*delta-2._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(22,5) = (21._krp*delta**2-20._krp*delta+2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(22,6) = (51._krp*delta**2-28._krp*delta-8._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(22,7) = -(21._krp*delta-5._krp)/36._krp
+defsvm%interp_weights(22,8) = -(15._krp*delta**2-4._krp*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(22,9) = -(21._krp*delta**2-2._krp*delta-1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(23,1) = -(21._krp*delta-5._krp)/36._krp
+defsvm%interp_weights(23,2) = -(15._krp*delta**2-4._krp*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(23,3) = -(21._krp*delta**2-2._krp*delta-1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(23,4) = (3._krp*delta-2._krp)*(17._krp*delta-2._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(23,5) = (21._krp*delta**2-20._krp*delta+2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(23,6) = (51._krp*delta**2-28._krp*delta-8._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(23,7) = -(21._krp*delta**2-14._krp*delta-1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(23,8) = -(3._krp*delta-2._krp)*(5*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(23,9) = -(21._krp*delta**2-62._krp*delta+29._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(24,1) = (15._krp*delta**2-16._krp*delta-5._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(24,2) = (3._krp*delta**2-8._krp*delta+2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(24,3) = (15._krp*delta**2-4._krp*delta+1._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(24,4) = -(21._krp*delta**2-32._krp*delta-4._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(24,5) = -(15._krp*delta**2-16._krp*delta-2._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(24,6) = -(21._krp*delta**2-4._krp*delta+8._krp)/(delta-1._krp)/36._krp
+defsvm%interp_weights(24,7) = (15._krp*delta-1._krp)/36._krp
+defsvm%interp_weights(24,8) = (3._krp*delta**2-8._krp*delta-4._krp)/(delta-1._krp)/18._krp
+defsvm%interp_weights(24,9) = (15._krp*delta**2-4._krp*delta-29._krp)/(delta-1._krp)/36._krp
+
 
   ! 54 Gauss pts, 10 coeff per point
 case(svm_4wang)   ! 10 independent points
@@ -1043,6 +1288,18 @@ case(svm_4kris2)   ! 12 independent points ... to be continued ...
 case default
   call error_stop("internal error: unknown SVM method (init_svmweights)")
 endselect
+
+! -- check consistency of SVM coefficients AND normalize --
+
+do ipf = 1, defsvm%ncvface*defsvm%nfgauss
+  sumcoef = sum(defsvm%interp_weights(ipf, 1:defsvm%ncv))
+  defsvm%interp_weights(ipf, 1:defsvm%ncv) = defsvm%interp_weights(ipf, 1:defsvm%ncv)/sumcoef
+  dev = abs(1._krp-sumcoef)
+
+  if (dev > sqrt(epsilon(dev))) &
+    call print_warning("lack of consistency of SVM coefficients: line "//trim(strof(ipf)) &
+                       //", error "//strof(dev))
+enddo
 
 endsubroutine init_svmweights
 

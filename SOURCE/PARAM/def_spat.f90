@@ -230,6 +230,7 @@ case(solNS)
     if (samestring(str,"4KRIS"))   defspat%svm%sv_method = svm_4KRIS
     if (samestring(str,"4KRIS2"))  defspat%svm%sv_method = svm_4KRIS2
 
+    defmesh%defsplit%nsplit = 1
     select case(defspat%svm%sv_method)
     case(svm_2quad)
       call print_info(7,"    second order, splitted into quads (face split)")
@@ -254,7 +255,6 @@ case(solNS)
     case(svm_3q3x3b6)
       call print_info(7,"    third order, splitted into 3x3 quads (6 polynomials)")
       defmesh%defsplit%splitmesh    = split_quad3x3lg
-      defmesh%defsplit%splitparam   = (1._krp-1._krp/sqrt(3._krp))/2._krp
     case(svm_4wang)
       call print_info(7,"    fourth order, splitted into 9 quads and 1 tri (defined as hexa) : original partition by Wang")
       defmesh%defsplit%splitmesh = split_svm4wang

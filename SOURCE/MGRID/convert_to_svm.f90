@@ -28,7 +28,7 @@ integer                :: iv0, ic1, ic2, fnv, cnv, nRface, icv
 integer                :: i, iif, ifR, ifl, iv1, iv2, ib, ifb, ibdef, ifsv
 integer                :: cellv(8)         ! cell/vtex definition
 integer                :: facev(8)         ! CV face vtex definition
-integer                :: face (2), CVface(2), SVface(2)         ! face definition
+integer                :: face(2), CVface(2), SVface(2)         ! face definition
 integer                :: intv(8)          ! internal vtex definition
 integer                :: nfgauss          ! number of integration points per face (defspat%svm)
 integer                :: ielem, ielemtri, ielemquad, nquad
