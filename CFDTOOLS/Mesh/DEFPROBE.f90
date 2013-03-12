@@ -42,7 +42,7 @@ type st_defprobe
   integer(kpp)          :: store       ! type de stockage
   logical               :: write       ! ecriture des donnees
   integer               :: unit        ! IO unit
-  character(len=shortname) :: name        ! 
+  character(len=longname)  :: name        ! 
   character(len=shortname) :: boco_name   ! famille associee (si necessaire)
                                        !   DEV: on peut extrapoler a plusieurs familles
                                        !        ou proposer la fusion de condition limite dans MESH

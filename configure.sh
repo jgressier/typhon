@@ -13,7 +13,9 @@ SHELLCONF=bin/shconf.sh
 # Initialization
 . $TOOLSCONF/conf_init.sh
 
-ALLMPILIB="mpi mpich lampi mpi_f90"
+# >> USE MPIF90 COMPILER
+# :: USE MPIF90 COMPILER # ALLMPILIB="mpi mpich lampi mpi_f90"
+# << USE MPIF90 COMPILER
 TYPHONPATH=${TYPHONPATH:-}
 ALLPATH="$(echo $TYPHONPATH | sed 's/:/ /g' ) /usr /usr/local /opt /opt/local"
 INCLUDEPATH="include"
@@ -53,7 +55,7 @@ check_diff() {
   }
 
 check_mpif90compiler() {
-  local namelist="$MPIF90 mpif90"
+  local namelist="${MPIF90:-} mpif90"
   for exe in $namelist ; do
     MPIF90C=$(which $exe 2> /dev/null)
     if [ -n "$MPIF90C" ] ; then
@@ -68,7 +70,7 @@ check_mpif90compiler() {
       export MPIF90_INCD=$($MPIF90C --showme:incdirs)
       export MPIF90_LIBD=$($MPIF90C --showme:libdirs)
       export MPIF90_LIBS=$($MPIF90C --showme:libs)
-      export MPIF90_V=$($MPIF90C --showme:version)
+      export MPIF90_V=$($MPIF90C --showme:version 2>&1)
     fi
   done
   if [ -n "$MPIF90C" ] ; then
@@ -207,19 +209,21 @@ check_include() {
   fi
   }
 
-check_mpilib() {
-  for name in $ALLMPILIB ; do
-    if [ -n "$(printenv LIB_$name)" ] ; then
-      success lib$name
-      eval MPILIB=\$LIB_$name
-      export MPILIB
-      break
-    fi
-  done
-  if [ -z "$MPILIB" ] ; then
-    fail "not found"
-  fi
-  }
+# >> USE MPIF90 COMPILER
+# :: USE MPIF90 COMPILER # check_mpilib() {
+# :: USE MPIF90 COMPILER #   for name in $ALLMPILIB ; do
+# :: USE MPIF90 COMPILER #     if [ -n "$(printenv LIB_$name)" ] ; then
+# :: USE MPIF90 COMPILER #       success lib$name
+# :: USE MPIF90 COMPILER #       eval MPILIB=\$LIB_$name
+# :: USE MPIF90 COMPILER #       export MPILIB
+# :: USE MPIF90 COMPILER #       break
+# :: USE MPIF90 COMPILER #     fi
+# :: USE MPIF90 COMPILER #   done
+# :: USE MPIF90 COMPILER #   if [ -z "$MPILIB" ] ; then
+# :: USE MPIF90 COMPILER #     fail "not found"
+# :: USE MPIF90 COMPILER #   fi
+# :: USE MPIF90 COMPILER #   }
+# << USE MPIF90 COMPILER
 
 check_f90module() {
   local module
@@ -274,15 +278,21 @@ check "diff command"                diff
 check "fortran 90 compiler"         f90compiler
 #
 # EXTLIBS="blas lapack cgns metis mpich mpi"
-EXTLIBS="cgns metis $ALLMPILIB"
+# >> USE MPIF90 COMPILER
+EXTLIBS="cgns metis" # :: USE MPIF90 COMPILER # "cgns metis $ALLMPILIB"
+# << USE MPIF90 COMPILER
 for lib in $EXTLIBS ; do
   check "static library $lib" library $lib a
 done
-EXTINC="cgnslib_f.h mpif.h"
+# >> USE MPIF90 COMPILER
+EXTINC="cgnslib_f.h" # :: USE MPIF90 COMPILER # "cgnslib_f.h mpif.h"
+# << USE MPIF90 COMPILER
 for inc in $EXTINC ; do
   check "include file $inc" include $inc
 done
-check "MPI library"                 mpilib
+# >> USE MPIF90 COMPILER
+# :: USE MPIF90 COMPILER # check "MPI library"                 mpilib
+# << USE MPIF90 COMPILER
 check "$F90C optimization options"  f90opti
 check "$F90C debug options"         f90debug
 check "$F90C profiling options"     f90prof
@@ -344,15 +354,17 @@ mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
   echo "FO_profil   = $F90_PROFIL"
   echo "FO_         = \$(FO_optim)"
   echo "F90OPT      = \$(FO_\$(opt))"
-  echo "F90C        = $F90C \$(FB)"
+  echo "F90CMP      = $F90C"
+  echo "F90C        = \$(F90CMP) \$(FB)"
   echo "LINKFB      = \$(F90OPT)"
   echo "LINKER      = \$(F90C)"
   echo "LINKSO      = \$(F90C) -shared"
   echo "METISLIB    = $LIB_metis"
   echo "CGNSLIB     = $LIB_cgns"
   echo "MPILIB      = $MPILIB"
-  echo "MPIOPT      = $MPIF90_FC"
-  echo "MPILIB      = $MPIF90_FL"
+  echo "MPIF90C     = $MPIF90C"
+  echo "MPIF90_FC   = $MPIF90_FC"
+  echo "MPIF90_FL   = $MPIF90_FL"
 } > $MAKECONF
 echo "  Done"
 

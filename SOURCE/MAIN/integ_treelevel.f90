@@ -53,7 +53,8 @@ do while (associated(pgrid))
   case(grid_str)
     ! nothing to do
   case default
-    call error_stop("Development: unknown type of grid (integ_treelevel)")
+    call error_stop("Development: gridtype="//trim(strof(pgrid%info%gridtype))// &
+                    "unknown type of grid (integ_treelevel)")
   endselect
 
   pgrid => pgrid%next

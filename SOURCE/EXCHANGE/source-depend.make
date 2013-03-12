@@ -37,6 +37,9 @@ libt_exchmpi.objects := $(EXCHMPI_OBJ:%=$(PRJOBJDIR)/%)
 libt_exchseq.target: $(libt_exchseq.objects)
 libt_exchmpi.target: $(libt_exchmpi.objects)
 
+libt_exchmpi.target: F90CMP = $(MPIF90C)
+libt_exchmpi.target: F90OPT += $(MPIF90_FC)
+
 D_EXCHSEQ_SRC := $(EXCHSEQ_OBJ:%.o=$(LDIR)/%.f90)
 D_EXCHMPI_SRC := $(EXCHMPI_OBJ:%.o=$(LDIR)/%.f90)
 

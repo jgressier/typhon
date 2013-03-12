@@ -101,6 +101,9 @@ $(PRGSEQNAME) : $(MAIN) $(D_LIBSEQ) $(MAKEFILE)
 	@ln -fs $(PRGSEQNAME) $(PRGNAME)-seq
 	@echo --- CREATION OF $(PRGSEQNAME) DONE ---
 
+$(PRGNAME)-mpi : LINKER = $(MPIF90C)
+$(PRGNAME)-mpi : F90OPT += $(MPIF90_FL)
+
 $(PRGNAME)-mpi : $(MAIN) $(D_LIBMPI) $(MAKEFILE)
 	@echo ---------------------------------------------------------------
 	@echo  LINKING $(PRGNAME)-mpi ---
