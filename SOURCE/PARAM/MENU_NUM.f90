@@ -456,8 +456,7 @@ case(svm_2q2x2b3)
   k2(1) = -1._krp / 2._krp
   k2(2) =  0._krp
   k2(3) =  1._krp / 2._krp
-  k2(4) =  1._krp
-  
+  k2(4) =  1._krp 
   defsvm%interp_weights(  1, 1:defsvm%ncv) = (/ k2(4), k2(2), k2(3), k2(1) /)
   defsvm%interp_weights(  2, 1:defsvm%ncv) = (/ k2(3), k2(3), k2(2), k2(2) /)
   defsvm%interp_weights(  3, 1:defsvm%ncv) = (/ k2(2), k2(4), k2(1), k2(3) /)
@@ -471,14 +470,28 @@ case(svm_2q2x2b3)
   defsvm%interp_weights( 11, 1:defsvm%ncv) = (/ k2(2), k2(3), k2(2), k2(3) /)
   defsvm%interp_weights( 12, 1:defsvm%ncv) = (/ k2(1), k2(2), k2(3), k2(4) /)
 
-
 case(svm_2q2x2b4)
   defsvm%ncv     = 4
   defsvm%ncvface = 12
   defsvm%nfgauss = 1
   allocate(defsvm%interp_weights(defsvm%ncvface*defsvm%nfgauss, defsvm%ncv))
   if (size(defsvm%interp_weights, 1) /= 12) call error_stop("SVM initialization: bad total number Gauss points")
-  call error_stop("DEV: not implemented yet")
+  k2(1) =  1.5_krp
+  k2(2) = -0.5_krp
+  k2(3) =  0._krp
+  k2(4) =  0.5_krp 
+  defsvm%interp_weights(  1, 1:defsvm%ncv) = (/ k2(1), k2(2), k2(3), k2(3) /)
+  defsvm%interp_weights(  2, 1:defsvm%ncv) = (/ k2(4), k2(4), k2(3), k2(3) /)
+  defsvm%interp_weights(  3, 1:defsvm%ncv) = (/ k2(2), k2(1), k2(3), k2(3) /)
+  defsvm%interp_weights(  4, 1:defsvm%ncv) = (/ k2(3), k2(1), k2(1), k2(2) /)
+  defsvm%interp_weights(  5, 1:defsvm%ncv) = (/ k2(3), k2(3), k2(4), k2(4) /)
+  defsvm%interp_weights(  6, 1:defsvm%ncv) = (/ k2(3), k2(3), k2(2), k2(1) /)
+  defsvm%interp_weights(  7, 1:defsvm%ncv) = (/ k2(1), k2(3), k2(2), k2(3) /)
+  defsvm%interp_weights(  8, 1:defsvm%ncv) = (/ k2(4), k2(3), k2(4), k2(3) /)
+  defsvm%interp_weights(  9, 1:defsvm%ncv) = (/ k2(2), k2(3), k2(1), k2(3) /)
+  defsvm%interp_weights( 10, 1:defsvm%ncv) = (/ k2(3), k2(1), k2(3), k2(2) /)
+  defsvm%interp_weights( 11, 1:defsvm%ncv) = (/ k2(3), k2(4), k2(3), k2(4) /)
+  defsvm%interp_weights( 12, 1:defsvm%ncv) = (/ k2(3), k2(2), k2(3), k2(1) /)
 
 case(svm_3wang) !weights for alpha=1/4 and beta =1/3 : ORIGINAL PARTITION BY WANG
   defsvm%ncv     = 6
