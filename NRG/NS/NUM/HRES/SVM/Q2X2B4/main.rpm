@@ -1,0 +1,89 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+  NZONE     = 1
+  COORD     = 2D
+  TIME      = UNSTEADY
+  DURATION  = 0.1
+  NCYCLE    = 100 
+ENDBLOCK
+
+!BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+!  FILE   = "sol"
+!  PERIOD = 1
+!  FORMAT = VTK
+!ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "vortex"
+  SOLVER = EULER
+ENDBLOCK
+
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = TYPHON
+  FILE   = "quad10x10.tym"
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS = EULER
+  GAS      = AIR
+ENDBLOCK
+
+BLOCK:TIME_PARAM
+  METHOD    = RK3-SSP
+  CFL       = 1.
+ENDBLOCK
+
+BLOCK:SPAT_PARAM
+  SCHEME   = RUSANOV
+  HIGHRES  = SVM
+  LIMITER  = ALBADA
+  SVM      = 2Q2X2B4
+  !SVM      = 3Q3X3B6
+ENDBLOCK
+
+BLOCK:INIT
+  DENSITY   = 1.+9*X*(X-1)*Y*(Y-1)  ! avg//max density is 1.25//1.5625
+  P         = 100000/14.   ! a = 100 m/s (for density=1.)
+  VX        = 10.          ! M = 0.1
+  VY        = 0.
+  VZ        = 0.
+ENDBLOCK
+
+BLOCK:PROBE
+ NAME     = RHODEV
+ TYPE     = VOL_AVERAGE
+ QUANTITY = (RHO-1.25)^2
+ENDBLOCK
+
+BLOCK:PERIODICITY
+  NAME = HORI
+  TYPE = TRANSLATION
+  TRANSLATION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:PERIODICITY
+  NAME = VERTI
+  TYPE = TRANSLATION
+  TRANSLATION = (0., 1., 0.)
+ENDBLOCK
+
+BLOCK:CONNECTION
+  FAMILY1 = IMIN
+  FAMILY2 = IMAX
+  TYPE    = PERIODIC
+  PERIODICITY = HORI
+ENDBLOCK
+
+BLOCK:CONNECTION
+  FAMILY1 = JMIN
+  FAMILY2 = JMAX
+  TYPE    = PERIODIC
+  PERIODICITY = VERTI
+ENDBLOCK
