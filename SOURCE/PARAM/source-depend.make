@@ -28,6 +28,7 @@ PARAM_OBJ := $(PARAM_MOD:.$(MODEXT)=.o)  \
             def_boco.o         \
             def_check.o        \
             def_connect.o      \
+            def_fctenv.o       \
             def_init.o         \
             def_inverse.o      \
             def_mesh.o         \

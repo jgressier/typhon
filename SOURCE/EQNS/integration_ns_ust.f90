@@ -181,7 +181,7 @@ deallocate(ista, iend)
 
 ! --- EXT source terms ---
 
-call calc_source_ext(umesh, field, defsolver%defns, curtime)
+call calc_source_ext(defsolver, umesh, field, curtime)
 
 ! --- MRF source terms ---
 

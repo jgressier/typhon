@@ -85,13 +85,13 @@ implicit none
 ! - parameters
 type(st_fct_env)           :: env
 character(len=*)           :: name
+character(len=cont_str)    :: lname
 type(st_fct_node), pointer :: p
 
   p => env%var_stack
+  lname = lowercase(name)
   do while (associated(p))
-    !if (samestring(name, p%container%name)) exit
-    if (lowercase(name) == p%container%name) exit
-    !print*,'seek: '//name//' is not '//p%container%name
+    if (lname == p%container%name) exit
     p => p%right
   enddo
 

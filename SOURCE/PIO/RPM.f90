@@ -16,8 +16,8 @@ implicit none
 
 ! -- Variables globales du module -------------------------------------------
 
-integer,          parameter :: dimrpmlig      = 200
-integer,          parameter :: dimrpmname     = 40
+integer,          parameter :: dimrpmlig      = 512
+integer,          parameter :: dimrpmname     = 64
 character(len=*), parameter :: rpmcommentchar = '!#%'
 character,        parameter :: rpmquotechar   = '"' !'"'
 

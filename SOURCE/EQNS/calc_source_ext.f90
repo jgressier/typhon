@@ -5,82 +5,122 @@
 !   Computation of external source terms for NS equations
 !
 !------------------------------------------------------------------------------!
-subroutine calc_source_ext(umesh, field, defns, curtime)
+subroutine calc_source_ext(defsolver, umesh, field, curtime)
 
 use PACKET
 use OUTPUT
 use USTMESH
 use DEFFIELD
 use EQNS
-use MENU_NS
+use MENU_SOLVER
 use FCT_EVAL
 
 implicit none
 
-! INPUTS
+! -- INPUTS --
 type(st_ustmesh)        :: umesh
-type(mnu_ns)            :: defns
+type(mnu_solver)        :: defsolver
 real(krp)               :: curtime
 
-! INPUTS/OUTPUTS
+! -- INPUTS/OUTPUTS --
 type(st_field) :: field
 
-! INTERNAL
+! -- INTERNAL --
 integer   :: ic	! index on cells
 real(krp) :: mass
 type(v3d) :: dmomentum, massV
 real(krp) :: dpower
 integer, pointer      :: ista(:), iend(:) ! starting and ending index
 integer               :: ib, buf, nblock      ! buffer size 
+type(st_fct_env)      :: env
+logical               :: xyz_depend
 
 ! -- BODY --
 
-if ((defns%is_extpower).or.(defns%is_extforce)) then
+if ((defsolver%defns%is_extpower).or.(defsolver%defns%is_extforce)) then
+
   call new_buf_index(umesh%ncell_int, cell_buffer, nblock, ista, iend)
-  call new_fct_env(blank_env)      ! temporary environment from FCT_EVAL
-  call fct_env_set_real(blank_env, "t", curtime)
-endif
 
-!! DEV : planned to add x, y, z position 
+  call fctset_initdependency(defsolver%fctenv)
+  if (defsolver%defns%is_extpower) call fctset_checkdependency(defsolver%fctenv, defsolver%defns%extpower)
+  if (defsolver%defns%is_extforce) then
+    call fctset_checkdependency(defsolver%fctenv, defsolver%defns%extforce_x)
+    call fctset_checkdependency(defsolver%fctenv, defsolver%defns%extforce_y)
+    call fctset_checkdependency(defsolver%fctenv, defsolver%defns%extforce_z)
+  endif  
 
-if (defns%is_extpower) then
-  !$OMP PARALLEL DO private(ic, dpower) shared(blank_env)
-  do ib = 1, nblock
+  if (defsolver%defns%is_extpower) then
+    xyz_depend = fct_dependency(defsolver%defns%extpower, "x").or. &
+                 fct_dependency(defsolver%defns%extpower, "y").or. &
+                 fct_dependency(defsolver%defns%extpower, "z")
+  else
+    xyz_depend = .false.
+  endif
+  if (defsolver%defns%is_extforce) then
+    xyz_depend = xyz_depend .or. &
+                 fct_dependency(defsolver%defns%extforce_x, "x").or. &
+                 fct_dependency(defsolver%defns%extforce_x, "y").or. &
+                 fct_dependency(defsolver%defns%extforce_x, "z").or. &
+                 fct_dependency(defsolver%defns%extforce_y, "x").or. &
+                 fct_dependency(defsolver%defns%extforce_y, "y").or. &
+                 fct_dependency(defsolver%defns%extforce_y, "z").or. &
+                 fct_dependency(defsolver%defns%extforce_z, "x").or. &
+                 fct_dependency(defsolver%defns%extforce_z, "y").or. &
+                 fct_dependency(defsolver%defns%extforce_z, "z")
+  endif
+
+  xyz_depend = xyz_depend .or. &
+               fctset_needed_dependency(defsolver%fctenv, "x").or. &
+               fctset_needed_dependency(defsolver%fctenv, "y").or. &
+               fctset_needed_dependency(defsolver%fctenv, "z")
+               
+  !$OMP PARALLEL private(ic, dpower, mass, massV, dmomentum, env) shared(ista, iend, nblock, curtime, xyz_depend)
+  call new_fct_env(env)      ! temporary environment from FCT_EVAL
+  call fct_env_set_real(env, "t", curtime)
+
+  !$OMP DO
+  block: do ib = 1, nblock
+  
     buf = iend(ib)-ista(ib)+1
-    do ic = ista(ib), iend(ib)
-      call fct_eval_real(blank_env, defns%extpower, dpower)
-      field%residu%tabscal(2)%scal(ic) = field%residu%tabscal(2)%scal(ic) + umesh%mesh%volume(ic,1,1) * dpower
-    enddo
-  enddo
-  !$OMP END PARALLEL DO
-endif
+    cell: do ic = ista(ib), iend(ib)
 
-if (defns%is_extforce) then
-  !$OMP PARALLEL DO private(ic, mass, massV, dmomentum) shared(blank_env)
-  do ib = 1, nblock
-    buf = iend(ib)-ista(ib)+1
-    do ic = ista(ib), iend(ib)
-      call fct_eval_real(blank_env, defns%extforce_x, dmomentum%x)
-      call fct_eval_real(blank_env, defns%extforce_y, dmomentum%y)
-      call fct_eval_real(blank_env, defns%extforce_z, dmomentum%z)
-      mass   = umesh%mesh%volume(ic,1,1) * field%etatcons%tabscal(1)%scal(ic)
-      massV  = umesh%mesh%volume(ic,1,1) * field%etatcons%tabvect(1)%vect(ic)
-      field%residu%tabvect(1)%vect(ic) = field%residu%tabvect(1)%vect(ic) + (mass*dmomentum)
-      field%residu%tabscal(2)%scal(ic) = field%residu%tabscal(2)%scal(ic) + (massV.scal.dmomentum)
-    enddo
-  enddo
-  !$OMP END PARALLEL DO
-endif
+      if (xyz_depend) then
+        call fct_env_set_real(env, "X", umesh%mesh%vertex(ic,1,1)%x)
+        call fct_env_set_real(env, "Y", umesh%mesh%vertex(ic,1,1)%y)
+        call fct_env_set_real(env, "Z", umesh%mesh%vertex(ic,1,1)%z)
+      endif
 
-if ((defns%is_extpower).or.(defns%is_extforce)) then
+      call fctset_compute_neededenv(defsolver%fctenv, env)
+
+      if (defsolver%defns%is_extpower) then
+        call fct_eval_real(env, defsolver%defns%extpower, dpower)
+        field%residu%tabscal(2)%scal(ic) = field%residu%tabscal(2)%scal(ic) + umesh%mesh%volume(ic,1,1) * dpower
+      endif
+      if (defsolver%defns%is_extforce) then
+        call fct_eval_real(env, defsolver%defns%extforce_x, dmomentum%x)
+        call fct_eval_real(env, defsolver%defns%extforce_y, dmomentum%y)
+        call fct_eval_real(env, defsolver%defns%extforce_z, dmomentum%z)
+        mass   = umesh%mesh%volume(ic,1,1) * field%etatcons%tabscal(1)%scal(ic)
+        massV  = umesh%mesh%volume(ic,1,1) * field%etatcons%tabvect(1)%vect(ic)
+        field%residu%tabvect(1)%vect(ic) = field%residu%tabvect(1)%vect(ic) + (mass*dmomentum)
+        field%residu%tabscal(2)%scal(ic) = field%residu%tabscal(2)%scal(ic) + (massV.scal.dmomentum)
+      endif
+      
+    enddo cell
+  enddo block
+  
+  !$OMP END DO
+  call delete_fct_env(env)      ! temporary environment from FCT_EVAL
+  !$OMP END PARALLEL 
+
   deallocate(ista, iend)
-  call delete_fct_env(blank_env)      ! temporary environment from FCT_EVAL
-endif
 
+endif
 
 end subroutine calc_source_ext
 !------------------------------------------------------------------------------!
 ! Changes history
 !
 ! feb  2010 : creation, external source terms
+! Mar  2013 : fct environment and x,y,z dependencies
 !------------------------------------------------------------------------------!

@@ -17,18 +17,20 @@
 !   changent).
 !
 !------------------------------------------------------------------------------!
-subroutine calc_ustmesh(defmesh, umesh)
+subroutine calc_ustmesh(defmesh, fctenv, umesh)
 
 use TYPHMAKE
 use OUTPUT
 use USTMESH
 use MESHPARAMS
 use MESHGEOM
+use FCT_FUNC
 
 implicit none
 
 ! -- Inputs --
-type(mnu_mesh) :: defmesh
+type(mnu_mesh)      :: defmesh
+type(st_fctfuncset) :: fctenv
 
 ! -- Inputs/Outputs --
 type(st_ustmesh) :: umesh
@@ -40,7 +42,7 @@ integer     :: i
 
 ! -- BODY --
 
-call scale_mesh(defmesh, umesh%mesh)   ! scale or morph mesh NODES
+call scale_mesh(defmesh, fctenv, umesh%mesh)   ! scale or morph mesh NODES
 
 call test_ustmesh(umesh)
 

@@ -1,0 +1,94 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON 
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+  NZONE     = 1       
+  COORD     = 2D      
+  TIME      = UNSTEADY 
+  DURATION  = .01
+  NCYCLE    = 10
+ENDBLOCK               
+
+
+!BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+!  FORMAT = VTK
+!  FILE   = "insta"
+!  PERIOD = 1 
+!  MESH      =FULL  ! SHARED
+!  !MESHLEVEL =LEGACY
+!ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "" 
+  SOLVER = EULER  
+ENDBLOCK
+
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = INTERNAL
+  FILE   = "quad20x20.tym"
+ENDBLOCK
+
+BLOCK:FCTENV
+  DX = X-0.5
+  DY = Y-0.5
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS    = EULER
+  GAS         = AIR
+  !EXT_FORCE_X = 10000*(Y-.5)*((Y-.5)^2-.25)
+  !EXT_FORCE_Y = 10000*(X-.5)*((X-.5)^2-.25)
+  EXT_FORCE_X = 10000*DY*(DY^2-.25)
+  EXT_FORCE_Y = 10000*DX*(DX^2-.25)
+ENDBLOCK
+
+BLOCK:TIME_PARAM 
+  METHOD    = RK2
+  CFL       = 1.
+ENDBLOCK
+
+BLOCK:SPAT_PARAM 
+  SCHEME   = VLH
+ENDBLOCK
+
+BLOCK:PROBE
+ NAME     = VAVG
+ TYPE     = VOL_AVERAGE
+ QUANTITY = V
+ENDBLOCK
+
+BLOCK:INIT
+  P        = 1.0E5
+  T        = 300.
+  MACH     = 0.
+  DIRECTION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = IMIN
+  TYPE   = SYMMETRY
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = IMAX
+  TYPE   = SYMMETRY
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = JMIN
+  TYPE   = SYMMETRY
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY = JMAX
+  TYPE   = SYMMETRY
+ENDBLOCK
+
+
+
+

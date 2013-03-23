@@ -50,17 +50,19 @@ zone%defsolver%typ_solver = solver
 
 select case(solver)
 case(solKDIF)
-  if (.not.pass_kdif) call erreur("restriction","solveur Conduction indisponible")
+  if (.not.pass_kdif) call error_stop("build restriction: Heat transfer solver disabled")
   call def_model_kdif(block, zone%defsolver)
 case(solNS)
-  if (.not.pass_ns) call erreur("restriction","solveur Navier-Stokes indisponible")
+  if (.not.pass_ns) call error_stop("build restriction: Compressible flow solver disabled")
   call def_model_ns(prj, block, zone%defsolver)
-case(solVORTEX)
-  if (.not.pass_vort) call erreur("restriction","solveur Vortex indisponible")
-  call def_model_vortex(block, zone%defsolver)
 case default
-  call erreur("lecture de menu","solveur inconnu")
+  call error_stop("parameter parsing: unknown solver")
 endselect
+
+! -------------------------
+! environment/function definition
+
+call def_fctenv(block, zone%defsolver)
 
 ! -------------------------
 ! SCHEME/NUMERICAL parameters

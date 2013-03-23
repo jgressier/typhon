@@ -210,13 +210,38 @@ character(len=len(str)) :: str2
 
 endsubroutine fct_node_to_str
 
+!------------------------------------------------------------------------------!
+! fct_dependency : check is node function depends on variable name
+!------------------------------------------------------------------------------!
+recursive function fct_dependency(node, name) result(depend)
+implicit none
+! -- parameters --
+logical           :: depend
+type(st_fct_node) :: node
+character(len=*)  :: name
+! -- internal variables --
+
+  select case(node%type_node)
+  case(node_cst)
+    depend = .false.
+  case(node_var)
+    depend = (lowercase(name) == node%container%name)
+  case(node_opunit)
+    depend = fct_dependency(node%left, name)
+  case(node_opbin)
+    depend = fct_dependency(node%left, name).or.fct_dependency(node%right, name)
+  case default
+    call set_fct_error(node%type_node, "unknown type of node in fct_dependency")
+  endselect
+
+endfunction
+
 
 endmodule FCT_NODE
-
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !
 ! July  2006 : module creation
 ! Sept  2006 : node tree string expression added 
+! Mar   2013 : check variable name dependency
 !------------------------------------------------------------------------------!

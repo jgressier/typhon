@@ -26,6 +26,8 @@ use MENU_BOCO     ! Definition des conditions limites
 use MENU_INIT     ! Definition de l'initialisation
 use MENU_AMR      ! Definition des parametres de raffinement
 use MENU_MPI      ! MPI parameters
+use FCT_ENV
+use FCT_FUNC
 
 implicit none
 
@@ -63,11 +65,12 @@ type mnu_solver
   integer(kip)    :: ninit           ! number of initialization
   integer(kip)    :: nboco           ! number of boundary conditions
   integer(kip)    :: nconnect        ! number of connections
-  integer(kip)    :: nprobe          ! nombre de capteurs
+  integer(kip)    :: nprobe          ! number of probes
   type(mnu_init),    pointer :: init(:)      ! Initial conditions
   type(mnu_boco),    pointer :: boco(:)      ! BOundary COnditions
   type(mnu_connect), pointer :: connect(:)   ! Internal connections
   type(st_defprobe), pointer :: probe(:)     ! Probes
+  type(st_fctfuncset)        :: fctenv       
 endtype mnu_solver
 
 
@@ -274,7 +277,6 @@ endselect
 endsubroutine DEFINE_REFCONS
 
 
-
 endmodule MENU_SOLVER
 
 !------------------------------------------------------------------------------!
@@ -294,6 +296,7 @@ endmodule MENU_SOLVER
 ! June 2009 : add quantity names
 ! Nov  2009 : transfer quantity names to CFDTOOLS/Models/QUANTITY
 ! Dec  2010 : MRF parameters (A. Gardi)
+! Mar  2013 : new environment functions
 !------------------------------------------------------------------------------!
 
 

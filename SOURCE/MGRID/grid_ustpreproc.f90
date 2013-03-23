@@ -88,7 +88,7 @@ grid%umesh_legacy = grid%umesh
 
   ! -- compute geometrical properties of CELLS / FACES of the mesh --
 
-  call calc_ustmesh(defsolver%defmesh, grid%umesh)
+  call calc_ustmesh(defsolver%defmesh, defsolver%fctenv, grid%umesh)
     
 endsubroutine grid_ustpreproc
 !------------------------------------------------------------------------------!

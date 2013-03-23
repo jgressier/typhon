@@ -43,6 +43,28 @@ endsubroutine rpmgetvalrealdp
 
 
 !------------------------------------------------------------------------------!
+! rpmgetvalstr : returns the LHS of line/string "str" as a string
+!------------------------------------------------------------------------------!
+subroutine rpmgetkey(str, res)
+implicit none
+! -- Inputs --
+character(len=*), intent(in) :: str  ! ligne contenant la valeur
+! -- Outputs --
+!character(len=len_trim(str)) :: res  ! resultat, valeur de la ligne
+character(len=dimrpmlig) &
+               , intent(out) :: res  ! resultat, valeur de la ligne
+! -- Internal variables --
+integer i, iores
+
+! -- Body --
+
+  i   = index(str, '=')                   ! extraction of the string after "="
+  res = trim(adjustl(str(1:i-1)))
+
+endsubroutine rpmgetkey
+!------------------------------------------------------------------------------!
+
+!------------------------------------------------------------------------------!
 ! rpmgetvalstr : returns the RHS of line/string "str" as a string
 !------------------------------------------------------------------------------!
 subroutine rpmgetvalstr(str, res)
