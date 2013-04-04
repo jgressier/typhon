@@ -26,12 +26,12 @@ real(krp)               :: curtime
 type(st_field) :: field
 
 ! -- INTERNAL --
-integer   :: ic	! index on cells
-real(krp) :: mass
-type(v3d) :: dmomentum, massV
-real(krp) :: dpower
+integer   :: ic, il ! index on cells
+real(krp), dimension(fct_buffer) :: x, y, z, dmomentx, dmomenty, dmomentz
+type(v3d) :: massV
+real(krp) :: mass, dpower(fct_buffer)
 integer, pointer      :: ista(:), iend(:) ! starting and ending index
-integer               :: ib, buf, nblock      ! buffer size 
+integer               :: ib, buf, nblock     ! buffer size 
 type(st_fct_env)      :: env
 logical               :: xyz_depend
 
@@ -39,7 +39,7 @@ logical               :: xyz_depend
 
 if ((defsolver%defns%is_extpower).or.(defsolver%defns%is_extforce)) then
 
-  call new_buf_index(umesh%ncell_int, cell_buffer, nblock, ista, iend)
+  call new_buf_index(umesh%ncell_int, fct_buffer, nblock, ista, iend)
 
   call fctset_initdependency(defsolver%fctenv)
   if (defsolver%defns%is_extpower) call fctset_checkdependency(defsolver%fctenv, defsolver%defns%extpower)
@@ -74,39 +74,57 @@ if ((defsolver%defns%is_extpower).or.(defsolver%defns%is_extforce)) then
                fctset_needed_dependency(defsolver%fctenv, "y").or. &
                fctset_needed_dependency(defsolver%fctenv, "z")
                
-  !$OMP PARALLEL private(ic, dpower, mass, massV, dmomentum, env) shared(ista, iend, nblock, curtime, xyz_depend)
+  !$OMP PARALLEL & 
+  !$OMP private(ic, il, dpower, mass, massV, dmomentx, dmomenty, dmomentz, env, x, y, z, buf) &
+  !$OMP shared(ista, iend, nblock, curtime, xyz_depend)
   call new_fct_env(env)      ! temporary environment from FCT_EVAL
   call fct_env_set_real(env, "t", curtime)
 
   !$OMP DO
   block: do ib = 1, nblock
-  
+
     buf = iend(ib)-ista(ib)+1
-    cell: do ic = ista(ib), iend(ib)
 
-      if (xyz_depend) then
-        call fct_env_set_real(env, "X", umesh%mesh%vertex(ic,1,1)%x)
-        call fct_env_set_real(env, "Y", umesh%mesh%vertex(ic,1,1)%y)
-        call fct_env_set_real(env, "Z", umesh%mesh%vertex(ic,1,1)%z)
-      endif
+    if (xyz_depend) then
 
-      call fctset_compute_neededenv(defsolver%fctenv, env)
+      do ic = ista(ib), iend(ib)
+        x(ic-ista(ib)+1) = umesh%mesh%centre(ic,1,1)%x
+        y(ic-ista(ib)+1) = umesh%mesh%centre(ic,1,1)%y
+        z(ic-ista(ib)+1) = umesh%mesh%centre(ic,1,1)%z
+      enddo
 
-      if (defsolver%defns%is_extpower) then
-        call fct_eval_real(env, defsolver%defns%extpower, dpower)
-        field%residu%tabscal(2)%scal(ic) = field%residu%tabscal(2)%scal(ic) + umesh%mesh%volume(ic,1,1) * dpower
-      endif
-      if (defsolver%defns%is_extforce) then
-        call fct_eval_real(env, defsolver%defns%extforce_x, dmomentum%x)
-        call fct_eval_real(env, defsolver%defns%extforce_y, dmomentum%y)
-        call fct_eval_real(env, defsolver%defns%extforce_z, dmomentum%z)
-        mass   = umesh%mesh%volume(ic,1,1) * field%etatcons%tabscal(1)%scal(ic)
-        massV  = umesh%mesh%volume(ic,1,1) * field%etatcons%tabvect(1)%vect(ic)
-        field%residu%tabvect(1)%vect(ic) = field%residu%tabvect(1)%vect(ic) + (mass*dmomentum)
-        field%residu%tabscal(2)%scal(ic) = field%residu%tabscal(2)%scal(ic) + (massV.scal.dmomentum)
-      endif
+      call fct_env_set_realarray(env, "x", x(1:buf))
+      call fct_env_set_realarray(env, "y", y(1:buf))
+      call fct_env_set_realarray(env, "z", z(1:buf))
+    endif
+
+    call fctset_compute_neededenv(defsolver%fctenv, env)
+
+    if (defsolver%defns%is_extpower) then
+
+      call fct_eval_realarray(env, defsolver%defns%extpower, dpower)
+      field%residu%tabscal(2)%scal(ista(ib):iend(ib)) = field%residu%tabscal(2)%scal(ista(ib):iend(ib)) &
+                                                      + umesh%mesh%volume(ista(ib):iend(ib),1,1) * dpower(1:buf)
+    endif
+    
+    if (defsolver%defns%is_extforce) then
+
+      call fct_eval_realarray(env, defsolver%defns%extforce_x, dmomentx)
+      call fct_eval_realarray(env, defsolver%defns%extforce_y, dmomenty)
+      call fct_eval_realarray(env, defsolver%defns%extforce_z, dmomentz)
+
+      do ic = ista(ib), iend(ib)
+        il = ic-ista(ib)+1
+        mass  = umesh%mesh%volume(ic,1,1) * field%etatcons%tabscal(1)%scal(ic)
+        massV = umesh%mesh%volume(ic,1,1) * field%etatcons%tabvect(1)%vect(ic)
+        field%residu%tabvect(1)%vect(ic)%x = field%residu%tabvect(1)%vect(ic)%x + mass*dmomentx(il)
+        field%residu%tabvect(1)%vect(ic)%y = field%residu%tabvect(1)%vect(ic)%y + mass*dmomenty(il)
+        field%residu%tabvect(1)%vect(ic)%z = field%residu%tabvect(1)%vect(ic)%z + mass*dmomentz(il)
+        field%residu%tabscal(2)%scal(ic) = field%residu%tabscal(2)%scal(ic) &
+                                         + (massV%x * dmomentx(il) + massV%y * dmomenty(il) + massV%z * dmomentz(il) )
+      enddo
+    endif
       
-    enddo cell
   enddo block
   
   !$OMP END DO

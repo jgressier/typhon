@@ -95,7 +95,7 @@ character(len=op_len), dimension(min_op:max_op), parameter :: op2name = &
 type st_fct_node
   integer(ipar)              :: type_node            ! type of node : operator/container
   integer(ipar)              :: type_oper            ! if node : type of operator
-  integer(ipar)              :: size
+  !integer(ipar)              :: size
   type(st_fct_container)          :: container
   type(st_fct_node),      pointer :: left, right
 endtype st_fct_node
@@ -137,7 +137,7 @@ integer(ipar),     optional    :: oper
 
   select case(type)
   case(node_cst)
-    call new_fct_container(node%container, cont_real, name)
+    call set_fct_error(type, "internal error: unexpected constant selection in new_fct_node")
   case(node_var)
     call new_fct_container(node%container, cont_var, name)
   case(node_opunit)
@@ -152,6 +152,63 @@ integer(ipar),     optional    :: oper
   endselect
 
 endsubroutine new_fct_node
+
+!------------------------------------------------------------------------------!
+! new_fct_node : allocate FCT_NODE structure
+!------------------------------------------------------------------------------!
+subroutine new_fct_node_cst(node, name, size)
+implicit none
+! - parameters
+type(st_fct_node), intent(out) :: node
+character(len=*),  intent(in)  :: name
+integer(iprc),     optional    :: size
+
+  node%type_node = node_cst
+
+  nullify(node%left)          ! default initialization
+  nullify(node%right)         ! default initialization
+
+  if (present(size)) then
+    call new_fct_container(node%container, cont_vect, name, size)
+  else  
+    call new_fct_container(node%container, cont_real, name)
+  endif  
+
+endsubroutine new_fct_node_cst
+
+
+!------------------------------------------------------------------------------!
+! new_fct_node : allocate FCT_NODE structure
+!------------------------------------------------------------------------------!
+subroutine new_fct_node_oper(node, type, name, oper)
+implicit none
+! - parameters
+type(st_fct_node), intent(out) :: node
+integer(ipar),     intent(in)  :: type       ! type of container
+character(len=*),  intent(in)  :: name
+integer(ipar),     optional    :: oper
+
+  node%type_node = type
+
+  nullify(node%left)          ! default initialization
+  nullify(node%right)         ! default initialization
+
+  select case(type)
+  case(node_cst, node_var)
+    call set_fct_error(type, "internal error: unexpected constant or variable selection in new_fct_node_oper")  
+  case(node_opunit)
+    node%type_oper = oper
+    allocate(node%left)
+  case(node_opbin)
+    node%type_oper = oper
+    allocate(node%left)
+    allocate(node%right)
+  case default
+    call set_fct_error(type, "unknown type of node in new_fct_node_oper")
+  endselect
+
+endsubroutine new_fct_node_oper
+
 
 !------------------------------------------------------------------------------!
 ! delete_fct_node : remove FCT_NODE structure

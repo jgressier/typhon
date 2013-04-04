@@ -15,7 +15,7 @@ implicit none
 
 ! -- Constants -------------------------------------------
 
-type(st_fct_env) :: blank_env
+type(st_fct_env)   :: blank_env
      
 ! -- DECLARATIONS -----------------------------------------------------------
 
@@ -31,6 +31,10 @@ type(st_fct_env) :: blank_env
 
 interface fct_eval_real
   module procedure fct_eval_real4, fct_eval_real8
+end interface
+
+interface fct_eval_realarray
+  module procedure fct_eval_real4array, fct_eval_real8array
 end interface
 
 ! -- Fonctions et Operateurs ------------------------------------------------
@@ -58,7 +62,7 @@ type(st_fct_container)     :: cont             ! evaluation of container
   case(cont_real)
     res = cont%r
   case default
-    call set_fct_error(-1, "unexpected type of result (fct_eval)")
+    call set_fct_error(-1, "unexpected type of result (fct_eval_real4)")
   endselect
   call delete(cont)
 
@@ -83,11 +87,65 @@ type(st_fct_container)     :: cont             ! evaluation of container
   case(cont_real)
     res = cont%r
   case default
-    call set_fct_error(-1, "unexpected type of result (fct_eval)")
+    call set_fct_error(-1, "unexpected type of result (fct_eval_real8)")
   endselect
   call delete(cont)
 
 end subroutine fct_eval_real8
+
+!------------------------------------------------------------------------------!
+! fct_eval_real4array
+!------------------------------------------------------------------------------!
+subroutine fct_eval_real4array(env, fct, res)
+implicit none
+
+! -- parameters --
+type(st_fct_env),       intent(in)  :: env     ! environment
+type(st_fct_node),      intent(in)  :: fct     ! function to evaluate (base node)
+real(4),                intent(out) :: res(:)  ! real result
+
+! -- internal variables --
+type(st_fct_container)     :: cont             ! evaluation of container
+
+  call fct_node_eval(env, fct, cont)
+  select case(cont%type)
+  case(cont_real)
+    res = cont%r
+  case(cont_vect)
+    res(1:cont%size) = cont%r_t(1:cont%size)
+  case default
+    call set_fct_error(-1, "unexpected type of result (fct_eval_real4array)")
+  endselect
+  call delete(cont)
+
+end subroutine fct_eval_real4array
+
+!------------------------------------------------------------------------------!
+! fct_eval_real8array
+!------------------------------------------------------------------------------!
+subroutine fct_eval_real8array(env, fct, res)
+implicit none
+
+! -- parameters --
+type(st_fct_env),       intent(in)  :: env     ! environment
+type(st_fct_node),      intent(in)  :: fct     ! function to evaluate (base node)
+real(8),                intent(out) :: res(:)  ! real result
+! -- internal variables --
+type(st_fct_container)     :: cont             ! evaluation of container
+
+  call fct_node_eval(env, fct, cont)
+
+  select case(cont%type)
+  case(cont_real)
+    res = cont%r
+  case(cont_vect)
+    res(1:cont%size) = cont%r_t(1:cont%size)
+  case default
+    call set_fct_error(-1, "unexpected type of result (fct_eval_real8array)")
+  endselect
+  call delete(cont)
+
+end subroutine fct_eval_real8array
 
 !------------------------------------------------------------------------------!
 ! fct_node_eval : eval and allocate container if needed
@@ -109,12 +167,14 @@ type(st_fct_node), pointer :: p
 select case(fct%type_node)
 
 case(node_cst)
+  !print*,'node eval',fct%container%type, fct%container%size, fct%container%r
   call copy_fct_container(fct%container, res)
 
 case(node_var)
   ! should be evaluated in ENV
   call fct_env_seek_name(env, fct%container%name, p)
   if (associated(p)) then
+    !print*,'eval copy env',p%container%type, p%container%size
     call copy_fct_container(p%container, res)
   else 
     call set_fct_error(-1, "variable "//trim(fct%container%name)//" not found in environment")
@@ -223,11 +283,11 @@ case(fct_acos)
 case(fct_atan)
   call fct_cont_atan(res, operand)
 !case(fct_asinh)
-!  call fct_cont_inv(res, operand)
+!  call fct_cont_asinh(res, operand)
 !case(fct_acosh)
-!  call fct_cont_inv(res, operand)
+!  call fct_cont_acosh(res, operand)
 !case(fct_atanh)
-!  call fct_cont_inv(res, operand)
+!  call fct_cont_atanh(res, operand)
 case(fct_abs)
   call fct_cont_abs(res, operand)
 !case(fct_sign)

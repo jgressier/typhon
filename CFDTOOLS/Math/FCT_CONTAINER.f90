@@ -70,6 +70,7 @@ integer(iprc), optional :: n
 
   container%type = type
   container%name = name
+  container%size = 0
 
   select case(type)
   case(cont_real)

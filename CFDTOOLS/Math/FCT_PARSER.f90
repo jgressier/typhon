@@ -69,7 +69,7 @@ integer,           intent(out) :: ierr        ! error code
 
 ! -- body --
 
-call new_fct_node(func, node_cst, "")
+call new_fct_node_cst(func, "")
 func%container%r = x
 
 ierr = 0
@@ -91,7 +91,7 @@ integer,           intent(out) :: ierr        ! error code
 
 ! -- body --
 
-call new_fct_node(func, node_cst, "")
+call new_fct_node_cst(func, "")
 func%container%r = x
 
 ierr = 0
@@ -169,7 +169,7 @@ endif
 if ((.not.found).and.(is_real(str))) then
   read(str, *, iostat=ierr) x
   if (ierr == 0) then
-    call new_fct_node(node, node_cst, "")
+    call new_fct_node_cst(node, "")
     node%container%r = x
     found = .true.
   endif

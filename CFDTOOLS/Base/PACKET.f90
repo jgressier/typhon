@@ -12,7 +12,7 @@ module PACKET
 integer, parameter :: cell_buffer   = 256      ! buffer for vector computation
 integer, parameter :: face_buffer   = 256      ! buffer for vector computation
 integer, parameter :: taille_buffer = 256      ! buffer for vector computation
-
+integer, parameter :: fct_buffer    = 1024     ! buffer for vector computation
 
 ! -- interface DECLARATIONS -----------------------------------------------------------
 

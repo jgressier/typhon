@@ -1,4 +1,4 @@
-#!/bin/bash -u
+##!/bin/bash
 #
 # Check non-regression of all NRG cases containing nrgconf.sh
 #
@@ -17,6 +17,7 @@ function usage() {
   echo "       $SCRIPTSPCE [-l] [--] [<pattern> ...]"
   echo
   echo "       -h:      prints this help"
+#  echo "       -exe:   typhon executable (default is given by NRG conf)"
   echo "       -d|--diff-cmd <diff-command>:"
   echo "                uses <diff-command>"
   echo "       -l:      prints list of cases"
@@ -66,6 +67,7 @@ fi
 
 # --- parse options ---
 #
+typhonexe=
 diffcmd=
 list=0
 keeptmpdir=0
@@ -82,6 +84,14 @@ while [ ${#} -gt 0 ] ; do
         fi ;;
     -l) list=1 ;;
     -k) keeptmpdir=1 ;;
+#    -exe) shift
+#        if [ $# -gt 0 ] ; then
+#          typhonexe=$1
+#          echo force run with $typhonexe
+#        else
+#          echo "ERROR: no typhon command:"
+#          usage 1
+#        fi ;;
     --) shift ; break ;;
     *)  break ;;
   esac
@@ -213,10 +223,15 @@ for CASE in "${LISTCASES[@]}" ; do
     *)   next_case "\"$TYPE_EXE\": unknown typhon executable type" ;;
   esac
   # check executable
-  EXE=$EXEDIR/Typhon-$TYPE_EXE
+  #if [ -n "$typhonexe" ] ; then
+  #  EXE=$typhonexe
+  #else
+    EXE=$EXEDIR/Typhon-$TYPE_EXE
+  #fi  
   test -f $EXE || next_case "\"$EXE\": no such file"
   test -x $EXE || next_case "\"$EXE\": execute permission denied"
   # execute
+  echo run: $exehead $EXE >> $HOMEDIR/check.log
   $exehead $EXE >> $HOMEDIR/check.log 2>&1
   iferror && next_case "??   computation failed"
   for fic in $TO_CHECK ; do

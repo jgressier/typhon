@@ -98,6 +98,41 @@ type(st_fct_node), pointer :: p
 endsubroutine fct_env_seek_name
 
 !------------------------------------------------------------------------------!
+! fct_env_set_container
+!------------------------------------------------------------------------------!
+subroutine fct_env_set_container(env, name, cont)
+implicit none
+! - parameters
+type(st_fct_env),       intent(out) :: env
+character(len=*),       intent(in)  :: name
+type(st_fct_container), intent(in)  :: cont
+type(st_fct_node),      pointer     :: p
+
+  env%uptodate = .false.              ! environment has been changed
+
+  call fct_env_seek_name(env, name, p)
+
+  if (.not.associated(p)) then        ! variable NAME does not exist : must create it
+
+    ! -- create constant --
+    allocate(p)
+    call new_fct_node_cst(p, lowercase(name))    ! create node and container and assign name
+
+    ! --  add element to stack --
+    env%nvar      =  env%nvar + 1
+    p%right       => env%var_stack
+    env%var_stack => p
+
+  else
+    if (p%container%size /= 0) deallocate(p%container%r_t)
+  endif
+
+  p%container      = cont              ! assign value ! DEV: lost of previous r_t pointer ?
+  p%container%name = lowercase(name)
+
+endsubroutine fct_env_set_container
+
+!------------------------------------------------------------------------------!
 ! fct_env_set_real
 !------------------------------------------------------------------------------!
 subroutine fct_env_set_real(env, name, x)
@@ -116,7 +151,7 @@ type(st_fct_node), pointer :: p
 
     ! -- create constant --
     allocate(p)
-    call new_fct_node(p, node_cst, lowercase(name))    ! create node and container and assign name
+    call new_fct_node_cst(p, lowercase(name))    ! create node and container and assign name
 
     ! --  add element to stack --
     env%nvar      =  env%nvar + 1
@@ -128,6 +163,40 @@ type(st_fct_node), pointer :: p
   p%container%r    = x              ! assign value 
 
 endsubroutine fct_env_set_real
+
+!------------------------------------------------------------------------------!
+! fct_env_set_realarray
+!------------------------------------------------------------------------------!
+subroutine fct_env_set_realarray(env, name, x)
+implicit none
+! - parameters
+type(st_fct_env), intent(out) :: env
+character(len=*), intent(in)  :: name
+real(rprc),       intent(in)  :: x(:)
+type(st_fct_node), pointer :: p
+integer(iprc)              :: s
+
+  env%uptodate = .false.              ! environment has been changed
+  s = size(x,1)
+
+  call fct_env_seek_name(env, name, p)
+
+  if (.not.associated(p)) then        ! variable NAME does not exist : must create it
+
+    ! -- create constant --
+    allocate(p)
+    call new_fct_node_cst(p, lowercase(name), s)    ! create node and container and assign name
+
+    ! --  add element to stack --
+    env%nvar      =  env%nvar + 1
+    p%right       => env%var_stack
+    env%var_stack => p
+    
+  endif
+
+  p%container%r_t(1:s) = x(1:s)              ! assign value 
+
+endsubroutine fct_env_set_realarray
 
 
 !------------------------------------------------------------------------------!
@@ -147,6 +216,8 @@ type(st_fct_node), pointer :: p
     select case(p%container%type)
     case(cont_real)
       print*,p%container%name,":",p%container%r
+    case(cont_vect)
+      print*,p%container%name,":",p%container%size
     case default
       call set_fct_error(-1, "incorrect or non-implemented type in FCT Environment")
     endselect

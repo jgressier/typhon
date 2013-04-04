@@ -120,15 +120,18 @@ endsubroutine
 !------------------------------------------------------------------------------!
 subroutine fctset_compute_neededenv(fctenv, varenv)
 implicit none
-type(st_fctfuncset) :: fctenv
-type(st_fct_env)    :: varenv
+type(st_fctfuncset)        :: fctenv
+type(st_fct_env)           :: varenv
+type(st_fct_container)     :: res
+type(st_fct_node), pointer :: p
 integer          :: i
 real(krp)        :: x
 
 do i = 1, fctenv%nfct
   if (fctenv%fct(i)%needed) then
-    call fct_eval_real(   varenv, fctenv%fct(i)%func, x)
-    call fct_env_set_real(varenv, fctenv%fct(i)%name, x)
+    call fct_node_eval(varenv, fctenv%fct(i)%func, res)
+    call fct_env_set_container(varenv, fctenv%fct(i)%name, res)  
+    ! no delete of res since it is linked to environment
   endif  
 enddo
 

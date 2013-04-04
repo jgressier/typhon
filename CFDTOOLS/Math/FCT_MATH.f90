@@ -43,15 +43,31 @@ select case(left%type)
 
 case(cont_real)            ! -- left OP is REAL -------------------------------
   select case(right%type)
-  case(cont_real)                                  ! right OP is real
+  case(cont_real)                                  ! both OP are real
     call new_fct_container(res, cont_real, "")
     res%r = left%r + right%r
+  case(cont_vect)                                  ! left is real ; right is real array
+    call new_fct_container(res, cont_vect, "", right%size)
+    res%r_t = left%r + right%r_t
   case default
     call set_fct_error(-1, "incorrect or non-implemented operands in ADD operator")
   endselect
 
+case(cont_vect)            ! -- left OP is REAL ARRAY -------------------------------
+  select case(right%type)
+  case(cont_real)                                  ! left is real array ; right OP is real
+    call new_fct_container(res, cont_vect, "", left%size)
+    res%r_t = left%r_t + right%r
+  case(cont_vect)                                  ! both are real arrays
+    if (left%size /= right%size) call set_fct_error(-1, "operands with different sizes in ADD operator")
+    call new_fct_container(res, cont_vect, "", left%size)
+    res%r_t = left%r_t + right%r_t
+  case default
+    call set_fct_error(-1, "incorrect or non-implemented operands type in ADD operator")
+  endselect
+
 case default
-  call set_fct_error(-1, "incorrect or non-implemented operands in ADD operator")
+  call set_fct_error(-1, "incorrect or non-implemented operands type in ADD operator")
 endselect
 
 endsubroutine fct_cont_add
@@ -72,11 +88,27 @@ select case(left%type)
 
 case(cont_real)            ! -- left OP is REAL -------------------------------
   select case(right%type)
-  case(cont_real)                                  ! right OP is real
+  case(cont_real)                                  ! both OP are real
     call new_fct_container(res, cont_real, "")
     res%r = left%r - right%r
+  case(cont_vect)                                  ! left is real ; right is real array
+    call new_fct_container(res, cont_vect, "", right%size)
+    res%r_t = left%r - right%r_t
   case default
     call set_fct_error(-1, "incorrect or non-implemented operands in SUB operator")
+  endselect
+
+case(cont_vect)            ! -- left OP is REAL ARRAY -------------------------------
+  select case(right%type)
+  case(cont_real)                                  ! left is real array ; right OP is real
+    call new_fct_container(res, cont_vect, "", left%size)
+    res%r_t = left%r_t - right%r
+  case(cont_vect)                                  ! both are real arrays
+    if (left%size /= right%size) call set_fct_error(-1, "operands with different sizes in SUB operator")
+    call new_fct_container(res, cont_vect, "", left%size)
+    res%r_t = left%r_t - right%r_t
+  case default
+    call set_fct_error(-1, "incorrect or non-implemented operands type in SUB operator")
   endselect
 
 case default
@@ -101,11 +133,27 @@ select case(left%type)
 
 case(cont_real)            ! -- left OP is REAL -------------------------------
   select case(right%type)
-  case(cont_real)                                  ! right OP is real
+  case(cont_real)                                  ! both OP are real
     call new_fct_container(res, cont_real, "")
     res%r = left%r * right%r
+  case(cont_vect)                                  ! left is real ; right is real array
+    call new_fct_container(res, cont_vect, "", right%size)
+    res%r_t = left%r * right%r_t
   case default
-    call set_fct_error(-1, "incorrect or non-implemented operands in MUL operator")
+    call set_fct_error(-1, "incorrect or non-implemented operands in MULT operator")
+  endselect
+
+case(cont_vect)            ! -- left OP is REAL ARRAY -------------------------------
+  select case(right%type)
+  case(cont_real)                                  ! left is real array ; right OP is real
+    call new_fct_container(res, cont_vect, "", left%size)
+    res%r_t = left%r_t * right%r
+  case(cont_vect)                                  ! both are real arrays
+    if (left%size /= right%size) call set_fct_error(-1, "operands with different sizes in MULT operator")
+    call new_fct_container(res, cont_vect, "", left%size)
+    res%r_t = left%r_t * right%r_t
+  case default
+    call set_fct_error(-1, "incorrect or non-implemented operands type in MULT operator")
   endselect
 
 case default
@@ -130,9 +178,25 @@ select case(left%type)
 
 case(cont_real)            ! -- left OP is REAL -------------------------------
   select case(right%type)
-  case(cont_real)                                  ! right OP is real
+  case(cont_real)                                  ! both OP are real
     call new_fct_container(res, cont_real, "")
     res%r = left%r / right%r
+  case(cont_vect)                                  ! left is real ; right is real array
+    call new_fct_container(res, cont_vect, "", right%size)
+    res%r_t = left%r / right%r_t
+  case default
+    call set_fct_error(-1, "incorrect or non-implemented operands in DIV operator")
+  endselect
+
+case(cont_vect)            ! -- left OP is REAL ARRAY -------------------------------
+  select case(right%type)
+  case(cont_real)                                  ! left is real array ; right OP is real
+    call new_fct_container(res, cont_vect, "", left%size)
+    res%r_t = left%r_t / right%r
+  case(cont_vect)                                  ! both are real arrays
+    if (left%size /= right%size) call set_fct_error(-1, "operands with different sizes in DIV operator")
+    call new_fct_container(res, cont_vect, "", left%size)
+    res%r_t = left%r_t / right%r_t
   case default
     call set_fct_error(-1, "incorrect or non-implemented operands in DIV operator")
   endselect
@@ -159,9 +223,25 @@ select case(left%type)
 
 case(cont_real)            ! -- left OP is REAL -------------------------------
   select case(right%type)
-  case(cont_real)                                  ! right OP is real
+  case(cont_real)                                  ! both OP are real
     call new_fct_container(res, cont_real, "")
     res%r = left%r ** right%r
+  case(cont_vect)                                  ! left is real ; right is real array
+    call new_fct_container(res, cont_vect, "", right%size)
+    res%r_t = left%r ** right%r_t
+  case default
+    call set_fct_error(-1, "incorrect or non-implemented operands in POW operator")
+  endselect
+
+case(cont_vect)            ! -- left OP is REAL ARRAY -------------------------------
+  select case(right%type)
+  case(cont_real)                                  ! left is real array ; right OP is real
+    call new_fct_container(res, cont_vect, "", left%size)
+    res%r_t = left%r_t ** right%r
+  case(cont_vect)                                  ! both are real arrays
+    if (left%size /= right%size) call set_fct_error(-1, "operands with different sizes in POW operator")
+    call new_fct_container(res, cont_vect, "", left%size)
+    res%r_t = left%r_t ** right%r_t
   case default
     call set_fct_error(-1, "incorrect or non-implemented operands in POW operator")
   endselect
@@ -190,6 +270,10 @@ case(cont_real)            ! -- op OP is REAL -------------------------------
   call new_fct_container(res, cont_real, "")
   res%r = -op%r
 
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  res%r_t = -op%r_t
+
 case default
   call set_fct_error(-1, "incorrect or non-implemented operands in OPPOSITE operator")
 endselect
@@ -212,7 +296,11 @@ select case(op%type)
 
 case(cont_real)            ! -- op OP is REAL -------------------------------
   call new_fct_container(res, cont_real, "")
-  res%r = 1._rprc/op%r
+  res%r = 1._rprc / op%r
+
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  res%r_t = 1._krp / op%r_t
 
 case default
   call set_fct_error(-1, "incorrect or non-implemented operands in INV operator")
@@ -238,6 +326,10 @@ case(cont_real)            ! -- op OP is REAL -------------------------------
   call new_fct_container(res, cont_real, "")
   res%r = op%r**2
 
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  res%r_t = op%r_t**2
+
 case default
   call set_fct_error(-1, "incorrect or non-implemented operands in SQR operator")
 endselect
@@ -261,6 +353,10 @@ select case(op%type)
 case(cont_real)            ! -- op OP is REAL -------------------------------
   call new_fct_container(res, cont_real, "")
   res%r = sqrt(op%r)
+
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  res%r_t = sqrt(op%r_t)
 
 case default
   call set_fct_error(-1, "incorrect or non-implemented operands in SQRT operator")
@@ -286,6 +382,10 @@ case(cont_real)            ! -- op OP is REAL -------------------------------
   call new_fct_container(res, cont_real, "")
   res%r = exp(op%r)
 
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  res%r_t = exp(op%r_t)
+
 case default
   call set_fct_error(-1, "incorrect or non-implemented operands in EXP operator")
 endselect
@@ -309,6 +409,10 @@ select case(op%type)
 case(cont_real)            ! -- op OP is REAL -------------------------------
   call new_fct_container(res, cont_real, "")
   res%r = log(op%r)
+
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  res%r_t = log(op%r_t)
 
 case default
   call set_fct_error(-1, "incorrect or non-implemented operands in LN operator")
@@ -334,6 +438,10 @@ case(cont_real)            ! -- op OP is REAL -------------------------------
   call new_fct_container(res, cont_real, "")
   res%r = log10(op%r)
 
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  res%r_t = log10(op%r_t)
+
 case default
   call set_fct_error(-1, "incorrect or non-implemented operands in LOG operator")
 endselect
@@ -357,6 +465,10 @@ select case(op%type)
 case(cont_real)            ! -- op OP is REAL -------------------------------
   call new_fct_container(res, cont_real, "")
   res%r = sin(op%r)
+
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  res%r_t = sin(op%r_t)
 
 case default
   call set_fct_error(-1, "incorrect or non-implemented operands in SIN operator")
@@ -382,6 +494,10 @@ case(cont_real)            ! -- op OP is REAL -------------------------------
   call new_fct_container(res, cont_real, "")
   res%r = cos(op%r)
 
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  res%r_t = cos(op%r_t)
+
 case default
   call set_fct_error(-1, "incorrect or non-implemented operands in COS operator")
 endselect
@@ -405,6 +521,10 @@ select case(op%type)
 case(cont_real)            ! -- op OP is REAL -------------------------------
   call new_fct_container(res, cont_real, "")
   res%r = tan(op%r)
+
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  res%r_t = tan(op%r_t)
 
 case default
   call set_fct_error(-1, "incorrect or non-implemented operands in TAN operator")
@@ -430,6 +550,10 @@ case(cont_real)            ! -- op OP is REAL -------------------------------
   call new_fct_container(res, cont_real, "")
   res%r = sinh(op%r)
 
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  res%r_t = sinh(op%r_t)
+
 case default
   call set_fct_error(-1, "incorrect or non-implemented operands in SINH operator")
 endselect
@@ -453,6 +577,10 @@ select case(op%type)
 case(cont_real)            ! -- op OP is REAL -------------------------------
   call new_fct_container(res, cont_real, "")
   res%r = cosh(op%r)
+
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  res%r_t = cosh(op%r_t)
 
 case default
   call set_fct_error(-1, "incorrect or non-implemented operands in COSH operator")
@@ -478,6 +606,10 @@ case(cont_real)            ! -- op OP is REAL -------------------------------
   call new_fct_container(res, cont_real, "")
   res%r = tanh(op%r)
 
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  res%r_t = tanh(op%r_t)
+
 case default
   call set_fct_error(-1, "incorrect or non-implemented operands in TANH operator")
 endselect
@@ -501,6 +633,10 @@ select case(op%type)
 case(cont_real)            ! -- op OP is REAL -------------------------------
   call new_fct_container(res, cont_real, "")
   res%r = asin(op%r)
+
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  res%r_t = asin(op%r_t)
 
 case default
   call set_fct_error(-1, "incorrect or non-implemented operands in ASIN operator")
@@ -526,6 +662,10 @@ case(cont_real)            ! -- op OP is REAL -------------------------------
   call new_fct_container(res, cont_real, "")
   res%r = acos(op%r)
 
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  res%r_t = acos(op%r_t)
+
 case default
   call set_fct_error(-1, "incorrect or non-implemented operands in ACOS operator")
 endselect
@@ -550,6 +690,10 @@ case(cont_real)            ! -- op OP is REAL -------------------------------
   call new_fct_container(res, cont_real, "")
   res%r = atan(op%r)
 
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  res%r_t = atan(op%r_t)
+
 case default
   call set_fct_error(-1, "incorrect or non-implemented operands in ATAN operator")
 endselect
@@ -573,6 +717,10 @@ select case(op%type)
 case(cont_real)            ! -- op OP is REAL -------------------------------
   call new_fct_container(res, cont_real, "")
   res%r = abs(op%r)
+
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  res%r_t = abs(op%r_t)
 
 case default
   call set_fct_error(-1, "incorrect or non-implemented operands in ABSOLUTE operator")
