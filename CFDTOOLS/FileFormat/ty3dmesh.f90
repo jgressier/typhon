@@ -13,6 +13,8 @@ use XBIN_IO
 use TYPHON_FMT
 use TYFMT_MESH
 use FTNARGS
+use FCT_FUNC
+use FCT_PARSER
 
 implicit none
 
@@ -26,6 +28,11 @@ type(st_ustmesh)   :: umesh
 type(v3d), dimension(:,:,:), pointer :: vertex
 type(st_elemvtex), pointer :: elem
 integer(kpp)       :: itype, ielem, type_mesh
+character(len=256)  :: strx, stry, strz
+type(st_fct_node)   :: morphx, morphy, morphz
+type(st_fctfuncset) :: fctenv
+logical             :: fctscale, cstscale
+
 !---------------------------
 logical, parameter :: lincr = .TRUE.
 integer(kip)       :: ierr
@@ -45,6 +52,11 @@ call print_cfdtools_header("TY3DMESH")
 lx = 1._krp
 ly = 1._krp
 lz = 1._krp
+fctscale = .false.
+cstscale = .false.  
+strx = "x"
+stry = "y"
+strz = "z"
 nx = 50
 ny = 50
 nz = 50
@@ -98,6 +110,18 @@ do while (iarg <= nargs)
     call read_command_argument(iarg, lz, lincr, ierr, str_val)
     if (ierr/=0) call cfd_error("real expected after '"//trim(str_opt)//"'"// &
                                 ", found '"//trim(str_val)//"'")
+  case ("-fx")   ! scaling function for x 
+    fctscale = .true.
+    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
+    call read_command_argument(iarg, strx, lincr)
+  case ("-fy")   ! scaling function for y
+    fctscale = .true.
+    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
+    call read_command_argument(iarg, stry, lincr)
+  case ("-fz")   ! scaling function for z
+    fctscale = .true.
+    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
+    call read_command_argument(iarg, strz, lincr)
   ! mesh types
   case ("-hexa")
     type_mesh = mesh_hexa
@@ -110,6 +134,17 @@ do while (iarg <= nargs)
     fileread = .TRUE.
   endselect
 enddo
+
+if (fctscale) then
+  if (cstscale) call cfd_error("must not mix -lx/ly/lz and -fx/fy/fz definitions") 
+  print*,'X scaling function '//trim(strx)
+  call string_to_funct(strx, morphx, ierr)
+  print*,'Y scaling function '//trim(stry)
+  call string_to_funct(stry, morphy, ierr)
+  print*,'Z scaling function '//trim(strz)
+  call string_to_funct(strz, morphz, ierr)
+endif
+
 
 !------------------------------------------------------------
 ! default: creates a 50x50x50 uniform mesh in 1x1x1 box
@@ -134,6 +169,9 @@ if (filename == "") then
   print*,"  -lx 1     : domain length"
   print*,"  -ly 1     : domain height"
   print*,"  -lz 1     : domain depth"
+  print*,"  -fx expr  : scaling function of x,y,z (instead of -lx)"
+  print*,"  -fy expr  : scaling function of x,y,z (instead of -ly)"
+  print*,"  -fz expr  : scaling function of x,y,z (instead of -lz)"
   print*
   print*,"  -hexa     : generates hexa (default)"
   print*
@@ -169,6 +207,17 @@ do i = 1, nx+1
     enddo
   enddo
 enddo
+
+if (fctscale) then
+  print*,'  mesh morphing computation...'
+  call new_fctfuncset(fctenv)
+  call morph_vertex(fctenv, umesh%mesh, morphx, morphy, morphz)
+  print*,'  done'
+  call delete_fctfuncset(fctenv)
+  call delete_fct_node(morphx)
+  call delete_fct_node(morphy)
+  call delete_fct_node(morphz)
+endif
 
 !------------------------------
 ! creates elements 
@@ -226,7 +275,7 @@ umesh%nface_lim = nelem
 !------------------------------
 ! BC marks
 !------------------------------
-print*,'. BC marks (IMIN, IMAX, JMIN, JMAX)'
+print*,'. BC marks (IMIN, IMAX, JMIN, JMAX, KMIN, KMAX)'
 
 call createboco(umesh, 6)       ! creates 6 boco (IMIN, IMAX, JMIN, JMAX, KMIN, KMAX)
 

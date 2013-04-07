@@ -21,6 +21,9 @@ print*,"cos",index_oper(str,"cos")
 str=" 1.E-9 + (.9622504E-0-1.E-009)*step(-2-X)"
 call test_parse(str)
 
+str="cos(_pi)"
+call test_parse(str)
+
 contains 
 
 subroutine test_parse(str)

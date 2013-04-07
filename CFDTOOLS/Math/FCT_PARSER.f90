@@ -112,7 +112,7 @@ character(len=*),  intent(in)  :: str
 type(st_fct_node), intent(out) :: node
 
 ! -- internal variables --
-integer(ipar) :: iop             ! operator or function index
+integer(ipar) :: iop, maxop      ! operator or function index
 integer       :: istr, lstr      ! index of operator in string, length of string
 integer       :: pos, endpos
 integer       :: ierr            ! error code
@@ -302,6 +302,28 @@ do while ((.not.found).and.(iop <= max_fct))      ! ---------- loop on unary ope
   else
     call set_fct_error(istr, "(string_to_node) internal error")
   endif
+
+enddo
+
+!-------------------------------------------------------
+! then: intrinsic constants
+! DEV: should add some consistency checks of variable names
+
+iop   = 1
+
+do while ((.not.found).and.(iop <= fct_ncst))      ! ---------- loop on constants
+
+  istr = index(str, trim(cst_string(iop)))
+  select case(istr)
+  case(0, 2:)
+    iop = iop +1   ! not found or found at other position
+  case(1)
+    call new_fct_node_cst(node, "")
+    node%container%r = cst_val(iop)
+    found = .true.
+  case default
+    call set_fct_error(istr, "(string_to_node) internal error")
+  endselect   
 
 enddo
 

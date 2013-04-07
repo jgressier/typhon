@@ -76,7 +76,8 @@ if ((defsolver%defns%is_extpower).or.(defsolver%defns%is_extforce)) then
                
   !$OMP PARALLEL & 
   !$OMP private(ic, il, dpower, mass, massV, dmomentx, dmomenty, dmomentz, env, x, y, z, buf) &
-  !$OMP shared(ista, iend, nblock, curtime, xyz_depend)
+  !$OMP shared(ista, iend, nblock, curtime, xyz_depend) 
+  
   call new_fct_env(env)      ! temporary environment from FCT_EVAL
   call fct_env_set_real(env, "t", curtime)
 

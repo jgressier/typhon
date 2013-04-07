@@ -7,6 +7,10 @@ module MESHBASE
 use MESHPREC   ! configuration
 use VEC3D      ! 3D vectors
 use MESHPARAMS
+use PACKET
+use FCT_EVAL
+use FCT_FUNC
+
 
 implicit none
 
@@ -185,6 +189,73 @@ integer(kip)  :: i
 
 endsubroutine calc_mesh_info
 
+!------------------------------------------------------------------------------!
+! Procedure : morph_vertex 
+!------------------------------------------------------------------------------!
+subroutine morph_vertex(fctenv, mesh, morphx, morphy, morphz)
+implicit none
+
+! -- Inputs --
+type(st_fctfuncset) :: fctenv
+type(st_fct_node)   :: morphx, morphy, morphz
+! -- Inputs/Ouputs --
+type(st_mesh) :: mesh     
+! -- private data --
+integer, pointer                 :: ista(:), iend(:) ! starting and ending index
+integer                          :: ib, buf, nblock  ! buffer size 
+real(krp), dimension(fct_buffer) :: x, y, z
+integer                          :: iv
+type(st_fct_env)                 :: env
+
+! -- BODY --
+
+  call fctset_initdependency(fctenv)
+  call fctset_checkdependency(fctenv, morphx)
+  call fctset_checkdependency(fctenv, morphy)
+  call fctset_checkdependency(fctenv, morphz)
+
+  call new_buf_index(mesh%nvtex, fct_buffer, nblock, ista, iend)
+
+  !$OMP PARALLEL & 
+  !$OMP private(iv, env, x, y, z, buf) &
+  !$OMP shared(ista, iend, nblock)
+  
+  call new_fct_env(env)      ! temporary environment from FCT_EVAL
+
+  !$OMP DO
+  block: do ib = 1, nblock
+
+    buf = iend(ib)-ista(ib)+1
+
+    do iv = ista(ib), iend(ib)
+      x(iv-ista(ib)+1) = mesh%vertex(iv,1,1)%x
+      y(iv-ista(ib)+1) = mesh%vertex(iv,1,1)%y
+      z(iv-ista(ib)+1) = mesh%vertex(iv,1,1)%z
+    enddo
+    call fct_env_set_realarray(env, "x", x(1:buf))
+    call fct_env_set_realarray(env, "y", y(1:buf))
+    call fct_env_set_realarray(env, "z", z(1:buf))
+    call fctset_compute_neededenv(fctenv, env)
+
+    call fct_eval_realarray(env, morphx, x)
+    call fct_eval_realarray(env, morphy, y)
+    call fct_eval_realarray(env, morphz, z)
+
+    do iv = ista(ib), iend(ib)
+      mesh%vertex(iv,1,1)%x = x(iv-ista(ib)+1)
+      mesh%vertex(iv,1,1)%y = y(iv-ista(ib)+1)
+      mesh%vertex(iv,1,1)%z = z(iv-ista(ib)+1)
+    enddo
+
+  enddo block
+  
+  !$OMP END DO
+  call delete_fct_env(env)      ! temporary environment from FCT_EVAL
+  !$OMP END PARALLEL 
+
+  deallocate(ista, iend)
+
+endsubroutine morph_vertex
 
 endmodule MESHBASE
 
@@ -196,4 +267,5 @@ endmodule MESHBASE
 !             structure information de MESH
 !             redefintion de new_mesh (allocation de non structure)
 ! Oct  2009 : transfered from TYPHON sources
+! Apr  2013 : internal scaling mesh routine
 !------------------------------------------------------------------------------!

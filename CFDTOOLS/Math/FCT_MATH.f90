@@ -750,6 +750,14 @@ case(cont_real)            ! -- op OP is REAL -------------------------------
     res%r = 0._rprc
   endif
 
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  where (op%r_t >= 0._rprc)
+    res%r_t = 1._rprc
+  elsewhere
+    res%r_t = 0._rprc
+  endwhere
+  
 case default
   call set_fct_error(-1, "incorrect or non-implemented operands in STEP operator")
 endselect
@@ -778,6 +786,14 @@ case(cont_real)            ! -- op OP is REAL -------------------------------
     res%r = 0._rprc
   endif
 
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  where (op%r_t >= 0._rprc)
+    res%r_t = op%r_t
+  elsewhere
+    res%r_t = 0._rprc
+  endwhere
+  
 case default
   call set_fct_error(-1, "incorrect or non-implemented operands in RAMP operator")
 endselect

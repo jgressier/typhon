@@ -99,7 +99,7 @@ type mnu_mesh
   integer                 :: icgnszone   ! zone index in CGNS file
   logical                 :: scaling, morphing
   real(krp)               :: scale       ! scale factor
-  type(st_fct_node)       :: morph_x, morph_Y, morph_z
+  type(st_fct_node)       :: morph_x, morph_y, morph_z
   type(mnu_meshsplit)     :: defsplit
   integer(kip)            :: nfgauss     ! number of Gauss points per face
 endtype mnu_mesh
@@ -262,7 +262,6 @@ case default
 endselect
 
 endsubroutine init_splitparam
-
 
 endmodule MESHPARAMS
 !------------------------------------------------------------------------------!

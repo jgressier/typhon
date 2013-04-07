@@ -153,6 +153,8 @@ write(str_w, "(a,e13.4)") "CPU   integration time: ", cputime
 call print_info(10, str_w)
 write(str_w, "(a,e13.4)") "CPU average cycle time: ", cputime/lworld%info%icycle
 call print_info(10, str_w)
+write(str_w, "(a,g8.3)")  "              speed-up: ", cputime/realtime
+call print_info(10, str_w)
 
 ! Mise a jour des variables primitives
 

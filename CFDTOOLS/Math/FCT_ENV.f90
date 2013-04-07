@@ -192,6 +192,11 @@ integer(iprc)              :: s
     p%right       => env%var_stack
     env%var_stack => p
     
+  else
+    if (p%container%size /= s) then
+      call delete_fct_container(p%container)
+      call new_fct_container(p%container, cont_vect, lowercase(name), s)
+    endif
   endif
 
   p%container%r_t(1:s) = x(1:s)              ! assign value 
@@ -209,8 +214,9 @@ integer                             :: unit
 type(st_fct_env),        intent(in) :: env
 type(st_fct_node), pointer :: p
 
+  print*,'env size:',env%nvar
   p => env%var_stack
-
+  
   do while (associated(p))
 
     select case(p%container%type)

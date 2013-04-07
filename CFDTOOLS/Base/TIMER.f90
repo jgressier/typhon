@@ -22,7 +22,8 @@ use IOCFD
 ! -- PRIVATE Variables -------------------------------------------
 
 !integer            :: timersize
-integer, private, pointer   :: realtimer(:), cputimer(:)
+integer, private, pointer   :: realtimer(:)
+real(8), private, pointer   :: cputimer(:)
 integer, private, parameter :: buffer = 20
 
 ! -- interface DECLARATIONS -----------------------------------------------------------
@@ -86,7 +87,7 @@ endfunction realtime_stop
 integer function cputime_start()
 implicit none
 integer          :: new_index, dim
-integer, pointer :: ptimer(:)
+real(8), pointer :: ptimer(:)
 
   if (associated(cputimer)) then
     new_index = minloc(cputimer(:), dim=1)   ! look for free timer
@@ -104,7 +105,7 @@ integer, pointer :: ptimer(:)
     cputimer(:) = 0
     new_index = 1  
   endif
-  call system_clock(count=cputimer(new_index))
+  call cpu_time(cputimer(new_index))
   cputime_start = new_index
   
 endfunction cputime_start
@@ -116,17 +117,16 @@ endfunction cputime_start
 real function cputime_stop(itimer)
 implicit none
 integer, intent(in) :: itimer
-integer             ::newtimer, timerrate, timermax
+real(8)             :: timer
 
   if (itimer <= 0) then
     call cfd_error("TIMER/cputime_stop: bad (negative or null) timer index")
   elseif (itimer > size(cputimer)) then
     call cfd_error("TIMER/cputime_stop: non existing timer index")
   else
-    call system_clock(count=newtimer, count_rate=timerrate, count_max=timermax)
-    if (newtimer <= cputimer(itimer)) newtimer = newtimer+timermax
-    cputime_stop = real(newtimer - cputimer(itimer))/timerrate
-    cputimer(itimer) = 0
+    call cpu_time(timer)
+    cputime_stop = timer - cputimer(itimer)
+    cputimer(itimer) = 0.
   endif
   
 endfunction cputime_stop

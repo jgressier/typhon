@@ -15,7 +15,7 @@ integer                :: ierr
 character(len=100)     :: str
 
 
-n = 5000000
+n = 2**22
 !n = 5000
 allocate(x(n), t(n))
 
@@ -51,8 +51,8 @@ call delete_fct_env(env)
 call cpu_time(t1)
 print*,"fct eval           loop - cpu:",t1-t0
 
-do s = 1, 4
-d = 10**s
+do s = 1, 20
+d = 2**s
 call cpu_time(t0)
 call new_fct_env(env)
 do i = 1, n/d
@@ -96,8 +96,8 @@ call delete_fct_env(env)
 call cpu_time(t1)
 print*,"fct eval           loop - cpu:",t1-t0
 
-do s = 1, 4
-d = 10**s
+do s = 1, 20
+d = 2**s
 call cpu_time(t0)
 call new_fct_env(env)
 do i = 1, n/d

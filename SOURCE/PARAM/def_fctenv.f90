@@ -40,13 +40,11 @@ call seekrpmblock(pblock, "FCTENV", 0, pcour, nkey)
 
 select case(nkey)
 case(0)
-  defsolver%fctenv%nfct = 0
+  call new_fctfuncset(defsolver%fctenv, 0)
   ! nothing to do - optional block
 case(1)
-  nfct = pcour%nblig
-  defsolver%fctenv%nfct = nfct
-  allocate(defsolver%fctenv%fct(nfct))
-  do i = 1, nfct
+  call new_fctfuncset(defsolver%fctenv, pcour%nblig)
+  do i = 1, defsolver%fctenv%nfct
     call rpmgetkey(pcour%txt(i), str)
     defsolver%fctenv%fct(i)%name = trim(str)    
     call rpmgetvalstr(pcour%txt(i), str)

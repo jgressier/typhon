@@ -151,7 +151,7 @@ check_f90opti() {
 
 check_f90debug() {
   case $SYS-$F90C in
-    *ifc|*ifort) F90_DEBUG="-g -traceback -CB -CU" ;;
+    *ifc|*ifort) F90_DEBUG="-g -traceback -check -fpe0" ;;
     *)           F90_DEBUG="-g -fbacktrace -fcheck=all" ;;
   esac
   export F90_DEBUG
@@ -161,7 +161,7 @@ check_f90debug() {
 
 check_f90prof() {
   case $SYS-$F90C in
-    *)           F90_PROFIL="$F90_OPTIM -pg" ;;
+    *)           F90_PROFIL="$F90_OPTIM -p" ;;
   esac
   export F90_PROFIL
   success "$F90_PROFIL"

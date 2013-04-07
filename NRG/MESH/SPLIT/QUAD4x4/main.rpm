@@ -6,18 +6,18 @@ BLOCK:PROJECT           ! DEFINITION DU PROJET
   NZONE     = 1       
   COORD     = 2D      
   TIME      = UNSTEADY 
-  DURATION  = .01
+  DURATION  = .005
   NCYCLE    = 10
 ENDBLOCK               
 
 
-!BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
-!  FORMAT = VTK
-!  FILE   = "insta"
-!  PERIOD = 1 
-!  MESH      =FULL  ! SHARED
-!  !MESHLEVEL =LEGACY
-!ENDBLOCK
+BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+  FORMAT = VTK
+  FILE   = "insta"
+  PERIOD = 1 
+  MESH      =FULL  ! SHARED
+  !MESHLEVEL =LEGACY
+ENDBLOCK
 
 BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
   NAME   = "" 
@@ -30,26 +30,19 @@ ENDBLOCK
 
 BLOCK:MESH
   FORMAT = INTERNAL
-  FILE   = "quad20x20.tym"
-ENDBLOCK
-
-BLOCK:FCTENV
-  DX = X-0.5
-  DY = Y-0.5
+  FILE   = "quad20x10.tym"
+  SPLIT  = QUAD2x2
+  NSPLIT = 2
 ENDBLOCK
 
 BLOCK:MODEL
-  DYNAMICS    = EULER
-  GAS         = AIR
-  !EXT_FORCE_X = 10000*(Y-.5)*((Y-.5)^2-.25)
-  !EXT_FORCE_Y = 10000*(X-.5)*((X-.5)^2-.25)
-  EXT_FORCE_X = 10000*DY*(DY^2-.25)
-  EXT_FORCE_Y = 10000*DX*(DX^2-.25)
+  DYNAMICS = EULER
+  GAS      = AIR
 ENDBLOCK
 
 BLOCK:TIME_PARAM 
-  METHOD    = RK2
-  CFL       = 1.
+  METHOD    = EXPLICIT
+  CFL       = 0.8
 ENDBLOCK
 
 BLOCK:SPAT_PARAM 
@@ -57,15 +50,15 @@ BLOCK:SPAT_PARAM
 ENDBLOCK
 
 BLOCK:PROBE
- NAME     = VAVG
+ NAME     = PAVG
  TYPE     = VOL_AVERAGE
- QUANTITY = V
+ QUANTITY = PS
 ENDBLOCK
 
 BLOCK:INIT
   P        = 1.0E5
   T        = 300.
-  MACH     = 0.
+  MACH     = .2
   DIRECTION = (1., 0., 0.)
 ENDBLOCK
 

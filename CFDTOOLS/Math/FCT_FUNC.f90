@@ -42,13 +42,13 @@ endtype st_fctfuncset
 
 
 ! -- INTERFACES -------------------------------------------------------------
-interface new
-  module procedure new_fct_func
-endinterface
+!interface new
+!  module procedure new_fct_func
+!endinterface
 
-interface delete
-  module procedure delete_fct_func
-endinterface
+!interface delete
+!  module procedure delete_fct_func
+!endinterface
 
 ! -- Fonctions et Operateurs ------------------------------------------------
 
@@ -79,6 +79,24 @@ type(st_fct_func) :: f
   call delete_fct_node(f%func)
 endsubroutine delete_fct_func
 
+!------------------------------------------------------------------------------!
+! new_fctfuncset : allocate FCT_FUNCSET structure
+!------------------------------------------------------------------------------!
+subroutine new_fctfuncset(fset, n)
+implicit none
+! -- parameters --
+type(st_fctfuncset) :: fset
+integer, optional   :: n
+
+fset%nfct = 0
+if (present(n)) fset%nfct = n
+if (fset%nfct == 0) then
+  nullify(fset%fct)
+else
+  allocate(fset%fct(fset%nfct))
+endif
+
+endsubroutine
 
 !------------------------------------------------------------------------------!
 ! delete_fct_func : remove FCTFUNCSET structure

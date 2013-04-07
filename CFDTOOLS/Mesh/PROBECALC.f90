@@ -77,7 +77,7 @@ case(vol_max)
   probe%result = max(probe%result, maxval(result(1:siz)))
 case(vol_average)
   pvol = sum(vol(1:siz))
-  probe%result = probe%result*probe%volume + sum(result(1:siz)*vol(1:siz))/(probe%volume+pvol)
+  probe%result = (probe%result*probe%volume + sum(result(1:siz)*vol(1:siz)))/(probe%volume+pvol)
   probe%volume = probe%volume + pvol
 case default
   call cfd_error("Internal error (prb_vol_add): unknown probe type")
@@ -175,7 +175,6 @@ nthread = 1
 !$ nthread = OMP_GET_NUM_THREADS()
 !$OMP END PARALLEL
 allocate(probeloc(nthread))
-print*,'nthread:',nthread
 
 !$OMP PARALLEL &
 !$OMP private(ic, il, result, env, x, y, z, buf, ithread, qname) &
@@ -210,6 +209,7 @@ block: do ib = 1, nblock
   do isca = 1, field%nscal
     if (qsca_depend(isca)) then
       qname = quantity_name(field%tabscal(isca)%quantity_id)
+      print*,'def '//qname
       call fct_env_set_realarray(env, trim(qname), field%tabscal(isca)%scal(ista(ib):iend(ib)))
     endif
   enddo
@@ -227,7 +227,7 @@ block: do ib = 1, nblock
       call fct_env_set_realarray(env, trim(qname)//"_z", z(1:buf))
     endif  
   enddo
-  print*,'buf',buf
+
   call fct_eval_realarray(env, probe%quantity, result)
         
   call prb_vol_add(probeloc(ithread), result(1:buf), umesh%mesh%volume(ista(ib):iend(ib),1,1))
@@ -235,12 +235,10 @@ block: do ib = 1, nblock
 enddo block
   
 !$OMP END DO
-print*,'delete fct env', ithread
 call delete_fct_env(env)      ! temporary environment from FCT_EVAL
 !$OMP END PARALLEL 
 
 ! end of probe processing
-print*,'end of nthread:'
 
 call prb_vol_addprb(probe, probeloc(1:nthread))
 

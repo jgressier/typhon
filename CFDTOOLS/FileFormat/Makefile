@@ -44,6 +44,7 @@ this.f90exe= xbininfo.f90    \
              ty2dmesh.f90    \
              ty3dmesh.f90    \
              tymonitor.f90   \
+             tymorph.f90     \
              typhon2vtk.f90  \
              typhon2tecplot.f90  \
 

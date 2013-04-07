@@ -82,10 +82,16 @@ integer(ipar), parameter :: op_len = 2
 character(len=op_len), dimension(min_op:max_op), parameter :: op2name = &
   (/ "&&", "||", "!=", "==", "< ", "> ", "<=", ">=", &
      "+ ", "- ", "* ", "/ ", "^ " /)
-     
+
 !integer(ipar), dimension(op_add:max_op), parameter :: op2priority = &
 !  (/   50,   51,   60,   61,  100,   40,   40, &
 !       30,   30,   30,   30,   30,   30 /) 
+
+integer(ipar), parameter :: fct_ncst = 2
+
+character(len=3), parameter :: cst_string(fct_ncst) = (/ "_pi", "_e" /)
+real(8),          parameter :: cst_val(fct_ncst)    = (/ 3.14159265358979323846_8,&
+                                                         2.71828182845904523536_8  /)
 
 ! -- DECLARATIONS -----------------------------------------------------------
 

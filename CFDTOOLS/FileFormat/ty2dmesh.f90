@@ -13,6 +13,8 @@ use XBIN_IO
 use TYPHON_FMT
 use TYFMT_MESH
 use FTNARGS
+use FCT_PARSER
+use FCT_EVAL
 
 implicit none
 
@@ -25,11 +27,15 @@ integer(kip), target  :: ni, nj
 integer(kip), pointer :: ndir
 integer(kip), target  :: niwjmin, niwjmax, njwimin, njwimax
 integer(kip), pointer :: nsdir
-logical, target    :: errisjmin, errisjmax, errjsimin, errjsimax, spliterr
-logical, pointer   :: errdir
-real(krp)          :: lx, ly
-type(st_ustmesh)   :: umesh
-type(v3d), dimension(:,:,:), pointer :: vertex
+logical, target       :: errisjmin, errisjmax, errjsimin, errjsimax, spliterr
+logical, pointer      :: errdir
+real(krp)             :: lx, ly
+character(len=256)    :: strx, stry
+type(st_fct_node)     :: morphx, morphy, morphz
+logical               :: fctscale, cstscale
+type(st_fctfuncset)   :: fctenv
+type(st_ustmesh)      :: umesh
+type(v3d), pointer    :: vertex(:,:,:)
 type(st_elemvtex), pointer :: elem
 integer(kpp)       :: itype, ielem, type_mesh, type_stor
 !---------------------------
@@ -73,6 +79,10 @@ strnsp = strof(dimspl)
 
 lx = 1._krp
 ly = 1._krp
+fctscale = .false.
+cstscale = .false.  
+strx = "x"
+stry = "y"
 ni = 0
 nj = 0
 filename  = ""
@@ -103,8 +113,7 @@ do while (iarg <= nargs)
   call read_command_argument(iarg, str_opt, lincr)
   select case(str_opt)
   ! number of cells or window sizes array
-  case ("-nx","-ni", &
-        "-ny","-nj")
+  case ("-nx","-ny","-ni","-nj")
     ! change to "ni" or "nj"
     str_ndir = str_tr(str_opt(2:), 'xy', 'ij')
     ! other direction
@@ -184,18 +193,28 @@ do while (iarg <= nargs)
   ! length in x direction
   case ("-lx")
     ! read real
+    cstscale = .true.
     if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
     call read_command_argument(iarg, lx, lincr, ierr, str_val)
-    if (ierr/=0) call cfd_error("real expected after '"//trim(str_opt)//"'"// &
-                                ", found '"//trim(str_val)//"'")
+    if (ierr/=0) &
+      call cfd_error("real expected after '"//trim(str_opt)//"'"//", found '"//trim(str_val)//"'") 
   ! length in y direction
   case ("-ly")
     ! read real
+    cstscale = .true.
     if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
     call read_command_argument(iarg, ly, lincr, ierr, str_val)
     if (ierr/=0) call cfd_error("real expected after '"//trim(str_opt)//"'"// &
                                 ", found '"//trim(str_val)//"'")
   ! split positions array
+  case ("-fx")   ! scaling function for x 
+    fctscale = .true.
+    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
+    call read_command_argument(iarg, strx, lincr)
+  case ("-fy")   ! scaling function for y
+    fctscale = .true.
+    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
+    call read_command_argument(iarg, stry, lincr)
   case ("-nisjmin","--nisplitjmin", &
         "-nisjmax","--nisplitjmax", &
         "-njsimin","--njsplitimin", &
@@ -403,6 +422,15 @@ if (splitimax) then
   jsimax(njwimax+1) = nj
 endif
 
+if (fctscale) then
+  if (cstscale) call cfd_error("must not mix -lx/ly and -fx/fy definitions") 
+  print*,'X scaling function '//trim(strx)
+  call string_to_funct(strx, morphx, ierr)
+  print*,'Y scaling function '//trim(stry)
+  call string_to_funct(stry, morphy, ierr)
+  call string_to_funct("z", morphz, ierr)
+endif
+
 !------------------------------------------------------------
 ! default: creates a (NI_DEF)x(NJ_DEF) uniform mesh in 1x1 box
 !------------------------------------------------------------
@@ -561,6 +589,9 @@ if (filename == "") then
   print*,"  -lx LX     : domain length (ex.: -lx 2.5, default 1)"
   print*,"  -ly LY     : domain height (ex.: -ly 1.5, default 1)"
   print*
+  print*,"  -fx expr   : scaling function of x,y,z (instead of -lx)"
+  print*,"  -fy expr   : scaling function of x,y,z (instead of -ly)"
+  print*
   print*,"  -nisjmin|--nisplitjmin NSI NI(1) ... NI(NSI) :"
   print*,"  -nisjmax|--nisplitjmax NSI NI(1) ... NI(NSI) :"
   print*,"  -njsimin|--njsplitimin NSJ NJ(1) ... NJ(NSJ) :"
@@ -598,12 +629,24 @@ umesh%nvtex       = umesh%mesh%nvtex                   ! nb of vertices (redunda
 
 allocate(umesh%mesh%vertex(1:umesh%mesh%nvtex, 1, 1))
 vertex => umesh%mesh%vertex
+
 do i = 1, ni+1
   do j = 1, nj+1
     iv = (i-1)*(nj+1)+j
     vertex(iv, 1, 1) = v3d( (i-1)*(lx/ni), (j-1)*(ly/nj), 0._krp )
   enddo
 enddo
+
+if (fctscale) then
+  print*,'  mesh morphing computation...'
+  call new_fctfuncset(fctenv)
+  call morph_vertex(fctenv, umesh%mesh, morphx, morphy, morphz)
+  call delete_fctfuncset(fctenv)
+  call delete_fct_node(morphx)
+  call delete_fct_node(morphy)
+  call delete_fct_node(morphz)
+endif
+
 if (type_mesh == mesh_tri4) then
 do i = 1, ni
   do j = 1, nj
