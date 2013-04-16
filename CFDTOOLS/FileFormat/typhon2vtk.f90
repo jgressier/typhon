@@ -22,13 +22,14 @@ implicit none
 
 !------------------------------------------------------------------------------!
 integer            :: nargs
-character(len=160) :: inputfile, outputfile, str_opt, str_val
+character(len=160) :: basefile, inputfile, outputfile, str_opt, str_val
 integer(kpp)       :: fileformat
 !------------------------------------------------------------------------------!
 type(st_deftyphon)     :: deftyphon
 type(st_defvtk)        :: defvtk
 type(st_ustmesh)       :: umesh
 type(st_genericfield)  :: gfield
+logical                :: onlymesh
 !---------------------------
 integer            :: iunit1, iunit2
 integer(kip)       :: i, j, iv, ivc, ic, nelem, nvtex, iarg
@@ -46,6 +47,7 @@ call print_cfdtools_header("typhon2vtk")
 
 inputfile  = ""
 outputfile = ""
+onlymesh   = .false.
 fileformat = vtk_bin
 
 nargs    = command_argument_count()
@@ -56,33 +58,39 @@ do while (iarg <= nargs)
   iarg = iarg + 1
   if ((str_opt == "-ascii").or.(str_opt == "-asc"))  then
     fileformat = vtk_asc
-    !call get_command_argument(iarg, str_val)
-    !iarg = iarg + 1
-    !read(str_val, *) nx
   elseif ((str_opt == "-binary").or.(str_opt == "-bin"))  then
     fileformat = vtk_bin
-    !call get_command_argument(iarg, str_val)
-    !iarg = iarg + 1
-    !read(str_val, *) nx
+  elseif (str_opt == "-onlymesh") then
+    onlymesh = .true.
   elseif (str_opt == "-o")  then
     call get_command_argument(iarg, outputfile)
     iarg = iarg + 1
   else
-    inputfile = basename(trim(str_opt), xtyext_sol)
+    inputfile = trim(str_opt) !basename(trim(str_opt), xtyext_sol)
   endif
 enddo
 
 if (inputfile == "") then
-  print*,"command line: typhon2vtk [options] inputfile.tys"
+  print*,"command line: typhon2vtk [options] inputfile.[tym|tys]"
   print*,"available options:"
   print*,"  -bin / -binary : binary    output (default)"
   print*,"  -asc / -ascii  : formatted output"
+  print*,"  -onlymesh      : only mesh (default if input file is .tym)"
   print*,"  -o basename    : define basename of output file"
   call cfd_error("missing file name")
 endif
 
-if (outputfile == "") then
-  outputfile = inputfile
+if (index(inputfile, '.'//xtyext_sol) ==  len_trim(inputfile)-len_trim(xtyext_sol)) then
+  basefile = basename(trim(inputfile), xtyext_sol)
+elseif (index(inputfile, '.'//xtyext_mesh) ==  len_trim(inputfile)-len_trim(xtyext_mesh)) then
+  basefile = basename(trim(inputfile), xtyext_mesh)
+  onlymesh = .true.
+else
+  call cfd_error("missing or unrecognized file name: "//trim(inputfile))
+endif
+
+if (trim(outputfile) == "") then
+  outputfile = basefile
 else 
   outputfile = basename(trim(outputfile), "vtk")
 endif
@@ -95,16 +103,16 @@ endif
 ! read mesh and solution
 !------------------------------------------------------------
 
-print*,'* Opening TYPHON file: '//trim(inputfile)//"."//xtyext_sol
+print*,'* Opening TYPHON file: '//trim(inputfile)
 
 iunit1 = getnew_io_unit()
-call typhon_openread(iunit1, trim(inputfile)//"."//xtyext_sol, deftyphon)
+call typhon_openread(iunit1, trim(inputfile), deftyphon)
 
 call typhonread_ustmesh(deftyphon, umesh)
 
 call delete_ustmesh_subelements(umesh)
 
-call typhonread_sol(deftyphon, umesh, gfield)
+if (.not.onlymesh) call typhonread_sol(deftyphon, umesh, gfield)
 
 call close_io_unit(iunit1)
 
@@ -126,7 +134,7 @@ endselect
 
 call writevtk_ustmesh(defvtk, umesh)
 
-call writevtk_sol(defvtk, umesh, gfield)
+if (.not.onlymesh) call writevtk_sol(defvtk, umesh, gfield)
 
 !------------------------------
 ! close file and end program

@@ -26,13 +26,15 @@ integer(kpp), parameter :: stab_cond     = 2
 integer(kpp), parameter :: loc_stab_cond = 3
 
 ! -- Constantes pour la methode d'integration temporelle
-integer(kpp), parameter :: tps_expl   = 10   ! genuine explicit
-integer(kpp), parameter :: tps_impl   = 20   ! linearized implicit (theta scheme)
-integer(kpp), parameter :: tps_dualt  = 25   ! dual time
-integer(kpp), parameter :: tps_rk2    = 30   ! Runge Kutta explicit : predictor-corrector
-integer(kpp), parameter :: tps_rk2ssp = 31   ! Runge Kutta explicit : Heun
-integer(kpp), parameter :: tps_rk3ssp = 33   ! Runge Kutta explicit
-integer(kpp), parameter :: tps_rk4    = 35   ! Runge Kutta explicit
+integer(kpp), parameter :: tps_expl     = 10   ! genuine explicit
+integer(kpp), parameter :: tps_impl     = 20   ! linearized implicit (theta scheme)
+integer(kpp), parameter :: tps_dualt    = 25   ! dual time
+integer(kpp), parameter :: tps_rk2      = 30   ! Runge Kutta explicit : predictor-corrector
+integer(kpp), parameter :: tps_rk2ssp   = 31   ! Runge Kutta explicit : Heun
+integer(kpp), parameter :: tps_rk3ssp   = 33   ! Runge Kutta explicit
+integer(kpp), parameter :: tps_rk4      = 35   ! Runge Kutta explicit
+integer(kpp), parameter :: tps_lsrk25bb = 41   ! Low storage RK explicit : 2nd order, 5 steps, Bogey Bailly
+integer(kpp), parameter :: tps_lsrk26bb = 42   ! Low storage RK explicit : 2nd order, 6 steps, Bogey Bailly
 
 ! -- Constantes pour schema de calcul des flux hyperboliques (sch_hyp)
 integer(kpp), parameter :: sch_rusanov    = 05
@@ -357,6 +359,7 @@ endsubroutine get_gradientmethod
 
 !-------------------------------------------------------------------------
 ! init Runge-Kutta parameters
+!   U(p) = Un 
 !-------------------------------------------------------------------------
 subroutine init_rungekutta(method, rk)
 implicit none
@@ -398,6 +401,27 @@ case(tps_rk4)
   rk%coef(2, 1:2) = (/ 0._krp, 0.5_krp /)
   rk%coef(3, 1:3) = (/ 0._krp,  0._krp, 1._krp /)
   rk%coef(4, 1:4) = (/ 1._krp,  2._krp, 2._krp, 1._krp /) / 6._krp
+case(tps_lsrk25bb)
+  rk%order  = 2
+  rk%nstage = 5
+  allocate(rk%coef(1:rk%nstage, 1:rk%nstage))
+  rk%coef(:, :) = 0._krp
+  rk%coef(1, 1) = 0.1815754863270908_krp
+  rk%coef(2, 2) = 0.238260222208392_krp 
+  rk%coef(3, 3) = 0.330500707328_krp
+  rk%coef(4, 4) = 0.5_krp
+  rk%coef(5, 5) = 1._krp 
+case(tps_lsrk26bb)
+  rk%order  = 2
+  rk%nstage = 6
+  allocate(rk%coef(1:rk%nstage, 1:rk%nstage))
+  rk%coef(:, :) = 0._krp
+  rk%coef(1, 1) = 0.11797990162882_krp
+  rk%coef(2, 2) = 0.18464696649448_krp 
+  rk%coef(3, 3) = 0.24662360430959_krp 
+  rk%coef(4, 4) = 0.33183954253762_krp 
+  rk%coef(5, 5) = 0.5_krp 
+  rk%coef(6, 6) = 1._krp 
 case default
   call error_stop("parameters parsing: unknown RUNGE KUTTA method")
 endselect

@@ -122,9 +122,10 @@ endsubroutine prb_vol_addprb
 ! Routine: prb_vol   
 ! Computation of volumic probe
 !------------------------------------------------------------------------------!
-subroutine prb_vol_calc(probe, umesh, field)
+subroutine prb_vol_calc(curtime, probe, umesh, field)
 implicit none
 ! -- INPUTS --
+real(krp)                :: curtime
 type(st_ustmesh)         :: umesh
 type(st_genericfield)    :: field
 ! -- INPUTS/OUTPUTS --
@@ -134,7 +135,6 @@ integer(kip)             :: ic, isca, ivec, il
 integer(kip)             :: nblock, nthread, ithread, ib, buf
 character(len=shortname) :: qname
 type(st_fct_env)         :: env
-real(krp)                :: curtime
 real(krp), dimension(fct_buffer) :: x, y, z, result
 type(st_defprobe), allocatable   :: probeloc(:)
 integer, pointer         :: ista(:), iend(:) ! starting and ending index
@@ -209,7 +209,6 @@ block: do ib = 1, nblock
   do isca = 1, field%nscal
     if (qsca_depend(isca)) then
       qname = quantity_name(field%tabscal(isca)%quantity_id)
-      print*,'def '//qname
       call fct_env_set_realarray(env, trim(qname), field%tabscal(isca)%scal(ista(ib):iend(ib)))
     endif
   enddo

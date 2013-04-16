@@ -151,7 +151,7 @@ do icycle = imin, imax
   do ip = 1, nprobe
     print*,'* computing probe '//strof(ip,2)
     call prb_vol_init(probe(ip))
-    call prb_vol_calc(probe(ip), umesh, gfield)
+    call prb_vol_calc(real(icycle, 8), probe(ip), umesh, gfield)
     write(probe(ip)%unit,'(i5,e16.8)') icycle, probe(ip)%result  
   enddo
 

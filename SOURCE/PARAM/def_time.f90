@@ -92,11 +92,15 @@ if (samestring(str,"RK2-TVD"))     deftime%tps_meth = tps_rk2ssp
 if (samestring(str,"RK2-SSP"))     deftime%tps_meth = tps_rk2ssp
 if (samestring(str,"RK3-SSP"))     deftime%tps_meth = tps_rk3ssp
 if (samestring(str,"RK4"))         deftime%tps_meth = tps_rk4
+if (samestring(str,"RK25BB"))      deftime%tps_meth = tps_lsrk25bb
+if (samestring(str,"LSRK25BB"))    deftime%tps_meth = tps_lsrk25bb
+if (samestring(str,"RK26BB"))      deftime%tps_meth = tps_lsrk26bb
+if (samestring(str,"LSRK26BB"))    deftime%tps_meth = tps_lsrk26bb
 if (samestring(str,"IMPLICIT"))    deftime%tps_meth = tps_impl
 if (samestring(str,"DUAL-TIME"))   deftime%tps_meth = tps_dualt
 
 if (deftime%tps_meth == inull) &
-  call erreur("parameters parsing","type d'integration temporelle inconnu")
+  call error_stop("parameters parsing: unknown method "//trim(str))
 
 select case(deftime%tps_meth)
 !------------------------------------------------------
@@ -108,8 +112,8 @@ case(tps_expl)
 !------------------------------------------------------
 ! RUNGE-KUTTA METHODs
 !-------------------------------------------------------
-case(tps_rk2, tps_rk2ssp, tps_rk3ssp, tps_rk4)
-  call print_info(7,"  . RUNGE-KUTTA integration")
+case(tps_rk2, tps_rk2ssp, tps_rk3ssp, tps_rk4, tps_lsrk25bb, tps_lsrk26bb)
+  call print_info(7,"  . RUNGE-KUTTA integration: "//trim(str))
   call init_rungekutta(deftime%tps_meth, deftime%rk)
 
 !------------------------------------------------------

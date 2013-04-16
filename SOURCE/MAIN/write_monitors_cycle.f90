@@ -5,20 +5,21 @@
 !   Calcul des quantites definies par les write_monitors
 !
 !------------------------------------------------------------------------------!
-subroutine write_monitors_cycle(icycle, zone)
+subroutine write_monitors_cycle(info, zone)
 
 use TYPHMAKE
 use OUTPUT
 use VARCOM
 use DEFZONE
 use MENU_GEN
+use MODINFO
 use STRING
 
 implicit none
 
 ! -- Inputs --
+type(st_info) :: info   ! World info
 type(st_zone) :: zone            ! zone
-integer       :: icycle
 
 ! -- Outputs --
 
@@ -53,7 +54,7 @@ do ic = 1, zone%defsolver%nprobe
   case(boco_field)
     call prb_boco_field(zone)
   case(vol_min, vol_max, vol_average)
-    call prb_zone_vol(zone, zone%defsolver%probe(ic))
+    call prb_zone_vol(info%curtps, zone, zone%defsolver%probe(ic))
   case(boco_integral)
     call error_stop("Development: type BOCO_INTEGRAL non implemente")
   case(residuals)
@@ -63,7 +64,7 @@ do ic = 1, zone%defsolver%nprobe
   ! ----------------------------------------------
   ! write data
 
-  write(zone%defsolver%probe(ic)%unit,'(i5,e16.8)') icycle, zone%defsolver%probe(ic)%result
+  write(zone%defsolver%probe(ic)%unit,'(i5,2e16.8)') info%icycle, info%curtps, zone%defsolver%probe(ic)%result
 
 enddo
 

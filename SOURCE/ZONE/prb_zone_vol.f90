@@ -5,7 +5,7 @@
 !   Computation of volumic probe
 !
 !------------------------------------------------------------------------------!
-subroutine prb_zone_vol(zone, probe)
+subroutine prb_zone_vol(curtime, zone, probe)
 
 use TYPHMAKE
 use OUTPUT
@@ -17,13 +17,14 @@ use PROBECALC
 implicit none
 
 ! -- INPUTS --
+real(krp)     :: curtime
 type(st_zone) :: zone
 
 ! -- OUTPUTS --
 type(st_defprobe) :: probe
 
 ! -- Internal variables --
-type(st_grid), pointer               :: pgrid     ! grid pointer
+type(st_grid), pointer  :: pgrid     ! grid pointer
 
 ! -- BODY --
 
@@ -33,7 +34,7 @@ pgrid => zone%gridlist%first
 
 do while (associated(pgrid)) 
 
-  call prb_vol_calc(probe, pgrid%umesh, pgrid%info%field_loc%etatprim)
+  call prb_vol_calc(curtime, probe, pgrid%umesh, pgrid%info%field_loc%etatprim)
 
   pgrid => pgrid%next          ! next grid
 

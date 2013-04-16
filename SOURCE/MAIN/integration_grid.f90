@@ -47,14 +47,14 @@ logical :: calc_jac
 ! -- jacobians allocation --
 
 select case(defsolver%deftime%tps_meth)
-case(tps_expl, tps_rk2, tps_rk2ssp, tps_rk3ssp, tps_rk4)
+case(tps_expl, tps_rk2, tps_rk2ssp, tps_rk3ssp, tps_rk4, tps_lsrk25bb, tps_lsrk26bb)
   calc_jac = .false.
 case(tps_impl, tps_dualt)
   calc_jac = .true.
   call new(jacL, grid%umesh%nface, defsolver%nequat)
   call new(jacR, grid%umesh%nface, defsolver%nequat)
 case default
-  call erreur("Development","unknown integration method (integration_grid)")
+  call error_stop("Development: unknown integration method (integration_grid)")
 endselect
 
 ! -- source terms and flux allocation (structure similar to field%etatcons) --

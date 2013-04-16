@@ -1,0 +1,87 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+  NZONE     = 1
+  COORD     = 2D
+  TIME      = UNSTEADY
+  DURATION  = 0.1
+  NCYCLE    = 100 
+ENDBLOCK
+
+!BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+!  FILE   = "sol"
+!  PERIOD = 1
+!  FORMAT = VTK
+!ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "vortex"
+  SOLVER = EULER
+ENDBLOCK
+
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = TYPHON
+  FILE   = "quad20x20.tym"
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS = EULER
+  GAS      = AIR
+ENDBLOCK
+
+BLOCK:TIME_PARAM
+  METHOD    = RK2
+  CFL       = 0.8
+ENDBLOCK
+
+BLOCK:SPAT_PARAM
+  SCHEME   = HLLC
+  HIGHRES  = MUSCL-FAST
+  LIMITER  = ALBADA
+ENDBLOCK
+
+BLOCK:INIT
+  DENSITY   = 1+sqr(sin(2*_pi*x)*sin(2*_pi*y))/2
+  P         = 100000/14.  
+  VX        = 50.  
+  VY        = 0.
+  VZ        = 0.
+ENDBLOCK
+
+BLOCK:PROBE
+ NAME     = RHOERR
+ TYPE     = VOL_AVERAGE
+ QUANTITY = sqr(RHO-(1+sqr(sin(2*_pi*(x-50*t))*sin(2*_pi*y))/2))
+ENDBLOCK
+
+BLOCK:PERIODICITY
+  NAME = HORI
+  TYPE = TRANSLATION
+  TRANSLATION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:PERIODICITY
+  NAME = VERTI
+  TYPE = TRANSLATION
+  TRANSLATION = (0., 1., 0.)
+ENDBLOCK
+
+BLOCK:CONNECTION
+  FAMILY1 = IMIN
+  FAMILY2 = IMAX
+  TYPE    = PERIODIC
+  PERIODICITY = HORI
+ENDBLOCK
+
+BLOCK:CONNECTION
+  FAMILY1 = JMIN
+  FAMILY2 = JMAX
+  TYPE    = PERIODIC
+  PERIODICITY = VERTI
+ENDBLOCK

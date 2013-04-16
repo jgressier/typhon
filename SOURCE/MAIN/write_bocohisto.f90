@@ -4,17 +4,18 @@
 ! Fonction
 !   Writing BOCO history
 !------------------------------------------------------------------------------!
-subroutine write_bocohisto(icycle, zone)
+subroutine write_bocohisto(info, zone)
 
 use TYPHMAKE
 use OUTPUT
 use DEFZONE
 use MENU_GEN
+use MODINFO
 
 implicit none
 
 ! -- INPUTS --
-integer :: icycle
+type(st_info) :: info   ! World info
 
 ! -- OUTPUTS --
 
@@ -31,7 +32,7 @@ type(st_ustboco), pointer   :: pboco
 
 ! -- BODY --
 
-write(str_cycle, '(i6)') icycle
+write(str_cycle, '(i6)') info%icycle
 
 do ib = 1, zone%gridlist%first%umesh%nboco       ! for all BOCO in USTMESH
 

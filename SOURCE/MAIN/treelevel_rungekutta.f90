@@ -76,6 +76,7 @@ rkstage: do istage = 1, nstage
   ! --- compute RHS(istage-1) ---
 
   call calc_rhs(dt, info, defsolver, gridlist, coupling, ncoupling)
+  ! RIGHT time ? dt or sum(rhs%coef...)
 
   ! --- get RHS(istage-1) ---
 

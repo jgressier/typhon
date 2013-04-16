@@ -125,8 +125,8 @@ do while (.not. lworld%info%fin_integration)
   ! Outputs
 
   do izone = 1, lworld%prj%nzone
-    call write_monitors_cycle(lworld%info%icycle, lworld%zone(izone))
-    call write_bocohisto(     lworld%info%icycle, lworld%zone(izone))
+    call write_monitors_cycle(lworld%info, lworld%zone(izone))
+    call write_bocohisto(     lworld%info, lworld%zone(izone))
   enddo
 
   call output_result(lworld, end_cycle)
