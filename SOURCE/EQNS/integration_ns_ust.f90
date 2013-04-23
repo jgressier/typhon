@@ -45,7 +45,7 @@ integer, pointer :: ista(:), iend(:)           ! starting and ending index
 integer :: it                   ! index de tableau
 integer :: icl, icr             ! index de cellule a gauche et a droite
 type(st_nsetat)       :: QL, QR
-type(st_genericfield) :: gradL, gradR         ! nblock size arrays of gradients
+type(st_genericfield) :: cQL, cQR, gradL, gradR         ! nblock size arrays of gradients
 type(v3d), dimension(:), allocatable &
                       :: cg_l, cg_r           ! tableau des centres de cellules a gauche et a droite   
 logical :: allocgrad
@@ -57,7 +57,7 @@ if (.not.field%allocqhres) call error_stop("Internal error: Face extrapolated st
 
 call new_buf_index(umesh%nface, face_buffer, nblock, ista, iend)
 
-!$OMP PARALLEL private(ib, QL, QR, cg_l, cg_r, gradL, gradR, buf) shared (flux, jacL, jacR)
+!$OMP PARALLEL private(ib, QL, QR, cg_l, cg_r, gradL, gradR, cQL, cQR, buf) shared (flux, jacL, jacR)
 
 allocate(  cg_l(face_buffer),   cg_r(face_buffer))
 
@@ -68,6 +68,8 @@ case(eqNSLam, eqRANS)
   viscscheme: select case(defspat%sch_dis)
   case(dis_celldif2, dis_cellavg2, dis_cellfull)
     allocgrad = .true.
+    call new_genfield(cQL,   face_buffer, field%etatcons%nscal, field%etatcons%nvect, 0)
+    call new_genfield(cQR,   face_buffer, field%etatcons%nscal, field%etatcons%nvect, 0)
     call new_genfield(gradL, face_buffer, 0, field%etatcons%nscal, field%etatcons%nvect)
     call new_genfield(gradR, face_buffer, 0, field%etatcons%nscal, field%etatcons%nvect)
   case(dis_facecentered, dis_facepenalty)
@@ -85,6 +87,13 @@ do ib = 1, nblock
 
   buf = iend(ib)-ista(ib)+1
 
+  !----------------------------------------------------------------------
+  ! computation of INVISCID fluxes
+  !----------------------------------------------------------------------
+
+  theo_jac = (calc_jac).and.(defspat%jac_hyp /= jac_diffnum)
+  num_jac  = (calc_jac).and.(defspat%jac_hyp == jac_diffnum)
+
   ! pointers links to face extrapolated values
   QL%density  => field%cell_l%tabscal(1)%scal(ista(ib):iend(ib))
   QR%density  => field%cell_r%tabscal(1)%scal(ista(ib):iend(ib))
@@ -92,13 +101,6 @@ do ib = 1, nblock
   QR%pressure => field%cell_r%tabscal(2)%scal(ista(ib):iend(ib))
   QL%velocity => field%cell_l%tabvect(1)%vect(ista(ib):iend(ib))
   QR%velocity => field%cell_r%tabvect(1)%vect(ista(ib):iend(ib))
-
-  !----------------------------------------------------------------------
-  ! computation of INVISCID fluxes
-  !----------------------------------------------------------------------
-
-  theo_jac = (calc_jac).and.(defspat%jac_hyp /= jac_diffnum)
-  num_jac  = (calc_jac).and.(defspat%jac_hyp == jac_diffnum)
 
   call calc_flux_inviscid(defsolver, defspat,                             &
                           buf, ista(ib), umesh%mesh%iface(ista(ib):iend(ib), 1, 1), &
@@ -134,6 +136,16 @@ do ib = 1, nblock
       cg_l(1:buf) = umesh%mesh%centre(umesh%facecell%fils(ista(ib):iend(ib),1), 1, 1)
       cg_r(1:buf) = umesh%mesh%centre(umesh%facecell%fils(ista(ib):iend(ib),2), 1, 1)
 
+      ! -- redirection of states (cell to face)
+      call distrib_field(field%etatprim, umesh%facecell, ista(ib), iend(ib), &
+                         cQL, cQR, 1)
+      ! pointers links to cell values
+      QL%density  => cQL%tabscal(1)%scal(1:buf)
+      QR%density  => cQR%tabscal(1)%scal(1:buf)
+      QL%pressure => cQL%tabscal(2)%scal(1:buf)
+      QR%pressure => cQR%tabscal(2)%scal(1:buf)
+      QL%velocity => cQL%tabvect(1)%vect(1:buf)
+      QR%velocity => cQR%tabvect(1)%vect(1:buf)
       ! -- redirection of gradients (cell to face)
       call distrib_field(field%gradient, umesh%facecell, ista(ib), iend(ib), &
                        gradL, gradR, 1)
@@ -145,7 +157,15 @@ do ib = 1, nblock
 
     case(dis_facecentered, dis_facepenalty)
 
-       call calc_flux_viscous_face(defsolver, defspat,                        &
+      ! pointers links to face extrapolated values
+      QL%density  => field%cell_l%tabscal(1)%scal(ista(ib):iend(ib))
+      QR%density  => field%cell_r%tabscal(1)%scal(ista(ib):iend(ib))
+      QL%pressure => field%cell_l%tabscal(2)%scal(ista(ib):iend(ib))
+      QR%pressure => field%cell_r%tabscal(2)%scal(ista(ib):iend(ib))
+      QL%velocity => field%cell_l%tabvect(1)%vect(ista(ib):iend(ib))
+      QR%velocity => field%cell_r%tabvect(1)%vect(ista(ib):iend(ib))
+
+      call calc_flux_viscous_face(defsolver, defspat,                        &
                            buf, ista(ib), umesh%mesh%iface(ista(ib):iend(ib), 1, 1), &
                            cg_l, cg_r, QL, QR, gradL, gradR, flux) 
 
@@ -171,6 +191,8 @@ enddo
 
 deallocate(cg_l, cg_r)
 if (allocgrad) then
+  call delete(cQL)
+  call delete(cQR)
   call delete(gradL)
   call delete(gradR)
 endif
@@ -182,6 +204,7 @@ deallocate(ista, iend)
 ! --- EXT source terms ---
 
 call calc_source_ext(defsolver, umesh, field, curtime)
+!print*,field%residu%tabvect(1)%vect
 
 ! --- MRF source terms ---
 

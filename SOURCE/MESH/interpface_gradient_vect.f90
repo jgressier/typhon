@@ -50,7 +50,8 @@ endif
 !--------------------------------------------------------------
 ! Choice of interpolation formulation
 !--------------------------------------------------------------
-! COMPACT : F1 = (T(R) - T(L))            ! L & R cell centers
+! if Favg = (a.gT(L) + b.gT(R))
+! COMPACT : F1 = (T(R) - T(L))            ! L & R cell centers ! NOT CONSISTENT: ERROR
 ! AVERAGE : F2 = (a.gT(L) + b.gT(R)).n    ! H face center
 ! FULL    : F3 = 
 ! a = HR/RL et b = HL/RL
@@ -75,6 +76,8 @@ case(dis_cellfull) ! full consistent formulation, averaged between compact and a
   FavgLR(1:nf) = qR(1:nf) - qL(1:nf) - (dqH(1:nf).scal.vLR(1:nf))
   dqH(1:nf)    = dqH(1:nf) + ( FavgLR(1:nf).tens.((theta/dLR2(1:nf))*vLR(1:nf)) )
 
+case default
+  call error_stop("internal error: unknown gradient interpolation method (interpface_gradient_vect)")
 endselect
 
 !-----------------------------

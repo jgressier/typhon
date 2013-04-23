@@ -1,0 +1,103 @@
+!------------------------------------------------------------------------------!
+! MENU TYPHON
+!------------------------------------------------------------------------------!
+
+BLOCK:PROJECT           ! DEFINITION DU PROJET
+  NZONE     = 1
+  COORD     = 2D
+  TIME      = UNSTEADY
+  DURATION  = 10
+  NCYCLE    = 10
+ENDBLOCK
+
+!BLOCK:OUTPUT            ! SORTIE FICHIERS DES RESULTATS
+!  FILE   = "sol"
+!  PERIOD = 1
+!  FORMAT = VTK
+!ENDBLOCK
+
+BLOCK:ZONE              ! DEFINITION DES ZONES ( * nb zones )
+  NAME   = "vortex"
+  SOLVER = EULER
+ENDBLOCK
+
+!------------------------------------------------------------------------------!
+! DEFINITION DE LA ZONE (si NZONE = 1, et FILE inexistant dans BLOCK:ZONE)
+!------------------------------------------------------------------------------!
+
+BLOCK:MESH
+  FORMAT = TYPHON
+  FILE   = "mxlay2x20quad-h50.tym"
+  ! ty2dmesh -nx 5 -ny $n -fy "sinh((2*y-1)*asinh($h))" mxlay5x$n-h$h.tym
+ENDBLOCK
+
+BLOCK:MODEL
+  DYNAMICS  = LAMINAR
+  GAS       = AIR
+  VISCOSITY = KINEMATIC-CONSTANT
+  KIN_VISC  = 1.
+ENDBLOCK
+
+BLOCK:TIME_PARAM
+  METHOD    = RK25BB
+  CFL       = 0.5
+ENDBLOCK
+
+BLOCK:SPAT_PARAM
+  SCHEME   = HLLC
+  HIGHRES  = MUSCL
+  LIMITER  = ALBADA
+  !GRADMETH = W-LSQ
+  !DISSIPATIVE_FLUX = CELL-AVERAGE
+ENDBLOCK
+
+BLOCK:INIT
+  DENSITY   = 1.
+  P         = 100/1.4  ! a=10  
+  VX        = erf(y/2/sqrt(1))   ! initial time is 1.  
+  VY        = 0.
+  VZ        = 0.
+ENDBLOCK
+
+BLOCK:PROBE
+ NAME     = VXERR
+ TYPE     = VOL_AVERAGE
+ QUANTITY = sqr(V_X-(erf(y/2/sqrt(t+1.))))
+ENDBLOCK
+
+BLOCK:PROBE
+ NAME     = DELTA
+ TYPE     = VOL_AVERAGE
+ QUANTITY = 2*50*(1-sqr(V_X))
+ENDBLOCK
+
+BLOCK:PERIODICITY
+  NAME = HORI
+  TYPE = TRANSLATION
+  TRANSLATION = (1., 0., 0.)
+ENDBLOCK
+
+BLOCK:PERIODICITY
+  NAME = VERTI
+  TYPE = TRANSLATION
+  TRANSLATION = (0., 1., 0.)
+ENDBLOCK
+
+BLOCK:CONNECTION
+  FAMILY1 = IMIN
+  FAMILY2 = IMAX
+  TYPE    = PERIODIC
+  PERIODICITY = HORI
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY   = JMIN
+  TYPE     = ADIABATIC_WALL
+  WALL_VELOCITY = (-1, 0, 0)
+ENDBLOCK
+
+BLOCK:BOCO
+  FAMILY   = JMAX
+  TYPE     = ADIABATIC_WALL
+  WALL_VELOCITY = (1, 0, 0)
+ENDBLOCK

@@ -251,6 +251,7 @@ case(visc_dyncst)
 
 case(visc_kincst)
   dynvisc(1:n) = fluid%visc_kin * density(1:n)
+  !print*,'visc:',sum(dynvisc(1:n))/n
 
 case(visc_lin)
   dynvisc(1:n) = fluid%visc_dyn*temperature(1:n)

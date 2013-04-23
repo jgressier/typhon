@@ -695,10 +695,150 @@ case(cont_vect)            ! -- op OP is REAL ARRAY ----------------------------
   res%r_t = atan(op%r_t)
 
 case default
-  call set_fct_error(-1, "incorrect or non-implemented operands in ATAN operator")
+  call set_fct_error(-1, "incorrect or non-implemented operands in atan operator")
 endselect
 
 endsubroutine fct_cont_atan
+
+!------------------------------------------------------------------------------!
+! fct_cont_acosh
+!------------------------------------------------------------------------------!
+subroutine fct_cont_acosh(res, op)
+implicit none
+! -- parameters --
+type(st_fct_container), intent(in)  :: op            ! operand
+type(st_fct_container), intent(out) :: res           ! container result
+! -- internal variables --
+
+! -- body --
+
+select case(op%type)
+
+case(cont_real)            ! -- op OP is REAL -------------------------------
+  call new_fct_container(res, cont_real, "")
+  res%r = acosh(op%r)
+
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  res%r_t = acosh(op%r_t)
+
+case default
+  call set_fct_error(-1, "incorrect or non-implemented operands in acosh operator")
+endselect
+
+endsubroutine fct_cont_acosh
+
+!------------------------------------------------------------------------------!
+! fct_cont_asinh
+!------------------------------------------------------------------------------!
+subroutine fct_cont_asinh(res, op)
+implicit none
+! -- parameters --
+type(st_fct_container), intent(in)  :: op            ! operand
+type(st_fct_container), intent(out) :: res           ! container result
+! -- internal variables --
+
+! -- body --
+
+select case(op%type)
+
+case(cont_real)            ! -- op OP is REAL -------------------------------
+  call new_fct_container(res, cont_real, "")
+  res%r = asinh(op%r)
+
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  res%r_t = asinh(op%r_t)
+
+case default
+  call set_fct_error(-1, "incorrect or non-implemented operands in asinh operator")
+endselect
+
+endsubroutine fct_cont_asinh
+
+!------------------------------------------------------------------------------!
+! fct_cont_atanh
+!------------------------------------------------------------------------------!
+subroutine fct_cont_atanh(res, op)
+implicit none
+! -- parameters --
+type(st_fct_container), intent(in)  :: op            ! operand
+type(st_fct_container), intent(out) :: res           ! container result
+! -- internal variables --
+
+! -- body --
+
+select case(op%type)
+
+case(cont_real)            ! -- op OP is REAL -------------------------------
+  call new_fct_container(res, cont_real, "")
+  res%r = atanh(op%r)
+
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  res%r_t = atanh(op%r_t)
+
+case default
+  call set_fct_error(-1, "incorrect or non-implemented operands in atanh operator")
+endselect
+
+endsubroutine fct_cont_atanh
+
+!------------------------------------------------------------------------------!
+! fct_cont_erf
+!------------------------------------------------------------------------------!
+subroutine fct_cont_erf(res, op)
+implicit none
+! -- parameters --
+type(st_fct_container), intent(in)  :: op            ! operand
+type(st_fct_container), intent(out) :: res           ! container result
+! -- internal variables --
+
+! -- body --
+
+select case(op%type)
+
+case(cont_real)            ! -- op OP is REAL -------------------------------
+  call new_fct_container(res, cont_real, "")
+  res%r = erf(op%r)
+
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  res%r_t = erf(op%r_t)
+
+case default
+  call set_fct_error(-1, "incorrect or non-implemented operands in ERF operator")
+endselect
+
+endsubroutine fct_cont_erf
+
+!------------------------------------------------------------------------------!
+! fct_cont_erfc
+!------------------------------------------------------------------------------!
+subroutine fct_cont_erfc(res, op)
+implicit none
+! -- parameters --
+type(st_fct_container), intent(in)  :: op            ! operand
+type(st_fct_container), intent(out) :: res           ! container result
+! -- internal variables --
+
+! -- body --
+
+select case(op%type)
+
+case(cont_real)            ! -- op OP is REAL -------------------------------
+  call new_fct_container(res, cont_real, "")
+  res%r = erfc(op%r)
+
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  res%r_t = erfc(op%r_t)
+
+case default
+  call set_fct_error(-1, "incorrect or non-implemented operands in ERF operator")
+endselect
+
+endsubroutine fct_cont_erfc
 
 !------------------------------------------------------------------------------!
 ! fct_cont_abs
@@ -727,6 +867,42 @@ case default
 endselect
 
 endsubroutine fct_cont_abs
+
+!------------------------------------------------------------------------------!
+! fct_cont_sign
+!------------------------------------------------------------------------------!
+subroutine fct_cont_sign(res, op)
+implicit none
+! -- parameters --
+type(st_fct_container), intent(in)  :: op            ! operand
+type(st_fct_container), intent(out) :: res           ! container result
+! -- internal variables --
+
+! -- body --
+
+select case(op%type)
+
+case(cont_real)            ! -- op OP is REAL -------------------------------
+  call new_fct_container(res, cont_real, "")
+  if (op%r >= 0._rprc) then
+    res%r = 1._rprc
+  else
+    res%r = -1._rprc
+  endif
+
+case(cont_vect)            ! -- op OP is REAL ARRAY -------------------------------
+  call new_fct_container(res, cont_vect, "", op%size)
+  where (op%r_t >= 0._rprc)
+    res%r_t = 1._rprc
+  elsewhere
+    res%r_t = -1._rprc
+  endwhere
+  
+case default
+  call set_fct_error(-1, "incorrect or non-implemented operands in sign operator")
+endselect
+
+endsubroutine fct_cont_sign
 
 !------------------------------------------------------------------------------!
 ! fct_cont_step

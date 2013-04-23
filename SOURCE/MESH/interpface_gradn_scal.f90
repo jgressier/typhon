@@ -85,6 +85,8 @@ case(dis_cellfull) ! full consistent formulation, averaged between compact and a
     dqH(if) = theta*Fcomp + Favg
   enddo
 
+case default
+  call error_stop("internal error: unknown gradient interpolation method (interpface_gradn_scal)")
 endselect
 
 !-----------------------------

@@ -126,12 +126,12 @@ case(eqNSLAM, eqNSLAMaxi)
   if (samestring(str, "DYNAMIC-CONSTANT"))   defsolver%defns%properties(1)%typ_visc = visc_dyncst
   if (samestring(str, "KINEMATIC-CONSTANT")) defsolver%defns%properties(1)%typ_visc = visc_kincst
   if (samestring(str, "LINEAR"))             defsolver%defns%properties(1)%typ_visc = visc_lin
+  call print_info(10,"    . viscosity model is "//trim(str))
 case(eqRANS)
   call error_stop("Development: RANS turbulence models have not been implemented")
 case default
   call error_stop("unknown DYNAMICS parameter")
 endselect
-
 
 ! -- GAS properties --
 

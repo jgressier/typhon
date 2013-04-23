@@ -44,10 +44,12 @@ integer(ipar), parameter :: fct_atan  = 15
 integer(ipar), parameter :: fct_asinh = 16
 integer(ipar), parameter :: fct_acosh = 17
 integer(ipar), parameter :: fct_atanh = 18
-integer(ipar), parameter :: fct_abs   = 19
-integer(ipar), parameter :: fct_sign  = 20
-integer(ipar), parameter :: fct_step  = 21
-integer(ipar), parameter :: fct_ramp  = 22
+integer(ipar), parameter :: fct_erf   = 19
+integer(ipar), parameter :: fct_erfc  = 20
+integer(ipar), parameter :: fct_abs   = 21
+integer(ipar), parameter :: fct_sign  = 22
+integer(ipar), parameter :: fct_step  = 23
+integer(ipar), parameter :: fct_ramp  = 24
 integer(ipar), parameter :: min_fct   = 01        ! TO BE checked if operator added
 integer(ipar), parameter :: max_fct   = fct_ramp  ! TO BE checked if operator added
 
@@ -76,6 +78,7 @@ character(len=fct_len), dimension(fct_inv:max_fct), parameter :: op1name = &
   (/ "inv  ", "sqr  ", "sqrt ", "exp  ", "ln   ", "log  ", &
      "sin  ", "cos  ", "tan  ", "sinh ", "cosh ", "tanh ", &
      "asin ", "acos ", "atan ", "asinh", "acosh", "atanh", &
+     "erf  ", "erfc ", &
      "abs  ", "sign ", "step ", "ramp " /)
      
 integer(ipar), parameter :: op_len = 2

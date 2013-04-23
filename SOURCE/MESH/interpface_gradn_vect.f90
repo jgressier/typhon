@@ -52,9 +52,10 @@ endif
 !--------------------------------------------------------------
 ! Choice of interpolation formulation
 !--------------------------------------------------------------
-! COMPACT : F1 = (T(R) - T(L))            ! L & R cell centers
-! AVERAGE : F2 = (a.gT(L) + b.gT(R)).n    ! H face center
-! FULL    : F3 = 
+! if Favg = (a.gT(L) + b.gT(R))
+! COMPACT : F1 = (T(R) - T(L))*eLR.n      ! L & R cell centers ! not consistent
+! AVERAGE : F2 = Favg.n                   ! H face center
+! FULL    : F3 = (Favg-(Favg.eLR)*eLR).n + F1
 ! a = HR/RL et b = HL/RL
 
 select case(meth)
@@ -85,6 +86,8 @@ case(dis_cellfull) ! full consistent formulation, averaged between compact and a
     dqH(if) = theta*Fcomp + Favg
   enddo
 
+case default
+  call error_stop("internal error: unknown gradient interpolation method (interpface_gradn_vect)")
 endselect
 
 !-----------------------------
