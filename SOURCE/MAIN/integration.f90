@@ -22,7 +22,7 @@ type(st_world) :: lworld
 
 ! -- Internal variables --
 type(st_grid), pointer :: pgrid
-real(krp)              :: curtime, cputime, realtime
+real(krp)              :: curtime, cputime, realtime, speedup, nopara
 integer, dimension(:), allocatable &
                        :: exchcycle ! indices des cycles d'echange pour les differents couplages de zones
 integer                :: icputimer, irealtimer
@@ -153,8 +153,12 @@ write(str_w, "(a,e13.4)") "CPU   integration time: ", cputime
 call print_info(10, str_w)
 write(str_w, "(a,e13.4)") "CPU average cycle time: ", cputime/lworld%info%icycle
 call print_info(10, str_w)
-write(str_w, "(a,g8.3)")  "              speed-up: ", cputime/realtime
-call print_info(10, str_w)
+if (omp_run) then
+  speedup  = cputime/realtime
+  nopara   = (nthread-speedup)/speedup/(nthread-1)
+  write(str_w, "(a,f5.2,a,f5.2,a)")  "              speed-up:",speedup," (",nopara*100,"% non parallel)"
+  call print_info(10, str_w)
+endif
 
 ! Mise a jour des variables primitives
 

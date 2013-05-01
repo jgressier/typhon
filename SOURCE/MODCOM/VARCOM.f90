@@ -8,16 +8,17 @@
 module VARCOM
 
 use TYPHMAKE   ! machine accuracy definition
+!$ use OMP_LIB
 
 ! -- Variables globales du module -------------------------------------------
 
-logical        :: mpi_run              ! calcul parallele MPI ou non
+logical        :: mpi_run, omp_run     ! parallel computation
 character      :: memory_mode          ! mode d'economie memoire
 character      :: model_mode           ! mode de modelisation physique
 
 integer        :: histo_buffer         ! buffer for history writing
 
-integer        :: myprocid             ! id of current proc
+integer        :: myprocid, nthread    ! id of current proc
 
 ! -- CONSTANTES globales du module -------------------------------------------
 
@@ -170,6 +171,12 @@ subroutine init_varcom()
   !cell_buffer   = 256  ! Compiler dependent ?
   !taille_buffer = cell_buffer
   histo_buffer  = 10   ! 
+  omp_run = .false.
+  nthread = 1
+  !$OMP PARALLEL
+  !$ omp_run = .true.
+  !$ nthread = OMP_GET_NUM_THREADS()
+  !$OMP END PARALLEL
 
   ! constantes
 

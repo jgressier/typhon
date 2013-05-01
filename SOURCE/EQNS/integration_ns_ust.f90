@@ -11,6 +11,7 @@ subroutine integration_ns_ust(defsolver, defspat, umesh, field, flux, &
                               calc_jac, jacL, jacR, curtime)
 
 use OUTPUT
+use VARCOM
 use PACKET
 use MENU_SOLVER
 use MENU_NUM
@@ -55,9 +56,11 @@ logical :: allocgrad
 allocgrad = .false.
 if (.not.field%allocqhres) call error_stop("Internal error: Face extrapolated states not defined")
 
-call new_buf_index(umesh%nface, face_buffer, nblock, ista, iend)
+call new_buf_index(umesh%nface, face_buffer, nblock, ista, iend, nthread)
 
-!$OMP PARALLEL private(ib, QL, QR, cg_l, cg_r, gradL, gradR, cQL, cQR, buf) shared (flux, jacL, jacR)
+!$OMP PARALLEL & 
+!$OMP   private(ib, QL, QR, cg_l, cg_r, gradL, gradR, cQL, cQR, buf) &
+!$OMP   shared (flux, jacL, jacR)
 
 allocate(  cg_l(face_buffer),   cg_r(face_buffer))
 

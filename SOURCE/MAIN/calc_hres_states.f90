@@ -8,6 +8,7 @@
 subroutine calc_hres_states(defsolver, defspat, grid, field)
 
 use OUTPUT
+use VARCOM
 use PACKET
 use MENU_SOLVER
 use MENU_NUM
@@ -36,7 +37,7 @@ real(krp) :: klim
 
 ! -- BODY --
 
-call new_buf_index(grid%umesh%nface, face_buffer, nblock, ista, iend)
+call new_buf_index(grid%umesh%nface, face_buffer, nblock, ista, iend, nthread)
 
 call alloc_hres_states(field)
 

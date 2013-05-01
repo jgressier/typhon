@@ -47,6 +47,7 @@ itimer_tot  = realtime_start()
 itimer_init = realtime_start()
 
 call init_varcom()
+if (omp_run) call print_info(0, "Open-MP computation "//trim(strof(nthread))//" threads")
 
 !###### PARAMETERS PARSING 
 

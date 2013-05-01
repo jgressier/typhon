@@ -10,6 +10,7 @@
 subroutine calc_varprim_ns(defns, field)
 
 use OUTPUT
+use VARCOM
 use PACKET
 use MENU_SOLVER
 use DEFFIELD
@@ -36,11 +37,10 @@ integer, pointer      :: ista(:), iend(:) ! starting and ending index
 ncell = field%ncell    ! compute on all cells (ghost cells too even if not necessary)
 g1    = defns%properties(1)%gamma - 1._krp
 
-call new_buf_index(ncell, cell_buffer, nblock, ista, iend)
+call new_buf_index(ncell, cell_buffer, nblock, ista, iend, nthread)
 
-!$OMP PARALLEL DO private(rho, vel, ec, buf) shared(field)
+!$OMP PARALLEL DO private(rho, vel, ec, buf, i) shared(field, ista, iend, nblock)
 do ib = 1, nblock
-
   buf = iend(ib)-ista(ib)+1
 
   do i = ista(ib), iend(ib)
