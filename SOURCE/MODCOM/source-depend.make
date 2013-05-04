@@ -10,10 +10,8 @@ MODCOM_LIB = $(PRJLIBDIR)/libt_modcom.a
 
 # Modules
 MODCOM_MOD = COMMTAG.$(MODEXT)          \
-             CONNECT_CSR.$(MODEXT)      \
              GENLIB.$(MODEXT)           \
              LAPACK.$(MODEXT)           \
-             LIBSORT.$(MODEXT)          \
              MODINFO.$(MODEXT)          \
              TYPHMAKE.$(MODEXT)         \
              VARCOM.$(MODEXT)

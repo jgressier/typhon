@@ -16,6 +16,8 @@ use PACKET
 use USTMESH
 use DEFFIELD
 use MATRIX_ARRAY
+use VARCOM
+use VEC3D
 
 implicit none
 
@@ -31,17 +33,18 @@ type(st_mattab)         :: jacL, jacR
 
 ! -- Private DATA --
 real(krp)             :: surf(face_buffer) ! intermediate surface
+real(krp)             :: coef(cell_buffer) ! intermediate residual coefficient
 integer               :: ifa, i            ! index de face
 integer               :: ic1, ic2         ! index de cellules
 integer               :: ip               ! index de variables
-integer               :: ib               ! block index
+integer               :: ib, icolor       ! block index
 integer               :: dim              ! dimension
 integer               :: buf, nblock      ! buffer size 
 integer, pointer      :: ista(:), iend(:) ! starting and ending index
 
 ! -- BODY --
 
-call new_buf_index(umesh%nface, face_buffer, nblock, ista, iend)
+call new_buf_index(umesh%nface, face_buffer, nblock, ista, iend, nthread)
 
 !$OMP PARALLEL DO private(surf, ifa, buf) shared(flux)
 do ib = 1, nblock
@@ -80,12 +83,18 @@ do ib = 1, nblock
 enddo
 !$OMP END PARALLEL DO
 
+deallocate(ista, iend)
+
 ! -- calcul des residus --
 
-!!$OMP PARALLEL DO private(ic1, ic2) shared(residu, flux)  !!! bug when using OMP here
-do ifa = 1, umesh%nface
+do icolor = 1, umesh%colors%nbnodes
+
+!$OMP PARALLEL DO private(ic1, ic2, ifa, ip) shared(residu, flux, umesh) 
+do i = 1, umesh%colors%node(icolor)%nelem
+  ifa = umesh%colors%node(icolor)%elem(i)
   ic1 = umesh%facecell%fils(ifa,1)
   ic2 = umesh%facecell%fils(ifa,2)
+  !print*,icolor, i, ifa, ic1, ic2
 
   do ip = 1, residu%nscal
     residu%tabscal(ip)%scal(ic1) = residu%tabscal(ip)%scal(ic1) - flux%tabscal(ip)%scal(ifa)
@@ -98,22 +107,41 @@ do ifa = 1, umesh%nface
     !residu%tabvect(ip)%vect(ic2) = residu%tabvect(ip)%vect(ic2) + flux%tabvect(ip)%vect(ifa)
   enddo
 enddo
+!$OMP END PARALLEL DO
+
+!deallocate(ista, iend)
+enddo ! color
+
+!!$OMP PARALLEL DO private(ic1, ip)
+!do ic1 = 1, umesh%ncell_int
+!   do ip = 1, residu%nscal
+!    residu%tabscal(ip)%scal(ic1) = (dtloc(ic1)/ umesh%mesh%volume(ic1,1,1)) * residu%tabscal(ip)%scal(ic1)
+!   enddo
+!   do ip = 1, residu%nvect
+!    residu%tabvect(ip)%vect(ic1) = (dtloc(ic1)/ umesh%mesh%volume(ic1,1,1)) * residu%tabvect(ip)%vect(ic1)
+!   enddo
+!enddo
 !!$OMP END PARALLEL DO
+ 
+call new_buf_index(umesh%ncell_int, cell_buffer, nblock, ista, iend, nthread)
 
-deallocate(ista, iend)
+!$OMP PARALLEL DO private(ic1, ip, buf, coef) shared(residu)
+do ib = 1, nblock
 
-! ??? creation de procedure intrinseques ? // optimisation
+  buf         = iend(ib)-ista(ib)+1
+  coef(1:buf) = dtloc(ista(ib):iend(ib))/ umesh%mesh%volume(ista(ib):iend(ib),1,1)
 
-!$OMP PARALLEL DO private(ic1, ip)
-do ic1 = 1, umesh%ncell_int
   do ip = 1, residu%nscal
-    residu%tabscal(ip)%scal(ic1) = (dtloc(ic1)/ umesh%mesh%volume(ic1,1,1)) * residu%tabscal(ip)%scal(ic1)
+    residu%tabscal(ip)%scal(ista(ib):iend(ib)) = coef(1:buf) * residu%tabscal(ip)%scal(ista(ib):iend(ib))
   enddo
   do ip = 1, residu%nvect
-    residu%tabvect(ip)%vect(ic1) = (dtloc(ic1)/ umesh%mesh%volume(ic1,1,1)) * residu%tabvect(ip)%vect(ic1)
+    call scale(residu%tabvect(ip)%vect(ista(ib):iend(ib)), coef(1:buf))
   enddo
+  
 enddo
 !$OMP END PARALLEL DO
+
+deallocate(ista, iend)
 
 endsubroutine flux_to_res
 !------------------------------------------------------------------------------!

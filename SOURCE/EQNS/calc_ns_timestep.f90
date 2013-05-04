@@ -27,7 +27,7 @@ integer           :: ncell         ! nombre de cellules internes (taille de dtlo
 real(krp), dimension(1:ncell) :: dtloc    ! tableau de pas de temps local
 
 ! -- Private DATA --
-integer   :: if, ic, nbadcell, ib
+integer   :: if, ic, ic1, ic2, nbadcell, ib, icolor, i
 real(krp) :: gg1
 real(krp) :: a2(cell_buffer), rv2(cell_buffer), irho(cell_buffer)
 integer, pointer      :: ifsta(:), ifend(:)     ! starting and ending index
@@ -36,6 +36,8 @@ integer               :: fbuf, nfblock          ! buffer size for face
 integer               :: cbuf, ncblock          ! buffer size 
 
 ! ------------------------------ BODY ------------------------------
+
+gg1 = fluid%gamma*(fluid%gamma -1._krp)
 
 ! Euler timestep is 
 
@@ -55,41 +57,30 @@ enddo
 
 ! somme des surfaces de faces internes sur chaque cellule (boucle sur faces)
 
-!!$OMP PARALLEL DO private(ic)
-do if = 1, umesh%nface_int
-  ic  = umesh%facecell%fils(if,1)
-  !!$OMP ATOMIC
-  dtloc(ic) = dtloc(ic) + umesh%mesh%iface(if,1,1)%surface 
-  ic  = umesh%facecell%fils(if,2)
-  !!$OMP ATOMIC
-  dtloc(ic) = dtloc(ic) + umesh%mesh%iface(if,1,1)%surface
-enddo
-!!$OMP END PARALLEL DO
+do icolor = 1, umesh%colors%nbnodes
 
-! somme des surfaces de faces limites sur chaque cellule (boucle sur faces)
+!$OMP PARALLEL DO private(ic1, ic2, if) shared(dtloc) 
+do i = 1, umesh%colors%node(icolor)%nelem
 
-!!$OMP PARALLEL DO private(ic)
-do if = umesh%nface_int+1, umesh%nface
-  ic  = umesh%facecell%fils(if,1)
-  !!$OMP ATOMIC
-  dtloc(ic) = dtloc(ic) + umesh%mesh%iface(if,1,1)%surface
+  if  = umesh%colors%node(icolor)%elem(i)
+  ic1 = umesh%facecell%fils(if,1)
+  ic2 = umesh%facecell%fils(if,2)
+
+  dtloc(ic1) = dtloc(ic1) + umesh%mesh%iface(if,1,1)%surface 
+  if (ic2 <= ncell) dtloc(ic2) = dtloc(ic2) + umesh%mesh%iface(if,1,1)%surface
 enddo
-!!$OMP END PARALLEL DO
+!$OMP END PARALLEL DO
+enddo ! color
 
 ! -- Calcul de V / somme_i S_i et prise en compte du nombre de CFL --
 
 call new_buf_index(ncell, cell_buffer, ncblock, icsta, icend)
 
-!$OMP PARALLEL DO
-do ic = 1, ncell
-  dtloc(ic) =  cfl * 2._krp * umesh%mesh%volume(ic,1,1) / dtloc(ic)
-enddo
-!$OMP END PARALLEL DO
-
-gg1 = fluid%gamma*(fluid%gamma -1._krp)
-
 !$OMP PARALLEL DO private(ic, rv2, a2, irho, cbuf, nbadcell, str_w) shared(dtloc)
 do ib = 1, ncblock
+
+  dtloc(icsta(ib):icend(ib)) =  cfl * 2._krp * umesh%mesh%volume(icsta(ib):icend(ib),1,1) / dtloc(icsta(ib):icend(ib))
+  
   cbuf = icend(ib)-icsta(ib)+1
   irho(1:cbuf) = 1._krp/field%etatcons%tabscal(1)%scal(icsta(ib):icend(ib))
   rv2 (1:cbuf) = sqrabs(field%etatcons%tabvect(1)%vect(icsta(ib):icend(ib)))
@@ -123,5 +114,6 @@ endsubroutine calc_ns_timestep
 !
 ! July 2004 : creation, calcul par CFL
 ! Aug  2005 : use direct CFL number (computed before)
+! May  2013 : colored OMP
 !------------------------------------------------------------------------------!
 

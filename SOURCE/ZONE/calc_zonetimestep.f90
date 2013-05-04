@@ -6,9 +6,7 @@
 !
 ! Defauts/Limitations/Divers :
 !   ATTENTION : a ce moment, les variables primitives ne sont pas calculees
-!
 !------------------------------------------------------------------------------!
-
 subroutine calc_zonetimestep(lzone, dt, wres_ref, wcur_res, dtmax)
 
 use TYPHMAKE
@@ -75,7 +73,7 @@ case(solKDIF, solNS)
         case(time_unsteady)
           cfl = lzone%defsolver%deftime%stabnb
         case default
-          call erreur("internal error (calc_zonetimestep)", "unknown time model")
+          call error_stop("internal error (calc_zonetimestep): unknown time model")
         endselect
         call calc_ns_timestep(cfl, lzone%defsolver%defns%properties(1), &
                               pgrid%umesh, pgrid%info%field_loc, pgrid%dtloc(1:ncell), ncell)
@@ -83,11 +81,11 @@ case(solKDIF, solNS)
         call calc_kdif_timestep(lzone%defsolver%deftime, lzone%defsolver%defkdif%materiau, &
                                 pgrid%umesh, pgrid%info%field_loc, pgrid%dtloc(1:ncell), ncell)
       case default
-        call erreur("internal error (calc_zonetimestep)", "solveur inconnu")
+        call error_stop("internal error (calc_zonetimestep): unknown solver")
       endselect
 
     case default
-      call erreur("internal error (calc_zonetimestep)", "condition incompatible")
+      call error_stop("internal error (calc_zonetimestep): unknown timestep method")
     endselect  
 
     ! -- need to compute minimum time step for all grids (only if global time step) --
@@ -122,26 +120,12 @@ case(solKDIF, solNS)
   endif
 
 !--------------------------------------------------------
-! methode LAGRANGIENNE
-!--------------------------------------------------------
-case(solVORTEX)
-
-  select case(lzone%defsolver%deftime%stab_meth)
-  case(given_dt)   ! -- Pas de temps impose --
-    dt = min(lzone%defsolver%deftime%dt, dtmax)
-  case default
-    call erreur("internal error (calc_zonetimestep)", "condition incompatible")
-  endselect  
-
-!--------------------------------------------------------
 case default
-  call erreur("Developpement","solveur inattendu (calc_zonetimestep)")
-
+  call error_stop("internal error: unknown solver (calc_zonetimestep)")
 endselect
 
 
 endsubroutine calc_zonetimestep
-
 !------------------------------------------------------------------------------!
 ! change history
 !

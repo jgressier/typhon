@@ -35,7 +35,7 @@ real(krp), allocatable :: dcg(:,:)    ! delta cg
 real(krp), allocatable :: rhs(:,:)    ! second membre
 real(krp)              :: dsca        ! variation de variable scalaire
 type(v3d)              :: dvec        ! variation de variable vectorielle
-integer                :: ic, nc      ! indice et nombre de cellules internes
+integer                :: i, ic, nc   ! indice et nombre de cellules internes
 integer                :: dec         ! index shifting (pack & unpack)
 integer                :: dim         ! full state size
 integer                :: if, nf, nfi ! indice et nombre de faces totales et internes
@@ -43,10 +43,11 @@ integer                :: nv          ! nombre de variables
 integer                :: is, iv      ! indice de variable scalaire et vectorielle
 integer                :: ic1, ic2    ! indices de cellules (gauche et droite de face)
 integer                :: info, xinfo ! retour d'info des routines LAPACK
-integer, pointer      :: ifsta(:), ifend(:)     ! starting and ending index
-integer, pointer      :: icsta(:), icend(:)     ! starting and ending index
-integer               :: ifb, fbuf, nfblock     ! buffer size for face
-integer               :: icb, cbuf, ncblock     ! buffer size 
+integer, pointer       :: ifsta(:), ifend(:)     ! starting and ending index
+integer, pointer       :: icsta(:), icend(:)     ! starting and ending index
+integer                :: icolor
+integer                :: ifb, fbuf, nfblock     ! buffer size for face
+integer                :: icb, cbuf, ncblock     ! buffer size 
 
 ! -- BODY --
 
@@ -98,16 +99,50 @@ endselect
 ! Fill RHS and pack scalars and vectors
 !-----------------------------------------------------------------------------
 
+!rhs(2,:) = 0._krp      ! initialisation
+!
+!do icolor = 1, grid%umesh%colors%nbnodes
+!rhs(1,:) = 0._krp      ! initialisation
+!do i = 1, grid%umesh%colors%node(icolor)%nelem
+!  if  = grid%umesh%colors%node(icolor)%elem(i)
+!  rhs(2,if) = rhs(2,if) +1
+!  ic1 = grid%umesh%facecell%fils(if,1)
+!  if (rhs(1,ic1) <= 0.5) then
+!    rhs(1,ic1) = 1.
+!  else
+!    rhs(1,ic1) = 2.
+!  endif
+!  !if (if <= nfi) then
+!  ic1 = grid%umesh%facecell%fils(if,2)
+!  if (rhs(1,ic1) <= 0.5) then
+!    rhs(1,ic1) = 1.
+!  else
+!    rhs(1,ic1) = 2.
+!  endif
+!  !endif
+!enddo
+!print*,'color',icolor,grid%umesh%colors%node(icolor)%nelem,'conflict',count(rhs(1,:)>= 1.5)
+!enddo
+!print*,'tot face',grid%umesh%nface
+!print*,'0 tag',count(abs(rhs(2,1:grid%umesh%nface)-0.)<0.1)
+!print*,'1 tag',count(abs(rhs(2,1:grid%umesh%nface)-1.)<0.1)
+!print*,'2 tag',count(abs(rhs(2,1:grid%umesh%nface)-2.)<0.1)
+!print*,'3 tag',count(abs(rhs(2,1:grid%umesh%nface)-3.)<0.1)
+
 rhs(:,:) = 0._krp      ! initialisation
 
 ! Calcul des seconds membres (cellules internes et limites)
 
-!!$OMP PARALLEL DO private(if, ic1, ic2, is, iv, dec, dsca) shared (rhs)   ! , reduction(+: rhs)
+do icolor = 1, grid%umesh%colors%nbnodes
 
-do if = 1, nf
+!$OMP PARALLEL DO &
+!$  private(ic1, ic2, if, is, iv, dec, dsca, i) &
+!$  shared(rhs, nfi) 
+do i = 1, grid%umesh%colors%node(icolor)%nelem
 
-  ic1  = grid%umesh%facecell%fils(if,1)
-  ic2  = grid%umesh%facecell%fils(if,2)
+  if  = grid%umesh%colors%node(icolor)%elem(i)
+  ic1 = grid%umesh%facecell%fils(if,1)
+  ic2 = grid%umesh%facecell%fils(if,2)
 
   do is = 1, gfield%nscal
     dec = is-dim
@@ -143,8 +178,8 @@ do if = 1, nf
   enddo
 
 enddo
-
-!!$OMP END PARALLEL DO
+!$OMP END PARALLEL DO
+enddo ! color
 
 !-----------------------------------------------------------------------------
 ! Solve LSQ
@@ -154,11 +189,9 @@ info  = 0
 xinfo = 0
 
 !$OMP PARALLEL DO private(ic)
-
 do ic = 1, nc
   call cholesky_solve(grid%optmem%gradcond(ic)%mat, 3, rhs(1:3, (ic-1)*dim+1:ic*dim), dim)
 enddo
-
 !$OMP END PARALLEL DO
 
 !if (xinfo /= 0) call erreur("Gradient computation","Choleski inversion failed")
@@ -168,7 +201,6 @@ enddo
 !-----------------------------------------------------------------------------
 
 !$OMP PARALLEL DO private (ic, dec, is, iv)
-
 do ic = 1, nc
   dec = (ic-1)*dim
   do is = 1, gfield%nscal
@@ -180,7 +212,6 @@ do ic = 1, nc
     grad%tabtens(iv)%tens(ic)%mat(3,1:3) = rhs(1:3,dec+gfield%nscal+(iv-1)*3+3)
   enddo
 enddo
-
 !$OMP END PARALLEL DO
 
 ! --desallocation
@@ -197,4 +228,5 @@ endsubroutine calc_gradient
 ! sept 2003 : creation de la procedure
 ! nov  2004 : computation of vector gradients
 ! oct  2005 : restructuration (pack scalar & vectors for a single LSQ solve)
+! May  2013 : colored OMP
 !------------------------------------------------------------------------------!

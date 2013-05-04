@@ -183,7 +183,10 @@ check_library() {
   if [ -n "$fullname" ] ; then
     success $fullname
     export LIB_$name=$fullname
+    export FP_$name=-D$fullname
   else
+    export LIB_$name=
+    export FP_$name=
     fail "not found: $libname"
   fi
   }
@@ -320,8 +323,8 @@ no_feature="TYPHON will not feature"
 [[ -n "$FTN_ERR" ]]    && error   "fortran compile/run error: $impossible"
 #[[ -z "$LIB_blas"   ]] && error   "BLAS   not available: $impossible"
 #[[ -z "$LIB_lapack" ]] && error   "LAPACK not available: $impossible"
-[[ -z "$LIB_cgns"   ]] && error   "CGNS   not available: $impossible"
-[[ -z "$LIB_metis"  ]] && error   "METIS  not available: $no_feature automatic distribution"
+[[ -z "$LIB_cgns"   ]] && warning "CGNS   not available: $impossible"
+[[ -z "$LIB_metis"  ]] && warning "METIS  not available: $no_feature automatic distribution"
 [[ -z "$MPILIB"     ]] && warning "MPI    not available: $no_feature parallel computation"
 [[ -n "$MPIF90CMP"  ]] && warning "MPI/fortran compilers are $MPIF90CMP/$F90C"
 
@@ -347,7 +350,12 @@ mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
   echo "SHELL       = $SHELL"
   echo "MAKEDEPENDS = \$(PRJDIR)/../TOOLS/make_depends $F90modcase"
   echo "MODEXT      = $F90modext"
-  echo "FB          = $F90_FB -I\$(PRJINCDIR)"
+  echo "FPMETIS     = $FP_metis"
+  echo "METISLIB    = $LIB_metis"
+  echo "FPCGNS      = $FP_cgns"
+  echo "CGNSLIB     = $LIB_cgns"
+  echo "FOPP        = \$(FPMETIS) \$(FPCGNS)"
+  echo "FB          = $F90_FB \$(FOPP) -I\$(PRJINCDIR)"
   echo "FO_debug    = $F90_DEBUG"
   echo "FO_optim    = $F90_OPTIM"
   echo "FO_openmp   = $F90_OPTIM $F90_OPENMP"
@@ -359,8 +367,6 @@ mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
   echo "LINKFB      = \$(F90OPT)"
   echo "LINKER      = \$(F90C)"
   echo "LINKSO      = \$(F90C) -shared"
-  echo "METISLIB    = $LIB_metis"
-  echo "CGNSLIB     = $LIB_cgns"
   echo "MPILIB      = $MPILIB"
   echo "MPIF90C     = $MPIF90C"
   echo "MPIF90_FC   = $MPIF90_FC"

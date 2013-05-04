@@ -8,10 +8,10 @@
 
 module CONNECT_CSR
 
-use TYPHMAKE        ! accuracy definition
+use MESHPREC        ! accuracy definition
 use CONNECTIVITY 
 use LIBSORT         ! sorting procedure library
-use OUTPUT 
+use IOCFD 
 
 implicit none
 
@@ -134,7 +134,7 @@ integer(kip)              :: i, if, ic1, ic2
   !print*, "ncol",ncol
   !print*, "row",csr%row_index
   if (csr%row_index(dim+1) /= nval+1) &
-    call erreur("internal error", "bad index while translating facecell to CSR")
+    call cfd_error("bad index while translating facecell to CSR")
 
   ! -- fill col_index --
 
@@ -170,6 +170,7 @@ endmodule CONNECT_CSR
 ! Changes history
 !
 ! Oct  2005: Created
+! May  2013: moved to CFDTOOLS
 !------------------------------------------------------------------------------!
 
 

@@ -16,11 +16,14 @@ LIBNAME:=libcfdbase
 this.library: $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
 
 this.f90modules= \
+  COLOR.f90        \
   CONNECTIVITY.f90 \
+  CONNECT_CSR.f90  \
   ENDIAN.f90       \
   FTNARGS.f90      \
   IO_UNIT.f90      \
   IOCFD.f90        \
+  LIBSORT.f90      \
   MESHPREC.f90     \
   PACKET.f90       \
   STRING.f90       \

@@ -56,7 +56,7 @@ do while (associated(pgrid))
   pfield => pgrid%info%field_loc%etatcons
 
   !$OMP PARALLEL & 
-  !$OMP   private(ib, i) &
+  !$OMP   private(ib, i, ithread) &
   !$OMP   shared (nsca, nvec, pfield, pgrid, refsca, refvec)
   ithread = 1
   !$ ithread = OMP_GET_THREAD_NUM()+1

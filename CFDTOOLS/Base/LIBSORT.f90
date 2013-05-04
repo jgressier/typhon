@@ -8,9 +8,9 @@
 
 module LIBSORT
 
-use TYPHMAKE        ! accuracy definition
+use MESHPREC        ! accuracy definition
 use CONNECTIVITY 
-use OUTPUT 
+use IOCFD 
 
 implicit none
 
@@ -238,6 +238,7 @@ endmodule LIBSORT
 ! Changes history
 !
 ! Oct  2005: Created
+! May  2013: moved to CFDTOOLS
 !------------------------------------------------------------------------------!
 
 

@@ -39,6 +39,7 @@ type st_ustmesh
   type(st_connect)      :: facevtex, &           ! connectivite face   -> sommets   par type
                            facecell              ! connectivite face   -> cellules  par type
                                                  ! SUPPOSED TO INDEX LOWER INDEX CELL FIRST
+  type(st_genconnect)   :: colors                ! independent set of faces
   type(st_genconnect)   :: vtexface              ! VTEX-FACE connectivity
   type(st_genelemvtex)  :: cellvtex              ! CELL-VTEX connectivity
   
@@ -183,6 +184,7 @@ integer          :: i
   call delete(umesh%facevtex)
   call delete(umesh%facecell)
   call delete_genconnect(umesh%vtexface)
+  call delete_genconnect(umesh%colors)
   call delete_genelemvtex(umesh%cellvtex)
   if ((umesh%nboco > 0).and.associated(umesh%boco)) then
     do i = 1, umesh%nboco 

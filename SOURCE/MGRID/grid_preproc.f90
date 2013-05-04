@@ -12,6 +12,7 @@ use MGRID
 use MENU_SOLVER
 use MESHPARAMS
 use MESHCONNECT
+use COLOR
 
 implicit none
 
@@ -35,6 +36,9 @@ case(grid_ust)
   call create_face_connect(facetag, grid%umesh, verbose=1)
   call grid_ustpreproc(defsolver, grid)
   grid%info%volume = sum(grid%umesh%mesh%volume(1:grid%umesh%ncell_int, 1, 1))
+  call print_info(10,"* compute FACE colors")
+  call coo_colorgroup(grid%umesh%nface, grid%umesh%ncell, grid%umesh%facecell, grid%umesh%colors)
+  call print_info(12,"  . "//trim(strof(grid%umesh%colors%nbnodes))//" colors")
 
 case(grid_str)
 

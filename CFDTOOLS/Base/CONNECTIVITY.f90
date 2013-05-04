@@ -25,7 +25,6 @@ type st_elemc
   integer, pointer :: elem(:)   ! definition de la connectivite
 endtype st_elemc
 
-
 !------------------------------------------------------------------------------!
 ! structure ST_CONNECT : Definition de connectivite a nombre de fils constants
 !------------------------------------------------------------------------------!
@@ -36,7 +35,6 @@ type st_connect
                           :: fils        ! definition de la connectivite
 endtype st_connect
 
-
 !------------------------------------------------------------------------------!
 ! structure ST_GENCONNECT : Definition de connectivite a nombre de fils variables
 !------------------------------------------------------------------------------!
@@ -44,8 +42,6 @@ type st_genconnect
   integer                               :: nbnodes   ! number of nodes
   type(st_elemc), dimension(:), pointer :: node      ! node array
 endtype st_genconnect
-
-
 
 
 ! -- INTERFACES -------------------------------------------------------------
@@ -75,7 +71,7 @@ interface realloc
 endinterface
 
 interface index
-  module procedure index_int
+  module procedure index_int, elemc_index_int
 endinterface
 
 
@@ -245,6 +241,7 @@ endsubroutine new_genconnect_empty
 
 !------------------------------------------------------------------------------!
 ! Procedure : allocation d'une structure GENCONNECT avec nombre de fils
+!   allocated size is nelem, used size is initdim
 !------------------------------------------------------------------------------!
 subroutine new_genconnect_nelem(conn, nbnodes, nelem, initdim)
   implicit none
@@ -268,7 +265,7 @@ subroutine new_genconnect_nelem(conn, nbnodes, nelem, initdim)
 endsubroutine new_genconnect_nelem
 
 !------------------------------------------------------------------------------!
-! Procedure : allocation d'une structure GENCONNECT avec nombre de fils
+! Procedure : allocation d'une structure GENCONNECT avec nombre de fils (array)
 !------------------------------------------------------------------------------!
 subroutine new_genconnect_arraynelem(conn, nbnodes, nelem)
   implicit none
@@ -304,9 +301,36 @@ subroutine delete_genconnect(conn)
 
 endsubroutine delete_genconnect
 
+!------------------------------------------------------------------------------!
+! Procedure : allocation d'une structure GENCONNECT avec nombre de fils
+!   allocated size is nelem, used size is initdim
+!------------------------------------------------------------------------------!
+subroutine genconnect_addnode(conn, nelem, initdim)
+  implicit none
+  type(st_genconnect) :: conn, old
+  integer             :: nelem
+  integer, optional   :: initdim
+  integer             :: i, idim
+
+  if (present(initdim)) then
+    idim = initdim
+  else
+    idim = nelem
+  endif
+  old = conn                      ! only pointer copy
+  conn%nbnodes = old%nbnodes+1
+  allocate(conn%node(conn%nbnodes))    ! allocate new elemc array
+  do i = 1, old%nbnodes                ! copy(pointers) existing elemc
+    conn%node(i) = old%node(i)
+  enddo
+  deallocate(old%node)
+  conn%node(conn%nbnodes)%nelem = idim   ! allocate new elemc
+  allocate(conn%node(conn%nbnodes)%elem(nelem))
+
+endsubroutine
 
 !------------------------------------------------------------------------------!
-! Procedure : desallocation d'une structure GENCONNECT
+! Procedure : add element "ielem" to inode of genconnect "conn"
 !------------------------------------------------------------------------------!
 subroutine add_element(conn, inode, ielem, resize)
   implicit none
@@ -371,6 +395,25 @@ integer function index_int(int, tab)
 
 endfunction index_int
 
+!------------------------------------------------------------------------------!
+! Fonction : index d'un entier dans une liste d'entiers
+!------------------------------------------------------------------------------!
+integer function elemc_index_int(int, elemc)
+  implicit none
+  integer        :: int      ! entier a rechercher
+  type(st_elemc) :: elemc    ! liste d'entier pour la recherche
+  integer :: i, dim
+
+  elemc_index_int = 0          ! valeur par defaut si index introuvable
+  do i = 1, elemc%nelem
+    if (elemc%elem(i)==int) then
+      elemc_index_int = i
+      exit
+    endif
+  enddo 
+
+endfunction elemc_index_int
+
 
 
 endmodule CONNECTIVITY
@@ -381,6 +424,7 @@ endmodule CONNECTIVITY
 ! juil 2003 : creation du module, connectivite simple et generalisee
 ! juin 2004 : new et delete pour st_elemc
 ! Oct  2009 : transfered from TYPHON
+! May  2013 : search function and add node in genconnect
 !------------------------------------------------------------------------------!
 
 
