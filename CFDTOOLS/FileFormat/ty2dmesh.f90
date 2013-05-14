@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------!
 ! TY2DMESH
-! creates an H structured mesh 
+! creates an H structured mesh
 !
 !------------------------------------------------------------------------------!
 program ty2dmesh
@@ -80,7 +80,7 @@ strnsp = strof(dimspl)
 lx = 1._krp
 ly = 1._krp
 fctscale = .false.
-cstscale = .false.  
+cstscale = .false.
 strx = "x"
 stry = "y"
 ni = 0
@@ -197,7 +197,7 @@ do while (iarg <= nargs)
     if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
     call read_command_argument(iarg, lx, lincr, ierr, str_val)
     if (ierr/=0) &
-      call cfd_error("real expected after '"//trim(str_opt)//"'"//", found '"//trim(str_val)//"'") 
+      call cfd_error("real expected after '"//trim(str_opt)//"'"//", found '"//trim(str_val)//"'")
   ! length in y direction
   case ("-ly")
     ! read real
@@ -207,7 +207,7 @@ do while (iarg <= nargs)
     if (ierr/=0) call cfd_error("real expected after '"//trim(str_opt)//"'"// &
                                 ", found '"//trim(str_val)//"'")
   ! split positions array
-  case ("-fx")   ! scaling function for x 
+  case ("-fx")   ! scaling function for x
     fctscale = .true.
     if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
     call read_command_argument(iarg, strx, lincr)
@@ -423,7 +423,7 @@ if (splitimax) then
 endif
 
 if (fctscale) then
-  if (cstscale) call cfd_error("must not mix -lx/ly and -fx/fy definitions") 
+  if (cstscale) call cfd_error("must not mix -lx/ly and -fx/fy definitions")
   print*,'X scaling function '//trim(strx)
   call string_to_funct(strx, morphx, ierr)
   print*,'Y scaling function '//trim(stry)
@@ -487,9 +487,9 @@ do nn = 1, 4
     write(6,'(x,4a,i2)') trim(str_ndir),'-windows [sizes] on ', &
                          trim(str_opt),' boundary: ',nsdir
     do ii = 1,nsdir
-      write(6,'(3x,a1,a1,i2,a4,i3,a2,i3,a2,i3,a1)') &
-            trim(str_ndir),'(',ii,') : ',wsdir(ii),' -',wsdir(ii+1), &
-            ' [',wsdir(ii+1)-wsdir(ii),']'
+      write(6,'(3x,a1,a1,i2,a3,i3,a3,i3,a3,i3,a1)') &
+            trim(str_ndir),'(',ii,'): ',wsdir(ii),' - ',wsdir(ii+1), &
+            ' [ ',wsdir(ii+1)-wsdir(ii),']'
       if (wsdir(ii+1)<=wsdir(ii)) then
         errdir = .TRUE.
         print*,'    ** error **'

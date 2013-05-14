@@ -127,8 +127,6 @@ implicit none
 type(rpmblock), pointer :: block   ! pointer to searched block
 character(len=*)        :: key     ! searched keyword
 ! -- Outputs --
-integer ntot   ! total count of occurrences, computed if num == 0
-integer nlig   ! line number of occurrence num
 
 ! -- Internal variables --
 integer                  i, nkey
@@ -145,8 +143,7 @@ endfunction rpm_existkey
 
 
 !------------------------------------------------------------------------------!
-!          : numvar_inrpmdata             Author : J. Gressier
-! Function :
+! Function : numvar_inrpmdata             Author : J. Gressier
 !                                         Date   : Feb 2002
 !                                         Modif  :
 ! Function :

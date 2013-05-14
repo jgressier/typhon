@@ -1,3 +1,5 @@
+.PHONY: help all clean
+
 help:
 	@echo "-----------------------------------------------------------------"
 	@echo "CFDtools project"
@@ -16,10 +18,12 @@ all:
 	@(cd Models ;     make opt=$(opt))
 	@(cd Mesh ;       make opt=$(opt))
 	@(cd FileFormat ; make opt=$(opt))
+
 clean:
-	@rm include/*.$(MODEXT)
+	@rm lib/*.a
 	@(cd Base ;       make clean )
 	@(cd Math ;       make clean )
 	@(cd Models ;     make clean )
 	@(cd Mesh ;       make clean )
 	@(cd FileFormat ; make clean )
+

@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! MODULE : SPMAT_DLU                                Authors : J. Gressier
-!                                                   Created : Avril 2004
-! Fonction
+!
+! Function :
 !   Definition des structures de stockage de matrices creuses
 !
 ! Defauts/Limitations/Divers :
@@ -11,7 +11,7 @@
 module SPMAT_DLU
 
 use TYPHMAKE       ! Definition de la precision
-use CONNECTIVITY   
+use CONNECTIVITY
 
 implicit none
 
@@ -37,6 +37,7 @@ endtype st_dlu
 
 
 ! -- INTERFACES -------------------------------------------------------------
+
 interface new
   module procedure new_dlu
 endinterface
@@ -103,7 +104,7 @@ integer      :: i, if
   if (.not.mat%sort) then
     do if = 1, mat%ncouple
       if (mat%couple%fils(if,1) > mat%couple%fils(if,2)) then
-        x             = mat%lower(if) 
+        x             = mat%lower(if)
         mat%lower(if) = mat%upper(if)
         mat%upper(if) = x
         i                     = mat%couple%fils(if,2)
@@ -125,8 +126,6 @@ implicit none
 ! - parametres
 type(st_dlu) :: mat
 ! - internal
-real(krp)    :: x
-integer      :: i, if
 
 
 endsubroutine invertdiag_dlu
@@ -200,7 +199,7 @@ integer(kip) :: if, imin, imax
 ! -- body --
 
 p(1:mat%dim) = x(1:mat%dim)
-x(1:mat%dim) = y(1:mat%dim) + mat%diag(1:mat%dim)*p(1:mat%dim) 
+x(1:mat%dim) = y(1:mat%dim) + mat%diag(1:mat%dim)*p(1:mat%dim)
 do if = 1, mat%ncouple
   imin = mat%couple%fils(if,1)    ! ic1 cell is supposed to be the lowest index
   imax = mat%couple%fils(if,2)    ! ic2 cell is supposed to be the highest index
@@ -226,7 +225,7 @@ integer(kip) :: if, imin, imax
 
 ! -- body --
 
-y(1:mat%dim) = z(1:mat%dim) - mat%diag(1:mat%dim)*x(1:mat%dim) 
+y(1:mat%dim) = z(1:mat%dim) - mat%diag(1:mat%dim)*x(1:mat%dim)
 do if = 1, mat%ncouple
   imin = mat%couple%fils(if,1)    ! ic1 cell is supposed to be the lowest index
   imax = mat%couple%fils(if,2)    ! ic2 cell is supposed to be the highest index
@@ -240,11 +239,10 @@ endsubroutine dlu_yeqmaxpz
 
 endmodule SPMAT_DLU
 
-
 !------------------------------------------------------------------------------!
 ! Change History
 !
-! Apr 2004 : created, scalar terms
-! Dec 2004 : extension to block terms
-! Jul 2005 : internal operations
+! Apr 2004: created, scalar terms
+! Dec 2004: extension to block terms
+! Jul 2005: internal operations
 !------------------------------------------------------------------------------!

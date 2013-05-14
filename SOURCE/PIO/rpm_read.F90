@@ -25,7 +25,6 @@ subroutine readrpmblock(nio, nerr, iaff, firstblock)
   integer, parameter       :: dimbuf = 100  ! size of line buffer
   integer                  :: lectstat      ! reading status
   integer                  :: ilig          ! line number
-  integer                  :: nbloc         ! block number
   integer                  :: posc          ! character position
   logical                  :: inblock       ! block being processed
   character(len=dimrpmlig) :: strc          ! current string
@@ -234,7 +233,6 @@ function trait_rpmlig(strin) result(strout)
 ! -- Internal variables --
   character(len=len(strin)) :: s
   integer                   :: ipos
-  logical                   :: inquote
 
 ! -- Body --
 
@@ -253,7 +251,7 @@ function trait_rpmlig(strin) result(strout)
 
 contains
 !------------------------------------------------------------------------------!
-! hange to uppercase except for string between quotes ("")
+! Change to uppercase except for string between quotes ("")
 !------------------------------------------------------------------------------!
 function rpmuppercase(strc)
 implicit none

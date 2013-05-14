@@ -26,11 +26,10 @@ type(st_zone) :: zone            ! zone a integrer
 ! retour des residus a travers le champ field de la structure zone ??
 
 ! -- Declaration des variables internes --
-integer                :: ib, if, nf, dim, i, irhs, info
+integer                :: ib, if, nf, dim, irhs, info
 integer, dimension(:), &
            allocatable :: piv
 type(st_grid), pointer :: pgrid
-type(st_genericfield)  :: center, velocity
 real(krp), dimension(:,:), allocatable &    ! 2 dimensions pour raisons informatiques
                        :: rhs
 real(krp), dimension(:,:), allocatable &

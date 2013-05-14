@@ -1,11 +1,11 @@
 !------------------------------------------------------------------------------!
-! Procedure : calc_varcons                Auteur : J. Gressier
-!                                         Date   : Juin 2003
-! Fonction
-!   Calcul des variables conservatives a partir des variables primitives
-!   Reroutage vers des procedures specifiques aux solveurs
+! Procedure : calc_varcons                      Authors : J. Gressier
 !
-! Defauts/Limitations/Divers :
+! Fonction
+!   Compute conservative variables from primitive variables
+!   Redirect to solver-specific subroutines
+!
+! Defaults/Limitations/Misc :
 !
 !------------------------------------------------------------------------------!
 subroutine calc_varcons(def_solver, field)
@@ -18,17 +18,15 @@ use DEFFIELD
 
 implicit none
 
-! -- Declaration des entrees --
-type(mnu_solver) :: def_solver       ! definition des parametres du solveur
+! -- Inputs --
+type(mnu_solver) :: def_solver       ! solver parameters
 
-! -- Declaration des entrees/sorties --
-type(st_field)   :: field            ! champ primitives->conservatives
+! -- Inputs/Outputs --
+type(st_field)   :: field            ! prim/cons field
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 
-
-! -- Debut de la procedure --
-
+! -- Body --
 
 select case(def_solver%typ_solver)
 case(solKDIF)
@@ -36,8 +34,9 @@ case(solKDIF)
 case(solNS)
   call calc_varcons_ns(def_solver%defns, field)
 case default
-  call erreur("Incoherence interne (calc_varcons)","type de solveur inconnu")
-endselect 
+  call error_stop("Internal error (calc_varcons): unknown solver type: "// &
+              trim(strof(def_solver%typ_solver)))
+endselect
 
 
 !-----------------------------
@@ -46,6 +45,6 @@ endsubroutine calc_varcons
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juin 2003 : creation de la procedure
-! july 2004 : NS solver (call calv_varcons_ns)
+! Jun 2003: creation
+! Jul 2004: NS solver (calc_varcons_ns)
 !------------------------------------------------------------------------------!

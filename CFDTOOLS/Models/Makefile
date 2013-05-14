@@ -1,30 +1,36 @@
 .SUFFIXES:
 
-default: this.library this.modules
 #
 # architecture dependent and project variables
 
-PRJDIR=..
-CONFIGDIR=$(PRJDIR)/../config
+PRJDIR = ..
+CONFIGDIR = $(PRJDIR)/../config
 
+include $(PRJDIR)/cfdproject.make    # default target
 include $(CONFIGDIR)/arch.make
-include $(PRJDIR)/cfdproject.make
 include $(CONFIGDIR)/rules.make
 
-LIBNAME:=libcfdmodels
+LIBNAME := libcfdmodels
 
-this.library: $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
-
-this.f90modules=   \
+# List of f90 modules
+this.f90modules = \
   QUANTITY.f90     \
 
-this.f90= $(this.f90modules) \
+# List of f90 files
+this.f90 = $(this.f90modules) \
 
+LIBDEPS =
+LOCALLINKOPT =
+
+# List of f90 program files
+this.f90exe = \
+
+# Dependencies for tools
 this.tools:
-
 
 include $(CONFIGDIR)/libconf.make
 
-include depends.make
+this.library: $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
 
+include depends.make
 

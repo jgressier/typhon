@@ -28,8 +28,8 @@ type(st_world) :: lworld
 ! -- Declaration des sorties --
 
 ! -- Declaration des variables internes --
-integer   :: izone, ir, ifield, if
-integer   :: iz1, iz2, ic, ncoupl1, ncoupl2, ib, nbc1, nbc2
+integer   :: izone, ir
+integer   :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
 real(krp) :: wcur_res
 
 ! -- Body --

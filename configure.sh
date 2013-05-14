@@ -1,4 +1,15 @@
-##!/bin/bash -u
+#!/bin/bash -u
+
+command_header() {
+  echo "# This file was created automatically"
+  echo "# command:"
+  echo "#   $0${1:+ ${@}}"
+  echo "# environment variables:"
+  echo "#   TYPHONPATH=$TYPHONPATH"
+  echo "#   SHELL=${SHELL:-}"
+}
+
+# Header
 
 echo "------------------------------------------------------------------------"
 echo "TYPHON configuration"
@@ -6,18 +17,25 @@ echo "------------------------------------------------------------------------"
 
 TOOLSCONF=TOOLS/configure
 
-# output files
-MAKECONF=config/arch.make
-SHELLCONF=bin/shconf.sh
-
 # Initialization
+# . $(dirname $0)/$TOOLSCONF/conf_init.sh
 . $TOOLSCONF/conf_init.sh
+
+while [ ${#} -gt 0 ] ; do
+  case "$1" in
+    -h) configure_help ; exit ;;
+    -n) new=1 ;;
+    *)  error "unknown option: '$1'" ;;
+  esac
+  shift
+done
 
 # >> USE MPIF90 COMPILER
 # :: USE MPIF90 COMPILER # ALLMPILIB="mpi mpich lampi mpi_f90"
 # << USE MPIF90 COMPILER
 TYPHONPATH=${TYPHONPATH:-}
-ALLPATH="$(echo $TYPHONPATH | sed 's/:/ /g' ) /usr /usr/local /opt /opt/local"
+OTHERPATHS="/usr /usr/local /opt /opt/local"
+ALLPATH="${TYPHONPATH//:/ } $OTHERPATHS"
 INCLUDEPATH="include"
 
 # CHECK system tools
@@ -39,7 +57,7 @@ check_echo() {
   }
 
 check_diff() {
-  local difflist="ndiff diff"
+  local diffcom difflist="ndiff diff"
   for diffcom in $difflist ; do
     DIFF=$(which $diffcom) 2> /dev/null
     if [ -n "$DIFF" ] ; then
@@ -55,8 +73,8 @@ check_diff() {
   }
 
 check_mpif90compiler() {
-  local namelist="${MPIF90:-} mpif90"
-  for exe in $namelist ; do
+  local exe exelist="${MPIF90:-} mpif90"
+  for exe in $exelist ; do
     MPIF90C=$(which $exe 2> /dev/null)
     if [ -n "$MPIF90C" ] ; then
       success $MPIF90C
@@ -82,16 +100,16 @@ check_mpif90compiler() {
 }
 
 check_f90compiler() {
-  local namelist="${F90:-} ifort ifc pgf90 lfc pathf90 af90 sxf90 f90 f95 g90 g95 gfortran"
-  for exe in $namelist ; do
+  local exe exelist="${F90:-} ifort ifc pgf90 lfc pathf90 af90 sxf90 f90 f95 g90 g95 gfortran"
+  for exe in $exelist ; do
     F90C=$(which $exe 2> /dev/null)
     if [ -n "$F90C" ] ; then
       success $F90C
       F90C=${F90C##*/}
       case $SYS-$F90C in
-	  *ifc|*ifort)           F90_FB="-fpp -fPIC -implicitnone" ;;
-	  *gfortran|*-[fg]9[05]) F90_FB="-cpp -fPIC -fimplicit-none -ffree-line-length-none" ;;
-	  *)                     F90_FB="" ;;
+        *ifc|*ifort)           F90_FB="-fpp -fPIC -implicitnone" ;;
+        *gfortran|*-[fg]9[05]) F90_FB="-cpp -fPIC -fimplicit-none -ffree-line-length-none" ;;
+        *)                     F90_FB="" ;;
       esac
       export F90_FB
       export F90_V=$($F90C --version)
@@ -109,8 +127,8 @@ check_f90compiler() {
 check_f90conformance() {
   local f90options command success
   f90options="$@"
+  rm -f $TMPDIR/*
   cd $TMPDIR
-  rm * 2> /dev/null
   cp $LOCALDIR/$TOOLSCONF/f90conformance.f90 .
   command="$F90C $f90options f90conformance.f90 -o f90test"
   echo $command >> $confout 2>&1
@@ -125,7 +143,7 @@ check_f90conformance() {
       FTN_ERR=1
     fi
   else
-    fail "compiler error"
+    fail "compilation error"
     FTN_ERR=1
   fi
   cd $LOCALDIR
@@ -172,8 +190,9 @@ check_library() {
   local    name=$1
   local     ext=$2
   local pathlib="$ALLPATH"
-  local fullname
+  local fullname=
   local libname=lib$name.$ext
+  local dir
   for dir in $pathlib ; do
     if [ -r "$dir/lib/$libname" ] ; then
       fullname=$dir/lib/$libname
@@ -183,7 +202,7 @@ check_library() {
   if [ -n "$fullname" ] ; then
     success $fullname
     export LIB_$name=$fullname
-    export FP_$name=-D$fullname
+    export FP_$name=-D$name
   else
     export LIB_$name=
     export FP_$name=
@@ -194,7 +213,8 @@ check_library() {
 check_include() {
   local    name=$1
   local pathlib="$ALLPATH"
-  local fullname
+  local fullname=
+  local dir
   for dir in $pathlib ; do
     if [ -r "$dir/include/$name" ] ; then
       fullname=$dir/include/$name
@@ -204,7 +224,7 @@ check_include() {
   if [ -n "$fullname" ] ; then
     success $fullname
     for dir in $INCLUDEPATH ; do
-      rm $dir/$name 2> /dev/null
+      rm -f $dir/$name
       ln -s $fullname $dir
     done
   else
@@ -229,23 +249,22 @@ check_include() {
 # << USE MPIF90 COMPILER
 
 check_f90module() {
-  local module
+  local charcase modulename module
+  rm -f $TMPDIR/*
   cd $TMPDIR
-  rm * 2> /dev/null
   cp $LOCALDIR/$TOOLSCONF/module.f90 .
+  tocase() { tr '[:lower:][:upper:]' "[:$1:][:$1:]" ;}
   $F90C -c module.f90 > /dev/null 2>&1
   if [ $? -eq 0 ] ; then
-    module=$(ls modulename.* 2> /dev/null)
-    if [ -n "$module" ] ; then
-      F90modext=${module#*.}
-      F90modcase=lower
-    else
-      module=$(ls MODULENAME.* 2> /dev/null)
+    for charcase in lower upper ; do
+      modulename=$(echo modulename | tocase $charcase)
+      module=$(ls $modulename.* 2> /dev/null)
       if [ -n "$module" ] ; then
         F90modext=${module#*.}
-        F90modcase=upper
+        F90modcase=$charcase
+        break
       fi
-    fi
+    done
     if [ -n "$F90modext" ] ; then
       success "$F90modcase-case name  with  '.$F90modext' extension"
       export F90modext F90modcase
@@ -254,7 +273,7 @@ check_f90module() {
       FTN_ERR=1
     fi
   else
-    fail "error when compiling"
+    fail "compilation error"
     FTN_ERR=1
   fi
   cd $LOCALDIR
@@ -267,12 +286,26 @@ LOCALDIR=$PWD
 TMPDIR=/tmp/configure.$$
 mkdir $TMPDIR
 trap "cd $LOCALDIR ; rm -Rf $TMPDIR ; exit 1" 0 2
-conflog=$LOCALDIR/configure.log
-confout=$LOCALDIR/configure.out
-rm $conflog 2> /dev/null
-rm $confout 2> /dev/null
+conflog=$LOCALDIR/configure${new:+-new}.log
+confout=$LOCALDIR/configure${new:+-new}.out
+if [ -z "${new:=}" ] ; then
+  rm -f $conflog
+  rm -f $confout
+else
+  confdiff=$LOCALDIR/configure.diff
+  rm -f $confdiff
+fi
+
+command_header > $conflog
+
+# output files
+MAKECONF=config/arch${new:+-new}.make
+SHELLCONF=bin/shconf${new:+-new}.sh
+
+# Perform checks
 
 {
+# start of log (tee)redirection
 
 check "native system"               system
 check "CPU model"                   proc
@@ -296,18 +329,18 @@ done
 # >> USE MPIF90 COMPILER
 # :: USE MPIF90 COMPILER # check "MPI library"                 mpilib
 # << USE MPIF90 COMPILER
-check "$F90C optimization options"  f90opti
-check "$F90C debug options"         f90debug
-check "$F90C profiling options"     f90prof
-check "mpif90 compiler and options" mpif90compiler
+if [ -n "$F90C" ] ; then
+  check "$F90C optimization options"  f90opti
+  check "$F90C debug options"         f90debug
+  check "$F90C profiling options"     f90prof
+  check "mpif90 compiler and options" mpif90compiler
+fi
 
 ### DEEPER CHECK ###
 
 if [ -n "$F90C" ] ; then
   check "fortran 90 module creation" f90module
 fi
-
-
 
 ### REVIEW ###
 
@@ -319,14 +352,16 @@ fi
 impossible="impossible to build TYPHON"
 no_feature="TYPHON will not feature"
 
-[[ -z "$F90C" ]]       && error   "no fortran compiler found: $impossible"
-[[ -n "$FTN_ERR" ]]    && error   "fortran compile/run error: $impossible"
-#[[ -z "$LIB_blas"   ]] && error   "BLAS   not available: $impossible"
-#[[ -z "$LIB_lapack" ]] && error   "LAPACK not available: $impossible"
-[[ -z "$LIB_cgns"   ]] && warning "CGNS   not available: $impossible"
-[[ -z "$LIB_metis"  ]] && warning "METIS  not available: $no_feature automatic distribution"
-[[ -z "$MPILIB"     ]] && warning "MPI    not available: $no_feature parallel computation"
-[[ -n "$MPIF90CMP"  ]] && warning "MPI/fortran compilers are $MPIF90CMP/$F90C"
+[[ -z "${F90C:-}" ]]       && error   "no fortran compiler found: $impossible"
+[[ -n "${FTN_ERR:-}" ]]    && error   "fortran compile/run error: $impossible"
+#[[ -z "${LIB_blas:-}"   ]] && error   "BLAS   not available: $impossible"
+#[[ -z "${LIB_lapack:-}" ]] && error   "LAPACK not available: $impossible"
+[[ -z "${LIB_cgns:-}"   ]] && warning "CGNS   not available: $impossible"
+[[ -z "${LIB_metis:-}"  ]] && warning "METIS  not available: $no_feature automatic distribution"
+# >> USE MPIF90 COMPILER
+# [[ -z "${MPILIB:-}"     ]] && warning "MPI    not available: $no_feature parallel computation"
+# << USE MPIF90 COMPILER
+[[ -n "${MPIF90CMP:-}"  ]] && warning "MPI/fortran compilers are $MPIF90CMP/$F90C"
 
 echo "------------------------------------------------------------------------"
 echo "Configuration ended"
@@ -334,7 +369,7 @@ echo "Configuration ended"
 ### SHELL CONFIGURATION ###
 echo "------------------------------------------------------------------------"
 printf "%s" "Writing Shell configuration    ($SHELLCONF)    ..."
-rm $SHELLCONF 2> /dev/null
+rm -f $SHELLCONF
 for VAR in SYS PROC DIFF ; do
   echo "export $VAR=\"$(printenv $VAR)\"" >> $SHELLCONF
 done
@@ -343,11 +378,12 @@ echo "  Done"
 ### MAKEFILE CONFIGURATION ###
 echo "------------------------------------------------------------------------"
 printf "%s" "Writing Makefile configuration ($MAKECONF) ..."
+test -z "$new" && \
 mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
 {
-  echo "# This file was created by $(basename $0)"
+  command_header
   echo
-  echo "SHELL       = $SHELL"
+  echo "${SHELL:-# }SHELL       = ${SHELL:-}"
   echo "MAKEDEPENDS = \$(PRJDIR)/../TOOLS/make_depends $F90modcase"
   echo "MODEXT      = $F90modext"
   echo "FPMETIS     = $FP_metis"
@@ -358,7 +394,7 @@ mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
   echo "FB          = $F90_FB \$(FOPP) -I\$(PRJINCDIR)"
   echo "FO_debug    = $F90_DEBUG"
   echo "FO_optim    = $F90_OPTIM"
-  echo "FO_openmp   = $F90_OPTIM $F90_OPENMP"
+  echo "FO_openmp   = $F90_OPTIM${F90_OPENMP:+ $F90_OPENMP}"
   echo "FO_profil   = $F90_PROFIL"
   echo "FO_         = \$(FO_optim)"
   echo "F90OPT      = \$(FO_\$(opt))"
@@ -367,7 +403,9 @@ mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
   echo "LINKFB      = \$(F90OPT)"
   echo "LINKER      = \$(F90C)"
   echo "LINKSO      = \$(F90C) -shared"
-  echo "MPILIB      = $MPILIB"
+# >> USE MPIF90 COMPILER
+# :: USE MPIF90 COMPILER #   echo "MPILIB      = $MPILIB"
+# << USE MPIF90 COMPILER
   echo "MPIF90C     = $MPIF90C"
   echo "MPIF90_FC   = $MPIF90_FC"
   echo "MPIF90_FL   = $MPIF90_FL"
@@ -378,4 +416,39 @@ echo "========================================================================"
 echo "to build TYPHON : make all"
 echo "========================================================================"
 
+# End of log (tee)redirection
 } | tee $conflog
+
+if [ -n "$new" ] ; then
+  for fileconf in $SHELLCONF $MAKECONF ; do
+    fileold=${fileconf/-new}
+    echo
+    if [ -f $fileold ] ; then
+      com="diff $fileconf $fileold"
+      r=$($com)
+      if [ -n "$r" ] ; then
+        echo "Differences between $fileconf and $fileold"
+        {
+        echo
+        echo "$com"
+        echo "$r"
+        } >> $confdiff
+        fdiff=1
+      else
+        echo "No differences between $fileconf and $fileold"
+        rm -f $fileconf
+      fi
+    else
+      echo "$fileconf renamed to $fileold"
+      mv $fileconf $fileold
+      mv $conflog ${conflog/-new}
+      mv $confout ${confout/-new}
+    fi
+  done
+  echo
+  if [ -f "$confdiff" ] ; then
+    echo "Differences in:"
+    echo "  $confdiff"
+  fi
+fi
+

@@ -4,89 +4,102 @@
 # Created by         Jeremie Gressier
 # Usage              make_depends lower|upper filename
 #
-# Description:		
+# Description:
 #
-# This script parses f90 files in order to extract
-# file dependencies (MODULE). It can handle:
-#      use ok1                ! comment
-#      use ok2, ok3           ! comment
-#      use ok4, only not_me   ! comment
-#      use ok5, &             ! comment
-#          ok6                ! comment
-#
-# and writes
-#
-#  $(OD)/test.$(o): test.f90 \
-#                          $(OD)/ok1.$(o)    \
-#                          $(OD)/ok2.$(o)    \
-#                          $(OD)/ok3.$(o)    \
-#                          $(OD)/ok4.$(o)    \
-#                          $(OD)/ok5.$(o)    \
-#                          $(OD)/ok6.$(o)    \
+# WRONG # This script parses f90 files in order to extract
+# WRONG # file dependencies (MODULE). It can handle:
+# WRONG #      use ok1                ! comment
+# WRONG #      use ok2, ok3           ! comment
+# WRONG #      use ok4, only not_me   ! comment
+# WRONG #      use ok5, &             ! comment
+# WRONG #          ok6                ! comment
+# WRONG #
+# WRONG # and writes
+# WRONG #
+# WRONG #  $(OD)/test.$(o): test.f90 \
+# WRONG #                          $(OD)/ok1.$(o)    \
+# WRONG #                          $(OD)/ok2.$(o)    \
+# WRONG #                          $(OD)/ok3.$(o)    \
+# WRONG #                          $(OD)/ok4.$(o)    \
+# WRONG #                          $(OD)/ok5.$(o)    \
+# WRONG #                          $(OD)/ok6.$(o)
 #
 # Caution: Problems have happened with comments containing no basic letters
 # which can be not recognized by regexp wildcards (.*)
 
 #-----------------------------------------------------------------
-case $1 in
+caseopt=$1 ; shift
+case $caseopt in
   lower) trchangecase="A-Z a-z" ;;
   upper) trchangecase="a-z A-Z" ;;
-  *)     echo Panic: unknown option :$1: ; exit 1 ;;
+  *)     echo "Error: unknown option: '$caseopt'" ; exit 1 ;;
 esac
-shift
 
 USE=$(echo use | tr $trchangecase)
 
-sedrmcomment="s/ *!.*//"
-sededithead="s/^ *$USE /    \$(PRJINCDIR)\\//"
-sededittail="s/ *$/.\$(MODEXT) \\\\/"
+sededituse="s/^ *$USE  */    \$(PRJINCDIR)\\//"
+sededitmod="s/$/.\$(MODEXT)/"
+sededitend="\$!s/$/ \\\\/"
 
 #-----------------------------------------------------------------
 # try to get optional ROOT folder
 ROOTDIR=${1:-.}
 
 TARGET=$ROOTDIR/depends.make
+rm -f $TARGET
+
+TMPF=$TARGET.tmp
+rm -f $TMPF
+
+exitstatus=1
+trapcmd="rm -f \"$TMPF\" ; eval \"exit \$exitstatus\""
+trap "$trapcmd" INT TERM QUIT EXIT
 
 #-----------------------------------------------------------------
-echo Building module dependencies in $TARGET
+echo "Building module dependencies in $TARGET"
 
-rm $TARGET 2> /dev/null
-
-echo "# This file has been created automatically"    > $TARGET
-echo "# It can be overwritten"                      >> $TARGET
-echo "# (manual modifications are not recommended)" >> $TARGET
+{
+echo "# This file has been created automatically"
+echo "# It can be overwritten"
+echo "# (manual modifications are not recommended)"
+} > $TMPF
 
 for fic in $(find $ROOTDIR -name '*.f90' | grep -v '/.#') ; do
 
   basename=$(basename $fic .f90)
 
   moduledepend=$(
-    grep -i '^ *use ' $fic |
+    grep -i -o '^ *use  *[^ !]*' $fic |
       tr   $trchangecase   |
-      sed "$sedrmcomment;$sededithead;$sededittail"
+      sed "$sededituse;$sededitmod;$sededitend"
     )
-  #
 
   # MODULE
 
   if [ -n "$(grep -i '^ *module ' $fic)" ] ; then
     modulebase=$(basename $fic .f90 | tr $trchangecase)
-    echo $modulebase.source:=$fic >> $TARGET
-    echo $modulebase.object:=$basename.o >> $TARGET
-    echo $basename.target: '$(PRJINCDIR)/'$modulebase.'$(MODEXT)'  >> $TARGET
-    echo >> $TARGET
-    echo ${modulebase}.'$(MODEXT): $(PRJINCDIR)/'${modulebase}.'$(MODEXT)' >> $TARGET
-    echo '$(PRJINCDIR)/'${modulebase}.'$(MODEXT)': $fic \\ >> $TARGET
-    echo -e "${moduledepend:-\c}" >> $TARGET
-    echo >> $TARGET
+    {
+    echo "$modulebase.source:=$fic"
+    echo "$modulebase.object:=$basename.o"
+    echo "$basename.target: \$(PRJINCDIR)/$modulebase.\$(MODEXT)"
+    echo
+    echo "${modulebase}.\$(MODEXT): \$(PRJINCDIR)/${modulebase}.\$(MODEXT)"
+    echo "\$(PRJINCDIR)/${modulebase}.\$(MODEXT): $fic \\"
+    echo -e "${moduledepend:-\c}"
+    echo
+    } >> $TMPF
   fi
 
   # OBJET
 
-  #echo $modulebase.objsrc:=$fic >> $TARGET
-  echo '$(PRJOBJDIR)/'$basename.o: $fic \\   >> $TARGET
-  echo -e "${moduledepend:-\c}" >> $TARGET
-  echo >> $TARGET
+  {
+  echo "\$(PRJOBJDIR)/$basename.o: $fic \\"
+  echo -e "${moduledepend:-\c}"
+  echo
+  } >> $TMPF
 
 done
+
+mv $TMPF $TARGET
+exitstatus=0
 

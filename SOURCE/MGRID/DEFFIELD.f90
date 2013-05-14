@@ -59,7 +59,7 @@ endtype st_field
 !  module procedure new_field
 !endinterface
 
-interface delete  ! 
+interface delete
   module procedure delete_field
 endinterface
 
@@ -319,6 +319,7 @@ integer           :: id                ! numero de champ
   field%allocqref     = .false.
   field%allocQhres    = .false.
   field%allocfacegrad = .false.
+
 endsubroutine new_field
 
 
@@ -335,7 +336,7 @@ type(st_field) :: field             ! champ a creer
   if (field%allocres)   call dealloc_res (field)
   if (field%allocprim)  call dealloc_prim(field)
   if (field%allocqref)  call dealloc_qref(field)
-  if (field%allocqhres )   call dealloc_hres_states(field)
+  if (field%allocqhres) call dealloc_hres_states(field)
   if (field%allocfacegrad) call dealloc_facegrad(field)
 
 endsubroutine delete_field
@@ -376,7 +377,7 @@ type(st_field), pointer :: pfield, dfield
 endsubroutine delete_chainedfield
 
 !------------------------------------------------------------------------------
-! Routine : transfer of ifield to rfield
+! Procedure : transfer of ifield to rfield
 !------------------------------------------------------------------------------
 subroutine transfer_field(rfield, ifield)
 implicit none
@@ -438,7 +439,7 @@ endmodule DEFFIELD
 ! Oct 2002 : creation
 ! Jun 2003 : field structure by type (scalar, vector, tensor)
 ! DEV: field/array interface
-! DEV: split in MGFIELD and MZFIELD pour low- and high-level functions haut
+! DEV: split in MGFIELD and MZFIELD for low- and high-level functions
 ! Jun 2004 : procedures insert_newgfield and delete_chainedgfield
 ! Oct 2004 : field chained list
 ! Nov 2004 : split DEFFIELD -> DEFFIELD/GENFIELD

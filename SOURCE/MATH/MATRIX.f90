@@ -86,8 +86,7 @@ real(krp), intent(in) :: a(n,n)       ! matrix input (lower part)
 real(krp), intent(inout) :: b(n, p)   ! "p" RHS members (dim n), solutions on output  
 
 ! --- internal variables ---
-integer   :: i, j, k
-real(krp) :: sum
+integer   :: i, j
 
 ! --- BODY ---
 

@@ -31,7 +31,6 @@ type(mnu_solver) :: defsolver     ! solver parameters
 
 ! -- Declaration des variables internes --
 integer   :: i
-integer   :: info
 type(v3d) :: vtex
 real(krp) :: temperature
 

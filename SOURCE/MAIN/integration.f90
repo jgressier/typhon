@@ -17,7 +17,7 @@ use GRID_CONNECT
 
 implicit none
 
-! -- INPUTS/OUTPUTS --
+! -- Inputs/Outputs --
 type(st_world) :: lworld
 
 ! -- Internal variables --
@@ -26,10 +26,10 @@ real(krp)              :: curtime, cputime, realtime, speedup, nopara
 integer, dimension(:), allocatable &
                        :: exchcycle ! indices des cycles d'echange pour les differents couplages de zones
 integer                :: icputimer, irealtimer
-integer                :: ir, izone, if, ib, ic, ierr
+integer                :: ir, izone, ic, ierr
 integer                :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
 
-! -- BODY --
+! -- Body --
 
 ! initialization
 
@@ -68,7 +68,7 @@ do while (.not. lworld%info%fin_integration)
     !write(str_w,'(a,a)') "* CYCLE ",strof(lworld%info%icycle,3)
   case(time_unsteady, time_unsteady_inverse)
     write(str_w,'(a,i5,a,g11.4)') "* CYCLE", lworld%info%icycle, &
-                                  " : t =",  lworld%info%curtps
+                                  " : t = ",  lworld%info%curtps
   !case(periodique)
   !  write(str_w,'(a,i5)') "* CYCLE", lworld%info%icycle
   case default
@@ -101,14 +101,14 @@ do while (.not. lworld%info%fin_integration)
   select case(lworld%prj%time_model)
 
   case(time_steady)
-    write(str_w,'(a,g11.4)') "  Residue in cycle =", log10(lworld%info%cur_res/lworld%info%residu_ref)
+    write(str_w,'(a,g11.4)') "  Residue in cycle = ", log10(lworld%info%cur_res/lworld%info%residu_ref)
     if (lworld%info%cur_res/lworld%info%residu_ref <= lworld%prj%residumax) then
       lworld%info%fin_integration = .true.
     endif
     if (lworld%info%icycle == lworld%prj%ncycle) then
       lworld%info%fin_integration = .true.
       write(uf_stdout,'(a)')   " Maximum number of cycles reached"
-      write(uf_log,'(a,g11.4)') "Maximum number of cycles reached, RESIDUE =",&
+      write(uf_log,'(a,g11.4)') "Maximum number of cycles reached, RESIDUE = ",&
                            log10(lworld%info%cur_res/lworld%info%residu_ref)
     endif
     call print_info(6,str_w)
@@ -216,14 +216,14 @@ endsubroutine integration
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! juil 2002 : creation de la procedure
-! juin 2003 : instant d'echange excht
-!             mise a jour des CL pour le fichier de sortie
-! sept 2003 : gestion du calcul par residus (optionnel) + reorganisation
-! oct  2003 : remplacement d'instant d'echange excht par indice de cycle d'echange
-!              exchcycle
-! avr  2004 : integration des structures MGRID pour tous les solveurs
-! oct  2004 : field chained list
-! Nov  2005 : add ending cycle output
-! Fev  2007 : English translation
+! Jul 2002: creation
+! Jun 2003: instant d'echange excht
+!           mise a jour des CL pour le fichier de sortie
+! Sep 2003: gestion du calcul par residus (optionnel) + reorganisation
+! Oct 2003: remplacement d'instant d'echange excht par indice de cycle d'echange
+!           exchcycle
+! Apr 2004: integration des structures MGRID pour tous les solveurs
+! Oct 2004: field chained list
+! Nov 2005: add ending cycle output
+! Feb 2007: English translation
 !------------------------------------------------------------------------------!

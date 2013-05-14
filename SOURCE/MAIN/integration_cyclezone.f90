@@ -29,7 +29,7 @@ real(krp)   :: wcur_res           ! world current residual
 
 ! -- Internal variables --
 real(krp)   :: dt                 ! pas de temps de la zone
-integer     :: if, ic, ib, nbc    ! index de champ, couplage et boco
+integer     :: ic, ib, nbc        ! index de champ, couplage et boco
 real(krp)   :: part_cor           ! part de correction a appliquer
 real(krp)   :: dtmax
 integer     :: typ_cor            ! type de correction

@@ -1,5 +1,6 @@
 
 configure_help() {
+  local dir dirlist
   echo
   echo "TYPHON configuration help"
   echo
@@ -15,8 +16,9 @@ configure_help() {
   echo
   case "${DAEPDIR:-}" in
     "") echo "  The DAEPDIR variable is currently unset"
-        for dir in /usr/local/aero /opt/aero "" ; do
-          test -z "$dir" && echo "  no relevant DAEPDIR directory found" && break
+        dirlist=( /usr/local/aero /opt/aero )
+        for dir in "${dirlist[@]}" "" ; do
+          test -z "$dir" && echo "  no relevant directory found in"$(printf " '%s'" "${dirlist[@]}") && break
           test -d "$dir" && echo "  it could be set to '$dir'" && break
         done ;;
     *)  echo "  The DAEPDIR variable is currently set to '$DAEPDIR'" ;;
@@ -31,7 +33,9 @@ check() {
   str="checking $1 ..." ; shift
   echo -n "$str"
   str=${str//?/?} ; remain=${strcol%$str}
-  if [ ${#str} -ge $check_column ] ; then echo ; remain=$strcol ; fi
+  if [ ${#str} -ge $check_column ] ; then
+    echo ; remain=$strcol
+  fi
   check_"$@"
   }
 

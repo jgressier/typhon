@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! MODULE : SPMAT_BDLU                               Authors : J. Gressier
-!                                                   Created : June 2005
-! Fonction
+!
+! Function :
 !   Definition des structures de stockage de matrices creuses
 !
 ! Defauts/Limitations/Divers :
@@ -11,7 +11,7 @@
 module SPMAT_BDLU
 
 use TYPHMAKE       ! Definition de la precision
-use CONNECTIVITY   
+use CONNECTIVITY
 
 implicit none
 
@@ -38,6 +38,7 @@ endtype st_bdlu
 
 
 ! -- INTERFACES -------------------------------------------------------------
+
 interface new
   module procedure new_bdlu
 endinterface
@@ -105,7 +106,7 @@ integer      :: i, if
   if (.not.mat%sort) then
     do if = 1, mat%ncouple
       if (mat%couple%fils(if,1) > mat%couple%fils(if,2)) then
-        x(:,:)            = mat%lower(:,:,if) 
+        x(:,:)            = mat%lower(:,:,if)
         mat%lower(:,:,if) = mat%upper(:,:,if)
         mat%upper(:,:,if) = x(:,:)
         i                     = mat%couple%fils(if,2)
@@ -127,8 +128,6 @@ implicit none
 ! - parametres
 type(st_bdlu) :: mat
 ! - internal
-real(krp)    :: x(mat%dimblock, mat%dimblock)
-integer      :: i, if
 
 
 endsubroutine invertdiag_bdlu
@@ -265,11 +264,10 @@ endsubroutine bdlu_yeqmaxpz
 
 endmodule SPMAT_BDLU
 
-
 !------------------------------------------------------------------------------!
-! Changes history
+! Change History
 !
-! Apr 2004 : created, scalar terms
-! Dec 2004 : from SPMATH_DLU, extension to block terms
-! Aug 2005 : switch indexes order / internal operations
+! Apr 2004: created, scalar terms
+! Dec 2004: from SPMATH_DLU, extension to block terms
+! Aug 2005: switch indexes order / internal operations
 !------------------------------------------------------------------------------!

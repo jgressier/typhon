@@ -27,8 +27,8 @@ type(st_world) :: lworld
 ! -- OUTPUTS --
 
 ! -- Internal variables --
-integer   :: izone, ir
-integer   :: ifut, nfut, im, nmode, im1, im2, imes
+integer   :: izone
+integer   :: ifut, nfut, im, nmode, im1, im2
 integer   :: nmes, nflux, izflux, ibflux, ibdefflux
 real(krp) :: wcur_res
 real(krp), allocatable :: tmes_calc(:,:)     ! computed tmes(1:nmes, 1:nfut) without flux

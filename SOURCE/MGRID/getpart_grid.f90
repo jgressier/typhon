@@ -106,8 +106,9 @@ enddo
 partmin = minval(tab_parts(1:npart))
 partmax = maxval(tab_parts(1:npart))
 partavg = sum(tab_parts(1:npart))/npart
-write(str_w,'(a,i8,a,i8,a,i8,a,g5.1,a)') "    part sizes:",partmin,'(min) /',partavg,'(avg) /',partmax,&
-  '(max) and',real(partmax-partmin)/partavg*100,' %deviation'
+write(str_w,'(a,3(i8,a),a,f5.1,a)') "    part sizes: ", &
+  partmin," (min) / ",partavg," (avg) / ",partmax," (max)", &
+  " and ",real(partmax-partmin)/partavg*100," % deviation"
 call print_info(10,trim(str_w))
 
 

@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_varprim_ns             Auteur : J. Gressier
-!                                         Date   : Octobre 2003
+!
 ! Fonction                                Modif  : (cf historique)
 !   Calcul des variables primitives a partir des variables conservatives
 !
@@ -17,13 +17,13 @@ use DEFFIELD
 
 implicit none
 
-! -- INPUTS --
-type(mnu_ns) :: defns       ! definition des parametres du solveur
+! -- Inputs --
+type(mnu_ns) :: defns                ! parameters of the solver
 
-! -- INPUTS/OUTPUTS --
-type(st_field)   :: field       ! champ primitives->conservatives
+! -- Inputs/Outputs --
+type(st_field)   :: field            ! prim/cons field
 
-! -- Private DATA --
+! -- Internal variables --
 integer   :: i, ib
 integer   :: ncell
 real(krp) :: rho, ec
@@ -32,7 +32,7 @@ type(v3d) :: vel
 integer               :: buf, nblock      ! buffer size 
 integer, pointer      :: ista(:), iend(:) ! starting and ending index
 
-! -- BODY --
+! -- Body --
 
 ncell = field%ncell    ! compute on all cells (ghost cells too even if not necessary)
 g1    = defns%properties(1)%gamma - 1._krp
@@ -61,7 +61,7 @@ endsubroutine calc_varprim_ns
 !------------------------------------------------------------------------------!
 ! History
 !
-! oct  2003 : creation
-! july 2004 : actual computations
-! Mar  2011 : split into buffer packets
+! Oct 2003: creation
+! Jul 2004: actual computations
+! Mar 2011: split into buffer packets
 !------------------------------------------------------------------------------!

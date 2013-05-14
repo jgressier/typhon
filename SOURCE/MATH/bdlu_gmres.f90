@@ -80,6 +80,7 @@ do i = 1, mat%dim
     sol(is+ib) = p1(is+ib) / mat%diag(ib,ib,i)  ! initial guess
   enddo
 enddo
+
 ! ref = norme_L1(sol)
 ref = sum(abs(sol(1:dim)))
 
@@ -94,7 +95,7 @@ do while ((errgmres >= ref*def_impli%maxres).and.(nit <= def_impli%max_it*2))
 !!! endif
 
   ! r0 = M^(-1) . ( b - A.x0 )
-  call bdlu_yeqmaxpz(r1(1:dim), mat, sol(1:dim), p1(1:dim))      ! R1 = RHS - MAT.SOL
+  call bdlu_yeqmaxpz(r1(1:dim), mat, sol(1:dim), p1(1:dim))     ! R1 = RHS - MAT.SOL
 
   beta = sqrt(dot_product(r1(1:dim),r1(1:dim)))                 ! beta = ||r0||_2
   fact = 1.0_krp/beta

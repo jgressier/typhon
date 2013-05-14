@@ -299,7 +299,6 @@ endsubroutine delete_gridlist
 subroutine grid_alloc_gradcond(grid)
 implicit none
 type(st_grid)  :: grid
-integer        :: id
 
   if (.not.associated(grid%optmem%gradcond)) then
     allocate(grid%optmem%gradcond(grid%umesh%ncell_int))
@@ -314,7 +313,6 @@ endsubroutine grid_alloc_gradcond
 subroutine grid_dealloc_gradcond(grid)
 implicit none
 type(st_grid)  :: grid
-integer        :: id
 
   if (associated(grid%optmem%gradcond)) then
     deallocate(grid%optmem%gradcond)
@@ -434,7 +432,7 @@ function newfield(grid,nscal,nvect,ncell,nface) result(pfield)
 implicit none
 type(st_field), pointer :: pfield
 type(st_grid)           :: grid
-integer                 :: dim, nscal, nvect, ncell, nface
+integer                 :: nscal, nvect, ncell, nface
 
   grid%nfield = grid%nfield + 1
 

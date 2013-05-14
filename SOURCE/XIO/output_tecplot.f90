@@ -24,9 +24,7 @@ type(st_zone)         :: zone      ! zone
 ! -- Outputs --
 
 ! -- Internal variables --
-integer               :: dim, ufc, ir
 integer               :: info
-type(st_genericfield) :: vfield
 character(len=10)     :: suffix
 
 ! -- BODY --

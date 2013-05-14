@@ -8,7 +8,7 @@
 !------------------------------------------------------------------------------!
 module PROBECALC
 
-use MESHPREC   
+use MESHPREC
 use DEFPROBE
 use USTMESH
 use GENFIELD
@@ -100,17 +100,17 @@ select case(probe%type)
 case(vol_min)
   do i = 1, siz
     probe%result = min(probe%result, prb(i)%result)
-  enddo  
+  enddo
 case(vol_max)
   do i = 1, siz
     probe%result = max(probe%result, prb(i)%result)
-  enddo  
+  enddo
 case(vol_average)
   probe%result = probe%result * probe%volume
   do i = 1, siz
     probe%result = probe%result + prb(i)%result*prb(i)%volume
     probe%volume = probe%volume + prb(i)%volume
-  enddo  
+  enddo
   probe%result = probe%result / probe%volume
 case default
   call cfd_error("Internal error (prb_vol_addprb): unknown probe type")
@@ -119,7 +119,7 @@ endselect
 endsubroutine prb_vol_addprb
 
 !------------------------------------------------------------------------------!
-! Routine: prb_vol   
+! Routine: prb_vol
 ! Computation of volumic probe
 !------------------------------------------------------------------------------!
 subroutine prb_vol_calc(curtime, probe, umesh, field)
@@ -131,7 +131,7 @@ type(st_genericfield)    :: field
 ! -- INPUTS/OUTPUTS --
 type(st_defprobe)        :: probe
 ! -- Internal variables --
-integer(kip)             :: ic, isca, ivec, il
+integer(kip)             :: ic, isca, ivec, il !! il should be removed ??
 integer(kip)             :: nblock, nthread, ithread, ib, buf
 character(len=shortname) :: qname
 type(st_fct_env)         :: env
@@ -155,7 +155,7 @@ xyz_depend = fct_dependency(probe%quantity, "x").or. &
 !               fctset_needed_dependency(defsolver%fctenv, "x").or. &
 !               fctset_needed_dependency(defsolver%fctenv, "y").or. &
 !               fctset_needed_dependency(defsolver%fctenv, "z")
-               
+
 do isca = 1, field%nscal
   qname = quantity_name(field%tabscal(isca)%quantity_id)
   qsca_depend(isca) = fct_dependency(probe%quantity, trim(qname)) ! .or.&
@@ -177,6 +177,8 @@ nthread = 1
 allocate(probeloc(nthread))
 
 !$OMP PARALLEL &
+! should be changed to : ??
+!!$OMP private(ic, isca, ivec, result, env, x, y, z, buf, ithread, qname) &
 !$OMP private(ic, il, result, env, x, y, z, buf, ithread, qname) &
 !$OMP shared(ista, iend, nblock, curtime, xyz_depend, qsca_depend, qvec_depend, probe, probeloc)
 
@@ -224,18 +226,18 @@ block: do ib = 1, nblock
       call fct_env_set_realarray(env, trim(qname)//"_x", x(1:buf))
       call fct_env_set_realarray(env, trim(qname)//"_y", y(1:buf))
       call fct_env_set_realarray(env, trim(qname)//"_z", z(1:buf))
-    endif  
+    endif
   enddo
 
   call fct_eval_realarray(env, probe%quantity, result)
-        
+
   call prb_vol_add(probeloc(ithread), result(1:buf), umesh%mesh%volume(ista(ib):iend(ib),1,1))
 
 enddo block
-  
+
 !$OMP END DO
 call delete_fct_env(env)      ! temporary environment from FCT_EVAL
-!$OMP END PARALLEL 
+!$OMP END PARALLEL
 
 ! end of probe processing
 
@@ -249,10 +251,7 @@ endmodule PROBECALC
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! June 2011: created from SOURCE/MGRID/prb_grid_vol.f90
-! Mar  2013: vectorization & multithreading openmp
+! Jun 2011: created from SOURCE/MGRID/prb_grid_vol.f90
+! Mar 2013: vectorization & multithreading openmp
 !------------------------------------------------------------------------------!
-
-
-
 

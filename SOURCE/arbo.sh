@@ -129,7 +129,7 @@ separe[$print2        ]=linehd
 # --- definition of arbo function ---
 ########################################################################
 function arbo() {
-  local myhead myname islast i n file list tabl f isdone app levl
+  local myhead myname islast i n file list tabl f isdone app levl str
   typeset -i i n levl
   myhead="$1" ; shift
   myname="$1" ; shift
@@ -153,13 +153,12 @@ function arbo() {
 #
 # -- build call list if subroutine file exists
 #
-      rem=
       list=( $(grep '^\([^!]*[) ]\)*call ' $file 2>/dev/null \
-               | sed 's/"[^"]*"//g'      ${rem:+} \
-               | sed 's/(/ (/g'          ${rem:+} \
-               | sed 's/call /\ncall /g' ${rem:+} \
-               | grep '^call '           ${rem:+} \
-               | awk '{print $2}'        ${rem:+} \
+               | sed 's/"[^"]*"//g'      $(: remove strings) \
+               | sed 's/(/ (/g'          $(: add space before opening paren) \
+               | sed 's/call /\ncall /g' $(: move call on next line) \
+               | grep '^call '           $(: keep leading call) \
+               | awk '{print $2}'        $(: get subroutine name) \
                | grep -v "${excludeopts[@]}") )
 #
 # -- append (*) if subroutine already done and wrappable --

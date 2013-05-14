@@ -17,7 +17,8 @@ function usage() {
   echo "       $SCRIPTSPCE [-l] [--] [<pattern> ...]"
   echo
   echo "       -h:      prints this help"
-  echo "       -exe:   typhon executable (default is given by NRG conf)"
+  echo "       -exe <typhon-exe>:"
+  echo "                uses <typhon-exe> (default is given by CASE/$REFCONF)"
   echo "       -d|--diff-cmd <diff-command>:"
   echo "                uses <diff-command>"
   echo "       -l:      prints list of cases"
@@ -39,7 +40,7 @@ echo "$bar"
 #
 ORIGDIR=$PWD
 SCRIPTNAME=$(basename $0)
-SCRIPTSPCE=$(sed 's/./ /g' <<< $SCRIPTNAME)
+SCRIPTSPCE=${SCRIPTNAME//?/ }
 export HOMEDIR=$(cd $(dirname $0) ; pwd)
 export  EXEDIR=$HOMEDIR/SOURCE
 export  BINDIR=$HOMEDIR/bin
@@ -50,6 +51,7 @@ if [ $? -ne 0 ] ; then
   echo "could not create temporary directory"
   exit 1
 fi
+export REFCONF=nrgconf.sh
 
 # --- directory check ---
 #
@@ -87,9 +89,9 @@ while [ ${#} -gt 0 ] ; do
     -exe) shift
         if [ $# -gt 0 ] ; then
           typhonexe=$1
-          echo force run with $typhonexe
+          echo "force run with $typhonexe"
         else
-          echo "ERROR: no typhon command:"
+          echo "ERROR: no typhon executable:"
           usage 1
         fi ;;
     --) shift ; break ;;
@@ -124,7 +126,6 @@ if [ -n "$diffcmd" ] ; then
   export DIFF="$diffcmd"
 fi
 #
-export REFCONF=nrgconf.sh
 export DIFFCOM=$DIFF
 export LD_LIBRARY_PATH=$EXEDIR/Lib:$LD_LIBRARY_PATH
 
@@ -132,15 +133,16 @@ if [ $keeptmpdir -eq 0 ] ; then
   trap "rm -Rf $TMPDIR" 0 2
 fi
 
+logfiles=( diff.log check.log )
 ok=1
-for f in diff.log check.log ; do
+for f in "${logfiles[@]}" ; do
   if [ -e $f ] && [ ! -f $f ] ; then
     echo "$f is not a regular file" ; ok=0
   fi
 done
 test $ok = 0 && exit 1
-  
-rm -f diff.log check.log
+
+rm -f "${logfiles[@]}"
 
 # --- get list of cases ---
 #
@@ -182,8 +184,15 @@ function iferror() {
 }
 
 function next_case() {
-  test $# -gt 0 && printf "$remain%s\n" "$@"
-  test $keeptmpdir -eq 0 && rm -f $TMPDIR/$CASE/*
+  if [ $# -gt 0 ] && [ "$1" = -n ] ; then
+    echo ; remain= ; shift
+  fi
+  if [ $# -gt 0 ] ; then
+    printf "$remain%s\n" "$@"
+  fi
+  if [ $keeptmpdir -eq 0 ] ; then
+    rm -f $TMPDIR/$CASE/*
+  fi
   continue
 }
 
@@ -201,10 +210,10 @@ for CASE in "${LISTCASES[@]}" ; do
   printf "$string" ; repl=${string//?/?} ; remain=${scol1/$repl/}
   # configure
   . $CASEDIR/$REFCONF
-  iferror && next_case "source NRG/$CASE/$REFCONF: command failed"
+  iferror && next_case -n "source NRG/$CASE/$REFCONF: command failed"
   # create dir
   mkdir -p $TMPDIR/$CASE
-  iferror && next_case "mkdir -p $TMPDIR/$CASE: command failed"
+  iferror && next_case -n "mkdir -p $TMPDIR/$CASE: command failed"
   cd $TMPDIR/$CASE
   # copy files
   cp $MESHDIR/$MESHFILE $TMPDIR/$CASE
@@ -220,22 +229,18 @@ for CASE in "${LISTCASES[@]}" ; do
   case $TYPE_EXE in
     seq) exehead="" ;;
     mpi) exehead="mpirun -np ${MPIPROCS:-2} -machinefile hostfile" ;;
-    *)   next_case "\"$TYPE_EXE\": unknown typhon executable type" ;;
+    *)   next_case "'$TYPE_EXE': unknown typhon executable type" ;;
   esac
   # check executable
-  if [ -n "$typhonexe" ] ; then
-    EXE=$typhonexe
-  else
-    EXE=$EXEDIR/Typhon-$TYPE_EXE
-  fi  
-  test -f $EXE || next_case "\"$EXE\": no such file"
-  test -x $EXE || next_case "\"$EXE\": execute permission denied"
+  EXE=${typhonexe:-$EXEDIR/Typhon-$TYPE_EXE}
+  test -f $EXE || next_case -n "'$EXE': no such file"
+  test -x $EXE || next_case -n "'$EXE': execute permission denied"
   # execute
   echo run: $exehead $EXE >> $HOMEDIR/check.log
   $exehead $EXE >> $HOMEDIR/check.log 2>&1
   iferror && next_case "??   computation failed"
   for fic in $TO_CHECK ; do
-    test -f "$fic" || next_fic "\"$fic\": file missing"
+    test -f "$fic" || next_fic "'$fic': file missing"
     fics=( $fic $CASEDIR/$fic )
     $DIFFCOM ${fics[@]} >> diff.log 2>&1
     case $? in

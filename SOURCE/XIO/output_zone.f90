@@ -24,10 +24,6 @@ type(st_info)                :: winfo     ! world info
 ! -- OUPUTS --
 
 ! -- Internal variables --
-integer                :: izone, i, dim, ufc, ir
-integer                :: info
-type(st_genericfield)  :: vfield
-character(len=10)      :: suffix, fileformat
 type(st_grid), pointer :: pgrid
 
 ! -- BODY --

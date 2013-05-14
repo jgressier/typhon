@@ -77,16 +77,16 @@ MAIN_clean:
 ####### Dependencies
 
 # SVNREV : version number
-SVNREV=$(shell svnversion 2> /dev/null || echo unknown)
+SVNREV := $(shell svnversion 2> /dev/null || echo unknown)
 
 # SVNREVSTR : fortran code line defining the string for the version number
-SVNREVSTR=character(len=20), parameter :: svnrev = '$(SVNREV)'
+SVNREVSTR := character(len=20), parameter :: svnrev = '$(SVNREV)'
 
 # SVNREVFILE : name of the file which sould contain SVNREVSTR
-SVNREVFILE=../include/svnrev.h
+SVNREVFILE := ../include/svnrev.h
 
 # SVNREVDEP : defined to SVNREVFORCE if SVNREVFILE does not contain SVNREVSTR
-SVNREVDEP=$(shell echo "$(SVNREVSTR)" | diff - -q $(SVNREVFILE) >/dev/null 2>&1 || echo SVNREVFORCE)
+SVNREVDEP := $(shell echo "$(SVNREVSTR)" | diff - -q $(SVNREVFILE) >/dev/null 2>&1 || echo SVNREVFORCE)
 
 MAIN/depends.make: $(D_MAIN_SRC)
 	$(MAKEDEPENDS) MAIN
@@ -99,7 +99,7 @@ MAIN/main.f90: $(SVNREVFILE)
 SVNREVFORCE:
 	@:
 
-# if SVNREVDEP define to SVNREVFORCE then updates SVNREVFILE
+# if SVNREVDEP defined to SVNREVFORCE then updates SVNREVFILE
 $(SVNREVFILE): $(SVNREVDEP)
 	@echo ..... revision number : $(SVNREV)
 	@echo "$(SVNREVSTR)" > $@

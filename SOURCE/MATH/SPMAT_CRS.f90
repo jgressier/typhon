@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
-! MODULE : SPMAT_CRS                     Auteur : J. Gressier
-!                                         Date   : February 2005
-! Fonction                                Modif  : (cf history)
+! MODULE : SPMAT_CRS                            Authors : J. Gressier
+!
+! Function :
 !   Definition des structures de stockage de matrices creuses
 !
 ! Defauts/Limitations/Divers :
@@ -32,6 +32,7 @@ type st_crs
   integer(kip), pointer :: jcol(:)    ! column index of k-th value (1:nval)
   integer(kip), pointer :: kval(:)    ! k index in val(:) of first value of row i-th (1:dim+1)
 endtype st_crs
+
 
 ! -- INTERFACES -------------------------------------------------------------
 
@@ -90,8 +91,6 @@ implicit none
 ! - parametres
 type(st_crs) :: mat
 ! - internal
-real(krp)    :: x
-integer      :: i, if
 
 
 endsubroutine sort_crs
@@ -105,9 +104,6 @@ implicit none
 ! - parametres
 type(st_crs) :: mat
 ! - internal
-real(krp)    :: x
-integer      :: i, if
-
 
 
 endsubroutine invertdiag_crs
@@ -117,7 +113,7 @@ endsubroutine invertdiag_crs
 endmodule SPMAT_CRS
 
 !------------------------------------------------------------------------------!
-! Changes history
+! Change History
 !
-! fev  2005 : created
+! Feb 2005: created
 !------------------------------------------------------------------------------!

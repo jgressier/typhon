@@ -42,7 +42,7 @@ integer               :: dim              ! dimension
 integer               :: buf, nblock      ! buffer size 
 integer, pointer      :: ista(:), iend(:) ! starting and ending index
 
-! -- BODY --
+! -- Body --
 
 call new_buf_index(umesh%nface, face_buffer, nblock, ista, iend, nthread)
 
@@ -147,6 +147,6 @@ endsubroutine flux_to_res
 !------------------------------------------------------------------------------!
 ! Changes history
 !
-! avr  2004 : creation de la procedure
-! sept 2005 : local time stepping
+! Avr 2004 : creation de la procedure
+! Sep 2005 : local time stepping
 !------------------------------------------------------------------------------!

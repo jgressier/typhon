@@ -1,11 +1,11 @@
 !------------------------------------------------------------------------------!
-! Procedure : calc_varprim                Auteur : J. Gressier
-!                                         Date   : Juin 2003
-! Fonction
-!   Calcul des variables primitives a partir des variables conservatives
-!   Reroutage vers des procedures specifiques aux solveurs
+! Procedure : calc_varprim                      Authors : J. Gressier
 !
-! Defauts/Limitations/Divers :
+! Fonction
+!   Compute primitive variables from conservative variables
+!   Redirect to solver-specific subroutines
+!
+! Defaults/Limitations/Misc :
 !
 !------------------------------------------------------------------------------!
 subroutine calc_varprim(def_solver, field)
@@ -18,17 +18,15 @@ use DEFFIELD
 
 implicit none
 
-! -- Declaration des entrees --
-type(mnu_solver) :: def_solver       ! definition des parametres du solveur
+! -- Inputs --
+type(mnu_solver) :: def_solver       ! solver parameters
 
-! -- Declaration des entrees/sorties --
-type(st_field)   :: field            ! champ primitives->conservatives
+! -- Inputs/Outputs --
+type(st_field)   :: field            ! prim/cons field
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 
-
-! -- Debut de la procedure --
-
+! -- Body --
 
 select case(def_solver%typ_solver)
 case(solKDIF)
@@ -36,9 +34,10 @@ case(solKDIF)
 case(solNS)
   call calc_varprim_ns(def_solver%defns, field)
 case(solVORTEX)
-  ! rien a faire
+  ! nothing to do
 case default
-  call erreur("Incoherence interne (calc_varprim)","type de solveur inconnu")
+  call error_stop("Internal error (calc_varprim): unknown solver type: "// &
+              trim(strof(def_solver%typ_solver)))
 endselect
 
 
@@ -48,6 +47,6 @@ endsubroutine calc_varprim
 !------------------------------------------------------------------------------!
 ! Historique des modifications
 !
-! juin 2003 : creation de la procedure
-! july 2004 : NS solver (calc_varprim_ns)
+! Jun 2003: creation
+! Jul 2004: NS solver (calc_varprim_ns)
 !------------------------------------------------------------------------------!

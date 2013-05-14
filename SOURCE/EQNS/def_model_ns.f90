@@ -146,6 +146,11 @@ case(gas_AIR)
   call print_info(10,"    Perfect Gas 'AIR'")
   ! -- definition d'espece 1
   defsolver%defns%properties(1)%gamma    =   1.40_krp
+! NIST reference for molar gas constant : R = 8.3144621(75) J/mol/K
+! ref: http://physics.nist.gov/cgi-bin/cuu/Value?r
+! US standard atmosphere : mean molecular weight of air : M = 0.0289644 kg/mol
+! ref: https://docs.google.com/open?id=0B2UKsBO-ZMVgWG9mWEJGMlFacDQ, p. 9 (25)
+! ??  defsolver%defns%properties(1)%r_const  = 287.057978_krp
   defsolver%defns%properties(1)%r_const  = 287.14_krp
   call rpmgetkeyvalreal(pcour, "PRANDTL", defsolver%defns%properties(1)%prandtl, 0.72_krp)
 

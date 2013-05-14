@@ -11,12 +11,14 @@ module EQNS
 
 use TYPHMAKE   ! Definition de la precision
 use GEO3D      ! Compilation conditionnelle ? avec GEO3D_dp
-use OUTPUT 
+use OUTPUT
 
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
-
+! NIST reference for molar gas constant : R = 8.3144621(75) J/mol/K
+! ref: http://physics.nist.gov/cgi-bin/cuu/Value?r
+!real(krp), parameter :: perfect_gas_cst = 8.3144621_krp
 real(krp), parameter :: perfect_gas_cst = 8.314472_krp
 
 ! -- Variables globales du module -------------------------------------------
@@ -170,8 +172,8 @@ type(v3d)       :: dir(n)
 real(krp)       :: pi(n), ti(n), ps(n)
 ! -- OUTPUTS --
 type(st_nsetat) :: nspri
-! -- internal variables 
-real(krp)       :: g1, fm(n), ts, a, mach, m2
+! -- internal variables
+real(krp)       :: g1, fm(n)
 
   g1   = fluid%gamma -1._krp
   fm   = (pi/ps)**(g1/fluid%gamma)
@@ -180,7 +182,7 @@ real(krp)       :: g1, fm(n), ts, a, mach, m2
     where (fm(1:n) < 1._krp) fm = 1._krp
   endif
 
-  nspri%pressure(1:n) = ps(1:n) 
+  nspri%pressure(1:n) = ps(1:n)
   nspri%density(1:n)  = ps(1:n)  / (fluid%r_const * ti(1:n)) * fm(1:n)
   nspri%velocity(1:n) = ( sqrt((fm-1._krp)*2._krp/g1)                    &    ! mach number
                          *sqrt(fluid%gamma*ps(1:n)/nspri%density(1:n))   &    ! speed of sound
@@ -201,7 +203,7 @@ type(st_nsetat) :: nspri
 ! -- OUTPUTS --
 real(krp)       :: pi(n), ti(n), mach(n)
 type(v3d)       :: dir(n)
-! -- internal variables 
+! -- internal variables
 real(krp)               :: g1
 real(krp), dimension(n) :: fmv    ! automatic array
 
@@ -228,7 +230,7 @@ real(krp), intent(in) :: density(:), temperature(:)
 ! -- OUTPUTS --
 real(krp), intent(out) :: dynvisc(size(temperature))
 
-! -- internal variables 
+! -- internal variables
 integer               :: i, n
 real(krp)             :: mu0, T0, S
 
@@ -239,7 +241,7 @@ n = size(temperature)
 select case(fluid%typ_visc)
 
 case(visc_suth)
-  mu0 = fluid%visc_dyn   ! dynamic viscosity at reference temperature 
+  mu0 = fluid%visc_dyn   ! dynamic viscosity at reference temperature
   T0  = fluid%tref       ! reference temperature
   S   = fluid%tsuth      ! Sutherland's constant
   do i = 1, n

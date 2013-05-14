@@ -7,7 +7,7 @@
 ! Defaults/Limitations/Misc :
 !
 !------------------------------------------------------------------------------!
-subroutine gmres_free(dt, info, defsolver, gridlist, coupling, ncoupling, mat)
+subroutine gmres_free(dt, info, defsolver, gridlist, coupling, ncoupling)
 
 use MATFREE
 use SPARSE_MAT
@@ -20,7 +20,6 @@ type(st_infozone) :: info            ! zone information structure
 type(mnu_solver)  :: defsolver       ! solver parameters
 type(st_gridlist) :: gridlist        ! list of grids
 integer           :: ncoupling       ! number of couplings of the zone
-type(st_spmat)         :: mat
 
 ! -- Outputs --
 type(mnu_zonecoupling), dimension(1:ncoupling) &

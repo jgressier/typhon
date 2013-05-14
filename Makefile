@@ -1,5 +1,7 @@
 .PHONY: all help cfdtools seq mpi clean
 
+# cleandeps cleanall
+
 help:
 	@echo "-----------------------------------------------------------------"
 	@echo "TYPHON & CFDtools project"
@@ -31,3 +33,10 @@ mpi: cfdtools
 clean:
 	@(cd CFDTOOLS ; make clean)
 	@(cd SOURCE   ; make clean)
+
+#cleandeps:
+#	@(cd CFDTOOLS ; make cleandeps)
+#	@(cd SOURCE   ; make cleandeps)
+
+#cleanall: clean cleandeps
+
