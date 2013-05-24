@@ -18,34 +18,32 @@ use MENU_GEN
 
 implicit none
 
-! -- Declaration des entrees --
+! -- Inputs --
 
-! -- Declaration des sorties --
+! -- Outputs --
 
-! -- Declaration des entrees/sorties --
+! -- Inputs/Outputs --
 type(st_zone) :: zone
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 integer :: i             ! index de domaine/capteurs
 
-! -- Debut de la procedure --
+! -- BODY --
 
 select case(zone%info%time_model)
 
 case(time_steady)
-  !!! DEV : GESTION des entrees/sorties et numeros d'unites par MODULE
   open(unit=uf_monres, file="monres."//strof_full_int(1,3), form = "formatted")
-  write(uf_monres,'(a)') "@variables: it residual"
+  write(uf_monres,'(a)') "# variables: it residual"
 
 case(time_unsteady, time_unsteady_inverse)
-  !!! DEV : GESTION des entrees/sorties et numeros d'unites par MODULE
   open(unit=uf_monres, file="monres."//strof_full_int(1,3), form = "formatted")
-  write(uf_monres,'(a)') "@variables: it residual"
+  write(uf_monres,'(a)') "# variables: it residual"
   open(unit=uf_monphy, file="monphy."//strof_full_int(1,3), form = "formatted")
-  write(uf_monphy,'(a)') "@variables: time"
+  write(uf_monphy,'(a)') "# variables: time"
 
 case default
-  call erreur("internal error (init_probes)", "unknown time model")
+  call error_stop("internal error (init_probes): unknown time model")
 
 endselect
 

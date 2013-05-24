@@ -75,7 +75,7 @@ endselect
 ! integration loop on timesteps
 !----------------------------------
 
-do while (.not.lzone%info%end_cycle)
+do while (.not.(lzone%info%end_cycle.or.lzone%info%stop_integration))
 
   lzone%info%iter_loc = lzone%info%iter_loc + 1
   lzone%info%iter_tot = lzone%info%iter_tot + 1
@@ -156,6 +156,7 @@ do while (.not.lzone%info%end_cycle)
   ! Write info and test end of cycle
 
   call check_end_cycle(lzone%info, dt)
+  if (lzone%defsolver%deftime%maxit==lzone%info%iter_tot) lzone%info%stop_integration = .true.
 
   call write_monitors_iteration(lzone)
 

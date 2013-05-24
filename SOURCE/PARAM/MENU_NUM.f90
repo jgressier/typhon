@@ -179,6 +179,7 @@ type mnu_time
   real(krp)       :: dt         ! constant time step (if selected)
   real(krp)       :: stabnb, stabnb_max ! Stability number (CFL/Fourier) and max
   real(krp)       :: maxres     ! residu maximal pour convergence de la zone
+  integer(kip)    :: cyclemaxit ! max number of iteration per cycle
   integer(kip)    :: maxit      ! max number of iteration
   type(mnu_rk)    :: rk         ! parametres de la methode Runge Kutta
   type(mnu_imp)   :: implicite  ! parametres pour la methode d'implicitation

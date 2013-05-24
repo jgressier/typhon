@@ -33,11 +33,11 @@ integer                :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
 
 ! initialization
 
-lworld%info%icycle          = 0
-lworld%info%curtps          = 0._krp
-lworld%info%residu_ref      = 1._krp
-lworld%info%cur_res         = lworld%info%residu_ref
-lworld%info%fin_integration = .false.
+lworld%info%icycle           = 0
+lworld%info%curtps           = 0._krp
+lworld%info%residu_ref       = 1._krp
+lworld%info%cur_res          = lworld%info%residu_ref
+lworld%info%stop_integration = .false.
 
 ! Allocation du tableau des indices de cycle d'echange pour les calculs couples
 allocate(exchcycle(lworld%prj%ncoupling))
@@ -56,7 +56,7 @@ irealtimer = realtime_start()
 !--------------------------------------------------------
 ! INTEGRATION
 !--------------------------------------------------------
-do while (.not. lworld%info%fin_integration)
+do while (.not. lworld%info%stop_integration)
 
   lworld%info%icycle = lworld%info%icycle + 1
 
@@ -72,7 +72,7 @@ do while (.not. lworld%info%fin_integration)
   !case(periodique)
   !  write(str_w,'(a,i5)') "* CYCLE", lworld%info%icycle
   case default
-    call erreur("internal error (integration)", "unknown time model")
+    call error_stop("internal error (integration): unknown time model")
   endselect
 
   call print_info(6,str_w)
@@ -86,7 +86,7 @@ do while (.not. lworld%info%fin_integration)
   case(time_unsteady_inverse)
     call integration_cycle_inverse(lworld, exchcycle, lworld%prj%ncoupling)
   case default
-    call erreur("internal error (integration)", "unknown time model")
+    call error_stop("internal error (integration): unknown time model")
   endselect
 
   ! -- Actualisation des conditions aux limites au raccord
@@ -103,10 +103,10 @@ do while (.not. lworld%info%fin_integration)
   case(time_steady)
     write(str_w,'(a,g11.4)') "  Residue in cycle = ", log10(lworld%info%cur_res/lworld%info%residu_ref)
     if (lworld%info%cur_res/lworld%info%residu_ref <= lworld%prj%residumax) then
-      lworld%info%fin_integration = .true.
+      lworld%info%stop_integration = .true.
     endif
     if (lworld%info%icycle == lworld%prj%ncycle) then
-      lworld%info%fin_integration = .true.
+      lworld%info%stop_integration = .true.
       write(uf_stdout,'(a)')   " Maximum number of cycles reached"
       write(uf_log,'(a,g11.4)') "Maximum number of cycles reached, RESIDUE = ",&
                            log10(lworld%info%cur_res/lworld%info%residu_ref)
@@ -115,10 +115,10 @@ do while (.not. lworld%info%fin_integration)
 
   case(time_unsteady, time_unsteady_inverse)
     lworld%info%curtps = lworld%info%curtps + lworld%prj%dtbase
-    if (lworld%info%icycle == lworld%prj%ncycle) lworld%info%fin_integration = .true.
+    if (lworld%info%icycle == lworld%prj%ncycle) lworld%info%stop_integration = .true.
 
   case default
-    call erreur("Development", "unknown TIME integration model")
+    call error_stop("Development: unknown TIME integration model")
   endselect
 
   !--------------------------------------------------------
@@ -134,9 +134,9 @@ do while (.not. lworld%info%fin_integration)
 
   open(unit=2001, file="typhon_stop", status="old", iostat=ierr)
   if (ierr == 0) then
-    lworld%info%fin_integration = .true.
+    lworld%info%stop_integration = .true.
     call print_info(9, "INTERRUPTING INTEGRATION...")
-    close(2001)
+    close(2001, status='delete')
   endif
 
 enddo
@@ -159,6 +159,10 @@ if ((omp_run).and.(nthread>1)) then
   write(str_w, "(a,f5.2,a,f5.2,a)")  "              speed-up:",speedup," (",nopara*100,"% non parallel)"
   call print_info(10, str_w)
 endif
+do izone = 1, lworld%prj%nzone
+  write(str_w, "(a,i7)") "Total nb of iterations: ", lworld%zone(izone)%info%iter_tot
+  call print_info(10, str_w)
+enddo
 
 ! Mise a jour des variables primitives
 

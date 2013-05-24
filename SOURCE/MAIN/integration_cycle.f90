@@ -83,11 +83,14 @@ do izone = 1, lworld%prj%nzone
  
   ! -- Initialisation des infos pour le cycle
 
+  lworld%zone(izone)%info%stop_integration = .false.
+  
   select case(lworld%prj%time_model)
 
   case(time_steady)
     lworld%zone(izone)%info%residumax  = lworld%zone(izone)%defsolver%deftime%maxres
-    lworld%zone(izone)%info%maxit      = lworld%zone(izone)%defsolver%deftime%maxit
+    lworld%zone(izone)%info%maxit      = min(lworld%zone(izone)%defsolver%deftime%cyclemaxit, &
+                                             lworld%zone(izone)%defsolver%deftime%maxit-lworld%zone(izone)%info%iter_tot)
     lworld%zone(izone)%info%residu_ref = lworld%info%cur_res
 
   case(time_unsteady)
@@ -95,7 +98,7 @@ do izone = 1, lworld%prj%nzone
    lworld%zone(izone)%info%cycle_dt    = lworld%prj%dtbase
 
   case default
-    call erreur("Development", "unknown TIME model")
+    call error_stop("Development: unknown TIME model")
   endselect
 
   !-------------------------------------
@@ -111,6 +114,7 @@ do izone = 1, lworld%prj%nzone
   ! -- Retour d'informations d'integration du cycle
 
   lworld%zone(izone)%info%time_model = lworld%prj%time_model
+  lworld%info%stop_integration       = lworld%info%stop_integration.or.lworld%zone(izone)%info%stop_integration
 
   select case(lworld%prj%time_model)
 
@@ -131,7 +135,7 @@ do izone = 1, lworld%prj%nzone
     lworld%zone(izone)%info%cycle_dt = lworld%prj%dtbase
 
   case default
-    call erreur("internal error (integration_cycle)","unknown time model")
+    call error_stop("internal error (integration_cycle): unknown time model")
   endselect
   ! do if = 1, lworld%zone(izone)%ndom
   !   call dealloc_res(lworld%zone(izone)%field(if))

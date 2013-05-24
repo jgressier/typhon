@@ -79,7 +79,8 @@ endselect
 
 call  rpmgetkeyvalreal(pcour, "RESIDUALS", deftime%maxres, prj%residumax)
 
-call  rpmgetkeyvalint(pcour, "CYCLE_MAX_IT", deftime%maxit, huge(deftime%maxit))
+call  rpmgetkeyvalint(pcour, "CYCLE_MAX_IT", deftime%cyclemaxit, huge(deftime%cyclemaxit))
+call  rpmgetkeyvalint(pcour, "MAX_IT",       deftime%maxit,      huge(deftime%maxit))
 
 ! -- type de schema temporel --
 

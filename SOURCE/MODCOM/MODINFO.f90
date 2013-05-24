@@ -24,7 +24,7 @@ implicit none
 ! niveau WORLD
 !------------------------------------------------------------------------------!
 type st_info
-  logical   :: fin_integration      ! fin d'integration
+  logical   :: stop_integration     ! stop of integration
   integer   :: icycle               ! cycle courant
   real(krp) :: curtps               ! temps physique courant
   real(krp) :: residu_ref, cur_res  ! residu de reference et courant
@@ -38,6 +38,7 @@ endtype st_info
 ! Definition de la structure ST_INFOZONE : informations sur la zone
 !------------------------------------------------------------------------------!
 type st_infozone
+  logical   :: stop_integration     ! stop of integration
   character :: time_model           ! (S)tationnaire, (I)nstationnaire, (P)eriodique
   logical   :: end_cycle            ! end of cycle
   integer   :: iter_tot             ! nombre d'iteration total
