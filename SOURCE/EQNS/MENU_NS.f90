@@ -40,9 +40,8 @@ endtype mnu_ns
 ! structure ST_BOCO_NS : Boundary conditions parameters
 !------------------------------------------------------------------------------!
 type st_boco_ns
-  ! definir un etat
-  !real(krp) :: pstat, ptot, ttot, mach ! old definition
-  type(st_fct_node) :: pstat, ptot, ttot, mach         ! FCT functions
+  logical   :: is_ttot   ! else entropy
+  type(st_fct_node) :: pstat, ptot, ttot, mach, entropy       ! FCT functions
   real(krp) :: temp_wall
   type(v3d) :: wall_velocity
   type(st_fct_node) :: dir_x, dir_y, dir_z

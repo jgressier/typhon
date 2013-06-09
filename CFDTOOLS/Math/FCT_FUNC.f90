@@ -134,7 +134,7 @@ enddo
 endsubroutine
 
 !------------------------------------------------------------------------------!
-! Routine : compute environment
+! Routine : compute environment for all needed definition
 !------------------------------------------------------------------------------!
 subroutine fctset_compute_neededenv(fctenv, varenv)
 implicit none
@@ -156,7 +156,7 @@ enddo
 endsubroutine
 
 !------------------------------------------------------------------------------!
-! Routine : check dependency
+! Routine : check dependency of at least one env function 
 !------------------------------------------------------------------------------!
 function fctset_all_dependency(fctenv, name) result(depend)
 implicit none

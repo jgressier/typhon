@@ -302,6 +302,17 @@ character(len=*)  :: name
 
 endfunction
 
+!------------------------------------------------------------------------------!
+! fct_xyzdependency : check is node function depends on "X", "Y", or "Z"
+!------------------------------------------------------------------------------!
+logical function fct_xyzdependency(node)
+implicit none
+! -- parameters --
+type(st_fct_node) :: node
+! -- internal variables --
+  fct_xyzdependency = fct_dependency(node, "X").or.fct_dependency(node, "Y").or.fct_dependency(node, "Z")
+endfunction
+
 
 endmodule FCT_NODE
 !------------------------------------------------------------------------------!

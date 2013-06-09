@@ -50,23 +50,15 @@ if ((defsolver%defns%is_extpower).or.(defsolver%defns%is_extforce)) then
   endif  
 
   if (defsolver%defns%is_extpower) then
-    xyz_depend = fct_dependency(defsolver%defns%extpower, "x").or. &
-                 fct_dependency(defsolver%defns%extpower, "y").or. &
-                 fct_dependency(defsolver%defns%extpower, "z")
+    xyz_depend = fct_xyzdependency(defsolver%defns%extpower)
   else
     xyz_depend = .false.
   endif
   if (defsolver%defns%is_extforce) then
     xyz_depend = xyz_depend .or. &
-                 fct_dependency(defsolver%defns%extforce_x, "x").or. &
-                 fct_dependency(defsolver%defns%extforce_x, "y").or. &
-                 fct_dependency(defsolver%defns%extforce_x, "z").or. &
-                 fct_dependency(defsolver%defns%extforce_y, "x").or. &
-                 fct_dependency(defsolver%defns%extforce_y, "y").or. &
-                 fct_dependency(defsolver%defns%extforce_y, "z").or. &
-                 fct_dependency(defsolver%defns%extforce_z, "x").or. &
-                 fct_dependency(defsolver%defns%extforce_z, "y").or. &
-                 fct_dependency(defsolver%defns%extforce_z, "z")
+                 fct_xyzdependency(defsolver%defns%extforce_x).or. &
+                 fct_xyzdependency(defsolver%defns%extforce_y).or. &
+                 fct_xyzdependency(defsolver%defns%extforce_z)
   endif
 
   xyz_depend = xyz_depend .or. &

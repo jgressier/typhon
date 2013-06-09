@@ -17,6 +17,7 @@ use FCT_ENV
 use MENU_BOCO
 use MESHMRF
 use EQNS
+use PACKET
 
 implicit none
 
@@ -33,67 +34,118 @@ type(st_ustmesh) :: umesh            ! maillage non structure
 type(st_field)   :: fld              ! fld des etats
 
 ! -- Internal variables --
-integer                :: ifb, if, ip, nf  ! index de liste, index de face limite et parametres
-integer                :: ic, ighost    ! index de cellule interieure, et de cellule fictive
-real(krp), allocatable :: ps(:), pi(:), ti(:)
-type(v3d), allocatable :: dir(:)
+integer                :: ifb, if, ip, nf, ic  ! index de liste, index de face limite et parametres
+real(krp), dimension(fct_buffer) :: ps, pi, ti, s, x, y, z
+type(v3d), dimension(fct_buffer) :: dir
+integer                          :: ib, nblock, buf            ! block index and number of blocks
+integer, pointer                 :: ista(:), iend(:)           ! starting and ending index
+type(st_fct_env)                 :: env
+logical                          :: xyz_depend
+type(st_nsetat)                  :: nspri
 type(v3d)              :: pos
-type(st_nsetat)        :: nspri
+real(krp)              :: gam, gsgmu
 
 ! -- BODY --
 
-if (unif /= uniform) call error_stop("Development: Condition non uniforme non implementee")
-
-call new_fct_env(blank_env)      ! temporary environment from FCT_EVAL
+if (unif /= uniform) call error_stop("Development: non uniform condition not implemented")
 
 nf = ustboco%nface
 
-call new(nspri, nf)
-allocate(ps(nf))
-allocate(pi(nf))
-allocate(ti(nf))
-allocate(dir(nf))
+call new_buf_index(nf, fct_buffer, nblock, ista, iend, nthread)
 
-call fct_env_set_real(blank_env, "t", curtime)
+gam   = defns%properties(1)%gamma
+gsgmu = gam/(gam-1._krp)
 
-do ifb = 1, nf
-  if   = ustboco%iface(ifb)
-  ic   = umesh%facecell%fils(if,1)
-  ps(ifb) = fld%etatprim%tabscal(2)%scal(ic)
-  call fct_env_set_real(blank_env, "x", umesh%mesh%iface(if,1,1)%centre%x)
-  call fct_env_set_real(blank_env, "y", umesh%mesh%iface(if,1,1)%centre%y)
-  call fct_env_set_real(blank_env, "z", umesh%mesh%iface(if,1,1)%centre%z)
-  call fct_eval_real(blank_env, bc_ns%ptot, pi(ifb))
-  call fct_eval_real(blank_env, bc_ns%ttot, ti(ifb))
-  call fct_eval_real(blank_env, bc_ns%dir_x, dir(ifb)%x)
-  call fct_eval_real(blank_env, bc_ns%dir_y, dir(ifb)%y)
-  call fct_eval_real(blank_env, bc_ns%dir_z, dir(ifb)%z)
-  dir(ifb) = dir(ifb) / abs(dir(ifb)) ! moved from def_boco_ns.f90
-enddo
-
-call pi_ti_ps_dir2nspri(defns%properties(1), nf, pi(1:nf), ti(1:nf), ps(1:nf), dir(1:nf), &
-                        nspri) 
-
-! BOundary COnditions transformation in the Moving Reference Frame
-if (mrf%type /= mrf_none .and. mrf%input == mrfdata_absolute) then
-  do ifb = 1, nf
-    if   = ustboco%iface(ifb)
-    pos  = umesh%mesh%iface(if,1,1)%centre
-    call mrfvel_abs2rel(mrf, curtime, pos, nspri%velocity(ifb))    ! DEV: need to vectorize ?
-  enddo
+xyz_depend = fct_xyzdependency(bc_ns%ptot).or. &
+             fct_xyzdependency(bc_ns%dir_x).or. &
+             fct_xyzdependency(bc_ns%dir_y).or. &
+             fct_xyzdependency(bc_ns%dir_z)
+if (bc_ns%is_ttot) then
+  xyz_depend = xyz_depend.or.fct_xyzdependency(bc_ns%ttot)
+else
+  xyz_depend = xyz_depend.or.fct_xyzdependency(bc_ns%entropy)
 endif
+             
+!$OMP PARALLEL & 
+!$OMP private(ifb, if, ic, ib, env, x, y, z, pi, ps, ti, s, buf, nspri, pos, dir) &
+!$OMP shared(ista, iend, nblock, curtime, xyz_depend, gam) 
+  
+call new_fct_env(env)      ! temporary environment from FCT_EVAL
+call fct_env_set_real(env, "t", curtime)
+call new(nspri, fct_buffer)
 
-do ifb = 1, nf
-  if      = ustboco%iface(ifb)
-  ighost  = umesh%facecell%fils(if,2)
-  fld%etatprim%tabscal(1)%scal(ighost) = nspri%density(ifb)
-  fld%etatprim%tabscal(2)%scal(ighost) = nspri%pressure(ifb)
-  fld%etatprim%tabvect(1)%vect(ighost) = nspri%velocity(ifb)
-enddo
+!$OMP DO
+block: do ib = 1, nblock
 
-call delete_fct_env(blank_env)      ! temporary environment from FCT_EVAL
+  buf = iend(ib)-ista(ib)+1
+
+  if (xyz_depend) then
+    do ifb = 1, buf
+      if   = ustboco%iface(ista(ib)+ifb-1)
+      x(ifb) = umesh%mesh%iface(if,1,1)%centre%x
+      y(ifb) = umesh%mesh%iface(if,1,1)%centre%y
+      z(ifb) = umesh%mesh%iface(if,1,1)%centre%z
+    enddo
+
+    call fct_env_set_realarray(env, "x", x(1:buf))
+    call fct_env_set_realarray(env, "y", y(1:buf))
+    call fct_env_set_realarray(env, "z", z(1:buf))
+  endif
+
+  do ifb = 1, buf
+    if   = ustboco%iface(ista(ib)+ifb-1)
+    ic   = umesh%facecell%fils(if,1)
+    ps(ifb) = fld%etatprim%tabscal(2)%scal(ic)
+  enddo
+  
+  call fct_eval_realarray(env, bc_ns%ptot, pi(1:buf))
+  if (bc_ns%is_ttot) then
+    call fct_eval_realarray(env, bc_ns%ttot, ti(1:buf))
+  else
+    call fct_eval_realarray(env, bc_ns%entropy, s(1:buf))  !  "s" = p/(rho**gamma) = p**(1-gamma)*(rT)**gamma
+    ti(1:buf) = (s(1:buf)*pi(1:buf)**(gam-1._krp))**(1._krp/gam) / defns%properties(1)%r_const
+  endif
+  
+  call fct_eval_realarray(env, bc_ns%dir_x, x(1:buf))
+  call fct_eval_realarray(env, bc_ns%dir_y, y(1:buf))
+  call fct_eval_realarray(env, bc_ns%dir_z, z(1:buf))
+  
+  do ifb = 1, buf
+    dir(ifb)%x = x(ifb)
+    dir(ifb)%y = y(ifb)
+    dir(ifb)%z = z(ifb)
+  enddo
+  dir(1:buf) = dir(1:buf) / abs(dir(1:buf)) ! moved from def_boco_ns.f90
+
+  call pi_ti_ps_dir2nspri(defns%properties(1), buf, pi(1:buf), ti(1:buf), ps(1:buf), dir(1:buf), &
+                          nspri) 
+
+  ! BOundary COnditions transformation in the Moving Reference Frame
+  if (mrf%type /= mrf_none .and. mrf%input == mrfdata_absolute) then
+    do ifb = 1, buf
+      if   = ustboco%iface(ista(ib)+ifb-1)
+      pos  = umesh%mesh%iface(if,1,1)%centre
+      call mrfvel_abs2rel(mrf, curtime, pos, nspri%velocity(ifb))    ! DEV: need to vectorize ?
+    enddo
+  endif
+
+  do ifb = 1, buf
+    if = ustboco%iface(ista(ib)+ifb-1)
+    ic = umesh%facecell%fils(if,2)
+    fld%etatprim%tabscal(1)%scal(ic) = nspri%density(ifb)
+    fld%etatprim%tabscal(2)%scal(ic) = nspri%pressure(ifb)
+    fld%etatprim%tabvect(1)%vect(ic) = nspri%velocity(ifb)
+  enddo
+
+enddo block
+!$OMP END DO
+
+call delete_fct_env(env)      ! temporary environment from FCT_EVAL
 call delete(nspri)
-deallocate(ps, pi, ti, dir)
+
+!$OMP END PARALLEL
+
+deallocate(ista, iend)
 
 endsubroutine setboco_ns_inlet_sub
 !------------------------------------------------------------------------------!
@@ -104,4 +156,5 @@ endsubroutine setboco_ns_inlet_sub
 ! Mar  2010 : time dependent conditions
 ! Feb  2011 : symbolic functions evaluation for DIRECTION fields (A. Gardi)
 ! Feb  2011 : Boundary Conditions transformation in the Moving Reference Frame
+! Jun  2013 : (optional) entropy based computation, vectorization of FCT, and OMP parallelization
 !------------------------------------------------------------------------------!

@@ -95,11 +95,20 @@ case(bc_inlet_sub)
   call rpmgetkeyvalstr(pblock, "PI", str)
   call convert_to_funct(str, boco%ptot, info)  
   if (info /= 0) &
-      call erreur("menu definition","problem when parsing PI (NS boundary condition)") 
-  call rpmgetkeyvalstr(pblock, "TI", str)
-  call convert_to_funct(str, boco%ttot, info)  
+      call error_stop("menu definition: problem when parsing PI (NS boundary condition)") 
+  if (rpm_existkey(pblock, "TI")) then
+    boco%is_ttot = .true.
+    call rpmgetkeyvalstr(pblock, "TI", str)
+    call convert_to_funct(str, boco%ttot, info)  
+  elseif (rpm_existkey(pblock, "S")) then
+    boco%is_ttot = .false.
+    call rpmgetkeyvalstr(pblock, "S", str)
+    call convert_to_funct(str, boco%entropy, info)  
+  else
+    call error_stop("menu definition: missing either TI or S (NS boundary condition)") 
+  endif
   if (info /= 0) &
-      call erreur("menu definition","problem when parsing TI (NS boundary condition)") 
+      call error_stop("menu definition: problem when parsing TI (NS boundary condition)") 
   if (rpm_existkey(pblock, "DIRECTION")) then
     call rpmgetkeyvalstr (pblock, "DIRECTION", str)
     temp_direction = v3d_of(str, info)

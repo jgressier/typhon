@@ -34,7 +34,7 @@ implicit none
 endsubroutine calc_buffer
 
 !----------------------------------------------------------------------------------------
-! 
+! packet size computation with at least nblock=k*nthread and distribution of lacking part
 !----------------------------------------------------------------------------------------
 subroutine calc_buffersize(ntot, maxbuffer, nthread, nblock, nb1, buf1, buf2)
 implicit none

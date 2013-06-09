@@ -156,8 +156,11 @@ do while (.not.(lzone%info%end_cycle.or.lzone%info%stop_integration))
   ! Write info and test end of cycle
 
   call check_end_cycle(lzone%info, dt)
-  if (lzone%defsolver%deftime%maxit==lzone%info%iter_tot) lzone%info%stop_integration = .true.
-
+  if (lzone%defsolver%deftime%maxit==lzone%info%iter_tot) then
+    lzone%info%stop_integration = .true.
+    call print_info(9,"    maximum number ("//trim(strof(lzone%info%iter_tot))//") of total iterations reached")
+  endif
+  
   call write_monitors_iteration(lzone)
 
 enddo
