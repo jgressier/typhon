@@ -83,10 +83,10 @@ call print_info(10, str_w)
 !###### INTEGRATION ET RESOLUTION
 
 select case(loc_world%prj%action)
-case(act_compute)
+case(act_compute, act_restart)
   call print_etape("> INTEGRATION")
   call integration(loc_world)
-case(act_analyse)
+case(act_analyze)
   call print_etape("> ANALYSIS & REPORT")
   call analyse(loc_world)
 case default

@@ -145,26 +145,7 @@ case default
 endselect
 
 
-! ----------------------------------------------------------------------------
-! Read time integration process (default: ACTION = COMPUTE)
-
-call rpmgetkeyvalstr(pcour, "ACTION", str, "COMPUTE")
-
-prj%action = inull
-if (samestring(str, "COMPUTE" ))   prj%action = act_compute
-if (samestring(str, "ANALYSE" ))   prj%action = act_analyse
-
-select case(prj%action)
-case(act_compute)
-case(act_analyse)
-case default
-  call erreur("parameters parsing","unknown action")
-endselect
-
-
-
 endsubroutine def_project
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !

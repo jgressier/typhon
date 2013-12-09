@@ -97,6 +97,10 @@ if (samestring(str,"RK25BB"))      deftime%tps_meth = tps_lsrk25bb
 if (samestring(str,"LSRK25BB"))    deftime%tps_meth = tps_lsrk25bb
 if (samestring(str,"RK26BB"))      deftime%tps_meth = tps_lsrk26bb
 if (samestring(str,"LSRK26BB"))    deftime%tps_meth = tps_lsrk26bb
+if (samestring(str,"RK12BS"))      deftime%tps_meth = tps_lsrk12bs
+if (samestring(str,"LSRK12BS"))    deftime%tps_meth = tps_lsrk12bs
+if (samestring(str,"RK13BS"))      deftime%tps_meth = tps_lsrk13bs
+if (samestring(str,"LSRK13BS"))    deftime%tps_meth = tps_lsrk13bs
 if (samestring(str,"IMPLICIT"))    deftime%tps_meth = tps_impl
 if (samestring(str,"DUAL-TIME"))   deftime%tps_meth = tps_dualt
 
@@ -113,7 +117,7 @@ case(tps_expl)
 !------------------------------------------------------
 ! RUNGE-KUTTA METHODs
 !-------------------------------------------------------
-case(tps_rk2, tps_rk2ssp, tps_rk3ssp, tps_rk4, tps_lsrk25bb, tps_lsrk26bb)
+case(tps_rk2, tps_rk2ssp, tps_rk3ssp, tps_rk4, tps_lsrk25bb, tps_lsrk26bb, tps_lsrk12bs, tps_lsrk13bs)
   call print_info(7,"  . RUNGE-KUTTA integration: "//trim(str))
   call init_rungekutta(deftime%tps_meth, deftime%rk)
 
@@ -134,7 +138,7 @@ case(tps_impl)
     deftime%implicite%methode = alg_bicgstab
     deftime%implicite%storage = mat_bdlu
   case default
-    call erreur("internal error","unexpected solver for implicit method")
+    call error_stop("internal error: unexpected solver for implicit method")
   endselect
 
   if (rpm_existkey(pcour, "INVERSION")) then
@@ -160,56 +164,56 @@ case(tps_impl)
 
   case(alg_jac)
     call print_info(9,"    Jacobi iterative inversion")
-    call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 10_kip)
+    call rpmgetkeyvalint (pcour, "IMP_MAX_IT",  deftime%implicite%max_it, 10_kip)
     call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-4_krp)
 
   case(alg_gs)
     call print_info(9,"    Gauss-Seidel iterative inversion")
-    call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 10_kip)
+    call rpmgetkeyvalint (pcour, "IMP_MAX_IT",  deftime%implicite%max_it, 10_kip)
     call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-4_krp)
 
   case(alg_sor)
     call print_info(9,"    Successive Over Relaxation iterative inversion (SOR)")
-    call rpmgetkeyvalint (pcour, "MAX_IT",    deftime%implicite%max_it, 10_kip)
+    call rpmgetkeyvalint (pcour, "IMP_MAX_IT",    deftime%implicite%max_it, 10_kip)
     call rpmgetkeyvalreal(pcour, "INV_RES",   deftime%implicite%maxres, 1.e-4_krp)
     call rpmgetkeyvalreal(pcour, "OVERRELAX", deftime%implicite%overrelax, 1._krp)
 
   case(alg_bicg)
     call print_info(9,"    Bi-Conjugate Gradient iterative inversion (BiCG)")
-    call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 10_kip)
+    call rpmgetkeyvalint (pcour, "IMP_MAX_IT",  deftime%implicite%max_it, 10_kip)
     call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-4_krp)
 
   case(alg_bicgpjac)
     call print_info(9,"    Bi-Conjugate Gradient iterative inversion (BiCG) - Jacobi preconditioning")
-    call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 10_kip)
+    call rpmgetkeyvalint (pcour, "IMP_MAX_IT",  deftime%implicite%max_it, 10_kip)
     call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-4_krp)
 
   case(alg_cgs)
     call print_info(9,"    Conjugate Gradient Squared iterative inversion (CGS)")
-    call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 10_kip)
+    call rpmgetkeyvalint (pcour, "IMP_MAX_IT",  deftime%implicite%max_it, 10_kip)
     call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-4_krp)
 
   case(alg_bicgstab)
     call print_info(9,"    Bi-Conjugate Gradient Stabilized iterative inversion (BiCG-Stab)")
-    call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 50_kip)
+    call rpmgetkeyvalint (pcour, "IMP_MAX_IT",  deftime%implicite%max_it, 50_kip)
     call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-1_krp)
 
   case(alg_gmres)
     call print_info(9,"    Generalized Minimum Residual iterative inversion (GMRES)")
     call rpmgetkeyvalint (pcour, "NKRYLOV", deftime%implicite%nkrylov, 50_kip)
-    call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it,  50_kip)
+    call rpmgetkeyvalint (pcour, "IMP_MAX_IT",  deftime%implicite%max_it,  50_kip)
     call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-4_krp)
 
   case(alg_gmresfree)
     call print_info(9,"    Matrix-Free Generalized Minimum Residual iterative inversion (GMRES)")
     call rpmgetkeyvalint (pcour, "NKRYLOV", deftime%implicite%nkrylov, 50_kip)
-    call rpmgetkeyvalint (pcour, "MAX_IT",  deftime%implicite%max_it, 50_kip)
+    call rpmgetkeyvalint (pcour, "IMP_MAX_IT",  deftime%implicite%max_it, 50_kip)
     call rpmgetkeyvalreal(pcour, "INV_RES", deftime%implicite%maxres, 1.e-4_krp)
     deftime%implicite%storage = mat_none
     !call erreur("algebra","unavailable inversion method: "//trim(str))
 
   case default
-    call erreur("algebra","unknown inversion method: "//trim(str))
+    call error_stop("algebra: unknown inversion method: "//trim(str))
   endselect
 
   if (rpm_existkey(pcour, "STORAGE")) then
@@ -251,7 +255,7 @@ case(tps_dualt)
   call print_info(7,"  . DUAL TIME integration")
 
 case default
-  call erreur("parameter parsing","unknown parameter for time integration (METHOD)")
+  call error_stop("parameter parsing: unknown parameter for time integration (METHOD): "//trim(str))
 endselect
 
 

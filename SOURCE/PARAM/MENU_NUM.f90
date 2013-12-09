@@ -35,6 +35,8 @@ integer(kpp), parameter :: tps_rk3ssp   = 33   ! Runge Kutta explicit
 integer(kpp), parameter :: tps_rk4      = 35   ! Runge Kutta explicit
 integer(kpp), parameter :: tps_lsrk25bb = 41   ! Low storage RK explicit : 2nd order, 5 steps, Bogey Bailly
 integer(kpp), parameter :: tps_lsrk26bb = 42   ! Low storage RK explicit : 2nd order, 6 steps, Bogey Bailly
+integer(kpp), parameter :: tps_lsrk12bs = 51   ! Low storage RK explicit : 2 step Birken smoother
+integer(kpp), parameter :: tps_lsrk13bs = 52   ! Low storage RK explicit : 3 step Birken smoother
 
 ! -- Constantes pour schema de calcul des flux hyperboliques (sch_hyp)
 integer(kpp), parameter :: sch_rusanov    = 05
@@ -423,6 +425,22 @@ case(tps_lsrk26bb)
   rk%coef(4, 4) = 0.33183954253762_krp 
   rk%coef(5, 5) = 0.5_krp 
   rk%coef(6, 6) = 1._krp 
+case(tps_lsrk12bs)
+  rk%order  = 1
+  rk%nstage = 2
+  allocate(rk%coef(1:rk%nstage, 1:rk%nstage))
+  rk%coef(:, :) = 0._krp
+  rk%coef(1, 1) = 1._krp
+  rk%coef(2, 2) = 1._krp
+case(tps_lsrk13bs)
+  rk%order  = 1
+  rk%nstage = 3
+  allocate(rk%coef(1:rk%nstage, 1:rk%nstage))
+  rk%coef(:, :) = 0._krp
+  rk%coef(1, 1) = .15_krp
+  rk%coef(2, 2) = .4_krp
+  rk%coef(3, 3) = 1._krp
+
 case default
   call error_stop("parameters parsing: unknown RUNGE KUTTA method")
 endselect

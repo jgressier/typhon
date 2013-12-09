@@ -6,17 +6,19 @@
 !   Parametres principaux du projet
 !
 !------------------------------------------------------------------------------!
-subroutine def_init(block, isolver, defsolver)
+subroutine def_init(prj, block, isolver, defsolver)
 
 use RPM
 use TYPHMAKE
 use OUTPUT
 use VARCOM
 use MENU_SOLVER
+use MENU_GEN
 
 implicit none
 
 ! -- INPUTS --
+type(mnu_project)      :: prj
 type(rpmblock), target :: block
 integer                :: isolver
 
@@ -38,8 +40,7 @@ call print_info(5,"- Definition of Initial Conditions")
 pblock => block
 call seekrpmblock(pblock, "INIT", 0, pcour, n_init)
 
-if (n_init < 1) call erreur("Parameter parsing", &
-                            "no block definition found (BLOCK:INIT)")
+if (n_init < 1) call error_stop("Parameter parsing: no block definition found (BLOCK:INIT)")
 
 defsolver%ninit = n_init
 allocate(defsolver%init(n_init))
@@ -50,17 +51,21 @@ do i = 1, n_init
 
   ! -- Determination des caracteristiques communes
 
-  call rpmgetkeyvalstr(pcour, "UNIFORMITY", str, "YES")
-  if (samestring(str, "YES"))  defsolver%init(i)%unif = init_unif
-  if (samestring(str, "NO"))   defsolver%init(i)%unif = init_nonunif
+  if (prj%action == act_restart) then
+    defsolver%init(i)%type = init_typhon
+  else  
+    call rpmgetkeyvalstr(pcour, "UNIFORMITY", str, "YES")
+    if (samestring(str, "YES"))  defsolver%init(i)%unif = init_unif
+    if (samestring(str, "NO"))   defsolver%init(i)%unif = init_nonunif
 
-  call rpmgetkeyvalstr(pcour, "TYPE", str, "DEFINITION")
-  if (samestring(str, "DEFINITION"))  defsolver%init(i)%type = init_def
-  if (samestring(str, "CGNS"))        defsolver%init(i)%type = init_cgns
-  if (samestring(str, "TYPHON"))      defsolver%init(i)%type = init_typhon
-  if (samestring(str, "TYS"))         defsolver%init(i)%type = init_typhon
-  if (samestring(str, "FILE"))        defsolver%init(i)%type = init_file
-  if (samestring(str, "UDF"))         defsolver%init(i)%type = init_udf
+    call rpmgetkeyvalstr(pcour, "TYPE", str, "DEFINITION")
+    if (samestring(str, "DEFINITION"))  defsolver%init(i)%type = init_def
+    if (samestring(str, "CGNS"))        defsolver%init(i)%type = init_cgns
+    if (samestring(str, "TYPHON"))      defsolver%init(i)%type = init_typhon
+    if (samestring(str, "TYS"))         defsolver%init(i)%type = init_typhon
+    if (samestring(str, "FILE"))        defsolver%init(i)%type = init_file
+    if (samestring(str, "UDF"))         defsolver%init(i)%type = init_udf
+  endif
 
   ! -- Determination du type de repere
 
@@ -103,7 +108,6 @@ do i = 1, n_init
   endselect
 
 enddo
-
 
 endsubroutine def_init
 !------------------------------------------------------------------------------!

@@ -49,6 +49,14 @@ if (nkey /= 1) call error_stop("parameter parsing: BLOCK:MESH not found (or conf
 
 ! -- lecture du format
 
+if (prj%action == act_restart) then
+  defmesh%format   = fmt_TYPHON
+  defmesh%filename = "restart.tys"
+  defmesh%scaling  = .false.
+  defmesh%morphing = .false.
+  defmesh%defsplit%splitmesh = split_none
+else
+
 call rpmgetkeyvalstr(pcour, "FORMAT", str)
 defmesh%format = cnull
 
@@ -178,6 +186,8 @@ case(split_quad3x3)
 case default
   call error_stop("parameters parsing: unknown splitmesh parameter -> "//trim(str))
 endselect
+
+endif ! no restart
 
 defmesh%nfgauss = 1
 

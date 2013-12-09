@@ -116,7 +116,7 @@ call def_connect(block, zone%defsolver)
 ! -------------------------
 ! Definition de l'initialisation
 
-call def_init(block, solver, zone%defsolver)
+call def_init(prj, block, solver, zone%defsolver)
 
 ! -------------------------
 ! Definition des capteurs

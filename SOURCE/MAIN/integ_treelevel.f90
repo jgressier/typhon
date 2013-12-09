@@ -68,7 +68,7 @@ select case(defsolver%deftime%tps_meth)
 case(tps_expl, tps_impl)
   call treelevel_explicit(dt, info, defsolver, gridlist, coupling, ncoupling)
 
-case(tps_rk2, tps_rk2ssp, tps_rk3ssp, tps_rk4, tps_lsrk25bb, tps_lsrk26bb)
+case(tps_rk2, tps_rk2ssp, tps_rk3ssp, tps_rk4, tps_lsrk25bb, tps_lsrk26bb, tps_lsrk12bs, tps_lsrk13bs)
   call treelevel_rungekutta(dt, info, defsolver, gridlist, coupling, ncoupling)
 
 case(tps_dualt)

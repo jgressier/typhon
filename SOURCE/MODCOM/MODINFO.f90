@@ -10,12 +10,12 @@ module MODINFO
 
 use TYPHMAKE     ! Definition de la precision
 
-
 implicit none
 
 ! -- Variables globales du module -------------------------------------------
 
-
+integer,           parameter :: prjdef_ver  = 1
+character(len=11), parameter :: prjdef_name = "restart.prj"
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
@@ -57,21 +57,86 @@ type st_infozone
             :: proc(:)              ! list of proc. which are computing this zone
 endtype st_infozone
 
-
 ! -- INTERFACES -------------------------------------------------------------
-
-
 
 ! -- Fonctions et Operateurs ------------------------------------------------
 
-
 ! -- IMPLEMENTATION ---------------------------------------------------------
-!contains
+contains
 
 !------------------------------------------------------------------------------!
-! Procedure : 
+! Procedure : write project file
 !------------------------------------------------------------------------------!
+subroutine writedef_prjinfo(iunit, info)
+implicit none
+integer       :: iunit
+type(st_info) :: info
 
+write(iunit,*) prjdef_ver,      "# version"
+write(iunit,*) info%icycle,     "# cycle number"
+write(iunit,*) info%curtps,     "# current time"
+write(iunit,*) info%residu_ref, "# reference residual"
+write(iunit,*) info%cur_res,    "# current residual"
+
+endsubroutine
+
+!------------------------------------------------------------------------------!
+! Procedure : read project file
+!------------------------------------------------------------------------------!
+subroutine readdef_prjinfo(iunit, info, ver)
+implicit none
+integer       :: iunit, ver
+type(st_info) :: info
+
+read(iunit,*) ver
+select case(ver)
+case(1)
+  read(iunit,*) info%icycle
+  read(iunit,*) info%curtps
+  read(iunit,*) info%residu_ref
+  read(iunit,*) info%cur_res
+case default
+  print*,'unknown version'//prjdef_name
+end select
+
+endsubroutine
+
+!------------------------------------------------------------------------------!
+! Procedure : write zone info
+!------------------------------------------------------------------------------!
+subroutine writedef_zoneinfo(iunit, infozone)
+implicit none
+integer           :: iunit
+type(st_infozone) :: infozone
+
+write(iunit, *) "# ZONE information"
+write(iunit, *) infozone%time_model,        "# steady, unsteady, etc"
+write(iunit, *) infozone%iter_tot,          "# total number of iterations"
+write(iunit, *) infozone%residu_ref,        "# reference residual" 
+write(iunit, *) infozone%residu_reforigine, "# very first reference residual"
+
+endsubroutine
+
+!------------------------------------------------------------------------------!
+! Procedure : read zone info
+!------------------------------------------------------------------------------!
+subroutine readdef_zoneinfo(iunit, infozone, ver)
+implicit none
+integer           :: iunit, ver
+type(st_infozone) :: infozone
+
+select case(ver)
+case(1)
+  read(iunit, *) 
+  read(iunit, *) infozone%time_model
+  read(iunit, *) infozone%iter_tot
+  read(iunit, *) infozone%residu_ref
+  read(iunit, *) infozone%residu_reforigine
+case default
+  print*,'unknown version of '//prjdef_name
+end select
+
+endsubroutine
 
 
 

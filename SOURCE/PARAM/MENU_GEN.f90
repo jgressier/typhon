@@ -17,8 +17,9 @@ implicit none
 
 ! -- Module constants -------------------------------------------
 
-integer(kpp), parameter :: act_compute = 1
-integer(kpp), parameter :: act_analyse = 2
+integer(kpp), parameter :: act_analyze = 2
+integer(kpp), parameter :: act_compute = 10
+integer(kpp), parameter :: act_restart = 15
 
 ! -- outputs constants --
 
