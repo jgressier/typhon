@@ -29,18 +29,18 @@ implicit none
 ! Definition de la structure ST_ZONE : zone maillage general et champ
 !------------------------------------------------------------------------------!
 type st_zone
-  integer               :: id         ! index of zone
+  integer                  :: id         ! index of zone
   character(len=shortname) :: name       ! zone name
-  integer               :: nprobe     ! probe number
-  integer               :: ncoupling  ! nombre d'echanges avec d'autres zones
-  type(st_infozone)     :: info       ! information sur l'integration
-  type(mnu_solver)      :: defsolver  ! type de solveur a utiliser 
+  integer                  :: nprobe     ! probe number
+  integer                  :: ncoupling  ! nombre d'echanges avec d'autres zones
+  type(st_infozone)        :: info       ! information sur l'integration
+  type(mnu_solver)         :: defsolver  ! type de solveur a utiliser 
                                       !   cf definitions variables globales
   !character             :: typ_mesh   ! type de maillage (cf VARCOM)
   !                                    !   S : multibloc structure
   !                                    !   U : non structure
   !                                    !   H : hybride
-  integer               :: mpi_cpu    ! numero de CPU charge du calcul
+  integer               :: mpi_cpu    ! numero de CPU charge du calcul  !! NOT USED ?
 
   !integer                :: ngrid      ! nombre de grilles (mesh + field)
   type(st_gridlist)     :: gridlist       ! liste chainee de grilles

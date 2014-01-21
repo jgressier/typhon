@@ -39,7 +39,8 @@ case(grid_ust)
   call print_info(10,"* compute FACE colors")
   call coo_colorgroup(grid%umesh%nface, grid%umesh%ncell, grid%umesh%facecell, grid%umesh%colors)
   call print_info(12,"  . "//trim(strof(grid%umesh%colors%nbnodes))//" colors")
-
+  grid%info%ndof = grid%umesh%ncell !! * grid%ndof
+  
 case(grid_str)
 
   ! STRUCTURED MESH PREPROCESSING

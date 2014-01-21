@@ -23,6 +23,7 @@ type(st_grid), pointer :: pgrid
 ! -- BODY --
 
 zone%info%totvolume = 0._krp
+zone%info%totndof   = 0
 
 pgrid => zone%gridlist%first
 
@@ -31,12 +32,14 @@ do while (associated(pgrid))
   call grid_preproc(zone%defsolver, pgrid)
 
   zone%info%totvolume = zone%info%totvolume + pgrid%info%volume
+  zone%info%totndof   = zone%info%totndof   + pgrid%info%ndof
   
   pgrid => pgrid%next
 enddo
 
 ! -- reduce (sum) on all threads
 call allreduce_sum(zone%info%totvolume)
+call allreduce_sum(zone%info%totndof)
 
 endsubroutine zone_preproc
 !------------------------------------------------------------------------------!

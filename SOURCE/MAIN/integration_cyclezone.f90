@@ -17,6 +17,7 @@ use DEFZONE
 use DEFFIELD
 use GEO3D
 use MENU_GEN
+use TIMER
 
 implicit none
 
@@ -31,8 +32,9 @@ real(krp)   :: wcur_res           ! world current residual
 real(krp)   :: dt                 ! pas de temps de la zone
 integer     :: ic, ib, nbc        ! index de champ, couplage et boco
 real(krp)   :: part_cor           ! part de correction a appliquer
-real(krp)   :: dtmax
+real(krp)   :: dtmax, walltime
 integer     :: typ_cor            ! type de correction
+integer     :: itimer
 
 !DEV
 integer :: cumulreste, oui, non
@@ -64,12 +66,12 @@ case(time_unsteady)
 case(time_unsteady_inverse)
 
 case default
-  call erreur("internal error (integration_cyclezone)", "unknown time model")
+  call error_stop("internal error (integration_cyclezone): unknown time model")
 endselect
 
 ! -- CYCLE initialization --
 
-
+itimer = realtime_start()
 
 !----------------------------------
 ! integration loop on timesteps
@@ -86,7 +88,7 @@ do while (.not.(lzone%info%end_cycle.or.lzone%info%stop_integration))
   case(time_unsteady, time_unsteady_inverse)
     dtmax = lzone%info%cycle_dt - lzone%info%cycle_time
   case default
-    call erreur("internal error (integration_cyclezone)", "unknown time model")
+    call error_stop("internal error (integration_cyclezone): unknown time model")
   endselect
 
   !----------------------------------
@@ -165,7 +167,12 @@ do while (.not.(lzone%info%end_cycle.or.lzone%info%stop_integration))
 
 enddo
 
+walltime = realtime_stop(itimer)
 call print_info(9,"    integration completed in "//trim(strof(lzone%info%iter_loc))//" iterations")
+write(str_w, "(a,f8.3,a)") "    normalized walltime:", &
+                         nthread*walltime*1e6/lzone%info%iter_loc/lzone%info%totndof,&
+                         " µs/cell/it (*ncpu)"  
+call print_info(9,str_w)
 
 !---------------------------------------
 endsubroutine integration_cyclezone

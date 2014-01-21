@@ -40,6 +40,7 @@ type st_infogrid
   integer                 :: mpi_cpu           ! CPU/process  index
   integer(kpp)            :: gridtype          ! grid type 
   integer                 :: l                 ! Refinement level
+  real(krp)               :: ndof              ! number of DOF
   real(krp)               :: volume            ! geometrical volume of grid
   type(st_field), pointer :: field_loc         ! pointer to instantaneous field
   type(st_field), pointer :: field_cyclestart  ! pointer to starting cycle field

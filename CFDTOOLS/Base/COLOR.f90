@@ -36,13 +36,16 @@ integer(kip),        intent(in)  :: nedge, nvertex
 type(st_connect),    intent(in)  :: edgecon         ! nbnodes >= nedge
 type(st_genconnect), intent(out) :: colors
 ! -- internal --
-type(st_genconnect)       :: vertexcolor
-integer(kip)              :: iv(2), jf, ic
-integer(kip), parameter   :: vresize = 10, cresize = 100
-logical                   :: colored
+type(st_genconnect)  :: vertexcolor
+integer(kip)         :: iv(2), jf, ic
+integer(kip)         :: vresize, cresize
+logical              :: colored
 ! --- BODY ---
 
 ! -- init --
+
+vresize = 10                   ! related to number of color groups
+cresize = max(100, nedge/100)  ! related to number of edge per group
 
 call new_genconnect_nelem(colors,      1,       cresize, initdim=0)
 call new_genconnect_nelem(vertexcolor, nvertex, vresize, initdim=0)
@@ -53,6 +56,7 @@ do jf = 1, nedge
   colored = .false.
   iv(1:2) = edgecon%fils(jf,1:2)
   if ((iv(2)==0).or.(iv(2)>nvertex)) iv(2) = iv(1)  ! handle incomplete edge (no vertex 2)
+  ! -- check if at least one node is in a color group --
   do ic  = 1, colors%nbnodes
     if (index(ic, vertexcolor%node(iv(1)))==0) then
       if (index(ic, vertexcolor%node(iv(2)))==0) then
