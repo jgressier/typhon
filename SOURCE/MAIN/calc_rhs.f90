@@ -61,7 +61,7 @@ pgrid => gridlist%first
 
 do while(associated(pgrid))
 
-  call calcboco_connect(defsolver, defsolver%defspat, pgrid, bccon_cell_state)
+  call calcboco_gen(curtime, defsolver, defsolver%defspat, pgrid, bccon_cell_state)
   call calcboco_ust(curtime, defsolver, defsolver%defspat, pgrid)
 
   pgrid => pgrid%next
@@ -85,7 +85,7 @@ do while (associated(pgrid))
     ! !!! DEV 
     ! for viscous fluxes or MUSCL extrapolation at BOCO, must be specific to BOCO physical type
     call calc_gradient_limite(defsolver, pgrid%umesh, pgrid%info%field_loc%gradient)
-    call calcboco_connect(defsolver, defsolver%defspat, pgrid, bccon_cell_grad)
+    call calcboco_gen(curtime, defsolver, defsolver%defspat, pgrid, bccon_cell_grad)
 
   case(cellgrad_lsq, cellgrad_lsqw)
     call calc_gradient(defsolver, defsolver%defspat, pgrid,                 &
@@ -93,12 +93,12 @@ do while (associated(pgrid))
     ! !!! DEV 
     ! for viscous fluxes or MUSCL extrapolation at BOCO, must be specific to BOCO physical type
     call calc_gradient_limite(defsolver, pgrid%umesh, pgrid%info%field_loc%gradient)
-    call calcboco_connect(defsolver, defsolver%defspat, pgrid, bccon_cell_grad)
+    call calcboco_gen(curtime, defsolver, defsolver%defspat, pgrid, bccon_cell_grad)
 
   case(facegrad_svm)
     call calc_gradface_svm(defsolver%defspat, pgrid%umesh, pgrid%info%field_loc%etatprim, &
                            pgrid%info%field_loc%grad_l, pgrid%info%field_loc%grad_r)
-    call calcboco_connect(defsolver, defsolver%defspat, pgrid, bccon_face_grad)
+    call calcboco_gen(curtime, defsolver, defsolver%defspat, pgrid, bccon_face_grad)
 
   case default
     call error_stop("Internal error: unknown GRADIENT computation method (calc_rhs)")
@@ -118,7 +118,7 @@ if (defsolver%defspat%calc_hresQ) then
   do while (associated(pgrid))
     call calc_hres_states(defsolver, defsolver%defspat, pgrid, pgrid%info%field_loc)
     !if (defsolver%defspat%method == hres_svm) then
-    call calcboco_connect(defsolver, defsolver%defspat, pgrid, bccon_face_state)
+    call calcboco_gen(curtime, defsolver, defsolver%defspat, pgrid, bccon_face_state)
     !call calcboco_ust(curtime, defsolver, defsolver%defspat, pgrid)
     !endif
     pgrid => pgrid%next

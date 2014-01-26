@@ -393,7 +393,7 @@ implicit none
 type(st_grid) :: grid
 
   grid%info%volume = sum(grid%umesh%mesh%volume(1:grid%umesh%ncell_int, 1, 1))
-  grid%info%ndof = grid%umesh%ncell !! * grid%ndof
+  grid%info%ndof = grid%umesh%ncell_int !! * grid%ndof
 
   call coo_colorgroup(grid%umesh%nface, grid%umesh%ncell, grid%umesh%facecell, grid%umesh%colors)
 

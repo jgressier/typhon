@@ -80,7 +80,7 @@ write(str_w,*) ".          Num of cells:",ncell," to cut into ",npart," parts"
 call print_info(8,adjustl(str_w))
 
 #ifdef metis
-if (npart <= 8) then
+if (npart < 4) then
   call print_info(8,"  call metis_PartGraphKway...")
   call METIS_PartGraphKway(ncell, csr%row_index, csr%col_index, vwgt, adjwgt, wgtflag, numflag, &
                            npart, options, edgecut, partition)

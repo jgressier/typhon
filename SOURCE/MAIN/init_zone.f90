@@ -6,10 +6,7 @@
 !     - zone par defaut
 !     - zone defnis par l'utilisateur
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
-
 subroutine init_zone(zone, prj)
 
 use TYPHMAKE
@@ -18,23 +15,17 @@ use MENU_GEN
 
 implicit none
 
-! -- Declaration des entrees --
+! -- Inputs --
 type(mnu_project) :: prj
 
-! -- Declaration des sorties --
-
-! -- Declaration des entrees/sorties --
+! -- Inputs/Outputs --
 type(st_zone) :: zone
 
-! -- Declaration des variables internes --
-
-! -- Debut de la procedure --
+! -- BODY --
 
 zone%info%time_model =  prj%time_model
-print*, 'init:',zone%info%nbproc,' procs :',zone%info%proc
 
 endsubroutine init_zone
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !

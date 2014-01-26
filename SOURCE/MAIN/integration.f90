@@ -179,21 +179,21 @@ if (lworld%prj%ncoupling > 0) then
   enddo
 endif
 
-do izone = 1, lworld%prj%nzone
-
- curtime = lworld%zone(izone)%info%cycle_start + lworld%zone(izone)%info%cycle_time
-
- pgrid => lworld%zone(izone)%gridlist%first
-
- do while(associated(pgrid))
-
-   call calcboco_connect(     lworld%zone(izone)%defsolver, lworld%zone(izone)%defsolver%defspat, pgrid, bccon_cell_state)
-   call calcboco_ust(curtime, lworld%zone(izone)%defsolver, lworld%zone(izone)%defsolver%defspat, pgrid)
-   pgrid => pgrid%next
-
- enddo
-
-enddo
+!do izone = 1, lworld%prj%nzone
+!
+! curtime = lworld%zone(izone)%info%cycle_start + lworld%zone(izone)%info%cycle_time
+!
+! pgrid => lworld%zone(izone)%gridlist%first
+!
+! do while(associated(pgrid))
+!
+!   call calcboco_connect(     lworld%zone(izone)%defsolver, lworld%zone(izone)%defsolver%defspat, pgrid, bccon_cell_state)
+!   call calcboco_ust(curtime, lworld%zone(izone)%defsolver, lworld%zone(izone)%defsolver%defspat, pgrid)
+!   pgrid => pgrid%next
+!
+! enddo
+!
+!enddo
 
 !-----------------------------------------------------------------------------------------------------------------------
 ! DVT : Fermeture du fichier de comparaison des flux a l'interface

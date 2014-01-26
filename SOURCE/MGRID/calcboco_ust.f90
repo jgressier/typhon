@@ -23,9 +23,11 @@ implicit none
 real(krp)              :: curtime
 type(mnu_solver)       :: defsolver        ! type d'equation a resoudre
 type(mnu_spat)         :: defspat
+integer(kpp)           :: bccon_mode       ! data exchange mode for connection
 
 ! -- INPUTS/OUTPUTS --
-type(st_grid)          :: grid             ! maillage en entree, champ en sortie
+type(st_grid)         :: grid             ! maillage en entree, champ en sortie
+type(st_genericfield) :: fsend, frecv ! pointer of send or receive fields
 
 ! -- Internal variables --
 integer :: ib, ir                    ! index de conditions aux limites et de couplage

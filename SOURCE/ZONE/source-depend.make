@@ -22,6 +22,7 @@ ZONE_OBJ := $(ZONE_MOD:.$(MODEXT)=.o)       \
             calc_varprim.o               \
             calc_zonetimestep.o          \
             donnees_echange.o            \
+            init_connect.o               \
             init_connect_grid.o          \
             init_gridfield_ust.o         \
             init_ustboco_ghostcell.o     \

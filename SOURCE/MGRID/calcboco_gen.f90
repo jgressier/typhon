@@ -1,11 +1,13 @@
 !------------------------------------------------------------------------------!
-! Procedure : calcboco_connect                         Authors : J. Gressier
-!                                                      Created : October 2005
+! Procedure : calcboco_gen        
+!                                 
 ! Fonction 
-!   Computation & exchange of boundary conditions for connection conditions
+!   Computation & exchange of boundary conditions for
+!   . connection conditions
+!   . physical boundary conditions
 !
 !------------------------------------------------------------------------------!
-subroutine calcboco_connect(defsolver, defspat, grid, bccon_mode)
+subroutine calcboco_gen(curtime, defsolver, defspat, grid, bccon_mode)
 
 use TYPHMAKE
 use OUTPUT
@@ -19,6 +21,7 @@ use DEFFIELD
 implicit none
 
 ! -- Inputs --
+real(krp)              :: curtime
 type(mnu_solver)       :: defsolver 
 type(mnu_spat)         :: defspat
 integer(kpp)           :: bccon_mode       ! data exchange mode for connection
@@ -52,50 +55,17 @@ case default
   call error_stop("Internal error: unknown connection mode")
 endselect
 
-! only compute connections (idef <= 0)
+!------------------------------------------------------------------------------!
+! send & receive matching and periodic connections
 
-do ib = 1, grid%umesh%nboco
+call calcboco_connect(defsolver, defspat, grid%umesh, bccon_mode, fsend, frecv)
 
-  idef = grid%umesh%boco(ib)%idefboco
+!------------------------------------------------------------------------------!
+! physical BOCO
 
-  if (idef <= 0) then
+!call calcboco_ust(curtime, defsolver, defspat, grid, bccon_mode, fsend, frecv)
 
-    select case(grid%umesh%boco(ib)%gridcon%contype)
-
-    case(gdcon_match)
-
-      ! send and receive data of this grid (from other grids)
-      ! 
-      call calcboco_connect_match(bccon_mode, defsolver, grid%umesh, fsend, frecv, grid%umesh%boco(ib))
-
-    case(gdcon_nomatch)
-      call erreur("Development","non matching connection not implemented")
-
-    case(gdcon_per_match)
-
-      ! compute periodic matching conditions (only available for periodic def. inside a grid)
-      ! 
-      call calcboco_connect_per_match(bccon_mode, defsolver, grid%umesh, fsend, frecv, grid%umesh%boco(ib))
-
-    case(gdcon_per_nomatch)
-      call error_stop("Development: periodic non matching connection not implemented")
-
-    case(gdcon_coarse_fine)
-      call error_stop("Development: coarse/fine connection not implemented")
-
-    case(gdcon_fine_coarse)
-      call error_stop("Development: fine/coarse connection not implemented")
-
-    case default
-      call error_stop("Internal error: unknown connection parameter")
-
-    endselect
-
-  endif
-enddo
-
-endsubroutine calcboco_connect
-
+endsubroutine calcboco_gen
 !------------------------------------------------------------------------------!
 ! Changes history
 !

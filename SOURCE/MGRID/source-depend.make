@@ -21,6 +21,7 @@ MGRID_OBJ = $(MGRID_MOD:.$(MODEXT)=.o)      \
             calcboco_connect.o           \
             calcboco_connect_match.o     \
             calcboco_connect_per_match.o \
+            calcboco_gen.o               \
             calcboco_ust.o               \
             calcboco_ust_extrapol.o      \
             calcboco_ust_sym.o           \

@@ -34,7 +34,6 @@ MAIN_OBJ = $(MAIN_MOD:.$(MODEXT)=.o)   \
            implicit_solve.o         \
            init_boco.o              \
            init_bocohisto.o         \
-           init_connect.o           \
            init_coupling.o          \
            init_implicit.o          \
            init_inverse.o           \

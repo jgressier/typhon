@@ -396,6 +396,8 @@ deallocate(boco)
 !!! allocated & initialized later in ???
 
 ! ---------------------------------------------
+call check_ustmesh_elements(partgrid%umesh)
+
 deallocate(new_icell)
 deallocate(new_iface)
 deallocate(new_ivtex)

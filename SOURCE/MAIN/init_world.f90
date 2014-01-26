@@ -39,25 +39,6 @@ do izone = 1, world%prj%nzone
 enddo
 
 !--------------------------------------------------------------------
-! Initialisation des connectivites cellules/faces/sommets des conditions aux limites
-
-call print_info(5,"* Computing and Initializing connectivities"// &
-                  " of boundary conditions")
-do izone = 1, world%prj%nzone
-  call init_connect(world%zone(izone))
-enddo
-
-!--------------------------------------------------------------------
-! Split grids
-
-if (world%info%nbproc > 1) then
-  call print_info(5,"* Splitting grids")
-  do izone = 1, world%prj%nzone
-    call split_zone(world%zone(izone))
-  enddo
-endif
-
-!--------------------------------------------------------------------
 ! Initialisation des champs
 
 call print_info(5,"* Computing initial conditions")
