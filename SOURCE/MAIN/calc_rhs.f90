@@ -117,9 +117,10 @@ if (defsolver%defspat%calc_hresQ) then
   pgrid => gridlist%first
   do while (associated(pgrid))
     call calc_hres_states(defsolver, defsolver%defspat, pgrid, pgrid%info%field_loc)
-    if (defsolver%defspat%method == hres_svm) then
-      call calcboco_connect(defsolver, defsolver%defspat, pgrid, bccon_face_state)
-    endif
+    !if (defsolver%defspat%method == hres_svm) then
+    call calcboco_connect(defsolver, defsolver%defspat, pgrid, bccon_face_state)
+    !call calcboco_ust(curtime, defsolver, defsolver%defspat, pgrid)
+    !endif
     pgrid => pgrid%next
   enddo
 
@@ -130,17 +131,8 @@ endif
 
 pgrid => gridlist%first
 do while (associated(pgrid))
-
-  select case(defsolver%deftime%tps_meth)
-
-  !case(tps_expl, tps_rk2, tps_rk2ssp, tps_rk3ssp, tps_rk4)
-
-  case(tps_impl, tps_dualt)
-
-    if (defsolver%deftime%implicite%storage /= mat_none) &
+  if (defsolver%deftime%implicite%calc_jacobian) &
       call init_implicit(pgrid%dtloc, defsolver, pgrid%umesh, mat)
-
-  endselect
 
   call integration_grid(dt, info%time_model, defsolver, &
                         pgrid, coupling, ncoupling, mat, curtime)

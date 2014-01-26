@@ -11,5 +11,6 @@ module TYPHMAKE
 
   use MESHPREC ! precision configuration from CFDTOOLS
   integer :: tympi_real 
+  integer :: tympi_int
 
 endmodule TYPHMAKE

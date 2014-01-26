@@ -31,6 +31,7 @@ type(st_zone) :: zone
 ! -- Debut de la procedure --
 
 zone%info%time_model =  prj%time_model
+print*, 'init:',zone%info%nbproc,' procs :',zone%info%proc
 
 endsubroutine init_zone
 

@@ -15,8 +15,7 @@ use STRMESH      ! Definition of (cartesian) structured mesh
 use DEFFIELD     ! Definition of fields
 !use GEO3D        ! module de definition des vecteurs et operateurs associes
 use GRID_CONNECT
-
-
+use COLOR
 
 implicit none
 
@@ -385,6 +384,20 @@ type(st_grid), pointer :: pgrid, dgrid
   enddo
 
 endsubroutine delete_chainedgrid
+
+!------------------------------------------------------------------------------!
+! Procedure : compute info and additional connectivy
+!------------------------------------------------------------------------------!
+subroutine grid_postproc(grid)
+implicit none
+type(st_grid) :: grid
+
+  grid%info%volume = sum(grid%umesh%mesh%volume(1:grid%umesh%ncell_int, 1, 1))
+  grid%info%ndof = grid%umesh%ncell !! * grid%ndof
+
+  call coo_colorgroup(grid%umesh%nface, grid%umesh%ncell, grid%umesh%facecell, grid%umesh%colors)
+
+endsubroutine grid_postproc
 
 
 !------------------------------------------------------------------------------!

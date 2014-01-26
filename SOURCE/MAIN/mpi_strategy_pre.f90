@@ -37,8 +37,6 @@ do izone = 1, world%prj%nzone
   enddo
 enddo
 
-
-
 endsubroutine mpi_strategy_pre
 
 !------------------------------------------------------------------------------!

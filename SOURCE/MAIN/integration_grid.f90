@@ -46,16 +46,11 @@ logical :: calc_jac
 
 ! -- jacobians allocation --
 
-select case(defsolver%deftime%tps_meth)
-case(tps_expl, tps_rk2, tps_rk2ssp, tps_rk3ssp, tps_rk4, tps_lsrk25bb, tps_lsrk26bb, tps_lsrk12bs, tps_lsrk13bs)
-  calc_jac = .false.
-case(tps_impl, tps_dualt)
-  calc_jac = .true.
+calc_jac = defsolver%deftime%implicite%calc_jacobian
+if (calc_jac) then
   call new(jacL, grid%umesh%nface, defsolver%nequat)
   call new(jacR, grid%umesh%nface, defsolver%nequat)
-case default
-  call error_stop("Development: unknown integration method (integration_grid)")
-endselect
+endif
 
 ! -- source terms and flux allocation (structure similar to field%etatcons) --
 
@@ -73,7 +68,7 @@ case(solNS)
   call integration_ns_ust(defsolver, defsolver%defspat, grid%umesh, grid%info%field_loc, &
                           flux, calc_jac, jacL, jacR, curtime)
 case default
-  call erreur("internal error (integration_grid)", "unknown or unexpected solver")
+  call error_stop("internal error (integration_grid): unknown or unexpected solver")
 endselect
 
 ! -- flux surfaciques -> flux de surfaces et calcul des residus  --
@@ -117,18 +112,11 @@ call delete(flux)
 !--------------------------------------------------
 ! build implicit system
 !--------------------------------------------------
-select case(defsolver%deftime%tps_meth)
-
-!case(tps_expl, tps_rk2, tps_rk2ssp, tps_rk3ssp, tps_rk4)
-
-case(tps_impl, tps_dualt)
-
+if (calc_jac) then
   call build_implicit(grid%dtloc, defsolver%deftime, grid%umesh, jacL, jacR, mat, grid%info%field_loc%residu)
-
   call delete(jacL)
   call delete(jacR)
-
-endselect
+endif
 
 !------------------------------------------------------------------------------!
 contains

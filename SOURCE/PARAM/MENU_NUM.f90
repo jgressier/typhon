@@ -162,13 +162,14 @@ endtype mnu_rk
 ! structure MNU_IMP : options numeriques pour l'implicitation
 !------------------------------------------------------------------------------!
 type mnu_imp
-  integer(kpp)    :: methode      ! inversion method
-  integer(kpp)    :: storage      ! storage method for sparse matrix (see SPARSE_MAT)
-  integer(kip)    :: max_it       ! maximal number of iterations
-  integer(kip)    :: nkrylov      ! number of searching directions (Krylov vectors) for GMRES-like methods
-  real(krp)       :: ponderation  ! ponderation implicite/explicite
-  real(krp)       :: maxres       ! max residual for convergence (if iterating method)
-  real(krp)       :: overrelax    ! overrrelaxation parameter (SOR)
+  integer(kpp)    :: methode       ! inversion method
+  integer(kpp)    :: storage       ! storage method for sparse matrix (see SPARSE_MAT)
+  integer(kip)    :: max_it        ! maximal number of iterations
+  integer(kip)    :: nkrylov       ! number of searching directions (Krylov vectors) for GMRES-like methods
+  real(krp)       :: ponderation   ! ponderation implicite/explicite
+  real(krp)       :: maxres        ! max residual for convergence (if iterating method)
+  real(krp)       :: overrelax     ! overrrelaxation parameter (SOR)
+  logical         :: calc_jacobian ! must precalc jacobian
 endtype mnu_imp
 
 !------------------------------------------------------------------------------!

@@ -69,7 +69,7 @@ do ib = 1, grid%umesh%nboco
       call calcboco_connect_match(bccon_mode, defsolver, grid%umesh, fsend, frecv, grid%umesh%boco(ib))
 
     case(gdcon_nomatch)
-      call error_stop("Development: non matching connection not implemented")
+      call erreur("Development","non matching connection not implemented")
 
     case(gdcon_per_match)
 

@@ -39,6 +39,7 @@ call print_info(5,"- Definition of time integration parameters")
 ! -- Recherche du BLOCK:TIME_PARAM
 
 deftime%time_model = prj%time_model
+deftime%implicite%calc_jacobian = .false.
 
 pblock => block
 call seekrpmblock(pblock, "TIME_PARAM", 0, pcour, nkey)
@@ -247,6 +248,7 @@ case(tps_impl)
     endselect
   endif
 
+  deftime%implicite%calc_jacobian =  ( deftime%implicite%storage /= mat_none )
 
 !------------------------------------------------------
 ! DUAL TIME METHOD

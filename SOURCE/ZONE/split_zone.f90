@@ -37,7 +37,7 @@ pgrid => zone%gridlist%first
 do while (associated(pgrid))
 
   ipart = index_int(myprocid, zone%info%proc(1:npart))   ! 1 to nproc
-  if (ipart == 0) call erreur("development", "not concerned by computation")
+  if (ipart == 0) call error_stop("development: grid part not associated")
 
   ! -------------------------------------------------
   ! compute partition of a grid
@@ -64,7 +64,11 @@ do while (associated(pgrid))
 
   next => pgrid%next
   call delete(pgrid)
+
   pgrid = partgrid
+  call print_info(10, "  recompute COLOR groups")
+  call grid_postproc(pgrid)  ! compute volume, ndof and color groups
+
   pgrid%next => next
 
   ! -- next grid --

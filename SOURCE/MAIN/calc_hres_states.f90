@@ -84,7 +84,7 @@ do ib = 1, nblock
                      field%cell_l, field%cell_r, ista(ib))
 
   case default
-    call erreur("High order extrapolation","unknown high resolution method")
+    call error_stop("High order extrapolation: unknown high resolution method")
   endselect
 
 
@@ -115,7 +115,7 @@ case(postlim_monotonic0, postlim_monotonic1, postlim_monotonic2)
   call postlimit_monotonic(defspat, grid%umesh, field%etatprim, field%cell_l, field%cell_r)
 
 case default
-  call erreur("High order extrapolation","unknown POST-LIMITATION method")
+  call error_stop("High order extrapolation: unknown POST-LIMITATION method")
 endselect
 
 endsubroutine calc_hres_states
