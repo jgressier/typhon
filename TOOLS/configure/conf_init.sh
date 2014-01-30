@@ -1,30 +1,4 @@
 
-configure_help() {
-  local dir dirlist
-  echo
-  echo "TYPHON configuration help"
-  echo
-  echo "  The TYPHONPATH variable should be set to find external libraries and include files:"
-  echo "    * libraries     will be searched in \$TYPHONPATH/lib"
-  echo "    * include files will be searched in \$TYPHONPATH/include"
-  echo
-  echo "  This can be done e.g. if the DAEPDIR variable is set by:"
-  echo
-  echo "      export TYPHONPATH=\$DAEPDIR/x86_64-Linux"
-  echo "  or:"
-  echo "      TYPHONPATH=\$DAEPDIR/x86_64-Linux $0"
-  echo
-  case "${DAEPDIR:-}" in
-    "") echo "  The DAEPDIR variable is currently unset"
-        dirlist=( /usr/local/aero /opt/aero )
-        for dir in "${dirlist[@]}" "" ; do
-          test -z "$dir" && echo "  no relevant directory found in"$(printf " '%s'" "${dirlist[@]}") && break
-          test -d "$dir" && echo "  it could be set to '$dir'" && break
-        done ;;
-    *)  echo "  The DAEPDIR variable is currently set to '$DAEPDIR'" ;;
-  esac
-  }
-
 check_column=44
 strcol=$(printf "%${check_column}s")
 
@@ -53,8 +27,10 @@ fail() {
   }
 
 warning() {
+  echo -e "!!! warning !!! $@ !!!" | sed 's/./!/g'
   echo -e "!!! warning !!! $@ !!!"
-  configure_help
+  echo -e "!!! warning !!! $@ !!!" | sed 's/./!/g'
+  warning=1
   }
 
 error() {

@@ -83,7 +83,7 @@ MAIN:=$(PRJOBJDIR)/main.o # dependencies in MAIN/depends.make
 
 ####### Build rules
 
-PRGSEQNAME = $(PRGNAME).$(dir.$(opt))
+PRGSEQNAME = $(PRGNAME).$(optext)
 
 seq: $(PRJOBJDIR) $(PRGSEQNAME)
 mpi: $(PRJOBJDIR) $(PRGNAME)-mpi
@@ -99,7 +99,7 @@ $(PRGSEQNAME) : $(MAIN) $(D_LIBSEQ) $(MAKEFILE)
 	@echo "--- CREATION OF $(PRGSEQNAME) DONE ---"
 
 $(PRGNAME)-mpi : LINKER = $(MPIF90C)
-$(PRGNAME)-mpi : F90OPT += $(MPIF90_FL)
+#$(PRGNAME)-mpi : F90OPT += $(MPIF90_FL)
 
 $(PRGNAME)-mpi : $(MAIN) $(D_LIBMPI) $(MAKEFILE)
 	@echo "----------------------------------------------------------------"

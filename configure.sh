@@ -11,9 +11,53 @@ command_header() {
 
 # Header
 
-echo "------------------------------------------------------------------------"
+line() {
+  printf "%$1s\n" "" | tr ' ' "$2"
+}
+
+line 72 "=" # "========================================================================"
 echo "TYPHON configuration"
-echo "------------------------------------------------------------------------"
+line 72 "=" # "========================================================================"
+
+configure_help() {
+  local dir dirlist
+  echo "  OPTIONS:"
+  echo "    -h:     print this help"
+  echo "    -n:     * if config files do not exist:"
+  echo "                config files are created"
+  echo "            * if config files exist:"
+  echo "                config files are not overwritten"
+  echo "                new files are created and diffs are shown"
+  line 72 "="
+  echo
+  echo "TYPHON configuration help"
+  echo
+  echo "  The TYPHONPATH variable should be set to find external libraries and include files:"
+  echo "    * libraries     will be searched in \$TYPHONPATH/lib"
+  echo "    * include files will be searched in \$TYPHONPATH/include"
+  echo
+  echo "  This can be done e.g. if the DAEPDIR variable is set by:"
+  echo
+  echo "      export TYPHONPATH=\$DAEPDIR/x86_64-Linux"
+  echo "  or:"
+  echo "      TYPHONPATH=\$DAEPDIR/x86_64-Linux $0"
+  echo
+  case "${DAEPDIR:-}" in
+    "") echo "  The DAEPDIR variable is currently unset"
+        dirlist=( /usr/local/aero /opt/aero )
+        for dir in "${dirlist[@]}" "" ; do
+          if [ -z "$dir" ] ; then
+            printf "  no relevant directory found in"
+            printf " '%s'" "${dirlist[@]}"
+            break
+          fi
+          test -d "$dir" && echo "  it could be set to '$dir'" && break
+          continue
+        done ;;
+    *)  echo "  The DAEPDIR variable is currently set to '$DAEPDIR'" ;;
+  esac
+  echo
+  }
 
 TOOLSCONF=TOOLS/configure
 
@@ -21,6 +65,7 @@ TOOLSCONF=TOOLS/configure
 # . $(dirname $0)/$TOOLSCONF/conf_init.sh
 . $TOOLSCONF/conf_init.sh
 
+new=
 while [ ${#} -gt 0 ] ; do
   case "$1" in
     -h) configure_help ; exit ;;
@@ -33,9 +78,8 @@ done
 # >> USE MPIF90 COMPILER
 # :: USE MPIF90 COMPILER # ALLMPILIB="mpi mpich lampi mpi_f90"
 # << USE MPIF90 COMPILER
-TYPHONPATH=${TYPHONPATH:-}
-OTHERPATHS="/usr /usr/local /opt /opt/local"
-ALLPATH="${TYPHONPATH//:/ } $OTHERPATHS"
+IFS=":" read -a ALLPATHS <<< "${TYPHONPATH:=}"
+ALLPATHS+=( "/usr" "/usr/local" "/opt" "/opt/local" )
 INCLUDEPATH="include"
 
 # CHECK system tools
@@ -189,47 +233,36 @@ check_f90prof() {
 check_library() {
   local    name=$1
   local     ext=$2
-  local pathlib="$ALLPATH"
   local fullname=
   local libname=lib$name.$ext
-  local dir
-  for dir in $pathlib ; do
-    if [ -r "$dir/lib/$libname" ] ; then
-      fullname=$dir/lib/$libname
-      break
+  for fullname in "${ALLPATHS[@]/%//lib/$libname}" ; do
+    if [ -r "$fullname" ] ; then
+      export LIB_$name=$fullname
+      export FP_$name=-D$name
+      success $fullname
+      return
     fi
   done
-  if [ -n "$fullname" ] ; then
-    success $fullname
-    export LIB_$name=$fullname
-    export FP_$name=-D$name
-  else
-    export LIB_$name=
-    export FP_$name=
-    fail "not found: $libname"
-  fi
+  export LIB_$name=
+  export FP_$name=
+  fail "not found: $libname"
   }
 
 check_include() {
   local    name=$1
-  local pathlib="$ALLPATH"
   local fullname=
-  local dir
-  for dir in $pathlib ; do
-    if [ -r "$dir/include/$name" ] ; then
-      fullname=$dir/include/$name
-      break
+  local     dir=
+  for fullname in "${ALLPATHS[@]/%//include/$name}" ; do
+    if [ -r "$fullname" ] ; then
+      for dir in $INCLUDEPATH ; do
+        rm -f $dir/$name
+        ln -s $fullname $dir
+      done
+      success $fullname
+      return
     fi
   done
-  if [ -n "$fullname" ] ; then
-    success $fullname
-    for dir in $INCLUDEPATH ; do
-      rm -f $dir/$name
-      ln -s $fullname $dir
-    done
-  else
-    fail "not found: $name"
-  fi
+  fail "not found: $name"
   }
 
 # >> USE MPIF90 COMPILER
@@ -288,10 +321,13 @@ mkdir $TMPDIR
 trap "cd $LOCALDIR ; rm -Rf $TMPDIR ; exit 1" 0 2
 conflog=$LOCALDIR/configure${new:+-new}.log
 confout=$LOCALDIR/configure${new:+-new}.out
-if [ -z "${new:=}" ] ; then
-  rm -f $conflog
-  rm -f $confout
-else
+if [ -n "$new" ] ; then
+  conflogold=$LOCALDIR/configure.log
+  confoutold=$LOCALDIR/configure.out
+fi
+rm -f $conflog
+rm -f $confout
+if [ -n "$new" ] ; then
   confdiff=$LOCALDIR/configure.diff
   rm -f $confdiff
 fi
@@ -301,10 +337,15 @@ command_header > $conflog
 # output files
 MAKECONF=config/arch${new:+-new}.make
 SHELLCONF=bin/shconf${new:+-new}.sh
+if [ -n "$new" ] ; then
+  MAKECONFOLD=config/arch.make
+  SHELLCONFOLD=bin/shconf.sh
+fi
 
 # Perform checks
 
 {
+warning=0
 # start of log (tee)redirection
 
 check "native system"               system
@@ -345,7 +386,7 @@ fi
 ### REVIEW ###
 
 if [ -n "$TYPHONPATH" ] ; then
-  echo "------------------------------------------------------------------"
+  line 72 "-" # "------------------------------------------------------------------------"
   echo "run with: TYPHONPATH=$TYPHONPATH"
 fi
 
@@ -356,18 +397,15 @@ no_feature="TYPHON will not feature"
 [[ -n "${FTN_ERR:-}" ]]    && error   "fortran compile/run error: $impossible"
 #[[ -z "${LIB_blas:-}"   ]] && error   "BLAS   not available: $impossible"
 #[[ -z "${LIB_lapack:-}" ]] && error   "LAPACK not available: $impossible"
-[[ -z "${LIB_cgns:-}"   ]] && warning "CGNS   not available: $impossible"
+[[ -z "${LIB_cgns:-}"   ]] && error   "CGNS   not available: $impossible"
 [[ -z "${LIB_metis:-}"  ]] && warning "METIS  not available: $no_feature automatic distribution"
 # >> USE MPIF90 COMPILER
 # [[ -z "${MPILIB:-}"     ]] && warning "MPI    not available: $no_feature parallel computation"
 # << USE MPIF90 COMPILER
 [[ -n "${MPIF90CMP:-}"  ]] && warning "MPI/fortran compilers are $MPIF90CMP/$F90C"
 
-echo "------------------------------------------------------------------------"
-echo "Configuration ended"
-
 ### SHELL CONFIGURATION ###
-echo "------------------------------------------------------------------------"
+line 72 "-" # "------------------------------------------------------------------------"
 printf "%s" "Writing Shell configuration    ($SHELLCONF)    ..."
 rm -f $SHELLCONF
 for VAR in SYS PROC DIFF ; do
@@ -376,14 +414,15 @@ done
 echo "  Done"
 
 ### MAKEFILE CONFIGURATION ###
-echo "------------------------------------------------------------------------"
+line 72 "-" # "------------------------------------------------------------------------"
 printf "%s" "Writing Makefile configuration ($MAKECONF) ..."
 test -z "$new" && \
 mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
 {
   command_header
   echo
-  echo "${SHELL:-# }SHELL       = ${SHELL:-}"
+  # echo "${SHELL:+# }SHELL       = ${SHELL:-}"
+  echo "SHELL       = /bin/sh"
   echo "MAKEDEPENDS = \$(PRJDIR)/../TOOLS/make_depends $F90modcase"
   echo "MODEXT      = $F90modext"
   echo "FPMETIS     = $FP_metis"
@@ -406,49 +445,70 @@ mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
 # >> USE MPIF90 COMPILER
 # :: USE MPIF90 COMPILER #   echo "MPILIB      = $MPILIB"
 # << USE MPIF90 COMPILER
-  echo "MPIF90C     = $MPIF90C"
-  echo "MPIF90_FC   = $MPIF90_FC"
-  echo "MPIF90_FL   = $MPIF90_FL"
+  echo "MPIF90CMP   = $MPIF90C"
+  echo "MPIF90C     = \$(MPIF90CMP) \$(FB)"
+  echo "#MPIF90_FC   = $MPIF90_FC"
+  echo "#MPIF90_FL   = $MPIF90_FL"
+  echo "#MPIF90_INCD = $MPIF90_INCD"
+  echo "#MPIF90_LIBD = $MPIF90_LIBD"
+  echo "#MPIF90_LIBS = $MPIF90_LIBS"
 } > $MAKECONF
 echo "  Done"
 
-echo "========================================================================"
+line 72 "=" # "========================================================================"
 echo "to build TYPHON : make all"
-echo "========================================================================"
+line 72 "=" # "========================================================================"
+if [ $warning = 1 ] ; then
+  echo
+  echo "$0 did not execute correctly and warnings were printed"
+  line 72 "="
+  configure_help
+fi
 
 # End of log (tee)redirection
 } | tee $conflog
 
+# PIPESTATUS because of tee
+if [ ${status:=${PIPESTATUS[0]}} != 0 ] ; then
+  exit $status
+fi
+
 if [ -n "$new" ] ; then
-  for fileconf in $SHELLCONF $MAKECONF ; do
-    fileold=${fileconf/-new}
+  allnoexist=1
+  for fileconfname in SHELLCONF MAKECONF ; do
+    fileoldname=${fileconfname}OLD
+    fileconf=${!fileconfname}
+    fileold=${!fileoldname}
     echo
     if [ -f $fileold ] ; then
+      allnoexist=0
       com="diff $fileconf $fileold"
       r=$($com)
       if [ -n "$r" ] ; then
         echo "Differences between $fileconf and $fileold"
-        {
-        echo
-        echo "$com"
-        echo "$r"
+        { echo
+          echo "$com"
+          echo "$r"
         } >> $confdiff
         fdiff=1
       else
-        echo "No differences between $fileconf and $fileold"
         rm -f $fileconf
+        echo "No differences between $fileconf (deleted) and $fileold"
       fi
     else
       echo "$fileconf renamed to $fileold"
       mv $fileconf $fileold
-      mv $conflog ${conflog/-new}
-      mv $confout ${confout/-new}
     fi
   done
+  if [ $allnoexist = 1 ] ; then
+    mv $conflog $conflogold
+    mv $confout $confoutold
+  fi
   echo
   if [ -f "$confdiff" ] ; then
     echo "Differences in:"
     echo "  $confdiff"
   fi
+  echo
 fi
 

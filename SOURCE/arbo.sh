@@ -1,4 +1,4 @@
-#!/bin/sh -u
+#!/bin/bash -u
 
 SCRIPTDIR=$(cd $(dirname $0) ; pwd)
 SCRIPTNAME=$(basename $0)
@@ -17,27 +17,30 @@ function usage() {
     echo "ERROR"
     writebar
   fi
+  echo "$SCRIPTNAME"
   echo
-  echo "Usage: $SCRIPTNAME [-h] [-l <nblevl>] [-d <srcdir>] \\"
-  echo "       $SCRIPTVOID [-p [-r] [-n <nbcols>]] [-o <outfile>] \\"
-  echo "       $SCRIPTVOID [-x <patlist>] [-X] [-L] \\"
-  echo "       $SCRIPTVOID [--] <subroutinename> [...]"
+  echo "Usage:"
+  echo "  $SCRIPTNAME [-h] [-l <nblevl>] [-d <srcdir>] \\"
+  echo "  $SCRIPTVOID [-p [-r] [-n <nbcols>]] [-o <outfile>] \\"
+  echo "  $SCRIPTVOID [-x <patlist>] [-X] [-L] \\"
+  echo "  $SCRIPTVOID [--] <subroutinename> [...]"
   echo
-  echo "       -h: prints this help"
-  echo "       -l <nblevl>:  levels of descent (default is all)"
-  echo "       -d <srcdir>: typhon directory (default is $SCRIPTNAME dir)"
-  echo "       -p: postscript output (default is utf-8)"
-  echo "       -r: landscape (default portrait) (only if postscript output)"
-  echo "       -n <nbcols>:  number of postscript columns"
-  echo "       -o <outfile>: prints in <outputfile> (default is stdout)"
-  echo "                     (required if postscript output)"
-  echo "       -x <patlist>: excludes comma-separated pattern list"
-  echo "       -X: ignores builtin exclude pattern list"
-  echo "       -L: prints exclude pattern list"
-  echo "       -v: verbose"
-  echo "       --: end of options"
+  echo "  -h: prints this help"
+  echo "  -a: unwrap all subroutines"
+  echo "  -l <nblevl>:  levels of descent (default is all)"
+  echo "  -d <srcdir>: typhon directory (default is $SCRIPTNAME dir)"
+  echo "  -p: postscript output (default is utf-8)"
+  echo "  -r: landscape (default portrait) (only if postscript output)"
+  echo "  -n <nbcols>:  number of postscript columns"
+  echo "  -o <outfile>: prints in <outputfile> (default is stdout)"
+  echo "                (required if postscript output)"
+  echo "  -x <patlist>: excludes comma-separated pattern list"
+  echo "  -X: ignores builtin exclude pattern list"
+  echo "  -L: prints exclude pattern list"
+  echo "  -v: verbose"
+  echo "  --: end of options"
   echo
-  echo "       <subroutinename>: to be processed"
+  echo "  <subroutinename>: to be processed"
   echo
   if [ $1 = 1 ] ; then
     writebar
@@ -129,21 +132,20 @@ separe[$print2        ]=linehd
 # --- definition of arbo function ---
 ########################################################################
 function arbo() {
-  local myhead myname islast i n file list tabl f isdone app levl str
+  local myhead myname islast i n file list tabl f isprocessed app levl
   typeset -i i n levl
   myhead="$1" ; shift
   myname="$1" ; shift
   islast="$1" ; shift
   levl="$1" ; shift
 #
-# -- check if subroutine already done --
+# -- check if subroutine already processed --
 #
-  for str in "${alreadydone[@]:-}" ; do
-    if [ "$str" = $myname ] ; then
-      isdone=1
-      break
-    fi
-  done
+  if [ -z "$nowrap" ] ; then
+    printf "%s\n" "${wasprocessed[@]:-}" \
+      | grep -q "^$myname$" \
+      && isprocessed=1
+  fi
 #
 # -- check calls if level not too high --
 #
@@ -152,18 +154,19 @@ function arbo() {
     if [ -f "$file" ] ; then
 #
 # -- build call list if subroutine file exists
+#    ($'string' is for escaping characters \\ and \n)
 #
       list=( $(grep '^\([^!]*[) ]\)*call ' $file 2>/dev/null \
-               | sed 's/"[^"]*"//g'      $(: remove strings) \
-               | sed 's/(/ (/g'          $(: add space before opening paren) \
-               | sed 's/call /\ncall /g' $(: move call on next line) \
-               | grep '^call '           $(: keep leading call) \
-               | awk '{print $2}'        $(: get subroutine name) \
+               | sed 's/"[^"]*"//g'         $(: remove strings) \
+               | sed 's/(/ (/g'             $(: add space before opening paren) \
+               | sed $'s/call /\\\ncall /g' $(: move call on next line) \
+               | grep '^call '              $(: keep leading call) \
+               | awk '{print $2}'           $(: get subroutine name) \
                | grep -v "${excludeopts[@]}") )
 #
-# -- append (*) if subroutine already done and wrappable --
+# -- append (*) if subroutine already processed and wrappable --
 #
-      if [ ${#list[@]} -gt 0 ] && [ -n "${isdone:-}" ] ; then
+      if [ ${#list[@]} -gt 0 ] && [ -n "${isprocessed:-}" ] ; then
         app=" ($wrapstr)"
         wrapstr="*"
       fi
@@ -186,14 +189,14 @@ function arbo() {
 #
   echo "$myname${app:-}"
 #
-# -- check called subroutines if current subroutine not already done --
+# -- check called subroutines if current subroutine not already processed --
 #
-  if [ $levl -lt $nblevl ] && [ ${#list[@]} -gt 0 ] && [ -z ${isdone:-} ] ; then
+  if [ $levl -lt $nblevl ] && [ ${#list[@]} -gt 0 ] && [ -z ${isprocessed:-} ] ; then
 #
-# -- add subroutine to table of already done subroutines --
+# -- add subroutine to table of already processed subroutines --
 #
-    if [ -z ${isdone:-} ] ; then
-      alreadydone+=("$myname")
+    if [ -z ${isprocessed:-} ] ; then
+      wasprocessed+=("$myname")
     fi
 #
 # -- remove duplicate subroutine names --
@@ -218,32 +221,43 @@ function arbo() {
 ########################################################################
 # --- get options ---
 ########################################################################
-OPTS=$(getopt -o hl:d:prn:o:x:XLv -n "$SCRIPTNAME" -- "$@")
-[[ $? != 0 ]] && usage 1
+if [ -z "$(getopt -T)" ] ; then
+  OPTS=$(getopt -o hal:d:prn:o:x:XLv -n "$SCRIPTNAME" -- "$@")
+else
+  OPTS=$(getopt    hal:d:prn:o:x:XLv                     "$@")
+fi
+test $? = 0 || usage 1
 eval set -- "$OPTS"
 
 ########################################################################
 # --- parse options ---
 ########################################################################
-print=0
-nbcols=1
+outputdef=/dev/stdout
+nowrap=
 nblevl=1
 dlevl=0
+srcdir=
+print=0
+psopt=
+nbcols=1
 isnbcl=
+output=
 btnexc=
 lstexc=
 verbose=
 while true ; do
   case "$1" in
     -h) usage 0 ;;
+    -a) nowrap=1 ;;
     -l) shift ; nblevl=$1 ; dlevl=1 ;;
     -d) shift ; srcdir=$1 ;;
     -p) print=1 ;;
     -r) psopt="-r" ;;
     -n) shift ; nbcols=$1 ; isnbcl=is_set ;;
     -o) shift ; output=$1 ;;
-    -x) shift ; eval IFS="','" read -a x '<<<' "'$1'"
-              # IFS=',' read -a x <<< "$1" : pb reconnaissance syntaxe...
+    -x) shift ; IFS=',' read -a x <<< "$1"
+                # plus de pb reconnaissance syntaxe...
+                # eval IFS="','" read -a x '<<<' "'$1'"
                 excludeargs+=("${x[@]}") ;;
     -X) btnexc=is_set ;;
     -L) lstexc=is_set ;;
@@ -256,7 +270,7 @@ done
 wrapstr="*${verbose:+ : previously unwrapped}"
 unknstr="?${verbose:+ : not found}"
 
-if [ ! -z "${srcdir:-}" ] ; then
+if [ ! -z "$srcdir" ] ; then
   if [ ! -d "$srcdir" ] ; then
     error "<srcdir> does not exist :" \
           "\"$srcdir\""
@@ -304,25 +318,33 @@ if [ "$isnbcl" ] && [ $print = 0 ] ; then
   warning "<nbcols> is ignored in default output"
 fi
 if [ $print = 1 ] ; then
-  if [ -z "${output:=}" ] ; then
+  if [ -z "$output" ] ; then
     error "<outfile> must be provided for postscript output"
   else
     output="${output%.ps}.ps"
   fi
 fi
-if [ ! -z "${output:=}" ] ; then
+if [ -n "$output" ] ; then
   if [ -f "$output" ] ; then
     error "<outfile> already exists :" "\"$output\""
   fi
 fi
-# tmpout=$(mktemp /tmp/$SCRIPTNAME.XXXXXXXX.out)
-# older versions of mktemp only allow trailing X's 
-tmptmp=$(mktemp /tmp/${SCRIPTNAME%.sh}.XXXXXXXX)
-if [ $? -ne 0 ] ; then
-  error "could not create temporary file"
+if [ -n "$output" ] ; then
+  tmppre=/tmp/${SCRIPTNAME%.sh}.XXXXXXXX
+  tmpfrm=$tmppre.out
+  tmpout=$(mktemp $tmpfrm)
+  test $? -eq 0 || error "could not create temporary file"
+  # older versions of mktemp only allow trailing X's
+  if [ $tmpout = $tmpfrm ] ; then
+    rm $tmpout
+    tmptmp=$(mktemp $tmppre)
+    test $? -eq 0 || error "could not create temporary file"
+    mv $tmptmp $tmpout
+    test $? -eq 0 || error "could not rename temporary file \"$tmptmp\" to \"$tmpout\""
+  fi
+else
+  tmpout=$outputdef
 fi
-tmpout=$tmptmp.out
-mv $tmptmp $tmpout
 
 if [ ${#} -eq 0 ] ; then
   usage 0
@@ -342,17 +364,15 @@ done
   echo $SOURCEDIR :
   for g in "$@" ; do
   ########################################################################
-  # --- initialize table of already done subroutines ---
+  # --- initialize table of already processed subroutines ---
   ########################################################################
-    alreadydone=()
+    wasprocessed=()
     printf "$sep\n"
     arbo "" "$g" 2 0
   done
 } > "$tmpout"
 
-if [ -z "${output:-}" ] ; then
-  cat "$tmpout"
-  rm "$tmpout"
+if [ -z "$output" ] ; then
   exit 0
 fi
 
@@ -361,7 +381,7 @@ if [ $print = 0 ] ; then
   exit 0
 fi
 
-enscript ${psopt:-} -B --columns=$nbcols --mark-wrapped-lines=plus -o \
+enscript $psopt -B --columns=$nbcols --mark-wrapped-lines=plus -o \
          "$output" "$tmpout" ; mv "$output" "$tmpout"
 if [ $? != 0 ] ; then
   error "enscript error"

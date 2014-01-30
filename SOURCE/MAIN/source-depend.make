@@ -91,7 +91,7 @@ MAIN/depends.make: $(D_MAIN_SRC)
 	$(MAKEDEPENDS) MAIN
 
 MAIN/main.f90: $(SVNREVFILE)
-	@touch MAIN/main.f90
+	@touch -c MAIN/main.f90
 
 .PHONY : SVNREVFORCE
 
