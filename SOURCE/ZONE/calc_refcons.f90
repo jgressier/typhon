@@ -87,7 +87,9 @@ enddo ! loop on grids
 if (nsca /= 0) then
   do i = 1, nsca
     zone%defsolver%refsca(i) = sum(refsca(i, 1:nthread))
+#ifdef MPICOMPIL
     call allreduce_sum_real(zone%defsolver%refsca(i))
+#endif /*MPICOMPIL*/
   enddo
   zone%defsolver%refsca(1:nsca) = zone%defsolver%refsca(1:nsca) / zone%info%totvolume
   deallocate(refsca)
@@ -96,7 +98,9 @@ endif
 if (nvec /= 0) then
   do i = 1, nvec
     zone%defsolver%refvec(i) = sum(refvec(i, 1:nthread))
+#ifdef MPICOMPIL
     call allreduce_sum_real(zone%defsolver%refvec(i))
+#endif /*MPICOMPIL*/
   enddo
   zone%defsolver%refvec(1:nvec) = zone%defsolver%refvec(1:nvec) / zone%info%totvolume
   deallocate(refvec)

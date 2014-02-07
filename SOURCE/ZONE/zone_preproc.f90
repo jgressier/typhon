@@ -56,8 +56,10 @@ do while (associated(pgrid))
 enddo
 
 ! -- reduce (sum) on all threads
+#ifdef MPICOMPIL
 call allreduce_sum_real(zone%info%totvolume)
 call allreduce_sum_int(zone%info%totndof)
+#endif /*MPICOMPIL*/
 
 endsubroutine zone_preproc
 !------------------------------------------------------------------------------!

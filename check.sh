@@ -232,7 +232,7 @@ for CASE in "${LISTCASES[@]}" ; do
     *)   next_case "'$TYPE_EXE': unknown typhon executable type" ;;
   esac
   # check executable
-  EXE=${typhonexe:-$EXEDIR/Typhon-$TYPE_EXE}
+  EXE=${typhonexe:-$EXEDIR/typhon-$TYPE_EXE}
   test -f $EXE || next_case -n "'$EXE': no such file"
   test -x $EXE || next_case -n "'$EXE': execute permission denied"
   # execute

@@ -61,7 +61,9 @@ do while (associated(pgrid))
 
     ! -- merge residual for all procs --
 
+#ifdef MPICOMPIL
     call exchange_zonal_residual(info)
+#endif /*MPICOMPIL*/
 
   endif
 

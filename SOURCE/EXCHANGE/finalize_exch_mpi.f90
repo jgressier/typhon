@@ -16,7 +16,9 @@ use MODINFO
 
 implicit none
 
+#ifdef MPICOMPIL
 include 'mpif.h'
+#endif /*MPICOMPIL*/
 
 ! -- Declaration des entrees/sorties --
 type(st_info) :: winfo
@@ -29,9 +31,13 @@ integer :: ierr
 ! -- Debut de la procedure --
 
 
+#ifdef MPICOMPIL
 call print_info(5,"finalize MPI exchanges")
 
 call MPI_Finalize(ierr)
+#else  /*NO MPICOMPIL*/
+call print_info(5,"finalize sequential exchanges")
+#endif /*MPICOMPIL*/
 
 
 endsubroutine finalize_exch

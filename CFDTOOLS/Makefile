@@ -1,4 +1,17 @@
-.PHONY: help all clean
+TARGETS = seq omp mpi
+
+.PHONY: help all clean PRGEXT_REQUIRED
+
+TGDIRS = \
+        Base       \
+        Math       \
+        Models     \
+        Mesh       \
+        FileFormat \
+
+clean.TGDIRS = $(addprefix clean,$(TGDIRS))
+
+.PHONY: $(TGDIRS) cleanlib $(clean.TGDIRS)
 
 help:
 	@echo "-----------------------------------------------------------------"
@@ -12,18 +25,28 @@ help:
 	@echo "  opt=prof  -> Profiling options"
 	@echo "-----------------------------------------------------------------"
 
-all:
-	@(cd Base ;       make opt=$(opt))
-	@(cd Math ;       make opt=$(opt))
-	@(cd Models ;     make opt=$(opt))
-	@(cd Mesh ;       make opt=$(opt))
-	@(cd FileFormat ; make opt=$(opt))
+PRGEXT_REQUIRED: help
+	@echo "================================================================="
+	@echo "Extension option is required"
+	@echo "  PRGEXT=prgext"
+	@echo "with prgext in ( $(TARGETS) )"
+	@echo "================================================================="
+	@exit 1
 
-clean:
-	@rm lib/*.a
-	@(cd Base ;       make clean )
-	@(cd Math ;       make clean )
-	@(cd Models ;     make clean )
-	@(cd Mesh ;       make clean )
-	@(cd FileFormat ; make clean )
+ifeq ($(filter $(TARGETS),$(PRGEXT)),)
+all: PRGEXT_REQUIRED
+endif
+
+all: $(TGDIRS)
+
+$(TGDIRS):
+	@cd $@ ; $(MAKE) opt=$(opt) PRGEXT=$(PRGEXT)
+
+clean: cleanlib $(clean.TGDIRS)
+
+cleanlib:
+	@rm Lib.$(PRGEXT).$(opt.$(opt))/*.a
+
+$(clean.TGDIRS): clean%:
+	@cd $* ; $(MAKE) clean PRGEXT=$(PRGEXT)
 

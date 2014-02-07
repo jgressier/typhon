@@ -419,6 +419,10 @@ printf "%s" "Writing Makefile configuration ($MAKECONF) ..."
 test -z "$new" && \
 mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
 {
+  optnames=( )         ; optshort=( )                      ; optvalue=( )
+  optnames+=( debug  ) ; optshort+=( "deb dbg debug"     ) ; optvalue+=( "$F90_DEBUG"  )
+  optnames+=( optim  ) ; optshort+=( "opt optim"         ) ; optvalue+=( "$F90_OPTIM"  )
+  optnames+=( profil ) ; optshort+=( "prof profil gprof" ) ; optvalue+=( "$F90_PROFIL" )
   command_header
   echo
   # echo "${SHELL:+# }SHELL       = ${SHELL:-}"
@@ -431,10 +435,17 @@ mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
   echo "CGNSLIB     = $LIB_cgns"
   echo "FOPP        = \$(FPMETIS) \$(FPCGNS)"
   echo "FB          = $F90_FB \$(FOPP) -I\$(PRJINCDIR)"
-  echo "FO_debug    = $F90_DEBUG"
-  echo "FO_optim    = $F90_OPTIM"
-  echo "FO_openmp   = $F90_OPTIM${F90_OPENMP:+ $F90_OPENMP}"
-  echo "FO_profil   = $F90_PROFIL"
+  echo "OPTIONS     = ${optnames[@]}"
+  for iopt in ${!optnames[@]} ; do name=${optnames[iopt]}
+    printf "%-11s = %s\n" \
+       "FO_$name"    "${optvalue[iopt]}"
+  done
+  for iopt in ${!optnames[@]} ; do name=${optnames[iopt]}
+    for short in ${optshort[iopt]} ; do printf "%-11s = %s\n" \
+       "opt.$short"  "$name"
+    done
+  done
+  echo "opt.        = \$(opt.optim)"
   echo "FO_         = \$(FO_optim)"
   echo "F90OPT      = \$(FO_\$(opt))"
   echo "F90CMP      = $F90C"
@@ -442,10 +453,11 @@ mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
   echo "LINKFB      = \$(F90OPT)"
   echo "LINKER      = \$(F90C)"
   echo "LINKSO      = \$(F90C) -shared"
+  echo "OMPOPT      = $F90_OPENMP"
 # >> USE MPIF90 COMPILER
 # :: USE MPIF90 COMPILER #   echo "MPILIB      = $MPILIB"
 # << USE MPIF90 COMPILER
-  echo "MPIF90CMP   = $MPIF90C"
+  echo "MPIF90CMP   = $MPIF90C -DMPICOMPIL"
   echo "MPIF90C     = \$(MPIF90CMP) \$(FB)"
   echo "#MPIF90_FC   = $MPIF90_FC"
   echo "#MPIF90_FL   = $MPIF90_FL"

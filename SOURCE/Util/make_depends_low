@@ -24,7 +24,7 @@
 #                          $(OD)/ok5.$(o)    \
 #                          $(OD)/ok6.$(o)    \
 #
-# Attention : la reconnaissance des mots-clefs ne dépend pas de la casse
+# Attention : la reconnaissance des mots-clefs ne depend pas de la casse
 # mais par contre, les fichiers .o DOIVENT TOUS exister en minuscules uniquement
 # (cela impose souvent que les noms des fichiers sources doivent etre en minuscules)
 #

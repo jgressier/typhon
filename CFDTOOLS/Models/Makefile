@@ -4,7 +4,6 @@
 # architecture dependent and project variables
 
 PRJDIR = ..
-CONFIGDIR = $(PRJDIR)/../config
 
 include $(PRJDIR)/cfdproject.make    # default target
 include $(CONFIGDIR)/arch.make

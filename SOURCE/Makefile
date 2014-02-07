@@ -1,63 +1,89 @@
 ############################################################
 ##   TYPHON Compilation
 
+TARGETS = seq omp mpi
+
+PRG.TARGETS = $(addprefix PRG.,$(TARGETS))
+
+clean.TARGETS = $(addprefix clean.,$(TARGETS))
+
+.PHONY: all $(TARGETS) $(PRG.TARGETS) clean.all $(clean.TARGETS)
+
 .SUFFIXES:
+
+PRGBASE = typhon
 
 help:
 	@echo "----------------------------------------------------------------"
 	@echo "TYPHON compilation"
 	@echo "----------------------------------------------------------------"
 	@echo "Targets:"
-	@echo "  all       -> seq & mpi targets"
-	@echo "  seq       -> sequential   Typhon executable 'Typhon-seq'"
-	@echo "  mpi       -> MPI parallel Typhon executable 'Typhon-mpi'"
+	@echo "  all       -> seq, omp & mpi targets"
+	@echo "  seq       -> sequential      $(PRGBASE) executable '$(PRGBASE)-seq'"
+	@echo "  omp       -> OpenMP parallel $(PRGBASE) executable '$(PRGBASE)-omp'"
+	@echo "  mpi       -> MPI    parallel $(PRGBASE) executable '$(PRGBASE)-mpi'"
 	@echo "Options:"
 	@echo "  opt=optim -> Optimized options (default)"
 	@echo "  opt=debug -> Debugging options"
 	@echo "  opt=profil-> Profiling options"
 	@echo "----------------------------------------------------------------"
 
-all: seq mpi
+all: $(TARGETS)
+
+$(TARGETS):
+	$(MAKE) PRG.$@ opt=$(opt) PRGEXT=$@
+
+ifneq ($(filter $(MAKECMDGOALS),$(PRG.TARGETS)),)
+ifneq ($(MAKECMDGOALS),PRG.$(PRGEXT))
+$(error target = "$(MAKECMDGOALS)" != "PRG.$(PRGEXT)" = PRG.$$(PRGEXT))
+endif
+endif
 
 ####### Compiler, tools and options
 
-include defprj.make
-include ../config/arch.make
-include ../config/rules.make
+PRJDIR = .
+
+include $(PRJDIR)/defprj.make
+include $(CONFIGDIR)/arch.make
+include $(CONFIGDIR)/rules.make
 
 ####### Files and Lists
 
 MAKEFILE= Makefile
 
-PRGNAME = Typhon
-
 EXTLIBS   = $(CGNSLIB) $(LAPACKLIB) $(METISLIB)
 
 # include librairies.make
 
-LIB1 = libt_main.a   \
-       libt_xio.a    \
-       libt_zone.a   \
-       libt_mgrid.a  \
+ifeq ($(PRGEXT),mpi)
+MPILIBNAMES = libt_exch
+endif
 
-LIB2 = libt_param.a  \
-       libt_vortex.a \
-       libt_eqns.a   \
-       libt_eqkdif.a \
-       libt_udf.a    \
-       libt_mesh.a   \
-       libt_pio.a    \
-       libt_math.a   \
-       libt_modcom.a
+LIBNAMES = \
+       libt_main   \
+       libt_xio    \
+       libt_zone   \
+       libt_mgrid  \
+       $(MPILIBNAMES) \
+       libt_param  \
+       libt_vortex \
+       libt_eqns   \
+       libt_eqkdif \
+       libt_udf    \
+       libt_mesh   \
+       libt_pio    \
+       libt_math   \
+       libt_modcom
 
-LIBSEQ = $(LIB1) libt_exchseq.a $(LIB2)
-LIBMPI = $(LIB1) libt_exchmpi.a $(LIB2)
+LIBS = $(addsuffix .$(LIBSTA),$(LIBNAMES))
 
-D_LIBSEQ = $(LIBSEQ:%=$(PRJLIBDIR)/%)
-D_LIBMPI = $(LIBMPI:%=$(PRJLIBDIR)/%)
+D_LIBS = $(LIBS:%=$(PRJLIBDIR)/%)
 
-VPATH = EQNS:EQKDIF:EXCHANGE:MAIN:MGRID:MESH:MODCOM:MATH:PARAM:PIO:UDF:VORTEX:XIO:ZONE
+ifeq ($(PRGEXT),mpi)
+MPIVPATH = EXCHANGE:
+endif
 
+VPATH = EQNS:EQKDIF:$(MPIVPATH)MAIN:MGRID:MESH:MODCOM:MATH:PARAM:PIO:UDF:VORTEX:XIO:ZONE
 
 ####### Build libraries
 
@@ -69,58 +95,66 @@ include      UDF/source-depend.make
 include    MGRID/source-depend.make
 include     EQNS/source-depend.make
 include   EQKDIF/source-depend.make
+ifeq ($(PRGEXT),mpi)
 include EXCHANGE/source-depend.make
+endif
 include   VORTEX/source-depend.make
 include    PARAM/source-depend.make
 include     ZONE/source-depend.make
 include      XIO/source-depend.make
 include     MAIN/source-depend.make
 
-
 ####### Build main
 
-MAIN:=$(PRJOBJDIR)/main.o # dependencies in MAIN/depends.make
+MAIN = $(PRJOBJDIR)/main.o # dependencies in MAIN/depends.make
 
 ####### Build rules
 
-PRGSEQNAME = $(PRGNAME).$(optext)
+$(PRG.TARGETS): $(D_LIBS) $(MAKEFILE)
 
-seq: $(PRJOBJDIR) $(PRGSEQNAME)
-mpi: $(PRJOBJDIR) $(PRGNAME)-mpi
+$(PRG.TARGETS): $(PRJOBJDIR) $(PRGBASE)-$(PRGEXT)
 
-$(PRGSEQNAME) : $(MAIN) $(D_LIBSEQ) $(MAKEFILE)
+# Special MPI variables
+#PRG.mpi: F90CMP = $(MPIF90CMP)
+#PRG.mpi: EXTMPILIB = $(MPILIB)
+
+#PRG.omp: F90OPT += $(FO_omp)
+
+PRGNAME = $(PRGBASE).$(PRGEXT).$(optext)
+
+$(PRGBASE)-$(PRGEXT): $(MAIN) $(D_LIBS) $(MAKEFILE)
 	@echo "----------------------------------------------------------------"
-	@echo "LINKING $(PRGNAME)-seq ---"
-	@echo "external Libraries: $(PRJLIBEXT) $(EXTLIBS)"
-	@echo "TYPHON   Libraries: $(LIBSEQ)"
-	(cd $(PRJLIBDIR) ; $(LINKER) $(LINKFB) ../$(MAIN) $(LIBSEQ) $(PRJLIBEXT) $(EXTLIBS) -o ../$(PRGSEQNAME))
-	@echo "--- link $(PRGNAME)-seq to $(PRGSEQNAME) ---"
-	@ln -fs $(PRGSEQNAME) $(PRGNAME)-seq
-	@echo "--- CREATION OF $(PRGSEQNAME) DONE ---"
-
-$(PRGNAME)-mpi : LINKER = $(MPIF90C)
-#$(PRGNAME)-mpi : F90OPT += $(MPIF90_FL)
-
-$(PRGNAME)-mpi : $(MAIN) $(D_LIBMPI) $(MAKEFILE)
-	@echo "----------------------------------------------------------------"
-	@echo "LINKING $(PRGNAME)-mpi ---"
-	@echo "external Libraries: $(PRJLIBEXT) $(EXTLIBS) $(MPILIB)"
-	@echo "TYPHON   Libraries: $(LIBMPI)"
-	(cd $(PRJLIBDIR) ; $(LINKER) $(LINKFB) ../$(MAIN) $(LIBMPI) $(PRJLIBEXT) $(EXTLIBS) $(MPILIB) -o ../$(PRGNAME)-mpi)
-	@echo "--- CREATION OF $(PRGNAME)-mpi DONE ---"
+	@echo "--- CREATING $@ ---"
+	@echo "external Libraries: $(PRJLIBEXT) $(EXTLIBS)" $(EXTMPILIB)
+	@echo "TYPHON   Libraries: $(LIBS)"
+	(cd $(PRJLIBDIR) ; $(LINKER) $(LINKFB) ../$(MAIN) $(LIBS) $(PRJLIBEXT) $(EXTLIBS) $(EXTMPILIB) -o ../$(PRGNAME))
+	@echo "--- CREATION OF $@ DONE ---"
+	@echo "--- LINKING $(PRGBASE)-$(PRGEXT) ---"
+	@echo "--- link $(PRGBASE)-$(PRGEXT) to $(PRGNAME) ---"
+	@ln -fs $(PRGNAME) $(PRGBASE)-$(PRGEXT)
+	@echo "--- LINK OF $(PRGBASE)-$(PRGEXT) DONE ---"
 
 clean:
-	rm -f $(PRGNAME)-seq $(PRGNAME)-mpi
+	@echo
+	@echo "clean targets:"
+	@echo "  clean.all       -> clean seq, omp & mpi targets"
+	@echo "  clean.seq       -> clean seq    targets"
+	@echo "  clean.omp       -> clean openmp targets"
+	@echo "  clean.mpi       -> clean mpi    targets"
+
+clean.all: $(clean.TARGETS)
+
+$(clean.TARGETS): clean.%:
+	rm -f $(PRGBASE).$*.$(optext) $(PRGBASE)-$*
 	rm -f $(PRJOBJDIR)/*.o
-	rm -f $(D_LIBMPI) $(D_LIBSEQ)
+	rm -f $(D_LIBS)
 	rm -f $(PRJINCDIR)/*.$(MODEXT)
 	rm -f *.$(MODEXT)
 
-
 ####### Dependencies
 
-$(PRGNAME)-seq: $(MAKEFILE)
-$(PRGNAME)-mpi: $(MAKEFILE)
+$(PRGBASE).$(PRGEXT).$(optext): $(MAKEFILE)
+$(PRGBASE)-$(PRGEXT): $(MAKEFILE)
 
 # Module dependencies
 

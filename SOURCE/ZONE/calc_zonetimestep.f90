@@ -105,7 +105,9 @@ case(solKDIF, solNS)
 
   ! -- MPI comparison of minimum timesteps
 
+#ifdef MPICOMPIL
   call exchange_zonal_timestep(lzone, dt)
+#endif /*MPICOMPIL*/
 
   dt = min(dt, dtmax)
 

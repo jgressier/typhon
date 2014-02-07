@@ -21,10 +21,18 @@ use MENU_GEN    ! general parameters for the project
 
 implicit none
 
-! -- Variables locale --
+#ifdef MPICOMPIL
+include 'mpif.h'
+#endif /*MPICOMPIL*/
+
+! -- Variables locales --
 
 type(st_world) :: loc_world      ! structure encapsulant toutes les donnees TYPHON
 integer        :: itimer_init, itimer_tot
+
+type(st_info)  :: winfo
+
+integer        :: ierr
 
 character(len=6), parameter :: version = "0.5.0"
 
@@ -32,15 +40,38 @@ include 'svnrev.h'
 
 ! -- BODY --
 
-call init_exch_protocol(loc_world%info)
+#ifdef MPICOMPIL
+! call init_exch_protocol(loc_world%info)
+winfo = loc_world%info
+call print_info(5,"init MPI exchanges")
+
+call MPI_Init(ierr)
+call MPI_Comm_rank(MPI_COMM_WORLD, myprocid,     ierr)
+call MPI_Comm_size(MPI_COMM_WORLD, winfo%nbproc, ierr)
+
+myprocid = myprocid+1    ! mpi_comm_rank starts from 0
+
+print*,'I am ',myprocid,'among',winfo%nbproc,' procs'
+
+tympi_real = MPI_REAL8
+tympi_int  = MPI_INTEGER4
+
+mpi_run  = .true.
+#else  /*NO MPICOMPIL*/
+winfo = loc_world%info
+winfo%nbproc = 1
+myprocid     = 0
+
+mpi_run = .false.
+#endif /*MPICOMPIL*/
+
 call init_output()
 
 !###### ENTETE
 
 call print_info(0,"")
 call print_info(0,"******************************************************")
-write(str_w,*)    "  TYPHON V ",version,' (',trim(svnrev),')'
-call print_info(0,adjustl(str_w))
+call print_info(0,"TYPHON V "//trim(version)//" ("//trim(svnrev)//")")
 call print_info(0,"******************************************************")
 
 itimer_tot  = realtime_start()
@@ -90,7 +121,7 @@ case(act_analyze)
   call print_etape("> ANALYSIS & REPORT")
   call analyse(loc_world)
 case default
-  call erreur("Development", "Unexpected ACTION parameter")
+  call error_stop("Development: Unexpected ACTION parameter: "//trim(strof(loc_world%prj%action)))
 endselect
 
 !###### FIN D'EXECUTION
@@ -104,7 +135,11 @@ call delete(loc_world)
 call print_etape("> End of process")
 write(str_w, "(a,e13.4)") "> total user time: ", realtime_stop(itimer_tot)
 
-call finalize_exch(loc_world%info)
+#ifdef MPICOMPIL
+! call finalize_exch(loc_world%info)
+call print_info(5,"finalize MPI exchanges")
+call MPI_Finalize(ierr)
+#endif /*MPICOMPIL*/
 
 !#########
 endprogram

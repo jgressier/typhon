@@ -49,7 +49,11 @@ do ib = 1, umesh%nboco
 
       ! send and receive data of this grid (from other grids)
       ! 
+#ifdef MPICOMPIL
       call calcboco_connect_match(bccon_mode, defsolver, umesh, fsend, frecv, umesh%boco(ib))
+#else  /*NO MPICOMPIL*/
+      call error_stop("internal error: matching connection should not be used in sequential")
+#endif /*MPICOMPIL*/
 
     case(gdcon_nomatch)
       call error_stop("Development: non matching connection not implemented")

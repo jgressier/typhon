@@ -42,8 +42,10 @@ enddo
   
 ! -- MPI reduce --
 
+#ifdef MPICOMPIL
 !call exchange_zonal_timestep(lzone, dt)
 if (mpi_run) call error_stop("Internal limitation: cannot use PROBE in parallel computations")
+#endif /*MPICOMPIL*/
 
 endsubroutine prb_zone_vol
 !------------------------------------------------------------------------------!
