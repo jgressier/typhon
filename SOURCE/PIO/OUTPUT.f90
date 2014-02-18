@@ -134,26 +134,16 @@ implicit none
 
 endsubroutine print_etape
 
-
 !------------------------------------------------------------------------------!
-! Procedure : print_warning               Auteur : J. Gressier
-!                                         Date   : Juillet 2002
-! Fonction                                Modif  :
-!   Ecriture dans le fichier log des warnings
-!
+! Procedure : print_warning  
 !------------------------------------------------------------------------------!
 subroutine print_warning(str)
 implicit none
-
 ! -- Declaration des entrees/sorties --
   character(len=*) str
-
-! -- Debut de la procedure --
-
-  write(uf_log,'(a,a)')   "[WARNING] ",trim(str)
-
+! -- BODY --
+  call print_all(10,"[WARNING] "//trim(str))
 endsubroutine print_warning
-
 
 !------------------------------------------------------------------------------!
 ! Procedure : print_master 
@@ -165,18 +155,42 @@ implicit none
 integer          n     ! niveau requis de l'ecriture
 character(len=*) str   ! chaine a ecrire
 ! -- BODY --
-
 if ((.not.mpi_run).or.(myprocid == 1)) then
-  call print_info(n, str)
+  call print_gen(n, str)
 endif
-
 endsubroutine print_master
 
 !------------------------------------------------------------------------------!
+! Procedure : print_all
+! Fonction  : all procs can write text
+!------------------------------------------------------------------------------!
+subroutine print_all(n, str)
+implicit none
+! -- INPUTS --
+integer          n     ! niveau requis de l'ecriture
+character(len=*) str   ! chaine a ecrire
+! -- BODY --
+  call print_gen(n, str)
+endsubroutine print_all
+
+!------------------------------------------------------------------------------!
 ! Procedure : print_info
-! Fonction  : Write text on standart input with PROC number if necessary
+! Fonction  : all procs can write text
 !------------------------------------------------------------------------------!
 subroutine print_info(n, str)
+implicit none
+! -- INPUTS --
+integer          n     ! niveau requis de l'ecriture
+character(len=*) str   ! chaine a ecrire
+! -- BODY --
+  call print_master(n, str)
+endsubroutine print_info
+
+!------------------------------------------------------------------------------!
+! Procedure : print_gen
+! Fonction  : Write text on standart input with PROC number if necessary
+!------------------------------------------------------------------------------!
+subroutine print_gen(n, str)
 implicit none
 ! -- INPUTS --
 integer          n        ! niveau requis de l'ecriture
@@ -197,7 +211,7 @@ elseif (n <= log_maxlevel) then
   write(uf_log,'(a,a)')    trim(mpipre), trim(str)
 endif
 
-endsubroutine print_info
+endsubroutine print_gen
 
 
 !------------------------------------------------------------------------------!
@@ -210,7 +224,7 @@ implicit none
 character(len=*):: str
 ! -- BODY --
 
-call print_info(1, str)
+call print_all(1, str)
 stop 1
 
 endsubroutine error_stop

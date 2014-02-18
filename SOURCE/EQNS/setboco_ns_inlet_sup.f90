@@ -5,13 +5,13 @@
 !   Computation of supersonic inlet boundary conditions
 !   
 !------------------------------------------------------------------------------!
-subroutine setboco_ns_inlet_sup(defns, mrf, unif, bc_ns, ustboco, umesh, fld, curtime)
+subroutine setboco_ns_inlet_sup(defns, mrf, unif, bc_ns, ustboco, umesh, bccon, curtime)
 
 use TYPHMAKE
 use OUTPUT
 use VARCOM
 use USTMESH
-use DEFFIELD 
+use MGRID 
 use FCT_EVAL
 use FCT_ENV
 use MENU_SOLVER
@@ -31,15 +31,18 @@ type(st_ustboco) :: ustboco          ! lieu d'application des conditions aux lim
 type(st_ustmesh) :: umesh            ! maillage non structure
 
 ! -- OUTPUTS --
-type(st_field)   :: fld              ! fld des etats
+type(st_bccon) :: bccon  ! pointer of send or receive fields
 
 ! -- Internal Variables --
 integer         :: ifb, if, ip, nf  ! index de liste, index de face limite et parametres
-integer         :: ighost, ic       ! index de cellule interieure, et de cellule fictive
+integer         :: ighost, ic, is   ! index de cellule interieure, et de cellule fictive
 type(v3d)       :: pos
 type(st_nsetat) :: nspri
-real(krp), allocatable :: mach(:), pi(:), ti(:)
-type(v3d), allocatable :: dir(:)
+real(krp), dimension(fct_buffer) :: mach, ps, pi, ti, s, x, y, z
+type(v3d), dimension(fct_buffer) :: dir
+integer                          :: ib, nblock, buf            ! block index and number of blocks
+integer, pointer                 :: ista(:), iend(:)           ! starting and ending index
+type(st_fct_env)                 :: env
 
 ! -- BODY --
 
@@ -47,20 +50,21 @@ if (unif /= uniform) call error_stop("Development: Condition non uniforme non im
 
 nf = ustboco%nface
 
+call new_buf_index(nf, fct_buffer, nblock, ista, iend, nthread)
+
+select case(bccon%bccon_mode)
+! --- State BC --------------------------------------
+case(bccon_cell_state, bccon_face_state)
+
 call new_fct_env(blank_env)      ! temporary environment from FCT_EVAL
 
 call new(nspri, nf)
-allocate(mach(nf))
-allocate(pi(nf))
-allocate(ti(nf))
-allocate(dir(nf))
-
 
 call fct_env_set_real(blank_env, "t", curtime)
 
 do ifb = 1, nf
   if  = ustboco%iface(ifb)
-  ic  = umesh%facecell%fils(if,1)
+  ic  = bccon%isend(ifb)
   call fct_env_set_real(blank_env, "x", umesh%mesh%iface(if,1,1)%centre%x)
   call fct_env_set_real(blank_env, "y", umesh%mesh%iface(if,1,1)%centre%y)
   call fct_env_set_real(blank_env, "z", umesh%mesh%iface(if,1,1)%centre%z)
@@ -86,15 +90,41 @@ endif
 
 do ifb = 1, nf
   if     = ustboco%iface(ifb)
-  ighost = umesh%facecell%fils(if,2)
-  fld%etatprim%tabscal(1)%scal(ighost) = nspri%density(ifb)
-  fld%etatprim%tabscal(2)%scal(ighost) = nspri%pressure(ifb)
-  fld%etatprim%tabvect(1)%vect(ighost) = nspri%velocity(ifb)
+  ighost = bccon%irecv(ifb)
+  bccon%frecv%tabscal(1)%scal(ighost) = nspri%density(ifb)
+  bccon%frecv%tabscal(2)%scal(ighost) = nspri%pressure(ifb)
+  bccon%frecv%tabvect(1)%vect(ighost) = nspri%velocity(ifb)
 enddo
 
 call delete_fct_env(blank_env)      ! temporary environment from FCT_EVAL
 call delete(nspri)
-deallocate(pi, ti, mach, dir)
+
+! --- Gradient BC --------------------------------------
+case(bccon_cell_grad, bccon_face_grad)
+
+!$OMP PARALLEL & 
+!$OMP private(ifb, if, ic, ib, is, buf) &
+!$OMP shared(ista, iend, nblock) 
+!$OMP DO
+do ib = 1, nblock
+  do ifb = ista(ib), iend(ib)
+    if = ustboco%iface(ifb)
+    is = bccon%isend(ifb)
+    ic = bccon%irecv(ifb)
+    bccon%frecv%tabvect(1)%vect(ic) = bccon%fsend%tabvect(1)%vect(is) 
+    bccon%frecv%tabvect(2)%vect(ic) = bccon%fsend%tabvect(2)%vect(is) 
+    bccon%frecv%tabtens(1)%tens(ic) = bccon%fsend%tabtens(1)%tens(is) 
+  enddo
+enddo
+!$OMP END DO
+!$OMP END PARALLEL
+
+! ------------------------------------------------------
+case default
+  call error_stop("Internal error: unknown connection mode (setboco_ns_inlet_sup)")
+endselect
+
+deallocate(ista, iend)
 
 endsubroutine setboco_ns_inlet_sup
 !------------------------------------------------------------------------------!

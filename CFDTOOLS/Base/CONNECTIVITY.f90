@@ -21,8 +21,8 @@ implicit none
 ! structure ST_ELEMC : Definition d'un element de connectivite 
 !------------------------------------------------------------------------------!
 type st_elemc
-  integer          :: nelem     ! nombre de connectivites
-  integer, pointer :: elem(:)   ! definition de la connectivite
+  integer              :: nelem     ! nombre de connectivites
+  integer, allocatable :: elem(:)   ! definition de la connectivite
 endtype st_elemc
 
 !------------------------------------------------------------------------------!
@@ -103,10 +103,11 @@ endsubroutine new_elemc
 subroutine new_elemc_copy(conn, conn2)
 implicit none
 type(st_elemc) :: conn, conn2
+integer :: i
 
   conn%nelem  = conn2%nelem
   allocate(conn%elem(size(conn2%elem)))
-  conn%elem = conn2%elem
+  forall (i=1:conn%nelem) conn%elem(i) = conn2%elem(i)
 
 endsubroutine new_elemc_copy
 
@@ -118,7 +119,8 @@ logical function allocated_elemc(conn)
 implicit none
 type(st_elemc) :: conn
 
-  allocated_elemc = associated(conn%elem)
+!  allocated_elemc = associated(conn%elem)
+  allocated_elemc = allocated(conn%elem)
 
 endfunction allocated_elemc
 
@@ -146,6 +148,7 @@ implicit none
 type(st_connect) :: conn
 
   allocated_connect = associated(conn%fils)
+!  allocated_connect = allocated(conn%fils)
 
 endfunction allocated_connect
 
@@ -203,7 +206,7 @@ implicit none
 type(st_elemc) :: conn
 
   conn%nelem = 0
-  if (associated(conn%elem)) deallocate(conn%elem)
+  if (allocated_elemc(conn)) deallocate(conn%elem)
 
 endsubroutine delete_elemc
 
@@ -216,7 +219,7 @@ implicit none
 type(st_connect) :: conn
 
   conn%nbnodes = 0
-  if (associated(conn%fils)) deallocate(conn%fils)
+  if (allocated_connect(conn)) deallocate(conn%fils)
 
 endsubroutine delete_connect
 
@@ -335,15 +338,15 @@ endsubroutine
 subroutine add_element(conn, inode, ielem, resize)
   implicit none
   type(st_genconnect) :: conn
-  integer             :: inode, ielem
+  integer             :: inode, ielem, i
   integer, optional   :: resize
   type(st_elemc)      :: elemc
 
   if ((conn%nbnodes /= 0).and.associated(conn%node)) then
-    if (associated(conn%node(inode)%elem)) then             ! --- array already exists ---
+    if (allocated_elemc(conn%node(inode))) then             ! --- array already exists ---
       if (size(conn%node(inode)%elem) >= conn%node(inode)%nelem+1) then  ! -- size is sufficient
-        conn%node(inode)%nelem = conn%node(inode)%nelem+1                ! add one element
-        conn%node(inode)%elem(conn%node(inode)%nelem) = ielem            ! define element
+        conn%node(inode)%nelem = conn%node(inode)%nelem+1                  ! add one element
+        conn%node(inode)%elem(conn%node(inode)%nelem) = ielem              ! define element
       else                                                               ! -- need to resize
         call new_elemc_copy(elemc, conn%node(inode))
         call delete_elemc(conn%node(inode))
@@ -353,7 +356,7 @@ subroutine add_element(conn, inode, ielem, resize)
           allocate(conn%node(inode)%elem(elemc%nelem+1))
         endif
         conn%node(inode)%nelem = elemc%nelem+1
-        conn%node(inode)%elem(1:elemc%nelem)          = elemc%elem(1:elemc%nelem)
+        forall (i=1:elemc%nelem) conn%node(inode)%elem(i) = elemc%elem(i)
         conn%node(inode)%elem(conn%node(inode)%nelem) = ielem
         call delete_elemc(elemc)
       endif

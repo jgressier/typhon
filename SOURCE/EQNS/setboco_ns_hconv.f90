@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine setboco_ns_hconv(defns, defale, defmrf, unif, ustboco, umesh, fld, bcns, curtime)
+subroutine setboco_ns_hconv(defns, defale, defmrf, unif, ustboco, umesh, bccon, bcns, curtime)
 
 use TYPHMAKE
 use OUTPUT
@@ -16,7 +16,7 @@ use MENU_BOCO
 use MENU_ALE
 use MESHMRF
 use USTMESH
-use DEFFIELD 
+use MGRID 
 
 implicit none
 
@@ -31,7 +31,7 @@ type(st_boco_ns)   :: bcns           ! parameters and fluxes (field or constant)
 real(krp)          :: curtime          ! current time
 
 ! -- Declaration des sorties --
-type(st_field)   :: fld            ! champ des etats
+type(st_bccon) :: bccon  ! pointer of send or receive fields
 
 ! -- Declaration des variables internes --
 integer          :: ifb, if, ip      ! index de liste, index de face limite et parametres
@@ -48,7 +48,7 @@ type(v3d)        :: dc           ! vector cell center - its projection
                                  ! on the face normale
 type(v3d)  :: wallvelocity
 
-! -- Debut de la procedure --
+! -- BODY --
 
 r_PG = defns%properties(1)%r_const        ! perfect gas constant
 cp = defns%properties(1)%gamma * r_PG / &
@@ -56,8 +56,8 @@ cp = defns%properties(1)%gamma * r_PG / &
 
 do ifb = 1, ustboco%nface
   if     = ustboco%iface(ifb)
-  ic     = umesh%facecell%fils(if,1)
-  ighost = umesh%facecell%fils(if,2)
+  ighost = bccon%irecv(ifb)
+  ic     = bccon%isend(ifb)
 
   ! Computation of "distance" cell center - face center
   cgface = umesh%mesh%iface(if,1,1)%centre
@@ -69,42 +69,43 @@ do ifb = 1, ustboco%nface
 
   ! Temperature, viscosity, conductivity
 
-  TH(1) = fld%etatprim%tabscal(2)%scal(ic) / (r_PG * fld%etatprim%tabscal(1)%scal(ic) )
+  TH(1) = bccon%fsend%tabscal(2)%scal(ic) / (r_PG * bccon%fsend%tabscal(1)%scal(ic) )
 
-  call calc_viscosity(defns%properties(1), fld%etatprim%tabscal(1)%scal(ic:ic), TH(1:1), mu(1:1))
+  call calc_viscosity(defns%properties(1), bccon%fsend%tabscal(1)%scal(ic:ic), TH(1:1), mu(1:1))
 
   conduct = mu(1) * cp / defns%properties(1)%prandtl
 
+  call error_stop("internal error: hconv NS boco has to be re-implemented")
   ! Approximate computation of temperature in factice cells
   ! (for computation of gradients)
-  gradT = 1/( fld%etatprim%tabscal(1)%scal(ic) * r_PG) * &
-          fld%gradient%tabvect(2)%vect(ic) - &
-          fld%etatprim%tabscal(2)%scal(ic) / &
-          ( fld%etatprim%tabscal(1)%scal(ic)**2 * r_PG) * &
-          fld%gradient%tabvect(1)%vect(ic)
-  gTdc = gradT .scal. dc
-  temp = ( (conduct/d) * (fld%etatprim%tabscal(2)%scal(ic) / &
-           ( fld%etatprim%tabscal(1)%scal(ic) * r_PG ) + gTdc ) + &
-           bcns%tconv_nunif(ifb)*bcns%h_nunif(ifb) ) / &
-         (conduct/d+bcns%h_nunif(ifb))
+  !gradT = 1/( bccon%fsend%tabscal(1)%scal(ic) * r_PG) * &
+  !        fld%gradient%tabvect(2)%vect(ic) - &
+  !        bccon%fsend%tabscal(2)%scal(ic) / &
+  !        ( bccon%fsend%tabscal(1)%scal(ic)**2 * r_PG) * &
+  !        fld%gradient%tabvect(1)%vect(ic)
+  !gTdc = gradT .scal. dc
+  !temp = ( (conduct/d) * (bccon%fsend%tabscal(2)%scal(ic) / &
+  !         ( bccon%fsend%tabscal(1)%scal(ic) * r_PG ) + gTdc ) + &
+  !         bcns%tconv_nunif(ifb)*bcns%h_nunif(ifb) ) / &
+  !       (conduct/d+bcns%h_nunif(ifb))
  
   ! Heat flux
   ustboco%bocofield%tabscal(1)%scal(ifb) = ustboco%bocofield%tabscal(1)%scal(ifb) &
                                           + bcns%h_nunif(ifb)*(temp - bcns%tconv_nunif(ifb))
 
   ! pressure
-  gPdc = fld%gradient%tabvect(2)%vect(ic) .scal. dc
-  fld%etatprim%tabscal(2)%scal(ighost) = fld%etatprim%tabscal(2)%scal(ic) + &
+  !!! DEV !!! gPdc = fld%gradient%tabvect(2)%vect(ic) .scal. dc
+  bccon%frecv%tabscal(2)%scal(ighost) = bccon%fsend%tabscal(2)%scal(ic) + &
                                          gPdc
   ! density
-  fld%etatprim%tabscal(1)%scal(ighost) = &
-              fld%etatprim%tabscal(2)%scal(ighost)/(r_PG*temp)
+  bccon%frecv%tabscal(1)%scal(ighost) = &
+              bccon%fsend%tabscal(2)%scal(ighost)/(r_PG*temp)
 
   ! velocity
-  !fld%etatprim%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)  
+  !bccon%fxx%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)  
   wallvelocity = bcns%wall_velocity
   call calc_wallvelocity(defale, defmrf, wallvelocity, umesh%mesh%iface(if,1,1), if, curtime)
-  fld%etatprim%tabvect(1)%vect(ighost) = (2._krp*wallvelocity) - fld%etatprim%tabvect(1)%vect(ic)
+  bccon%frecv%tabvect(1)%vect(ighost) = (2._krp*wallvelocity) - bccon%fsend%tabvect(1)%vect(ic)
 
 enddo
 

@@ -5,13 +5,13 @@
 !   Computation of supersonic inlet boundary conditions
 !   
 !------------------------------------------------------------------------------!
-subroutine setboco_ns_inlet_sub(defns, mrf, unif, bc_ns, ustboco, umesh, fld, curtime)
+subroutine setboco_ns_inlet_sub(defns, mrf, unif, bc_ns, ustboco, umesh, bccon, curtime)
 
 use TYPHMAKE
 use OUTPUT
 use VARCOM
 use USTMESH
-use DEFFIELD 
+use MGRID 
 use FCT_EVAL
 use FCT_ENV
 use MENU_BOCO
@@ -31,10 +31,10 @@ type(st_ustboco) :: ustboco          ! lieu d'application des conditions aux lim
 type(st_ustmesh) :: umesh            ! maillage non structure
 
 ! -- OUTPUTS --
-type(st_field)   :: fld              ! fld des etats
+type(st_bccon) :: bccon  ! pointer of send or receive fields
 
 ! -- Internal variables --
-integer                :: ifb, if, ip, nf, ic  ! index de liste, index de face limite et parametres
+integer                :: ifb, if, ip, nf, ic, is  ! index de liste, index de face limite et parametres
 real(krp), dimension(fct_buffer) :: ps, pi, ti, s, x, y, z
 type(v3d), dimension(fct_buffer) :: dir
 integer                          :: ib, nblock, buf            ! block index and number of blocks
@@ -55,6 +55,10 @@ call new_buf_index(nf, fct_buffer, nblock, ista, iend, nthread)
 
 gam   = defns%properties(1)%gamma
 gsgmu = gam/(gam-1._krp)
+
+select case(bccon%bccon_mode)
+! --- State BC --------------------------------------
+case(bccon_cell_state, bccon_face_state)
 
 xyz_depend = fct_xyzdependency(bc_ns%ptot).or. &
              fct_xyzdependency(bc_ns%dir_x).or. &
@@ -94,8 +98,8 @@ block: do ib = 1, nblock
 
   do ifb = 1, buf
     if   = ustboco%iface(ista(ib)+ifb-1)
-    ic   = umesh%facecell%fils(if,1)
-    ps(ifb) = fld%etatprim%tabscal(2)%scal(ic)
+    ic   = bccon%isend(ifb)
+    ps(ifb) = bccon%fsend%tabscal(2)%scal(ic)
   enddo
   
   call fct_eval_realarray(env, bc_ns%ptot, pi(1:buf))
@@ -131,10 +135,10 @@ block: do ib = 1, nblock
 
   do ifb = 1, buf
     if = ustboco%iface(ista(ib)+ifb-1)
-    ic = umesh%facecell%fils(if,2)
-    fld%etatprim%tabscal(1)%scal(ic) = nspri%density(ifb)
-    fld%etatprim%tabscal(2)%scal(ic) = nspri%pressure(ifb)
-    fld%etatprim%tabvect(1)%vect(ic) = nspri%velocity(ifb)
+    ic = bccon%irecv(ifb)
+    bccon%frecv%tabscal(1)%scal(ic) = nspri%density(ifb)
+    bccon%frecv%tabscal(2)%scal(ic) = nspri%pressure(ifb)
+    bccon%frecv%tabvect(1)%vect(ic) = nspri%velocity(ifb)
   enddo
 
 enddo block
@@ -144,6 +148,31 @@ call delete_fct_env(env)      ! temporary environment from FCT_EVAL
 call delete(nspri)
 
 !$OMP END PARALLEL
+
+! --- Gradient BC --------------------------------------
+case(bccon_cell_grad, bccon_face_grad)
+
+!$OMP PARALLEL & 
+!$OMP private(ifb, if, ic, ib, is, buf) &
+!$OMP shared(ista, iend, nblock) 
+!$OMP DO
+do ib = 1, nblock
+  do ifb = ista(ib), iend(ifb)
+    if = ustboco%iface(ifb)
+    is = bccon%isend(ifb)
+    ic = bccon%irecv(ifb)
+    bccon%frecv%tabvect(1)%vect(ic) = bccon%fsend%tabvect(1)%vect(is) 
+    bccon%frecv%tabvect(2)%vect(ic) = bccon%fsend%tabvect(2)%vect(is) 
+    bccon%frecv%tabtens(1)%tens(ic) = bccon%fsend%tabtens(1)%tens(is) 
+  enddo
+enddo
+!$OMP END DO
+!$OMP END PARALLEL
+
+! ------------------------------------------------------
+case default
+  call error_stop("Internal error: unknown connection mode (setboco_ns_inlet_sub)")
+endselect
 
 deallocate(ista, iend)
 

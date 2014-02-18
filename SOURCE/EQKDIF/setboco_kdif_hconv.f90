@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine setboco_kdif_hconv(curtime, unif, ustboco, umesh, champ, defsolver, bckdif, defspat)
+subroutine setboco_kdif_hconv(curtime, unif, ustboco, umesh, bccon, defsolver, bckdif, defspat)
 
 use TYPHMAKE
 use OUTPUT
@@ -15,7 +15,7 @@ use VARCOM
 use MENU_SOLVER
 use MENU_BOCO
 use USTMESH
-use DEFFIELD 
+use MGRID 
 use MENU_NUM
 use FCT_EVAL
 use FCT_ENV
@@ -32,7 +32,7 @@ type(st_boco_kdif) :: bckdif           ! parameters and fluxes (field or constan
 type(mnu_spat)     :: defspat
 
 ! -- Outputs --
-type(st_field)   :: champ            ! field
+type(st_bccon) :: bccon  ! pointer of send or receive fields
 
 ! -- Internal variables --
 integer          :: ifb, if, ip   ! index of list, boundary face and parameters
@@ -82,39 +82,41 @@ call delete_fct_env(blank_env)      ! temporary environment from FCT_EVAL
 
 do ifb = 1, ustboco%nface
   if     = ustboco%iface(ifb)
-  ic     = umesh%facecell%fils(if,1)
-  ighost = umesh%facecell%fils(if,2)
+  ic     = bccon%isend(ifb)
+  ighost = bccon%irecv(ifb)
 
   ! Computation of distance cell center - face center
   cgface = umesh%mesh%iface(if,1,1)%centre
-  cg     = umesh%mesh%centre(ic,1,1)
+  ! cg     = umesh%mesh%centre(ic,1,1)
   normale= umesh%mesh%iface(if,1,1)%normale
-! d    = (cgface - cg) .scal. (cgface - cg) / (abs((cgface - cg).scal.normale))
-  d = abs((cgface - cg).scal.normale)
-  dc = (cgface - cg) - ( (cgface - cg).scal.normale ) * normale
+  !! d    = (cgface - cg) .scal. (cgface - cg) / (abs((cgface - cg).scal.normale))
+  ! d = abs((cgface - cg).scal.normale)
+  ! dc = (cgface - cg) - ( (cgface - cg).scal.normale ) * normale
 
   ! Conductivity
-  conduct = valeur_loi(defsolver%defkdif%materiau%Kd, champ%etatprim%tabscal(1)%scal(ic))
+  conduct = valeur_loi(defsolver%defkdif%materiau%Kd, bccon%fsend%tabscal(1)%scal(ic))
 
   ! Approximate computation of temperature in fictive cells
   ! (for computation of gradients)
-  if (defspat%calc_cellgrad) then
-    gradT = champ%gradient%tabvect(1)%vect(ic)
-    gTdc = gradT .scal. dc
-    champ%etatprim%tabscal(1)%scal(ighost) = ( (conduct/d) * &
-         (champ%etatprim%tabscal(1)%scal(ic) + gTdc ) + &
-         hloc(ifb)*tloc(ifb) ) / &
-         (conduct/d+hloc(ifb))
-  else
-    d = (cgface - cg) .scal. (cgface - cg) / (abs((cgface - cg).scal.normale))
-    champ%etatprim%tabscal(1)%scal(ighost) = &
-      ( (conduct/d) * champ%etatprim%tabscal(1)%scal(ic) + &
+  !if (defspat%calc_cellgrad) then
+  !  gradT = champ%gradient%tabvect(1)%vect(ic)
+  !  gTdc = gradT .scal. dc
+  !  champ%etatprim%tabscal(1)%scal(ighost) = ( (conduct/d) * &
+  !       (champ%etatprim%tabscal(1)%scal(ic) + gTdc ) + &
+  !       hloc(ifb)*tloc(ifb) ) / &
+  !       (conduct/d+hloc(ifb))
+  !else
+  !  d = (cgface - cg) .scal. (cgface - cg) / (abs((cgface - cg).scal.normale))
+    bccon%frecv%tabscal(1)%scal(ighost) = &
+      ( (conduct/d) * bccon%fsend%tabscal(1)%scal(ic) + &
       hloc(ifb)*tloc(ifb) ) / (conduct/d+hloc(ifb))
-  endif
+  !endif
 
   ! Heat flux
   ustboco%bocofield%tabscal(1)%scal(ifb) = ustboco%bocofield%tabscal(1)%scal(ifb) &
-                                          + hloc(ifb)*(champ%etatprim%tabscal(1)%scal(ighost) - tloc(ifb))
+                                          + hloc(ifb)*(bccon%fsend%tabscal(1)%scal(ighost) - tloc(ifb))
+
+  call error_stop("DEV: kdif hconv BC must be RE IMPLEMENTED")
 
 enddo
 

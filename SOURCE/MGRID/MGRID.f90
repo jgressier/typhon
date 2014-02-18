@@ -66,12 +66,15 @@ endtype st_grd_optmem
 !endtype st_cellext
 
 !------------------------------------------------------------------------------!
-! Definition ST_RCVDATA : reception des données de l'extérieur
+! Definition ST_BCCON : BOCO connectivity
 !------------------------------------------------------------------------------!
-!type st_rcvdata
-!  DOUBLE PRECISION , dimension(:), pointer :: ext_data
-!endtype st_rcvdata
-!
+type st_bccon
+  integer(kpp)                   :: bccon_mode
+  type(st_genericfield), pointer :: fsend, frecv ! pointer of send or receive fields
+  integer(kip)                   :: nf
+  integer(kip), pointer          :: isend(:), irecv(:)  ! index of data in fsend and frecv
+endtype st_bccon
+
 !
 !------------------------------------------------------------------------------!
 ! Definition ST_SNDDATA : envoi des données de l'extérieur

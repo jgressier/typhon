@@ -59,6 +59,26 @@ integer, pointer :: ptimer(:)
   
 endfunction realtime_start
 
+!----------------------------------------------------------------------------------------
+! return elapsed time in seconds
+!----------------------------------------------------------------------------------------
+real function realtime_query(itimer)
+implicit none
+integer, intent(in) :: itimer
+integer             ::newtimer, timerrate, timermax
+
+  if (itimer <= 0) then
+    call cfd_error("TIMER/realtime_stop: bad (negative or null) timer index")
+  elseif (itimer > size(realtimer)) then
+    call cfd_error("TIMER/realtime_stop: non existing timer index")
+  else
+    call system_clock(count=newtimer, count_rate=timerrate, count_max=timermax)
+    if (newtimer <= realtimer(itimer)) newtimer = newtimer+timermax
+    realtime_query = real(newtimer - realtimer(itimer))/timerrate
+  endif
+  
+endfunction realtime_query
+
 
 !----------------------------------------------------------------------------------------
 ! stop system clock reading, free timer, and return elapsed time in seconds

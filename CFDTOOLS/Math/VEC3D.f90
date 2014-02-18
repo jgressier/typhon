@@ -624,6 +624,27 @@ real(krp) :: costh, sinth
 
 end subroutine v3d_rot
 
+!------------------------------------------------------------------------------!
+! Assignment : sym v  // n
+!------------------------------------------------------------------------------!
+subroutine v3d_sym(v, n)
+implicit none
+type(v3d), intent(in)    :: n
+type(v3d), intent(inout) :: v
+real(krp) :: sym(3,3)
+  call calc_symn(sym, n)
+  v = v3d_of(matmul(sym, tab(v)))
+end subroutine v3d_sym
+
+!------------------------------------------------------------------------------!
+! Assignment : sym v  // n
+!------------------------------------------------------------------------------!
+subroutine v3d_sym2(v, n)
+implicit none
+type(v3d), intent(in)    :: n
+type(v3d), intent(inout) :: v
+  v = v - (2._krp*(v.scal.n))*n
+end subroutine v3d_sym2
 
 !------------------------------------------------------------------------------!
 ! computation of rotation matrix
@@ -651,6 +672,26 @@ real(krp) :: costh, sinth
   mrot(3,1:3) = mrot(3,1:3) + (1._krp-costh)*axis%z*tab(axis)
 
 end subroutine calc_rot
+
+!------------------------------------------------------------------------------!
+! computation of symmetry matrix
+!------------------------------------------------------------------------------!
+subroutine calc_symn(msym, n)
+implicit none
+type(v3d), intent(in)  :: n
+real(krp), intent(out) :: msym(3,3)
+
+  msym(1,1)   = 1._krp - 2._krp*n%x*n%x
+  msym(2,2)   = 1._krp - 2._krp*n%y*n%y
+  msym(3,3)   = 1._krp - 2._krp*n%z*n%z
+  msym(1,2)   = - 2._krp*n%x*n%y
+  msym(1,3)   = - 2._krp*n%x*n%z
+  msym(2,1)   = msym(1,2)
+  msym(2,3)   = - 2._krp*n%y*n%z
+  msym(3,1)   = msym(1,3)
+  msym(3,2)   = msym(2,3)
+
+end subroutine calc_symn
 
 !------------------------------------------------------------------------------!
 ! Assignment : rotation v(:) 

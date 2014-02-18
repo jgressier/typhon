@@ -309,6 +309,20 @@ integer :: i
 endfunction t3d_tensorial_product_t
 
 !------------------------------------------------------------------------------!
+! Assignment : t symmetric
+!------------------------------------------------------------------------------!
+subroutine t3d_sym(t, n)
+implicit none
+type(t3d), intent(inout) :: t
+type(v3d), intent(in)    :: n
+real(krp) :: sym(3,3)
+
+  call calc_symn(sym, n)
+  t%mat = matmul(sym, matmul(t%mat, sym))
+
+end subroutine t3d_sym
+
+!------------------------------------------------------------------------------!
 ! Assignment : rotation t
 !------------------------------------------------------------------------------!
 subroutine t3d_rot(t, axis, angle)

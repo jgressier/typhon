@@ -8,7 +8,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine calcboco_ns(curtime, defsolver, defboco, ustboco, grid)
+subroutine calcboco_ns(curtime, defsolver, defboco, ustboco, umesh, bccon)
 
 use TYPHMAKE
 use OUTPUT
@@ -25,9 +25,10 @@ real(krp)        :: curtime
 type(mnu_boco)   :: defboco          ! parametres de conditions aux limites
 type(st_ustboco) :: ustboco          ! lieu d'application des conditions aux limites
 type(mnu_solver) :: defsolver        ! type d'equation a resoudre
+type(st_ustmesh) :: umesh            ! maillage en entree, champ en sortie
 
-! -- OUTPUTS --
-type(st_grid)    :: grid             ! mise a jour du champ (maillage en entree)
+! -- Inputs/Outputs --
+type(st_bccon) :: bccon  ! pointer of send or receive fields
 
 ! -- Internal variables --
 integer          :: ifb, if, ip      ! index de liste, index de face limite et parametres
@@ -39,48 +40,47 @@ select case(defboco%typ_boco)
 
 case(bc_inlet_sup)
   call setboco_ns_inlet_sup(defsolver%defns, defsolver%defmrf, defboco%boco_unif, defboco%boco_ns, &
-                            ustboco, grid%umesh, grid%info%field_loc, curtime)
+                            ustboco, umesh, bccon, curtime)
 
 case(bc_inlet_sub)
   call setboco_ns_inlet_sub(defsolver%defns, defsolver%defmrf, defboco%boco_unif, defboco%boco_ns, &
-                            ustboco, grid%umesh, grid%info%field_loc, curtime)
+                            ustboco, umesh, bccon, curtime)
 
 case(bc_outlet_sup)
   call setboco_ns_outlet_sup(defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
-                             ustboco, grid%umesh, grid%info%field_loc, curtime)
+                             ustboco, umesh, bccon, curtime)
 
 case(bc_outlet_sub)
   call setboco_ns_outlet_sub(defsolver%defns, defboco%boco_unif, defboco%boco_ns, &
-                             ustboco, grid%umesh, grid%info%field_loc, curtime)
+                             ustboco, umesh, bccon, curtime)
 
 case(bc_wall_isoth)
   call setboco_ns_isoth(defsolver%defns, defsolver%defale, defsolver%defmrf, defboco%boco_unif, ustboco, &
-                          grid%umesh, grid%info%field_loc, defboco%boco_ns, curtime)
+                          umesh, bccon, defboco%boco_ns, curtime)
 
 case(bc_wall_flux)
   call init_genericfield(ustboco%bocofield, 0._krp, v3d(0._krp, 0._krp, 0._krp))
   call setboco_ns_flux(defsolver%defns, defsolver%defale, defsolver%defmrf, defboco%boco_unif, ustboco, &
-                          grid%umesh, grid%info%field_loc, defboco%boco_ns, curtime)
+                          umesh, bccon, defboco%boco_ns, curtime)
 
 case(bc_wall_hconv)
   call init_genericfield(ustboco%bocofield, 0._krp, v3d(0._krp, 0._krp, 0._krp))
   call setboco_ns_hconv(defsolver%defns, defsolver%defale, defsolver%defmrf, defboco%boco_unif, ustboco, &
-                          grid%umesh, grid%info%field_loc, defboco%boco_ns, curtime)
+                          umesh, bccon, defboco%boco_ns, curtime)
 
 case(bc_wall_hgen)
   call init_genericfield(ustboco%bocofield, 0._krp, v3d(0._krp, 0._krp, 0._krp))
   call setboco_ns_flux(defsolver%defns, defsolver%defale, defsolver%defmrf, defboco%boco_unif, ustboco, &
-                          grid%umesh, grid%info%field_loc, defboco%boco_ns, curtime) 
+                          umesh, bccon, defboco%boco_ns, curtime) 
   call setboco_ns_hconv(defsolver%defns, defsolver%defale, defsolver%defmrf, defboco%boco_unif, ustboco, &
-                          grid%umesh, grid%info%field_loc, defboco%boco_ns, curtime)
+                          umesh, bccon, defboco%boco_ns, curtime)
 
 case default
-  call erreur("Internal error","unknown boundary condition (calcboco_ns)")
+  call error_stop("Internal error: unknown boundary condition (calcboco_ns)")
 
 endselect
 
 endsubroutine calcboco_ns
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !

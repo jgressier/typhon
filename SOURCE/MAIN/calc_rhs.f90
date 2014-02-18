@@ -50,23 +50,11 @@ do while (associated(pgrid))
   call calc_varprim(defsolver, pgrid%info%field_loc)     ! calcul des var. primitives
   pgrid => pgrid%next
 enddo
-
     
 ! -------------------------------------------------------------------------------
 ! BOUNDARY CONDITIONS OF EACH GRID OF ONE LEVEL
 
 curtime = info%cycle_start + info%cycle_time
-
-pgrid => gridlist%first
-
-do while(associated(pgrid))
-
-  call calcboco_gen(curtime, defsolver, defsolver%defspat, pgrid, bccon_cell_state)
-  call calcboco_ust(curtime, defsolver, defsolver%defspat, pgrid)
-
-  pgrid => pgrid%next
-
-enddo
 
 ! -------------------------------------------------------------------------------
 ! GRADIENTS OF EACH GRID OF ONE LEVEL (only if necessary)
@@ -80,19 +68,19 @@ do while (associated(pgrid))
   !case(gradnone)
   !  ! nothing to do
   case(cellgrad_compactgauss)
+
+    call calcboco_gen(curtime, defsolver, defsolver%defspat, pgrid, bccon_cell_state)
+ 
     call calc_gradient_gauss(defsolver, defsolver%defspat, pgrid,                 &
                        pgrid%info%field_loc%etatprim, pgrid%info%field_loc%gradient)
-    ! !!! DEV 
-    ! for viscous fluxes or MUSCL extrapolation at BOCO, must be specific to BOCO physical type
-    call calc_gradient_limite(defsolver, pgrid%umesh, pgrid%info%field_loc%gradient)
     call calcboco_gen(curtime, defsolver, defsolver%defspat, pgrid, bccon_cell_grad)
 
   case(cellgrad_lsq, cellgrad_lsqw)
+
+    call calcboco_gen(curtime, defsolver, defsolver%defspat, pgrid, bccon_cell_state)
+ 
     call calc_gradient(defsolver, defsolver%defspat, pgrid,                 &
                        pgrid%info%field_loc%etatprim, pgrid%info%field_loc%gradient)
-    ! !!! DEV 
-    ! for viscous fluxes or MUSCL extrapolation at BOCO, must be specific to BOCO physical type
-    call calc_gradient_limite(defsolver, pgrid%umesh, pgrid%info%field_loc%gradient)
     call calcboco_gen(curtime, defsolver, defsolver%defspat, pgrid, bccon_cell_grad)
 
   case(facegrad_svm)
@@ -112,15 +100,14 @@ endif
 ! -------------------------------------------------------------------------------
 ! HIGH ORDER EXTRAPOLATION
 
-if (defsolver%defspat%calc_hresQ) then
+if (defsolver%defspat%calc_hresQ) then  ! -- face extrapolation (NS solver)
 
   pgrid => gridlist%first
   do while (associated(pgrid))
     call calc_hres_states(defsolver, defsolver%defspat, pgrid, pgrid%info%field_loc)
-    !if (defsolver%defspat%method == hres_svm) then
+
     call calcboco_gen(curtime, defsolver, defsolver%defspat, pgrid, bccon_face_state)
-    !call calcboco_ust(curtime, defsolver, defsolver%defspat, pgrid)
-    !endif
+
     pgrid => pgrid%next
   enddo
 

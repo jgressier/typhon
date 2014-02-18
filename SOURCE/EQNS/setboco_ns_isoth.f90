@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine setboco_ns_isoth(defns, defale, defmrf, unif, ustboco, umesh, fld, bcns, curtime)
+subroutine setboco_ns_isoth(defns, defale, defmrf, unif, ustboco, umesh, bccon, bcns, curtime)
 
 use TYPHMAKE
 use OUTPUT
@@ -16,7 +16,7 @@ use MENU_BOCO
 use MENU_ALE
 use MESHMRF
 use USTMESH
-use DEFFIELD 
+use MGRID 
 
 implicit none
 
@@ -30,93 +30,93 @@ type(st_ustmesh)   :: umesh            ! unstructured mesh
 type(st_boco_ns)   :: bcns             ! parameters and temperature (field or constant)
 real(krp)          :: curtime          ! current time
 
-! -- Declaration des sorties --
-type(st_field)   :: fld            ! fields
+! -- OUTPUTS --
+type(st_bccon) :: bccon  ! pointer of send or receive fields
 
-! -- Declaration des variables internes --
-integer    :: ifb, if, ip  ! index de liste, index de face limite et parametres
+! -- Internal variables --
+integer    :: ifb, if, ip, nf, is  ! index de liste, index de face limite et parametres
 integer    :: ic, ighost   ! index de cellule interieure, et de cellule fictive
 real(krp)  :: r_PG         ! perfect gas constant
-real(krp)  :: gPdc, temp
+real(krp)  :: gPdc, temp, wtemp(ustboco%nface)
 type(v3d)  :: cgface, cg, normale ! face, cell center, face normale
 type(v3d)  :: dc           ! vector cell center - its projection 
                            ! on the face normale
 type(v3d)  :: wallvelocity
+integer                          :: ib, nblock, buf            ! block index and number of blocks
+integer, pointer                 :: ista(:), iend(:)           ! starting and ending index
 
-! -- Debut de la procedure --
+! -- BODY --
+
 r_PG = defns%properties(1)%r_const        ! perfect gas constant
+nf   = ustboco%nface
 
-if (unif == uniform) then
+select case(unif)
+case(uniform)  
+  wtemp(1:nf) = bcns%temp_wall
+case(nonuniform)
+  wtemp(1:nf) = bcns%temp(1:nf)
+case default
+  call error_stop("unknown definition of boco flux computation (ns)")
+endselect
 
-  do ifb = 1, ustboco%nface
+call new_buf_index(nf, fct_buffer, nblock, ista, iend, nthread)
+
+select case(bccon%bccon_mode)
+! --- State BC --------------------------------------
+case(bccon_cell_state, bccon_face_state)
+
+  do ifb = 1, nf
     if     = ustboco%iface(ifb)
-    ighost = umesh%facecell%fils(if,2)
-    ic     = umesh%facecell%fils(if,1)
-
-    cgface = umesh%mesh%iface(if,1,1)%centre
-    cg     = umesh%mesh%centre(ic,1,1)
-    normale= umesh%mesh%iface(if,1,1)%normale
+    ighost = bccon%irecv(ifb)
+    ic     = bccon%isend(ifb)
 
     ! extrapolated temperature on ghost cell (supposed symmetrical)
-    temp = 2._krp*bcns%temp_wall - fld%etatprim%tabscal(2)%scal(ic) / &
-           ( fld%etatprim%tabscal(1)%scal(ic) * r_PG )
-
+    temp = 2._krp*wtemp(ifb) - bccon%fsend%tabscal(2)%scal(ic) / &
+           ( bccon%fsend%tabscal(1)%scal(ic) * r_PG )
     ! pressure
-    !fld%etatprim%tabscal(2)%scal(ighost) = fld%etatprim%tabscal(2)%scal(ic)
-    dc = (cgface - cg) - ( (cgface - cg).scal.normale ) * normale
-    gPdc = fld%gradient%tabvect(2)%vect(ic) .scal. dc
-    fld%etatprim%tabscal(2)%scal(ighost) = fld%etatprim%tabscal(2)%scal(ic) + &
-                                           gPdc
+    bccon%frecv%tabscal(2)%scal(ighost) = bccon%fsend%tabscal(2)%scal(ic)! 
     ! density
-    fld%etatprim%tabscal(1)%scal(ighost) = &
-                fld%etatprim%tabscal(2)%scal(ighost)/(r_PG*temp) 
+    bccon%frecv%tabscal(1)%scal(ighost) = &
+                bccon%fsend%tabscal(2)%scal(ighost)/(r_PG*temp) 
     ! velocity
-    !fld%etatprim%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)
+    !bccon%fxx%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)
     wallvelocity = bcns%wall_velocity
     call calc_wallvelocity(defale, defmrf, wallvelocity, umesh%mesh%iface(if,1,1), if, curtime)
-    fld%etatprim%tabvect(1)%vect(ighost) = (2._krp*wallvelocity) - fld%etatprim%tabvect(1)%vect(ic)
+    bccon%frecv%tabvect(1)%vect(ighost) = (2._krp*wallvelocity) - bccon%fsend%tabvect(1)%vect(ic)
 
   enddo
 
-if     = ustboco%iface(1)
-ighost = umesh%facecell%fils(if,2)
+! --- Gradient BC --------------------------------------
+case(bccon_cell_grad, bccon_face_grad)
 
-else
-
-  do ifb = 1, ustboco%nface
-    if     = ustboco%iface(ifb)
-    ighost = umesh%facecell%fils(if,2)
-    ic     = umesh%facecell%fils(if,1)
-
-    cgface = umesh%mesh%iface(if,1,1)%centre
-    cg     = umesh%mesh%centre(ic,1,1)
-    normale= umesh%mesh%iface(if,1,1)%normale
-
-    ! extrapolated temperature on ghost cell (supposed symmetrical)
-    temp = 2._krp*bcns%temp(ifb) - fld%etatprim%tabscal(2)%scal(ic) / &
-           ( fld%etatprim%tabscal(1)%scal(ic) * r_PG )
-
-    ! pressure
-    !fld%etatprim%tabscal(2)%scal(ighost) = fld%etatprim%tabscal(2)%scal(ic)
-    dc = (cgface - cg) - ( (cgface - cg).scal.normale ) * normale
-    gPdc = fld%gradient%tabvect(2)%vect(ic) .scal. dc
-    fld%etatprim%tabscal(2)%scal(ighost) = fld%etatprim%tabscal(2)%scal(ic) + &
-                                           gPdc
-    ! density
-    fld%etatprim%tabscal(1)%scal(ighost) = &
-                fld%etatprim%tabscal(2)%scal(ighost)/(r_PG*temp)
-    ! velocity
-    !fld%etatprim%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)  
-    wallvelocity = bcns%wall_velocity
-    call calc_wallvelocity(defale, defmrf, wallvelocity, umesh%mesh%iface(if,1,1), if, curtime)
-    fld%etatprim%tabvect(1)%vect(ighost) = (2._krp*wallvelocity) - fld%etatprim%tabvect(1)%vect(ic)
-
+!$OMP PARALLEL & 
+!$OMP private(ifb, if, ic, ib, is, buf) &
+!$OMP shared(ista, iend, nblock) 
+!$OMP DO
+do ib = 1, nblock
+  do ifb = ista(ib), iend(ib)
+    if = ustboco%iface(ifb)
+    is = bccon%isend(ifb)
+    ic = bccon%irecv(ifb)
+    bccon%frecv%tabvect(1)%vect(ic) =  bccon%fsend%tabvect(1)%vect(is)   ! grad rho
+    bccon%frecv%tabvect(2)%vect(ic) = -bccon%fsend%tabvect(2)%vect(is)   ! grad p - to be made symmetric
+    bccon%frecv%tabtens(1)%tens(ic) =  bccon%fsend%tabtens(1)%tens(is)   ! grad V
+    call v3d_sym(bccon%frecv%tabvect(2)%vect(ic), umesh%mesh%iface(if,1,1)%normale)
   enddo
+enddo
+!$OMP END DO
+!$OMP END PARALLEL
 
-endif
+! ------------------------------------------------------
+case default
+  call error_stop("Internal error: unknown connection mode (setboco_ns_inlet_sup)")
+endselect
+
+deallocate(ista, iend)
+
+
 
 endsubroutine setboco_ns_isoth
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !

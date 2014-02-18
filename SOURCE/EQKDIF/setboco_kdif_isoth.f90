@@ -7,14 +7,14 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine setboco_kdif_isoth(curtime, unif, ustboco, umesh, champ, bckdif)
+subroutine setboco_kdif_isoth(curtime, unif, ustboco, umesh, bccon, bckdif)
 
 use TYPHMAKE
 use OUTPUT
 use VARCOM
 use MENU_BOCO
 use USTMESH
-use DEFFIELD 
+use MGRID 
 use FCT_EVAL
 use FCT_ENV
 
@@ -28,7 +28,7 @@ type(st_ustmesh)   :: umesh            ! unstructured mesh
 type(st_boco_kdif) :: bckdif           ! parameters and temperature (field or constant)
 
 ! -- OUTPUTS --
-type(st_field)   :: champ            ! champ des etats
+type(st_bccon) :: bccon  ! pointer of send or receive fields
 
 ! -- Internal variables --
 integer    :: nface
@@ -44,14 +44,14 @@ if (unif == uniform) then
 
   do ifb = 1, ustboco%nface
     if     = ustboco%iface(ifb)
-    ighost = umesh%facecell%fils(if,2)
+    ighost = bccon%irecv(ifb)
     call fct_env_set_real(blank_env, "x", umesh%mesh%iface(if,1,1)%centre%x)
     call fct_env_set_real(blank_env, "y", umesh%mesh%iface(if,1,1)%centre%y)
     call fct_env_set_real(blank_env, "z", umesh%mesh%iface(if,1,1)%centre%z)
     call fct_env_set_real(blank_env, "t", curtime)
     call fct_eval_real(blank_env, bckdif%wall_temp, tloc)
-    do ip = 1, champ%nscal
-      champ%etatprim%tabscal(ip)%scal(ighost) = tloc
+    do ip = 1, bccon%frecv%nscal
+      bccon%frecv%tabscal(ip)%scal(ighost) = tloc
     enddo
   enddo
 
@@ -61,16 +61,15 @@ else
 
   do ifb = 1, ustboco%nface
     if     = ustboco%iface(ifb)
-    ighost = umesh%facecell%fils(if,2)
-    do ip = 1, champ%nscal
-      champ%etatprim%tabscal(ip)%scal(ighost) = bckdif%temp(ifb)
+    ighost = bccon%irecv(ifb)
+    do ip = 1, bccon%frecv%nscal
+      bccon%frecv%tabscal(ip)%scal(ighost) = bckdif%temp(ifb)
     enddo
   enddo
 
 endif
 
 endsubroutine setboco_kdif_isoth
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !

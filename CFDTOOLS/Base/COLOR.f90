@@ -79,7 +79,6 @@ do jf = 1, nedge
     call add_element(vertexcolor, iv(2), ic, vresize)   ! add color to vertex
   endif
 enddo
-
 call delete(vertexcolor)
 
 endsubroutine

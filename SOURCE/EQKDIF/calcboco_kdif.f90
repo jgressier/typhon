@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine calcboco_kdif(curtime, defsolver, defboco, ustboco, grid, defspat)
+subroutine calcboco_kdif(curtime, defsolver, defboco, ustboco, umesh, bccon, defspat)
 
 use TYPHMAKE
 use OUTPUT
@@ -17,6 +17,7 @@ use MENU_BOCO
 use USTMESH
 use DEFFIELD
 use MENU_NUM 
+use MGRID
 
 implicit none
 
@@ -26,9 +27,10 @@ type(mnu_boco)   :: defboco          ! parametres de conditions aux limites
 type(st_ustboco) :: ustboco          ! lieu d'application des conditions aux limites
 type(mnu_solver) :: defsolver        ! type d'equation a resoudre
 type(mnu_spat)   :: defspat
+type(st_ustmesh) :: umesh
 
 ! -- OUTPUTS --
-type(st_grid)    :: grid             ! mise a jour du champ (maillage en entree)
+type(st_bccon)   :: bccon            ! cells, faces and ghost celles
 
 ! -- Internal variables --
 integer          :: ifb, if, ip      ! index de liste, index de face limite et parametres
@@ -39,23 +41,23 @@ integer          :: icell, ighost    ! index de cellule interieure, et de cellul
 select case(defboco%typ_boco) 
 
 case(bc_wall_isoth)
-  call setboco_kdif_isoth(curtime, defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, defboco%boco_kdif)
+  call setboco_kdif_isoth(curtime, defboco%boco_unif, ustboco, umesh, bccon, defboco%boco_kdif)
 
 case(bc_wall_flux)
   call init_genericfield(ustboco%bocofield, 0._krp, v3d(0._krp, 0._krp, 0._krp))
-  call setboco_kdif_flux(curtime, defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, &
+  call setboco_kdif_flux(curtime, defboco%boco_unif, ustboco, umesh, bccon, &
                          defsolver, defboco%boco_kdif, defspat)
 
 case(bc_wall_hconv)
   call init_genericfield(ustboco%bocofield, 0._krp, v3d(0._krp, 0._krp, 0._krp))
-  call setboco_kdif_hconv(curtime, defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, &
+  call setboco_kdif_hconv(curtime, defboco%boco_unif, ustboco, umesh, bccon, &
                           defsolver, defboco%boco_kdif, defspat)
 
 case(bc_wall_hgen)
   call init_genericfield(ustboco%bocofield, 0._krp, v3d(0._krp, 0._krp, 0._krp))
-  call setboco_kdif_flux(curtime, defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, &
+  call setboco_kdif_flux(curtime, defboco%boco_unif, ustboco, umesh, bccon, &
                          defsolver, defboco%boco_kdif, defspat) 
-  call setboco_kdif_hconv(curtime, defboco%boco_unif, ustboco, grid%umesh, grid%info%field_loc, &
+  call setboco_kdif_hconv(curtime, defboco%boco_unif, ustboco, umesh, bccon, &
                           defsolver, defboco%boco_kdif, defspat)
 
 case default
