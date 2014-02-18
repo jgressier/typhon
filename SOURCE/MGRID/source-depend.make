@@ -1,72 +1,91 @@
 ############################################################
 ##   MGRID library compilation
+#
+.SUFFIXES:
 
+# Directory
 LDIR := MGRID
+
+# Library name
+LIBNAME := libt_mgrid
 
 ####### Files
 
 # Library
-MGRID_LIB = $(PRJLIBDIR)/libt_mgrid.a
+$(LDIR).libfile := $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
 
-# Modules
-MGRID_MOD = \
-            DEFFIELD.$(MODEXT)     \
-            LIMITER.$(MODEXT)      \
-            MATFREE.$(MODEXT)      \
-            MESHALE.$(MODEXT)      \
-            MGRID.$(MODEXT)
+# List of f90 modules
+$(LDIR).f90MODFILES := \
+    DEFFIELD.f90     \
+    LIMITER.f90      \
+    MATFREE.f90      \
+    MESHALE.f90      \
+    MGRID.f90        \
 
-# Objects
-MGRID_OBJ = $(MGRID_MOD:.$(MODEXT)=.o)      \
-            calcboco_connect.o           \
-            calcboco_connect_match.o     \
-            calcboco_connect_per_match.o \
-            calcboco_gen.o               \
-            calcboco_ust.o               \
-            calcboco_ust_extrapol.o      \
-            calcboco_ust_sym.o           \
-            calc_gradient.o            \
-            calc_gradient_limite.o     \
-            calc_gradient_gauss.o      \
-            calc_gradface_svm.o        \
-            convert_to_svm.o           \
-            convert_to_svm_cub.o       \
-            convert_to_svm_4wang.o     \
-            convert_to_svm_4kris.o     \
-            raffin_iso_tri.o           \
-            distrib_field.o            \
-            extractpart_grid.o         \
-            getpart_grid.o             \
-            grid_preproc.o             \
-            grid_ustpreproc.o          \
-            gmres_free.o               \
-            integ_ustboco.o            \
-            postlimit_monotonic.o      \
-            postlimit_barth.o          \
-            precalc_grad_lsq.o         \
-            splitquadto2x2.o           \
-            splitquadto3x3.o           \
-            update_ustboco_ghostcell.o \
-            update_ustboco_ghostface.o
-            #minmax_limiter.o
+$(LDIR)_MOD := $($(LDIR).f90MODFILES:%.f90=%.$(MODEXT))
 
-libt_mgrid.objects = $(MGRID_OBJ:%=$(PRJOBJDIR)/%)
-libt_mgrid.target: $(libt_mgrid.objects)
+# List of f90 files
+$(LDIR).f90files := \
+    $($(LDIR).f90MODFILES) \
+    calcboco_connect.f90           \
+    calcboco_connect_match.f90     \
+    calcboco_connect_per_match.f90 \
+    calcboco_gen.f90               \
+    calcboco_ust.f90               \
+    calcboco_ust_extrapol.f90      \
+    calcboco_ust_sym.f90           \
+    calc_gradient.f90            \
+    calc_gradient_limite.f90     \
+    calc_gradient_gauss.f90      \
+    calc_gradface_svm.f90        \
+    convert_to_svm.f90           \
+    convert_to_svm_cub.f90       \
+    convert_to_svm_4wang.f90     \
+    convert_to_svm_4kris.f90     \
+    raffin_iso_tri.f90           \
+    distrib_field.f90            \
+    extractpart_grid.f90         \
+    getpart_grid.f90             \
+    grid_preproc.f90             \
+    grid_ustpreproc.f90          \
+    gmres_free.f90               \
+    integ_ustboco.f90            \
+    postlimit_monotonic.f90      \
+    postlimit_barth.f90          \
+    precalc_grad_lsq.f90         \
+    splitquadto2x2.f90           \
+    splitquadto3x3.f90           \
+    update_ustboco_ghostcell.f90 \
+    update_ustboco_ghostface.f90 \
 
-D_MGRID_SRC := $(MGRID_OBJ:%.o=$(LDIR)/%.f90)
+$(LDIR).f90names := $(notdir $($(LDIR).f90files))
+
+$(LDIR).objnames := $($(LDIR).f90names:%.f90=%.o)
+
+$(LDIR).objfiles := $($(LDIR).objnames:%=$(PRJOBJDIR)/%)
+
+$(LIBNAME).objfiles := $($(LDIR).objfiles)
+
+##GG:>>>
+##GG: dependency removed
+##$(LIBNAME).target: $($(LDIR).objfiles)
+##GG: and replaced
+$($(LDIR).libfile): $($(LDIR).objfiles)
+##GG:<<<
+
+D_$(LDIR)_SRC := $($(LDIR).objnames:%.o=$(LDIR)/%.f90)
 
 
 ####### Build rules
 
-MGRID_clean:
-	-rm $(MGRID_LIB) $(libt_mgrid.objects) $(MGRID_MOD) MGRID/depends.make
+$(LDIR)_clean: %_clean:
+	-rm $($*.libfile) $($*.objfiles) $($*_MOD) $*/depends.make
 
 
 ####### Dependencies
 
-MGRID/depends.make: $(D_MGRID_SRC)
-	$(MAKEDEPENDS) MGRID
+$(LDIR)/depends.make: %/depends.make: $(D_%_SRC)
+	$(MAKEDEPENDS) $*
 
-include MGRID/depends.make
-
+include $(LDIR)/depends.make
 

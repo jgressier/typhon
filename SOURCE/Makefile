@@ -28,6 +28,10 @@ help:
 	@echo "  opt=profil-> Profiling options"
 	@echo "----------------------------------------------------------------"
 
+ifneq ($(filter-out $(TARGETS),$(PRGEXT)),)
+$(error PRGEXT = "$(PRGEXT)" must belong to ( $(TARGETS:%="%") ))
+endif
+
 all: $(TARGETS)
 
 $(TARGETS):
@@ -79,6 +83,14 @@ LIBS = $(addsuffix .$(LIBSTA),$(LIBNAMES))
 
 D_LIBS = $(LIBS:%=$(PRJLIBDIR)/%)
 
+####### Program names
+
+PRGNAME = $(PRGBASE).$(PRGEXT).$(optext)
+
+PRGLINK = $(PRGBASE)-$(PRGEXT)
+
+####### VPATH
+
 ifeq ($(PRGEXT),mpi)
 MPIVPATH = EXCHANGE:
 endif
@@ -110,29 +122,21 @@ MAIN = $(PRJOBJDIR)/main.o # dependencies in MAIN/depends.make
 
 ####### Build rules
 
-$(PRG.TARGETS): $(D_LIBS) $(MAKEFILE)
+$(PRG.TARGETS): $(PRJOBJDIR) $(PRJLIBDIR) $(MAKEFILE)
 
-$(PRG.TARGETS): $(PRJOBJDIR) $(PRGBASE)-$(PRGEXT)
+$(PRG.TARGETS): $(D_LIBS) $(PRGLINK)
 
-# Special MPI variables
-#PRG.mpi: F90CMP = $(MPIF90CMP)
-#PRG.mpi: EXTMPILIB = $(MPILIB)
-
-#PRG.omp: F90OPT += $(FO_omp)
-
-PRGNAME = $(PRGBASE).$(PRGEXT).$(optext)
-
-$(PRGBASE)-$(PRGEXT): $(MAIN) $(D_LIBS) $(MAKEFILE)
+$(PRGLINK): $(MAIN) $(D_LIBS) $(MAKEFILE)
 	@echo "----------------------------------------------------------------"
 	@echo "--- CREATING $@ ---"
 	@echo "external Libraries: $(PRJLIBEXT) $(EXTLIBS)" $(EXTMPILIB)
 	@echo "TYPHON   Libraries: $(LIBS)"
 	(cd $(PRJLIBDIR) ; $(LINKER) $(LINKFB) ../$(MAIN) $(LIBS) $(PRJLIBEXT) $(EXTLIBS) $(EXTMPILIB) -o ../$(PRGNAME))
 	@echo "--- CREATION OF $@ DONE ---"
-	@echo "--- LINKING $(PRGBASE)-$(PRGEXT) ---"
-	@echo "--- link $(PRGBASE)-$(PRGEXT) to $(PRGNAME) ---"
-	@ln -fs $(PRGNAME) $(PRGBASE)-$(PRGEXT)
-	@echo "--- LINK OF $(PRGBASE)-$(PRGEXT) DONE ---"
+	@echo "--- LINKING $(PRGLINK) ---"
+	@echo "--- link $(PRGLINK) to $(PRGNAME) ---"
+	@ln -fs $(PRGNAME) $(PRGLINK)
+	@echo "--- LINK OF $(PRGLINK) DONE ---"
 
 clean:
 	@echo
@@ -153,8 +157,7 @@ $(clean.TARGETS): clean.%:
 
 ####### Dependencies
 
-$(PRGBASE).$(PRGEXT).$(optext): $(MAKEFILE)
-$(PRGBASE)-$(PRGEXT): $(MAKEFILE)
+$(PRGNAME) $(PRGLINK): $(MAKEFILE)
 
 # Module dependencies
 

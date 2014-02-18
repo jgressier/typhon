@@ -1,38 +1,59 @@
 ############################################################
 ##   PIO library compilation
+#
+.SUFFIXES:
 
+# Directory
 LDIR := PIO
+
+# Library name
+LIBNAME := libt_pio
 
 ####### Files
 
 # Library
-PIO_LIB = $(PRJLIBDIR)/libt_pio.a
+$(LDIR).libfile := $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
 
-# Modules
-PIO_MOD = OUTPUT.$(MODEXT)   \
-          RPM.$(MODEXT)      \
+# List of f90 modules
+$(LDIR).f90MODFILES := \
+    OUTPUT.f90   \
+    RPM.f90      \
 
-# Objects
-PIO_OBJ = $(PIO_MOD:.$(MODEXT)=.o)  \
-          rpm_output.o
+$(LDIR)_MOD := $($(LDIR).f90MODFILES:%.f90=%.$(MODEXT))
 
-libt_pio.objects = $(PIO_OBJ:%=$(PRJOBJDIR)/%)
-libt_pio.target: $(libt_pio.objects)
+# List of f90 files
+$(LDIR).f90files := \
+    $($(LDIR).f90MODFILES) \
+    rpm_output.f90  \
 
-D_PIO_SRC = $(PIO_OBJ:%.o=$(LDIR)/%.f90)
+$(LDIR).f90names := $(notdir $($(LDIR).f90files))
+
+$(LDIR).objnames := $($(LDIR).f90names:%.f90=%.o)
+
+$(LDIR).objfiles := $($(LDIR).objnames:%=$(PRJOBJDIR)/%)
+
+$(LIBNAME).objfiles := $($(LDIR).objfiles)
+
+##GG:>>>
+##GG: dependency removed
+##$(LIBNAME).target: $($(LDIR).objfiles)
+##GG: and replaced
+$($(LDIR).libfile): $($(LDIR).objfiles)
+##GG:<<<
+
+D_$(LDIR)_SRC := $($(LDIR).objnames:%.o=$(LDIR)/%.f90)
 
 
 ####### Build rules
 
-PIO_clean:
-	-rm $(PIO_LIB) $(libt_pio.objects) $(PIO_MOD) PIO/depends.make
+$(LDIR)_clean: %_clean:
+	-rm $($*.libfile) $($*.objfiles) $($*_MOD) $*/depends.make
 
 
 ####### Dependencies
 
-PIO/depends.make: $(D_PIO_SRC)
-	$(MAKEDEPENDS) PIO
+$(LDIR)/depends.make: %/depends.make: $(D_%_SRC)
+	$(MAKEDEPENDS) $*
 
-include PIO/depends.make
-
+include $(LDIR)/depends.make
 

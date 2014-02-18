@@ -1,59 +1,80 @@
 ############################################################
 ##   MATH library compilation
+#
+.SUFFIXES:
 
-LDIR = MATH
+# Directory
+LDIR := MATH
+
+# Library name
+LIBNAME := libt_math
 
 ####### Files
 
 # Library
-MATH_LIB = $(PRJLIBDIR)/libt_math.a
+$(LDIR).libfile := $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
 
-# Modules
-MATH_MOD = INTEGRATION.$(MODEXT) \
-           INTERPOL.$(MODEXT)    \
-           MATRIX.$(MODEXT)      \
-           MATRIX_ARRAY.$(MODEXT)\
-           SPARSE_MAT.$(MODEXT)  \
-           SPMAT_BDLU.$(MODEXT)  \
-           SPMAT_DLU.$(MODEXT)   \
-           SPMAT_CRS.$(MODEXT)   \
-           SPMAT_SDLU.$(MODEXT)  \
+# List of f90 modules
+$(LDIR).f90MODFILES := \
+    INTEGRATION.f90 \
+    INTERPOL.f90    \
+    MATRIX.f90      \
+    MATRIX_ARRAY.f90\
+    SPARSE_MAT.f90  \
+    SPMAT_BDLU.f90  \
+    SPMAT_DLU.f90   \
+    SPMAT_CRS.f90   \
+    SPMAT_SDLU.f90  \
 
-# Objects
-MATH_OBJ = $(MATH_MOD:.$(MODEXT)=.o)  \
-           bdlu_bicg.o             \
-           bdlu_bicgstab.o         \
-           bdlu_gmres.o            \
-           dlu_bicg.o              \
-           dlu_bicg_pjacobi.o      \
-           dlu_cgs.o               \
-           dlu_jacobi.o            \
-           dlu_gmres.o             \
-           dlu_lu.o                \
-           solve_bicg.o            \
-           solve_bicg_pjacobi.o    \
-           solve_bicgstab.o        \
-           solve_cgs.o             \
-           solve_jacobi.o          \
-           solve_gmres.o           \
+$(LDIR)_MOD := $($(LDIR).f90MODFILES:%.f90=%.$(MODEXT))
 
-libt_math.objects = $(MATH_OBJ:%=$(PRJOBJDIR)/%)
-libt_math.target: $(libt_math.objects)
+# List of f90 files
+$(LDIR).f90files := \
+    $($(LDIR).f90MODFILES) \
+    bdlu_bicg.f90             \
+    bdlu_bicgstab.f90         \
+    bdlu_gmres.f90            \
+    dlu_bicg.f90              \
+    dlu_bicg_pjacobi.f90      \
+    dlu_cgs.f90               \
+    dlu_jacobi.f90            \
+    dlu_gmres.f90             \
+    dlu_lu.f90                \
+    solve_bicg.f90            \
+    solve_bicg_pjacobi.f90    \
+    solve_bicgstab.f90        \
+    solve_cgs.f90             \
+    solve_jacobi.f90          \
+    solve_gmres.f90           \
 
-D_MATH_SRC = $(MATH_OBJ:%.o=$(LDIR)/%.f90)
+$(LDIR).f90names := $(notdir $($(LDIR).f90files))
+
+$(LDIR).objnames := $($(LDIR).f90names:%.f90=%.o)
+
+$(LDIR).objfiles := $($(LDIR).objnames:%=$(PRJOBJDIR)/%)
+
+$(LIBNAME).objfiles := $($(LDIR).objfiles)
+
+##GG:>>>
+##GG: dependency removed
+##$(LIBNAME).target: $($(LDIR).objfiles)
+##GG: and replaced
+$($(LDIR).libfile): $($(LDIR).objfiles)
+##GG:<<<
+
+D_$(LDIR)_SRC := $($(LDIR).objnames:%.o=$(LDIR)/%.f90)
 
 
 ####### Build rules
 
-MATH_clean:
-	-rm $(MATH_LIB) $(libt_math.objects) $(MATH_MOD) MATH/depends.make
+$(LDIR)_clean: %_clean:
+	-rm $($*.libfile) $($*.objfiles) $($*_MOD) $*/depends.make
 
 
 ####### Dependencies
 
-MATH/depends.make: $(D_MATH_SRC)
-	$(MAKEDEPENDS) MATH
+$(LDIR)/depends.make: %/depends.make: $(D_%_SRC)
+	$(MAKEDEPENDS) $*
 
-include MATH/depends.make
-
+include $(LDIR)/depends.make
 

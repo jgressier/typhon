@@ -1,46 +1,67 @@
 ############################################################
 ##   XIO library compilation
+#
+.SUFFIXES:
 
+# Directory
 LDIR := XIO
+
+# Library name
+LIBNAME := libt_xio
 
 ####### Files
 
 # Library
-XIO_LIB = $(PRJLIBDIR)/libt_xio.a
+$(LDIR).libfile := $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
 
-# Modules
-XIO_MOD = REPRISE.$(MODEXT)
+# List of f90 modules
+$(LDIR).f90MODFILES := \
+    REPRISE.f90   \
 
-# Objects
-XIO_OBJ = $(XIO_MOD:.$(MODEXT)=.o)  \
-          comp_flux.o            \
-          output_tec_ust.o       \
-          output_tec_ust_ctr.o   \
-          output_tec_ust_boco.o  \
-          output_tecplot.o       \
-          output_zone.o          \
-          outputzone_close.o     \
-          outputzone_sol.o       \
-          outputzone_open.o      \
-          outputzone_ustmesh.o   \
+$(LDIR)_MOD := $($(LDIR).f90MODFILES:%.f90=%.$(MODEXT))
 
-libt_xio.objects = $(XIO_OBJ:%=$(PRJOBJDIR)/%)
-libt_xio.target: $(libt_xio.objects)
+# List of f90 files
+$(LDIR).f90files := \
+    $($(LDIR).f90MODFILES) \
+    comp_flux.f90            \
+    output_tec_ust.f90       \
+    output_tec_ust_ctr.f90   \
+    output_tec_ust_boco.f90  \
+    output_tecplot.f90       \
+    output_zone.f90          \
+    outputzone_close.f90     \
+    outputzone_sol.f90       \
+    outputzone_open.f90      \
+    outputzone_ustmesh.f90   \
 
-D_XIO_SRC = $(XIO_OBJ:%.o=$(LDIR)/%.f90)
+$(LDIR).f90names := $(notdir $($(LDIR).f90files))
+
+$(LDIR).objnames := $($(LDIR).f90names:%.f90=%.o)
+
+$(LDIR).objfiles := $($(LDIR).objnames:%=$(PRJOBJDIR)/%)
+
+$(LIBNAME).objfiles := $($(LDIR).objfiles)
+
+##GG:>>>
+##GG: dependency removed
+##$(LIBNAME).target: $($(LDIR).objfiles)
+##GG: and replaced
+$($(LDIR).libfile): $($(LDIR).objfiles)
+##GG:<<<
+
+D_$(LDIR)_SRC := $($(LDIR).objnames:%.o=$(LDIR)/%.f90)
 
 
 ####### Build rules
 
-XIO_clean:
-	-rm $(XIO_LIB) $(libt_xio.objects) $(XIO_MOD) XIO/depends.make
+$(LDIR)_clean: %_clean:
+	-rm $($*.libfile) $($*.objfiles) $($*_MOD) $*/depends.make
 
 
 ####### Dependencies
 
-XIO/depends.make: $(D_XIO_SRC)
-	$(MAKEDEPENDS) XIO
+$(LDIR)/depends.make: %/depends.make: $(D_%_SRC)
+	$(MAKEDEPENDS) $*
 
-include XIO/depends.make
-
+include $(LDIR)/depends.make
 

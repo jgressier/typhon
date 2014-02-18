@@ -27,6 +27,10 @@ help:
 	@echo "  opt=profil-> Profiling options"
 	@echo "-----------------------------------------------------------------"
 
+ifneq ($(filter-out $(TARGETS),$(PRGEXT)),)
+$(error PRGEXT = "$(PRGEXT)" must be void or belong to ( $(TARGETS:%="%") ))
+endif
+
 all: cfdtools $(TARGETS)
 
 #cfdtools:

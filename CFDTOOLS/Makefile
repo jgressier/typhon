@@ -9,9 +9,9 @@ TGDIRS = \
         Mesh       \
         FileFormat \
 
-clean.TGDIRS = $(addprefix clean,$(TGDIRS))
+clean.TGDIRS = $(addprefix clean.,$(TGDIRS))
 
-.PHONY: $(TGDIRS) cleanlib $(clean.TGDIRS)
+.PHONY: $(TGDIRS) clean.lib $(clean.TGDIRS)
 
 help:
 	@echo "-----------------------------------------------------------------"
@@ -34,7 +34,7 @@ PRGEXT_REQUIRED: help
 	@exit 1
 
 ifeq ($(filter $(TARGETS),$(PRGEXT)),)
-all: PRGEXT_REQUIRED
+$(filter-out help,$(MAKECMDGOALS)) all: PRGEXT_REQUIRED
 endif
 
 all: $(TGDIRS)
@@ -42,11 +42,11 @@ all: $(TGDIRS)
 $(TGDIRS):
 	@cd $@ ; $(MAKE) opt=$(opt) PRGEXT=$(PRGEXT)
 
-clean: cleanlib $(clean.TGDIRS)
+clean: clean.lib $(clean.TGDIRS)
 
 cleanlib:
 	@rm Lib.$(PRGEXT).$(opt.$(opt))/*.a
 
-$(clean.TGDIRS): clean%:
+$(clean.TGDIRS): clean.%:
 	@cd $* ; $(MAKE) clean PRGEXT=$(PRGEXT)
 

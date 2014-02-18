@@ -1,6 +1,7 @@
 # ----- Compiling rules -----
 #
-AR = ar ru #v
+AR = ar ru
+#v (option for ar)
 
 LIBSTA = a
 LIBDYN = so
@@ -41,11 +42,20 @@ endif
 $(PRJOBJDIR) $(PRJLIBDIR):
 	mkdir -p $@
 
-$(PRJLIBDIR)/%.$(LIBSTA): $(PRJLIBDIR) $(PRJOBJDIR) %.target
+echoonfail = cmd="$(1)" ; $$cmd || ( echo $$cmd ; exit 1 )
+
+##GG:>>>
+##GG: dependency removed
+##$(PRJLIBDIR)/%.$(LIBSTA): $(PRJLIBDIR) $(PRJOBJDIR) %.target
+##	...
+##GG: and replaced by:
+##GG:<<<
+
+$(PRJLIBDIR)/%.$(LIBSTA):
 	@echo "----------------------------------------------------------------"
 	@echo "* Creating $*.$(LIBSTA) library"
 	@rm -f $(PRJLIBDIR)/$*.$(LIBSTA)
-	@$(AR) $(PRJLIBDIR)/$*.$(LIBSTA) $($*.objects)
+	@$(AR) $(PRJLIBDIR)/$*.$(LIBSTA) $($*.objfiles)
 	@echo "----------------------------------------------------------------"
 	@echo "* LIBRARY $(PRJLIBDIR)/$*.$(LIBSTA) successfully created"
 	@echo "----------------------------------------------------------------"
@@ -53,15 +63,15 @@ $(PRJLIBDIR)/%.$(LIBSTA): $(PRJLIBDIR) $(PRJOBJDIR) %.target
 #$(PRJINCDIR)/%.$(MODEXT): $(PRJOBJDIR)
 
 $(PRJINCDIR)/%.$(MODEXT):
-	@echo "* MODULE: options [$(F90OPT)] : $*.$(MODEXT) from $($*.source)"
-	@cmd="$(F90CWOPT) -c ${$*.source} -o $(PRJOBJDIR)/$($*.object)" ; $$cmd || ( echo $$cmd ; exit 1 )
+	@echo "* MODULE: options [$(F90OPT)] : $*.$(MODEXT) ($($*.object)) from $($*.source)"
+	@$(call echoonfail, $(F90CWOPT) -c ${$*.source} -o $(PRJOBJDIR)/$($*.object))
 	@mv $*.$(MODEXT) $(PRJINCDIR)
 
 #$(PRJOBJDIR)/%.o: $(PRJOBJDIR)
 
 $(PRJOBJDIR)/%.o:
 	@echo "* OBJECT: options [$(F90OPT)] : $*.o from $<"
-	@cmd="$(F90CWOPT) -c $< -o $@" ; $$cmd || ( echo $$cmd ; exit 1 )
+	@$(call echoonfail, $(F90CWOPT) -c $< -o $@)
 	@test -n "$($*.module)" && rm -f $($*.module) || :
 
 # rule for CFDTOOLS

@@ -1,72 +1,93 @@
 ############################################################
 ##   EQKDIF library compilation
+#
+.SUFFIXES:
 
+# Directory
 LDIR := EQKDIF
+
+# Library name
+LIBNAME := libt_eqkdif
 
 ####### Files
 
 # Library
-EQKDIF_LIB = $(PRJLIBDIR)/libt_eqkdif.a
+$(LDIR).libfile := $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
 
-# Modules
-EQKDIF_MOD = EQKDIF.$(MODEXT)      \
-             MATER_LOI.$(MODEXT)   \
-             MATERIAU.$(MODEXT)    \
-             MENU_KDIF.$(MODEXT)
+# List of f90 modules
+$(LDIR).f90MODFILES := \
+    EQKDIF.f90       \
+    MATER_LOI.f90    \
+    MATERIAU.f90     \
+    MENU_KDIF.f90    \
 
-# Objects
-EQKDIF_OBJ := $(EQKDIF_MOD:.$(MODEXT)=.o)        \
-              add_kdif_radiativeflux.o        \
-              add_kdif_coupled_radflux.o      \
-              corr_varprim_kdif.o             \
-              def_boco_kdif.o                 \
-              def_init_kdif.o                 \
-              def_model_kdif.o                \
-              calcdifflux_kdif.o              \
-              calc_kdif_flux.o                \
-              calc_kdif_fourier.o             \
-              calc_kdif_timestep.o            \
-              calc_flux_fluxface.o            \
-              calc_flux_fluxface_3D.o         \
-              calc_flux_fluxface_consistant.o \
-              calc_flux_fluxface_compact.o    \
-              calc_flux_fluxspe.o             \
-              calc_flux_fluxspe_3D.o          \
-              calc_flux_fluxspe_consistant.o  \
-              calc_flux_fluxspe_compact.o     \
-              calc_fourier.o                  \
-              calc_fouriercycle.o             \
-              calc_varcons_kdif.o             \
-              calc_varprim_kdif.o             \
-              calcboco_kdif.o                 \
-              kdif_bocoflux.o                 \
-              init_boco_kdif.o                \
-              init_kdif_ust.o                 \
-              init_viewfactor.o               \
-              inverse_get_tmes.o              \
-              integration_kdif_ust.o          \
-              setboco_kdif_flux.o             \
-              setboco_kdif_hconv.o            \
-              setboco_kdif_isoth.o            \
-              stock_kdif_cond_coupling.o      \
+$(LDIR)_MOD := $($(LDIR).f90MODFILES:%.f90=%.$(MODEXT))
 
-libt_eqkdif.objects := $(EQKDIF_OBJ:%=$(PRJOBJDIR)/%)
-libt_eqkdif.target: $(libt_eqkdif.objects)
+# List of f90 files
+$(LDIR).f90files := \
+    $($(LDIR).f90MODFILES) \
+    add_kdif_radiativeflux.f90        \
+    add_kdif_coupled_radflux.f90      \
+    corr_varprim_kdif.f90             \
+    def_boco_kdif.f90                 \
+    def_init_kdif.f90                 \
+    def_model_kdif.f90                \
+    calcdifflux_kdif.f90              \
+    calc_kdif_flux.f90                \
+    calc_kdif_fourier.f90             \
+    calc_kdif_timestep.f90            \
+    calc_flux_fluxface.f90            \
+    calc_flux_fluxface_3D.f90         \
+    calc_flux_fluxface_consistant.f90 \
+    calc_flux_fluxface_compact.f90    \
+    calc_flux_fluxspe.f90             \
+    calc_flux_fluxspe_3D.f90          \
+    calc_flux_fluxspe_consistant.f90  \
+    calc_flux_fluxspe_compact.f90     \
+    calc_fourier.f90                  \
+    calc_fouriercycle.f90             \
+    calc_varcons_kdif.f90             \
+    calc_varprim_kdif.f90             \
+    calcboco_kdif.f90                 \
+    kdif_bocoflux.f90                 \
+    init_boco_kdif.f90                \
+    init_kdif_ust.f90                 \
+    init_viewfactor.f90               \
+    inverse_get_tmes.f90              \
+    integration_kdif_ust.f90          \
+    setboco_kdif_flux.f90             \
+    setboco_kdif_hconv.f90            \
+    setboco_kdif_isoth.f90            \
+    stock_kdif_cond_coupling.f90      \
 
-D_EQKDIF_SRC := $(EQKDIF_OBJ:%.o=$(LDIR)/%.f90)
+$(LDIR).f90names := $(notdir $($(LDIR).f90files))
+
+$(LDIR).objnames := $($(LDIR).f90names:%.f90=%.o)
+
+$(LDIR).objfiles := $($(LDIR).objnames:%=$(PRJOBJDIR)/%)
+
+$(LIBNAME).objfiles := $($(LDIR).objfiles)
+
+##GG:>>>
+##GG: dependency removed
+##$(LIBNAME).target: $($(LDIR).objfiles)
+##GG: and replaced
+$($(LDIR).libfile): $($(LDIR).objfiles)
+##GG:<<<
+
+D_$(LDIR)_SRC := $($(LDIR).objnames:%.o=$(LDIR)/%.f90)
 
 
 ####### Build rules
 
-EQKDIF_clean:
-	-rm $(EQKDIF_LIB) $(libt_eqkdif.objects) $(EQKDIF_MOD) EQKDIF/depends.make
+$(LDIR)_clean: %_clean:
+	-rm $($*.libfile) $($*.objfiles) $($*_MOD) $*/depends.make
 
 
 ####### Dependencies
 
-EQKDIF/depends.make: $(D_EQKDIF_SRC)
-	$(MAKEDEPENDS) EQKDIF
+$(LDIR)/depends.make: %/depends.make: $(D_%_SRC)
+	$(MAKEDEPENDS) $*
 
-include EQKDIF/depends.make
-
+include $(LDIR)/depends.make
 

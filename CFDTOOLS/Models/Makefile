@@ -1,35 +1,53 @@
+############################################################
+##   Models library compilation
+#
 .SUFFIXES:
 
 #
 # architecture dependent and project variables
 
-PRJDIR = ..
+PRJDIR := ..
 
 include $(PRJDIR)/cfdproject.make    # default target
 include $(CONFIGDIR)/arch.make
 include $(CONFIGDIR)/rules.make
 
+# Directory
+LDIR := Models
+
+# Library name
 LIBNAME := libcfdmodels
 
+####### Files
+
 # List of f90 modules
-this.f90modules = \
-  QUANTITY.f90     \
+$(LDIR).f90MODFILES := \
+    QUANTITY.f90     \
 
 # List of f90 files
-this.f90 = $(this.f90modules) \
+$(LDIR).f90files := \
+    $($(LDIR).f90MODFILES) \
 
-LIBDEPS =
-LOCALLINKOPT =
+# List of needed libraries
+LIBDEPS :=
+LOCALLINKOPT :=
 
 # List of f90 program files
-this.f90exe = \
+$(LDIR).f90exefiles := \
 
 # Dependencies for tools
-this.tools:
+this.tools: $($(LDIR).f90exefiles:%.f90=$(PRJEXEDIR)/%)
 
 include $(CONFIGDIR)/libconf.make
 
-this.library: $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
+##GG:>>>
+##GG: dependency modified from:
+##this.library: $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
+##GG: to:
+this.library: $(PRJOBJDIR) $(PRJLIBDIR) $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
+##GG: or:
+##default: $(PRJOBJDIR) $(PRJLIBDIR)
+##GG:<<<
 
 include depends.make
 

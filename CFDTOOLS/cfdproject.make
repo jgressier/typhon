@@ -3,6 +3,7 @@
 default: this.library this.modules this.tools
 
 PRJINCDIR = $(PRJDIR)/../include
-PRJEXEDIR = $(PRJDIR)/Tools
 CONFIGDIR = $(PRJDIR)/../config
+
+PRJEXEDIR = $(PRJDIR)/Tools
 

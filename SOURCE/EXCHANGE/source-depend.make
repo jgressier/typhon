@@ -1,46 +1,63 @@
 ############################################################
 ##   EXCHANGE library compilation
+#
+.SUFFIXES:
 
+# Directory
 LDIR := EXCHANGE
+
+# Library name
+LIBNAME := libt_exch
 
 ####### Files
 
 # Library
-EXCHANGE_LIB = $(PRJLIBDIR)/libt_exch.a
+$(LDIR).libfile := $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
 
-# Modules
-EXCHANGE_MOD = #.$(MOD)      \
+# List of f90 modules
+$(LDIR).f90MODFILES := \
 
-# Objects
-EXCHANGE_OBJ := $(EXCHANGE_MOD:.$(MODEXT)=.o)  \
-               allreduce_sum_mpi.o         \
-               exchange_zonal_residual_mpi.o \
-               exchange_zonal_timestep_mpi.o \
-               finalize_exch_mpi.o         \
-               init_exch_protocol_mpi.o    \
-               receivefromgrid_mpi.o       \
-               sendtogrid_mpi.o            \
+$(LDIR)_MOD := $($(LDIR).f90MODFILES:%.f90=%.$(MODEXT))
 
-libt_exch.objects := $(EXCHANGE_OBJ:%=$(PRJOBJDIR)/%)
-libt_exch.target: $(libt_exch.objects)
+# List of f90 files
+$(LDIR).f90files := \
+    $($(LDIR).f90MODFILES) \
+    allreduce_sum_mpi.f90         \
+    exchange_zonal_residual_mpi.f90 \
+    exchange_zonal_timestep_mpi.f90 \
+    finalize_exch_mpi.f90         \
+    init_exch_protocol_mpi.f90    \
+    receivefromgrid_mpi.f90       \
+    sendtogrid_mpi.f90            \
 
-#libt_exch.target: F90CMP = $(MPIF90C)
-#libt_exch.target: F90OPT += $(MPIF90_FC)
+$(LDIR).f90names := $(notdir $($(LDIR).f90files))
 
-D_EXCHANGE_SRC := $(EXCHANGE_OBJ:%.o=$(LDIR)/%.f90)
+$(LDIR).objnames := $($(LDIR).f90names:%.f90=%.o)
+
+$(LDIR).objfiles := $($(LDIR).objnames:%=$(PRJOBJDIR)/%)
+
+$(LIBNAME).objfiles := $($(LDIR).objfiles)
+
+##GG:>>>
+##GG: dependency removed
+##$(LIBNAME).target: $($(LDIR).objfiles)
+##GG: and replaced
+$($(LDIR).libfile): $($(LDIR).objfiles)
+##GG:<<<
+
+D_$(LDIR)_SRC := $($(LDIR).objnames:%.o=$(LDIR)/%.f90)
 
 
 ####### Build rules
 
-EXCHANGE_clean:
-	-rm $(EXCHANGE_LIB) $(libt_exch.objects) $(EXCHANGE_MOD) EXCHANGE/depends.make
+$(LDIR)_clean: %_clean:
+	-rm $($*.libfile) $($*.objfiles) $($*_MOD) $*/depends.make
 
 
 ####### Dependencies
 
-EXCHANGE/depends.make: $(D_EXCHANGE_SRC)
-	$(MAKEDEPENDS) EXCHANGE
+$(LDIR)/depends.make: %/depends.make: $(D_%_SRC)
+	$(MAKEDEPENDS) $*
 
-include EXCHANGE/depends.make
-
+include $(LDIR)/depends.make
 

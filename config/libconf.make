@@ -2,24 +2,40 @@
   default \
   this.library \
   this.modules \
-  this.f90 \
-  this.basef90 \
-  this.objects \
   this.clean \
-  $(LIBNAME).target \
 
-this.modules = $(notdir $(this.f90modules:%.f90=%.target))
-this.modules: $(this.modules)
+##GG:>>>
+##GG: removed from .PHONY list
+##  $(LIBNAME).target \
+##GG:<<<
 
-this.basef90 = $(notdir $(this.f90))
-this.objects = $(this.basef90:%.f90=%.o)
+$(LDIR).MODTRGTS := $(notdir $($(LDIR).f90MODFILES:%.f90=%.target))
 
-$(LIBNAME).objects = $(this.objects:%=$(PRJOBJDIR)/%)
-$(LIBNAME).target: $($(LIBNAME).objects)
+$(LDIR).f90names := $(notdir $($(LDIR).f90files))
 
-depends.make: Makefile $(this.f90) $(this.f90exe)
+$(LDIR).objnames := $($(LDIR).f90names:%.f90=%.o)
+
+$(LDIR).objfiles := $($(LDIR).objnames:%=$(PRJOBJDIR)/%)
+
+$(LIBNAME).objfiles := $($(LDIR).objfiles)
+
+##GG:>>>
+##GG: dependency removed
+##$(LIBNAME).target: $($(LDIR).objfiles)
+##GG:<<<
+
+this.modules: $($(LDIR).MODTRGTS)
+
+depends.make: Makefile $($(LDIR).f90files) $($(LDIR).f90exefiles)
 	$(MAKEDEPENDS)
 
 this.clean:
 	-rm $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
+
+##this.library: $($(LDIR).objfiles)
+
+##GG:>>>
+##GG: dependency added
+$(PRJLIBDIR)/$(LIBNAME).$(LIBSTA): $($(LDIR).objfiles)
+##GG:<<<
 

@@ -1,41 +1,62 @@
 ############################################################
 ##   MODCOM library compilation
+#
+.SUFFIXES:
 
+# Directory
 LDIR := MODCOM
+
+# Library name
+LIBNAME := libt_modcom
 
 ####### Files
 
 # Library
-MODCOM_LIB = $(PRJLIBDIR)/libt_modcom.a
+$(LDIR).libfile := $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
 
-# Modules
-MODCOM_MOD = COMMTAG.$(MODEXT)          \
-             GENLIB.$(MODEXT)           \
-             LAPACK.$(MODEXT)           \
-             MODINFO.$(MODEXT)          \
-             TYPHMAKE.$(MODEXT)         \
-             VARCOM.$(MODEXT)
+# List of f90 modules
+$(LDIR).f90MODFILES := \
+    COMMTAG.f90   \
+    GENLIB.f90    \
+    LAPACK.f90    \
+    MODINFO.f90   \
+    TYPHMAKE.f90  \
+    VARCOM.f90    \
 
-# Objects
-MODCOM_OBJ = $(MODCOM_MOD:.$(MODEXT)=.o) # \
+$(LDIR)_MOD := $($(LDIR).f90MODFILES:%.f90=%.$(MODEXT))
 
-libt_modcom.objects = $(MODCOM_OBJ:%=$(PRJOBJDIR)/%)
-libt_modcom.target: $(libt_modcom.objects)
+# List of f90 files
+$(LDIR).f90files := \
+    $($(LDIR).f90MODFILES) \
 
-D_MODCOM_SRC := $(MODCOM_OBJ:%.o=$(LDIR)/%.f90)
+$(LDIR).f90names := $(notdir $($(LDIR).f90files))
+
+$(LDIR).objnames := $($(LDIR).f90names:%.f90=%.o)
+
+$(LDIR).objfiles := $($(LDIR).objnames:%=$(PRJOBJDIR)/%)
+
+$(LIBNAME).objfiles := $($(LDIR).objfiles)
+
+##GG:>>>
+##GG: dependency removed
+##$(LIBNAME).target: $($(LDIR).objfiles)
+##GG: and replaced
+$($(LDIR).libfile): $($(LDIR).objfiles)
+##GG:<<<
+
+D_$(LDIR)_SRC := $($(LDIR).objnames:%.o=$(LDIR)/%.f90)
 
 
 ####### Build rules
 
-MODCOM_clean:
-	-rm $(MODCOM_LIB) $(libt_modcom.objects) $(MODCOM_MOD) MODCOM/depends.make
+$(LDIR)_clean: %_clean:
+	-rm $($*.libfile) $($*.objfiles) $($*_MOD) $*/depends.make
 
 
 ####### Dependencies
 
-MODCOM/depends.make: $(D_MODCOM_SRC)
-	$(MAKEDEPENDS) MODCOM
+$(LDIR)/depends.make: %/depends.make: $(D_%_SRC)
+	$(MAKEDEPENDS) $*
 
-include MODCOM/depends.make
-
+include $(LDIR)/depends.make
 

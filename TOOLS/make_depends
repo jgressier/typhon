@@ -37,18 +37,33 @@ esac
 
 USE=$(echo use | tr $trchangecase)
 
-sededituse="s/^ *$USE  */    \$(PRJINCDIR)\\//"
-sededitmod="s/$/.\$(MODEXT)/"
-sededitend="\$!s/$/ \\\\/"
+# sed commands
+spc="    "
+seduse="s/^ *$USE  */$spc\$(PRJINCDIR)\\//"
+sedmod="s/$/.\$(MODEXT)/"
+sedend="s/$/ \\\\/"
+# A continuation mark '\\' is inserted even at the end of the last line
+# A following blank line is required
 
 #-----------------------------------------------------------------
 # try to get optional ROOT folder
+DIR=$1
 ROOTDIR=${1:-.}
 
-TARGET=$ROOTDIR/depends.make
-rm -f $TARGET
+if [ ! -d "$ROOTDIR" ] ; then
+  echo "Error !!!"
+  echo "pwd: $(pwd)"
+  echo "arg: $DIR"
+  echo "Directory $DIR does not exist"
+  exit 1
+fi
 
-TMPF=$TARGET.tmp
+shift
+
+DEPSFILE=$ROOTDIR/depends.make
+rm -f $DEPSFILE
+
+TMPF=$DEPSFILE.tmp
 rm -f $TMPF
 
 exitstatus=1
@@ -56,7 +71,7 @@ trapcmd="rm -f \"$TMPF\" ; eval \"exit \$exitstatus\""
 trap "$trapcmd" INT TERM QUIT EXIT
 
 #-----------------------------------------------------------------
-echo "Building module dependencies in $TARGET"
+echo "Building module dependencies in $DEPSFILE"
 
 {
 echo "# This file has been created automatically"
@@ -64,28 +79,30 @@ echo "# It can be overwritten"
 echo "# (manual modifications are not recommended)"
 } > $TMPF
 
-for fic in $(find $ROOTDIR -name '*.f90' | grep -v '/.#') ; do
+for file in $(find $ROOTDIR -name '*.f90' | grep -v '/.#' | LC_ALL=C sort) ; do
 
-  basename=$(basename $fic .f90)
+  basename=$(basename $file .f90)
 
   moduledepend=$(
-    grep -i -o '^ *use  *[^ !]*' $fic |
+    grep -i -o '^ *use  *[^ !]*' $file |
       tr   $trchangecase   |
-      sed "$sededituse;$sededitmod;$sededitend"
+      sed "$seduse;$sedmod;$sedend"
     )
 
   # MODULE
 
-  if [ -n "$(grep -i '^ *module ' $fic)" ] ; then
-    modulebase=$(basename $fic .f90 | tr $trchangecase)
+  if [ -n "$(grep -i '^ *module ' $file)" ] ; then
+    modulebase=$(basename $file .f90 | tr $trchangecase)
     {
-    echo "$modulebase.source:=$fic"
+    echo "$modulebase.source:=$file"
     echo "$modulebase.object:=$basename.o"
     echo "$basename.module:=$modulebase.\$(MODEXT)"
     echo "$basename.target: \$(PRJINCDIR)/$modulebase.\$(MODEXT)"
     echo
     echo "${modulebase}.\$(MODEXT): \$(PRJINCDIR)/${modulebase}.\$(MODEXT)"
-    echo "\$(PRJINCDIR)/${modulebase}.\$(MODEXT): $fic \\"
+    echo
+    echo "\$(PRJINCDIR)/${modulebase}.\$(MODEXT): \\"
+    echo "$spc$file \\"
     echo -e "${moduledepend:-\c}"
     echo
     } >> $TMPF
@@ -94,13 +111,14 @@ for fic in $(find $ROOTDIR -name '*.f90' | grep -v '/.#') ; do
   # OBJET
 
   {
-  echo "\$(PRJOBJDIR)/$basename.o: $fic \\"
+  echo "\$(PRJOBJDIR)/$basename.o: \\"
+  echo "$spc$file \\"
   echo -e "${moduledepend:-\c}"
   echo
   } >> $TMPF
 
 done
 
-mv $TMPF $TARGET
+mv $TMPF $DEPSFILE
 exitstatus=0
 

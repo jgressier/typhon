@@ -1,49 +1,69 @@
 ############################################################
 ##   MESH library compilation
+#
+.SUFFIXES:
 
+# Directory
 LDIR := MESH
+
+# Library name
+LIBNAME := libt_mesh
 
 ####### Files
 
 # Library
-MESH_LIB = $(PRJLIBDIR)/libt_mesh.a
+$(LDIR).libfile := $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
 
-# Modules
-MESH_MOD = \
-           GEO3D.$(MODEXT)        \
+# List of f90 modules
+$(LDIR).f90MODFILES := \
+    GEO3D.f90        \
 
-# Objects
-MESH_OBJ = $(MESH_MOD:.$(MODEXT)=.o)  \
-           build_implicit_bdlu.o   \
-           build_implicit_dlu.o    \
-           calc_connface.o         \
-           calc_ustmesh.o          \
-           init_implicit_bdlu.o    \
-           init_implicit_dlu.o     \
-           interpface_gradient_scal.o \
-           interpface_gradient_vect.o \
-           interpface_gradn_scal.o    \
-           interpface_gradn_vect.o    \
-           scale_mesh.o            \
-           test_ustmesh.o          \
+$(LDIR)_MOD := $($(LDIR).f90MODFILES:%.f90=%.$(MODEXT))
 
-libt_mesh.objects = $(MESH_OBJ:%=$(PRJOBJDIR)/%)
-libt_mesh.target: $(libt_mesh.objects)
+# List of f90 files
+$(LDIR).f90files := \
+    $($(LDIR).f90MODFILES) \
+    build_implicit_bdlu.f90   \
+    build_implicit_dlu.f90    \
+    calc_connface.f90         \
+    calc_ustmesh.f90          \
+    init_implicit_bdlu.f90    \
+    init_implicit_dlu.f90     \
+    interpface_gradient_scal.f90 \
+    interpface_gradient_vect.f90 \
+    interpface_gradn_scal.f90    \
+    interpface_gradn_vect.f90    \
+    scale_mesh.f90            \
+    test_ustmesh.f90          \
 
-D_MESH_SRC := $(MESH_OBJ:%.o=$(LDIR)/%.f90)
+$(LDIR).f90names := $(notdir $($(LDIR).f90files))
+
+$(LDIR).objnames := $($(LDIR).f90names:%.f90=%.o)
+
+$(LDIR).objfiles := $($(LDIR).objnames:%=$(PRJOBJDIR)/%)
+
+$(LIBNAME).objfiles := $($(LDIR).objfiles)
+
+##GG:>>>
+##GG: dependency removed
+##$(LIBNAME).target: $($(LDIR).objfiles)
+##GG: and replaced
+$($(LDIR).libfile): $($(LDIR).objfiles)
+##GG:<<<
+
+D_$(LDIR)_SRC := $($(LDIR).objnames:%.o=$(LDIR)/%.f90)
 
 
 ####### Build rules
 
-MESH_clean:
-	-rm $(MESH_LIB) $(libt_mesh.objects) $(MESH_MOD) MESH/depends.make
+$(LDIR)_clean: %_clean:
+	-rm $($*.libfile) $($*.objfiles) $($*_MOD) $*/depends.make
 
 
 ####### Dependencies
 
-MESH/depends.make: $(D_MESH_SRC)
-	$(MAKEDEPENDS) MESH
+$(LDIR)/depends.make: %/depends.make: $(D_%_SRC)
+	$(MAKEDEPENDS) $*
 
-include MESH/depends.make
-
+include $(LDIR)/depends.make
 

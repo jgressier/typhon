@@ -1,76 +1,98 @@
 ############################################################
 ##   TYPHON code compilation - MAIN
+#
+.SUFFIXES:
 
+# Directory
 LDIR := MAIN
+
+# Library name
+LIBNAME := libt_main
 
 ####### Files
 
 # Library
-MAIN_LIB = $(PRJLIBDIR)/libt_main.a
+$(LDIR).libfile := $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
 
-# Modules
-MAIN_MOD = MODWORLD.$(MODEXT)
+# List of f90 modules
+$(LDIR).f90MODFILES := \
+    MODWORLD.f90     \
 
-# Objects
-MAIN_OBJ = $(MAIN_MOD:.$(MODEXT)=.o)   \
-           accumulfluxcorr.o        \
-           analyse.o                \
-           analyse_zone.o           \
-           build_implicit.o         \
-           calc_cpl_flux.o          \
-           calc_cpl_temp.o          \
-           calc_hres_states.o       \
-           calc_rhs.o               \
-           calcdifflux.o            \
-           calcul_raccord.o         \
-           check_end_cycle.o        \
-           choixcorrection.o        \
-           correction.o             \
-           corr_varprim.o           \
-           echange.o                \
-           echange_zonedata.o       \
-           echange_zonematch.o      \
-           flux_to_res.o            \
-           implicit_solve.o         \
-           init_boco.o              \
-           init_bocohisto.o         \
-           init_coupling.o          \
-           init_implicit.o          \
-           init_inverse.o           \
-           init_probes.o            \
-           init_world.o             \
-           init_zone.o              \
-           integration.o            \
-           integration_cycle.o      \
-           integration_cycle_inverse.o \
-           integration_cyclezone.o  \
-           integration_grid.o       \
-           integzone_tstep_lagrange.o \
-           integzone_tstep_gridtree.o  \
-           integ_treelevel.o        \
-           inverse_calc_sensi.o     \
-           mpi_strategy_pre.o       \
-           mpi_strategy_post.o      \
-           output_result.o          \
-           readallmesh.o            \
-           treelevel_explicit.o     \
-           treelevel_rungekutta.o   \
-           tstep_implicit.o         \
-           update_couplingboco.o    \
-           write_bocohisto.o        \
-           write_monitors_cycle.o   \
-           write_monitors_iteration.o \
+$(LDIR)_MOD := $($(LDIR).f90MODFILES:%.f90=%.$(MODEXT))
 
-libt_main.objects = $(MAIN_OBJ:%=$(PRJOBJDIR)/%)
-libt_main.target: $(libt_main.objects)
+# List of f90 files
+$(LDIR).f90files := \
+    $($(LDIR).f90MODFILES) \
+    accumulfluxcorr.f90        \
+    analyse.f90                \
+    analyse_zone.f90           \
+    build_implicit.f90         \
+    calc_cpl_flux.f90          \
+    calc_cpl_temp.f90          \
+    calc_hres_states.f90       \
+    calc_rhs.f90               \
+    calcdifflux.f90            \
+    calcul_raccord.f90         \
+    check_end_cycle.f90        \
+    choixcorrection.f90        \
+    correction.f90             \
+    corr_varprim.f90           \
+    echange.f90                \
+    echange_zonedata.f90       \
+    echange_zonematch.f90      \
+    flux_to_res.f90            \
+    implicit_solve.f90         \
+    init_boco.f90              \
+    init_bocohisto.f90         \
+    init_coupling.f90          \
+    init_implicit.f90          \
+    init_inverse.f90           \
+    init_probes.f90            \
+    init_world.f90             \
+    init_zone.f90              \
+    integration.f90            \
+    integration_cycle.f90      \
+    integration_cycle_inverse.f90 \
+    integration_cyclezone.f90  \
+    integration_grid.f90       \
+    integzone_tstep_lagrange.f90 \
+    integzone_tstep_gridtree.f90  \
+    integ_treelevel.f90        \
+    inverse_calc_sensi.f90     \
+    mpi_strategy_pre.f90       \
+    mpi_strategy_post.f90      \
+    output_result.f90          \
+    readallmesh.f90            \
+    treelevel_explicit.f90     \
+    treelevel_rungekutta.f90   \
+    tstep_implicit.f90         \
+    update_couplingboco.f90    \
+    write_bocohisto.f90        \
+    write_monitors_cycle.f90   \
+    write_monitors_iteration.f90 \
 
-D_MAIN_SRC := $(MAIN_OBJ:%.o=$(LDIR)/%.f90)
+$(LDIR).f90names := $(notdir $($(LDIR).f90files))
+
+$(LDIR).objnames := $($(LDIR).f90names:%.f90=%.o)
+
+$(LDIR).objfiles := $($(LDIR).objnames:%=$(PRJOBJDIR)/%)
+
+$(LIBNAME).objfiles := $($(LDIR).objfiles)
+
+##GG:>>>
+##GG: dependency removed
+##$(LIBNAME).target: $($(LDIR).objfiles)
+##GG: and replaced
+$($(LDIR).libfile): $($(LDIR).objfiles)
+##GG:<<<
+
+D_$(LDIR)_SRC := $($(LDIR).objnames:%.o=$(LDIR)/%.f90)
 
 
 ####### Build rules
 
-MAIN_clean:
-	-rm $(MAIN_LIB) $(libt_main.objects) $(MAIN_MOD) MAIN/depends.make
+$(LDIR)_clean: %_clean:
+	-rm $($*.libfile) $($*.objfiles) $($*_MOD) $*/depends.make
 
 
 ####### Dependencies
@@ -87,9 +109,6 @@ SVNREVFILE := ../include/svnrev.h
 # SVNREVDEP : defined to SVNREVFORCE if SVNREVFILE does not contain SVNREVSTR
 SVNREVDEP := $(shell echo "$(SVNREVSTR)" | diff - -q $(SVNREVFILE) >/dev/null 2>&1 || echo SVNREVFORCE)
 
-MAIN/depends.make: $(D_MAIN_SRC)
-	$(MAKEDEPENDS) MAIN
-
 MAIN/main.f90: $(SVNREVFILE)
 	@touch -c MAIN/main.f90
 
@@ -103,6 +122,8 @@ $(SVNREVFILE): $(SVNREVDEP)
 	@echo ..... revision number : $(SVNREV)
 	@echo "$(SVNREVSTR)" > $@
 
-include MAIN/depends.make
+$(LDIR)/depends.make: %/depends.make: $(D_%_SRC)
+	$(MAKEDEPENDS) $*
 
+include $(LDIR)/depends.make
 
