@@ -31,8 +31,8 @@ type(st_genericfield) :: gfield      ! champ des valeurs
 type(st_genericfield) :: grad        ! champ des gradients
 
 ! -- Internal variables --
-real(krp), allocatable :: dcg(:,:)    ! delta cg
-real(krp), allocatable :: rhs(:,:)    ! second membre
+real(krp), allocatable :: dcg(:,:)             ! delta cg
+real(krp), allocatable :: rhs(:,:), prhs(:,:)  ! second membre
 real(krp)              :: dsca        ! variation de variable scalaire
 type(v3d)              :: dvec        ! variation de variable vectorielle
 integer                :: i, ic, nc   ! indice et nombre de cellules internes
@@ -50,7 +50,6 @@ integer                :: ifb, fbuf, nfblock     ! buffer size for face
 integer                :: icb, cbuf, ncblock     ! buffer size 
 
 ! -- BODY --
-
 
 if (.not.grid%optmem%gradcond_computed) then
   call precalc_grad_lsq(defsolver, defspat, grid)
@@ -188,11 +187,17 @@ enddo ! color
 info  = 0
 xinfo = 0
 
-!$OMP PARALLEL DO private(ic)
+!$OMP PARALLEL private(ic, prhs)
+allocate(prhs(3,dim))
+!$OMP DO
 do ic = 1, nc
-  call cholesky_solve(grid%optmem%gradcond(ic)%mat, 3, rhs(1:3, (ic-1)*dim+1:ic*dim), dim)
+  prhs = rhs(1:3, (ic-1)*dim+1:ic*dim)
+  call cholesky_solve(grid%optmem%gradcond(ic)%mat, 3, prhs, dim)
+  rhs(1:3, (ic-1)*dim+1:ic*dim) = prhs
 enddo
-!$OMP END PARALLEL DO
+!$OMP END DO
+deallocate(prhs)
+!$OMP END PARALLEL 
 
 !if (xinfo /= 0) call erreur("Gradient computation","Choleski inversion failed")
 
@@ -204,7 +209,9 @@ enddo
 do ic = 1, nc
   dec = (ic-1)*dim
   do is = 1, gfield%nscal
-    grad%tabvect(is)%vect(ic) = v3d_of(rhs(1:3,dec+is))
+    grad%tabvect(is)%vect(ic)%x = rhs(1,dec+is)
+    grad%tabvect(is)%vect(ic)%y = rhs(2,dec+is)
+    grad%tabvect(is)%vect(ic)%z = rhs(3,dec+is)
   enddo
   do iv = 1, gfield%nvect
     grad%tabtens(iv)%tens(ic)%mat(1,1:3) = rhs(1:3,dec+gfield%nscal+(iv-1)*3+1)

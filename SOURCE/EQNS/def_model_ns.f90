@@ -216,6 +216,31 @@ if (defsolver%defns%is_extpower) then
   if (info /= 0) call error_stop("problem when parsing "//trim(str)) 
 endif
 
+call fctset_initdependency(defsolver%fctenv)
+if (defsolver%defns%is_extpower) call fctset_checkdependency(defsolver%fctenv, defsolver%defns%extpower)
+if (defsolver%defns%is_extforce) then
+  call fctset_checkdependency(defsolver%fctenv, defsolver%defns%extforce_x)
+  call fctset_checkdependency(defsolver%fctenv, defsolver%defns%extforce_y)
+  call fctset_checkdependency(defsolver%fctenv, defsolver%defns%extforce_z)
+endif  
+
+if (defsolver%defns%is_extpower) then
+  defsolver%defns%xyz_depend = fct_xyzdependency(defsolver%defns%extpower)
+else
+  defsolver%defns%xyz_depend = .false.
+endif
+if (defsolver%defns%is_extforce) then
+  defsolver%defns%xyz_depend = defsolver%defns%xyz_depend .or. &
+               fct_xyzdependency(defsolver%defns%extforce_x).or. &
+               fct_xyzdependency(defsolver%defns%extforce_y).or. &
+               fct_xyzdependency(defsolver%defns%extforce_z)
+endif
+
+defsolver%defns%xyz_depend = defsolver%defns%xyz_depend .or. &
+             fctset_needed_dependency(defsolver%fctenv, "x").or. &
+             fctset_needed_dependency(defsolver%fctenv, "y").or. &
+             fctset_needed_dependency(defsolver%fctenv, "z")
+
 endsubroutine def_model_ns
 !------------------------------------------------------------------------------!
 ! Changes history

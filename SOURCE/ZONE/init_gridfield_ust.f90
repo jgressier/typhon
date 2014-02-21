@@ -103,7 +103,7 @@ do i = 1, defsolver%ninit
     call print_info(5,"  > USER defined initialization")
     select case(defsolver%typ_solver)
     case(solNS)
-      call init_ns_ust(defsolver%defns, defsolver%defmrf, defsolver%init(i), field, umesh)
+      call init_ns_ust(defsolver, defsolver%init(i), field, umesh)
 
     case(solKDIF)
       call init_kdif_ust(defsolver%init(i), field, umesh)

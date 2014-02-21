@@ -60,11 +60,16 @@ BLOCK:SPAT_PARAM
 ENDBLOCK
 
 BLOCK:INIT
-  !P        = 1.E5*(1+.5*sin(12*atan(y/x)))
   P        = 1.E5*(1+3*exp(-abs(sqr(x)+sqr(y)-10)))
   T        = 300.
   VELOCITY = 0.
   DIRECTION = (0, 1., 0.)
+ENDBLOCK
+
+BLOCK:PROBE
+  NAME     = PAVG
+  TYPE     = VOL_AVERAGE
+  QUANTITY = PS
 ENDBLOCK
 
 BLOCK:BOCO

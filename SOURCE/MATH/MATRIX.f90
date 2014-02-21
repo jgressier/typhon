@@ -90,7 +90,6 @@ integer   :: i, j
 
 ! --- BODY ---
 
-
 do i = 1, n              ! ------ solve L.y = b : y result stored in b
   if (i > 1) then
     do j = 1, i-1
@@ -110,8 +109,6 @@ do i = n, 1, -1          ! ------ solve Lt.x = y : x result stored in b
 enddo
   
 endsubroutine cholesky_solve
-
-
 
 endmodule MATRIX
 !------------------------------------------------------------------------------!

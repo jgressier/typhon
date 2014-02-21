@@ -42,11 +42,16 @@ call def_ale (block, zone%defsolver%defale)
 call def_mrf (block, zone%defsolver%defmrf)
 call def_mesh(prj, block, zone%defsolver%defmesh)
 
-! -------------------------
-! MODEL definition
-
 call init_mnu_solver(zone%defsolver)
 zone%defsolver%typ_solver = solver
+
+! -------------------------
+! environment/function definition
+
+call def_fctenv(block, zone%defsolver)
+
+! -------------------------
+! MODEL definition
 
 select case(solver)
 case(solKDIF)
@@ -58,11 +63,6 @@ case(solNS)
 case default
   call error_stop("parameter parsing: unknown solver")
 endselect
-
-! -------------------------
-! environment/function definition
-
-call def_fctenv(block, zone%defsolver)
 
 ! -------------------------
 ! SCHEME/NUMERICAL parameters

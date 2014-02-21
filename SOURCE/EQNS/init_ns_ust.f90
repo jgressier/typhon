@@ -8,13 +8,13 @@
 !   CAUTION : only initialization of primitive variables
 !
 !------------------------------------------------------------------------------!
-subroutine init_ns_ust(defns, defmrf, init, field, umesh)
+subroutine init_ns_ust(defsolver, init, field, umesh)
 
 use PACKET
 use DEFFIELD
 use USTMESH
 use EQNS
-use MENU_NS
+use MENU_SOLVER
 use MENU_INIT
 use MESHMRF
 use FCT_EVAL
@@ -23,8 +23,7 @@ use FCT_ENV
 implicit none
 
 ! -- INPUTS --
-type(mnu_ns)     :: defns
-type(mnu_mrf)    :: defmrf
+type(mnu_solver) :: defsolver
 type(mnu_init)   :: init
 type(st_ustmesh) :: umesh
 
@@ -32,17 +31,17 @@ type(st_ustmesh) :: umesh
 type(st_field) :: field
 
 ! -- Internal variables --
-integer(kip)                      :: ncell
-integer                           :: ip, ifirst, iend, ic, i, ib, ier, nc
-integer                           :: nb, maxbuf, buf       ! block number, buffers
-type(st_nsetat)                   :: nspri
-character(len=50)                 :: charac
-real(krp)                         :: xx, yy, zz, temp
-real(krp), dimension(cell_buffer) :: ptot, pstat, ttot, tstat, density, vel, mach
-type(v3d), dimension(cell_buffer) :: velocity
-logical                           :: is_x, is_y, is_z
-real(krp)                         :: gamma
-integer                           :: cgnsunit
+integer(kip)                     :: ncell
+integer                          :: ip, iloc, ic, ier, nc
+character(len=50)                :: charac
+real(krp)                        :: xx, yy, zz, temp
+real(krp)                        :: gam, gmusd, gsgmu, rcst
+integer                          :: cgnsunit
+real(krp), dimension(fct_buffer) :: x, y, z, density, pstat, ptot, tstat, ttot, vel, mach
+type(v3d), dimension(fct_buffer) :: velocity
+integer                          :: ib, nblock, buf            ! block index and number of blocks
+integer, pointer                 :: ista(:), iend(:)           ! starting and ending index
+type(st_fct_env)                 :: env
 
 ! -- BODY --
 
@@ -51,137 +50,153 @@ integer                           :: cgnsunit
 ncell = umesh%ncell ! _int
 
 !!! DEV !!! should not directly use gamma
-gamma = defns%properties(1)%gamma
+rcst  = defsolver%defns%properties(1)%r_const  
+gam   = defsolver%defns%properties(1)%gamma
+gmusd = (gam-1._krp)/2._krp
+gsgmu = gam/(gam-1._krp)
 
 select case(init%type)
 
 case(init_def)  ! --- initialization through FCT functions ---
+
+call new_buf_index(ncell, fct_buffer, nblock, ista, iend, nthread)
+
+!$OMP PARALLEL & 
+!$OMP private(ib, buf, iloc, ic, env, x, y, z, density, pstat, ptot, tstat, ttot, vel, velocity, mach, nc) &
+!$OMP shared(ista, iend, nblock, gam, gsgmu, gmusd, rcst) 
   
-  !is_x = 
-  !
-  !if (is_x.or.is_y.or.is_z) then ! test if function depends on x, y, or z
+call new_fct_env(env)      ! temporary environment from FCT_EVAL
 
-  call new(nspri, 1)
-  call new_fct_env(blank_env)      ! temporary environment from FCT_EVAL
+!$OMP DO
+do ib = 1, nblock
+  buf = iend(ib)-ista(ib)+1
 
-  call calc_buffer(ncell, cell_buffer, nb, maxbuf, buf)
-  ifirst = 1
-
-  do ib = 1, nb
-  
-    iend = ifirst+buf-1
-    
-    do ic = ifirst, iend
-
-      i = ic - ifirst+1
-     
-      call fct_env_set_real(blank_env, "x", umesh%mesh%centre(ic,1,1)%x)
-      call fct_env_set_real(blank_env, "y", umesh%mesh%centre(ic,1,1)%y)
-      call fct_env_set_real(blank_env, "z", umesh%mesh%centre(ic,1,1)%z)
-
-      if (init%ns%is_pstat) then
-        call fct_eval_real(blank_env, init%ns%pstat, pstat(i))
-      else
-        call fct_eval_real(blank_env, init%ns%ptot, ptot(i))
-      endif
-
-      if (init%ns%is_density) then
-        call fct_eval_real(blank_env, init%ns%density, density(i))
-      else
-        if (init%ns%is_tstat) then
-          call fct_eval_real(blank_env, init%ns%tstat, tstat(i))
-        else
-          call fct_eval_real(blank_env, init%ns%ttot, ttot(i))
-        endif
-      endif
-
-      if (init%ns%is_vcomponent) then
-        call fct_eval_real(blank_env, init%ns%vx, velocity(i)%x)
-        call fct_eval_real(blank_env, init%ns%vy, velocity(i)%y)
-        call fct_eval_real(blank_env, init%ns%vz, velocity(i)%z)
-        vel(i) = abs(velocity(i))
-      else
-        if (init%ns%is_velocity) then
-          call fct_eval_real(blank_env, init%ns%velocity, vel(i))
-        else
-          call fct_eval_real(blank_env, init%ns%mach, mach(i))
-        endif
-
-        call fct_eval_real(blank_env, init%ns%dir_x, velocity(i)%x)
-        call fct_eval_real(blank_env, init%ns%dir_y, velocity(i)%y)
-        call fct_eval_real(blank_env, init%ns%dir_z, velocity(i)%z)
-      endif
-      
-    enddo
-
-    ! -- compute density & static pressure (if needed, via total/static temperature/pressure) --
-
-    if (init%ns%is_pstat) then
-      
-      if (.not.init%ns%is_density) then
-        call compute_tstat
-        density(1:buf) = pstat(1:buf) / (defns%properties(1)%r_const * tstat(1:buf))
-      endif
-
-    else ! ptot is defined
-
-      if (init%ns%is_density) then   ! must only compute pstat (without tstat/ttot)
-
-        if (init%ns%is_velocity) then   ! Mach number is not defined
-          call erreur("Initialization", "unable to use DENSITY, TOTAL PRESSURE and VELOCITY combination")
-        else
-          pstat(1:buf)   = ptot(1:buf) / (1._krp + .5_krp*(gamma-1._krp)*mach(1:buf)**2)**(gamma/(gamma-1._krp))
-        endif
-
-      else
-        call compute_tstat()
-        if (init%ns%is_velocity) then   ! Mach number is not defined
-          mach(1:buf) = abs(vel(1:buf))/sqrt(gamma*defns%properties(1)%r_const * tstat(1:buf))
-        endif
-        pstat(1:buf)   = ptot(1:buf) / (1._krp + .5_krp*(gamma-1._krp)*mach(1:buf)**2)**(gamma/(gamma-1._krp))
-        density(1:buf) = pstat(1:buf) / (defns%properties(1)%r_const * tstat(1:buf))
-      endif
-
-    endif
-
-    ! -- check positivity --
-    nc = count(density(1:buf) <= 0._krp)
-    if (nc > 0) call error_stop("Initialization: user parameters produce " &
-                            //"negative densities ("//trim(strof(nc))//" cells)" )
-    nc = count(pstat(1:buf) <= 0._krp)
-    if (nc > 0) call error_stop("Initialization: user parameters produce " &
-                            //"negative pressures ("//trim(strof(nc))//" cells)" )
-    
-    ! -- compute velocity (from mach number) --
-    if (.not.init%ns%is_velocity) then
-      vel(1:buf) = sqrt(gamma*pstat(1:buf)/density(1:buf))*mach(1:buf)
-    endif
-    
-    ! -- compute density --
-    field%etatprim%tabscal(1)%scal(ifirst:iend) = density(1:buf)
-
-    ! -- pressure --
-    field%etatprim%tabscal(2)%scal(ifirst:iend) = pstat(1:buf)
-
-    ! -- velocity components if not already defined --
-    if (init%ns%is_vcomponent) then
-      field%etatprim%tabvect(1)%vect(ifirst:iend) = velocity(1:buf)
-    else
-      field%etatprim%tabvect(1)%vect(ifirst:iend) = (vel(1:buf)/abs(velocity(1:buf)))*velocity(1:buf)
-    endif
-
-    ifirst = ifirst + buf
-    buf    = maxbuf
+  do iloc = 1, buf
+    ic = iloc+ista(ib)-1
+    x(iloc) = umesh%mesh%centre(ic,1,1)%x
+    y(iloc) = umesh%mesh%centre(ic,1,1)%y
+    z(iloc) = umesh%mesh%centre(ic,1,1)%z
   enddo
-  
-  call delete_fct_env(blank_env)      ! temporary environment from FCT_EVAL
+  call fct_env_set_realarray(env, "x", x(1:buf))
+  call fct_env_set_realarray(env, "y", y(1:buf))
+  call fct_env_set_realarray(env, "z", z(1:buf))
 
-  call delete(nspri)
-  !!if (field%allocgrad) field%gradient(:,:,:,:,:) = 0._krp
+  call fctset_compute_neededenv(defsolver%fctenv, env)
+
+  if (init%ns%is_pstat) then
+    call fct_eval_realarray(env, init%ns%pstat, pstat(1:buf))
+  else
+    call fct_eval_realarray(env, init%ns%ptot, ptot(1:buf))
+  endif
+
+  if (init%ns%is_density) then
+    call fct_eval_realarray(env, init%ns%density, density(1:buf))
+  else
+    if (init%ns%is_tstat) then
+      call fct_eval_realarray(env, init%ns%tstat, tstat(1:buf))
+    else
+      call fct_eval_realarray(env, init%ns%ttot, ttot(1:buf))
+    endif
+  endif
+
+  if (init%ns%is_vcomponent) then
+    call fct_eval_realarray(env, init%ns%vx, x(1:buf))
+    call fct_eval_realarray(env, init%ns%vy, y(1:buf))
+    call fct_eval_realarray(env, init%ns%vz, z(1:buf))
+    do iloc = 1, buf
+      velocity(iloc)%x = x(iloc)
+      velocity(iloc)%y = y(iloc)
+      velocity(iloc)%z = z(iloc)
+    enddo
+    vel(1:buf) = abs(velocity(1:buf))
+  else
+    if (init%ns%is_velocity) then
+      call fct_eval_realarray(env, init%ns%velocity, vel(1:buf))
+    else
+      call fct_eval_realarray(env, init%ns%mach, mach(1:buf))
+    endif
+    call fct_eval_realarray(env, init%ns%dir_x, x(1:buf))
+    call fct_eval_realarray(env, init%ns%dir_y, y(1:buf))
+    call fct_eval_realarray(env, init%ns%dir_z, z(1:buf))
+    do iloc = 1, buf
+      velocity(iloc)%x = x(iloc)
+      velocity(iloc)%y = y(iloc)
+      velocity(iloc)%z = z(iloc)
+    enddo
+  endif
+
+  ! --- compute static pressure if needed (Mach number required) --
+  if (.not.init%ns%is_pstat) then   ! ptot is defined
+    if (init%ns%is_velocity) then   ! Mach number is not defined
+      call error_stop("Initialization: unable to use TOTAL PRESSURE and VELOCITY combination")
+    else
+      pstat(1:buf)   = ptot(1:buf) / (1._krp + gmusd*mach(1:buf)**2)**gsgmu
+    endif
+  endif
+
+  ! --- computation of static temperature if needed ---  
+  !if (.not.init%ns%is_tstat) then ! ttot or density is defined instead
+  !  if (init%ns%is_density) then
+  !    tstat(1:buf) = pstat(1:buf) / (rcst * density(1:buf))
+  !  else ! ttot is defined
+  !    if (init%ns%is_velocity) then
+  !      tstat(1:buf) = ttot(1:buf) - gmusd/gam/rcst*vel(1:buf)**2
+  !    else
+  !      tstat(1:buf) = ttot(1:buf) / (1._krp + gmusd*mach(1:buf)**2)
+  !    endif
+  !  endif
+  !endif
+  
+  ! --- compute density if needed ---
+  if (.not.init%ns%is_density) then
+    if (init%ns%is_tstat) then 
+      density(1:buf) = pstat(1:buf) / (rcst * tstat(1:buf))
+    else ! ttot is defined
+      if (init%ns%is_velocity) then
+        density(1:buf) = pstat(1:buf)/(rcst*ttot(1:buf) - (gmusd/gam)*vel(1:buf)**2)
+      else
+        density(1:buf) = pstat(1:buf)/(rcst*ttot(1:buf)) * (1._krp + gmusd*mach(1:buf)**2)
+      endif
+    endif
+  endif
+
+  ! --- computation of velocity magnitude if needed ---  
+  if (.not.init%ns%is_velocity) then   ! Mach number is defined
+    vel(1:buf) = sqrt((gam*pstat(1:buf)/density(1:buf)))*mach(1:buf)
+    !print*,'ps :',sum(pstat(1:buf))/buf
+    !print*,'rho:',sum(density(1:buf))/buf
+    !print*,'vel:',sum(vel(1:buf))/buf
+    !print*,'m  :',sum(mach(1:buf))/buf
+  endif
+  ! -- velocity components if not already defined --
+  if (.not.init%ns%is_vcomponent) then
+    velocity(1:buf) = (vel(1:buf)/abs(velocity(1:buf)))*velocity(1:buf)
+  endif
+
+  ! -- check positivity --
+  nc = count(density(1:buf) <= 0._krp)
+  if (nc > 0) call error_stop("Initialization: user parameters produce " &
+                          //"negative densities ("//trim(strof(nc))//" cells)" )
+  nc = count(pstat(1:buf) <= 0._krp)
+  if (nc > 0) call error_stop("Initialization: user parameters produce " &
+                          //"negative pressures ("//trim(strof(nc))//" cells)" )
+  
+  ! -- compute density --
+  field%etatprim%tabscal(1)%scal(ista(ib):iend(ib)) = density(1:buf)
+  ! -- pressure --
+  field%etatprim%tabscal(2)%scal(ista(ib):iend(ib)) = pstat(1:buf)
+  ! -- velocity components if not already defined --
+  field%etatprim%tabvect(1)%vect(ista(ib):iend(ib)) = velocity(1:buf)
+
+enddo ! block loop
+!$OMP END DO
+call delete_fct_env(env)      ! temporary environment from FCT_EVAL
+!$OMP END PARALLEL
+deallocate(ista, iend)
 
 case(init_udf)
   call print_info(5,"   UDF initialization")
-  call udf_ns_init(defns, ncell, umesh%mesh%centre(1:ncell, 1, 1), field%etatprim)
+  call udf_ns_init(defsolver%defns, ncell, umesh%mesh%centre(1:ncell, 1, 1), field%etatprim)
 
 case(init_file)
   call print_info(5,"   user file initialization")
@@ -194,7 +209,7 @@ case(init_file)
                                       field%etatprim%tabvect(1)%vect(ic)%z, &
                                       field%etatprim%tabscal(2)%scal(ic), temp
     field%etatprim%tabscal(1)%scal(ic) = field%etatprim%tabscal(2)%scal(ic) / &
-                  ( temp * defns%properties(1)%r_const )
+                  ( temp * defsolver%defns%properties(1)%r_const )
   enddo
   close(1004)
 
@@ -208,26 +223,11 @@ endselect
 
 ! -- MRF update --
 
-if (defmrf%type /= mrf_none .and. defmrf%input == mrfdata_absolute) then
+if (defsolver%defmrf%type /= mrf_none .and. defsolver%defmrf%input == mrfdata_absolute) then
   do ic = 1, ncell
-    call mrfvel_abs2rel(defmrf, 0._krp, umesh%mesh%centre(ic,1,1), field%etatprim%tabvect(1)%vect(ic))
+    call mrfvel_abs2rel(defsolver%defmrf, 0._krp, umesh%mesh%centre(ic,1,1), field%etatprim%tabvect(1)%vect(ic))
   enddo
 endif
-
-
-! -------- SUBROUTINES ------------
-contains
-
-subroutine compute_tstat ! macro-like, using "routine global" variables
-implicit none
-  if (.not.init%ns%is_tstat) then ! ttot is defined
-    if (init%ns%is_velocity) then
-      tstat(1:buf) = ttot(1:buf) - .5_krp*(gamma-1._krp)/gamma/defns%properties(1)%r_const*vel(1:buf)**2
-    else
-      tstat(1:buf) = ttot(1:buf) / (1._krp + .5_krp*(gamma-1._krp)*mach(1:buf)**2)
-    endif
-  endif
-endsubroutine compute_tstat
 
 endsubroutine init_ns_ust
 !------------------------------------------------------------------------------!

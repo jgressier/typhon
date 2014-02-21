@@ -39,11 +39,11 @@ integer          :: icell, ighost    ! index de cellule interieure, et de cellul
 select case(defboco%typ_boco) 
 
 case(bc_inlet_sup)
-  call setboco_ns_inlet_sup(defsolver%defns, defsolver%defmrf, defboco%boco_unif, defboco%boco_ns, &
+  call setboco_ns_inlet_sup(defsolver, defboco%boco_unif, defboco%boco_ns, &
                             ustboco, umesh, bccon, curtime)
 
 case(bc_inlet_sub)
-  call setboco_ns_inlet_sub(defsolver%defns, defsolver%defmrf, defboco%boco_unif, defboco%boco_ns, &
+  call setboco_ns_inlet_sub(defsolver, defboco%boco_unif, defboco%boco_ns, &
                             ustboco, umesh, bccon, curtime)
 
 case(bc_outlet_sup)

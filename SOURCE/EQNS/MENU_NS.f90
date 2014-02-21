@@ -31,7 +31,7 @@ type mnu_ns
   integer           :: nb_species        ! nombre d'especes resolues
   type(st_espece), dimension(:), pointer &
                     :: properties        ! proprietes des differentes especes
-  logical           :: is_extforce, is_extpower
+  logical           :: is_extforce, is_extpower, xyz_depend
   type(st_fct_node) :: extforce_x, extforce_y, extforce_z
   type(st_fct_node) :: extpower
 endtype mnu_ns
@@ -45,6 +45,7 @@ type st_boco_ns
   real(krp) :: temp_wall
   type(v3d) :: wall_velocity
   type(st_fct_node) :: dir_x, dir_y, dir_z
+  logical   :: xyz_depend
   real(krp), dimension(:), pointer  &
             :: temp           ! not uniform wall temperature
   logical   :: alloctemp      ! allocation of table "temp"

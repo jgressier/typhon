@@ -49,7 +49,7 @@ call print_info(10, str_w)
 !------------------------------------------------------------------------
 ! computing CONNECTIVITY of boundary conditions
 
-call print_info(8, ". initializing boundary faces to ghost cells")
+call print_info(8, ". initializing boundary data")
 
 ! -- Definition des connectivites faces limites -> cellules limites
 
@@ -81,8 +81,10 @@ do ib = 1, grid%umesh%nboco
 
     select case(defsolver%boco(idef)%typ_calc)
     case(bc_calc_ghostcell)
+      call print_info(8, "  . initializing ghost cells for "//trim(defsolver%boco(idef)%family))
       call init_ustboco_ghostcell(ib, defsolver%boco(idef), grid%umesh)
     case(bc_calc_ghostface)
+      call print_info(8, "  . initializing ghost faces for "//trim(defsolver%boco(idef)%family))
       call init_ustboco_ghostface(ib, defsolver%boco(idef), grid%umesh)
     case(bc_calc_singpanel)
       call init_ustboco_singpanel(ib, defsolver%boco(idef), grid)

@@ -8,13 +8,13 @@
 ! Faults/Limitations/Varia :
 !
 !------------------------------------------------------------------------------!
-subroutine def_boco_ns(block, type, boco, unif)
+subroutine def_boco_ns(block, type, defsolver, boco, unif)
 
 use RPM
 use TYPHMAKE
 use VARCOM
 use OUTPUT
-use MENU_NS
+use MENU_SOLVER
 use MENU_BOCO
 use FCT_PARSER
 
@@ -23,6 +23,7 @@ implicit none
 ! -- Inputs --
 type(rpmblock), target :: block    ! RPM block with all definitions
 integer(kip)           :: unif     ! uniformity of boundary condition
+type(mnu_solver)       :: defsolver
 
 ! -- Outputs --
 type(st_boco_ns) :: boco
@@ -42,160 +43,128 @@ type(v3d)                :: temp_direction
 
 pblock => block
 
+call fctset_initdependency(defsolver%fctenv)
+boco%xyz_depend = .false.
+
 select case(type)
 
 case(bc_wall_adiab)
   call rpmgetkeyvalstr (pblock, "WALL_VELOCITY", str, "(0., 0., 0.)")
   boco%wall_velocity = v3d_of(str, info)
-  if (info /= 0) &
-    call erreur("parsing parameters","unable to read WALL_VELOCITY data")
+  if (info /= 0) call error_stop("parsing parameters: unable to read WALL_VELOCITY data")
   typ = bc_wall_flux
   boco%flux = 0._krp
 
 case(bc_wall_isoth)
   call rpmgetkeyvalstr (pblock, "WALL_VELOCITY", str, "(0., 0., 0.)")
   boco%wall_velocity = v3d_of(str, info)
-  if (info /= 0) &
-    call erreur("parsing parameters","unable to read WALL_VELOCITY data")
+  if (info /= 0) call error_stop("parsing parameters: unable to read WALL_VELOCITY data")
   typ = bc_wall_isoth
   select case(unif)
-
   case(uniform)
     call rpmgetkeyvalreal(pblock, "WALL_TEMP", boco%temp_wall)
-
   case(nonuniform)
     boco%alloctemp = .true.
     call rpmgetkeyvalstr(pblock, "TEMP_FILE", str)
     boco%tempfile = str
-
   endselect
 
 case(bc_wall_flux)
   call rpmgetkeyvalstr (pblock, "WALL_VELOCITY", str, "(0., 0., 0.)")
   boco%wall_velocity = v3d_of(str, info)
-  if (info /= 0) &
-    call erreur("parsing parameters","unable to read WALL_VELOCITY data")
+  if (info /= 0) call error_stop("parsing parameters: unable to read WALL_VELOCITY data")
   typ = bc_wall_flux
   select case(unif)
-
   case(uniform)
     call rpmgetkeyvalreal(pblock, "WALL_FLUX", boco%flux)
     boco%flux = - boco%flux ! convention : flux out in the algorithm
                             ! BOCO convention : flux in for user
-
   case(nonuniform)
     boco%allocflux = .true.
     call rpmgetkeyvalstr(pblock, "FLUX_FILE", str)
     boco%fluxfile = str
-
   endselect
 
 case(bc_inlet_sub)
   typ = bc_inlet_sub
-  call rpmgetkeyvalstr(pblock, "PI", str)
-  call convert_to_funct(str, boco%ptot, info)  
-  if (info /= 0) &
-      call error_stop("menu definition: problem when parsing PI (NS boundary condition)") 
+  call parsefct("PI", boco%ptot)
   if (rpm_existkey(pblock, "TI")) then
     boco%is_ttot = .true.
-    call rpmgetkeyvalstr(pblock, "TI", str)
-    call convert_to_funct(str, boco%ttot, info)  
+    call parsefct("TI", boco%ttot)
   elseif (rpm_existkey(pblock, "S")) then
     boco%is_ttot = .false.
-    call rpmgetkeyvalstr(pblock, "S", str)
-    call convert_to_funct(str, boco%entropy, info)  
+    call parsefct("S", boco%entropy)
   else
     call error_stop("menu definition: missing either TI or S (NS boundary condition)") 
   endif
-  if (info /= 0) &
-      call error_stop("menu definition: problem when parsing TI (NS boundary condition)") 
   if (rpm_existkey(pblock, "DIRECTION")) then
     call rpmgetkeyvalstr (pblock, "DIRECTION", str)
     temp_direction = v3d_of(str, info)
-    if (info /= 0) &
-        call erreur("menu definition","problem when parsing DIRECTION vector (NS initialization)") 
+    if (info /= 0) call error_stop("menu definition: problem when parsing DIRECTION vector (NS initialization)") 
     call convert_to_funct(temp_direction%x, boco%dir_x, info)
     call convert_to_funct(temp_direction%y, boco%dir_y, info)
     call convert_to_funct(temp_direction%z, boco%dir_z, info)
   else
-    call rpmgetkeyvalstr(pblock, "DIR_X", str)
-    if (info /= 0) &
-        call erreur("parsing parameters","unable to read DIR_X data (subsonic inlet)")
-    call convert_to_funct(str, boco%dir_x, info)  
-    call rpmgetkeyvalstr(pblock, "DIR_Y", str)
-    if (info /= 0) &
-        call erreur("parsing parameters","unable to read DIR_Y data (subsonic inlet)")
-    call convert_to_funct(str, boco%dir_y, info)  
-    call rpmgetkeyvalstr(pblock, "DIR_Z", str)
-    if (info /= 0) &
-        call erreur("parsing parameters","unable to read DIR_Z data (subsonic inlet)")
-    call convert_to_funct(str, boco%dir_z, info)  
+    call parsefct("DIR_X", boco%dir_x)
+    call parsefct("DIR_Y", boco%dir_y)
+    call parsefct("DIR_Z", boco%dir_z)
   endif
-
-  ! boco%direction = boco%direction / abs(boco%direction) MOVED TO setboco_ns_inlet_sub.f90
-  !call erreur("Development","'bc_inlet_sub' : Case not implemented")
 
 case(bc_inlet_sup)
   typ = bc_inlet_sup
-  call rpmgetkeyvalstr(pblock, "PI", str)
-  call convert_to_funct(str, boco%ptot, info)  
-  if (info /= 0) &
-      call erreur("menu definition","problem when parsing PI (NS boundary condition)") 
-  call rpmgetkeyvalstr(pblock, "TI", str)
-  call convert_to_funct(str, boco%ttot, info)  
-  if (info /= 0) &
-      call erreur("menu definition","problem when parsing TI (NS boundary condition)") 
-  call rpmgetkeyvalstr(pblock, "MACH", str)
-  call convert_to_funct(str, boco%mach, info)  
-  if (info /= 0) &
-      call erreur("menu definition","problem when parsing MACH (NS boundary condition)") 
+
+  call parsefct("PI",   boco%ptot)
+  call parsefct("TI",   boco%ttot)
+  call parsefct("MACH", boco%mach)
+
   if (rpm_existkey(pblock, "DIRECTION")) then
     call rpmgetkeyvalstr (pblock, "DIRECTION", str)
     temp_direction = v3d_of(str, info)
-    if (info /= 0) &
-        call erreur("menu definition","problem when parsing DIRECTION vector (NS initialization)") 
+    if (info /= 0) call error_stop("menu definition: problem when parsing DIRECTION vector (NS initialization)") 
     call convert_to_funct(temp_direction%x, boco%dir_x, info)
     call convert_to_funct(temp_direction%y, boco%dir_y, info)
     call convert_to_funct(temp_direction%z, boco%dir_z, info)
   else
-    call rpmgetkeyvalstr(pblock, "DIR_X", str)
-    if (info /= 0) &
-        call erreur("parsing parameters","unable to read DIR_X data (supersonic inlet)")
-    call convert_to_funct(str, boco%dir_x, info)  
-    call rpmgetkeyvalstr(pblock, "DIR_Y", str)
-    if (info /= 0) &
-        call erreur("parsing parameters","unable to read DIR_Y data (supersonic inlet)")
-    call convert_to_funct(str, boco%dir_y, info)  
-    call rpmgetkeyvalstr(pblock, "DIR_Z", str)
-    if (info /= 0) &
-        call erreur("parsing parameters","unable to read DIR_Z data (supersonic inlet)")
-    call convert_to_funct(str, boco%dir_z, info)  
+    call parsefct("DIR_X", boco%dir_x)
+    call parsefct("DIR_Y", boco%dir_y)
+    call parsefct("DIR_Z", boco%dir_z)
   endif
-
-  ! boco%direction = boco%direction / abs(boco%direction) MOVED TO setboco_ns_inlet_sup.f90
-  !call erreur("Development","'bc_inlet_sup' : Case not implemented")
 
 case(bc_outlet_sub)
   typ = bc_outlet_sub
-  call rpmgetkeyvalstr(pblock, "P", str)
-  call convert_to_funct(str, boco%pstat, info)  
-  if (info /= 0) &
-      call erreur("menu definition","problem when parsing (static pressure) P (NS boundary condition)") 
-  !call erreur("Development","'bc_outlet_sub' : Case not implemented")
+  call parsefct("P", boco%pstat)
 
 case(bc_outlet_sup)
   typ = bc_outlet_sup
-  !call erreur("Development","'bc_outlet_sup' : Case not implemented")
   ! No parameter to read
 
 case default
-  call erreur("reading menu","unknown boundary condition type for Navier-Stokes solver")
+  call error_stop("reading menu: unknown boundary condition type for Navier-Stokes solver")
 endselect
 
 type = typ
 
-endsubroutine def_boco_ns
+boco%xyz_depend = boco%xyz_depend .or. &
+             fctset_needed_dependency(defsolver%fctenv, "x").or. &
+             fctset_needed_dependency(defsolver%fctenv, "y").or. &
+             fctset_needed_dependency(defsolver%fctenv, "z")
 
+contains
+
+subroutine parsefct(key, fct)
+implicit none
+type(st_fct_node) :: fct
+character(len=*)  :: key
+character(len=dimrpmlig)   :: strfct
+  call rpmgetkeyvalstr(pblock, key, strfct)
+  call convert_to_funct(strfct, fct, info)  
+  if (info /= 0) call error_stop("menu definition: problem when parsing "//key//" (NS BC): "//trim(strfct)) 
+  call print_info(10, "    . parsing "//key//"="//strfct)
+  call fctset_checkdependency(defsolver%fctenv, fct)
+  boco%xyz_depend = boco%xyz_depend.or.fct_xyzdependency(fct)
+endsubroutine
+
+endsubroutine def_boco_ns
 !------------------------------------------------------------------------------!
 ! Changes history
 !

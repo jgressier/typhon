@@ -1,13 +1,9 @@
 !------------------------------------------------------------------------------!
-! PROGRAM : TYPHON                              Authors : J. Gressier (admin)
-!                                               see http://typhon.sf.net
-!                                               Created : July 2002
-! 
-! Plateforme de resolution de systemes d'equations 
-! par discretisation Volumes Finis / Singularites
-!   
-! Historique des versions (cf fichier VERSIONS)
+! PROGRAM : TYPHON
 !
+! Plateforme de resolution de systemes d'equations 
+! par discretisation Volumes Finis
+!   
 !------------------------------------------------------------------------------!
  
 program main
@@ -27,10 +23,8 @@ include 'mpif.h'
 
 ! -- Variables locales --
 
-type(st_world) :: loc_world      ! structure encapsulant toutes les donnees TYPHON
+type(st_world) :: world      ! structure encapsulant toutes les donnees TYPHON
 integer        :: itimer_init, itimer_tot
-
-type(st_info)  :: winfo
 
 integer        :: ierr
 
@@ -41,28 +35,21 @@ include 'svnrev.h'
 ! -- BODY --
 
 #ifdef MPICOMPIL
-! call init_exch_protocol(loc_world%info)
-winfo = loc_world%info
-call print_info(5,"init MPI exchanges")
 
-call MPI_Init(ierr)
-call MPI_Comm_rank(MPI_COMM_WORLD, myprocid,     ierr)
-call MPI_Comm_size(MPI_COMM_WORLD, winfo%nbproc, ierr)
+  mpi_run  = .true.
+  call print_info(5,"init MPI exchanges")
 
-myprocid = myprocid+1    ! mpi_comm_rank starts from 0
+  call MPI_Init(ierr)
+  call MPI_Comm_rank(MPI_COMM_WORLD, myprocid,     ierr)
+  call MPI_Comm_size(MPI_COMM_WORLD, world%info%nbproc, ierr)
+  myprocid   = myprocid+1    ! mpi_comm_rank starts from 0
+  tympi_real = MPI_REAL8
+  tympi_int  = MPI_INTEGER4  
 
-print*,'I am ',myprocid,'among',winfo%nbproc,' procs'
-
-tympi_real = MPI_REAL8
-tympi_int  = MPI_INTEGER4
-
-mpi_run  = .true.
 #else  /*NO MPICOMPIL*/
-winfo = loc_world%info
-winfo%nbproc = 1
-myprocid     = 0
-
-mpi_run = .false.
+  mpi_run           = .false.
+  world%info%nbproc = 1
+  myprocid          = 0
 #endif /*MPICOMPIL*/
 
 call init_output()
@@ -82,30 +69,30 @@ if (omp_run) call print_info(0, "Open-MP computation "//trim(strof(nthread))//" 
 
 !###### PARAMETERS PARSING 
 
-call def_param(loc_world)
+call def_param(world)
 
 !###### MPI STRATEGY: distribute procs
 
-if (mpi_run) then
+!if (mpi_run) then ! to be run even for omp and seq to initialize nbprocs
   call print_etape("> MPI STRATEGY: preprocessing")
-  call mpi_strategy_pre(loc_world)
-endif
+  call mpi_strategy_pre(world)
+!endif
 
 !###### MESH READING AND DATA STRUCTURE DEFINITION
 
 call print_etape("> INPUTS : mesh and boundary conditions")
-call readallmesh(loc_world)
+call readallmesh(world)
 
 !###### INITIALISATION
 
 call print_etape("> INITIALIZATION")
-call init_world(loc_world)
+call init_world(world)
 
 !###### MPI STRATEGY: distribute procs
 
 if (mpi_run) then
   call print_etape("> MPI STRATEGY: postprocessing")
-  call mpi_strategy_post(loc_world)
+  call mpi_strategy_post(world)
 endif
 
 write(str_w, "(a,e13.4)") "> user initialization time: ", realtime_stop(itimer_init)
@@ -113,22 +100,22 @@ call print_info(10, str_w)
 
 !###### INTEGRATION ET RESOLUTION
 
-select case(loc_world%prj%action)
+select case(world%prj%action)
 case(act_compute, act_restart)
   call print_etape("> INTEGRATION")
-  call integration(loc_world)
+  call integration(world)
 case(act_analyze)
   call print_etape("> ANALYSIS & REPORT")
-  call analyse(loc_world)
+  call analyse(world)
 case default
-  call error_stop("Development: Unexpected ACTION parameter: "//trim(strof(loc_world%prj%action)))
+  call error_stop("Development: Unexpected ACTION parameter: "//trim(strof(world%prj%action)))
 endselect
 
 !###### FIN D'EXECUTION
 
-call output_result(loc_world, end_calc) 
+call output_result(world, end_calc) 
 
-call delete(loc_world)
+call delete(world)
 
 !###### Desallocation
 
@@ -136,7 +123,7 @@ call print_etape("> End of process")
 write(str_w, "(a,e13.4)") "> total user time: ", realtime_stop(itimer_tot)
 
 #ifdef MPICOMPIL
-! call finalize_exch(loc_world%info)
+! call finalize_exch(world%info)
 call print_info(5,"finalize MPI exchanges")
 call MPI_Finalize(ierr)
 #endif /*MPICOMPIL*/

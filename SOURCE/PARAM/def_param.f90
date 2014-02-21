@@ -49,16 +49,15 @@ do while (iarg <= nargs)
     call print_help()
     call error_stop("")
   case ("-i")
-    print*,iarg,nargs
     if (iarg>nargs) call error_stop("missing argument after '"//trim(str_opt)//"'")
     call read_command_argument(iarg, mainfile, lincr)
     call print_info(1,"option -i: read "//trim(mainfile)//" file")
   case ("--analyze")
     lworld%prj%action = act_analyze
-    call print_info(1,"option: ANALYZE mode")
+    call print_info(1,"option   : ANALYZE mode")
   case ("--restart")
     lworld%prj%action = act_restart
-    call print_info(1,"option: RESTART mode")
+    call print_info(1,"option   : RESTART mode")
   case default
     call print_help()
     call error_stop("unknown argument ("//trim(str_opt)//")")

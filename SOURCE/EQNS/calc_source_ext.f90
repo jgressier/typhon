@@ -33,13 +33,10 @@ real(krp) :: mass, dpower(fct_buffer)
 integer, pointer      :: ista(:), iend(:) ! starting and ending index
 integer               :: ib, buf, nblock     ! buffer size 
 type(st_fct_env)      :: env
-logical               :: xyz_depend
 
 ! -- BODY --
 
 if ((defsolver%defns%is_extpower).or.(defsolver%defns%is_extforce)) then
-
-  call new_buf_index(umesh%ncell_int, fct_buffer, nblock, ista, iend)
 
   call fctset_initdependency(defsolver%fctenv)
   if (defsolver%defns%is_extpower) call fctset_checkdependency(defsolver%fctenv, defsolver%defns%extpower)
@@ -49,26 +46,11 @@ if ((defsolver%defns%is_extpower).or.(defsolver%defns%is_extforce)) then
     call fctset_checkdependency(defsolver%fctenv, defsolver%defns%extforce_z)
   endif  
 
-  if (defsolver%defns%is_extpower) then
-    xyz_depend = fct_xyzdependency(defsolver%defns%extpower)
-  else
-    xyz_depend = .false.
-  endif
-  if (defsolver%defns%is_extforce) then
-    xyz_depend = xyz_depend .or. &
-                 fct_xyzdependency(defsolver%defns%extforce_x).or. &
-                 fct_xyzdependency(defsolver%defns%extforce_y).or. &
-                 fct_xyzdependency(defsolver%defns%extforce_z)
-  endif
-
-  xyz_depend = xyz_depend .or. &
-               fctset_needed_dependency(defsolver%fctenv, "x").or. &
-               fctset_needed_dependency(defsolver%fctenv, "y").or. &
-               fctset_needed_dependency(defsolver%fctenv, "z")
+  call new_buf_index(umesh%ncell_int, fct_buffer, nblock, ista, iend)
                
   !$OMP PARALLEL & 
   !$OMP private(ic, il, dpower, mass, massV, dmomentx, dmomenty, dmomentz, env, x, y, z, buf) &
-  !$OMP shared(ista, iend, nblock, curtime, xyz_depend) 
+  !$OMP shared(ista, iend, nblock, curtime) 
   
   call new_fct_env(env)      ! temporary environment from FCT_EVAL
   call fct_env_set_real(env, "t", curtime)
@@ -78,7 +60,7 @@ if ((defsolver%defns%is_extpower).or.(defsolver%defns%is_extforce)) then
 
     buf = iend(ib)-ista(ib)+1
 
-    if (xyz_depend) then
+    if (defsolver%defns%xyz_depend) then
 
       do ic = ista(ib), iend(ib)
         x(ic-ista(ib)+1) = umesh%mesh%centre(ic,1,1)%x

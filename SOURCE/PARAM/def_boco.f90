@@ -19,23 +19,23 @@ use USTMESH
 
 implicit none
 
-! -- Declaration des entrees --
+! -- INPUTS --
 type(rpmblock), target :: block
 integer                :: isolver
 integer                :: ncoupling
 
-! -- Declaration des sorties --
+! -- OUTPUTS --
 type(mnu_solver)                             :: defsolver
 type(mnu_zonecoupling), dimension(ncoupling) :: zcoupling
 
-! -- Declaration des variables internes --
+! -- Internal variables --
 type(rpmblock), pointer  :: pblock, pcour  ! pointeur de bloc RPM
 integer                  :: nboco          ! nombre de conditions aux limites
 integer                  :: ib, nkey, iboco
 integer                  :: izr            ! indice de parcours du tableau de raccords
 character(len=dimrpmlig) :: str            ! chaine RPM intermediaire
 
-! -- Debut de la procedure --
+! -- BODY --
 
 call print_info(5,"* Definition of Boundary Conditions (BOCO)")
 
@@ -83,7 +83,7 @@ do ib = 1, nboco
     
   case(solVORTEX)
   case default
-     call erreur("incoherence interne (def_boco)","solveur inconnu")
+     call error_stop("internal error (def_boco): unknown solver (def_boco)")
   endselect
 
   call seekrpmblock(pblock, "BOCO", ib, pcour, nkey)
@@ -102,7 +102,7 @@ do ib = 1, nboco
   if (defsolver%boco(ib)%typ_boco /= inull) then
     call print_info(8,"    family name "//defsolver%boco(ib)%family(1:12)//": condition "//trim(str))
   else
-    call erreur("lecture de menu (def_boco)",trim(str)//" unknown boundary condition")
+    call error_stop("parameter file parsing error (def_boco)"//trim(str)//" unknown boundary condition")
   endif
 
   ! -- Traitement du couplage
@@ -264,7 +264,7 @@ do ib = 1, nboco
                            defsolver%boco(ib)%boco_kdif, &
                            defsolver%boco(ib)%boco_unif)
       case(solNS)
-        call def_boco_ns(pcour, defsolver%boco(ib)%typ_boco, &
+        call def_boco_ns(pcour, defsolver%boco(ib)%typ_boco, defsolver, &
                            defsolver%boco(ib)%boco_ns, &
                            defsolver%boco(ib)%boco_unif)
       case(solVORTEX)
@@ -287,7 +287,6 @@ do ib = 1, nboco
         call erreur("Internal error (def_boco)","unknown SAVE_HISTORY option")
     endif
     
-
     ! Initialisation de l'implementation de la condition aux limites
     defsolver%boco(ib)%typ_calc = bctype_of_boco(isolver, defsolver%boco(ib)%typ_boco)
   endif
@@ -297,8 +296,6 @@ enddo
 endif
 
 endsubroutine def_boco
-
-
 !------------------------------------------------------------------------------!
 ! Changes History
 !
