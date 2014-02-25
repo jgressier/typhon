@@ -13,6 +13,9 @@ use VARCOM
 use DEFZONE
 use DEFPROBE
 use PROBECALC
+#ifdef MPICOMPIL
+use MPICOMM
+#endif
 
 implicit none
 
@@ -33,18 +36,24 @@ call prb_vol_init(probe)
 pgrid => zone%gridlist%first  
 
 do while (associated(pgrid)) 
-
   call prb_vol_calc(curtime, probe, pgrid%umesh, pgrid%info%field_loc%etatprim)
-
   pgrid => pgrid%next          ! next grid
-
 enddo
   
 ! -- MPI reduce --
 
 #ifdef MPICOMPIL
-!call exchange_zonal_timestep(lzone, dt)
-if (mpi_run) call error_stop("Internal limitation: cannot use PROBE in parallel computations")
+select case(probe%type)
+case(vol_min)
+  call allreduce_min_real(probe%result)
+case(vol_max)
+  call allreduce_max_real(probe%result)
+case(vol_average)
+  print*,'vol',myprocid,probe%volume, probe%result
+  call allreduce_volavg(probe%volume, probe%result)
+case default
+  call error_stop("Internal error (prb_zone_vol): unknown probe type")
+endselect
 #endif /*MPICOMPIL*/
 
 endsubroutine prb_zone_vol

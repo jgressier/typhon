@@ -10,6 +10,9 @@ use TYPHMAKE
 use OUTPUT
 use DEFZONE
 use MESHPARAMS
+#ifdef MPICOMPIL
+use MPICOMM
+#endif
 
 implicit none
 

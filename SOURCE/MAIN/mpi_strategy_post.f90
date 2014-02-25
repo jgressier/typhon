@@ -26,7 +26,6 @@ type(st_world) :: world
 !--------------------------------------------------------------------
 ! Initialization of zone parameters
 
-print*,"nothing to do"
 !call print_info(5,"* Initialisation des zones")
 !do izone = 1, world%prj%nzone!
 !

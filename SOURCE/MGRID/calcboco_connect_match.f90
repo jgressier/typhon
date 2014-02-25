@@ -5,7 +5,7 @@
 !   Computation & exchange of connection data for connection boundary conditions
 !
 !------------------------------------------------------------------------------!
-subroutine calcboco_connect_match(defsolver, umesh, boco, bccon)
+subroutine calcboco_connect_match(imode, defsolver, umesh, boco, bccon)
 
 use TYPHMAKE
 use OUTPUT
@@ -18,6 +18,7 @@ use GENFIELD
 implicit none
 
 ! -- Inputs --
+integer(kpp)           :: imode
 type(mnu_solver)       :: defsolver        ! solver type
 type(st_ustmesh)       :: umesh
 type(st_ustboco)       :: boco
@@ -30,7 +31,6 @@ type(st_bccon)         :: bccon
 integer(kip) :: nf, dim
 integer(kip) :: if, ic, ideb, var
 integer      :: idef                                     ! boundary condition definition index
-real(krp), allocatable :: bocodata(:)   ! array of packed data
 integer(kmpi) :: mpitag
 
 ! -- BODY --
@@ -40,7 +40,27 @@ mpitag = 1000*mpitag_field + bccon%bccon_mode
 nf  = boco%nface
 dim = bccon%fsend%nscal + 3*bccon%fsend%nvect + 9*bccon%fsend%ntens
 
-allocate(bocodata(nf*dim))
+allocate(bccon%isend(nf))
+allocate(bccon%irecv(nf))
+
+select case(bccon%bccon_mode)
+case(bccon_cell_state, bccon_cell_grad)
+  bccon%isend(1:nf) = umesh%facecell%fils(boco%iface(1:nf), 1) ! index indirection: internal cell of current BC face
+  bccon%irecv(1:nf) = umesh%facecell%fils(boco%iface(1:nf), 2) ! index indirection: ghost cell of current BC face
+case(bccon_face_state)
+  bccon%isend(1:nf) = boco%iface(1:nf)
+  bccon%irecv(1:nf) = boco%iface(1:nf)
+case(bccon_face_grad)
+  call error_stop("Internal error: connection mode not yet implemented")
+case default
+  call error_stop("Internal error: unknown connection mode")
+endselect 
+
+select case(imode)
+case(igcon_send) ! ----- SEND data ---------------------------------------------
+
+boco%gridcon%nsend = nf*dim
+if (.not.associated(boco%gridcon%rsend)) allocate(boco%gridcon%rsend(boco%gridcon%nsend))
 
 ! -- pack internal variables ( scal1 scal2 vec1%x vec1%y vec1%z ... )--
 
@@ -48,45 +68,51 @@ do if = 1, boco%nface
   ic   = bccon%isend(if)
   ideb = (if-1)*dim
   do var = 1, bccon%fsend%nscal
-    bocodata(ideb+var) = bccon%fsend%tabscal(var)%scal(ic)
+    boco%gridcon%rsend(ideb+var) = bccon%fsend%tabscal(var)%scal(ic)
   enddo
   ideb = ideb+bccon%fsend%nscal
   do var = 1, bccon%fsend%nvect
-    bocodata(ideb+(var-1)*3+1:ideb+var*3) = tab(bccon%fsend%tabvect(var)%vect(ic))
+    boco%gridcon%rsend(ideb+(var-1)*3+1:ideb+var*3) = tab(bccon%fsend%tabvect(var)%vect(ic))
   enddo
   ideb = ideb+3*bccon%fsend%nvect
   do var = 1, bccon%fsend%ntens
-    bocodata(ideb+(var-1)*9+1:ideb+var*9) = reshape(bccon%fsend%tabtens(var)%tens(ic)%mat, (/ 9 /))
+    boco%gridcon%rsend(ideb+(var-1)*9+1:ideb+var*9) = reshape(bccon%fsend%tabtens(var)%tens(ic)%mat, (/ 9 /))
   enddo
 enddo
 
 ! -- send internal variables --
+call sendtogrid(boco%gridcon%grid_id, boco%gridcon%nsend, boco%gridcon%rsend, mpitag)
 
-call sendtogrid(boco%gridcon%grid_id, dim*nf, bocodata, mpitag)
+! -- request receipt boundary condition data --
 
-! -- receive boundary condition data --
+boco%gridcon%nrecv = nf*dim
+if (.not.associated(boco%gridcon%rrecv)) allocate(boco%gridcon%rrecv(boco%gridcon%nrecv))
 
-call receivefromgrid(boco%gridcon%grid_id, dim*nf, bocodata, mpitag)
+call receivefromgrid(boco%gridcon%grid_id, boco%gridcon%nrecv, boco%gridcon%rrecv, mpitag)
 
-! -- unpack boundary condition data --
+case(igcon_recv)  ! ----- RECEIVE data ---------------------------------------------
+
+! -- unpack boundary condition data - receipt requested between send and receive 
 
 do if = 1, boco%nface
   ic   = bccon%irecv(if)
   ideb = (if-1)*dim
   do var = 1, bccon%frecv%nscal
-    bccon%frecv%tabscal(var)%scal(ic) = bocodata(ideb+var)
+    bccon%frecv%tabscal(var)%scal(ic) = boco%gridcon%rrecv(ideb+var)
   enddo
   ideb = ideb+bccon%frecv%nscal
   do var = 1, bccon%frecv%nvect
-    bccon%frecv%tabvect(var)%vect(ic) = v3d_of(bocodata(ideb+(var-1)*3+1:ideb+var*3))
+    bccon%frecv%tabvect(var)%vect(ic) = v3d_of(boco%gridcon%rrecv(ideb+(var-1)*3+1:ideb+var*3))
   enddo
   ideb = ideb+3*bccon%frecv%nvect
   do var = 1, bccon%frecv%ntens
-    bccon%frecv%tabtens(var)%tens(ic)%mat = reshape(bocodata(ideb+(var-1)*9+1:ideb+var*9), (/ 3, 3 /))
+    bccon%frecv%tabtens(var)%tens(ic)%mat = reshape(boco%gridcon%rrecv(ideb+(var-1)*9+1:ideb+var*9), (/ 3, 3 /))
   enddo
 enddo
 
-deallocate(bocodata)
+case default
+  call error_stop("Internal error: unknown connection mode")
+endselect
 
 endsubroutine calcboco_connect_match
 

@@ -5,7 +5,7 @@
 !   Computation & exchange of connection data for connection boundary conditions
 !
 !------------------------------------------------------------------------------!
-subroutine calcboco_connect_per_match(defsolver, umesh, boco, bccon)
+subroutine calcboco_connect_per_match(imode, defsolver, umesh, boco, bccon)
 
 use TYPHMAKE
 use OUTPUT
@@ -14,10 +14,12 @@ use COMMTAG
 use MENU_SOLVER
 use USTMESH
 use GENFIELD
+use GRID_CONNECT
 
 implicit none
 
 ! -- Inputs --
+integer(kpp)           :: imode
 type(mnu_solver)       :: defsolver        ! solver type
 type(st_ustmesh)       :: umesh
 type(st_ustboco)       :: boco
@@ -36,6 +38,25 @@ real(krp), allocatable :: bocodata(:) ! array of packed data
 if (mpi_run) call error_stop("Critical error: periodic conditions cannot be used in parallel computations")
 
 nf  = boco%nface
+
+allocate(bccon%isend(nf))
+allocate(bccon%irecv(nf))
+
+select case(bccon%bccon_mode)
+case(bccon_cell_state, bccon_cell_grad)
+  bccon%isend(1:nf) = umesh%facecell%fils(boco%gridcon%i_param(1:nf), 1)    ! index indirection: internal cell of current BC face
+  bccon%irecv(1:nf) = umesh%facecell%fils(boco%iface(1:nf), 2)              ! index indirection: ghost    cell of current BC face
+case(bccon_face_state)
+  bccon%isend(1:nf) = boco%gridcon%i_param(1:nf)
+  bccon%irecv(1:nf) = boco%iface(1:nf)
+case(bccon_face_grad)
+  call error_stop("Internal error: connection mode not yet implemented")
+case default
+  call error_stop("Internal error: unknown connection mode")
+endselect
+
+select case(imode)
+case(igcon_send)
 
 do if = 1, boco%nface
   ic = bccon%irecv(if)
@@ -62,8 +83,12 @@ do if = 1, boco%nface
 
 enddo
 
-endsubroutine calcboco_connect_per_match
+case(igcon_recv)
+case default
+  call error_stop("Internal error: unknown connection mode")
+endselect
 
+endsubroutine calcboco_connect_per_match
 !------------------------------------------------------------------------------!
 ! Changes history
 !

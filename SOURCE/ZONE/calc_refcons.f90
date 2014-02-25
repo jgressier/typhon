@@ -11,7 +11,9 @@ use VARCOM
 use OUTPUT
 use PACKET
 use DEFZONE
-!$ use OMP_LIB
+#ifdef MPICOMPIL
+use MPICOMM
+#endif
 
 implicit none
 

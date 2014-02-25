@@ -21,7 +21,6 @@ implicit none
 
 ! -- Variables globales du module -------------------------------------------
 
-
 ! -- type of grid/mesh/domain definition (gridtype attribute) --
 
 integer(kpp), parameter :: grid_ust      = 10
@@ -54,48 +53,6 @@ type st_grd_optmem
 endtype st_grd_optmem
 
 !------------------------------------------------------------------------------!
-! Definition ST_CELLEXT : liste chainee de connectivites vers cellules externes
-!------------------------------------------------------------------------------!
-!type st_cellext   
-!  integer                 :: id  ! corresponding grid for each neighbour cell
-!  integer                 :: icell    ! cell id in the curent grid
-!  integer                 :: tarcell  ! cell id in the target grid
-!  integer                 :: mpi_cpu  ! proc of cell id
-!  type(st_grid), pointer  :: targrid
-!  type(st_cellext), pointer :: next
-!endtype st_cellext
-
-!------------------------------------------------------------------------------!
-! Definition ST_BCCON : BOCO connectivity
-!------------------------------------------------------------------------------!
-type st_bccon
-  integer(kpp)                   :: bccon_mode
-  type(st_genericfield), pointer :: fsend, frecv ! pointer of send or receive fields
-  integer(kip)                   :: nf
-  integer(kip), pointer          :: isend(:), irecv(:)  ! index of data in fsend and frecv
-endtype st_bccon
-
-!
-!------------------------------------------------------------------------------!
-! Definition ST_SNDDATA : envoi des données de l'extérieur
-!------------------------------------------------------------------------------!
-!type st_snddata
-!  DOUBLE PRECISION , dimension(:), pointer :: ext_data
-!endtype st_snddata
-
-
-!-------------------------------------------------------------------------
-! Definition of st_subcell
-!-------------------------------------------------------------------------
-!type st_subcell
-!   integer                                 :: degree  ! nb of subcell per cell
-!   integer                                 :: ncell_int ! nb of cells
-!   integer, dimension(:), pointer          :: id
-!   integer, dimension(:,:), pointer        :: intcell
-!endtype st_subcell
-
-
-!------------------------------------------------------------------------------!
 ! structure def.  ST_GRIDLIST : list of grids
 !------------------------------------------------------------------------------!
 type st_gridlist
@@ -103,7 +60,6 @@ type st_gridlist
   type(st_grid), pointer :: first, last     ! pointer to first and last grid
   integer(kip)           :: nbgrid          ! number of grids
 endtype st_gridlist
-
 
 !------------------------------------------------------------------------------!
 ! Definition de la structure ST_GRID : grid maillage general et champ

@@ -59,6 +59,8 @@ endselect
 endsubroutine prb_vol_init
 
 !------------------------------------------------------------------------------!
+! merge probe result according to probe type
+!------------------------------------------------------------------------------!
 subroutine prb_vol_add(probe, result, vol)
 implicit none
 ! -- INPUTS/OUTPUTS --

@@ -11,10 +11,9 @@ use TYPHMAKE
 use VARCOM
 use OUTPUT
 use COMMTAG
+use MPICOMM
 
 implicit none
-
-include 'mpif.h'
 
 ! -- INPUTS --
 integer(kip)  :: grid_id 
@@ -26,21 +25,22 @@ real(krp)     :: data(dim)
 
 ! -- Internal variables --
 integer :: ierr
-integer :: request
+integer :: irequest
 
 ! -- BODY --
 
-call MPI_ISEND(data, dim, tympi_real, grid_id-1, tag, MPI_COMM_WORLD, request, ierr)
-if (ierr /= 0) call erreur("MPI error", "impossible to send")
+call MPI_ISEND(data, dim, tympi_real, grid_id-1, tag, MPI_COMM_WORLD, irequest, ierr)
+if (ierr /= 0) call error_stop("MPI error: impossible to send")
+call add_mpirequest(irequest)
 
-call MPI_REQUEST_FREE(request, ierr)
-if (ierr /= 0) call erreur("MPI error", "impossible to free request")
+!call MPI_REQUEST_FREE(request, ierr)
+!if (ierr /= 0) call erreur("MPI error", "impossible to free request")
 
 endsubroutine sendtogrid
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !
 ! Oct  2005 : created
 ! Fev  2007 : Immediate MPI Send/Receive
+! Feb  2014 : buffered requests
 !------------------------------------------------------------------------------!

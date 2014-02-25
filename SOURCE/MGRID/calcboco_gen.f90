@@ -17,6 +17,9 @@ use MENU_NUM
 use MGRID
 use GRID_CONNECT
 use DEFFIELD
+#ifdef MPICOMPIL
+use MPICOMM
+#endif /* MPICOMPIL */
 
 implicit none
 
@@ -35,6 +38,10 @@ integer :: idef                      ! index de definitions des conditions aux l
 integer :: nrac                      ! numero de raccord
 type(st_bccon) :: bccon
 ! ----------------------------------- BODY -----------------------------------
+
+#ifdef MPICOMPIL
+  call init_mpirequest()
+#endif /* MPICOMPIL */
 
 bccon%bccon_mode = bccon_mode
 
@@ -56,9 +63,9 @@ case default
 endselect
 
 !------------------------------------------------------------------------------!
-! send & receive matching and periodic connections
+! send matching and periodic connections
 
-call calcboco_connect(defsolver, defspat, grid%umesh, bccon)
+call calcboco_connect(igcon_send, defsolver, defspat, grid%umesh, bccon)
 
 !------------------------------------------------------------------------------!
 ! physical BOCO
@@ -70,6 +77,15 @@ case(bccon_cell_grad, bccon_face_grad)
 case default
   call error_stop("Internal error: unknown connection mode")
 endselect
+
+!------------------------------------------------------------------------------!
+! receive matching and periodic connections
+
+#ifdef MPICOMPIL
+  call waitall_mpirequest()
+#endif /* MPICOMPIL */
+
+call calcboco_connect(igcon_recv, defsolver, defspat, grid%umesh, bccon)
 
 endsubroutine calcboco_gen
 !------------------------------------------------------------------------------!

@@ -233,8 +233,8 @@ for CASE in "${LISTCASES[@]}" ; do
   esac
   # check executable
   EXE=${typhonexe:-$EXEDIR/typhon-$TYPE_EXE}
-  test -f $EXE || next_case -n "'$EXE': no such file"
-  test -x $EXE || next_case -n "'$EXE': execute permission denied"
+  #test -f $EXE || next_case -n "'$EXE': no such file"
+  #test -x $EXE || next_case -n "'$EXE': execute permission denied"
   # execute
   echo run: $exehead $EXE >> $HOMEDIR/check.log
   $exehead $EXE >> $HOMEDIR/check.log 2>&1

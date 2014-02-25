@@ -5,15 +5,18 @@
 !   Structures definition for connection of cells between grids
 !
 !------------------------------------------------------------------------------!
-
 module GRID_CONNECT
 
 use MESHPREC      ! machine accuracy
+use GENFIELD
 use VEC3D
 
 implicit none
 
 ! -- GLOBAL DEFINITION -------------------------------------------
+
+integer(kpp), parameter :: igcon_send  = 11
+integer(kpp), parameter :: igcon_recv  = 21
 
 ! -- contants for grid connection method --
 
@@ -31,14 +34,21 @@ integer(kpp), parameter :: bccon_cell_grad         = 15
 integer(kpp), parameter :: bccon_face_state        = 20
 integer(kpp), parameter :: bccon_face_grad         = 25
 
-
-
 ! -- DECLARATIONS -----------------------------------------------------------
+
+!------------------------------------------------------------------------------!
+! Definition ST_BCCON : BOCO connectivity
+!------------------------------------------------------------------------------!
+type st_bccon
+  integer(kpp)                   :: bccon_mode
+  type(st_genericfield), pointer :: fsend, frecv ! pointer of send or receive fields
+  integer(kip)                   :: nf
+  integer(kip), pointer          :: isend(:), irecv(:)  ! index of data in fsend and frecv
+endtype st_bccon
 
 !------------------------------------------------------------------------------!
 ! GRIDCONNECT definition
 !------------------------------------------------------------------------------!
-
 type st_gridconnect
   integer(kpp)          :: contype              ! connection type
   integer(kip)          :: ilink                ! link index for external parameters
@@ -50,6 +60,8 @@ type st_gridconnect
   integer(kip)          :: grid1,     grid2     ! grid id 
   integer(kip)          :: nc1,       nc2       ! number of cells connected
   integer(kip), pointer :: cells1(:), cells2(:) ! lists  of cells connected
+  integer(kip)          :: nsend, nrecv
+  real(krp), pointer    :: rsend(:), rrecv(:)
   type(st_gridconnect), pointer &
                         :: next
 endtype st_gridconnect
@@ -78,6 +90,8 @@ type(st_gridconnect)  :: gridconnect
   nullify(gridconnect%cells1)
   nullify(gridconnect%cells2)
   nullify(gridconnect%next)
+  nullify(gridconnect%rsend)
+  nullify(gridconnect%rrecv)
 
 endsubroutine init_gridconnect
 
@@ -92,6 +106,8 @@ integer           :: i
 
   if (associated(gridconnect%cells1)) deallocate(gridconnect%cells1)
   if (associated(gridconnect%cells2)) deallocate(gridconnect%cells2)
+  if (associated(gridconnect%rsend))  deallocate(gridconnect%rsend)
+  if (associated(gridconnect%rrecv))  deallocate(gridconnect%rrecv)
 
 endsubroutine delete_gridconnect
 
