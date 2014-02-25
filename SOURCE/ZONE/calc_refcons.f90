@@ -11,9 +11,8 @@ use VARCOM
 use OUTPUT
 use PACKET
 use DEFZONE
-#ifdef MPICOMPIL
 use MPICOMM
-#endif
+!$ use OMP_LIB     ! needed definition for OpenMP
 
 implicit none
 

@@ -7,10 +7,8 @@ module MPICOMM
 use TYPHMAKE   ! machine accuracy definition
 use OUTPUT
 
-include 'mpif.h'
 
 ! -- Variables globales du module -------------------------------------------
-
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
@@ -63,11 +61,12 @@ endsubroutine add_mpirequest
 subroutine waitall_mpirequest()
 implicit none
 integer :: ierr
-
+#ifdef MPICOMPIL
+include 'mpif.h'
 call MPI_WAITALL (nrequest, request(1:nrequest), MPI_STATUSES_IGNORE, ierr)
 if (ierr /= 0) call error_stop("Typhon/Comm error: WAITALL error")
 nrequest = 0
-  
+#endif
 endsubroutine waitall_mpirequest
 
 !------------------------------------------------------------------------------!
@@ -78,13 +77,15 @@ implicit none
 ! -- INPUTS/OUTPUTS --
 real(krp) :: value
 ! -- Internal variables --
-integer   :: ierr, status(MPI_STATUS_SIZE)
+integer   :: ierr
 real(krp) :: result
 ! -- BODY --
+#ifdef MPICOMPIL
+include 'mpif.h'
 call MPI_ALLREDUCE(value, result, 1, tympi_real, MPI_SUM, MPI_COMM_WORLD, ierr)
 if (ierr /= 0) call error_stop("MPI error: impossible to send")
 value = result
-
+#endif
 endsubroutine allreduce_sum_real
 
 !------------------------------------------------------------------------------!
@@ -95,13 +96,15 @@ implicit none
 ! -- INPUTS/OUTPUTS --
 integer(kip) :: value
 ! -- Internal variables --
-integer      :: ierr, status(MPI_STATUS_SIZE)
+integer      :: ierr
 integer(kip) :: result
 ! -- BODY --
+#ifdef MPICOMPIL
+include 'mpif.h'
 call MPI_ALLREDUCE(value, result, 1, tympi_int, MPI_SUM, MPI_COMM_WORLD, ierr)
 if (ierr /= 0) call error_stop("MPI error: impossible to reduce sum of int")
 value = result
-
+#endif
 endsubroutine allreduce_sum_int
 
 !------------------------------------------------------------------------------!
@@ -112,13 +115,15 @@ implicit none
 ! -- INPUTS/OUTPUTS --
 real(krp) :: value
 ! -- Internal variables --
-integer   :: ierr, status(MPI_STATUS_SIZE)
+integer   :: ierr
 real(krp) :: result
 ! -- BODY --
+#ifdef MPICOMPIL
+include 'mpif.h'
 call MPI_ALLREDUCE(value, result, 1, tympi_real, MPI_MIN, MPI_COMM_WORLD, ierr)
 if (ierr /= 0) call error_stop("MPI error: impossible to reduce min of real")
 value = result
-
+#endif
 endsubroutine allreduce_min_real
 
 !------------------------------------------------------------------------------!
@@ -129,13 +134,15 @@ implicit none
 ! -- INPUTS/OUTPUTS --
 real(krp) :: value
 ! -- Internal variables --
-integer   :: ierr, status(MPI_STATUS_SIZE)
+integer   :: ierr
 real(krp) :: result
 ! -- BODY --
+#ifdef MPICOMPIL
+include 'mpif.h'
 call MPI_ALLREDUCE(value, result, 1, tympi_real, MPI_MAX, MPI_COMM_WORLD, ierr)
 if (ierr /= 0) call error_stop("MPI error: impossible to reduce max of real")
 value = result
-
+#endif
 endsubroutine allreduce_max_real
 
 !------------------------------------------------------------------------------!
@@ -146,14 +153,16 @@ implicit none
 ! -- INPUTS/OUTPUTS --
 real(krp) :: sumavg, sumvol
 ! -- Internal variables --
-integer   :: ierr, status(MPI_STATUS_SIZE)
+integer   :: ierr
 real(krp) :: vol, avg
 ! -- BODY --
-
+#ifdef MPICOMPIL
+include 'mpif.h'
 call MPI_ALLREDUCE(vol*avg, sumavg, 1, tympi_real, MPI_SUM, MPI_COMM_WORLD, ierr)
 if (ierr /= 0) call error_stop("MPI error: impossible to reduce vol average (1)")
 call MPI_ALLREDUCE(vol, sumvol, 1, tympi_real, MPI_SUM, MPI_COMM_WORLD, ierr)
 if (ierr /= 0) call error_stop("MPI error: impossible to reduce vol average (2)")
+#endif
 vol = sumvol
 avg = sumavg/sumvol
 

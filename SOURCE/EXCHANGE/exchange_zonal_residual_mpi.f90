@@ -11,10 +11,9 @@ use DEFZONE
 use TYPHMAKE
 use VARCOM
 use COMMTAG
+use MPICOMM
 
 implicit none
-
-include 'mpif.h'
 
 ! -- INPUTS --
 type(st_infozone) :: info
@@ -22,51 +21,27 @@ type(st_infozone) :: info
 ! -- INPUTS/OUTPUTS --
 
 ! -- Internal variables --
-integer   :: ierr, ip, i, status(MPI_STATUS_SIZE), request
-real(krp) :: res, sumres, val
 
 ! -- BODY --
 
-res    = info%cur_res
-sumres = res
+#ifdef MPICOMPIL
 
-do i = 1, info%nbproc
-
+!do i = 1, info%nbproc
   !-------------------------------------------------------------
   ! merge of residual is done by sum of residual
   ! (same as a residual computation for a single grid)
   !-------------------------------------------------------------
 
-  ip = info%proc(i)
+! must access only to zone procs
+call allreduce_sum_real(info%cur_res)
 
-  if (ip /= myprocid) then
-
-    ! -- send to other grid --
-    call MPI_ISEND(res, 1, tympi_real, ip-1, mpitag_res, MPI_COMM_WORLD, request, ierr)
-    if (ierr /= 0) call erreur("MPI error", "impossible to send")
-
-    call MPI_REQUEST_FREE(request, ierr)
-    if (ierr /= 0) call erreur("MPI error", "impossible to free")
-
-    ! -- receive from other grid --
-    call MPI_IRECV(val, 1, tympi_real, ip-1, mpitag_res, MPI_COMM_WORLD, request, ierr)
-    if (ierr /= 0) call erreur("MPI error", "impossible to receive")
-
-    call MPI_WAIT(request , status, ierr)
-    if (ierr /= 0) call erreur("MPI error", "impossible to wait")
-
-    sumres = sumres + val
-
-  endif
-enddo
-
-info%cur_res = sumres
+#else
+  call error_Stop("Internal error: unexpected MPI routine")
+#endif
 
 endsubroutine exchange_zonal_residual
-
 !------------------------------------------------------------------------------!
 ! Changes history
-!
 ! Nov  2005 : created
 ! Feb  2007 : Immediate MPI Send/Receive
 !------------------------------------------------------------------------------!

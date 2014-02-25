@@ -59,16 +59,12 @@ EXTLIBS   = $(CGNSLIB) $(LAPACKLIB) $(METISLIB)
 
 # include librairies.make
 
-ifeq ($(PRGEXT),mpi)
-MPILIBNAMES = libt_exch
-endif
-
 LIBNAMES = \
        libt_main   \
        libt_xio    \
        libt_zone   \
        libt_mgrid  \
-       $(MPILIBNAMES) \
+       libt_exch   \
        libt_param  \
        libt_vortex \
        libt_eqns   \
@@ -91,11 +87,7 @@ PRGLINK = $(PRGBASE)-$(PRGEXT)
 
 ####### VPATH
 
-ifeq ($(PRGEXT),mpi)
-MPIVPATH = EXCHANGE:
-endif
-
-VPATH = EQNS:EQKDIF:$(MPIVPATH)MAIN:MGRID:MESH:MODCOM:MATH:PARAM:PIO:UDF:VORTEX:XIO:ZONE
+VPATH = EQNS:EQKDIF:EXCHANGE:MAIN:MGRID:MESH:MODCOM:MATH:PARAM:PIO:UDF:VORTEX:XIO:ZONE
 
 ####### Build libraries
 
@@ -107,9 +99,7 @@ include      UDF/source-depend.make
 include    MGRID/source-depend.make
 include     EQNS/source-depend.make
 include   EQKDIF/source-depend.make
-ifeq ($(PRGEXT),mpi)
 include EXCHANGE/source-depend.make
-endif
 include   VORTEX/source-depend.make
 include    PARAM/source-depend.make
 include     ZONE/source-depend.make
