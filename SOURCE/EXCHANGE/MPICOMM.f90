@@ -21,6 +21,14 @@ contains
 !----------------------------------------------------------------------------------------
 ! initialize request array
 !----------------------------------------------------------------------------------------
+integer function request_id()
+implicit none
+  request_id = nrequest+1
+endfunction request_id
+
+!----------------------------------------------------------------------------------------
+! initialize request array
+!----------------------------------------------------------------------------------------
 subroutine init_mpirequest()
 implicit none
 
@@ -60,11 +68,11 @@ endsubroutine add_mpirequest
 !----------------------------------------------------------------------------------------
 subroutine waitall_mpirequest()
 implicit none
-integer :: ierr
 #ifdef MPICOMPIL
 include 'mpif.h'
-call MPI_WAITALL (nrequest, request(1:nrequest), MPI_STATUSES_IGNORE, ierr)
-if (ierr /= 0) call error_stop("Typhon/Comm error: WAITALL error")
+integer :: i, ierr, status(MPI_STATUS_SIZE, nrequest)
+call MPI_WAITALL(nrequest, request, status, ierr)
+!if (ierr /= 0) call error_stop("Typhon/Comm error: WAITALL error")
 nrequest = 0
 #endif
 endsubroutine waitall_mpirequest

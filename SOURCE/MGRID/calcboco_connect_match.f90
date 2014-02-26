@@ -14,6 +14,7 @@ use COMMTAG
 use MENU_SOLVER
 use USTMESH
 use GENFIELD
+use MPICOMM
 
 implicit none
 
@@ -34,8 +35,6 @@ integer      :: idef                                     ! boundary condition de
 integer(kmpi) :: mpitag
 
 ! -- BODY --
-
-mpitag = 1000*mpitag_field + bccon%bccon_mode
 
 nf  = boco%nface
 dim = bccon%fsend%nscal + 3*bccon%fsend%nvect + 9*bccon%fsend%ntens
@@ -60,7 +59,7 @@ select case(imode)
 case(igcon_send) ! ----- SEND data ---------------------------------------------
 
 boco%gridcon%nsend = nf*dim
-if (.not.associated(boco%gridcon%rsend)) allocate(boco%gridcon%rsend(boco%gridcon%nsend))
+allocate(boco%gridcon%rsend(boco%gridcon%nsend))
 
 ! -- pack internal variables ( scal1 scal2 vec1%x vec1%y vec1%z ... )--
 
@@ -80,15 +79,23 @@ do if = 1, boco%nface
   enddo
 enddo
 
+mpitag = mpitag_field !bccon%bccon_mode*100 + myprocid*10 + request_id()
+
 ! -- send internal variables --
+
 call sendtogrid(boco%gridcon%grid_id, boco%gridcon%nsend, boco%gridcon%rsend, mpitag)
+!print*,'send ',myprocid, boco%gridcon%grid_id, mpitag, ':', boco%gridcon%nsend
 
 ! -- request receipt boundary condition data --
 
+!call waitall_mpirequest()
+
 boco%gridcon%nrecv = nf*dim
-if (.not.associated(boco%gridcon%rrecv)) allocate(boco%gridcon%rrecv(boco%gridcon%nrecv))
+allocate(boco%gridcon%rrecv(boco%gridcon%nrecv))
 
 call receivefromgrid(boco%gridcon%grid_id, boco%gridcon%nrecv, boco%gridcon%rrecv, mpitag)
+
+!call waitall_mpirequest()
 
 case(igcon_recv)  ! ----- RECEIVE data ---------------------------------------------
 
@@ -109,6 +116,9 @@ do if = 1, boco%nface
     bccon%frecv%tabtens(var)%tens(ic)%mat = reshape(boco%gridcon%rrecv(ideb+(var-1)*9+1:ideb+var*9), (/ 3, 3 /))
   enddo
 enddo
+
+deallocate(boco%gridcon%rsend)
+deallocate(boco%gridcon%rrecv)
 
 case default
   call error_stop("Internal error: unknown connection mode")

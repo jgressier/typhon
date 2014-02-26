@@ -41,7 +41,7 @@ do ib = 1, umesh%nboco
   idef = umesh%boco(ib)%idefboco
 
   if (idef <= 0) then
-    !print*,'connect ',myprocid,ib,idef,associated(umesh%boco(ib)%gridcon%i_param), umesh%boco(ib)%gridcon%grid_id
+
     nf       = umesh%boco(ib)%nface
     bccon%nf = nf
 

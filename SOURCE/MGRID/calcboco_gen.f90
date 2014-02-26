@@ -41,7 +41,7 @@ type(st_bccon) :: bccon
 
 #ifdef MPICOMPIL
   call init_mpirequest()
-#endif /* MPICOMPIL */
+#endif
 
 bccon%bccon_mode = bccon_mode
 
@@ -83,7 +83,7 @@ endselect
 
 #ifdef MPICOMPIL
   call waitall_mpirequest()
-#endif /* MPICOMPIL */
+#endif
 
 call calcboco_connect(igcon_recv, defsolver, defspat, grid%umesh, bccon)
 

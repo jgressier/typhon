@@ -98,36 +98,6 @@ endselect
 ! Fill RHS and pack scalars and vectors
 !-----------------------------------------------------------------------------
 
-!rhs(2,:) = 0._krp      ! initialisation
-!
-!do icolor = 1, grid%umesh%colors%nbnodes
-!rhs(1,:) = 0._krp      ! initialisation
-!do i = 1, grid%umesh%colors%node(icolor)%nelem
-!  if  = grid%umesh%colors%node(icolor)%elem(i)
-!  rhs(2,if) = rhs(2,if) +1
-!  ic1 = grid%umesh%facecell%fils(if,1)
-!  if (rhs(1,ic1) <= 0.5) then
-!    rhs(1,ic1) = 1.
-!  else
-!    rhs(1,ic1) = 2.
-!  endif
-!  !if (if <= nfi) then
-!  ic1 = grid%umesh%facecell%fils(if,2)
-!  if (rhs(1,ic1) <= 0.5) then
-!    rhs(1,ic1) = 1.
-!  else
-!    rhs(1,ic1) = 2.
-!  endif
-!  !endif
-!enddo
-!print*,'color',icolor,grid%umesh%colors%node(icolor)%nelem,'conflict',count(rhs(1,:)>= 1.5)
-!enddo
-!print*,'tot face',grid%umesh%nface
-!print*,'0 tag',count(abs(rhs(2,1:grid%umesh%nface)-0.)<0.1)
-!print*,'1 tag',count(abs(rhs(2,1:grid%umesh%nface)-1.)<0.1)
-!print*,'2 tag',count(abs(rhs(2,1:grid%umesh%nface)-2.)<0.1)
-!print*,'3 tag',count(abs(rhs(2,1:grid%umesh%nface)-3.)<0.1)
-
 rhs(:,:) = 0._krp      ! initialisation
 
 ! Calcul des seconds membres (cellules internes et limites)

@@ -49,7 +49,6 @@ case(vol_min)
 case(vol_max)
   call allreduce_max_real(probe%result)
 case(vol_average)
-  print*,'vol',myprocid,probe%volume, probe%result
   call allreduce_volavg(probe%volume, probe%result)
 case default
   call error_stop("Internal error (prb_zone_vol): unknown probe type")
