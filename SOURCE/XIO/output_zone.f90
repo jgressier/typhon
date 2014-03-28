@@ -85,10 +85,11 @@ case(fmt_TECPLOT)
   call print_info(2,"* write TECPLOT file: " // trim(defio%filename))
   call output_tecplot(trim(defio%filename), defio, zone)
 
+!DEC$ IF DEFINED (CGNS)
 case(fmt_CGNS, fmt_CGNS_linked)
   call print_info(2,"* write CGNS file: " // trim(defio%filename))
+!DEC$ ENDIF
   ! write sol in GENERAL OUTPUT
-
 case default
   call error_stop("Internal error (output_zone): unknown output format parameter")
 endselect

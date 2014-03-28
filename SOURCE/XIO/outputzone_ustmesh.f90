@@ -17,7 +17,9 @@ use VTKMESH
 
 implicit none
 
+!DEC$ IF DEFINED (CGNS)
 include 'cgnslib_f.h'
+!DEC$ ENDIF
 
 ! -- INPUTS --
 type(mnu_output)      :: defio     ! output parameter
@@ -69,6 +71,7 @@ case(fmt_TECPLOT)
 case(fmt_VTK, fmt_VTKBIN)
   call writevtk_ustmesh(defio%defvtk, p_umesh)
 
+!DEC$ IF DEFINED (CGNS)
 case(fmt_CGNS, fmt_CGNS_linked)
 
   isize(1) = p_umesh%nvtex       ! vertex size 
@@ -87,6 +90,7 @@ case(fmt_CGNS, fmt_CGNS_linked)
   call writecgns_ustmesh(defio%iunit, defio%izone, izone, p_umesh)
 
   call writecgns_bocomesh(defio%iunit, defio%izone, izone, p_umesh)
+!DEC$ ENDIF
 
 case default
   call error_stop("Internal error (outputzone_ustmesh): unknown output format parameter")

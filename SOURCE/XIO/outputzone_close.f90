@@ -15,7 +15,9 @@ use MENU_GEN
 
 implicit none
 
+!DEC$ IF DEFINED (CGNS)
 include 'cgnslib_f.h'
+!DEC$ ENDIF
 
 ! -- INPUTS --
 type(mnu_output)      :: defio     ! output parameter
@@ -34,9 +36,11 @@ case(fmt_TECPLOT)
   call error_stop("Internal error (outputzone_close): Unable to use general output with TECPLOT format")
 case(fmt_VTK, fmt_VTKBIN, fmt_TYPHON)
   call close_io_unit(defio%iunit)
+!DEC$ IF DEFINED (CGNS)
 case(fmt_CGNS, fmt_CGNS_linked)
   call cg_close_f(defio%iunit, info)
   defio%iunit = 0
+!DEC$ ENDIF
 case default
   call error_stop("Internal error (outputzone_close): unknown output format parameter")
 endselect

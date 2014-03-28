@@ -18,7 +18,9 @@ use TYFMT_SOL
 
 implicit none
 
+!DEC$ IF DEFINED (CGNS)
 include 'cgnslib_f.h'
+!DEC$ ENDIF
 
 ! -- INPUTS --
 type(mnu_solver) :: defsolver            ! parametres du solveur
@@ -69,6 +71,8 @@ do i = 1, defsolver%ninit
 
   select case(defsolver%init(i)%type)
 
+!DEC$ IF DEFINED (CGNS)
+
   case(init_cgns)
 
     call print_info(5,"  > CGNS file initialization: "//trim(defsolver%defmesh%filename))
@@ -79,6 +83,7 @@ do i = 1, defsolver%ninit
                       umesh, field%etatprim) 
     call cg_close_f(iunit, ier)
     if (ier /= 0) call error_stop("Fatal CGNS IO: cannot close "//trim(defsolver%defmesh%filename))
+!DEC$ ENDIF
 
   case(init_typhon)
 

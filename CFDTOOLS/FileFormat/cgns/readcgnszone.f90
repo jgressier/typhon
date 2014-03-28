@@ -5,6 +5,7 @@
 !   Fill GRID/USTMESH connectivity by CGNS (zone) connectivity
 !
 !------------------------------------------------------------------------------!
+!DEC$ IF DEFINED (CGNS)
 subroutine readcgnszone(unit, ib, iz, umesh) 
 
 use IOCFD        ! Sorties standard TYPHON
@@ -143,6 +144,8 @@ call cg_close_f(unit, ier)
 
 !-------------------------
 endsubroutine readcgnszone
+!DEC$ ENDIF
+
 !------------------------------------------------------------------------------!
 ! Change history
 !

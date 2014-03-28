@@ -16,7 +16,9 @@ use TYPHON_FMT
 
 implicit none
 
+!DEC$ IF DEFINED (CGNS)
 include 'cgnslib_f.h'
+!DEC$ ENDIF
 
 ! -- INPUTS --
 type(mnu_output)      :: defio     ! output parameter
@@ -61,6 +63,7 @@ case(fmt_VTKBIN)
   if (defio%iunit <= 0) call error_stop("IO unit management: impossible to find free unit")
   call vtkbin_openwrite(defio%iunit, trim(defio%filename)//trim(suffix), defio%defvtk)
 
+!DEC$ IF DEFINED (CGNS)
 case(fmt_CGNS, fmt_CGNS_linked)
 
   suffix = '.cgns'
@@ -73,6 +76,7 @@ case(fmt_CGNS, fmt_CGNS_linked)
   if (info /= 0) &
     call error_stop("CGNS IO error: writing CGNS base (error "//trim(strof(info))//")")
   defio%izone = ibase
+!DEC$ ENDIF
 
 case default
   call error_stop("Internal error (outputzone_open): unknown output format parameter")

@@ -5,6 +5,7 @@
 !   Lecture de conditions aux limites pour maillage non structure
 !
 !------------------------------------------------------------------------------!
+!DEC$ IF DEFINED (CGNS)
 subroutine readcgns_ustboco(unit, ib, iz, ibc, boco)                 
 
 use DEF_USTBOCO 
@@ -111,6 +112,8 @@ call cfd_print("    type "//trim(BCTypeName(bctyp))//", "//strof(npts,6)//" "//&
 
 !------------------------------
 endsubroutine readcgns_ustboco
+!DEC$ ENDIF
+
 !------------------------------------------------------------------------------!
 ! History
 !

@@ -27,9 +27,11 @@ do izone = 1, world%prj%nzone
 
   select case(world%zone(izone)%defsolver%defmesh%format)
 
+!DEC$ IF DEFINED (CGNS)
   case(fmt_CGNS)
     pgrid%info%gridtype = grid_ust
     call importcgns_mesh(world%zone(izone)%defsolver%defmesh, pgrid%umesh)
+!DEC$ ENDIF 
 
   case(fmt_TYPHON)
     pgrid%info%gridtype = grid_ust

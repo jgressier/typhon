@@ -5,6 +5,8 @@
 !   Write an GRID USTMESH to a CGNS ZONE
 !
 !------------------------------------------------------------------------------!
+
+!DEC$ IF DEFINED (CGNS)
 subroutine writecgns_ustmesh(cgnsunit, ibase, izone, umesh) 
 
 use MESHPREC
@@ -88,6 +90,7 @@ do ielem = 1, umesh%cellvtex%nsection
 enddo
 
 endsubroutine writecgns_ustmesh
+!DEC$ ENDIF
 !------------------------------------------------------------------------------!
 ! Changes history
 !

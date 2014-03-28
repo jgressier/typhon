@@ -5,6 +5,7 @@
 !   Lecture des sommets d'une zone
 !
 !------------------------------------------------------------------------------!
+!DEC$ IF DEFINED (CGNS)
 subroutine readcgnsvtex(unit, ib, iz, mesh)                 
 
 use CGNS_STRUCT   ! Definition des structures CGNS
@@ -137,6 +138,8 @@ endselect
 
 !------------------------------
 endsubroutine readcgnsvtex
+!DEC$ ENDIF
+
 !------------------------------------------------------------------------------!
 ! Changes history
 !

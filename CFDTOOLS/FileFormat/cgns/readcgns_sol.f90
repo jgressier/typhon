@@ -5,6 +5,8 @@
 !   Write a SOLUTION to a CGNS ZONE
 !
 !------------------------------------------------------------------------------!
+
+!DEC$ IF DEFINED (CGNS)
 subroutine readcgns_sol(cgnsunit, ibase, izone, umesh, field) 
 
 use MESHPREC
@@ -96,6 +98,8 @@ endif
 
 
 endsubroutine readcgns_sol
+!DEC$ ENDIF
+
 !------------------------------------------------------------------------------!
 ! Changes history
 !

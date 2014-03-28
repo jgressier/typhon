@@ -397,7 +397,7 @@ no_feature="TYPHON will not feature"
 [[ -n "${FTN_ERR:-}" ]]    && error   "fortran compile/run error: $impossible"
 #[[ -z "${LIB_blas:-}"   ]] && error   "BLAS   not available: $impossible"
 #[[ -z "${LIB_lapack:-}" ]] && error   "LAPACK not available: $impossible"
-[[ -z "${LIB_cgns:-}"   ]] && error   "CGNS   not available: $impossible"
+[[ -z "${LIB_cgns:-}"   ]] && warning "CGNS   not available: $no_feature cgns input/output format"
 [[ -z "${LIB_metis:-}"  ]] && warning "METIS  not available: $no_feature automatic distribution"
 # >> USE MPIF90 COMPILER
 # [[ -z "${MPILIB:-}"     ]] && warning "MPI    not available: $no_feature parallel computation"

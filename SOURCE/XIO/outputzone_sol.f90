@@ -45,11 +45,13 @@ case(fmt_TECPLOT)
 case(fmt_VTK, fmt_VTKBIN)
   call writevtk_sol(defio%defvtk, pgrid%umesh, pgrid%info%field_loc%etatprim)
 
+!DEC$ IF DEFINED (CGNS)
 case(fmt_CGNS, fmt_CGNS_linked)
 
   izone = 1
   call writecgns_sol(defio%iunit, defio%izone, izone, &
                      pgrid%umesh, pgrid%info%field_loc%etatprim)
+!DEC$ ENDIF
 
 case default
   call error_stop("Internal error (outputzone_sol): unknown output format parameter")
