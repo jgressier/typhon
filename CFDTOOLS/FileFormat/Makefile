@@ -3,6 +3,8 @@
 #
 .SUFFIXES:
 
+.PHONY: this.tools this.library
+
 #
 # architecture dependent and project variables
 
@@ -68,14 +70,10 @@ this.tools: $($(LDIR).f90exefiles:%.f90=$(PRJEXEDIR)/%)
 
 include $(CONFIGDIR)/libconf.make
 
-##GG:>>>
-##GG: dependency modified from:
-##this.library: $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
-##GG: to:
 this.library: $(PRJOBJDIR) $(PRJLIBDIR) $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
-##GG: or:
-##default: $(PRJOBJDIR) $(PRJLIBDIR)
-##GG:<<<
 
 include depends.make
+
+clean:
+	rm -f $(PRJOBJDIR)/*.o $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
 

@@ -1,10 +1,10 @@
 TARGETS = seq omp mpi
 
-CFDTOOLS = $(addprefix cfdtool.,$(TARGETS))
+CFDTOOLS = $(addprefix cfdtools.,$(TARGETS))
 
-clean.TARGETS = $(addprefix clean.,all $(TARGETS))
+clean.TARGETS = $(addprefix clean.,$(TARGETS))
 
-.PHONY: help all $(TARGETS) cfdtools $(CFDTOOLS) clean $(clean.TARGETS)
+.PHONY: help all $(TARGETS) cfdtools $(CFDTOOLS) clean clean.all $(clean.TARGETS)
 
 # cleandeps cleanall
 
@@ -15,16 +15,23 @@ help:
 	@echo "TYPHON & CFDtools project"
 	@echo "-----------------------------------------------------------------"
 	@echo "Targets:"
-	@echo "  all       -> CFDtools, TYPHON seq, omp & mpi targets"
-	@echo "  seq       -> sequential      $(PRGBASE) executable '$(PRGBASE)-seq'"
-	@echo "  omp       -> OpenMP parallel $(PRGBASE) executable '$(PRGBASE)-omp'"
-	@echo "  mpi       -> MPI    parallel $(PRGBASE) executable '$(PRGBASE)-mpi'"
-	@echo "  cfdtools  -> CFDtools libraries"
-	@echo "  clean     -> remove all"
+	@echo "  all            -> seq, omp & mpi targets"
+	@echo "                    CFDtools libraries, TYPHON executables"
+	@echo "    seq          ->   sequential      TYPHON executable '$(PRGBASE)-seq'"
+	@echo "    omp          ->   OpenMP parallel TYPHON executable '$(PRGBASE)-omp'"
+	@echo "    mpi          ->   MPI    parallel TYPHON executable '$(PRGBASE)-mpi'"
+	@echo "  cfdtools       -> CFDtools libraries"
+	@echo "    cfdtools.seq ->   sequential      CFDtools libraries"
+	@echo "    cfdtools.omp ->   OpenMP parallel CFDtools libraries"
+	@echo "    cfdtools.mpi ->   MPI    parallel CFDtools libraries"
+	@echo "  clean.all      -> remove all"
+	@echo "    clean.seq    ->   remove all 'seq' targets"
+	@echo "    clean.omp    ->   remove all 'omp' targets"
+	@echo "    clean.mpi    ->   remove all 'mpi' targets"
 	@echo "Options:"
-	@echo "  opt=optim -> Optimized options (default)"
-	@echo "  opt=debug -> Debugging options"
-	@echo "  opt=profil-> Profiling options"
+	@echo "  opt=optim  -> Optimized options (default)"
+	@echo "  opt=debug  -> Debugging options"
+	@echo "  opt=profil -> Profiling options"
 	@echo "-----------------------------------------------------------------"
 
 ifneq ($(filter-out $(TARGETS),$(PRGEXT)),)
@@ -38,14 +45,11 @@ all: cfdtools $(TARGETS)
 
 cfdtools: $(CFDTOOLS)
 
-$(CFDTOOLS): cfdtool.%:
+$(CFDTOOLS): cfdtools.%:
 	@cd CFDTOOLS ; $(MAKE) all opt=$(opt) PRGEXT=$*
 
-#$(TARGETS): cfdtools
-#	@cd SOURCE ; $(MAKE) $@ opt=$(opt) PRGEXT=$@
-
-$(TARGETS): %: cfdtool.%
-	@cd SOURCE ; $(MAKE) $@ opt=$(opt) PRGEXT=$@
+$(TARGETS): %: cfdtools.%
+	@cd SOURCE ; $(MAKE) $@ opt=$(opt) PRGEXT=$*
 
 clean:
 	@echo

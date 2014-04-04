@@ -27,11 +27,13 @@ do izone = 1, world%prj%nzone
 
   select case(world%zone(izone)%defsolver%defmesh%format)
 
-!DEC$ IF DEFINED (CGNS)
   case(fmt_CGNS)
+#ifdef CGNS
     pgrid%info%gridtype = grid_ust
     call importcgns_mesh(world%zone(izone)%defsolver%defmesh, pgrid%umesh)
-!DEC$ ENDIF 
+#else /*CGNS*/
+    call error_stop("reading mesh: CGNS format was not activated at configure time")
+#endif/*CGNS*/
 
   case(fmt_TYPHON)
     pgrid%info%gridtype = grid_ust
@@ -40,7 +42,7 @@ do izone = 1, world%prj%nzone
   case(fmt_AUTOBLOCK)
     pgrid%info%gridtype = grid_str
     call create_autoblockmesh(world%zone(izone)%defsolver%defmesh, pgrid%strmesh)
-    
+
   case default
     call error_stop("reading mesh: unknown mesh format")
   endselect

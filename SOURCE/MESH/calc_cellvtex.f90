@@ -20,7 +20,7 @@ implicit none
 ! -- Declaration des entrees --
 integer          :: geom                  ! mode geometrique
 type(st_connect) :: facecell, facevtex    ! connectivites en entrees
-integer          :: ncell                 ! nombre total de cellules 
+integer          :: ncell                 ! nombre total de cellules
 integer          :: ncell_int             ! nombre de cellules internes
                                           !   ncell-ncell_int est le nombre de
                                           !   de cellules limites
@@ -33,7 +33,7 @@ type(st_connect)     :: xcellvtex    ! tableau intermediaire des connectivites
 integer, allocatable :: nvtex(:)     ! nombre de sommet par element
 integer              :: if, ic, iv   ! index de face, cellule, et sommet
 integer              :: vtex         ! numero de sommet
-integer              :: info         
+integer              :: info
 
 ! -- Debut de la procedure --
 
@@ -56,7 +56,7 @@ do if = 1, facecell%nbnodes          ! boucle sur les faces
         if (index(vtex, xcellvtex%fils(ic,1:nvtex(ic))) == 0) then
           nvtex(ic)                    = nvtex(ic) + 1
           xcellvtex%fils(ic,nvtex(ic)) = vtex
-        endif 
+        endif
       else
         nvtex(ic)                    = nvtex(ic) + 1
         xcellvtex%fils(ic,nvtex(ic)) = vtex
@@ -67,7 +67,7 @@ do if = 1, facecell%nbnodes          ! boucle sur les faces
         if (index(vtex, xcellvtex%fils(ic,1:nvtex(ic))) == 0) then
           nvtex(ic)                    = nvtex(ic) + 1
           xcellvtex%fils(ic,nvtex(ic)) = vtex
-        endif 
+        endif
       else
         nvtex(ic)                    = nvtex(ic) + 1
         xcellvtex%fils(ic,nvtex(ic)) = vtex
@@ -93,51 +93,51 @@ enddo
 !      if (cellvtex%nquad /= 0) then
 !        ! on transforme le BAR en QUAD (ordre CGNS des sommets)
 !        nvtex(ic) = 4
-!        xcellvtex%fils(ic,3) = xcellvtex%fils(ic,2) 
-!        xcellvtex%fils(ic,4) = xcellvtex%fils(ic,1) 
+!        xcellvtex%fils(ic,3) = xcellvtex%fils(ic,2)
+!        xcellvtex%fils(ic,4) = xcellvtex%fils(ic,1)
 !      else
 !        ! on transforme le BAR en TRI
 !        nvtex(ic) = 3
-!        xcellvtex%fils(ic,3) = xcellvtex%fils(ic,1) 
+!        xcellvtex%fils(ic,3) = xcellvtex%fils(ic,1)
 !      endif
 !
 !    case(3)
-!      ! on est cense avoir un maillage 3D (TETRA, PYRA ou PENTA) 
+!      ! on est cense avoir un maillage 3D (TETRA, PYRA ou PENTA)
 !      ! et l'element limite est un TRI
 !      if (cellvtex%ntetra /= 0) then
 !        ! on transforme le TRI en TETRA
 !        nvtex(ic) = 4
-!        xcellvtex%fils(ic,4) = xcellvtex%fils(ic,1) 
+!        xcellvtex%fils(ic,4) = xcellvtex%fils(ic,1)
 !      else if (cellvtex%npenta /= 0) then
 !        ! on transforme le TRI en PENTA (ordre CGNS des sommets)
 !        nvtex(ic) = 6
-!        xcellvtex%fils(ic,4) = xcellvtex%fils(ic,1) 
-!        xcellvtex%fils(ic,5) = xcellvtex%fils(ic,2) 
-!        xcellvtex%fils(ic,6) = xcellvtex%fils(ic,3) 
+!        xcellvtex%fils(ic,4) = xcellvtex%fils(ic,1)
+!        xcellvtex%fils(ic,5) = xcellvtex%fils(ic,2)
+!        xcellvtex%fils(ic,6) = xcellvtex%fils(ic,3)
 !      else ! CAS EXCEPTIONNEL
 !        ! on transforme le TRI en PYRA (ordre CGNS des sommets)
 !        nvtex(ic) = 5
-!        xcellvtex%fils(ic,5) = xcellvtex%fils(ic,3)   ! echange sommets 3 et 5 
-!        xcellvtex%fils(ic,3) = xcellvtex%fils(ic,2) 
-!        xcellvtex%fils(ic,4) = xcellvtex%fils(ic,1) 
+!        xcellvtex%fils(ic,5) = xcellvtex%fils(ic,3)   ! echange sommets 3 et 5
+!        xcellvtex%fils(ic,3) = xcellvtex%fils(ic,2)
+!        xcellvtex%fils(ic,4) = xcellvtex%fils(ic,1)
 !      endif
 
 !    case(4)
-!      ! on est cense avoir un maillage 3D (PYRA, PENTA, ou HEXA) 
+!      ! on est cense avoir un maillage 3D (PYRA, PENTA, ou HEXA)
 !      ! et l'element limite est un QUAD
 !      ! Attention : si ce n'est pas une face, cela peut-etre un TETRA
 !      if (cellvtex%nhexa /= 0) then
 !        ! on transforme le QUAD en HEXA (ordre CGNS des sommets)
 !        nvtex(ic) = 8
-!        xcellvtex%fils(ic,5) = xcellvtex%fils(ic,1) 
-!        xcellvtex%fils(ic,6) = xcellvtex%fils(ic,2) 
-!        xcellvtex%fils(ic,7) = xcellvtex%fils(ic,3) 
-!        xcellvtex%fils(ic,8) = xcellvtex%fils(ic,4) 
+!        xcellvtex%fils(ic,5) = xcellvtex%fils(ic,1)
+!        xcellvtex%fils(ic,6) = xcellvtex%fils(ic,2)
+!        xcellvtex%fils(ic,7) = xcellvtex%fils(ic,3)
+!        xcellvtex%fils(ic,8) = xcellvtex%fils(ic,4)
 !      else if (cellvtex%npenta /= 0) then
 !        ! on transforme le QUAD en PENTA (ordre CGNS des sommets)
 !        nvtex(ic) = 6
-!        xcellvtex%fils(ic,5) = xcellvtex%fils(ic,3) 
-!        xcellvtex%fils(ic,6) = xcellvtex%fils(ic,4) 
+!        xcellvtex%fils(ic,5) = xcellvtex%fils(ic,3)
+!        xcellvtex%fils(ic,6) = xcellvtex%fils(ic,4)
 !      else  ! CAS EXCEPTIONNEL
 !        ! on transforme le QUAD en PYRA (ordre CGNS des sommets)
 !        nvtex(ic) = 5
@@ -251,5 +251,5 @@ endsubroutine calc_cellvtex
 ! Changes history
 !
 ! Juil 2003 : creation de la procedure
-! 
+!
 !------------------------------------------------------------------------------!

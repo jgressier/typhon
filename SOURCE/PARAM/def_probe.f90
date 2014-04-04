@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
-! Procedure : def_probe 
+! Procedure : def_probe
 ! Fonction
-!   Definition of probes 
+!   Definition of probes
 !
 !------------------------------------------------------------------------------!
 subroutine def_probe(block, isolver, defsolver)
@@ -61,7 +61,7 @@ else
     if (samestring(str, "VOL_MIN" ))       defsolver%probe(ip)%type = vol_min
     if (samestring(str, "VOL_MAX" ))       defsolver%probe(ip)%type = vol_max
     if (samestring(str, "RESIDUALS" ))     defsolver%probe(ip)%type = residuals
-    
+
     ! possible error message further
 
     call rpmgetkeyvalstr(pcour, "NAME", str)
@@ -77,7 +77,7 @@ else
       defsolver%probe(ip)%boco_name  = str
       defsolver%probe(ip)%boco_index = indexboco(defsolver, str)
       if (defsolver%probe(ip)%boco_index == inull) then
-        call error_stop("Probe definition - unknown boundary condition name "//trim(str))
+        call error_stop("Probe definition - unknown boundary condition name: "//trim(str))
       endif
 
     case(vol_min, vol_max, vol_average)
@@ -87,15 +87,15 @@ else
       call error_stop("Development - PROBE: type RESIDUALS non implemente")
 
     case default
-      call error_stop("Parameter parsing (PROBE): unknown type of probe")
+      call error_stop("Parameter parsing (PROBE): unknown type of probe: "//trim(str))
     endselect
 
     ! -- what to compute ?
 
     call rpmgetkeyvalstr(pcour, "QUANTITY", str)
-    call convert_to_funct(str, defsolver%probe(ip)%quantity, info)  
+    call convert_to_funct(str, defsolver%probe(ip)%quantity, info)
     if (info /= 0) &
-      call error_stop("Parameter parsing (PROBE) - unable to process symbolic function "//trim(str))
+      call error_stop("Parameter parsing (PROBE): unable to process symbolic function "//trim(str))
 
     defsolver%probe(ip)%write = .true.
   enddo
@@ -111,5 +111,4 @@ endsubroutine def_probe
 ! nov  2003: created
 ! June 2009: add volumic probes (min, max, average)
 !------------------------------------------------------------------------------!
-
 

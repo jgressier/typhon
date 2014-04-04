@@ -74,7 +74,9 @@ trap "$trapcmd" INT TERM QUIT EXIT
 echo "Building module dependencies in $DEPSFILE"
 
 {
-echo "# This file has been created automatically"
+file=$(basename $0)
+dir=$(basename $(dirname $0))
+echo "# This file was created automatically by $dir/$file"
 echo "# It can be overwritten"
 echo "# (manual modifications are not recommended)"
 } > $TMPF

@@ -85,11 +85,14 @@ case(fmt_TECPLOT)
   call print_info(2,"* write TECPLOT file: " // trim(defio%filename))
   call output_tecplot(trim(defio%filename), defio, zone)
 
-!DEC$ IF DEFINED (CGNS)
 case(fmt_CGNS, fmt_CGNS_linked)
+#ifdef CGNS
   call print_info(2,"* write CGNS file: " // trim(defio%filename))
-!DEC$ ENDIF
   ! write sol in GENERAL OUTPUT
+#else /*CGNS*/
+  call error_stop("Internal error (output_zone): CGNS format was not activated at configure time")
+#endif/*CGNS*/
+
 case default
   call error_stop("Internal error (output_zone): unknown output format parameter")
 endselect
@@ -103,10 +106,10 @@ case(fmt_TECPLOT)
   ! already saved
 case(fmt_CGNS, fmt_CGNS_linked, fmt_VTK, fmt_VTKBIN, fmt_TYPHON)
 
-  call outputzone_open   (defio, zone) 
-  call outputzone_ustmesh(defio, zone) 
-  call outputzone_sol    (defio, zone) 
-  call outputzone_close  (defio, zone) 
+  call outputzone_open   (defio, zone)
+  call outputzone_ustmesh(defio, zone)
+  call outputzone_sol    (defio, zone)
+  call outputzone_close  (defio, zone)
 
 case default
   call error_stop("Internal error (output_zone): unknown output format parameter")

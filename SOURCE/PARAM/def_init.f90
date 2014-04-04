@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : def_init                                Authors : J. Gressier
 !                                                     Created : March 2003
-! Fonction 
+! Fonction
 !   Traitement des parametres du fichier menu principal
 !   Parametres principaux du projet
 !
@@ -53,14 +53,20 @@ do i = 1, n_init
 
   if (prj%action == act_restart) then
     defsolver%init(i)%type = init_typhon
-  else  
+  else
     call rpmgetkeyvalstr(pcour, "UNIFORMITY", str, "YES")
     if (samestring(str, "YES"))  defsolver%init(i)%unif = init_unif
     if (samestring(str, "NO"))   defsolver%init(i)%unif = init_nonunif
 
     call rpmgetkeyvalstr(pcour, "TYPE", str, "DEFINITION")
     if (samestring(str, "DEFINITION"))  defsolver%init(i)%type = init_def
+#ifdef CGNS
     if (samestring(str, "CGNS"))        defsolver%init(i)%type = init_cgns
+#else /*CGNS*/
+    if (samestring(str, "CGNS")) then
+      call error_stop("Parameter parsing: CGNS format was not activated at configure time")
+    endif
+#endif/*CGNS*/
     if (samestring(str, "TYPHON"))      defsolver%init(i)%type = init_typhon
     if (samestring(str, "TYS"))         defsolver%init(i)%type = init_typhon
     if (samestring(str, "FILE"))        defsolver%init(i)%type = init_file
@@ -90,21 +96,21 @@ do i = 1, n_init
     case(solNS)
       call def_init_ns(pcour, defsolver%init(i)%ns)
     case default
-      call erreur("internal error (def_init)","unknown solver")
+      call error_stop("Internal error (def_init): unknown solver")
     endselect
 
     ! PROVISOIRE
     defsolver%init(i)%file = "bidon"
 
   case(init_file)
-    call rpmgetkeyvalstr(pcour, "INIT_FILE", str) 
+    call rpmgetkeyvalstr(pcour, "INIT_FILE", str)
     defsolver%init(i)%file = trim(str)
 
   case(init_udf, init_cgns, init_typhon)
     ! nothing to do
 
   case default
-    call erreur("parameter reading (def_init)","unknown parameter (TYPE)")
+    call error_stop("Parameter reading (def_init): unknown parameter (TYPE)")
   endselect
 
 enddo

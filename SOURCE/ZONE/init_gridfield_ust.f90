@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : init_gridfield_ust              Auteur : J. Gressier
 !
-! Fonction 
+! Fonction
 !   Initialization of fields according to the solver
 !
 !------------------------------------------------------------------------------!
@@ -18,9 +18,9 @@ use TYFMT_SOL
 
 implicit none
 
-!DEC$ IF DEFINED (CGNS)
+#ifdef CGNS
 include 'cgnslib_f.h'
-!DEC$ ENDIF
+#endif/*CGNS*/
 
 ! -- INPUTS --
 type(mnu_solver) :: defsolver            ! parametres du solveur
@@ -33,7 +33,7 @@ type(st_grid)    :: grid               ! grid and its field
 integer                 :: i, ier, isca, ivec, ic, iunit
 type(st_field), pointer :: field
 type(st_deftyphon)      :: deftyphon
-type(st_ustmesh)        :: p_umesh        ! 
+type(st_ustmesh)        :: p_umesh        !
 
 ! -- BODY --
 
@@ -43,10 +43,10 @@ call print_info(8, ". initializing and allocating fields")
 
 select case(defsolver%typ_solver)
 case(solNS, solKDIF)
-  field=>newfield(grid, defsolver%nsca, defsolver%nvec, umesh%ncell, umesh%nface) 
+  field=>newfield(grid, defsolver%nsca, defsolver%nvec, umesh%ncell, umesh%nface)
 case default
   call error_stop("Internal error (init_gridfield_ust): unknown solver type")
-endselect 
+endselect
 
 call alloc_prim(field)
 
@@ -71,24 +71,25 @@ do i = 1, defsolver%ninit
 
   select case(defsolver%init(i)%type)
 
-!DEC$ IF DEFINED (CGNS)
-
   case(init_cgns)
 
+#ifdef CGNS
     call print_info(5,"  > CGNS file initialization: "//trim(defsolver%defmesh%filename))
     !! iunit = getnew_io_unit() ! defined by cg_open_f
     call cg_open_f(trim(defsolver%defmesh%filename), MODE_READ, iunit, ier)
-    if (ier /= 0) call erreur("Fatal CGNS IO", "cannot open "//trim(defsolver%defmesh%filename))
+    if (ier /= 0) call error_stop("Fatal CGNS IO: cannot open "//trim(defsolver%defmesh%filename))
     call readcgns_sol(iunit, defsolver%defmesh%icgnsbase, defsolver%defmesh%icgnszone, &
-                      umesh, field%etatprim) 
+                      umesh, field%etatprim)
     call cg_close_f(iunit, ier)
     if (ier /= 0) call error_stop("Fatal CGNS IO: cannot close "//trim(defsolver%defmesh%filename))
-!DEC$ ENDIF
+#else /*CGNS*/
+    call error_stop("Internal error (init_gridfield_ust): CGNS format was not activated at configure time")
+#endif/*CGNS*/
 
   case(init_typhon)
 
     call print_info(5,"  > TYPHON solution initialization: "//trim(defsolver%defmesh%filename))
-    iunit = getnew_io_unit() 
+    iunit = getnew_io_unit()
     call typhon_openread(iunit, trim(defsolver%defmesh%filename), deftyphon)
 
     call typhonread_ustmesh(deftyphon, p_umesh) !! DEV: must SKIP reading
@@ -103,8 +104,8 @@ do i = 1, defsolver%ninit
 
     call close_io_unit(iunit)
 
-  case(init_def) 
-     
+  case(init_def)
+
     call print_info(5,"  > USER defined initialization")
     select case(defsolver%typ_solver)
     case(solNS)
@@ -140,7 +141,7 @@ endsubroutine init_gridfield_ust
 ! Modification history
 !
 ! mars 2003 : creation de la procedure
-! juin 2003 : mise a jour 
+! juin 2003 : mise a jour
 ! mars 2004 : ajouts specifiques au solveur VORTEX
 ! july 2004 : initialization of NS fields
 ! oct  2004 : field chained list

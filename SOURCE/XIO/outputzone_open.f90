@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : outputzone_open
-!                         
-! Function 
+!
+! Function
 !   Open and write header
 !
 !------------------------------------------------------------------------------!
@@ -16,9 +16,9 @@ use TYPHON_FMT
 
 implicit none
 
-!DEC$ IF DEFINED (CGNS)
+#ifdef CGNS
 include 'cgnslib_f.h'
-!DEC$ ENDIF
+#endif/*CGNS*/
 
 ! -- INPUTS --
 type(mnu_output)      :: defio     ! output parameter
@@ -31,7 +31,7 @@ integer               :: dim, ufc, ir
 integer               :: ibase          ! CGNS base index
 integer               :: info, nbmesh, nbsol
 type(st_genericfield) :: vfield
-character(len=10)     :: suffix
+character(len=8)      :: suffix
 
 ! -- BODY --
 
@@ -63,9 +63,9 @@ case(fmt_VTKBIN)
   if (defio%iunit <= 0) call error_stop("IO unit management: impossible to find free unit")
   call vtkbin_openwrite(defio%iunit, trim(defio%filename)//trim(suffix), defio%defvtk)
 
-!DEC$ IF DEFINED (CGNS)
 case(fmt_CGNS, fmt_CGNS_linked)
 
+#ifdef CGNS
   suffix = '.cgns'
   call cg_open_f(trim(defio%filename)//trim(suffix), MODE_WRITE, ufc, info)
   if (info /= 0) &
@@ -76,7 +76,9 @@ case(fmt_CGNS, fmt_CGNS_linked)
   if (info /= 0) &
     call error_stop("CGNS IO error: writing CGNS base (error "//trim(strof(info))//")")
   defio%izone = ibase
-!DEC$ ENDIF
+#else /*CGNS*/
+  call error_stop("Internal error (outputzone_open): CGNS format was not activated at configure time")
+#endif/*CGNS*/
 
 case default
   call error_stop("Internal error (outputzone_open): unknown output format parameter")

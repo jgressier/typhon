@@ -5,8 +5,6 @@
 !   Write a GRID elements and boco TAG to a CGNS ZONE
 !
 !------------------------------------------------------------------------------!
-
-!DEC$ IF DEFINED (CGNS)
 subroutine writecgns_bocomesh(cgnsunit, ibase, izone, umesh) 
 
 use MESHPREC
@@ -121,7 +119,6 @@ do ib = 1, umesh%nboco
 enddo
 
 endsubroutine writecgns_bocomesh
-!DEC$ ENDIF
 !------------------------------------------------------------------------------!
 ! Changes history
 !

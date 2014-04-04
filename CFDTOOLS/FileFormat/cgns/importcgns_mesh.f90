@@ -4,8 +4,6 @@
 ! Fonction: MESH reading
 !
 !------------------------------------------------------------------------------!
-
-!DEC$ IF DEFINED (CGNS)
 subroutine importcgns_mesh(defmesh, umesh)
 
 use USTMESH
@@ -44,8 +42,6 @@ call check_ustmesh_elements(umesh)
 call cg_close_f(unit, ier)
 
 endsubroutine importcgns_mesh
-!DEC$ ENDIF
-
 !------------------------------------------------------------------------------!
 ! Change history
 !

@@ -5,7 +5,6 @@
 !   Write a SOLUTION to a CGNS ZONE
 !
 !------------------------------------------------------------------------------!
-!DEC$ IF DEFINED (CGNS)
 subroutine writecgns_sol(cgnsunit, ibase, izone, umesh, field) 
 
 use MESHPREC
@@ -118,7 +117,6 @@ enddo
 deallocate(v)
 
 endsubroutine writecgns_sol
-!DEC$ ENDIF
 !------------------------------------------------------------------------------!
 ! Changes history
 !

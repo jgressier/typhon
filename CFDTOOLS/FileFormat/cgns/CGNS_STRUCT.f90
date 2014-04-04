@@ -14,7 +14,6 @@
 !------------------------------------------------------------------------------!
 
 module CGNS_STRUCT   
-!DEC$ IF DEFINED (CGNS)
 
 use MESHPREC         ! Precision configuration
 use VEC3D     
@@ -22,7 +21,6 @@ use CONNECTIVITY
 use ELEMVTEX
 
 implicit none         
-
 
 include 'cgnslib_f.h'
 
@@ -288,9 +286,7 @@ endselect
 endfunction cgns2typhon_elemtype
 
 
-!DEC$ ENDIF
 endmodule CGNS_STRUCT
-
 
 !------------------------------------------------------------------------------!
 ! History

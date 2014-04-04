@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : outputzone_ustmesh
-!                         
-! Function 
+!
+! Function
 !   Open and write header
 !
 !------------------------------------------------------------------------------!
@@ -17,9 +17,9 @@ use VTKMESH
 
 implicit none
 
-!DEC$ IF DEFINED (CGNS)
+#ifdef CGNS
 include 'cgnslib_f.h'
-!DEC$ ENDIF
+#endif/*CGNS*/
 
 ! -- INPUTS --
 type(mnu_output)      :: defio     ! output parameter
@@ -33,7 +33,6 @@ integer                :: info
 type(st_ustmesh), pointer :: p_umesh
 type(st_genericfield)  :: vfield
 type(st_deftyphon)     :: deftyphon2
-character(len=10)      :: suffix
 integer                :: isize(3)     ! info array for zone
 
 ! -- BODY --
@@ -71,10 +70,10 @@ case(fmt_TECPLOT)
 case(fmt_VTK, fmt_VTKBIN)
   call writevtk_ustmesh(defio%defvtk, p_umesh)
 
-!DEC$ IF DEFINED (CGNS)
+#ifdef CGNS
 case(fmt_CGNS, fmt_CGNS_linked)
 
-  isize(1) = p_umesh%nvtex       ! vertex size 
+  isize(1) = p_umesh%nvtex       ! vertex size
   isize(2) = p_umesh%ncell_int   ! cell size
   isize(3) = 0                       ! boundary vertex size (zero if vertices not sorted)
 
@@ -90,7 +89,7 @@ case(fmt_CGNS, fmt_CGNS_linked)
   call writecgns_ustmesh(defio%iunit, defio%izone, izone, p_umesh)
 
   call writecgns_bocomesh(defio%iunit, defio%izone, izone, p_umesh)
-!DEC$ ENDIF
+#endif/*CGNS*/
 
 case default
   call error_stop("Internal error (outputzone_ustmesh): unknown output format parameter")

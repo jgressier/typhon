@@ -1,13 +1,11 @@
+# IMPORTANT:
+# This file must be included AFTER variable LDIR was set
+# (since targets and dependencies undergo immediate evaluation)
+
 .PHONY: \
-  default \
   this.library \
   this.modules \
   this.clean \
-
-##GG:>>>
-##GG: removed from .PHONY list
-##  $(LIBNAME).target \
-##GG:<<<
 
 $(LDIR).MODTRGTS := $(notdir $($(LDIR).f90MODFILES:%.f90=%.target))
 
@@ -19,11 +17,6 @@ $(LDIR).objfiles := $($(LDIR).objnames:%=$(PRJOBJDIR)/%)
 
 $(LIBNAME).objfiles := $($(LDIR).objfiles)
 
-##GG:>>>
-##GG: dependency removed
-##$(LIBNAME).target: $($(LDIR).objfiles)
-##GG:<<<
-
 this.modules: $($(LDIR).MODTRGTS)
 
 depends.make: Makefile $($(LDIR).f90files) $($(LDIR).f90exefiles)
@@ -32,10 +25,5 @@ depends.make: Makefile $($(LDIR).f90files) $($(LDIR).f90exefiles)
 this.clean:
 	-rm $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
 
-##this.library: $($(LDIR).objfiles)
-
-##GG:>>>
-##GG: dependency added
 $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA): $($(LDIR).objfiles)
-##GG:<<<
 

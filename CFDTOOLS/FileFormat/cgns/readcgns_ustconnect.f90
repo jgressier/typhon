@@ -5,7 +5,6 @@
 !   Read CGNS connectivity in TYPHON structure
 !
 !------------------------------------------------------------------------------!
-!DEC$ IF DEFINED (CGNS)
 subroutine readcgns_ustconnect(unit, ib, iz, umesh)
 
 use IOCFD
@@ -184,7 +183,6 @@ endsubroutine sort_elementtype
 
 !------------------------------
 endsubroutine readcgns_ustconnect
-!DEC$ ENDIF
 !------------------------------------------------------------------------------!
 ! Changes history
 !

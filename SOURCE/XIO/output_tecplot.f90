@@ -1,11 +1,11 @@
 !------------------------------------------------------------------------------!
 ! Procedure : output_tecplot
-!                           
-! Fonction                  
+!
+! Fonction
 !   Write zone as a TECPLOT result file
 !
 !------------------------------------------------------------------------------!
-subroutine output_tecplot(nom, defio, zone) 
+subroutine output_tecplot(nom, defio, zone)
 
 use TYPHMAKE
 use OUTPUT
@@ -24,8 +24,8 @@ type(st_zone)         :: zone      ! zone
 ! -- Outputs --
 
 ! -- Internal variables --
-integer               :: info
-character(len=10)     :: suffix
+integer          :: info
+character(len=8) :: suffix
 
 ! -- BODY --
 

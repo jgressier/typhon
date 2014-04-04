@@ -24,11 +24,11 @@ configure_help() {
   echo "  OPTIONS:"
   echo "    -h:     print this help"
   echo "    -n:     * if config files do not exist:"
-  echo "                config files are created"
+  echo "                 config files are created"
   echo "            * if config files exist:"
-  echo "                config files are not overwritten"
-  echo "                new files are created and diffs are shown"
-  line 72 "="
+  echo "                 config files are not overwritten"
+  echo "                 new files are created and diffs are shown"
+  line 72 "=" # "========================================================================"
   echo
   echo "TYPHON configuration help"
   echo
@@ -57,6 +57,7 @@ configure_help() {
     *)  echo "  The DAEPDIR variable is currently set to '$DAEPDIR'" ;;
   esac
   echo
+  line 72 "=" # "========================================================================"
   }
 
 TOOLSCONF=TOOLS/configure
@@ -238,7 +239,7 @@ check_library() {
   for fullname in "${ALLPATHS[@]/%//lib/$libname}" ; do
     if [ -r "$fullname" ] ; then
       export LIB_$name=$fullname
-      export FP_$name=-D$name
+      export FP_$name=-D$(echo $name | tr a-z A-Z)
       success $fullname
       return
     fi
@@ -250,6 +251,7 @@ check_library() {
 
 check_include() {
   local    name=$1
+  local    base=${name%.?*}
   local fullname=
   local     dir=
   for fullname in "${ALLPATHS[@]/%//include/$name}" ; do
@@ -258,10 +260,12 @@ check_include() {
         rm -f $dir/$name
         ln -s $fullname $dir
       done
+      export INC_$base=$fullname
       success $fullname
       return
     fi
   done
+  export INC_$base=
   fail "not found: $name"
   }
 
@@ -348,11 +352,11 @@ fi
 warning=0
 # start of log (tee)redirection
 
-check "native system"               system
-check "CPU model"                   proc
-check "echo command"                echo
-check "diff command"                diff
-check "fortran 90 compiler"         f90compiler
+check "native system"           system
+check "CPU model"               proc
+check "echo command"            echo
+check "diff command"            diff
+check "fortran 90 compiler"     f90compiler
 #
 # EXTLIBS="blas lapack cgns metis mpich mpi"
 # >> USE MPIF90 COMPILER
@@ -367,6 +371,7 @@ EXTINC="cgnslib_f.h" # :: USE MPIF90 COMPILER # "cgnslib_f.h mpif.h"
 for inc in $EXTINC ; do
   check "include file $inc" include $inc
 done
+export INC_cgns=$INC_cgnslib_f
 # >> USE MPIF90 COMPILER
 # :: USE MPIF90 COMPILER # check "MPI library"                 mpilib
 # << USE MPIF90 COMPILER
@@ -397,7 +402,8 @@ no_feature="TYPHON will not feature"
 [[ -n "${FTN_ERR:-}" ]]    && error   "fortran compile/run error: $impossible"
 #[[ -z "${LIB_blas:-}"   ]] && error   "BLAS   not available: $impossible"
 #[[ -z "${LIB_lapack:-}" ]] && error   "LAPACK not available: $impossible"
-[[ -z "${LIB_cgns:-}"   ]] && warning "CGNS   not available: $no_feature cgns input/output format"
+[[ -z "${INC_cgns:-}"   ]] && export LIB_cgns= && export FP_cgns=
+[[ -z "${LIB_cgns:-}"   ]] && warning "CGNS   not available: $no_feature CGNS i/o file format"
 [[ -z "${LIB_metis:-}"  ]] && warning "METIS  not available: $no_feature automatic distribution"
 # >> USE MPIF90 COMPILER
 # [[ -z "${MPILIB:-}"     ]] && warning "MPI    not available: $no_feature parallel computation"
@@ -419,10 +425,11 @@ printf "%s" "Writing Makefile configuration ($MAKECONF) ..."
 test -z "$new" && \
 mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
 {
-  optnames=( )         ; optshort=( )                      ; optvalue=( )
-  optnames+=( debug  ) ; optshort+=( "deb dbg debug"     ) ; optvalue+=( "$F90_DEBUG"  )
-  optnames+=( optim  ) ; optshort+=( "opt optim"         ) ; optvalue+=( "$F90_OPTIM"  )
-  optnames+=( profil ) ; optshort+=( "prof profil gprof" ) ; optvalue+=( "$F90_PROFIL" )
+  optdefault="optim"
+  optnames=( )         ; optshort=( )               ; optvalue=( )
+  optnames+=( debug  ) ; optshort+=( "deb dbg"    ) ; optvalue+=( "$F90_DEBUG"  )
+  optnames+=( optim  ) ; optshort+=( "opt"        ) ; optvalue+=( "$F90_OPTIM"  )
+  optnames+=( profil ) ; optshort+=( "prof gprof" ) ; optvalue+=( "$F90_PROFIL" )
   command_header
   echo
   # echo "${SHELL:+# }SHELL       = ${SHELL:-}"
@@ -441,13 +448,14 @@ mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
        "FO_$name"    "${optvalue[iopt]}"
   done
   for iopt in ${!optnames[@]} ; do name=${optnames[iopt]}
-    for short in ${optshort[iopt]} ; do printf "%-11s = %s\n" \
+   for short in ${optshort[iopt]} $name ; do
+    printf "%-11s = %s\n" \
        "opt.$short"  "$name"
-    done
+   done
   done
-  echo "opt.        = \$(opt.optim)"
-  echo "FO_         = \$(FO_optim)"
-  echo "F90OPT      = \$(FO_\$(opt))"
+  echo "opt.        = \$(opt.$optdefault)"
+  echo "FO_         = \$(FO_$optdefault)"
+  echo "F90OPT      = \$(FO_\$(optext))"
   echo "F90CMP      = $F90C"
   echo "F90C        = \$(F90CMP) \$(FB)"
   echo "LINKFB      = \$(F90OPT)"
@@ -472,9 +480,12 @@ echo "to build TYPHON : make all"
 line 72 "=" # "========================================================================"
 if [ $warning = 1 ] ; then
   echo
+  line 72 "=" # "========================================================================"
   echo "$0 did not execute correctly and warnings were printed"
-  line 72 "="
+  line 72 "=" # "========================================================================"
   configure_help
+  echo "$0 did not execute correctly and warnings were printed"
+  line 72 "=" # "========================================================================"
 fi
 
 # End of log (tee)redirection

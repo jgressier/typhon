@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : outputzone_sol
-!                         
-! Function 
+!
+! Function
 !   Open and write header
 !
 !------------------------------------------------------------------------------!
@@ -27,7 +27,6 @@ type(st_zone)         :: zone      ! zone
 integer               :: dim, ufc, izone
 integer               :: info
 type(st_genericfield) :: vfield
-character(len=10)     :: suffix
 type(st_grid), pointer :: pgrid
 
 ! -- BODY --
@@ -45,13 +44,13 @@ case(fmt_TECPLOT)
 case(fmt_VTK, fmt_VTKBIN)
   call writevtk_sol(defio%defvtk, pgrid%umesh, pgrid%info%field_loc%etatprim)
 
-!DEC$ IF DEFINED (CGNS)
+#ifdef CGNS
 case(fmt_CGNS, fmt_CGNS_linked)
 
   izone = 1
   call writecgns_sol(defio%iunit, defio%izone, izone, &
                      pgrid%umesh, pgrid%info%field_loc%etatprim)
-!DEC$ ENDIF
+#endif/*CGNS*/
 
 case default
   call error_stop("Internal error (outputzone_sol): unknown output format parameter")

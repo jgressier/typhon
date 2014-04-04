@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : getpart_grid                Authors : J. Rodriguez/J. Gressier
 !                                         Date    : Mars 2005
-! Fonction 
+! Fonction
 !   METIS split : compute partition of a grid
 !
 !------------------------------------------------------------------------------!
@@ -66,7 +66,7 @@ call new(csr, fullgrid%umesh%facecell, ncell)
 
 wgtflag      = 0                ! Flag (weighted graph or not)
 options(1:5) = 0                ! Misc Options
-numflag      = 1                ! TO BE SET TO 1 IN FORTRAN 
+numflag      = 1                ! TO BE SET TO 1 IN FORTRAN
 
 ! -- uniform weights --
 j = csr%nval / 2
@@ -79,7 +79,7 @@ vwgt(1:ncell) = 1
 write(str_w,*) ".          Num of cells:",ncell," to cut into ",npart," parts"
 call print_info(8,adjustl(str_w))
 
-#ifdef metis
+#ifdef METIS
 if (npart < 4) then
   call print_info(8,"  call metis_PartGraphKway...")
   call METIS_PartGraphKway(ncell, csr%row_index, csr%col_index, vwgt, adjwgt, wgtflag, numflag, &
@@ -89,9 +89,9 @@ else
   call METIS_PartGraphRecursive(ncell, csr%row_index, csr%col_index, vwgt, adjwgt, wgtflag, numflag, &
                                 npart, options, edgecut, partition)
 endif
-#else
-  call error_stop("METIS library was missing during TYPHON compilation")
-#endif
+#else /*METIS*/
+  call error_stop("Internal error (getpart_grid): METIS library was not activated at configure time")
+#endif/*METIS*/
 
 call delete(csr)
 
