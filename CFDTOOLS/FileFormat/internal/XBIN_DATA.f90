@@ -29,27 +29,27 @@ private xbin_writedatahead
 
 interface xbin_writedata_ordint
   module procedure xbin_writedata_ordint_x, xbin_writedata_ordint_xx
-endinterface
+end interface
 
 interface xbin_readdata_ordint
   module procedure xbin_readdata_ordint_x
-endinterface
+end interface
 
 interface xbin_writedata_indint
   module procedure xbin_writedata_indint_xx
-endinterface
+end interface
 
 interface xbin_readdata_indint
   module procedure xbin_readdata_indint_xx
-endinterface
+end interface
 
 interface xbin_writedata_ordreal
   module procedure xbin_writedata_ordreal_x, xbin_writedata_ordreal_xx
-endinterface
+end interface
 
 interface xbin_readdata_ordreal
   module procedure xbin_readdata_ordreal_x, xbin_readdata_ordreal_xx
-endinterface
+end interface
 
 !------------------------------------------------------------------------------!
 ! Structures
@@ -72,10 +72,8 @@ type st_xbindatasection
   integer(xbinkip) :: current_totdatasize
 endtype st_xbindatasection
 
-
 contains 
 !------------------------------------------------------------------------------!
-
 
 !------------------------------------------------------------------------------!
 ! data type name

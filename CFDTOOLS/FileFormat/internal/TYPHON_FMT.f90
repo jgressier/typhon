@@ -18,6 +18,7 @@ integer(xbinkip),  parameter :: xty_maxver      = 3
 
 character(len=3),  parameter :: xtyext_mesh    = "tym"
 character(len=3),  parameter :: xtyext_sol     = "tys"
+character(len=3),  parameter :: xtyext_part    = "typ"
 !character(len=3),  parameter :: xtyext_mon     = "tym"
 
 ! -- DECLARATIONS -----------------------------------------------------------
@@ -44,9 +45,10 @@ integer(xbinkpp), parameter :: xbinty_vector   = 32  ! DATA section for FILE def
 
 ! -- Parameters --
 
-integer(xbinkip), parameter :: xty_file_mesh    = 10
-integer(xbinkip), parameter :: xty_file_sol     = 20
-integer(xbinkip), parameter :: xty_file_monitor = 50
+integer(xbinkip), parameter :: xty_file_mesh      = 10
+integer(xbinkip), parameter :: xty_file_sol       = 20
+integer(xbinkip), parameter :: xty_file_monitor   = 50
+integer(xbinkip), parameter :: xty_file_partition = 60
 
 integer(xbinkip), parameter :: xty_mesh_umesh     = 10    ! mono-grid   unstructured mesh
 integer(xbinkip), parameter :: xty_mesh_partumesh = 15    ! partitioned unstructured mesh
@@ -144,17 +146,16 @@ endsubroutine typhonread_filedef
 !------------------------------------------------------------------------------!
 ! open XBIN TYPHON
 !------------------------------------------------------------------------------!
-subroutine typhon_openread(iunit, filename, deftyphon)
+subroutine typhon_openread(filename, deftyphon)
 implicit none
 ! -- INPUTS --
-integer            :: iunit
 character(len=*)   :: filename
 ! -- OUTPUTS --
 type(st_deftyphon) :: deftyphon
 ! -- private data --
 ! -- BODY --
 
-  call xbin_openread(iunit, filename, deftyphon%defxbin)
+  call xbin_openread(filename, deftyphon%defxbin)
   call typhonread_filedef(deftyphon)
   if (deftyphon%xty_version > xty_maxver) &
     call cfd_error("XBIN/TYPHON: unable to handle this TYPHON format version number")
@@ -164,11 +165,10 @@ endsubroutine typhon_openread
 !------------------------------------------------------------------------------!
 ! open XBIN TYPHON
 !------------------------------------------------------------------------------!
-subroutine typhon_openwrite(iunit, filename, deftyphon, nbmesh, nbsol, meshdef)
+subroutine typhon_openwrite(filename, deftyphon, nbmesh, nbsol, meshdef)
 implicit none
 ! -- INPUTS --
-integer            :: iunit
-character(len=*)   :: filename
+character(len=*)            :: filename
 integer(xbinkip)            :: nbmesh
 integer(xbinkip), optional  :: nbsol
 integer(xbinkpp), optional  :: meshdef
@@ -197,10 +197,24 @@ type(st_deftyphon) :: deftyphon
 
   deftyphon%nb_mesh = nbmesh   
   
-  call xbin_openwrite(iunit, filename, deftyphon%defxbin)
+  call xbin_openwrite(filename, deftyphon%defxbin)
   call typhonwrite_filedef(deftyphon)
 
 endsubroutine typhon_openwrite
+
+!------------------------------------------------------------------------------!
+! close XBIN TYPHON
+!------------------------------------------------------------------------------!
+subroutine typhon_close(deftyphon)
+implicit none
+! -- INPUTS --
+! -- OUTPUTS --
+type(st_deftyphon) :: deftyphon
+! -- private data --
+! -- BODY --
+  call xbin_close(deftyphon%defxbin)
+endsubroutine typhon_close
+
 
 
 

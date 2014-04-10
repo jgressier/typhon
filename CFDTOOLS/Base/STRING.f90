@@ -12,7 +12,7 @@ integer, parameter :: iposzmaj = iachar('Z')
 ! -- INTERFACES -------------------------------------------------------------
 
 interface strof
-  module procedure strof_intl2, strof_intl4, strof_int2, strof_int4, strof_real, strof_double
+  module procedure strof_intl2, strof_intl4, strof_int2, strof_int4, strof_real, strof_double,  strof_realf, strof_doublef
 endinterface
 
 contains 
@@ -329,6 +329,19 @@ endfunction strof_real
 !------------------------------------------------------------------------------!
 ! Fonction : tranformation real -> chaine de caracteres (ajuste a gauche)
 !------------------------------------------------------------------------------!
+function strof_realf(nb, d) result(strout)
+  implicit none
+  real(4), intent(in)  :: nb      ! nombre a transformer, et longueur
+  integer, intent(in)  :: d
+  character(len=20)    :: strout  ! longueur de la chaine
+
+  write(strout,'(f15.'//trim(strof_int4(d))//')') nb
+  strout = adjustl(strout)
+endfunction strof_realf
+
+!------------------------------------------------------------------------------!
+! Fonction : tranformation real -> chaine de caracteres (ajuste a gauche)
+!------------------------------------------------------------------------------!
 function strof_double(nb) result(strout)
   implicit none
   real(8), intent(in)  :: nb      ! nombre a transformer, et longueur
@@ -337,6 +350,19 @@ function strof_double(nb) result(strout)
   write(strout,'(e24.15)') nb
   strout = adjustl(strout)
 endfunction strof_double
+
+!------------------------------------------------------------------------------!
+! Fonction : tranformation real -> chaine de caracteres (ajuste a gauche)
+!------------------------------------------------------------------------------!
+function strof_doublef(nb, d) result(strout)
+  implicit none
+  real(8), intent(in)  :: nb      ! nombre a transformer, et longueur
+  integer, intent(in)  :: d
+  character(len=20)    :: strout  ! longueur de la chaine
+
+  write(strout,'(f15.'//trim(strof_int4(d))//')') nb
+  strout = adjustl(strout)
+endfunction strof_doublef
 
 !------------------------------------------------------------------------------!
 ! Fonction : Test logique d'egalite des chaines de caracteres
@@ -582,5 +608,7 @@ integer function index_rightpar (str, ip, info)
 endfunction index_rightpar
 
 
-
 endmodule STRING
+!------------------------------------------------------------------------------!
+! Changes
+!------------------------------------------------------------------------------!

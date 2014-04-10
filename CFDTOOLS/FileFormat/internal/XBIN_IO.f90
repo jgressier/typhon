@@ -5,6 +5,7 @@
 module XBIN_IO
 
 use IOCFD
+use IO_UNIT
 use ENDIAN
 use STRING
 
@@ -146,10 +147,9 @@ endsubroutine xbin_readheader
 !------------------------------------------------------------------------------!
 ! open XBIN file (read or write mode)
 !------------------------------------------------------------------------------!
-subroutine xbin_openread(iunit, filename, defxbin)
+subroutine xbin_openread(filename, defxbin)
 implicit none
 ! -- INPUTS --
-integer            :: iunit
 character(len=*)   :: filename
 ! -- OUTPUTS --
 type(st_defxbin) :: defxbin
@@ -157,24 +157,24 @@ type(st_defxbin) :: defxbin
 integer           :: info, current_byteorder
 character(len=15) :: strbyteorder
 
-open(unit=iunit, file=trim(filename), form='unformatted',  &       ! open with supposed NATIVE byte order
+defxbin%iunit = getnew_io_unit()
+
+open(unit=defxbin%iunit, file=trim(filename), form='unformatted',  &       ! open with supposed NATIVE byte order
                  access='stream', action='read', iostat = info)    ! but will be checked further
 if (info /= 0) call xbin_error("cannot open file "//trim(filename))
-
-defxbin%iunit = iunit
 
 call xbin_readheader(defxbin)   ! read version and endianness
 
 ! -- check endianness --
 
-inquire(unit=iunit, convert=strbyteorder)
+inquire(unit=defxbin%iunit, convert=strbyteorder)
 current_byteorder = ibyteorder(strbyteorder)
 
 if (defxbin%byteorder /= current_byteorder) then
-  close(iunit)  
+  close(defxbin%iunit)  
   strbyteorder = byteorder_str(defxbin%byteorder)
   call cfd_print("re-open XBIN file with "//trim(strbyteorder))
-  open(unit=iunit, file=trim(filename), form='unformatted', convert=trim(strbyteorder), &
+  open(unit=defxbin%iunit, file=trim(filename), form='unformatted', convert=trim(strbyteorder), &
                  access='stream', action='read', iostat = info)
   if (info /= 0) call xbin_error("cannot open file "//trim(filename))
   call xbin_readheader(defxbin)
@@ -183,15 +183,15 @@ endif
 endsubroutine xbin_openread
 
 !------------------------------------------------------------------------------!
-subroutine xbin_openwrite(iunit, filename, defxbin, byteorder)
+subroutine xbin_openwrite(filename, defxbin, byteorder)
 implicit none
 ! -- INPUTS --
-integer            :: iunit
 character(len=*)   :: filename
 integer, optional  :: byteorder
 ! -- OUTPUTS --
 type(st_defxbin) :: defxbin
 ! -- private data --
+integer :: iunit
 integer :: info
 character(len=15) :: strbyteorder
 
@@ -201,16 +201,29 @@ else
   defxbin%byteorder = native_endianness()
 endif
 
-open(unit=iunit, file=trim(filename), form='unformatted', access='stream', &
+defxbin%iunit = getnew_io_unit()
+
+open(unit=defxbin%iunit, file=trim(filename), form='unformatted', access='stream', &
                                       convert=trim(byteorder_str(defxbin%byteorder)), &
                                       action='write', status='replace', iostat = info)
 if (info /= 0) call xbin_error("cannot open file "//trim(filename))
 
-defxbin%iunit = iunit
 
 call xbin_writeheader(defxbin)
 
 endsubroutine xbin_openwrite
+
+!------------------------------------------------------------------------------!
+subroutine xbin_close(defxbin)
+implicit none
+! -- INPUTS --
+! -- OUTPUTS --
+type(st_defxbin) :: defxbin
+! -- private data --
+
+call close_io_unit(defxbin%iunit)
+
+endsubroutine xbin_close
 
 
 endmodule XBIN_IO
@@ -218,4 +231,5 @@ endmodule XBIN_IO
 ! Changes
 !
 ! Mar  2010: created
+! Apr  2014: automatic unit affectation
 !------------------------------------------------------------------------------!

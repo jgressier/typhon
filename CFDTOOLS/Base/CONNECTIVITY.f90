@@ -159,7 +159,7 @@ endfunction allocated_connect
 subroutine realloc_connect(conn, nbnodes, nbfils)
 implicit none
 type(st_connect) :: conn, prov
-integer             :: nbnodes,      nbfils      ! nouvelle taille
+integer             :: i, j, nbnodes, nbfils      ! nouvelle taille
 integer             :: old_nbnodes, old_nbfils   ! ancienne taille
 integer             :: min_nbnodes, min_nbfils   ! ancienne taille
 
@@ -171,7 +171,7 @@ integer             :: min_nbnodes, min_nbfils   ! ancienne taille
   conn%fils(1:nbnodes, 1:nbfils) = 0       ! initialisation
   min_nbnodes = min(nbnodes, prov%nbnodes)
   min_nbfils  = min(nbfils,  prov%nbfils)  ! copie des connectivites
-  conn%fils(1:min_nbnodes, 1:min_nbfils) = prov%fils(1:min_nbnodes, 1:min_nbfils) 
+  forall(i=1:min_nbnodes, j=1:min_nbfils) conn%fils(i,j) = prov%fils(i,j) 
   call delete(prov)
 
 endsubroutine realloc_connect

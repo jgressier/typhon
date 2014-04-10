@@ -5,7 +5,6 @@
 program tymonitor
 
 use IOCFD
-use IO_UNIT
 use STRING
 use VEC3D
 use USTMESH
@@ -121,8 +120,7 @@ do icycle = imin, imax
 
   print*,'* Opening TYPHON file: '//trim(filename)
 
-  iunit1 = getnew_io_unit()
-  call typhon_openread(iunit1, trim(filename), deftyphon)
+  call typhon_openread(trim(filename), deftyphon)
 
   call typhonread_ustmesh(deftyphon, umesh)
   !call delete_ustmesh_subelements(umesh)
@@ -157,7 +155,7 @@ do icycle = imin, imax
 
   call delete(umesh)
   call delete(gfield)
-  call close_io_unit(iunit1)
+  call typhon_close(deftyphon)
 
 enddo
 

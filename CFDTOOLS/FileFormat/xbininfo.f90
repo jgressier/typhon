@@ -6,7 +6,6 @@
 program xbininfo
 
 use IOCFD
-use IO_UNIT
 use ENDIAN
 use XBIN_DATA
 use STRING
@@ -49,9 +48,7 @@ endif
 !------------------------------
 ! open xbin file
 
-iunit = getnew_io_unit()
-
-call xbin_openread(iunit, trim(filename), defxbin)
+call xbin_openread(trim(filename), defxbin)
 
 print*,fill('file',        tab1),': ',trim(filename)
 print*,fill('XBIN version',tab1),': ',trim(strof(defxbin%xbin_version)),&
@@ -89,7 +86,7 @@ print*,fill('nb of data section', tab1),': ',trim(strof(idatasec))
 !------------------------------
 ! close file and end program
 
-call close_io_unit(iunit)
+call xbin_close(defxbin)
 
 endprogram
 !------------------------------------------------------------------------------!

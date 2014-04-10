@@ -34,8 +34,10 @@ select case(defio%format)
 
 case(fmt_TECPLOT)
   call error_stop("Internal error (outputzone_close): Unable to use general output with TECPLOT format")
-case(fmt_VTK, fmt_VTKBIN, fmt_TYPHON)
+case(fmt_VTK, fmt_VTKBIN)
   call close_io_unit(defio%iunit)
+case(fmt_TYPHON)
+  call typhon_close(defio%deftyphon)
 #ifdef CGNS
 case(fmt_CGNS, fmt_CGNS_linked)
   call cg_close_f(defio%iunit, info)

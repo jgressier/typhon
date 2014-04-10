@@ -114,7 +114,7 @@ integer(kip)              :: i, if, ic1, ic2
   do if = 1, facecell%nbnodes
     ic1 = facecell%fils(if,1)
     ic2 = facecell%fils(if,2)
-    if ((ic1 <= maxcell).and.(ic2 <= maxcell)) then
+    if ((ic1 <= maxcell).and.(ic2 <= maxcell).and.(ic2 >= 1)) then
       nface     = nface     + 1
       ncol(ic1) = ncol(ic1) + 1
       ncol(ic2) = ncol(ic2) + 1
@@ -143,7 +143,7 @@ integer(kip)              :: i, if, ic1, ic2
   do if = 1, facecell%nbnodes
     ic1 = facecell%fils(if,1)
     ic2 = facecell%fils(if,2)
-    if ((ic1 <= maxcell).and.(ic2 <= maxcell)) then
+    if ((ic1 <= maxcell).and.(ic2 <= maxcell).and.(ic2 >= 1)) then
       csr%col_index(csr%row_index(ic1)+ncol(ic1)) = ic2
       csr%col_index(csr%row_index(ic2)+ncol(ic2)) = ic1
       ncol(ic1) = ncol(ic1) + 1

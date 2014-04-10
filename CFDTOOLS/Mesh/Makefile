@@ -34,6 +34,7 @@ $(LDIR).f90MODFILES := \
     MESHGEOM.f90     \
     MESHMRF.f90      \
     MESHPARAMS.f90   \
+    MESHPART.f90     \
     TENSOR3.f90      \
     USTMESH.f90      \
     STRMESH.f90      \

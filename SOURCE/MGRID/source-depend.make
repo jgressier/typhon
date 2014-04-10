@@ -44,7 +44,6 @@ $(LDIR).f90files := \
     raffin_iso_tri.f90           \
     distrib_field.f90            \
     extractpart_grid.f90         \
-    getpart_grid.f90             \
     grid_preproc.f90             \
     grid_ustpreproc.f90          \
     gmres_free.f90               \

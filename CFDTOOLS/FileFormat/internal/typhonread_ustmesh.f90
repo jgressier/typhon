@@ -50,9 +50,8 @@ case(mesh_full)
   deftymesh2 = deftymesh
 case(mesh_shared, mesh_sharedcon)
   if (deftymesh%sharedmesh /= "") then
-    iunit = getnew_io_unit()
     call cfd_print("> open shared mesh "//trim(deftymesh%sharedmesh))
-    call typhon_openread(iunit, trim(deftymesh%sharedmesh), deftyphon2)
+    call typhon_openread(trim(deftymesh%sharedmesh), deftyphon2)
     call typhonread_umeshheader(deftyphon2, umesh, deftymesh2)
     if (deftyphon2%meshdef /= mesh_full) call cfd_error("TYPHON format: shared mesh is shared again")
   else
@@ -107,7 +106,7 @@ do ib = 1, deftymesh2%nfacemark
 enddo
 
 !------------------------------------------------------------------------------!
-if (deftyphon%meshdef /= mesh_full) call close_io_unit(iunit)
+if (deftyphon%meshdef /= mesh_full) call typhon_close(deftyphon2)
 
 call check_ustmesh_elements(umesh)
 

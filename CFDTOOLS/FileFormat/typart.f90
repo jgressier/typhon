@@ -1,40 +1,37 @@
 !------------------------------------------------------------------------------!
-! TYMORPH
+! TYPART
 !
 !------------------------------------------------------------------------------!
-program tymorph
+program typart
 
 use IOCFD
 use FTNARGS
 use STRING
-use VEC3D
 use USTMESH
-use XBIN_IO
 use TYPHON_FMT
 use TYFMT_MESH
-use FCT_PARSER
-use FCT_EVAL
-use MESHPARAMS
+use TYFMT_PART
 use MESHCONNECT
-use MESHGEOM
+use MESHPART
 
 implicit none
 
 !------------------------------------------------------------------------------!
 integer            :: nargs
-character(len=256) :: inputfile, outputfile, filename, str_opt, str_val, strmx, strmy, strmz
+character(len=256) :: inputfile, outputfile, filename, str_opt, str_val
 !------------------------------------------------------------------------------!
 type(st_deftyphon)         :: deftyphon
+type(st_deftypart)         :: deftypart
 type(st_ustmesh)           :: umesh
 type(mnu_mesh)             :: defmesh
+integer(kpp)               :: part_method
 !---------------------------
-type(st_fct_node)     :: morphx, morphy, morphz
-integer(kip)          :: ip, iarg
-logical               :: needgeom, fileread
-type(st_fctfuncset)   :: fctenv
+integer(kip)              :: ip, iarg, npart, nci
+logical                   :: needgeom, fileread
+integer(kip), allocatable :: partition(:)  ! result of partition
 !------------------------------------------------------------------------------!
 
-call print_cfdtools_header("tymorph")
+call print_cfdtools_header("typart")
 
 !------------------------------
 ! parse arguments
@@ -43,11 +40,10 @@ call print_cfdtools_header("tymorph")
 
 inputfile   = ""
 outputfile  = ""
-strmx       = "x"
-strmy       = "y"
-strmz       = "z"
+npart       = 0
 needgeom    = .true.
 fileread    = .false.
+part_method = part_auto
 
 nargs    = command_argument_count()
 iarg     = 1
@@ -58,12 +54,14 @@ do while (iarg <= nargs)
   case("-o")
     call read_command_argument(iarg, str_val, .true.)
     outputfile = trim(basename(trim(str_val), xtyext_mesh))
-  case("-fx")
-    call read_command_argument(iarg, strmx, .true.)
-  case("-fy")
-    call read_command_argument(iarg, strmy, .true.)
-  case("-fz")
-    call read_command_argument(iarg, strmz, .true.)
+  case("-n")
+    call read_command_argument(iarg, npart, .true.)
+  case("-recursive")
+    part_method = part_metisrecursive
+  case("-kway")
+    part_method = part_metiskway
+  case("-auto")
+    part_method = part_auto
   case default
     if (fileread) then
       call cfd_error("too many filenames ("//trim(inputfile)//", "//trim(str_opt)//")")
@@ -78,15 +76,12 @@ if (inputfile == "") then
 endif
 
 if (outputfile == "") then
-  outputfile = "morphed_"//trim(inputfile)
+  outputfile = trim(inputfile)//"."//trim(strof(npart))//"."//xtyext_part
 endif  
 
-print*,'. new X is '//trim(strmx)
-call string_to_funct(strmx, morphx, iarg)
-print*,'. new Y is '//trim(strmy)
-call string_to_funct(strmy, morphy, iarg)
-print*,'. new Z is '//trim(strmz)
-call string_to_funct(strmz, morphz, iarg)
+if (npart < 2) then
+  call cfdtool_error("needs at least 2 parts")
+endif
 
 !------------------------------------------------------------
 ! read mesh
@@ -103,35 +98,37 @@ call typhonread_ustmesh(deftyphon, umesh)
 call typhon_close(deftyphon)
 
 !------------------------------------------------------------
-! morph mesh
+! compute partition
 
-  print*,'  mesh morphing computation...'
-  call new_fctfuncset(fctenv)
-  call morph_vertex(fctenv, umesh%mesh, morphx, morphy, morphz)
-  print*,'  done'
-  call delete_fctfuncset(fctenv)
-  call delete_fct_node(morphx)
-  call delete_fct_node(morphy)
-  call delete_fct_node(morphz)
+print*,'* computing mesh graph...'
+call create_face_connect(.false., umesh)
+
+print*,'* mesh partionning...'
+
+nci = umesh%ncell_int
+allocate(partition(nci))
+
+call cfd_print("> compute partition: "//trim(strof(npart))//" parts")
+
+call ustmesh_partition(part_method, umesh, npart, nci, partition)
 
 !------------------------------------------------------------
-! Create mesh file
+! Create partition file
 !------------------------------------------------------------
 
-filename = trim(outputfile)//"."//xtyext_mesh
 print*
-print*,'* Writing TYPHON file: '//trim(filename)
+print*,'* Writing partition file: '//trim(outputfile)
 !------------------------------
 ! open xbin file
 
-call typhon_openwrite(trim(filename), deftyphon, 1)
+call typart_openwrite(trim(outputfile), deftypart, nci, npart)
 
-call typhonwrite_ustmesh(deftyphon, umesh)
+call typart_writepartition(deftypart, partition)
 
 !------------------------------
 ! close files and end program
 
-call typhon_close(deftyphon)
+call typart_close(deftypart)
 print*,'done.'
 
 contains
@@ -140,20 +137,21 @@ contains
 subroutine cfdtool_error(str)
   implicit none
   character(len=*) :: str
-  print*,'command line: tymorph [options] inputfile[.tym]'
+  print*,'command line: typart [options] inputfile[.tym]'
   print*
   print*,'where options are:'
-  print*,'  -o filename      : output typhon mesh (default: morphed_inputfile)'
-  print*,'  -fx "expression" : new X coordinate (default is "x")'
-  print*,'  -fy "expression" : new Y coordinate (default is "y")'
-  print*,'  -fz "expression" : new Z coordinate (default is "z")'
-  print*,'"expression"  is a symbolic expression of x, y, z'
+  print*,'  -n npart         : number of partition'
+  print*,'  -o base          : output basename (default:basename of inputfile)'
+  print*,'  -kway            : force Metis k-way method'
+  print*,'  -recursive       : force Metis recursive method'
+  print*,'  -auto            : automatic partition method (default)'
+  print*,'output partition file is base.npart.typ'
   call cfd_error(str)
 endsubroutine cfdtool_error
 
-endprogram tymorph
+endprogram typart
 !------------------------------------------------------------------------------!
 ! Changes
 !
-! Apr  2013: created
+! Apr  2014: created
 !------------------------------------------------------------------------------!

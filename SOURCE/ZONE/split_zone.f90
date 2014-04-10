@@ -13,6 +13,7 @@ use VARCOM
 use DEFZONE
 use MODWORLD
 use MGRID
+use MESHPART
 
 implicit none
 
@@ -48,7 +49,7 @@ do while (associated(pgrid))
   write(str_w,*) "> compute partition: ",npart," parts"
   call print_info(10, trim(str_w))
 
-  call getpart_grid(pgrid, npart, nci, partition)
+  call ustmesh_partition(part_auto, pgrid%umesh, npart, nci, partition)
 
   ! -------------------------------------------------
   ! extract partition of a grid & create connectivity

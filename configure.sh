@@ -440,6 +440,7 @@ mv $MAKECONF $MAKECONF.bak 2> /dev/null  # if it exists
   echo "METISLIB    = $LIB_metis"
   echo "FPCGNS      = $FP_cgns"
   echo "CGNSLIB     = $LIB_cgns"
+  echo "EXTLIBS     = $(CGNSLIB) $(LAPACKLIB) $(METISLIB)"
   echo "FOPP        = \$(FPMETIS) \$(FPCGNS)"
   echo "FB          = $F90_FB \$(FOPP) -I\$(PRJINCDIR)"
   echo "OPTIONS     = ${optnames[@]}"

@@ -31,6 +31,7 @@ $(LDIR).f90MODFILES := \
     FTNARGS.f90      \
     IO_UNIT.f90      \
     IOCFD.f90        \
+    LIBRLE.f90       \
     LIBSORT.f90      \
     MESHPREC.f90     \
     PACKET.f90       \

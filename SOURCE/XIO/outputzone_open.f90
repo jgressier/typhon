@@ -38,16 +38,15 @@ character(len=8)      :: suffix
 select case(defio%format)
 
 case(fmt_TECPLOT)
-  call error_stop("Internal error (outputzone_open): Unable to use general output with TECPLOT format")
+  call error_stop("Internal error (outputzone_open): Unable to use general output with TECPLOT format, please use TYPHON output and post-processing routines")
 
 case(fmt_TYPHON)
 
   suffix = "."//xtyext_sol
-  defio%iunit = getnew_io_unit()
-  if (defio%iunit <= 0) call error_stop("IO unit management: impossible to find free unit")
+  !if (defio%iunit <= 0) call error_stop("IO unit management: impossible to find free unit")
   nbmesh = 1
   nbsol  = 1
-  call typhon_openwrite(defio%iunit, trim(defio%filename)//trim(suffix), defio%deftyphon, nbmesh, nbsol, defio%meshdef)
+  call typhon_openwrite(trim(defio%filename)//trim(suffix), defio%deftyphon, nbmesh, nbsol, defio%meshdef)
 
 case(fmt_VTK)
 

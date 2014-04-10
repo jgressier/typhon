@@ -136,6 +136,9 @@ if (defmesh%scaling.and.defmesh%morphing) then
   call error_stop("cannot use simultaneously SCALE and MORPH_* functions")
 endif
 
+! -- read partition definition
+
+
 ! -- read split method --
 
 defmesh%defsplit%splitmesh = -1

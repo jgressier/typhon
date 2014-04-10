@@ -64,5 +64,5 @@ $(PRJOBJDIR)/%.o:
 #
 $(PRJEXEDIR)/%: $(PRJOBJDIR)/%.o $(LIBDEPS:%=$(PRJLIBDIR)/lib%.$(LIBSTA))
 	@echo "* EXE   : options [$(F90OPT)] : $* from $<"
-	$(F90CWOPT) $< $(LOCALLINKOPT) -o $(PRJEXEDIR)/$*
+	$(F90CWOPT) $< $(LOCALLINKOPT) $(EXTLIBS) -o $(PRJEXEDIR)/$*
 

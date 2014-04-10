@@ -55,7 +55,7 @@ include $(CONFIGDIR)/rules.make
 
 MAKEFILE= Makefile
 
-EXTLIBS   = $(CGNSLIB) $(LAPACKLIB) $(METISLIB)
+#EXTLIBS   = $(CGNSLIB) $(LAPACKLIB) $(METISLIB)   # now defined in config/arch.make
 
 # include librairies.make
 

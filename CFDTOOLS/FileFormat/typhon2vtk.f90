@@ -105,8 +105,7 @@ endif
 
 print*,'* Opening TYPHON file: '//trim(inputfile)
 
-iunit1 = getnew_io_unit()
-call typhon_openread(iunit1, trim(inputfile), deftyphon)
+call typhon_openread(trim(inputfile), deftyphon)
 
 call typhonread_ustmesh(deftyphon, umesh)
 
@@ -114,7 +113,7 @@ call delete_ustmesh_subelements(umesh)
 
 if (.not.onlymesh) call typhonread_sol(deftyphon, umesh, gfield)
 
-call close_io_unit(iunit1)
+call typhon_close(deftyphon)
 
 !------------------------------------------------------------
 ! write mesh and solution

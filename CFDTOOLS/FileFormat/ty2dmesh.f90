@@ -6,7 +6,6 @@
 program ty2dmesh
 
 use IOCFD
-use IO_UNIT
 use VEC3D
 use USTMESH
 use XBIN_IO
@@ -19,7 +18,7 @@ use FCT_EVAL
 implicit none
 
 !------------------------------------------------------------------------------!
-integer            :: nargs, iunit
+integer            :: nargs
 character(len=256) :: filename, str_opt, str_val
 character(len=16)  :: str_ndir
 type(st_deftyphon) :: deftyphon
@@ -803,16 +802,14 @@ print*,'opening file '//trim(filename)
 !------------------------------
 ! open xbin file
 
-iunit = getnew_io_unit()
-
-call typhon_openwrite(iunit, trim(filename), deftyphon, 1)
+call typhon_openwrite(trim(filename), deftyphon, 1)
 
 call typhonwrite_ustmesh(deftyphon, umesh)
 
 !------------------------------
 ! close file and end program
 
-call close_io_unit(iunit)
+call typhon_close(deftyphon)
 print*,'done.'
 
 endprogram

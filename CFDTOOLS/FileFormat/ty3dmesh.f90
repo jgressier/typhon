@@ -19,7 +19,7 @@ use FCT_PARSER
 implicit none
 
 !------------------------------------------------------------------------------!
-integer            :: nargs, iunit
+integer            :: nargs
 character(len=256) :: filename, str_opt, str_val
 type(st_deftyphon) :: deftyphon
 integer(kip)       :: nx, ny, nz
@@ -342,16 +342,14 @@ print*,'opening file '//trim(filename)
 !------------------------------
 ! open xbin file
 
-iunit = getnew_io_unit()
-
-call typhon_openwrite(iunit, trim(filename), deftyphon, 1)
+call typhon_openwrite(trim(filename), deftyphon, 1)
 
 call typhonwrite_ustmesh(deftyphon, umesh)
 
 !------------------------------
 ! close file and end program
 
-call close_io_unit(iunit)
+call typhon_close(deftyphon)
 print*,'done.'
 
 contains
@@ -359,9 +357,7 @@ contains
 integer function unsnode(i, j, k)
 implicit none
 integer :: i, j, k
-
-unsnode = ((i-1)*(ny+1)+(j-1))*(nz+1)+k   ! nx, ny, nz are public number of cells in each direction
-
+  unsnode = ((i-1)*(ny+1)+(j-1))*(nz+1)+k   ! nx, ny, nz are public number of cells in each direction
 endfunction unsnode
 
 endprogram

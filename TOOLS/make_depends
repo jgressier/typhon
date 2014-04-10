@@ -86,7 +86,8 @@ for file in $(find $ROOTDIR -name '*.f90' | grep -v '/.#' | LC_ALL=C sort) ; do
   basename=$(basename $file .f90)
 
   moduledepend=$(
-    grep -i -o '^ *use  *[^ !]*' $file |
+    grep -i '^ *use' $file | grep -v 'MAKE#NODEPENDENCY' |
+      grep -i -o '^ *use  *[^ !]*' |
       tr   $trchangecase   |
       sed "$seduse;$sedmod;$sedend"
     )

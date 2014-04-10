@@ -89,8 +89,8 @@ do i = 1, defsolver%ninit
   case(init_typhon)
 
     call print_info(5,"  > TYPHON solution initialization: "//trim(defsolver%defmesh%filename))
-    iunit = getnew_io_unit()
-    call typhon_openread(iunit, trim(defsolver%defmesh%filename), deftyphon)
+
+    call typhon_openread(trim(defsolver%defmesh%filename), deftyphon)
 
     call typhonread_ustmesh(deftyphon, p_umesh) !! DEV: must SKIP reading
     !call delete_ustmesh_subelements(umesh)
@@ -102,7 +102,7 @@ do i = 1, defsolver%ninit
       call error_stop("Initialization: missing solution in TYPHON input file")
     endif
 
-    call close_io_unit(iunit)
+    call typhon_close(deftyphon)
 
   case(init_def)
 

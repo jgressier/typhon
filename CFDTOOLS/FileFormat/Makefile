@@ -25,6 +25,7 @@ LIBNAME := libcfdfileformat
 # List of f90 modules
 $(LDIR).f90MODFILES := \
     internal/TYFMT_MESH.f90 \
+    internal/TYFMT_PART.f90 \
     internal/TYFMT_SOL.f90  \
     internal/TYPHON_FMT.f90 \
     internal/XBIN_DATA.f90  \
@@ -62,6 +63,7 @@ $(LDIR).f90exefiles := \
     ty3dmesh.f90    \
     tymonitor.f90   \
     tymorph.f90     \
+    typart.f90      \
     typhon2vtk.f90  \
     typhon2tecplot.f90 \
 

@@ -52,13 +52,11 @@ case(fmt_TYPHON)
 
   if (((defio%meshdef == mesh_shared).or.(defio%meshdef == mesh_sharedcon)).and.(.not.defio%savedmesh)) then
     call print_info(4,"  write TYPHON shared mesh: "//trim(defio%basename)//trim("."//xtyext_mesh))
-    iunit = getnew_io_unit()   ! other unit
-    if (iunit <= 0) call error_stop("IO unit management: impossible to find free unit")
     nbmesh = 1
     nbsol  = 0
-    call typhon_openwrite(iunit, trim(defio%basename)//trim("."//xtyext_mesh), deftyphon2, nbmesh, nbsol, mesh_full)
+    call typhon_openwrite(trim(defio%basename)//trim("."//xtyext_mesh), deftyphon2, nbmesh, nbsol, mesh_full)
     call typhonwrite_ustmesh(deftyphon2, p_umesh)
-    call close_io_unit(iunit)
+    call typhon_close(deftyphon2)
     defio%savedmesh = .true.
   endif
 

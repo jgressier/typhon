@@ -56,9 +56,13 @@ character, parameter   :: fmt_VTKBIN      = 'I'   ! format VTK Binary
 integer(kpp), parameter :: per_trans = 2
 integer(kpp), parameter :: per_rot   = 3
 
+! -- Constants for PARTITION definition
+
+integer(kpp), parameter :: ipart_none  = 0
+integer(kpp), parameter :: ipart_metis = 5
+integer(kpp), parameter :: ipart_file  = 20
 
 ! -- DECLARATIONS -----------------------------------------------------------
-
 
 !------------------------------------------------------------------------------!
 ! structure MNU_PERIODICITY : Periodicity parameters
@@ -89,8 +93,10 @@ endtype mnu_meshsplit
 !------------------------------------------------------------------------------!
 type mnu_mesh
   character               :: format      ! cf 
-  character(len=longname) :: filename    ! nom de fichier
+  character(len=longname) :: filename    ! mesh filename
   integer(kpp)            :: geo         ! geometric param
+  integer(kpp)            :: ipart       ! method of partitionning
+  character(len=longname) :: partfile    ! filename of partition
   integer(kip)            :: ni, nj, nk  ! size of mesh if autoblocking 
   real(krp)               :: lx, ly, lz  ! dimension of block if autoblocking 
   integer(kip)            :: nperiodicity ! number of periodicity
