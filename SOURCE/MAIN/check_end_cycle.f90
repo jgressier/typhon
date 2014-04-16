@@ -22,8 +22,6 @@ real(krp), intent(in)        :: dt         ! time step of current iteration
 type(st_infozone), intent(inout) :: zinfo      ! zone information (residuals)
 
 ! -- Internal variables --
-integer, parameter :: itfreq = 10
-integer, parameter :: nlines = 25
 integer :: ierr
 
 ! -- BODY --
@@ -34,29 +32,11 @@ case(time_steady)
   zinfo%residu_ref = max(zinfo%residu_ref, zinfo%cur_res)
   if (zinfo%cur_res/zinfo%residu_ref <= zinfo%residumax) zinfo%end_cycle = .true.
   if (zinfo%iter_loc == zinfo%maxit) zinfo%end_cycle = .true.
-  ! -- header --
-  if (mod(zinfo%iter_loc, itfreq*nlines) == 1) call print_master(9,'     it residuals')
-  ! -- residuals --
-  if (mod(zinfo%iter_loc,itfreq) == 0) &
-      write(str_w,'(i7,g12.4)') zinfo%iter_loc, log10(zinfo%cur_res) !   log10(zinfo%cur_res/zinfo%residu_ref)
-      !if (mod(zinfo%iter_loc,itfreq) == 0) call print_info(9,str_w)
-  ! -- residuals --
-
 case(time_unsteady, time_unsteady_inverse)
   zinfo%cycle_time = zinfo%cycle_time + dt
-  ! -- header --
-  if (mod(zinfo%iter_loc, itfreq*nlines) == 1) call print_master(9,'     it time')
-  ! -- residuals --
-  if (mod(zinfo%iter_loc,itfreq) == 0) &      !    if (zinfo%end_cycle) &
-      write(str_w,'(i7,g11.4)') zinfo%iter_loc, zinfo%cycle_time
-  
 case default
-   call erreur("internal error (check_end_cycle)", "unknown time model")
-
+   call error_stop("internal error (check_end_cycle): unknown time model")
 endselect
-
-if (mod(zinfo%iter_loc,itfreq) == 0) call print_master(9,str_w)
-!  if (zinfo%end_cycle) call print_info(9,str_w)
 
 open(unit=2001, file="typhon_stop", status="old", iostat=ierr)
 if (ierr == 0) then

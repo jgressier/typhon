@@ -133,7 +133,7 @@ call xbin_defdatasection(xbindata, xbinty_part, "PARTITION", &
 
 call rle_encode(deftypart%ncell, partition, rlearray)
 
-call cfd_print("RLE compression by factor "//strof(real(deftypart%ncell)/(2*rlearray%nbnodes),2))
+call cfd_print("RLE compression by factor "//stroff(real(deftypart%ncell)/(2*rlearray%nbnodes),2))
 
 call xbin_writedata_ordint(deftypart%defxbin, xbindata, 2, rlearray%nbnodes, rlearray%fils)
 

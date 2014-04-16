@@ -165,7 +165,7 @@ call new_elemvtex(newmesh%cellvtex%elem(ielemtri), ntri, elem_tri3)      ! alloc
 
 newmesh%cellvtex%elem(ielemtri)%ielem(1:ntri) = (/ (ic, ic=1, ntri) /)   ! numbering
 
-call print_info(20, "    . creating"//strof(ntri,7)//" CV cells")
+call print_info(20, "    . creating"//strof(ntri)//" CV cells")
 
 do ic = 1, umesh%ncell_int
   icn = (ic-1)*4
@@ -190,7 +190,7 @@ call new_connect(newmesh%facecell,  newmesh%nface, 2)
 
 ! --- internal faces ---
 
-call print_info(20, "    . creating"//strof(newmesh%nface_intsvm,7)//" internal CV faces")
+call print_info(20, "    . creating"//strof(newmesh%nface_intsvm)//" internal CV faces")
 
 do ic = 1, umesh%ncell_int
   ifn     = (ic-1)*3
@@ -221,7 +221,7 @@ call new_connect(umeshcon%facevtex, nRface, fnv)     ; umeshcon%facevtex%nbnodes
 call new_genconnect(umeshcon%vtexface, newmesh%nvtex, 10, initdim=0)    ! 10 face per vertex as initial guess
 !umeshcon%vtexface%fils(:,:) = 0                           ! initialization
 
-call print_info(20, "    . creating"//strof(nRface,7)//" Riemann  CV faces")
+call print_info(20, "    . creating"//strof(nRface)//" Riemann  CV faces")
 
 do ic = 1, umesh%ncell_int
 

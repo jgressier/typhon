@@ -84,7 +84,7 @@ do io = 1, nkey   ! parse only BLOCK definition
   if (samestring(str,"VTK-BINARY"))  world%output(io)%format = fmt_VTKBIN
   if (world%output(io)%format == cnull) call error_stop("Parameter reading: unknown format <"//trim(str)//">")
 
-  call print_info(10,"  . file"//strof(io,3)//": "//trim(str)//" format")
+  call print_info(10,"  . file"//strofr(io,3)//": "//trim(str)//" format")
 
   ! -- filename or basename
 

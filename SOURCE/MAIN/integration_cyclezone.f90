@@ -162,8 +162,10 @@ do while (.not.(lzone%info%end_cycle.or.lzone%info%stop_integration))
     lzone%info%stop_integration = .true.
     call print_info(9,"    maximum number ("//trim(strof(lzone%info%iter_tot))//") of total iterations reached")
   endif
+  lzone%info%end_cycle = lzone%info%end_cycle.or.lzone%info%stop_integration
   
-  call write_monitors_iteration(lzone)
+  call write_monitors_iteration(lzone%info, &
+                                lzone%info%end_cycle) ! 2nd argument to force output
 
 enddo
 

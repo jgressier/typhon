@@ -118,7 +118,7 @@ do ifam = 1, nfam               ! LOOP on CGNS sections
       if (nelem > 0) then
         nvtex       = nvtex_cgnselement(icgtype)  
         ityphontype = cgns2typhon_elemtype(icgtype)
-        call cfd_print("  . create new element section: "//strof(nelem,7)//" "//trim(ElementTypeName(icgtype)))
+        call cfd_print("  . create new element section: "//strofr(nelem,7)//" "//trim(ElementTypeName(icgtype)))
         call addelem_genelemvtex(umesh%cellvtex)
         ielem = umesh%cellvtex%nsection
         call new_elemvtex(umesh%cellvtex%elem(ielem), nelem, ityphontype)

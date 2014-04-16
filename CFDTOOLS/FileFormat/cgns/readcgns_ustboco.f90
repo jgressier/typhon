@@ -79,7 +79,7 @@ case default
   endif
 endselect
 
-call cfd_print("  > tagged element section"//strof(ibc,3)//" : "//trim(boco%family))
+call cfd_print("  > tagged element section"//strof(ibc)//" : "//trim(boco%family))
  
 !-------------------------------------------
 ! read BOCO connectivity
@@ -106,7 +106,7 @@ case default
   call cfd_error("(CGNS) unknown list definition")
 endselect
 
-call cfd_print("    type "//trim(BCTypeName(bctyp))//", "//strof(npts,6)//" "//&
+call cfd_print("    type "//trim(BCTypeName(bctyp))//", "//strofr(npts,6)//" "//&
                trim(str_location(boco%ilocation))//" tags")
 
 !------------------------------

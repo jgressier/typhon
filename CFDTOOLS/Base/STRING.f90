@@ -11,11 +11,62 @@ integer, parameter :: iposzmaj = iachar('Z')
 
 ! -- INTERFACES -------------------------------------------------------------
 
-interface strof
-  module procedure strof_intl2, strof_intl4, strof_int2, strof_int4, strof_real, strof_double,  strof_realf, strof_doublef
+type st_string
+  integer            :: len
+  character, pointer :: c(:)
+endtype
+
+interface strof ! adjust left
+  module procedure strof_int2, strof_int4, strof_real, strof_double !, strof_realf, strof_doublef, strof_reale
+endinterface
+
+interface strofr ! adjust right
+  module procedure strofr_int2, strofr_int4
+endinterface
+
+interface strofe  ! exponential form
+  module procedure strof_reale, strof_doublee, strofr_reale, strofr_doublee
+endinterface
+
+interface stroff ! decimal form
+  module procedure strof_realf, strof_doublef, strofr_realf, strofr_doublef
 endinterface
 
 contains 
+
+!------------------------------------------------------------------------------!
+! Fonction : newstring from character "array"
+!------------------------------------------------------------------------------!
+subroutine newstring_s(string, str)
+  implicit none
+  type(st_string)              :: string
+  character(len=*), intent(in) :: str
+  ! -- body --
+  string%len = len(str)
+  allocate(string%c(string%len))
+  string%c = str
+endsubroutine
+
+!------------------------------------------------------------------------------!
+! Fonction : newstring from character "array"
+!------------------------------------------------------------------------------!
+subroutine newstring_n(string, l)
+  implicit none
+  type(st_string) :: string
+  integer         :: l
+  ! -- body --
+  string%len = l
+  allocate(string%c(l))
+endsubroutine
+
+!------------------------------------------------------------------------------!
+! Fonction : delete string
+!------------------------------------------------------------------------------!
+subroutine deletestring(string)
+  implicit none
+  type(st_string)              :: string
+  deallocate(string%c)
+endsubroutine
 
 !------------------------------------------------------------------------------!
 ! Fonction : Mise en minuscule d'un caractere
@@ -141,6 +192,21 @@ endfunction str_tr
 !------------------------------------------------------------------------------!
 ! Function : get root/base name and remove suffix
 !------------------------------------------------------------------------------!
+subroutine addstr(base, suff, pos)
+  implicit none
+  character(len=*), intent(inout) :: base
+  character(len=*), intent(in)    :: suff
+  integer, intent(inout)          :: pos
+  integer                         :: l
+  l = len(suff)
+  base(pos:pos+l-1) = suff(1:l)
+  pos = pos+l
+endsubroutine
+
+
+!------------------------------------------------------------------------------!
+! Function : get root/base name and remove suffix
+!------------------------------------------------------------------------------!
 function basename(str, suffix) result(strout)
   implicit none
   character(len=*), intent(in) :: str, suffix
@@ -252,7 +318,7 @@ endfunction is_real
 !------------------------------------------------------------------------------!
 ! Fonction : tranformation entier -> chaine de caracteres (len=l)
 !------------------------------------------------------------------------------!
-function strof_intl2(nb, l) result(strout)
+function strofr_int2(nb, l) result(strout)
   implicit none
   integer(2), intent(in) :: nb    ! integer to convert
   integer,    intent(in) :: l     ! string length
@@ -261,12 +327,12 @@ function strof_intl2(nb, l) result(strout)
 
   write(sform,'(i3)') l   
   write(strout,'(i'//trim(adjustl(sform))//')') nb
-endfunction strof_intl2
+endfunction strofr_int2
 
 !------------------------------------------------------------------------------!
 ! Fonction : tranformation entier -> chaine de caracteres (len=l)
 !------------------------------------------------------------------------------!
-function strof_intl4(nb, l) result(strout)
+function strofr_int4(nb, l) result(strout)
   implicit none
   integer(4), intent(in) :: nb    ! integer to convert
   integer,    intent(in) :: l     ! string length
@@ -275,7 +341,7 @@ function strof_intl4(nb, l) result(strout)
 
   write(sform,'(i3)') l   
   write(strout,'(i'//trim(adjustl(sform))//')') nb
-endfunction strof_intl4
+endfunction strofr_int4
 
 !------------------------------------------------------------------------------!
 ! Fonction : tranformation entier -> chaine de caracteres (ajuste a gauche)
@@ -329,6 +395,19 @@ endfunction strof_real
 !------------------------------------------------------------------------------!
 ! Fonction : tranformation real -> chaine de caracteres (ajuste a gauche)
 !------------------------------------------------------------------------------!
+function strof_reale(nb, d) result(strout)
+  implicit none
+  real(4), intent(in)  :: nb      ! nombre a transformer, et longueur
+  integer, intent(in)  :: d
+  character(len=20)    :: strout  ! longueur de la chaine
+
+  write(strout,'(e20.'//trim(strof_int4(d))//')') nb
+  strout = adjustl(strout)
+endfunction strof_reale
+
+!------------------------------------------------------------------------------!
+! Fonction : tranformation real -> chaine de caracteres (ajuste a gauche)
+!------------------------------------------------------------------------------!
 function strof_realf(nb, d) result(strout)
   implicit none
   real(4), intent(in)  :: nb      ! nombre a transformer, et longueur
@@ -338,6 +417,30 @@ function strof_realf(nb, d) result(strout)
   write(strout,'(f15.'//trim(strof_int4(d))//')') nb
   strout = adjustl(strout)
 endfunction strof_realf
+
+!------------------------------------------------------------------------------!
+! Fonction : tranformation real -> chaine de caracteres 
+!------------------------------------------------------------------------------!
+function strofr_reale(nb, l, d) result(strout)
+  implicit none
+  real(4), intent(in)  :: nb      ! nombre a transformer, et longueur
+  integer, intent(in)  :: l, d
+  character(len=l)    :: strout  ! longueur de la chaine
+
+  write(strout,'(e'//trim(strof_int4(l))//'.'//trim(strof_int4(d))//')') nb
+endfunction strofr_reale
+
+!------------------------------------------------------------------------------!
+! Fonction : tranformation real -> chaine de caracteres 
+!------------------------------------------------------------------------------!
+function strofr_realf(nb, l, d) result(strout)
+  implicit none
+  real(4), intent(in)  :: nb      ! nombre a transformer, et longueur
+  integer, intent(in)  :: l, d
+  character(len=l)    :: strout  ! longueur de la chaine
+
+  write(strout,'(f'//trim(strof_int4(l))//'.'//trim(strof_int4(d))//')') nb
+endfunction strofr_realf
 
 !------------------------------------------------------------------------------!
 ! Fonction : tranformation real -> chaine de caracteres (ajuste a gauche)
@@ -363,6 +466,43 @@ function strof_doublef(nb, d) result(strout)
   write(strout,'(f15.'//trim(strof_int4(d))//')') nb
   strout = adjustl(strout)
 endfunction strof_doublef
+
+!------------------------------------------------------------------------------!
+! Fonction : tranformation real -> chaine de caracteres (ajuste a gauche)
+!------------------------------------------------------------------------------!
+function strof_doublee(nb, d) result(strout)
+  implicit none
+  real(8), intent(in)  :: nb      ! nombre a transformer, et longueur
+  integer, intent(in)  :: d
+  character(len=20)    :: strout  ! longueur de la chaine
+
+  write(strout,'(e20.'//trim(strof_int4(d))//')') nb
+  strout = adjustl(strout)
+endfunction strof_doublee
+
+!------------------------------------------------------------------------------!
+! Fonction : tranformation real -> chaine de caracteres 
+!------------------------------------------------------------------------------!
+function strofr_doublee(nb, l, d) result(strout)
+  implicit none
+  real(8), intent(in)  :: nb      ! nombre a transformer, et longueur
+  integer, intent(in)  :: l, d
+  character(len=l)    :: strout  ! longueur de la chaine
+
+  write(strout,'(e'//trim(strof_int4(l))//'.'//trim(strof_int4(d))//')') nb
+endfunction strofr_doublee
+
+!------------------------------------------------------------------------------!
+! Fonction : tranformation real -> chaine de caracteres 
+!------------------------------------------------------------------------------!
+function strofr_doublef(nb, l, d) result(strout)
+  implicit none
+  real(8), intent(in)  :: nb      ! nombre a transformer, et longueur
+  integer, intent(in)  :: l, d
+  character(len=l)    :: strout  ! longueur de la chaine
+
+  write(strout,'(f'//trim(strof_int4(l))//'.'//trim(strof_int4(d))//')') nb
+endfunction strofr_doublef
 
 !------------------------------------------------------------------------------!
 ! Fonction : Test logique d'egalite des chaines de caracteres

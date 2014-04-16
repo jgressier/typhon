@@ -53,10 +53,10 @@ if (world%prj%inverse%iz_tmes * world%prj%inverse%iz_unknown &
   call erreur("Inverse Solver", "one BOCO has not been found")
 endif
 
-call print_info(10,"  FLUX unknown boco found: zone"//strof(world%prj%inverse%iz_unknown, 2)//&
-                                            ", boco"//strof(world%prj%inverse%ib_unknown, 3))
-call print_info(10,"  T target     boco found: zone"//strof(world%prj%inverse%iz_tmes, 2)//&
-                                            ", boco"//strof(world%prj%inverse%ib_tmes, 3))
+call print_info(10,"  FLUX unknown boco found: zone"//strofr(world%prj%inverse%iz_unknown, 2)//&
+                                            ", boco"//strofr(world%prj%inverse%ib_unknown, 3))
+call print_info(10,"  T target     boco found: zone"//strofr(world%prj%inverse%iz_tmes, 2)//&
+                                            ", boco"//strofr(world%prj%inverse%ib_tmes, 3))
 
 !---------------------------------------
 ! MEASURE face treatment

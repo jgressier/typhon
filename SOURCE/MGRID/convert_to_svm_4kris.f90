@@ -283,7 +283,7 @@ newmesh%cellvtex%elem(ielempent)%ielem(icnp+6) = (ic-1) * defmesh%defsplit%subce
 newmesh%cellvtex%elem(ielemhexa)%ielem(icnh+1) = (ic-1) * defmesh%defsplit%subcell + 10
 enddo
 
-call print_info(20, "    . creating"//strof(nquad + npent + nhexa,7)//" CV cells")
+call print_info(20, "    . creating"//strof(nquad + npent + nhexa)//" CV cells")
 
 
 do ic = 1, umesh%ncell_int
@@ -335,7 +335,7 @@ call new_connect(newmesh%face_Rtag, newmesh%nface, nfgauss) ; newmesh%face_Rtag%
 
 ! --- internal faces ---
 
-call print_info(20, "    . creating"//strof(newmesh%nface_intsvm,7)//" internal CV faces")
+call print_info(20, "    . creating"//strof(newmesh%nface_intsvm)//" internal CV faces")
 
 do ic = 1, umesh%ncell_int
   ifn     = (ic-1)* defmesh%defsplit%internal_faces
@@ -462,7 +462,7 @@ call new_connect(umeshcon%face_Rtag, nRface, nfgauss) ; umeshcon%face_Rtag%fils(
 call new_genconnect(umeshcon%vtexface, newmesh%nvtex, 10, initdim=0)    ! 10 face per vertex as initial guess
 !umeshcon%vtexface%fils(:,:) = 0                           ! initialization
 
-call print_info(20, "    . creating"//strof(nRface,7)//" Riemann  CV faces")
+call print_info(20, "    . creating"//strof(nRface)//" Riemann  CV faces")
 
 do ic = 1, umesh%ncell_int
 

@@ -138,8 +138,8 @@ if (facetag) then
 endif
 
 if (iverb > 0) then
-  call cfd_print("  >"//strof(nface,9)//" created faces")
-  call cfd_print("  >"//strof(count(umesh%facecell%fils(1:nface,2)==0),9)//" external faces")
+  call cfd_print("  >"//strof(nface)//" created faces")
+  call cfd_print("  >"//strof(count(umesh%facecell%fils(1:nface,2)==0))//" external faces")
 endif
 
 ! -- Renumerotation des faces --
@@ -217,7 +217,7 @@ do ib = 1, umesh%nboco
 
   umesh%boco(ib)%family = uppercase(umesh%boco(ib)%family)
   if (iverb > 0) &
-    call cfd_print("  . linking boundary condition marks"//strof(ib,3)//"/"//trim(strof(umesh%nboco))// &
+    call cfd_print("  . linking boundary condition marks"//strof(ib)//"/"//trim(strof(umesh%nboco))// &
                     ": "//trim(umesh%boco(ib)%family))
 
   select case(umesh%boco(ib)%ilocation)

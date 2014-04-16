@@ -59,6 +59,7 @@ case(solKDIF, solNS)
     !--------------------------------------------------------
     case(given_dt)   ! -- Pas de temps impose --
       pgrid%dtloc(1:ncell) = lzone%defsolver%deftime%dt
+      lzone%info%cflmax = 0.
 
     !--------------------------------------------------------
     case(stab_cond, loc_stab_cond)  ! -- Calcul par condition de stabilite (deftim%stabnb) --
@@ -75,9 +76,11 @@ case(solKDIF, solNS)
         case default
           call error_stop("internal error (calc_zonetimestep): unknown time model")
         endselect
+        lzone%info%cflmax = cfl
         call calc_ns_timestep(cfl, lzone%defsolver%defns%properties(1), &
                               pgrid%umesh, pgrid%info%field_loc, pgrid%dtloc(1:ncell), ncell)
       case(solKDIF)
+        lzone%info%cflmax = lzone%defsolver%deftime%stabnb
         call calc_kdif_timestep(lzone%defsolver%deftime, lzone%defsolver%defkdif%materiau, &
                                 pgrid%umesh, pgrid%info%field_loc, pgrid%dtloc(1:ncell), ncell)
       case default
@@ -90,7 +93,8 @@ case(solKDIF, solNS)
 
     ! -- need to compute minimum time step for all grids (only if global time step) --
     dt = min(dt, minval(pgrid%dtloc(1:ncell)))  ! (!) only for internal cells
-
+    lzone%info%dtmin = dt
+    
     ! -- check time steps are not NAN numbers --
     !pgrid%dtloc(1:ncell) = sqrt(-pgrid%dtloc(1:ncell))
     !print*,sum(pgrid%dtloc(1:ncell))
@@ -125,7 +129,6 @@ case(solKDIF, solNS)
 case default
   call error_stop("internal error: unknown solver (calc_zonetimestep)")
 endselect
-
 
 endsubroutine calc_zonetimestep
 !------------------------------------------------------------------------------!

@@ -53,7 +53,7 @@ if (nkey == 1) then
   ! -- max level number --
   call rpmgetkeyvalint(pcour, "MAXLEVEL", defamr%maxlevel, 1)
   if ((defamr%maxlevel > 0).and.(defamr%maxlevel < 10)) then
-    call print_info(8,"  niveau maximal de raffinement :"//strof(defamr%maxlevel,2))
+    call print_info(8,"  niveau maximal de raffinement :"//strof(defamr%maxlevel))
   else
     call erreur("Parametre AMR","nombre de niveau de raffinement inattendu")
   endif
@@ -61,7 +61,7 @@ if (nkey == 1) then
   ! -- refinement degree --
   call rpmgetkeyvalint(pcour, "REFINEMENT", defamr%degree, 2)
   if ((defamr%degree >= 2).and.(defamr%degree <= 4)) then
-    call print_info(8,"  degre de raffinement :"//strof(defamr%degree,2))
+    call print_info(8,"  degre de raffinement :"//strof(defamr%degree))
   else
     call erreur("Parametre AMR","degre de raffinement inattendu")
   endif

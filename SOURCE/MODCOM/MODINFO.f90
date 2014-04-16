@@ -9,6 +9,7 @@
 module MODINFO
 
 use TYPHMAKE     ! Definition de la precision
+use STRING
 
 implicit none
 
@@ -47,6 +48,8 @@ type st_infozone
   real(krp) :: cycle_start          ! starting time of current cycle
   real(krp) :: cycle_dt             ! duration      of cycle
   real(krp) :: cycle_time           ! local time    in the cycle
+  real(krp) :: cflmax               ! maximum cfl
+  real(krp) :: dtmin                ! minimum timestep
   real(krp) :: residumax            ! residu maximal admissible pour le cycle
   real(krp) :: residu_ref, cur_res  ! residu de reference (world) et courant (cycle)
   real(krp) :: residu_reforigine    ! residu de reference du premier cycle
@@ -56,6 +59,10 @@ type st_infozone
   integer   :: headproc
   integer, pointer &
             :: proc(:)              ! list of proc. which are computing this zone
+  ! -- outputs --
+  integer   :: itfreq_screen = 10          
+  integer   :: itfreq_file   = 1
+  logical   :: mon_it, mon_time, mon_res, mon_cflmax, mon_dtmin         
 endtype st_infozone
 
 ! -- INTERFACES -------------------------------------------------------------
@@ -136,6 +143,44 @@ case(1)
 case default
   print*,'unknown version of '//prjdef_name
 end select
+
+endsubroutine
+
+!------------------------------------------------------------------------------!
+! Procedure : moninfo_header
+!------------------------------------------------------------------------------!
+subroutine moninfo_header(str, zinfo)
+implicit none
+character(len=*)  :: str
+type(st_infozone) :: zinfo
+integer           :: pos
+
+str = ''
+pos = 1
+if (zinfo%mon_it)     call addstr(str, '     it',      pos)
+if (zinfo%mon_time)   call addstr(str, '  residuals ', pos)
+if (zinfo%mon_res)    call addstr(str, '     time   ', pos)
+if (zinfo%mon_cflmax) call addstr(str, ' cfl_max',     pos)
+if (zinfo%mon_dtmin)  call addstr(str, '    dt_min  ', pos)
+
+endsubroutine
+
+!------------------------------------------------------------------------------!
+! Procedure : moninfo_monitor
+!------------------------------------------------------------------------------!
+subroutine moninfo_monitor(str, zinfo)
+implicit none
+character(len=*)  :: str
+type(st_infozone) :: zinfo
+integer           :: pos
+
+str = ''
+pos = 1
+if (zinfo%mon_it)     call addstr(str, strofr(zinfo%iter_loc, 7),       pos)
+if (zinfo%mon_time)   call addstr(str, strofe(zinfo%cycle_time, 12, 4),     pos)
+if (zinfo%mon_res)    call addstr(str, strofe(log10(zinfo%cur_res), 12, 4), pos)
+if (zinfo%mon_cflmax) call addstr(str, stroff(zinfo%cflmax, 8, 2), pos)
+if (zinfo%mon_dtmin)  call addstr(str, strofe(zinfo%dtmin, 12, 4), pos)
 
 endsubroutine
 

@@ -147,7 +147,7 @@ do icycle = imin, imax
   call typhonread_sol(deftyphon, umesh, gfield)
 
   do ip = 1, nprobe
-    print*,'* computing probe '//strof(ip,2)
+    print*,'* computing probe '//strofr(ip,2)
     call prb_vol_init(probe(ip))
     call prb_vol_calc(real(icycle, 8), probe(ip), umesh, gfield)
     write(probe(ip)%unit,'(i5,e16.8)') icycle, probe(ip)%result  
