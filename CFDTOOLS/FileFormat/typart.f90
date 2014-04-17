@@ -27,7 +27,7 @@ type(mnu_mesh)             :: defmesh
 integer(kpp)               :: part_method
 !---------------------------
 integer(kip)              :: ip, iarg, npart, nci
-logical                   :: needgeom, fileread
+logical                   :: needgeom, fileread, verbose
 integer(kip), allocatable :: partition(:)  ! result of partition
 !------------------------------------------------------------------------------!
 
@@ -43,6 +43,7 @@ outputfile  = ""
 npart       = 0
 needgeom    = .true.
 fileread    = .false.
+verbose     = .false.
 part_method = part_auto
 
 nargs    = command_argument_count()
@@ -56,6 +57,8 @@ do while (iarg <= nargs)
     outputfile = trim(basename(trim(str_val), xtyext_mesh))
   case("-n")
     call read_command_argument(iarg, npart, .true.)
+  case("-v")
+    verbose = .true.
   case("-recursive")
     part_method = part_metisrecursive
   case("-kway")
@@ -64,7 +67,7 @@ do while (iarg <= nargs)
     part_method = part_auto
   case default
     if (fileread) then
-      call cfd_error("too many filenames ("//trim(inputfile)//", "//trim(str_opt)//")")
+      call cfd_error("wrong option or too many filenames ("//trim(inputfile)//", "//trim(str_opt)//")")
     endif
     inputfile = basename(trim(str_opt), xtyext_mesh)
     fileread  = .TRUE.
@@ -110,7 +113,7 @@ allocate(partition(nci))
 
 call cfd_print("> compute partition: "//trim(strof(npart))//" parts")
 
-call ustmesh_partition(part_method, umesh, npart, nci, partition)
+call ustmesh_partition(part_method, umesh, npart, nci, partition, verbose)
 
 !------------------------------------------------------------
 ! Create partition file
@@ -145,6 +148,7 @@ subroutine cfdtool_error(str)
   print*,'  -kway            : force Metis k-way method'
   print*,'  -recursive       : force Metis recursive method'
   print*,'  -auto            : automatic partition method (default)'
+  print*,'  -v               : verbose partition process'
   print*,'output partition file is base.npart.typ'
   call cfd_error(str)
 endsubroutine cfdtool_error

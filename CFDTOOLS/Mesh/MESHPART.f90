@@ -43,6 +43,30 @@ integer(kpp), parameter :: part_metisrecursive = 11
   ! nothing to define
 #endif
 
+#ifdef METIS
+interface
+  subroutine METIS_PartGraphKway(nvtx, ncon, xadj, adjncy, &
+                                      vwght, vsize, adjwgt, &
+                                      nparts, tpwgts, ubvec, &
+                                      options, edgecut, part) bind(C)
+    use ISO_C_BINDING ! MAKE#NODEPENDENCY # do not remove
+    integer :: nvtx, ncon, xadj(*), adjncy(*), nparts, options(*), edgecut, part(*)
+    type(c_ptr), value :: vwght, vsize, adjwgt, tpwgts, ubvec
+  endsubroutine
+  subroutine METIS_PartGraphRecursive(nvtx, ncon, xadj, adjncy, &
+                                      vwght, vsize, adjwgt, &
+                                      nparts, tpwgts, ubvec, &
+                                      options, edgecut, part) bind(C)
+    use ISO_C_BINDING ! MAKE#NODEPENDENCY # do not remove
+    integer :: nvtx, ncon, xadj(*), adjncy(*), nparts, options(*), edgecut, part(*)
+    type(c_ptr), value :: vwght, vsize, adjwgt, tpwgts, ubvec
+  endsubroutine
+endinterface
+#elif defined(METIS4)
+  ! nothing to define
+#else 
+  ! nothing to define
+#endif
 
 contains
 !------------------------------------------------------------------------------!
@@ -50,27 +74,29 @@ contains
 ! Fonction
 !   METIS split : compute partition of a ustmesh
 !------------------------------------------------------------------------------!
-subroutine ustmesh_partition(part_method, umesh, npart, ncell, partition)
+subroutine ustmesh_partition(part_method, umesh, npart, ncell, partition, verbose)
 implicit none
 ! -- INPUTS  --
 integer(kpp), intent(in) :: part_method
 type(st_ustmesh)         :: umesh      ! unstructured mesh to split
 integer                  :: npart     ! tot nb of parts
 integer                  :: ncell     ! number of interior cells
+logical, optional        :: verbose
 ! -- OUTPUTS --
 integer(kip)     :: partition(1:ncell)   ! results: part index for all internal cells
 
 ! -- Private Data --
 character(len=256) :: str_w
+logical            :: debug
 
 ! Variables fonction METIS
-type(st_csr)                       :: csr
-integer, dimension(:), allocatable :: vwgt, adjwgt  ! Weight of vertices and edges
-integer                            :: wgtflag       ! Weight option
-integer                            :: nconst
-integer                            :: numflag       ! FLAG TO BE SET TO 1 IN FORTRAN
-integer, dimension(nometisoptions) :: options       ! Misc Options
-integer                            :: edgecut       ! Number of edge cut
+type(st_csr)         :: csr
+integer, allocatable :: vwgt(:), adjwgt(:)  ! Weight of vertices and edges
+integer              :: wgtflag       ! Weight option
+integer              :: nconst
+integer              :: numflag       ! FLAG TO BE SET TO 1 IN FORTRAN / Metis4
+integer              :: options(nometisoptions)       ! Misc Options
+integer              :: edgecut       ! Number of edge cut
 ! Autres variables
 integer                            :: size_adjncy   ! Size of adjncy
 integer                            :: size_xadj     ! Size of xadj
@@ -84,18 +110,23 @@ integer(kpp)                       :: imeth
 
 ! -- BODY --
 
+if (present(verbose)) then
+  debug = verbose
+else
+  debug = .false.
+endif
+
 !--------------------------------------------------------------------
 ! Compute CSR connectivity of USTMESH for METIS
 
 call new(csr, umesh%facecell, ncell)  ! only internal cells
 
-write(str_w,*) ".          Num of cells:",ncell," to cut into ",npart," parts"
-call cfd_print(trim(adjustl(str_w)))
+call cfd_print(".          Num of cells: "//trim(strof(ncell))//" to cut into "//trim(strof(npart))//" parts")
 
 imeth = part_none
 select case(part_method)
 case(part_auto)
-  if (npart >=8) then
+  if (npart >= 8) then
     imeth = part_metiskway
   else  
     imeth = part_metisrecursive
@@ -111,21 +142,20 @@ endselect
 
 call METIS_SetDefaultOptions(options)
 options(metis_numbering) = 1
+if (debug) options(metis_dbglevel)  = 1
 nconst = 1
-tpwgts = C_NULL_PTR
-ubvec  = C_NULL_PTR
 
 select case(imeth)
 case(part_metiskway)
   call cfd_print("  call metis_PartGraphKway...")
   call METIS_PartGraphKway(ncell, nconst, csr%row_index, csr%col_index, &
-                           vwgt, C_NULL_PTR, C_NULL_PTR,  &
-                           npart, C_NULL_PTR, ubvec, options, edgecut, partition)
+                           C_NULL_PTR, C_NULL_PTR, C_NULL_PTR,  &
+                           npart, C_NULL_PTR, C_NULL_PTR, options, edgecut, partition)
 case(part_metisrecursive)
   call cfd_print("  call metis_PartGraphRecursive...")
   call METIS_PartGraphRecursive(ncell, nconst, csr%row_index, csr%col_index, &
                                 C_NULL_PTR, C_NULL_PTR, C_NULL_PTR,  &
-                                npart, tpwgts, ubvec, options, edgecut, partition)
+                                npart, C_NULL_PTR, C_NULL_PTR, options, edgecut, partition)
 case default
   call cfd_error("internal error: unknown partition method (Metis V5)")
 endselect
@@ -173,10 +203,11 @@ enddo
 partmin = minval(tab_parts(1:npart))
 partmax = maxval(tab_parts(1:npart))
 partavg = sum(tab_parts(1:npart))/npart
-write(str_w,'(a,3(i8,a),a,f5.1,a)') "    part sizes: ", &
+write(str_w,'(a,3(i8,a),a,f4.1,a)') "    part sizes: ", &
   partmin," (min) / ",partavg," (avg) / ",partmax," (max)", &
-  " and ",real(partmax-partmin)/partavg*100," % deviation"
+  " and ",real(partmax-partmin)/partavg*100,"% deviation"
 call cfd_print(trim(str_w))
+call cfd_print("      face cut: "//trim(strof(edgecut))//" ("//trim(stroff(100.*edgecut/ncell,2))//"% of cells)")
 
 deallocate(tab_parts)
 
