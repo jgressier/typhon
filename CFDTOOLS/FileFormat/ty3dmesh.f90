@@ -27,7 +27,7 @@ real(krp)          :: lx, ly, lz
 type(st_ustmesh)   :: umesh
 type(v3d), dimension(:,:,:), pointer :: vertex
 type(st_elemvtex), pointer :: elem
-integer(kpp)       :: itype, ielem, type_mesh
+integer(kpp)       :: itype, ielem, ntype_mesh
 character(len=256)  :: strx, stry, strz
 type(st_fct_node)   :: morphx, morphy, morphz
 type(st_fctfuncset) :: fctenv
@@ -61,7 +61,7 @@ nx = 50
 ny = 50
 nz = 50
 filename  = ""
-type_mesh = mesh_hexa
+ntype_mesh = mesh_hexa
 
 nargs    = command_argument_count()
 iarg     = 1
@@ -124,7 +124,7 @@ do while (iarg <= nargs)
     call read_command_argument(iarg, strz, lincr)
   ! mesh types
   case ("-hexa")
-    type_mesh = mesh_hexa
+    ntype_mesh = mesh_hexa
   case default
     if (fileread) then
       call cfd_error("too many filenames ("//trim(filename)// &
@@ -150,7 +150,7 @@ endif
 ! default: creates a 50x50x50 uniform mesh in 1x1x1 box
 !------------------------------------------------------------
 
-select case(type_mesh)
+select case(ntype_mesh)
 case(mesh_hexa)
   print*,'creating '//trim(strof(nx))//'x'//trim(strof(ny))//'x'//trim(strof(nz))//' 3D hexa mesh'
 case default
@@ -188,7 +188,7 @@ call init_ustmesh(umesh, 1)
 !------------------------------
 print*,'. vertices'
 
-select case(type_mesh)
+select case(ntype_mesh)
 case(mesh_hexa)
   umesh%mesh%nvtex  = (nx+1)*(ny+1)*(nz+1)
 case default
@@ -222,7 +222,7 @@ endif
 !------------------------------
 ! creates elements 
 !------------------------------
-select case(type_mesh)
+select case(ntype_mesh)
 case(mesh_hexa)
   print*,'. HEXA elements'
   itype = elem_hexa8
@@ -245,7 +245,7 @@ do i = 1, nx
   do j = 1, ny
     do k = 1, nz
       ic = ((i-1)*ny+j-1)*nz+k             ! HEXA cell index
-      select case(type_mesh)
+      select case(ntype_mesh)
       case(mesh_hexa)
         elem%ielem   (ic)    = ic
         elem%elemvtex(ic, 1) = unsnode(i  , j  , k  ) 

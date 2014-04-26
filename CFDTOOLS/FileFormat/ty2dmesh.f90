@@ -36,7 +36,7 @@ type(st_fctfuncset)   :: fctenv
 type(st_ustmesh)      :: umesh
 type(v3d), pointer    :: vertex(:,:,:)
 type(st_elemvtex), pointer :: elem
-integer(kpp)       :: itype, ielem, type_mesh, type_stor
+integer(kpp)       :: itype, ielem, ntype_mesh, ntype_stor
 !---------------------------
 logical, parameter :: lincr = .TRUE.
 logical, parameter :: lnoblk = .TRUE.
@@ -85,7 +85,7 @@ stry = "y"
 ni = 0
 nj = 0
 filename  = ""
-type_mesh = 0
+ntype_mesh = 0
 
 nargs    = command_argument_count()
 iarg     = 1
@@ -270,27 +270,27 @@ do while (iarg <= nargs)
     enddo
   ! mesh types
   case ("-quad")
-    type_stor = type_mesh
-    type_mesh = mesh_quad
-    if (typeread .AND. type_stor/=type_mesh) then
-      call cfd_error("too many mesh types ("//trim(strof(type_stor))// &
-                                        ", "//trim(strof(type_mesh))//")")
+    ntype_stor = ntype_mesh
+    ntype_mesh = mesh_quad
+    if (typeread .AND. ntype_stor/=ntype_mesh) then
+      call cfd_error("too many mesh types ("//trim(strof(ntype_stor))// &
+                                        ", "//trim(strof(ntype_mesh))//")")
     endif
     typeread = .TRUE.
   case ("-tri")
-    type_stor = type_mesh
-    type_mesh = mesh_tri
-    if (typeread .AND. type_stor/=type_mesh) then
-      call cfd_error("too many mesh types ("//trim(strof(type_stor))// &
-                                        ", "//trim(strof(type_mesh))//")")
+    ntype_stor = ntype_mesh
+    ntype_mesh = mesh_tri
+    if (typeread .AND. ntype_stor/=ntype_mesh) then
+      call cfd_error("too many mesh types ("//trim(strof(ntype_stor))// &
+                                        ", "//trim(strof(ntype_mesh))//")")
     endif
     typeread = .TRUE.
   case ("-tri4")
-    type_stor = type_mesh
-    type_mesh = mesh_tri4
-    if (typeread .AND. type_stor/=type_mesh) then
-      call cfd_error("too many mesh types ("//trim(strof(type_stor))// &
-                                        ", "//trim(strof(type_mesh))//")")
+    ntype_stor = ntype_mesh
+    ntype_mesh = mesh_tri4
+    if (typeread .AND. ntype_stor/=ntype_mesh) then
+      call cfd_error("too many mesh types ("//trim(strof(ntype_stor))// &
+                                        ", "//trim(strof(ntype_mesh))//")")
     endif
     typeread = .TRUE.
   case default
@@ -434,9 +434,9 @@ endif
 ! default: creates a (NI_DEF)x(NJ_DEF) uniform mesh in 1x1 box
 !------------------------------------------------------------
 
-if (type_mesh==0) type_mesh = mesh_quad
+if (ntype_mesh==0) ntype_mesh = mesh_quad
 
-select case(type_mesh)
+select case(ntype_mesh)
 case(mesh_quad)
   print*,'creating '  //trim(strof(ni))//'x'//trim(strof(nj))//' 2D quad mesh'
 case(mesh_tri)
@@ -615,7 +615,7 @@ call init_ustmesh(umesh, 1)
 !------------------------------
 print*,'. vertices'
 
-select case(type_mesh)
+select case(ntype_mesh)
 case(mesh_quad, mesh_tri)
   umesh%mesh%nvtex  = (ni+1)*(nj+1)
 case(mesh_tri4)
@@ -646,7 +646,7 @@ if (fctscale) then
   call delete_fct_node(morphz)
 endif
 
-if (type_mesh == mesh_tri4) then
+if (ntype_mesh == mesh_tri4) then
 do i = 1, ni
   do j = 1, nj
     iva = (i-1)*(nj+1)+j   ! lower left  corner
@@ -663,7 +663,7 @@ endif
 !------------------------------
 ! creates elements (iso-i lines)
 !------------------------------
-select case(type_mesh)
+select case(ntype_mesh)
 case(mesh_quad)
   print*,'. QUAD elements'
   itype = elem_quad4
@@ -697,7 +697,7 @@ do i = 1, ni
     ivb = iva+1            ! upper left  corner
     ivc = iva  +(nj+1)     ! lower right corner
     ivd = iva+1+(nj+1)     ! upper right corner
-    select case(type_mesh)
+    select case(ntype_mesh)
     case(mesh_quad)
       elem%elemvtex(ic, 1:nvtex) = (/ iva, ivc, ivd, ivb /)
       elem%ielem   (ic)          = ic

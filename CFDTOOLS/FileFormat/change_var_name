@@ -1,0 +1,3 @@
+#sed -i -e 's/type_stor/ntype_stor/g' ty2dmesh.f90
+#sed -i -e 's/type_mesh/ntype_mesh/g' ty2dmesh.f90
+sed -i -e 's/type_mesh/ntype_mesh/g' ty3dmesh.f90
