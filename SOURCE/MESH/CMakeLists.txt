@@ -13,7 +13,6 @@ SET(KIT_LIBS
 # Create a library which includes the source files.
 # The extension is already found.  Any number of sources could be listed here.
 SET(Kit_SRCS
-verify_cellvtex.f90
 test_ustmesh.f90
 scale_mesh.f90
 interpface_gradn_vect.f90
@@ -29,6 +28,7 @@ calc_ustmesh.f90
 calc_ust_checkface.f90
 calc_connface.f90
 calc_cellvtex.f90
+verify_cellvtex.f90
 build_implicit_dlu.f90
 build_implicit_bdlu.f90
 )
@@ -36,7 +36,12 @@ build_implicit_bdlu.f90
 
 # ---------------------------------------------------------------------------\
 # Make sure the compiler can find modules files
-#INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/CFDTOOLS/MyNeededInclude)
+INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/CFDTOOLS/Base)
+INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/CFDTOOLS/Math)
+INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/CFDTOOLS/Mesh)
+INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/SOURCE/MODCOM)
+INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/SOURCE/PARAM)
+INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/SOURCE/PIO)
 
 # Make sure the linker can find this library once it is built.
 LINK_DIRECTORIES ({${PROJECT_NAME}_BINARY_DIR}/${KIT})

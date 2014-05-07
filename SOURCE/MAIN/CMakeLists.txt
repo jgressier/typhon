@@ -80,3 +80,29 @@ ADD_LIBRARY(${pName}${KIT} ${Kit_SRCS})
 TARGET_LINK_LIBRARIES(${pName}${KIT} ${KIT_LIBS})
 # ---------------------------------------------------------------------------/
 
+# Add executables.
+# ---------------------------------------------------------------------------|
+# The extensions are automatically found.
+# ---------------------------------------------------------------------------|
+ADD_EXECUTABLE(${KIT}_Typhon
+               main.f90)
+TARGET_LINK_LIBRARIES(${KIT}_Typhon
+                      ${KIT_LIBS})
+# ---------------------------------------------------------------------------/
+#ADD_EXECUTABLE(${KIT}_RansLES
+#               ${KIT}_RansLES.cpp)
+#TARGET_LINK_LIBRARIES(${KIT}_RansLES
+#                      ${KIT_LIBS})
+# ---------------------------------------------------------------------------|
+# List of executables to be installed
+# The extension is already found.  Any number of sources could be listed here.
+SET(Kit_ESRCS
+    ${KIT}_CharlesX
+)
+# ---------------------------------------------------------------------------/
+
+##----------------------------------------------------------------------------\
+## Include CMake code common to all kits.
+##----------------------------------------------------------------------------|
+#INCLUDE(${${PROJECT_NAME}_CMAKE_DIR}/KitCommonBlock.cmake)
+## ---------------------------------------------------------------------------/

@@ -44,7 +44,12 @@ bdlu_bicg.f90
 
 # ---------------------------------------------------------------------------\
 # Make sure the compiler can find modules files
-#INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/CFDTOOLS/MyNeededInclude)
+INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/SOURCE/MODCOM)
+INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/SOURCE/PIO)
+INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/SOURCE/PARAM)
+INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/CFDTOOLS/Base)
+INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/CFDTOOLS/Math)
+
 
 # Make sure the linker can find this library once it is built.
 LINK_DIRECTORIES ({${PROJECT_NAME}_BINARY_DIR}/${KIT})

@@ -13,6 +13,8 @@ SET(KIT_LIBS
 # Create a library which includes the source files.
 # The extension is already found.  Any number of sources could be listed here.
 SET(Kit_SRCS
+Field/BASEFIELD.f90
+Field/GENFIELD.f90
 USTMESH.f90
 TENSOR3.f90
 STRMESH.f90
@@ -35,15 +37,15 @@ create_facevtex.f90
 
 # ---------------------------------------------------------------------------\
 # Make sure the compiler can find modules files
-#INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/CFDTOOLS/MyNeededInclude)
+INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/CFDTOOLS/Base)
+INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/CFDTOOLS/Math)
+INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/CFDTOOLS/Models)
 
 # Make sure the linker can find this library once it is built.
-LINK_DIRECTORIES ({${PROJECT_NAME}_BINARY_DIR}/${KIT})
+LINK_DIRECTORIES ({${PROJECT_NAME}_BINARY_DIR}/CFDTOOLS/${KIT})
 # ---------------------------------------------------------------------------/
 
 # ---------------------------------------------------------------------------\
 ADD_LIBRARY(${pName}${KIT} ${Kit_SRCS})
-TARGET_LINK_LIBRARIES(${pName}${KIT} ${KIT_LIBS})
-# ---------------------------------------------------------------------------/
 
-ADD_SUBDIRECTORY(Field)
+TARGET_LINK_LIBRARIES(${pName}${KIT} ${KIT_LIBS})

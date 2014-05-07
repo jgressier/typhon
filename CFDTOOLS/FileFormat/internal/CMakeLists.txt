@@ -13,6 +13,14 @@ SET(KIT_LIBS
 # Create a library which includes the source files.
 # The extension is already found.  Any number of sources could be listed here.
 SET(Kit_SRCS
+internal/xbininfo.f90
+internal/typhon2vtk.f90
+internal/typhon2tecplot.f90
+internal/typart.f90
+internal/tymorph.f90
+internal/tymonitor.f90
+internal/ty3dmesh.f90
+internal/ty2dmesh.f90
 XBIN_IO.f90
 XBIN_DATA.f90
 typhonread_ustmesh.f90

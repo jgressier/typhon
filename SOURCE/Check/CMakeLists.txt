@@ -22,8 +22,7 @@ check_mpi.f90
 
 # ---------------------------------------------------------------------------\
 # Make sure the compiler can find modules files
-#INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/CFDTOOLS/MyNeededInclude)
-
+INCLUDE_DIRECTORIES(${${PROJECT_NAME}_SOURCE_DIR}/SOURCE/MODCOM/)
 # Make sure the linker can find this library once it is built.
 LINK_DIRECTORIES ({${PROJECT_NAME}_BINARY_DIR}/${KIT})
 # ---------------------------------------------------------------------------/

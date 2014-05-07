@@ -31,8 +31,8 @@ cmake_minimum_required (VERSION 2.8.4)
 project(Typhon Fortran)
 
 set(CMAKE_Fortran_COMPILER mpif90)
-set(CMAKE_C_COMPILER mpicc)
-set(CMAKE_CXX_COMPILER mpiCC)
+#set(CMAKE_C_COMPILER mpicc)
+#set(CMAKE_CXX_COMPILER mpiCC)
 
 SET(pName Typhon)
 
@@ -40,12 +40,14 @@ SET(${PROJECT_NAME}_CMAKE_DIR "${${PROJECT_NAME}_SOURCE_DIR}/CMake")
 SET(CMAKE_MODULE_PATH "${${PROJECT_NAME}_CMAKE_DIR}" ${CMAKE_MODULE_PATH})
 #get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 
-message("CMAKE_Fortran_COMPILER_INIT = ${CMAKE_Fortran_COMPILER_INIT}")
-message("CMAKE_Fortran_COMPILER_FULLPATH = ${CMAKE_Fortran_COMPILER_FULLPATH}")
-message("CMAKE_Fortran_COMPILER = ${CMAKE_Fortran_COMPILER}")
-message("CMAKE_Fortran_FLAGS = ${CMAKE_Fortran_FLAGS}")
-message("CMAKE_Fortran_COMPILER_NAME = ${CMAKE_Fortran_COMPILER_NAME}")
-message("CMAKE_Fortran_COMPILER_ID = ${CMAKE_Fortran_COMPILER_ID}")
+SET(CMAKE_Fortran_FLAGS "-cpp " ${CMAKE_Fortran_FLAGS}) #ONLY GFORTRAN
+ 
+#message("CMAKE_Fortran_COMPILER_INIT = ${CMAKE_Fortran_COMPILER_INIT}")
+#message("CMAKE_Fortran_COMPILER_FULLPATH = ${CMAKE_Fortran_COMPILER_FULLPATH}")
+#message("CMAKE_Fortran_COMPILER = ${CMAKE_Fortran_COMPILER}")
+#message("CMAKE_Fortran_FLAGS = ${CMAKE_Fortran_FLAGS}")
+#message("CMAKE_Fortran_COMPILER_NAME = ${CMAKE_Fortran_COMPILER_NAME}")
+#message("CMAKE_Fortran_COMPILER_ID = ${CMAKE_Fortran_COMPILER_ID}")
 
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
   # cray compilers nersc
@@ -114,6 +116,22 @@ SET(${PROJECT_NAME}_BUILD_VERSION 1)
 SET(${PROJECT_NAME}_VERSION
     "${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}.${${PROJECT_NAME}_BUILD_VERSION}")
 
+# Use CGNS library
+OPTION(${PROJECT_NAME}_USE_CGNS
+       "Use CGNS library." 
+       OFF)
+MARK_AS_ADVANCED(${PROJECT_NAME}_USE_CGNS)
+
+IF(${PROJECT_NAME}_USE_CGNS)
+  #FIND_PACKAGE(CGNS REQUIRED)
+  ADD_DEFINITIONS("-DCGNS")
+ENDIF(${PROJECT_NAME}_USE_CGNS)
+
+# Look for TAU package
+IF(${PROJECT_NAME}_USE_TAU)
+  INCLUDE(FindTAU)
+ENDIF(${PROJECT_NAME}_USE_TAU)
+
 
 #-----------------------------------------------------------------------------
 # Configure install locations.  This allows parent projects to modify
@@ -168,6 +186,6 @@ SET(${PROJECT_NAME}_INCLUDE_DIRS_BUILD_TREE
   )
 
 
-ADD_SUBDIRECTORY(SOURCE)
 ADD_SUBDIRECTORY(CFDTOOLS)
+ADD_SUBDIRECTORY(SOURCE)
 
