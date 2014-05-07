@@ -158,8 +158,8 @@ integer           :: pos
 str = ''
 pos = 1
 if (zinfo%mon_it)     call addstr(str, '     it',      pos)
-if (zinfo%mon_time)   call addstr(str, '  residuals ', pos)
-if (zinfo%mon_res)    call addstr(str, '     time   ', pos)
+if (zinfo%mon_time)   call addstr(str, '     time   ', pos)
+if (zinfo%mon_res)    call addstr(str, '  residuals ', pos)
 if (zinfo%mon_cflmax) call addstr(str, ' cfl_max',     pos)
 if (zinfo%mon_dtmin)  call addstr(str, '    dt_min  ', pos)
 

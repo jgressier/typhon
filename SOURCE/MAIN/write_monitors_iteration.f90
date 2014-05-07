@@ -43,7 +43,7 @@ if (mod(zinfo%iter_loc, zinfo%itfreq_screen*nlines) == 1) then
   call print_master(9,str_w)
 endif
 
-if ((mod(zinfo%iter_loc,zinfo%itfreq_screen) == 0).or.force) then
+if ((mod(zinfo%iter_loc,zinfo%itfreq_screen) == 0).or.force.or.verbose_mode) then
   call moninfo_monitor(str_w, zinfo)
   call print_master(9,str_w)
 endif

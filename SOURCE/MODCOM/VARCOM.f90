@@ -15,6 +15,7 @@ use TYPHMAKE   ! machine accuracy definition
 logical        :: mpi_run, omp_run     ! parallel computation
 character      :: memory_mode          ! mode d'economie memoire
 character      :: model_mode           ! mode de modelisation physique
+logical        :: verbose_mode         ! increase outputs
 
 integer        :: histo_buffer         ! buffer for history writing
 
@@ -170,6 +171,7 @@ subroutine init_varcom()
   model_mode    = model_max
   !cell_buffer   = 256  ! Compiler dependent ?
   !taille_buffer = cell_buffer
+  verbose_mode = .false.
   histo_buffer  = 10   ! 
   omp_run = .false.
   nthread = 1
