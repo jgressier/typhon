@@ -1,0 +1,5 @@
+# Obj and Libraries folders
+Obj.*
+Lib.*
+# automatic dependencies
+depends.make

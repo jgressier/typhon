@@ -1,0 +1,8 @@
+# configure output
+config/arch.make
+configure.log
+configure.out
+bin/shconf.sh
+# check
+check.log
+diff.log
