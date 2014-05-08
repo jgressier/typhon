@@ -28,6 +28,8 @@ help:
 	@echo "    clean.seq    ->   remove all 'seq' targets"
 	@echo "    clean.omp    ->   remove all 'omp' targets"
 	@echo "    clean.mpi    ->   remove all 'mpi' targets"
+	@echo "  dox            -> make Doxygen documentation"
+	@echo "  dox-install    -> send documentation to website"
 	@echo "Options:"
 	@echo "  opt=optim  -> Optimized options (default)"
 	@echo "  opt=debug  -> Debugging options"
@@ -71,3 +73,8 @@ $(clean.TARGETS): clean.%:
 
 #cleanall: clean cleandeps
 
+dox:
+	doxygen doc/doxygen.conf 2>&1 | tee doxygen.log
+
+dox-install: dox
+	rsync -az -e ssh doc/html gressier,typhon@web.sf.net:htdocs/doc/

@@ -1,7 +1,9 @@
+!> @addtogroup Program
 !------------------------------------------------------------------------------!
-! TYPHON2VTK
-! convert TYPHON mesh & solution to VTK ascii solution
-!
+!> @ingroup Program
+!> @brief converts typhon internal solution into VTK format
+!> features
+!> - ascii or binary VTK legacy format
 !------------------------------------------------------------------------------!
 program typhon2vtk
 

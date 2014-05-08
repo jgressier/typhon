@@ -1,0 +1,8 @@
+ @defgroup Features Features
+
+ @defgroup Monitors Monitors and Probes
+ @ingroup Features
+
+ @defgroup FCT Symbolic Functions
+ @ingroup Features
+

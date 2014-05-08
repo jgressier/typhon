@@ -1,7 +1,9 @@
+!> @addtogroup Program
 !------------------------------------------------------------------------------!
-! TYPHON2tecplot
-! convert TYPHON mesh & solution to tecplot ascii solution
-!
+!> @ingroup Program
+!> @brief converts typhon internal solution into Tecplot format
+!> features
+!> - tecplot binary format
 !------------------------------------------------------------------------------!
 program typhon2tecplot
 
