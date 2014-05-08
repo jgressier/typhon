@@ -27,6 +27,10 @@ $(LDIR)_MOD := $($(LDIR).f90MODFILES:%.f90=%.$(MODEXT))
 # List of f90 files
 $(LDIR).f90files := \
     $($(LDIR).f90MODFILES) \
+    build_implicit_bdlu.f90   \
+    build_implicit_dlu.f90    \
+    init_implicit_bdlu.f90    \
+    init_implicit_dlu.f90     \
     calcboco_connect.f90           \
     calcboco_connect_match.f90     \
     calcboco_connect_per_match.f90 \
