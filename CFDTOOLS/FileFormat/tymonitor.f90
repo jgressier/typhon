@@ -1,6 +1,14 @@
-!------------------------------------------------------------------------------!
-! TYMONITOR
+!> @addtogroup Monitors
+!> @ingroup Features 
 !
+!> @addtogroup Program
+!------------------------------------------------------------------------------!
+!> @ingroup Program
+!> @brief post-processing using TYPHON monitors like probes
+!> features
+!> - processing of list of solutions
+!> - see monitor definition
+!> @todo link to feature 'monitor'
 !------------------------------------------------------------------------------!
 program tymonitor
 

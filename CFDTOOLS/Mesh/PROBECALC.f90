@@ -5,6 +5,8 @@
 !   Definition des structures pour les entrees du programme TYPHON
 !   Structures pour la definition des capteurs
 !
+!> @ingroup Monitors
+!> @brief Probes/monitors calculations
 !------------------------------------------------------------------------------!
 module PROBECALC
 

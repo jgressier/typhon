@@ -1,12 +1,17 @@
 !------------------------------------------------------------------------------!
-! PROGRAM : TYPHON
+!> @defgroup Program Programs
+!> Here is a list of Typhon project programs:
+!> - Typhon main program
+!> - Tools: preprocessing, postprocessing and converters
 !
-! Plateforme de resolution de systemes d'equations 
-! par discretisation Volumes Finis
+!> @mainpage
+!> description
+!> @todo short description of typhon
 !   
 !------------------------------------------------------------------------------!
- 
-program main
+!> @ingroup Program
+!> @brief Typhon main program
+program typhon
 
 use TYPHMAKE    ! default accuracy
 use VARCOM      ! common variables and types

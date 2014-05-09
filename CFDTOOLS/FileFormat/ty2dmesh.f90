@@ -1,7 +1,11 @@
+!> @addtogroup Program
 !------------------------------------------------------------------------------!
-! TY2DMESH
-! creates an H structured mesh
-!
+!> @ingroup Program
+!> @brief generation of 2D structured based mesh
+!> features
+!> - quads, or split of quads in 2 tri or 4 tris
+!> - morphing functions
+!> - split of boundary tags
 !------------------------------------------------------------------------------!
 program ty2dmesh
 

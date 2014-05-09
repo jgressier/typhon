@@ -1,3 +1,5 @@
+!> @addtogroup Monitors Probes and Monitors
+!> @ingroup Features
 !------------------------------------------------------------------------------!
 ! MODULE : DEFPROBE                       Auteur : J. Gressier
 !                                         Date   : Juillet 2003
@@ -5,6 +7,8 @@
 !   Definition des structures pour les entrees du programme TYPHON
 !   Structures pour la definition des capteurs
 !
+!> @ingroup Monitors
+!> @brief definition of Probes/monitors
 !------------------------------------------------------------------------------!
 module DEFPROBE
 
@@ -35,7 +39,9 @@ integer(kpp), parameter :: prb_iter   = 3       ! pour chaque iteration interne 
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! structure MNU_PROBE : options numeriques les capteurs
+!> @ingroup Monitors
+!> @struct st_defprobe
+!> @brief definition of probes
 !------------------------------------------------------------------------------!
 type st_defprobe
   integer(kpp)          :: type        ! type de capteur
