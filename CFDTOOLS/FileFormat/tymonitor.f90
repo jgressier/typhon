@@ -1,6 +1,3 @@
-!> @addtogroup Monitors
-!> @ingroup Features 
-!
 !> @addtogroup Program
 !------------------------------------------------------------------------------!
 !> @ingroup Program
@@ -8,7 +5,7 @@
 !> features
 !> - processing of list of solutions
 !> - see monitor definition
-!> @todo link to feature 'monitor'
+! doxygen limitation: cannot (mulitple) link to feature 'monitor'
 !------------------------------------------------------------------------------!
 program tymonitor
 

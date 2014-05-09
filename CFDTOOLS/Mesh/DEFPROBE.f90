@@ -1,5 +1,3 @@
-!> @addtogroup Monitors Probes and Monitors
-!> @ingroup Features
 !------------------------------------------------------------------------------!
 ! MODULE : DEFPROBE                       Auteur : J. Gressier
 !                                         Date   : Juillet 2003

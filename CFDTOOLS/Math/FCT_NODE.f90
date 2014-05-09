@@ -6,7 +6,10 @@
 !     contains type, links and CONTAINER
 !
 !------------------------------------------------------------------------------!
-
+!> @ingroup FCT
+!> @brief FCT node management
+!> define containers or operators
+!------------------------------------------------------------------------------!
 module FCT_NODE
 
 use FCT_DEF         ! accuracy definition and error handlers

@@ -4,7 +4,10 @@
 ! Module definition aimed 
 !
 !------------------------------------------------------------------------------!
-
+!> @ingroup FCT
+!> @brief FCT environment definition
+!> stack of variables with search, value setting
+!------------------------------------------------------------------------------!
 module FCT_ENV
 
 use FCT_DEF           ! basic definition
