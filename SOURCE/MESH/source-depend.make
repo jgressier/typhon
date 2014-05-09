@@ -23,12 +23,8 @@ $(LDIR)_MOD := $($(LDIR).f90MODFILES:%.f90=%.$(MODEXT))
 # List of f90 files
 $(LDIR).f90files := \
     $($(LDIR).f90MODFILES) \
-    build_implicit_bdlu.f90   \
-    build_implicit_dlu.f90    \
     calc_connface.f90         \
     calc_ustmesh.f90          \
-    init_implicit_bdlu.f90    \
-    init_implicit_dlu.f90     \
     interpface_gradient_scal.f90 \
     interpface_gradient_vect.f90 \
     interpface_gradn_scal.f90    \

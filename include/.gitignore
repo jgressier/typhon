@@ -1,0 +1,5 @@
+# results of module compilation
+*.mod
+svnrev.h
+cgnslib_f.h
+-
