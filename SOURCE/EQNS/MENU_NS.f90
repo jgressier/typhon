@@ -5,9 +5,9 @@
 !   Definition des structures pour les entrees du programme TYPHON
 !   Structures pour les options des solveurs EULER, NS, RANS
 !
-! Defauts/Limitations/Divers :
-!
 !------------------------------------------------------------------------------!
+!> @ingroup Model
+!> @brief Input parameters for NS model
 module MENU_NS
 
 use TYPHMAKE   ! Definition de la precision
@@ -17,10 +17,7 @@ use FCT_NODE
 
 implicit none
 
-
-
 ! -- DECLARATIONS -----------------------------------------------------------
-
 
 !------------------------------------------------------------------------------!
 ! structure MNU_NS : options numeriques les solveurs Euler, NS et RANS
@@ -112,8 +109,6 @@ integer bocotype
   endselect
 
 endfunction bctype_of_nsboco
-
-
 
 endmodule MENU_NS
 !------------------------------------------------------------------------------!

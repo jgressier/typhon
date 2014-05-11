@@ -44,6 +44,20 @@ call seekrpmblock(pblock, "MODEL", 0, pcour, nkey)
 
 if (nkey /= 1) call error_stop("too many or missing MODEL block")
 
+! -- concurrent simulations --
+
+call rpmgetkeyvalint(pcour, "NSIM", defsolver%nsim, 1)
+select case(defsolver%nsim)
+case(1)
+  ! default, nothing to do
+case(2:)
+  call print_info(5, "  Concurrent simulations set to "//trim(strof(defsolver%nsim)))
+case default
+  call error_stop("inconsistent NSIM for concurrent simulations")
+endselect
+
+! -- default --
+
 defsolver%defns%nb_species = 1
 allocate(defsolver%defns%properties(defsolver%defns%nb_species))
 

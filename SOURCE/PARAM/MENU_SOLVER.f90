@@ -7,8 +7,11 @@
 !   - Definition du probleme (solveur, conditions limites, initiales)
 !   - Parametres de calcul   (integration temporelle, spatiale, AMR...)
 !
-! Defauts/Limitations/Divers :
-!
+!> @brief General parameters for simulation
+!> include all parameters
+!> - models, boundary conditions, initial conditions
+!> - numerical parameters, mesh, ale, mrf, probes
+!> - environment for FCT
 !------------------------------------------------------------------------------!
 module MENU_SOLVER
 
@@ -33,44 +36,42 @@ implicit none
 
 ! -- Variables globales du module -------------------------------------------
 
-! -- Definition des entiers caracteristiques pour le type de solveur -- CF VARCOM
-!integer, parameter :: solNS     = 10    ! Equations de Navier-Stokes (EQNS)
-!integer, parameter :: solKDIF   = 20    ! Equation  de la chaleur    (EQKDIF)
-!integer, parameter :: solVORTEX = 30   ! Methode integrale et lagrangienne VORTEX
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! structure MNU_SOLVER : solver parameters
+!> @struct mnu_solver
+!> @brief general solver parameters: model, boco, ...
 !------------------------------------------------------------------------------!
 type mnu_solver
-  integer            :: typ_solver      ! type de solveur (cf definitions VARCOM) 
-  integer            :: nequat          ! nombre d'equations
-  integer            :: nsca, nvec      ! scalar and vector numbers
-  integer            :: ndof, nfgauss   ! dimension of cell basis and face representation
-  real(krp), pointer :: refsca(:)       ! reference value for scalars
-  real(krp), pointer :: refvec(:)       ! reference value for vectors
-  integer, pointer   :: idsca(:)        ! names for primitive scalars 
-  integer, pointer   :: idvec(:)        ! names for primitive vectors 
-  type(mnu_mesh)  :: defmesh         ! mesh / geometry parameters
-  type(mnu_ale)   :: defale          ! mesh / arbitrary lagrangian eulerian (ALE)
-  type(mnu_mrf)   :: defmrf          ! mesh / moving reference frame
-  type(mnu_time)  :: deftime         ! parametres d'integration temporelle
-  type(mnu_spat)  :: defspat         ! parametres d'integration spatiale
-  type(mnu_ns)    :: defns           ! options si solveur NS
-  type(mnu_kdif)  :: defkdif         ! options si solveur KDIF
+  integer            :: typ_solver      !> solver type (enum in VARCOM)
+  integer            :: nequat          !> number of equations
+  integer            :: nsca, nvec      !> scalar and vector numbers (sum = nequat)
+  integer            :: ndof, nfgauss   !> dimension of cell basis and face representation for spectral methods
+  integer            :: nsim            !> number of concurrent simulation
+  real(krp), pointer :: refsca(:)       !> reference value for scalars
+  real(krp), pointer :: refvec(:)       !> reference value for vectors
+  integer, pointer   :: idsca(:)        !> index of names for primitive scalars 
+  integer, pointer   :: idvec(:)        !> index names for primitive vectors 
+  type(mnu_mesh)  :: defmesh         !> mesh / geometry parameters
+  type(mnu_ale)   :: defale          !> mesh / arbitrary lagrangian eulerian (ALE)
+  type(mnu_mrf)   :: defmrf          !> mesh / moving reference frame
+  type(mnu_time)  :: deftime         !> time integration 
+  type(mnu_spat)  :: defspat         !> numerical schemes
+  type(mnu_ns)    :: defns           !> specific NS model parameters
+  type(mnu_kdif)  :: defkdif         !> specific KDIF model parameters (Heat transfer)
   type(mnu_vort)  :: defvort         ! options si solveur VORTEX
   type(mnu_amr)   :: defamr          ! options si AMR
   type(mnu_mpi)   :: defmpi          ! options si MPI
-  integer(kip)    :: ninit           ! number of initialization
-  integer(kip)    :: nboco           ! number of boundary conditions
-  integer(kip)    :: nconnect        ! number of connections
-  integer(kip)    :: nprobe          ! number of probes
-  type(mnu_init),    pointer :: init(:)      ! Initial conditions
-  type(mnu_boco),    pointer :: boco(:)      ! BOundary COnditions
-  type(mnu_connect), pointer :: connect(:)   ! Internal connections
-  type(st_defprobe), pointer :: probe(:)     ! Probes
-  type(st_fctfuncset)        :: fctenv       
+  integer(kip)    :: ninit           !> number of initialization
+  integer(kip)    :: nboco           !> number of boundary conditions
+  integer(kip)    :: nconnect        !> number of connections
+  integer(kip)    :: nprobe          !> number of probes
+  type(mnu_init),    pointer :: init(:)      !> Initial conditions
+  type(mnu_boco),    pointer :: boco(:)      !> BOundary COnditions
+  type(mnu_connect), pointer :: connect(:)   !> Internal connections
+  type(st_defprobe), pointer :: probe(:)     !> Probes
+  type(st_fctfuncset)        :: fctenv       !> external functions env for FCT computations
 endtype mnu_solver
 
 
@@ -87,7 +88,7 @@ endinterface
 contains
 
 !------------------------------------------------------------------------------!
-! Procedure : initialisation d'une structure MNU_SOLVER
+!> @brief initialization of MNU_SOLVER struct
 !------------------------------------------------------------------------------!
 subroutine init_mnu_solver(defsolver)
 implicit none
@@ -120,7 +121,6 @@ integer           :: nsca, nvec
   allocate(defsolver%idvec(nvec))
 
 endsubroutine define_solver
-
 
 !------------------------------------------------------------------------------!
 ! Procedure : desallocation d'une structure MNU_SOLVER

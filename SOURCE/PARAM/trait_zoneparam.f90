@@ -51,6 +51,9 @@ zone%defsolver%typ_solver = solver
 call def_fctenv(block, zone%defsolver)
 
 ! -------------------------
+! concurrent simulations are defined in models
+
+! -------------------------
 ! MODEL definition
 
 select case(solver)

@@ -19,8 +19,8 @@ implicit none
 
 ! -- Module global variables ------------------------------------------------
 
-!!!!!!! CONSTANTS are used in TYPHON internal format !!!!!!!
-!!!!!!! can add constants but must not be changed    !!!!!!!
+!> @warning CONSTANTS are used in TYPHON internal format !!!!!!!
+!> @warning can add constants but must not be changed    !!!!!!!
 
 integer(kpp), parameter :: sol_undefined  = 1
 integer(kpp), parameter :: sol_cell       = 2
@@ -39,18 +39,20 @@ integer(kpp), parameter :: sol_svm4kris2  = 42
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! ST_GENERICFIELD structure definition : generic physical field
+!> @struct st_genericfield
+!> @brief generic physical field with scalars, vectors and tensors
 !------------------------------------------------------------------------------!
-
 type st_genericfield
-  integer      :: nscal, nvect, ntens        ! field dimensions
-  integer      :: dim                        ! number of values
-  integer      :: ncell, ndof                ! number of cells and degree of freedom per cell
-  integer(kpp) :: soltype                    ! type of solution
-  type(st_genericfield),           pointer :: next      ! chained list pointer
-  type(st_scafield), dimension(:), pointer :: tabscal   ! scalar fields
-  type(st_vecfield), dimension(:), pointer :: tabvect   ! vector fields
-  type(st_tenfield), dimension(:), pointer :: tabtens   ! tensor fields
+  integer(kip) :: nscal, nvect, ntens    !> number of scalars, vectors and tensors
+  integer(kip) :: dim                    !> total size of fields
+  integer(kip) :: ncell                  !> number of cells (can be different from dim)
+  integer(kip) :: ndof                   !> number of degree of freedom per cell
+  !integer(kip) :: nsim                   !> number of concurrency fields
+  integer(kpp) :: soltype                    !> type of solution (see enum)
+  type(st_genericfield),           pointer :: next      !> chained list pointer
+  type(st_scafield), dimension(:), pointer :: tabscal   !> scalar fields
+  type(st_vecfield), dimension(:), pointer :: tabvect   !> vector fields
+  type(st_tenfield), dimension(:), pointer :: tabtens   !> tensor fields
 endtype st_genericfield
 
 

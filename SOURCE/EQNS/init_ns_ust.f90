@@ -31,7 +31,7 @@ type(st_ustmesh) :: umesh
 type(st_field) :: field
 
 ! -- Internal variables --
-integer(kip)                     :: ncell
+integer(kip)                     :: ncell, nsim, isim
 integer                          :: ip, iloc, ic, ier, nc
 character(len=50)                :: charac
 real(krp)                        :: xx, yy, zz, temp
@@ -46,10 +46,11 @@ type(st_fct_env)                 :: env
 ! -- BODY --
 
 !
-! ncell_int should be sufficient but primitives variables are computed on ncell
+!> @todo ncell_int should be sufficient but primitives variables are computed on ncell
 ncell = umesh%ncell ! _int
+nsim  = defsolver%nsim
 
-!!! DEV !!! should not directly use gamma
+!> @dev should use generic function of gas
 rcst  = defsolver%defns%properties(1)%r_const  
 gam   = defsolver%defns%properties(1)%gamma
 gmusd = (gam-1._krp)/2._krp
@@ -63,14 +64,15 @@ call new_buf_index(ncell, fct_buffer, nblock, ista, iend, nthread)
 
 !$OMP PARALLEL & 
 !$OMP private(ib, buf, iloc, ic, env, x, y, z, density, pstat, ptot, tstat, ttot, vel, velocity, mach, nc) &
-!$OMP shared(ista, iend, nblock, gam, gsgmu, gmusd, rcst) 
+!$OMP private(isim) &
+!$OMP shared(ista, iend, nblock, gam, gsgmu, gmusd, rcst, nsim) 
   
 call new_fct_env(env)      ! temporary environment from FCT_EVAL
 
 !$OMP DO
 do ib = 1, nblock
   buf = iend(ib)-ista(ib)+1
-
+  
   do iloc = 1, buf
     ic = iloc+ista(ib)-1
     x(iloc) = umesh%mesh%centre(ic,1,1)%x
@@ -80,6 +82,10 @@ do ib = 1, nblock
   call fct_env_set_realarray(env, "x", x(1:buf))
   call fct_env_set_realarray(env, "y", y(1:buf))
   call fct_env_set_realarray(env, "z", z(1:buf))
+
+  do isim = 1, defsolver%nsim   !> loop on concurrent field initialization
+
+  call fct_env_set_realarray(env, "isim", spread(real(isim, krp), 1, buf))
 
   call fctset_compute_neededenv(defsolver%fctenv, env)
 
@@ -163,10 +169,6 @@ do ib = 1, nblock
   ! --- computation of velocity magnitude if needed ---  
   if (.not.init%ns%is_velocity) then   ! Mach number is defined
     vel(1:buf) = sqrt((gam*pstat(1:buf)/density(1:buf)))*mach(1:buf)
-    !print*,'ps :',sum(pstat(1:buf))/buf
-    !print*,'rho:',sum(density(1:buf))/buf
-    !print*,'vel:',sum(vel(1:buf))/buf
-    !print*,'m  :',sum(mach(1:buf))/buf
   endif
   ! -- velocity components if not already defined --
   if (.not.init%ns%is_vcomponent) then
@@ -181,13 +183,14 @@ do ib = 1, nblock
   if (nc > 0) call error_stop("Initialization: user parameters produce " &
                           //"negative pressures ("//trim(strof(nc))//" cells)" )
   
-  ! -- compute density --
-  field%etatprim%tabscal(1)%scal(ista(ib):iend(ib)) = density(1:buf)
-  ! -- pressure --
-  field%etatprim%tabscal(2)%scal(ista(ib):iend(ib)) = pstat(1:buf)
-  ! -- velocity components if not already defined --
-  field%etatprim%tabvect(1)%vect(ista(ib):iend(ib)) = velocity(1:buf)
-
+  do iloc = 1, buf
+    ic = nsim*(iloc+ista(ib)-2)+isim
+    field%etatprim%tabscal(1)%scal(ic) = density(iloc)  ! density
+    field%etatprim%tabscal(2)%scal(ic) = pstat(iloc)    ! pressure
+    field%etatprim%tabvect(1)%vect(ic) = velocity(iloc) ! velocity components if not already defined --
+  enddo
+  
+enddo ! concurrent loop
 enddo ! block loop
 !$OMP END DO
 call delete_fct_env(env)      ! temporary environment from FCT_EVAL
@@ -214,11 +217,9 @@ case(init_file)
   close(1004)
 
 case(init_cgns)
-  call erreur("internal error", "should be called here")
-
+  call error_stop("internal error: should be called here")
 case default
-  call erreur("internal error", "unknown initialization method (init_ns_ust)")
-
+  call error_stop("internal error: unknown initialization method (init_ns_ust)")
 endselect
 
 ! -- MRF update --

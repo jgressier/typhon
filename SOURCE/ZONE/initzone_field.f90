@@ -1,9 +1,7 @@
 !------------------------------------------------------------------------------!
-! Procedure : initzone_field                  Auteur : J. Gressier
-!                                         Date   : Mars 2003
-! Fonction                                Modif  : (cf historique)
-!   Initialisation des champs
-!
+!> @brief initialization of fields per zone
+!> send to specific initialization according to mesh data structure
+!> computes references values for normalization (residuals, ...)
 !------------------------------------------------------------------------------!
 subroutine initzone_field(zone)
 

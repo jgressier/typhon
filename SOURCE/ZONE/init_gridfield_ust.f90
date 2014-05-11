@@ -1,9 +1,9 @@
 !------------------------------------------------------------------------------!
-! Procedure : init_gridfield_ust              Auteur : J. Gressier
-!
-! Fonction
-!   Initialization of fields according to the solver
-!
+!> @brief initialization of fields per grid
+!> allocation of fields on cells *and* faces 
+!> loop on initializations and select internal or solution reading (cgns, typhon)
+!> - initialize primitive variables
+!> - recompute conservatives variables
 !------------------------------------------------------------------------------!
 subroutine init_gridfield_ust(defsolver, umesh, grid)
 
@@ -43,7 +43,7 @@ call print_info(8, ". initializing and allocating fields")
 
 select case(defsolver%typ_solver)
 case(solNS, solKDIF)
-  field=>newfield(grid, defsolver%nsca, defsolver%nvec, umesh%ncell, umesh%nface)
+  field=>newfield(grid, defsolver%nsca, defsolver%nvec, umesh%ncell*defsolver%nsim, umesh%nface*defsolver%nsim)
 case default
   call error_stop("Internal error (init_gridfield_ust): unknown solver type")
 endselect
@@ -67,12 +67,15 @@ do i = 1, defsolver%ninit
   write(str_w,'(a,i3)') "  initialization #",i
   call print_info(10, str_w)
 
-  ! initialisation selon solveur
-
+  !> @todo [concurrent] specify ISIM to INIT block if right number
+  
   select case(defsolver%init(i)%type)
 
-  case(init_cgns)
+  case(init_cgns) ! ----------- CGNS solution initialization ---------------
 
+    !> @todo [concurrent] adapt CGNS reading to extended fields in concurrent simulations
+    if (defsolver%nsim >1) &
+      call error_stop("cannot handle CGNS reading for concurrent simulations")
 #ifdef CGNS
     call print_info(5,"  > CGNS file initialization: "//trim(defsolver%defmesh%filename))
     !! iunit = getnew_io_unit() ! defined by cg_open_f
@@ -86,13 +89,18 @@ do i = 1, defsolver%ninit
     call error_stop("Internal error (init_gridfield_ust): CGNS format was not activated at configure time")
 #endif/*CGNS*/
 
-  case(init_typhon)
+  case(init_typhon)  ! ----------- Typhon solution initialization ---------------
 
     call print_info(5,"  > TYPHON solution initialization: "//trim(defsolver%defmesh%filename))
 
+    !> @todo [concurrent] adapt TYPHON reading to extended fields in concurrent simulations
+    if (defsolver%nsim >1) &
+      call error_stop("cannot handle TYPHON reading for concurrent simulations")
+      
     call typhon_openread(trim(defsolver%defmesh%filename), deftyphon)
 
-    call typhonread_ustmesh(deftyphon, p_umesh) !! DEV: must SKIP reading
+    !> @todo must SKIP reading mesh when only solution is required
+    call typhonread_ustmesh(deftyphon, p_umesh)
     !call delete_ustmesh_subelements(umesh)
     call delete_ustmesh(p_umesh)
 
@@ -112,6 +120,9 @@ do i = 1, defsolver%ninit
       call init_ns_ust(defsolver, defsolver%init(i), field, umesh)
 
     case(solKDIF)
+      !> @todo [concurrent] adapt KDIF reading to extended fields in concurrent simulations
+      if (defsolver%nsim >1) &
+        call error_stop("cannot handle TYPHON reading for concurrent simulations")
       call init_kdif_ust(defsolver%init(i), field, umesh)
 
     case default
