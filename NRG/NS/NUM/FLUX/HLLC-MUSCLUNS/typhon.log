@@ -1,6 +1,6 @@
 
 ******************************************************
-TYPHON V 0.5.0  (686M)
+TYPHON V 0.5.0 (exported)
 ******************************************************
 
 ###################################################
@@ -15,9 +15,14 @@ TYPHON V 0.5.0  (686M)
 STEADY computation (pseudo unsteady convergence)
 * Definition of output parameters
   . file  1: TECPLOT format
-    data set type:CELL
+    mesh definition type: SHARED
+    mesh level output   : CURRENT
+           data set type:CELL
 Poursuite de la lecture des parametres ZONE
 - mesh definition
+  . mesh format : CGNS
+  . mesh file   : expansion-10.cgns
+- Definition of FCT environment
 - Definition of Fluid Model
     Inviscid (Euler) equations
     Perfect Gas 'AIR'
@@ -26,6 +31,7 @@ Poursuite de la lecture des parametres ZONE
   . EXPLICIT integration
 - Definition of spatial numerical parameters
   numerical flux : HLLC
+  approximate jacobian: HLL (constant waves)
   MUSCL second order extension: MUSCL-UNS
     limiter     : VANLEER
     post-limiter: NONE
@@ -34,120 +40,91 @@ Poursuite de la lecture des parametres ZONE
 * Definition of Boundary Conditions (BOCO)
     family name WALL        : condition SYMMETRY
     family name INLET       : condition SUPERSONIC_INLET
+    . parsing PI=1.E5
+    . parsing TI=400.
+    . parsing MACH=2.
     family name OUTLET      : condition SUPERSONIC_OUTLET
 * Definition of  Connections
 - Definition of Initial Conditions
   Parsing parameters for uniform initial conditions
-[STD] - Probes definition
-[STD]   no used-defined probe
+- Probes definition
+  no used-defined probe
 - Definition des parametres optionnels
 - Check parameters consistency and further initialization
 
+#####################################
+> MPI STRATEGY: preprocessing
+
 ###############################################
 > INPUTS : mesh and boundary conditions
-* READING CGNS MESH: expansion-10.cgns
-. 1base(s) in CGNS file expansion-10.cgns
-- BASE BASE#1 : maillage surfacique
-   1 zone(s) dans la base  1
-CGNS file expansion-10.cgns closed
-* CGNS -> TYPHON CONVERSION
-- converting CGNS mesh BASE#1 to TYPHON zone
-  unstructured mesh
-. converting mesh and computing connectivity
-    mesh is 2D (planar)
-  mesh points coordinates
-  creating faces and associated connectivity
-  . creating faces of TRI_3
-  . creating faces of QUAD_4
-  >      216 created faces
-  >       44 external faces
-  . linking boundary condition marks  1/3: WALL
-      face tagging method
-      13 mesh faces tagged
-  . linking boundary condition marks  2/3: INLET
-      face tagging method
-      16 mesh faces tagged
-  . linking boundary condition marks  3/3: OUTLET
-      face tagging method
-      15 mesh faces tagged
-End of CGNS->TYPHON conversion
 
 ########################
 > INITIALIZATION
 * Initializing zones
 * Computing mesh properties
-  . computing face geometry...
-  . computing cell geometry...
+* compute FACE connectivity
+  . computing face and cell geometry...
   mesh information:
     min & max volume:  0.0000E+00 to 0.1305E-01
         total volume:  0.8500E+00
       gravity center:  0.6196E+00  0.1863E+00  0.0000E+00
+* compute FACE colors
+  . 6 colors
 * Computing and Initializing connectivities of boundary conditions
 - Grid
   connectivity :     143 total cells,      99 internal cells &    44 ghost (BC) cells
   connectivity :     216 total faces,     172 internal faces &    44 boundary faces
-. initializing boundary faces to ghost cells
+. initializing boundary data
+  . initializing ghost cells for WALL
+  . initializing ghost faces for INLET
+  . initializing ghost faces for OUTLET
 . initializing connections
 * Computing initial conditions
 . initializing and allocating fields
-    initialization #  1
+  initialization #  1
+  > USER defined initialization
 * Initializing boundary conditions
 * Initializing BOCO history
 * Initializing probes & monitors
+> user initialization time:    0.5900E-02
 
 #####################
 > INTEGRATION
 * CYCLE 1
   zone    1
-     it residuals
-     10  0.4133
-     20  0.3824
-     30  0.3079
-     40  0.2317
-     50  0.1731
-     60  0.1362
-     70  0.8102E-01
-     80 -0.9274E-01
-     90 -0.2589
-    100 -0.3969
-    110 -0.5220
-    120 -0.6285
-    130 -0.7226
-    140 -0.9113
-    150  -1.188
-    160  -1.484
-    170  -1.680
-    180  -1.942
-    190  -2.050
-    200  -2.172
-    210  -2.309
-    220  -2.445
-    230  -2.626
-    240  -2.771
-    250  -2.975
-     it residuals
-    260  -3.217
-    270  -3.378
-    280  -3.562
-    290  -3.773
-    300  -3.828
-    310  -3.938
-    320  -4.153
-    330  -4.310
-    340  -4.442
-    350  -4.614
-    360  -4.783
-    370  -4.931
-    380  -5.077
-    390  -5.180
-    400  -5.294
-    410  -5.484
-    integration completed in   414 iterations
-  Residue in cycle = -6.004
-CPU   integration time:    0.2330E+00
-CPU average cycle time:    0.2330E+00
-* write TECPLOT file: typhonflat
+     it  residuals  cfl_max    dt_min
+     10  0.4128E+00    1.00  0.2522E-04
+     20  0.3824E+00    1.00  0.2405E-04
+     30  0.3077E+00    1.00  0.2279E-04
+     40  0.2315E+00    1.00  0.2213E-04
+     50  0.1729E+00    1.00  0.2194E-04
+     60  0.1360E+00    1.00  0.2196E-04
+     70  0.8091E-01    1.00  0.2208E-04
+     80 -0.9291E-01    1.00  0.2206E-04
+     90 -0.2580E+00    1.00  0.2200E-04
+    100 -0.3956E+00    1.00  0.2189E-04
+    110 -0.5206E+00    1.00  0.2189E-04
+    120 -0.6275E+00    1.00  0.2188E-04
+    130 -0.7210E+00    1.00  0.2188E-04
+    140 -0.9110E+00    1.00  0.2188E-04
+    150 -0.1188E+01    1.00  0.2190E-04
+    160 -0.1484E+01    1.00  0.2190E-04
+    170 -0.1685E+01    1.00  0.2190E-04
+    180 -0.1941E+01    1.00  0.2189E-04
+    190 -0.2043E+01    1.00  0.2189E-04
+    200 -0.2167E+01    1.00  0.2189E-04
+    210 -0.2311E+01    1.00  0.2189E-04
+    220 -0.2443E+01    1.00  0.2189E-04
+    227 -0.2555E+01    1.00  0.2189E-04
+    integration completed in 227 iterations
+    normalized walltime:   5.981 µs/cell/it (*ncpu)
+  Residue in cycle =  -3.010
+user  integration time:    0.1346E+00
+CPU   integration time:    0.1340E+00
+CPU average cycle time:    0.1340E+00
+Total nb of iterations:     227
+* write TECPLOT file: typhon
+* write TYPHON file: restart
 
 ########################
 > End of process
-finalize sequential exchanges
