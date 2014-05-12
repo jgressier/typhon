@@ -1,0 +1,28 @@
+! ---------------------------------------------------------------------------!
+! Description: Configured by the Typhon CMake build process
+! CreationDate: 20140509
+! Author(s): Julien Bodart (based on Ivan's Bermejo implementation in CharlesX)
+! ---------------------------------------------------------------------------/
+#ifndef __TyphonConfigure_h
+#define __TyphonConfigure_h
+
+! This header is configured by Typhon's build process
+
+! Version number
+#define Typhon_MAJOR_VERSION "@Typhon_MAJOR_VERSION@"
+#define Typhon_MINOR_VERSION "@Typhon_MINOR_VERSION@"
+#define Typhon_BUILD_VERSION "@Typhon_BUILD_VERSION@"
+#define Typhon_VERSION "@Typhon_VERSION@"
+
+! Fortran compiler used
+#define Typhon_Fortran_COMPILER "@CMAKE_Fortran_COMPILER@"
+
+#define Typhon_R_HOME "@Typhon_R_HOME@"
+
+! Typhon_Data directory
+#define Typhon_Data_ROOT "@Typhon_Data_ROOT@"
+
+! Add git commit information
+#define Typhon_GIT_SHA1 "@Typhon_GIT_SHA1@"
+#define Typhon_GIT_REFSPEC "@Typhon_GIT_REFSPEC@"
+#endif
