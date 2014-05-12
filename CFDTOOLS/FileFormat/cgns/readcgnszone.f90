@@ -35,7 +35,7 @@ character(len=100)     :: str_w     ! nom fantome
    
 call cg_base_read_f(unit, ib, cgnsname, idim, igeo, ier)
 
-!! BUG : test desactive car ier /= 0 meme si tout est correct
+!> @bug commented test because ier always O even if wrong CGNS reading
 !if (ier /= 0) call erreur("Lecture CGNS","Probleme a la lecture de la base")
 
 !-----------------------------------------------------------------
