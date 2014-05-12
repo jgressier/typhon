@@ -77,7 +77,7 @@ select case(bccon%bccon_mode)
 case(bccon_cell_state)
 
 !$OMP PARALLEL & 
-!$OMP private(ifb, if, ic, ib, ii, buf, cgface, cg, normale, d, TH, conduct, mu, temp, wallvelocity) &
+!$OMP private(ifb, if, ic, ib, ighost, buf, cgface, cg, normale, d, TH, conduct, mu, temp, wallvelocity) &
 !$OMP shared(ista, iend, nblock, gam, cp, r_PG) 
 !$OMP DO
 do ib = 1, nblock
