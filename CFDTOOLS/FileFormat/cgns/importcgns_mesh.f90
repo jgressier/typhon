@@ -30,6 +30,7 @@ integer                :: unit, ier, i
 call cfd_print("READING CGNS MESH: "//trim(defmesh%filename))
 
 ! --- open CGNS file ---
+#ifdef CGNS
 call cg_open_f(trim(defmesh%filename), MODE_READ, unit, ier)
 
 if (ier /= 0) call cfd_error("(CGNS IO) cannot open CGNS file "//trim(defmesh%filename))
@@ -40,6 +41,10 @@ call check_ustmesh_elements(umesh)
 
 ! --- CGNS close ---
 call cg_close_f(unit, ier)
+
+#else
+  call cfd_error("CGNS has not been activated during compilation")
+#endif
 
 endsubroutine importcgns_mesh
 !------------------------------------------------------------------------------!

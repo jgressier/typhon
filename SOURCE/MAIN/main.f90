@@ -4,6 +4,7 @@
 ! Plateforme de resolution de systemes d'equations 
 ! par discretisation Volumes Finis
 !   
+!> @todo transform CGNS mesh to TYPHON mesh in NRG cases
 !------------------------------------------------------------------------------!
  
 program main

@@ -21,6 +21,8 @@ integer             :: ib, iz     ! numero de base et de zone
 ! -- OUTPUTS --
 type(st_ustmesh) :: umesh
 
+#ifdef CGNS
+
 ! -- Internal variables --
 integer       :: size(3,3)          ! tableau d'informations de la zone
 integer       :: ier                ! error code
@@ -140,6 +142,11 @@ enddo
 ! --- fermeture du fichier ---
 
 call cg_close_f(unit, ier)
+
+#else
+  call cfd_error("CGNS has not been activated during compilation")
+#endif
+
 
 !-------------------------
 endsubroutine readcgnszone

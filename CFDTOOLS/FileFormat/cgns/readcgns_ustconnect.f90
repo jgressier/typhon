@@ -21,6 +21,8 @@ integer             :: ib, iz     ! numero de base et de zone
 ! -- OUTPUTS --
 type(st_ustmesh)    :: umesh      ! connectivity cell->vertex, face->vertex
 
+#ifdef CGNS
+
 ! -- Internal variables --                                        
 integer             :: ier        ! code erreur
 integer             :: ifam, nfam ! indice de famille et nombre total de familles
@@ -180,6 +182,11 @@ if ((ielem /= nelem).or.(ie /= dim+1)) &
   call cfd_error("Unexpected end of MIXED section")
 
 endsubroutine sort_elementtype
+
+#else
+  call cfd_error("CGNS has not been activated during compilation")
+#endif
+
 
 !------------------------------
 endsubroutine readcgns_ustconnect
