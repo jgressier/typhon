@@ -14,6 +14,17 @@ SET(CMAKE_MODULE_PATH "${${PROJECT_NAME}_CMAKE_DIR}" ${CMAKE_MODULE_PATH})
 
 #message(${CMAKE_Fortran_COMPILER_ID})
 
+# Set default cmake build type to RelWithDebInfo
+# (None Debug Release RelWithDebInfo MinSizeRel)
+
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Setting build type to 'RelWithDebInfo' as none was specified.")
+  set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
+    "MinSizeRel" "RelWithDebInfo")
+endif()
+
 #SET(CMAKE_Fortran_FLAGS "  " ${CMAKE_Fortran_FLAGS})
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
   SET(CMAKE_Fortran_FLAGS "-cpp -ffree-line-length-none -ffixed-line-length-none -fno-range-check" ${CMAKE_Fortran_FLAGS})
@@ -39,11 +50,7 @@ else (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
 endif (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
 
 
-# Set default cmake build type to RelWithDebInfo
-# (None Debug Release RelWithDebInfo MinSizeRel)
-IF( NOT CMAKE_BUILD_TYPE )
-   SET( CMAKE_BUILD_TYPE "RelWithDebInfo" )
-ENDIF()
+MESSAGE(STATUS "build type set to ${CMAKE_BUILD_TYPE}")
 
 # ${PROJECT_NAME} version number.  An even minor number corresponds to releases.
 SET(${PROJECT_NAME}_MAJOR_VERSION 0)
