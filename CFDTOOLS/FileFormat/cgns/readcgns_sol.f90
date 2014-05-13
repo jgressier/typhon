@@ -13,10 +13,9 @@ use IOCFD
 use GENFIELD
 use USTMESH
 use QUANTITY
+use CGNS_STRUCT
 
 implicit none
-
-include 'cgnslib_f.h'
 
 ! -- INPUTS --
 integer               :: cgnsunit           ! unit number for cgns file
@@ -34,6 +33,8 @@ character(len=shortname) :: qname
 ! -- BODY --
 
 ! see http://www.grc.nasa.gov/WWW/cgns/midlevel/solution.html
+
+#ifdef CGNS
 
 !-------------------------------------------------------------------------
 ! read solution primitive quantities
@@ -93,6 +94,10 @@ if (field%nvect > 0) then
 
   deallocate(v)
 endif
+
+#else
+  call cfd_error("CGNS has not been activated during compilation")
+#endif
 
 
 endsubroutine readcgns_sol

@@ -12,10 +12,9 @@ use IOCFD
 use QUANTITY
 use USTMESH
 use GENFIELD
+use CGNS_STRUCT
 
 implicit none
-
-include 'cgnslib_f.h'
 
 ! -- INPUTS --
 integer               :: cgnsunit           ! unit number for cgns file
@@ -32,6 +31,8 @@ real(8), allocatable  :: v(:)      ! temporary array for sol writing (type CGNS 
 character(len=shortname) :: qname, solname
 
 ! -- BODY --
+
+#ifdef CGNS
 
 ! see http://www.grc.nasa.gov/WWW/cgns/midlevel/solution.html
 
@@ -113,8 +114,11 @@ do ivec = 1, field%nvect
 
 enddo
 
-
 deallocate(v)
+
+#else
+  call cfd_error("CGNS has not been activated during compilation")
+#endif
 
 endsubroutine writecgns_sol
 !------------------------------------------------------------------------------!
