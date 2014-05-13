@@ -45,6 +45,10 @@ INCLUDE_DIRECTORIES (${PROJECT_BINARY_DIR}/CFDTOOLS/Models)
 # Make sure the linker can find this library once it is built.
 LINK_DIRECTORIES ({${PROJECT_NAME}_BINARY_DIR}/CFDTOOLS/${KIT})
 # ---------------------------------------------------------------------------/
+IF(${PROJECT_NAME}_USE_METIS)
+  SET(KIT_LIBS ${KIT_LIBS} "${METIS_LIBRARIES}" )
+  INCLUDE_DIRECTORIES(${METIS_INCLUDE_DIR})
+ENDIF(${PROJECT_NAME}_USE_METIS)
 
 # ---------------------------------------------------------------------------\
 ADD_LIBRARY(${pName}${KIT} ${Kit_SRCS})
