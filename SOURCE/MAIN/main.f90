@@ -29,9 +29,7 @@ integer        :: itimer_init, itimer_tot
 
 integer        :: ierr
 
-character(len=6), parameter :: version = "0.5.0"
-
-include 'svnrev.h'
+#include "TyphonConfigure.h"
 
 ! -- BODY --
 
@@ -59,7 +57,9 @@ call init_output()
 
 call print_info(0,"")
 call print_info(0,"******************************************************")
-call print_info(0,"TYPHON V "//trim(version)//" ("//trim(svnrev)//")")
+call print_info(0,"TYPHON V "//trim(Typhon_VERSION)//" ("//trim(Typhon_GIT_SHA1)//") branch "//trim(Typhon_GIT_REFSPEC))
+call print_info(0,"******************************************************")
+call print_info(0,"Compiled with "//trim(Typhon_Fortran_COMPILER)//" ")
 call print_info(0,"******************************************************")
 
 itimer_tot  = realtime_start()

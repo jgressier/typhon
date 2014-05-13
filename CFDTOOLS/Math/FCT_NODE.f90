@@ -92,7 +92,7 @@ character(len=op_len), dimension(min_op:max_op), parameter :: op2name = &
 
 integer(ipar), parameter :: fct_ncst = 2
 
-character(len=3), parameter :: cst_string(fct_ncst) = (/ "_pi", "_e" /)
+character(len=3), parameter :: cst_string(fct_ncst) = (/ "_pi", "_e " /)
 real(8),          parameter :: cst_val(fct_ncst)    = (/ 3.14159265358979323846_8,&
                                                          2.71828182845904523536_8  /)
 

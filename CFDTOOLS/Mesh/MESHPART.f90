@@ -40,6 +40,7 @@ integer(kpp), parameter :: part_metisrecursive = 11
   integer, parameter :: metisint       = 4  
   ! nothing to define
 #else 
+  integer, parameter :: nometisoptions = 5
   ! nothing to define
 #endif
 
