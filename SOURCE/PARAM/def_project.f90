@@ -54,12 +54,6 @@ write(str_w,'(a,i3)') ". number of coupling relations :",prj%ncoupling
 call print_info(8,adjustl(str_w))
 
 ! ----------------------------------------------------------------------------
-! Read number of simulations (1 by default)
-call rpmgetkeyvalint(pcour, "NBSIM", prj%nsim, 1)
-write(str_w,'(a,i3)') ". number of simulations :",prj%nsim
-call print_info(8,adjustl(str_w))
-
-! ----------------------------------------------------------------------------
 ! Framework type (needed)
 
 call rpmgetkeyvalstr(pcour, "COORD", str)
