@@ -60,7 +60,7 @@ logical, target    :: isjminread, isjmaxread, jsiminread, jsimaxread
 logical, pointer   :: wread ! list of windows is read
 logical, target    :: splitjmin, splitjmax, splitimin, splitimax
 logical, pointer   :: sread ! list of splits is read
-logical            :: typeread, fileread
+logical            :: ntyperead, fileread
 logical, target    :: niread, njread
 logical, pointer   :: dread
 character, parameter :: sep = ':'
@@ -103,7 +103,7 @@ splitjmin = .FALSE.
 splitjmax = .FALSE.
 splitimin = .FALSE.
 splitimax = .FALSE.
-typeread = .FALSE.
+ntyperead = .FALSE.
 fileread = .FALSE.
 niread = .FALSE.
 njread = .FALSE.
@@ -272,27 +272,27 @@ do while (iarg <= nargs)
   case ("-quad")
     ntype_stor = ntype_mesh
     ntype_mesh = mesh_quad
-    if (typeread .AND. ntype_stor/=ntype_mesh) then
+    if (ntyperead .AND. ntype_stor/=ntype_mesh) then
       call cfd_error("too many mesh types ("//trim(strof(ntype_stor))// &
                                         ", "//trim(strof(ntype_mesh))//")")
     endif
-    typeread = .TRUE.
+    ntyperead = .TRUE.
   case ("-tri")
     ntype_stor = ntype_mesh
     ntype_mesh = mesh_tri
-    if (typeread .AND. ntype_stor/=ntype_mesh) then
+    if (ntyperead .AND. ntype_stor/=ntype_mesh) then
       call cfd_error("too many mesh types ("//trim(strof(ntype_stor))// &
                                         ", "//trim(strof(ntype_mesh))//")")
     endif
-    typeread = .TRUE.
+    ntyperead = .TRUE.
   case ("-tri4")
     ntype_stor = ntype_mesh
     ntype_mesh = mesh_tri4
-    if (typeread .AND. ntype_stor/=ntype_mesh) then
+    if (ntyperead .AND. ntype_stor/=ntype_mesh) then
       call cfd_error("too many mesh types ("//trim(strof(ntype_stor))// &
                                         ", "//trim(strof(ntype_mesh))//")")
     endif
-    typeread = .TRUE.
+    ntyperead = .TRUE.
   case default
     if (fileread) then
       call cfd_error("too many filenames ("//trim(filename)// &
