@@ -1,12 +1,10 @@
 !------------------------------------------------------------------------------!
-! MODULE : COLOR
-!
-! Fonction
-!
+!> @ingroup omp
+!> @brief computation of colored group from face connectivity
+!! in graph context, a face is an edge and a cell is a node or vertex of the graph
 !------------------------------------------------------------------------------!
 module COLOR
 
-use MESHPREC        ! accuracy definition
 use CONNECTIVITY 
 use IOCFD 
 

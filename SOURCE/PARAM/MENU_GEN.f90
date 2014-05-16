@@ -1,9 +1,5 @@
 !------------------------------------------------------------------------------!
-! MODULE : MENU_GEN
-!
-! Fonction
-!   Definition of general/project options
-!
+!> @brief Definition of general/project options
 !------------------------------------------------------------------------------!
 module MENU_GEN
 
@@ -47,7 +43,7 @@ character, parameter :: time_unsteady_inverse  = 'V'
 
 
 !------------------------------------------------------------------------------!
-! structure MNU_PROJECT : Project Parameters
+!> @struct MNU_PROJECT: Project Parameters
 !------------------------------------------------------------------------------!
 type mnu_project
   integer(kip)    :: nzone      ! number of zones
@@ -61,6 +57,8 @@ type mnu_project
   real(krp)       :: dtbase     ! pas de temps de base d'un cycle
   integer(kpp)    :: action     ! give main action to do
   type(mnu_inv)   :: inverse    ! parameters for inverse method
+  integer(kip)    :: nbproc     ! number of available procs
+
 endtype mnu_project
 
 !------------------------------------------------------------------------------!

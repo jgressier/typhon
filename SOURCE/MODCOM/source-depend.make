@@ -20,7 +20,6 @@ $(LDIR).f90MODFILES := \
     GENLIB.f90    \
     LAPACK.f90    \
     MODINFO.f90   \
-    TYPHMAKE.f90  \
     VARCOM.f90    \
 
 $(LDIR)_MOD := $($(LDIR).f90MODFILES:%.f90=%.$(MODEXT))

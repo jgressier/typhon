@@ -10,8 +10,6 @@
 
 module BASEFIELD
 
-use MESHPREC     ! Precision and string size
-!use OUTPUT
 use VEC3D        !
 use TENSOR3      !
 

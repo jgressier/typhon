@@ -29,7 +29,6 @@ type st_info
   integer   :: icycle               ! cycle courant
   real(krp) :: curtps               ! temps physique courant
   real(krp) :: residu_ref, cur_res  ! residu de reference et courant
-  integer   :: nbproc               ! total number of communicating processors
   integer, pointer &
             :: headproc(:)          ! id of heading proc for each zone
 endtype st_info

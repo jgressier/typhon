@@ -230,10 +230,9 @@ do ic = 1, nface_cut
 enddo
 
 ! ---------------------------------------------
-! extract/copy fields (only conservative values)
-
-!!! DEV !!! not necessary here !!! 
-!!! allocated & initialized later in init_champ
+!> @dev extract/copy fields (only conservative values) to generalize routine
+!! not necessary here since only used as preprocessing
+!! fields are allocated & initialized later in init_field
 
 ! ---------------------------------------------
 ! extract/copy ustmesh connectivity
@@ -307,18 +306,6 @@ do ielem = 1, fullgrid%umesh%cellvtex%nsection
 
 enddo
 
-! ---------------------------------------------
-! check cut faces orientation (ghost cell is facecell(if,2) index)
-
-do if = 1, nface_cut
-  if2 = new_iface(cutface(if))
-  if (partgrid%umesh%facecell%fils(if2,1) > partgrid%umesh%facecell%fils(if2,2)) then
-    new_ib = partgrid%umesh%facecell%fils(if2,2)
-    partgrid%umesh%facecell%fils(if2,2) = partgrid%umesh%facecell%fils(if2,1)
-    partgrid%umesh%facecell%fils(if2,1) = new_ib
-    partgrid%umesh%mesh%iface(if2,1,1)%normale = -partgrid%umesh%mesh%iface(if2,1,1)%normale
-  endif
-enddo
 
 ! ---------------------------------------------
 ! extract/copy ustmesh boco connectivity
@@ -389,23 +376,8 @@ partgrid%umesh%boco(1:new_ib) = boco(1:new_ib)
 
 deallocate(boco)
 
-! ---------------------------------------------
-! extract/copy boco fields
-
-!!! DEV !!! not necessary here !!! 
-!!! allocated & initialized later in ???
-
-! ---------------------------------------------
-call check_ustmesh_elements(partgrid%umesh)
-
-deallocate(new_icell)
-deallocate(new_iface)
-deallocate(new_ivtex)
-deallocate(facepart, cutface, cutcell)
-
 
 endsubroutine extractpart_grid
-
 !------------------------------------------------------------------------------!
 ! Change history
 !

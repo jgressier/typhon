@@ -1,12 +1,13 @@
 !------------------------------------------------------------------------------!
-! MODULE : USTMESH 
-!
-! Grid geometry and connectivity for unstructured mesh
+!> @brief definition of unstructured mesh
+!! connectivity
+!! - cellvtex, facecell, facevtex
+!! - include mesh geometry from module MESHBASE
+!! - boco tags on boundaring faces
 !------------------------------------------------------------------------------!
-
 module USTMESH
 
-use MESHPREC      ! configuration of machine accuracy
+use MPICOMM
 use MESHBASE      ! geometrical basic elements
 use MESHPARAMS
 use CONNECTIVITY  ! lists & connectivity 
@@ -40,7 +41,7 @@ type st_ustmesh
                            facecell              !> connectivite face   -> cellules  par type
                                                  !> SUPPOSED TO INDEX LOWER INDEX CELL FIRST
   type(st_genconnect)   :: colors                !> independent set of faces
-  type(st_genconnect)   :: vtexface              !> VTEX-FACE connectivity
+  type(st_genconnect)   :: vtexface              !> VTEX-FACE connectivity (only temporary)
   type(st_genelemvtex)  :: cellvtex              !> CELL-VTEX connectivity
   
   integer               :: nboco                 !> number of boundary conditions
@@ -49,6 +50,9 @@ type st_ustmesh
   type(st_connect)      :: face_Ltag, face_Rtag  !> define Riemann face as a local Gauss pt index
   ! --- specific SVM structure ---
   integer(kip)          :: nface_intsvm          !> number of internal SVM faces
+contains
+  procedure, pass :: send   => ustmesh_send
+  procedure, pass :: recv   => ustmesh_recv
 endtype st_ustmesh
 
 
@@ -63,6 +67,7 @@ interface delete
   module procedure delete_ustmesh
 endinterface
 
+private ustmesh_send, ustmesh_recv
 
 ! -- Fonctions et Operateurs ------------------------------------------------
 
@@ -80,7 +85,7 @@ type(st_ustmesh) :: umesh
 integer       :: ncell, nface, nvtex
   print*,"!!! pas d'allocation dans new_ustmesh !!!"
   stop
-endsubroutine new_ustmesh
+end subroutine new_ustmesh
 
 !------------------------------------------------------------------------------!
 ! Procedure : Initialization of USTMESH structure
@@ -266,6 +271,44 @@ enddo
 
 endsubroutine get_bocofacecenter
 
+!---------------------------------------------------------------------------------------!
+!> @brief send ustmesh information 
+!---------------------------------------------------------------------------------------!
+subroutine ustmesh_send(this, iproc, tag)
+implicit none
+class(st_ustmesh) :: this
+integer(kip)       :: iproc, array(12)
+integer(kmpi)      :: tag
+
+  array(1:12) = (/ this%id, this%level, this%elemdim, &
+                  this%nvtex, this%nface, this%ncell, &
+                  this%nface_int, this%ncell_int, this%nface_lim, this%ncell_lim, &
+                  this%nboco, this%nface_intsvm /) 
+  call mpi_isend_int(array, 12, iproc, tag, wait=.true.)
+endsubroutine
+
+!---------------------------------------------------------------------------------------!
+!> @brief receive ustmesh information
+!---------------------------------------------------------------------------------------!
+subroutine ustmesh_recv(this, iproc, tag)
+implicit none
+class(st_ustmesh) :: this
+integer(kip)       :: iproc, array(12)
+integer(kmpi)      :: tag
+  call mpi_isend_int(array, 12, iproc, tag, wait=.true.)
+  this%id           = array(1)
+  this%level        = array(2)
+  this%elemdim      = array(3)
+  this%nvtex        = array(4)
+  this%nface        = array(5)
+  this%ncell        = array(6)
+  this%nface_int    = array(7)
+  this%ncell_int    = array(8)
+  this%nface_lim    = array(9)
+  this%ncell_lim    = array(10)
+  this%nboco        = array(11)
+  this%nface_intsvm = array(12) 
+endsubroutine
 
 endmodule USTMESH
 !------------------------------------------------------------------------------!
@@ -279,4 +322,5 @@ endmodule USTMESH
 ! Apr  2008: split USTMESH with BOCO definition in USTBOCO
 ! Aug  2008: include "extract_centre" as "get_bocofacecenter"
 ! June 2011: face connectivity routines transfered to MESHCONNECT module
+! May  2014: send and recv routines
 !------------------------------------------------------------------------------!

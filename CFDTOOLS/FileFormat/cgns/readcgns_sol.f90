@@ -7,9 +7,7 @@
 !------------------------------------------------------------------------------!
 subroutine readcgns_sol(cgnsunit, ibase, izone, umesh, field) 
 
-use MESHPREC
 use IOCFD
-!use VARCOM
 use GENFIELD
 use USTMESH
 use QUANTITY

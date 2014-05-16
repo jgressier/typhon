@@ -5,10 +5,8 @@
 !   Compressed Row Storage format (definition & conversion)
 !
 !------------------------------------------------------------------------------!
-
 module LIBSORT
 
-use MESHPREC        ! accuracy definition
 use CONNECTIVITY 
 use IOCFD 
 

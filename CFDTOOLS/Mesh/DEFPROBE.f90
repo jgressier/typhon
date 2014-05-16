@@ -10,7 +10,6 @@
 !------------------------------------------------------------------------------!
 module DEFPROBE
 
-use MESHPREC   
 use VEC3D      
 use FCT_NODE   ! symbolic functions
 

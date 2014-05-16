@@ -6,13 +6,8 @@
 
 module STRMESH
 
-use MESHPREC      ! configuration of machine accuracy
-!use MESHBASE      ! geometrical basic elements
+use TYPHMAKE      ! configuration of machine accuracy
 use MESHPARAMS
-!use CONNECTIVITY  ! lists & connectivity 
-!use ELEMVTEX      ! Cell (vtex) definition
-!use IOCFD
-!use DEF_USTBOCO
 
 implicit none
 

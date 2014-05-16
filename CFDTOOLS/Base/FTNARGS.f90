@@ -5,7 +5,7 @@
 !------------------------------------------------------------------------------!
 module FTNARGS
 
-use MESHPREC
+use TYPHMAKE   !> @todo must generalize FTNARGS functions to many kinds
 use STRING
 
 ! -- DECLARATIONS -----------------------------------------------------------

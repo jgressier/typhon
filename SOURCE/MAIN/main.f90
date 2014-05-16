@@ -13,9 +13,9 @@
 !> @brief Typhon main program
 program typhon
 
-use TYPHMAKE    ! default accuracy
 use VARCOM      ! common variables and types
 use OUTPUT      ! definition des procedures et unites pour les sorties
+use MPICOMM
 use TIMER
 use MODWORLD    ! global data & structure for the computation
 use MENU_GEN    ! general parameters for the project
@@ -46,15 +46,14 @@ include 'svnrev.h'
 
   call MPI_Init(ierr)
   call MPI_Comm_rank(MPI_COMM_WORLD, myprocid,     ierr)
-  call MPI_Comm_size(MPI_COMM_WORLD, world%info%nbproc, ierr)
+  call MPI_Comm_size(MPI_COMM_WORLD, world%prj%nbproc, ierr)
   myprocid   = myprocid+1    ! mpi_comm_rank starts from 0
-  tympi_real = MPI_REAL8
-  tympi_int  = MPI_INTEGER4  
+  call init_mpicomm()
 
 #else  /*NO MPICOMPIL*/
   mpi_run           = .false.
-  world%info%nbproc = 1
-  myprocid          = 0
+  world%prj%nbproc  = 1
+  myprocid          = 1
 #endif /*MPICOMPIL*/
 
 call init_output()

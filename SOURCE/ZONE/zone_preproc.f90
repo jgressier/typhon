@@ -10,9 +10,7 @@ use TYPHMAKE
 use OUTPUT
 use DEFZONE
 use MESHPARAMS
-#ifdef MPICOMPIL
 use MPICOMM
-#endif
 
 implicit none
 
@@ -26,8 +24,28 @@ type(st_grid), pointer :: pgrid
 ! -- BODY --
 
 !--------------------------------------------------------------------
+! grid MPI distribution
+
+select case(zone%defsolver%defmesh%ipart)
+case(ipart_file)
+  call print_info(5,"* Grid distribution")
+  pgrid => zone%gridlist%first
+  do while (associated(pgrid))
+    !> @dev implement ustmesh direct distribution using partition file
+    call error_stop("not yet implemented (zone_preproc)")
+    !call grid_distribution(zone%defsolver, pgrid) !?
+    pgrid => pgrid%next
+  enddo
+case(ipart_metis)
+  ! nothing to do: partition is not known yet
+case default
+  call error_stop("internal error: unknown partition method (zone_preproc)")
+endselect
+
+!--------------------------------------------------------------------
 ! grid preprocessing: internal faces ---
 
+call print_info(5,"* Computing internal connectivity")
 pgrid => zone%gridlist%first
 do while (associated(pgrid))
   call grid_preproc(zone%defsolver, pgrid)
@@ -41,13 +59,25 @@ call print_info(5,"* Computing and Initializing connectivities of boundary condi
 call init_connect(zone)
 
 !--------------------------------------------------------------------
-! Split grids
+! Split and distribute grids
+
+#ifdef MPICOMPIL
+select case(zone%defsolver%defmesh%ipart)
+case(ipart_file)
+  ! already done
+case(ipart_metis)
 if (zone%info%nbproc > 1) then
   call print_info(5,"* Splitting grids")
   call split_zone(zone)
 endif
+case default
+  call error_stop("internal error: unknown partition method (zone_preproc)")
+endselect
+#endif /* MPICOMPIL */
 
 !--------------------------------------------------------------------
+! sum volume and ndof on grids over all mpi threads
+
 zone%info%totvolume = 0._krp
 zone%info%totndof   = 0
 

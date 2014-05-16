@@ -68,9 +68,6 @@ select case(itype)
     !     (1:3, 1) le nombre de sommets ni,nj,nk
     !     (1:3, 2) le nombre de cellules
     !     (1:3, 3) ?
-    umesh%mesh%idim = size(1,1)
-    umesh%mesh%jdim = size(2,1)
-    umesh%mesh%kdim = size(3,1)
     call cfd_error("Only able to read CGNS unstructured grids")
   case(Unstructured)   ! cas NON STRUCTURE
     ! size(1:3, 1) contient             (cf CGNS Mid-level Library)
@@ -80,9 +77,6 @@ select case(itype)
     ! ce sont en fait les trois premiers entiers du tableau sous forme lineaire
     umesh%mesh%nvtex = size(1,1)
     umesh%ncell      = size(2,1)
-    umesh%mesh%idim  = umesh%mesh%nvtex
-    umesh%mesh%jdim  = 1
-    umesh%mesh%kdim  = 1
   case default
     call cfd_error("(CGNS) unknown CGNS zone "//trim(cgnsname)//" type")
 endselect
@@ -100,7 +94,7 @@ endselect
 !-----------------------------------------------------------------
 ! Read CGNS vertices
 
-allocate(umesh%mesh%vertex(umesh%mesh%idim, umesh%mesh%jdim, umesh%mesh%kdim)) 
+allocate(umesh%mesh%vertex(umesh%mesh%nvtex, 1, 1)) 
 call readcgnsvtex(unit, ib, iz, umesh%mesh)
 umesh%nvtex = umesh%mesh%nvtex
    

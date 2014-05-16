@@ -1,15 +1,10 @@
 !------------------------------------------------------------------------------!
-! MODULE : MGRID                                  Authors : J. Gressier
-!                                                 Created : Mars 2004
-! Fonction
-!   Definition des structures de donnees des grilles
-!   maillage et champ
-!
+!@brief GRID definition and related routines
 !------------------------------------------------------------------------------!
-
 module MGRID
 
 use TYPHMAKE     ! Definition of int/real representation
+use CONNECTIVITY
 use USTMESH      ! Definition of unstructured mesh
 use STRMESH      ! Definition of (cartesian) structured mesh
 use DEFFIELD     ! Definition of fields
@@ -31,17 +26,20 @@ integer(kpp), parameter :: grid_str      = 20
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! Definition ST_INFOGRID : 
+! @struct st_infogrid
 !------------------------------------------------------------------------------!
 type st_infogrid
   integer                 :: id                ! grid index
   integer                 :: mpi_cpu           ! CPU/process  index
   integer(kpp)            :: gridtype          ! grid type 
-  integer                 :: l                 ! Refinement level
-  real(krp)               :: ndof              ! number of DOF
+  integer(kip)            :: level             ! Refinement level
+  integer(kip)            :: ndof              ! number of DOF
   real(krp)               :: volume            ! geometrical volume of grid
   type(st_field), pointer :: field_loc         ! pointer to instantaneous field
   type(st_field), pointer :: field_cyclestart  ! pointer to starting cycle field
+contains
+  procedure, pass :: send   => infogrid_send
+  procedure, pass :: recv   => infogrid_recv
 endtype st_infogrid
 
 !------------------------------------------------------------------------------!
@@ -62,7 +60,7 @@ type st_gridlist
 endtype st_gridlist
 
 !------------------------------------------------------------------------------!
-! Definition de la structure ST_GRID : grid maillage general et champ
+! @struct st_grid definition: mesh and fields
 !------------------------------------------------------------------------------!
 type st_grid
   type(st_infogrid)          :: info       ! grid information
@@ -109,12 +107,45 @@ interface name
   module procedure name_grid
 endinterface
 
+private infogrid_send, infogrid_recv
+
 ! -- Fonctions et Operateurs ------------------------------------------------
 
 
 ! -- IMPLEMENTATION ---------------------------------------------------------
 contains
 
+!---------------------------------------------------------------------------------------!
+! INFO_GRID routines and functions
+!---------------------------------------------------------------------------------------!
+
+!---------------------------------------------------------------------------------------!
+!> @brief send grid information 
+!---------------------------------------------------------------------------------------!
+subroutine infogrid_send(this, iproc, tag)
+implicit none
+class(st_infogrid) :: this
+integer(kip)       :: iproc, array(5)
+integer(kmpi)      :: tag
+  array(1:5) = (/ this%id, this%mpi_cpu, this%gridtype, this%level, this%ndof /) 
+  call mpi_isend_int(array, 5, iproc, tag, wait=.true.)
+end subroutine
+
+!---------------------------------------------------------------------------------------!
+!> @brief receive grid information
+!---------------------------------------------------------------------------------------!
+subroutine infogrid_recv(this, iproc, tag)
+implicit none
+class(st_infogrid) :: this
+integer(kip)       :: iproc, array(5)
+integer(kmpi)      :: tag
+  call mpi_isend_int(array, 5, iproc, tag, wait=.true.)
+  this%id       = array(1)
+  this%mpi_cpu  = array(2)
+  this%gridtype = array(3)
+  this%level    = array(4)
+  this%ndof     = array(5) 
+end subroutine
 
 !---------------------------------------------------------------------------------------!
 ! GRID routines and functions

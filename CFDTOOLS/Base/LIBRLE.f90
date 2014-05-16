@@ -7,7 +7,6 @@
 !------------------------------------------------------------------------------!
 module LIBRLE
 
-use MESHPREC        ! accuracy definition
 use CONNECTIVITY 
 use IOCFD 
 

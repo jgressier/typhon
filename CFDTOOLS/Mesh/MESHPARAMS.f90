@@ -97,6 +97,7 @@ type mnu_mesh
   integer(kpp)            :: geo         ! geometric param
   integer(kpp)            :: ipart       ! method of partitionning
   character(len=longname) :: partfile    ! filename of partition
+  integer(kip)            :: partcluster ! number of threads associated to one grid processing master
   integer(kip)            :: ni, nj, nk  ! size of mesh if autoblocking 
   real(krp)               :: lx, ly, lz  ! dimension of block if autoblocking 
   integer(kip)            :: nperiodicity ! number of periodicity

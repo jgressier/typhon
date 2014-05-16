@@ -6,7 +6,6 @@
 module TYPHON_FMT
 
 use XBIN_DATA
-use MESHPREC         ! Precision configuration
 use USTMESH
 
 implicit none

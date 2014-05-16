@@ -121,7 +121,7 @@ endif
 
 call new(csr, umesh%facecell, ncell)  ! only internal cells
 
-call cfd_print(".          Num of cells: "//trim(strof(ncell))//" to cut into "//trim(strof(npart))//" parts")
+call cfd_print("    Num of cells: "//trim(strof(ncell))//" to cut into "//trim(strof(npart))//" parts")
 
 imeth = part_none
 select case(part_method)

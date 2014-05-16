@@ -1,16 +1,9 @@
 !------------------------------------------------------------------------------!
-! MODULE : PROBECALC                       Auteur : J. Gressier
-!                                         Date   : Juillet 2003
-! Fonction                                Modif  : (cf Historique)
-!   Definition des structures pour les entrees du programme TYPHON
-!   Structures pour la definition des capteurs
-!
 !> @ingroup Monitors
 !> @brief Probes/monitors calculations
 !------------------------------------------------------------------------------!
 module PROBECALC
 
-use MESHPREC
 use DEFPROBE
 use USTMESH
 use GENFIELD
@@ -18,7 +11,7 @@ use QUANTITY
 use FCT_EVAL
 use FCT_ENV
 use PACKET
-!$ use OMP_LIB
+!$ use OMP_LIB  ! must keep the line for OMP compilation
 
 implicit none
 

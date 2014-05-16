@@ -31,11 +31,11 @@ select case(grid%info%gridtype)
 case(grid_ust)
 
   facetag = ( defsolver%defmesh%defsplit%splitmesh /= split_none )
-  call print_info(10,"* compute FACE connectivity")
+  call print_info(10,"- compute FACE connectivity")
   call create_face_connect(facetag, grid%umesh, verbose=1)
   call grid_ustpreproc(defsolver, grid)
 
-  call print_info(10,"* compute FACE colors")
+  call print_info(10,"- compute FACE colors")
   call grid_postproc(grid)
   call print_info(12,"  . "//trim(strof(grid%umesh%colors%nbnodes))//" colors")
   

@@ -4,7 +4,7 @@
 !------------------------------------------------------------------------------!
 module TECFMT
 
-use MESHPREC         ! Precision configuration
+use TYPHMAKE        ! Precision configuration
 use IOCFD
 
 implicit none

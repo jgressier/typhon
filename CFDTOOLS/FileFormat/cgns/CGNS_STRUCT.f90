@@ -15,7 +15,6 @@
 
 module CGNS_STRUCT   
 
-use MESHPREC         ! Precision configuration
 use VEC3D     
 use CONNECTIVITY
 use ELEMVTEX

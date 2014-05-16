@@ -4,7 +4,7 @@
 !------------------------------------------------------------------------------!
 module VTKFMT
 
-use MESHPREC         ! Precision configuration
+use TYPHMAKE         ! Precision configuration
 
 implicit none
 

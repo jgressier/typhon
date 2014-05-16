@@ -1,10 +1,7 @@
 !------------------------------------------------------------------------------!
-! MODULE :  MESHPREC
-!
-! Definition/Configuration of CFDTOOLS/Mesh library
+!> @brief definition of integer and real accuracy and string max sizes
 !------------------------------------------------------------------------------!
-
-module MESHPREC
+module TYPHMAKE
 
 integer, parameter :: krp = 8   ! real        size/accuracy
 integer, parameter :: kip = 4   ! big integer size
@@ -14,5 +11,5 @@ integer, parameter :: shortname = 32   ! tags, quantities...
 integer, parameter :: longname  = 128  ! files
 
 
-endmodule MESHPREC
+endmodule 
 

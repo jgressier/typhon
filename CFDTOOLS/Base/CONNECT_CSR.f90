@@ -8,7 +8,6 @@
 
 module CONNECT_CSR
 
-use MESHPREC        ! accuracy definition
 use CONNECTIVITY 
 use LIBSORT         ! sorting procedure library
 use IOCFD 

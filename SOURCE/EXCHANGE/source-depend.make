@@ -16,7 +16,6 @@ $(LDIR).libfile := $(PRJLIBDIR)/$(LIBNAME).$(LIBSTA)
 
 # List of f90 modules
 $(LDIR).f90MODFILES := \
-    MPICOMM.f90   \
 
 $(LDIR)_MOD := $($(LDIR).f90MODFILES:%.f90=%.$(MODEXT))
 
@@ -26,7 +25,6 @@ $(LDIR).f90files := \
     exchange_zonal_residual_mpi.f90 \
     exchange_zonal_timestep_mpi.f90 \
     finalize_exch_mpi.f90         \
-    init_exch_protocol_mpi.f90    \
     receivefromgrid_mpi.f90       \
     sendtogrid_mpi.f90            \
 

@@ -1,16 +1,18 @@
 !------------------------------------------------------------------------------!
-! MODULE : MESHBASE 
-!
+!> @brief geometrical data of a mesh
+!! - centers and volumes of cells
+!! - normal vectors, centers and surface of faces
+!! - position of vertices
 !------------------------------------------------------------------------------!
 module MESHBASE
 
-use MESHPREC   ! configuration
+use TYPHMAKE
+use MPICOMM
 use VEC3D      ! 3D vectors
 use MESHPARAMS
 use PACKET
 use FCT_EVAL
 use FCT_FUNC
-
 
 implicit none
 
@@ -43,7 +45,6 @@ endtype st_face
 !------------------------------------------------------------------------------!
 type st_mesh
   type(info_mesh) :: info
-  integer         :: idim, jdim, kdim      ! indices max des cellules 
   integer         :: nvtex                 ! nombre de sommets
   integer         :: nface
   integer         :: ncell                 ! nombre de faces et cellules totales
@@ -56,21 +57,25 @@ type st_mesh
                   :: volume                ! volume des cellules
   real(krp), dimension(:,:,:), pointer &
                   :: metricsvm                ! transformation of a triangular cell (SV) to a standard triangle
+contains
+  procedure, pass :: send   => mesh_send
+  procedure, pass :: recv   => mesh_recv
 endtype st_mesh
 
 ! -- INTERFACES -------------------------------------------------------------
 
 interface new
   module procedure new_mesh
-endinterface
+end interface
 
 interface delete
   module procedure delete_mesh
-endinterface
+end interface
 
 
 ! -- Fonctions et Operateurs ------------------------------------------------
 
+private :: mesh_send, mesh_recv
 
 ! -- IMPLEMENTATION ---------------------------------------------------------
 contains
@@ -87,7 +92,7 @@ integer       :: ncell, nface, nvtex
   call init_mesh(mesh)
   call alloc_mesh(mesh, ncell, nface, nvtex)
   
-endsubroutine new_mesh
+end subroutine new_mesh
 
 
 !------------------------------------------------------------------------------!
@@ -136,9 +141,6 @@ implicit none
 type(st_mesh) :: mesh
 integer       :: ncell, nface, nvtex
 
-  mesh%idim = 0
-  mesh%jdim = 0
-  mesh%kdim = 0
   mesh%nface = 0
   mesh%nvtex = 0
   mesh%ncell = 0
@@ -146,8 +148,7 @@ integer       :: ncell, nface, nvtex
   nullify(mesh%volume)
   nullify(mesh%iface)
   nullify(mesh%vertex)
-
-endsubroutine init_mesh
+end subroutine init_mesh
 
 
 !------------------------------------------------------------------------------!
@@ -161,8 +162,40 @@ type(st_mesh) :: mesh
   if (associated(mesh%volume)) deallocate(mesh%volume)
   if (associated(mesh%iface))  deallocate(mesh%iface) 
   if (associated(mesh%vertex)) deallocate(mesh%vertex)
-  
-endsubroutine delete_mesh
+end subroutine delete_mesh
+
+!---------------------------------------------------------------------------------------!
+!> @brief send grid information 
+!---------------------------------------------------------------------------------------!
+subroutine mesh_send(this, iproc, tag)
+implicit none
+class(st_mesh) :: this
+integer(kip)       :: iproc, array(3)
+integer(kmpi)      :: tag
+  ! -- mesh info --
+  array(1:3) = (/ this%nvtex, this%nface, this%ncell /) 
+  call mpi_isend_int(array, 4, iproc, tag, wait=.true.)
+  ! -- nodes --
+  call mpi_isend_int(array, 4, iproc, tag, wait=.true.)
+
+  ! -- centers --
+  ! -- volumes --
+  ! -- faces --
+end subroutine
+
+!---------------------------------------------------------------------------------------!
+!> @brief receive grid information
+!---------------------------------------------------------------------------------------!
+subroutine mesh_recv(this, iproc, tag)
+implicit none
+class(st_mesh) :: this
+integer(kip)       :: iproc, array(3)
+integer(kmpi)      :: tag
+  call mpi_isend_int(array, 3, iproc, tag, wait=.true.)
+  this%nvtex = array(1)
+  this%nface = array(2)
+  this%ncell = array(3)
+end subroutine
 
 !------------------------------------------------------------------------------!
 ! Procedure : desallocation d'une structure MESH
@@ -258,7 +291,6 @@ type(st_fct_env)                 :: env
 endsubroutine morph_vertex
 
 endmodule MESHBASE
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !

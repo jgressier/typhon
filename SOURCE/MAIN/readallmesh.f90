@@ -25,6 +25,8 @@ do izone = 1, world%prj%nzone
 
   pgrid => add_grid(world%zone(izone)%gridlist)
 
+  if (mod(myprocid-1, world%zone(izone)%defsolver%defmesh%partcluster)+1 == 1) then  ! only "grid" master reads the mesh
+  
   select case(world%zone(izone)%defsolver%defmesh%format)
 
   case(fmt_CGNS)
@@ -44,9 +46,10 @@ do izone = 1, world%prj%nzone
     call create_autoblockmesh(world%zone(izone)%defsolver%defmesh, pgrid%strmesh)
 
   case default
-    call error_stop("reading mesh: unknown mesh format")
+    call error_stop("internal error: unknown mesh format (readallmesh)")
   endselect
-
+  
+  endif
 enddo
 
 endsubroutine readallmesh

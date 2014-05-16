@@ -7,7 +7,6 @@
 !------------------------------------------------------------------------------!
 subroutine writecgns_ustmesh(cgnsunit, ibase, izone, umesh) 
 
-use MESHPREC
 use IOCFD
 use USTMESH
 

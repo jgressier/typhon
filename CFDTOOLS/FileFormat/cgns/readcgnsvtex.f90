@@ -30,21 +30,21 @@ character(len=100)   :: str_w   ! nom fantome
 
 ! -- BODY --
 
-call cfd_print("- reading CGNS nodes :"//trim(strof(mesh%idim))//"x"//trim(strof(mesh%jdim))//"x"//trim(strof(mesh%kdim)))
+call cfd_print("- reading "//trim(strof(mesh%nvtex))//" CGNS nodes :")
 
 select case(cgns_size)
 case(4)
 
-  allocate(vs(mesh%idim,mesh%jdim,mesh%kdim))
+  allocate(vs(mesh%nvtex, 1, 1))
   ! Lecture de X
   call cg_coord_read_f(unit, ib, iz, 'CoordinateX', RealSingle, (/ 1, 1, 1/), &
-       (/ mesh%idim,mesh%jdim,mesh%kdim /), vs, ier)
+       (/ mesh%nvtex, 1, 1 /), vs, ier)
   if (ier /= 0) call cfd_error("(CGNS) unable read X coordinate")
 
   ! retranscription
-  do k = 1, mesh%kdim
-    do j = 1, mesh%jdim
-      do i = 1, mesh%idim
+  do k = 1, 1
+    do j = 1, 1
+      do i = 1, mesh%nvtex
         mesh%vertex(i,j,k)%x = vs(i,j,k)
       enddo
     enddo
@@ -52,13 +52,13 @@ case(4)
 
   ! Lecture de Y
   call cg_coord_read_f(unit, ib, iz, 'CoordinateY', RealSingle, (/ 1, 1, 1/), &
-       (/ mesh%idim,mesh%jdim,mesh%kdim /), vs, ier)
+       (/ mesh%nvtex, 1, 1 /), vs, ier)
   if (ier /= 0) call cfd_error("(CGNS) unable read Y coordinate")
 
   ! retranscription
-  do k = 1, mesh%kdim
-    do j = 1, mesh%jdim
-      do i = 1, mesh%idim
+  do k = 1, 1
+    do j = 1, 1
+      do i = 1, mesh%nvtex
         mesh%vertex(i,j,k)%y = vs(i,j,k)
       enddo
     enddo
@@ -66,15 +66,15 @@ case(4)
 
   ! Lecture de Z
   call cg_coord_read_f(unit, ib, iz, 'CoordinateZ', RealSingle, (/ 1, 1, 1/), &
-       (/ mesh%idim, mesh%jdim,mesh%kdim /), vs, ier)
+       (/ mesh%nvtex, 1, 1 /), vs, ier)
   if (ier /= 0) then
     vs(:,:,:) = 0._krp
   endif
 
   ! retranscription
-  do k = 1, mesh%kdim
-    do j = 1, mesh%jdim
-      do i = 1, mesh%idim
+  do k = 1, 1
+    do j = 1, 1
+      do i = 1, mesh%nvtex
         mesh%vertex(i,j,k)%z = vs(i,j,k)
       enddo
     enddo
@@ -84,16 +84,16 @@ case(4)
 
 case(8)
 
-  allocate(vd(mesh%idim,mesh%jdim,mesh%kdim))
+  allocate(vd(mesh%nvtex, 1, 1))
   ! Lecture de X
   call cg_coord_read_f(unit, ib, iz, 'CoordinateX', RealDouble, (/ 1, 1, 1/), &
-       (/ mesh%idim,mesh%jdim,mesh%kdim /), vd, ier)
+       (/ mesh%nvtex, 1, 1 /), vd, ier)
   if (ier /= 0) call cfd_error("(CGNS) unable read X coordinate")
 
   ! retranscription
-  do k = 1, mesh%kdim
-    do j = 1, mesh%jdim
-      do i = 1, mesh%idim
+  do k = 1, 1
+    do j = 1, 1
+      do i = 1, mesh%nvtex
         mesh%vertex(i,j,k)%x = vd(i,j,k)
       enddo
     enddo
@@ -101,13 +101,13 @@ case(8)
 
   ! Lecture de Y
   call cg_coord_read_f(unit, ib, iz, 'CoordinateY', RealDouble, (/ 1, 1, 1/), &
-       (/ mesh%idim,mesh%jdim,mesh%kdim /), vd, ier)
+       (/ mesh%nvtex, 1, 1 /), vd, ier)
   if (ier /= 0) call cfd_error("(CGNS) unable read Y coordinate")
 
   ! retranscription
-  do k = 1, mesh%kdim
-    do j = 1, mesh%jdim
-      do i = 1, mesh%idim
+  do k = 1, 1
+    do j = 1, 1
+      do i = 1, mesh%nvtex
         mesh%vertex(i,j,k)%y = vd(i,j,k)
       enddo
     enddo
@@ -115,15 +115,15 @@ case(8)
 
   ! Lecture de Z
   call cg_coord_read_f(unit, ib, iz, 'CoordinateZ', RealDouble, (/ 1, 1, 1/), &
-       (/ mesh%idim, mesh%jdim,mesh%kdim /), vd, ier)
+       (/ mesh%nvtex, 1, 1 /), vd, ier)
   if (ier /= 0) then
     vd(:,:,:) = 0._krp
   endif
 
   ! retranscription
-  do k = 1, mesh%kdim
-    do j = 1, mesh%jdim
-      do i = 1, mesh%idim
+  do k = 1, 1
+    do j = 1, 1
+      do i = 1, mesh%nvtex
         mesh%vertex(i,j,k)%z = vd(i,j,k)
       enddo
     enddo

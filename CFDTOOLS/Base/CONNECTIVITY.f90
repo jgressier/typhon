@@ -7,6 +7,7 @@
 
 module CONNECTIVITY
 
+use TYPHMAKE
 use IOCFD
 
 implicit none
@@ -21,25 +22,24 @@ implicit none
 ! structure ST_ELEMC : Definition d'un element de connectivite 
 !------------------------------------------------------------------------------!
 type st_elemc
-  integer              :: nelem     ! nombre de connectivites
-  integer, allocatable :: elem(:)   ! definition de la connectivite
+  integer(kip)              :: nelem     ! nombre de connectivites
+  integer(kip), allocatable :: elem(:)   ! definition de la connectivite
 endtype st_elemc
 
 !------------------------------------------------------------------------------!
 ! structure ST_CONNECT : Definition de connectivite a nombre de fils constants
 !------------------------------------------------------------------------------!
 type st_connect
-  integer                 :: nbnodes     ! nombre de d'ensemble connectivites
-  integer                 :: nbfils      ! nombre de connectivites par ensemble
-  integer, dimension(:,:), pointer &
-                          :: fils        ! definition de la connectivite
+  integer(kip)            :: nbnodes     ! nombre de d'ensemble connectivites
+  integer(kip)            :: nbfils      ! nombre de connectivites par ensemble
+  integer(kip), pointer   :: fils(:,:)   ! definition de la connectivite
 endtype st_connect
 
 !------------------------------------------------------------------------------!
 ! structure ST_GENCONNECT : Definition de connectivite a nombre de fils variables
 !------------------------------------------------------------------------------!
 type st_genconnect
-  integer                               :: nbnodes   ! number of nodes
+  integer(kip)                          :: nbnodes   ! number of nodes
   type(st_elemc), dimension(:), pointer :: node      ! node array
 endtype st_genconnect
 

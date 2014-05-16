@@ -7,7 +7,7 @@
 !------------------------------------------------------------------------------!
 module GRID_CONNECT
 
-use MESHPREC      ! machine accuracy
+use TYPHMAKE      ! machine accuracy
 use GENFIELD
 use VEC3D
 

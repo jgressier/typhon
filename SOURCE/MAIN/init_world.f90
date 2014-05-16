@@ -25,7 +25,7 @@ integer :: iz1, iz2, ncoupl1, ncoupl2, nbc1, nbc2
 !--------------------------------------------------------------------
 ! Initialization of zone parameters
 
-call print_info(5,"* Initializing zones")
+call print_info(5,"* ZONE initialization")
 do izone = 1, world%prj%nzone
   call init_zone(world%zone(izone), world%prj)
 enddo
@@ -33,7 +33,7 @@ enddo
 !--------------------------------------------------------------------
 ! Lecture, transformation des maillages, calcul des parametres geometriques et connectivites
 
-call print_info(5,"* Computing mesh properties")
+call print_info(5,"* ZONE preprocessing")
 do izone = 1, world%prj%nzone
   call zone_preproc(world%zone(izone))
 enddo
@@ -41,7 +41,7 @@ enddo
 !--------------------------------------------------------------------
 ! Initialisation des champs
 
-call print_info(5,"* Computing initial conditions")
+call print_info(5,"* ZONE data initialization")
 do izone = 1, world%prj%nzone
   call initzone_field(world%zone(izone))
 enddo
@@ -49,7 +49,7 @@ enddo
 !--------------------------------------------------------------------
 ! Initialization of boundary conditions
 
-call print_info(5,"* Initializing boundary conditions")
+call print_info(5,"* ZONE connections and boundary conditions")
 do izone = 1, world%prj%nzone
   call init_boco(world%zone(izone))
 enddo

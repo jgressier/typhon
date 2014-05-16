@@ -60,13 +60,13 @@ else
 call rpmgetkeyvalstr(pcour, "FORMAT", str)
 defmesh%format = cnull
 
-#ifdef CGNS
-if (samestring(str,"CGNS"))      defmesh%format = fmt_CGNS
-#else /*CGNS*/
 if (samestring(str,"CGNS")) then
+#ifdef CGNS
+  defmesh%format = fmt_CGNS
+#else /*CGNS*/
   call error_stop("Parameter parsing: CGNS format was not activated at configure time")
-endif
 #endif/*CGNS*/
+endif
 if (samestring(str,"INTERNAL"))  defmesh%format = fmt_TYPHON
 if (samestring(str,"TYPHON"))    defmesh%format = fmt_TYPHON
 if (samestring(str,"TYM"))       defmesh%format = fmt_TYPHON
@@ -138,6 +138,30 @@ endif
 
 ! -- read partition definition
 
+call print_info(20, "  . partition definition")
+if (rpm_existkey(pcour, "PARTFILE")) then
+  call rpmgetkeyvalstr(pcour, "PARTITION", str, "FILE")
+else
+  call rpmgetkeyvalstr(pcour, "PARTITION", str, "METIS")
+endif
+
+defmesh%ipart = ipart_none
+
+select case(str)
+case("METIS")
+  defmesh%ipart = ipart_metis
+  call print_info(20, "    partition method is METIS")
+case("FILE")
+  defmesh%ipart = ipart_file
+  call rpmgetkeyvalstr(pcour, "PARTFILE", defmesh%partfile, basename(trim(defmesh%filename), xtyext_mesh)//&
+                                          "."//trim(strof(prj%nbproc))//"."//xtyext_part)
+  call print_info(20, "    partition using file "//trim(defmesh%partfile))
+case default
+  call error_stop("Problem when parsing PARTITION key with"//trim(str))
+endselect
+
+call rpmgetkeyvalint(pcour, "PARTCLUSTER", defmesh%partcluster, 16)
+call print_info(20, "    partition distribution percluster "//trim(strof(defmesh%partcluster)))
 
 ! -- read split method --
 

@@ -10,7 +10,6 @@
 
 module GENFIELD
 
-use MESHPREC     ! Precision and string size
 use IOCFD
 use TENSOR3      !
 use BASEFIELD

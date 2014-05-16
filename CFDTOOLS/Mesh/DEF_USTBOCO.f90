@@ -7,7 +7,6 @@
 
 module DEF_USTBOCO
 
-use MESHPREC      ! machine accuracy
 use VEC3D 
 use CONNECTIVITY  ! lists & connectivity 
 use GENFIELD

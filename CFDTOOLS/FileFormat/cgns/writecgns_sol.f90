@@ -7,7 +7,6 @@
 !------------------------------------------------------------------------------!
 subroutine writecgns_sol(cgnsunit, ibase, izone, umesh, field) 
 
-use MESHPREC
 use IOCFD
 use QUANTITY
 use USTMESH

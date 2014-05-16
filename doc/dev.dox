@@ -1,0 +1,21 @@
+/**
+* @defgroup Dev Current and Future Developments Hints
+*/
+
+/**
+* @defgroup f2003 Fortran 2003 specific
+* @ingroup Dev
+* Stuff using specific fortran 2003 features that might ruin portability
+*/
+
+/**
+* @defgroup omp Open-MP specific developments
+* @ingroup Dev
+* Open-MP specific developments
+*/
+
+/**
+* @defgroup mpi MPI specific developments
+* @ingroup Dev
+* MPI specific developments
+*/

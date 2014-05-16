@@ -10,7 +10,6 @@
 
 module TENSOR3
 
-use MESHPREC
 use VEC3D
 
 ! -- DECLARATIONS -----------------------------------------------------------

@@ -1,13 +1,9 @@
 !------------------------------------------------------------------------------!
-! Procedure : split_zone                   Authors : J. Rodriguez, J. Gressier
-!                                          Created : March 2005
-! Fonction     
-!   Split grids into a zone
-!
+!> @ingroup mpi
+!> @brief split grid list from a zone and distribute to other proc
 !------------------------------------------------------------------------------!
 subroutine split_zone(zone)
 
-use TYPHMAKE
 use OUTPUT
 use VARCOM
 use DEFZONE
@@ -21,70 +17,82 @@ implicit none
 type(st_zone) :: zone
 
 ! -- Internal variables --
-integer(kip)              :: npart, ipart  ! number of part (and index)
-integer(kip)              :: nci           ! number internal cells
-type(st_grid)             :: partgrid      ! intermediate grid
-type(st_grid), pointer    :: pgrid, next   ! grid pointer
-integer(kip), allocatable :: partition(:)  ! result of partition
+integer(kip)              :: npart, ipart    ! number of part (and index)
+integer(kip)              :: npartcluster    ! number of part per distribution process
+integer(kip)              :: ipart1, ipart2  ! range of parts to distribute
+integer(kip)              :: nci             ! number internal cells
+type(st_grid)             :: partgrid        ! intermediate grid
+type(st_grid), pointer    :: pgrid, next     ! grid pointer
+integer(kip), allocatable :: partition(:)    ! result of partition
 
 ! -- BODY --
 
-npart = zone%info%nbproc
+npart        = zone%info%nbproc
+npartcluster = zone%defsolver%defmesh%partcluster
 
 !-- loop on all grids --
 
 pgrid => zone%gridlist%first
 
-do while (associated(pgrid))
+do while (associated(pgrid))  ! assume a dummy grid has been initialized on each other proc
 
-  ipart = index_int(myprocid, zone%info%proc(1:npart))   ! 1 to nproc
-  if (ipart == 0) call error_stop("development: grid part not associated")
+  !ipart = index_int(myprocid, zone%info%proc(1:npart))   ! 1 to nproc
+  !if (ipart == 0) call error_stop("internal error: grid part not associated")
 
-  ! -------------------------------------------------
-  ! compute partition of a grid
+  if (mod(myprocid-1, npartcluster)+1 == 1) then  ! only "grid" master reads the mesh
+    ! -------------------------------------------------
+    ! compute partition of a grid
 
-  nci = pgrid%umesh%ncell_int
-  allocate(partition(nci))
+    nci = pgrid%umesh%ncell_int
+    allocate(partition(nci))
 
-  write(str_w,*) "> compute partition: ",npart," parts"
-  call print_info(10, trim(str_w))
+    call print_info(10, "> compute partition: "//trim(strof(npart))//" parts")
 
-  call ustmesh_partition(part_auto, pgrid%umesh, npart, nci, partition)
+    call ustmesh_partition(part_auto, pgrid%umesh, npart, nci, partition)  ! no check that each master computes the same
 
-  ! -------------------------------------------------
-  ! extract partition of a grid & create connectivity
+    ipart1 = (myprocid-1) * npartcluster + 1
+    ipart2 = max(myprocid * npartcluster, npart)
+    
+    do ipart = ipart1, ipart2   ! extract part and send to MPI thread
+  
+      ! -------------------------------------------------
+      ! extract part-grid of a grid & create connectivity
+      call print_info(10, "> extract and send part"//trim(strof(ipart))//" over "//trim(strof(npart)))
 
-  write(str_w, *) "> extract part", ipart," over ",npart
-  call print_info(10, trim(str_w))
+      call init_grid(partgrid, ipart)
+      call extractpart_grid(pgrid, ipart, nci, partition, partgrid)
 
-  call init_grid(partgrid, ipart)
-  call extractpart_grid(pgrid, ipart, nci, partition, partgrid)
+      if (myprocid == ipart) then  ! do not send
+        pgrid = partgrid
+      else
+        ! send grid to other proc
+        !call send_grid(ipart, partgrid)
+      endif
+      call delete(partgrid)
 
-  ! -------------------------------------------------
-  ! replace original grid by partitioned grid 
+    enddo ! part distribution
 
-  next => pgrid%next
-  call delete(pgrid)
+    deallocate(partition)
 
-  pgrid = partgrid
+  else
+    !call receive_grid(myprocid, pgrid)  
+  endif
+  
   call print_info(10, "  recompute COLOR groups")
   call grid_postproc(pgrid)  ! compute volume, ndof and color groups
-
-  pgrid%next => next
+  pgrid%next => next         ! ensure the memorized link to next grid
 
   ! -- next grid --
 
-  deallocate(partition)
   pgrid => next
 enddo
 
-
 endsubroutine split_zone
-
 !------------------------------------------------------------------------------!
-! Change history
+!> Change history
 !
-! Mar  2005 : Created
-! Sept 2005 : integrated to main branch (split all grids)
-! Oct  2005 : restructuration
+!! Mar  2005 : Created
+!! Sept 2005 : integrated to main branch (split all grids)
+!! Oct  2005 : restructuration
+!! May  2014 : grid send and receive to avoid all procs preprocessing whole grid 
 !------------------------------------------------------------------------------!

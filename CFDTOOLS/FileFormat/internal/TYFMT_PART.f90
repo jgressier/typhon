@@ -8,7 +8,6 @@ use IO_UNIT
 use XBIN_DATA
 use LIBRLE
 use TYPHON_FMT
-use MESHPREC         ! Precision configuration
 use MESHPART
 
 implicit none

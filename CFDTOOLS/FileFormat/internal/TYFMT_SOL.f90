@@ -5,7 +5,6 @@
 
 module TYFMT_SOL
 
-use MESHPREC         ! Precision configuration
 use QUANTITY
 use XBIN_DATA
 use TYPHON_FMT

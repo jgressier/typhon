@@ -5,7 +5,7 @@
 !------------------------------------------------------------------------------!
 module VEC3D
 
-use MESHPREC
+use TYPHMAKE
 use VEC2D
 use STRING
 

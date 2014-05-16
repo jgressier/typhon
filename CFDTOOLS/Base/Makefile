@@ -33,10 +33,11 @@ $(LDIR).f90MODFILES := \
     IOCFD.f90        \
     LIBRLE.f90       \
     LIBSORT.f90      \
-    MESHPREC.f90     \
+    MPICOMM.f90      \
     PACKET.f90       \
     STRING.f90       \
     TIMER.f90        \
+    TYPHMAKE.f90     \
 
 # List of f90 files
 $(LDIR).f90files := \
