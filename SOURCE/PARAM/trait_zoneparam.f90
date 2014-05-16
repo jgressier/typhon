@@ -52,7 +52,6 @@ call def_fctenv(block, zone%defsolver)
 
 ! -------------------------
 ! concurrent simulations are defined in models
-
 ! -------------------------
 ! MODEL definition
 
