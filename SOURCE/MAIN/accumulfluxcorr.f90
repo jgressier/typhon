@@ -78,9 +78,9 @@ do ic =1, ncoupling
           cp = def_solver%defns%properties(1)%gamma * r_PG / &
                (def_solver%defns%properties(1)%gamma - 1)    ! heat capacity
 
-          dHL(1) = abs(umesh%mesh%iface(if,1,1)%centre - &
+          dHL(1) = abs(umesh%mesh%face_center(if,1,1) - &
                     umesh%mesh%centre(umesh%facecell%fils(if,1),1,1))
-          dHR(1) = abs(umesh%mesh%iface(if,1,1)%centre - &
+          dHR(1) = abs(umesh%mesh%face_center(if,1,1) - &
                     umesh%mesh%centre(umesh%facecell%fils(if,2),1,1))
           id      = 1._krp/(dHL(1) + dHR(1))
           dHL(1) = id*dHL(1)
