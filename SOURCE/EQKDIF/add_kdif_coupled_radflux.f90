@@ -50,8 +50,8 @@ do ifb = 1, defsolver%defkdif%viewfactor%ncouple
   ic2       = umesh%facecell%fils(if2,2)    ! ghost cell is always right cell
   T1_4      = stprim%tabscal(1)%scal(ic1)**4
   T2_4      = stprim%tabscal(1)%scal(ic2)**4
-  flux%tabscal(1)%scal(if1) = flux%tabscal(1)%scal(if1) - viewfact*umesh%mesh%iface(if2,1,1)%surface*cst*T2_4
-  flux%tabscal(1)%scal(if2) = flux%tabscal(1)%scal(if2) - viewfact*umesh%mesh%iface(if1,1,1)%surface*cst*T1_4
+  flux%tabscal(1)%scal(if1) = flux%tabscal(1)%scal(if1) - viewfact*umesh%mesh%face_surf(if2)*cst*T2_4
+  flux%tabscal(1)%scal(if2) = flux%tabscal(1)%scal(if2) - viewfact*umesh%mesh%face_surf(if1)*cst*T1_4
 enddo
 
 endsubroutine add_kdif_coupled_radflux

@@ -8,7 +8,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine interp_facegradn_scal(nf, meth, ndHL, ndHR, vLR, face, &
+subroutine interp_facegradn_scal(nf, meth, ndHL, ndHR, vLR, fn, &
                                  qL, qR, dqL, dqR, dqH)
 
 use OUTPUT
@@ -26,7 +26,7 @@ integer(kpp)                 :: meth       ! method for gradient interpolation
 real(krp),     dimension(nf) :: ndHL       ! face center to left  center distance / (HL + HR)
 real(krp),     dimension(nf) :: ndHR       ! face center to right center distance / (HL + HR)
 type(v3d),     dimension(nf) :: vLR        ! left center to right center vector 
-type(st_face), dimension(nf) :: face       ! geomtrical face array
+type(v3d),     dimension(nf) :: fn         ! face normal
 !
 real(krp), dimension(nf) ::  qL,  qR   ! left and right quantities (at cell centers)
 type(v3d), dimension(nf) :: dqL, dQR   ! left and right gradients  (at cell centers)
@@ -64,13 +64,13 @@ case(dis_celldif2) ! compact formulation, non consistent if vLR and (n) are not 
   dLR2(1:nf) = sqrabs(vLR(1:nf))
 
   do if = 1, nf
-    dqH(if)  =  (qR(if) - qL(if)) / dLR2(if) * (vLR(if).scal.face(if)%normale)
+    dqH(if)  =  (qR(if) - qL(if)) / dLR2(if) * (vLR(if).scal.fn(if))
   enddo
 
 case(dis_cellavg2) ! consistent formulation, only weighted average of gradients
 
   do if = 1, nf
-    dqH(if)  = ((ndHL(if)*dqR(if) + ndHR(if)*dqL(if)).scal.face(if)%normale)
+    dqH(if)  = ((ndHL(if)*dqR(if) + ndHR(if)*dqL(if)).scal.fn(if))
   enddo
 
 case(dis_cellfull) ! full consistent formulation, averaged between compact and averaged formulations
@@ -78,9 +78,9 @@ case(dis_cellfull) ! full consistent formulation, averaged between compact and a
   dLR2(1:nf) = sqrabs(vLR(1:nf))
 
   do if = 1, nf
-    pscal = vLR(if).scal.face(if)%normale / dLR2(if)
+    pscal = vLR(if).scal.fn(if) / dLR2(if)
     Fcomp = pscal * (qR(if) - qL(if))
-    vi    = face(if)%normale - (theta*pscal)*vLR(if)
+    vi    = fn(if) - (theta*pscal)*vLR(if)
     Favg  = (ndHL(if)*dqR(if) + ndHR(if)*dqL(if)).scal.vi
     dqH(if) = theta*Fcomp + Favg
   enddo

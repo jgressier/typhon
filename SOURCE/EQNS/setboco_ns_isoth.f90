@@ -77,7 +77,7 @@ case(bccon_cell_state, bccon_face_state)
     ! velocity
     !bccon%fxx%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)
     wallvelocity = bcns%wall_velocity
-    call calc_wallvelocity(defale, defmrf, wallvelocity, umesh%mesh%iface(if,1,1), if, curtime)
+    call calc_wallvelocity(defale, defmrf, wallvelocity, umesh%mesh%face_center(if,1), if, curtime)
     bccon%frecv%tabvect(1)%vect(ighost) = (2._krp*wallvelocity) - bccon%fsend%tabvect(1)%vect(ic)
 
   enddo

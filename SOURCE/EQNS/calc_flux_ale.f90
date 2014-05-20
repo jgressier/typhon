@@ -50,8 +50,8 @@ case default
 ! PART COPIED FROM calc_flux_viscous, maybe it should be merged and placed in a new shared subroutine?
 do if = 1, nflux
   if_abs = ista-1+if
-  dHL(if) = abs(umesh%mesh%iface(if_abs, 1, 1)%centre - cg_l(if))
-  dHR(if) = abs(umesh%mesh%iface(if_abs, 1, 1)%centre - cg_r(if))
+  dHL(if) = abs(umesh%mesh%face_center(if_abs,1) - cg_l(if))
+  dHR(if) = abs(umesh%mesh%face_center(if_abs,1) - cg_r(if))
   id      = 1._krp/(dHL(if) + dHR(if))
   dHL(if) = id*dHL(if)
   dHR(if) = id*dHR(if)
@@ -78,7 +78,7 @@ energy(1:nflux) = igm1*prH(1:nflux) + 0.5*rhoH(1:nflux)*(sqrabs(velH(1:nflux)))
 ! FLUX EVALUATION
 do if = 1, nflux
   if_abs = ista-1+if
-  Vn     = (defsolver%defale%face_velocity(if_abs) .scal. umesh%mesh%iface(if_abs, 1, 1)%normale)
+  Vn     = (defsolver%defale%face_velocity(if_abs) .scal. umesh%mesh%face_normal(if_abs,1))
   ! mass flux
   flux%tabscal(1)%scal(if_abs) = flux%tabscal(1)%scal(if_abs) - Vn * rhoH(if)
 
