@@ -1,9 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : init_viewfactor                  Authors : J. Gressier
 !                                              Date    : June 2005
-! Fonction
-!   Compute view factors for radiating coupling between faces with
-!   the right option
+!> @brief Compute view factors for radiating coupling between faces with the right option
 !
 !------------------------------------------------------------------------------!
 subroutine init_viewfactor(defsolver, umesh)
@@ -67,10 +65,10 @@ BC1: do ib1 = 1, nbc
         indf2 = umesh%boco(ib1)%iface(if2)   ! (!) same boco family
         loc_vf%couple%fils(icp, 1) = indf1
         loc_vf%couple%fils(icp, 2) = indf2
-        dist   = umesh%mesh%iface(indf2,1,1)%centre - umesh%mesh%iface(indf1,1,1)%centre
+        dist   = umesh%mesh%face_center(indf2,1) - umesh%mesh%face_center(indf1,1)
         ndist2 = sqrabs(dist)
-        loc_vf%value(icp) = - max(0._krp, umesh%mesh%iface(indf1,1,1)%normale.scal.dist) &
-                             *min(0._krp, umesh%mesh%iface(indf2,1,1)%normale.scal.dist) 
+        loc_vf%value(icp) = - max(0._krp, umesh%mesh%face_normal(indf1,1).scal.dist) &
+                             *min(0._krp, umesh%mesh%face_normal(indf2,1).scal.dist) 
         if (loc_vf%value(icp) <= tol*ndist2) loc_vf%value(icp) = 0._krp
         loc_vf%value(icp) = loc_vf%value(icp) / (PIcst*ndist2**2)
       enddo
@@ -126,10 +124,10 @@ BC1: do ib1 = 1, nbc
             indf2  = umesh%boco(ib2)%iface(if2)
             loc_vf%couple%fils(icp, 1) = indf1
             loc_vf%couple%fils(icp, 2) = indf2
-            dist   = umesh%mesh%iface(indf2,1,1)%centre - umesh%mesh%iface(indf1,1,1)%centre
+            dist   = umesh%mesh%face_center(indf2,1) - umesh%mesh%face_center(indf1,1)
             ndist2 = sqrabs(dist)
-            loc_vf%value(icp) = - max(0._krp, umesh%mesh%iface(indf1,1,1)%normale.scal.dist) &
-                                 *min(0._krp, umesh%mesh%iface(indf2,1,1)%normale.scal.dist) 
+            loc_vf%value(icp) = - max(0._krp, umesh%mesh%face_normal(indf1,1).scal.dist) &
+                                 *min(0._krp, umesh%mesh%face_normal(indf2,1).scal.dist) 
             if (loc_vf%value(icp) <= tol*ndist2) loc_vf%value(icp) = 0._krp
             loc_vf%value(icp) = loc_vf%value(icp) / (PIcst*ndist2**2)
           enddo

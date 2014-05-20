@@ -1,11 +1,9 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_flux_viscous_face
 !
-! Function
-!   Computation of VISCOUS flux for NS equations with SVM method on gauss points
-!
+!> @brief Computation of VISCOUS flux for NS equations with SVM method on gauss points
 !------------------------------------------------------------------------------!
-subroutine calc_flux_viscous_face(defsolver, defspat, nflux, ista, face, cg_l, cg_r, &
+subroutine calc_flux_viscous_face(defsolver, defspat, nflux, ista, fc, fn, cg_l, cg_r, &
                              QL, QR, gradL, gradR, flux)
 use TYPHMAKE
 use OUTPUT
@@ -25,8 +23,7 @@ type(mnu_solver)      :: defsolver        ! solver parameters
 type(mnu_spat)        :: defspat          ! space integration parameters
 integer               :: nflux            ! number of fluxes
 integer               :: ista             ! index of first flux/gradients
-type(st_face), dimension(1:nflux) &
-                      :: face             ! geom. data of faces
+type(v3d)             :: fc(nflux), fn(nflux)   ! center and normal of faces
 type(v3d),     dimension(1:nflux) &
                       :: cg_l, cg_r       ! cell centers (index related to face number)
 type(st_nsetat)       :: QL, QR           ! primitive variables array
@@ -105,11 +102,11 @@ do if = 1, nflux
   addvisc = - (2._krp/3._krp)*t3d_trace(gradvH(if))
   call t3d_adddiag(sigma, addvisc)
   sigma    = mu(if)*sigma
-  sigma_n  = sigma.scal.face(if)%normale
+  sigma_n  = sigma.scal.fn(if)
   sigma_vn = sigma_n.scal.velH(if)
 
 ! temperature gradient at the face   
-  gradTH(if)  = (0.5_krp *gradTL(if) + 0.5_krp *gradTR(if)).scal.face(if)%normale
+  gradTH(if)  = (0.5_krp *gradTL(if) + 0.5_krp *gradTR(if)).scal.fn(if)
 
 
   ! momentum flux

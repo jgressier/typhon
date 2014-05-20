@@ -1,5 +1,5 @@
 !------------------------------------------------------------------------------!
-! MODULE : MESHBASE 
+!> @brief MESHBASE 
 !
 !------------------------------------------------------------------------------!
 module MESHBASE
@@ -36,7 +36,7 @@ type st_mesh
   type(info_mesh) :: info
   integer         :: idim, jdim, kdim      ! indices max des cellules 
   integer         :: nvtex                 ! nomber of vertices
-  integer         :: nface, ngauss         ! number of faces and related gauss points
+  integer         :: nface, nfgauss        ! number of faces and related gauss points
   integer         :: ncell                 ! nombre de faces et cellules totales
   type(v3d), dimension(:,:,:), pointer &  ! coordonnees des sommets et centres
                   :: vertex, centre        ! de cellules (i,j,k)
@@ -71,11 +71,11 @@ contains
 !------------------------------------------------------------------------------!
 ! Procedure : initialization and allocation of MESH structure
 !------------------------------------------------------------------------------!
-subroutine new_mesh(mesh, ncell, nface, nvtex, ngauss)
+subroutine new_mesh(mesh, ncell, nface, nvtex, nfgauss)
 implicit none
 type(st_mesh) :: mesh
 integer(kip)           :: ncell, nface, nvtex
-integer(kip), optional :: ngauss
+integer(kip), optional :: nfgauss
 
   call init_mesh(mesh)
   if (present(nfgauss)) then
@@ -89,11 +89,11 @@ endsubroutine new_mesh
 !------------------------------------------------------------------------------!
 ! Procedure : (partial) allocation of MESH structure
 !------------------------------------------------------------------------------!
-subroutine alloc_mesh(mesh, ncell, nface, nvtex, ngauss)
+subroutine alloc_mesh(mesh, ncell, nface, nvtex, nfgauss)
 implicit none
 type(st_mesh)          :: mesh
 integer(kip)           :: ncell, nface, nvtex
-integer(kip), optional :: ngauss
+integer(kip), optional :: nfgauss
 
   mesh%ncell = ncell
   mesh%nface = nface
@@ -110,7 +110,7 @@ integer(kip), optional :: ngauss
   if (nface /= 0) then
     allocate(mesh%face_center(1:nface, mesh%nfgauss))
     allocate(mesh%face_normal(1:nface, mesh%nfgauss))
-    allocate(mesh%face_surf(1:nface)
+    allocate(mesh%face_surf(1:nface))
   endif
   if (nvtex /= 0) then
     allocate(mesh%vertex(1:nvtex, 1,1))
@@ -149,7 +149,9 @@ integer       :: ncell, nface, nvtex
   mesh%ncell = 0
   nullify(mesh%centre)
   nullify(mesh%volume)
-  nullify(mesh%iface)
+  nullify(mesh%face_normal)
+  nullify(mesh%face_center)
+  nullify(mesh%face_surf)
   nullify(mesh%vertex)
 
 endsubroutine init_mesh
@@ -164,7 +166,9 @@ type(st_mesh) :: mesh
 
   if (associated(mesh%centre)) deallocate(mesh%centre)
   if (associated(mesh%volume)) deallocate(mesh%volume)
-  if (associated(mesh%iface))  deallocate(mesh%iface) 
+  if (associated(mesh%face_normal)) deallocate(mesh%face_normal) 
+  if (associated(mesh%face_center)) deallocate(mesh%face_center) 
+  if (associated(mesh%face_surf))   deallocate(mesh%face_surf) 
   if (associated(mesh%vertex)) deallocate(mesh%vertex)
   
 endsubroutine delete_mesh

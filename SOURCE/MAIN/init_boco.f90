@@ -1,8 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : init_boco                   Auteur : J. Gressier/ E. Radenac
 !                                         Date   : Novembre 2003
-! Fonction                                Modif  : (cf historique)
-!   Initialisation des conditions limites
+!> @brief Initialisation des conditions limites
 !
 !------------------------------------------------------------------------------!
 
@@ -74,7 +73,7 @@ do while (associated(pgrid))            ! loop on grids in a zone
     pgrid%umesh%boco(ib)%area = 0._krp
     do if = 1, pgrid%umesh%boco(ib)%nface
       pgrid%umesh%boco(ib)%area = pgrid%umesh%boco(ib)%area &
-                                  + pgrid%umesh%mesh%iface(pgrid%umesh%boco(ib)%iface(if), 1, 1)%surface
+                                  + pgrid%umesh%mesh%face_surf(pgrid%umesh%boco(ib)%iface(if))
     enddo
 
     ! -- init field (dim=1 quantity ~ average/integral) and scal/vect size of main field --

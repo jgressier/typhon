@@ -1,13 +1,9 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_flux_inviscid                Authors : J. Gressier
 !
-! Function
-!   Computation of INVISCID flux for NS equations
-!
-! Defaults/Limitations/Misc :
-!
+!> @brief Computation of INVISCID flux for NS equations
 !------------------------------------------------------------------------------!
-subroutine calc_flux_inviscid(defsolver, defspat, nflux, ideb, face, &
+subroutine calc_flux_inviscid(defsolver, defspat, nflux, ideb, fn, &
                               QL, QR, flux, calc_jac, jacL, jacR)
 use TYPHMAKE
 use OUTPUT
@@ -25,7 +21,7 @@ type(mnu_solver)      :: defsolver        ! solver parameters
 type(mnu_spat)        :: defspat          ! space integration parameters
 integer, intent(in)   :: nflux            ! number of fluxes
 integer               :: ideb             ! index of first flux
-type(st_face)         :: face(nflux)      ! geom. data of faces
+type(v3d)             :: fn(nflux)        ! face normal
 type(st_nsetat)       :: QL, QR   ! primitive variables array
 logical               :: calc_jac         ! jacobian calculation boolean
 
@@ -47,31 +43,31 @@ type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 
 select case(defspat%sch_hyp)
 case(sch_ausmm)
-  call calc_flux_ausmm(defsolver, defspat, nflux, face,        &
+  call calc_flux_ausmm(defsolver, defspat, nflux, fn,        &
                        QL, QR, flux, ideb,                     &
                        calc_jac, jacL, jacR)
 case(sch_rusanov)
-  call calc_flux_rusanov(defsolver, defspat, nflux, face,      &
+  call calc_flux_rusanov(defsolver, defspat, nflux, fn,      &
                       QL, QR, flux, ideb,                      &
                       calc_jac, jacL, jacR)
 case(sch_hlle, sch_hlleb, sch_hllek, sch_hllekb)
-  call calc_flux_hlle(defsolver, defspat, nflux, face,         &
+  call calc_flux_hlle(defsolver, defspat, nflux, fn,         &
                       QL, QR, flux, ideb,                      &
                       calc_jac, jacL, jacR)
 case(sch_hllc, sch_hllcb, sch_hllck, sch_hllckb)
-  call calc_flux_hllc(defsolver, defspat, nflux, face,         &
+  call calc_flux_hllc(defsolver, defspat, nflux, fn,         &
                       QL, QR, flux, ideb,                      &
                       calc_jac, jacL, jacR)
 case(sch_efm)
-  call calc_flux_efm(defsolver, defspat, nflux, face,         &
+  call calc_flux_efm(defsolver, defspat, nflux, fn,         &
                      QL, QR, flux, ideb,                      &
                      calc_jac, jacL, jacR)
 case(sch_wps_vleer, sch_wps_efm)
-  call calc_flux_fvs_wps(defsolver, defspat, nflux, face,     &
+  call calc_flux_fvs_wps(defsolver, defspat, nflux, fn,     &
                      QL, QR, flux, ideb,                      &
                      calc_jac, jacL, jacR)
 case(sch_hwps_vleer, sch_hwps_efm)
-  call calc_flux_fvs_hwps(defsolver, defspat, nflux, face,    &
+  call calc_flux_fvs_hwps(defsolver, defspat, nflux, fn,    &
                      QL, QR, flux, ideb,                      &
                      calc_jac, jacL, jacR)
 case default

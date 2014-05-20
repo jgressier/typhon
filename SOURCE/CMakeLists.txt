@@ -50,12 +50,9 @@ XIO/comp_flux.f90
 XIO/REPRISE.f90
 VORTEX/init_vort_ust.f90
 VORTEX/init_boco_vort.f90
-VORTEX/get_singularity_nodes.f90
-VORTEX/fillmat_sing_effects.f90
 VORTEX/def_model_vortex.f90
 VORTEX/def_init_vortex.f90
 VORTEX/def_boco_vortex.f90
-VORTEX/calc_induced_velocities.f90
 VORTEX/VORTEX2D.f90
 VORTEX/MENU_VORTEX.f90
 VORTEX/PAN2D_LIN.f90

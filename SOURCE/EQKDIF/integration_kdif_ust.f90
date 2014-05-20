@@ -1,10 +1,10 @@
 !------------------------------------------------------------------------------!
 ! Procedure : integration_kdif_ust              Authors : J. Gressier
 !                                               Created : April 2003
-! Fonction                                      Modif  : (cf history)
-!   Given field and boundary conditions, Computation of
-!   - explicit fluxes
-!   - jacobian matrices (if needed)
+!> @brief heat transfer integration
+!>   Given field and boundary conditions, Computation of
+!>   - explicit fluxes
+!>   - jacobian matrices (if needed)
 !
 !------------------------------------------------------------------------------!
 subroutine integration_kdif_ust(defsolver, defspat, umesh, field, flux, &
@@ -81,8 +81,8 @@ do ib = 1, nblock
 
   ! ATTENTION : le flux n'est passe ici que pour UN SEUL scalaire
 
-  call calc_kdif_flux(defsolver, defspat,                             &
-                      buf, umesh%mesh%iface(ista(ib):iend(ib), 1, 1),       &
+  call calc_kdif_flux(defsolver, defspat, buf,                          &
+                      umesh%mesh%face_center(ista(ib):iend(ib), 1), umesh%mesh%face_normal(ista(ib):iend(ib), 1),      &
                       cg_l, cell_l, grad_l, cg_r, cell_r, grad_r,     &
                       flux%tabscal(1)%scal(ista(ib):iend(ib)), ista(ib),          &
                       calc_jac, jacL, jacR)

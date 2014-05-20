@@ -1,8 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_ns_timestep   
 !
-! Fonction
-!   Compute local time step for Euler/NS solver
+!> @brief Compute local time step for Euler/NS solver
 !
 !------------------------------------------------------------------------------!
 subroutine calc_ns_timestep(cfl, fluid, umesh, field, dtloc, ncell)
@@ -66,8 +65,8 @@ do i = 1, umesh%colors%node(icolor)%nelem
   ic1 = umesh%facecell%fils(if,1)
   ic2 = umesh%facecell%fils(if,2)
 
-  dtloc(ic1) = dtloc(ic1) + umesh%mesh%iface(if,1,1)%surface 
-  if (ic2 <= ncell) dtloc(ic2) = dtloc(ic2) + umesh%mesh%iface(if,1,1)%surface
+  dtloc(ic1) = dtloc(ic1) + umesh%mesh%face_surf(if) 
+  if (ic2 <= ncell) dtloc(ic2) = dtloc(ic2) + umesh%mesh%face_surf(if)
 enddo
 !$OMP END PARALLEL DO
 enddo ! color

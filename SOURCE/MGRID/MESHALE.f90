@@ -1,8 +1,7 @@
 !------------------------------------------------------------------------------!
 ! MODULE : MESHALE                        Author : A. Gardi
 !                                         Date   : Mar 2011
-! Fonction                                Modif  : (cf changes history)
-!   Definition of ALE mesh movement parameters and routines
+!> @brief Definition of ALE mesh movement parameters and routines
 !------------------------------------------------------------------------------!
 module MESHALE
 
@@ -54,7 +53,7 @@ endif
 
 ! Saving the old face centres, for face velocity evaluation (ALL CYCLES)
 do ifc = 1, umesh%nface
-  defale%old_facecentres(ifc) = umesh%mesh%iface(ifc,1,1)%centre
+  defale%old_facecentres(ifc) = umesh%mesh%face_center(ifc,1)
 enddo
 
 ! Saving the old volumes, for conservative balance correction (ALL CYCLES)
@@ -248,7 +247,7 @@ integer(kip)              :: ind
 
   ! Face velocity evaluation
   do ind = 1, umesh%nface
-    defsolver%defale%face_velocity(ind) = (umesh%mesh%iface(ind,1,1)%centre - defsolver%defale%old_facecentres(ind)) / dt
+    defsolver%defale%face_velocity(ind) = (umesh%mesh%face_center(ind,1) - defsolver%defale%old_facecentres(ind)) / dt
   enddo
 
 endsubroutine ale_fincycle

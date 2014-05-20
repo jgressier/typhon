@@ -1,8 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : init_connect_grid                         Authors : J. Gressier
 !                                                       Created : March 2004
-! Fonction
-!   Calcul des connectivites supplementaires (conditions limites)
+!> @brief Calcul des connectivites supplementaires (conditions limites)
 !
 !------------------------------------------------------------------------------!
 subroutine init_connect_grid(defsolver, grid)
@@ -223,12 +222,12 @@ do ib = 1, grid%umesh%nboco
         icper = grid%umesh%facecell%fils(ifper,1)           ! index of periodic internal cell
 
         ! face to cell vector on periodic face
-        dfc   = grid%umesh%mesh%centre(icper,1,1) - grid%umesh%mesh%iface(ifper,1,1)%centre
+        dfc   = grid%umesh%mesh%centre(icper,1,1) - grid%umesh%mesh%face_center(ifper,1)
         ! transform vector
         call transvec_per(defsolver%defmesh%periodicity(defsolver%connect(boco%gridcon%ilink)%ilink), dfc, -boco%gridcon%rlink)
 
         grid%umesh%mesh%volume(ic2,1,1) = grid%umesh%mesh%volume(icper,1,1)
-        grid%umesh%mesh%centre(ic2,1,1) = grid%umesh%mesh%iface(iface,1,1)%centre + dfc(1)
+        grid%umesh%mesh%centre(ic2,1,1) = grid%umesh%mesh%face_center(iface,1) + dfc(1)
       enddo
 
       ! -- 

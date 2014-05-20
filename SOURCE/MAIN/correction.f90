@@ -1,12 +1,10 @@
 !------------------------------------------------------------------------------
 ! Procedure : correction                  Auteur : E. Radenac
 !                                         Date   : Fevrier 2004
-! Fonction                                Modif  :
-!   Application de la correction cumulee de bilan de flux
+!> @brief Application de la correction cumulee de bilan de flux
 !
 ! Defauts/Limitations/Divers : 
 !------------------------------------------------------------------------------
-
 subroutine correction(zone1, zone2, nfacelim, corcoef, nbc1, nbc2, ncoupl1, &
                       ncoupl2, part_cor1, part_cor2, typ_cor1, typ_cor2, &
                       fincycle, dtexch)
@@ -99,7 +97,7 @@ if (typ_cor1.eq.distributed) then
   case(solKDIF)
     do i=1,nfacelim
       if = zone1%gridlist%first%umesh%boco(nbc1)%iface(i)
-      zone1%defsolver%boco(zone1%gridlist%first%umesh%boco(nbc1)%idefboco)%boco_kdif%flux_nunif(if) = part_cor1 * zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal(2)%scal(i) / (zone1%gridlist%first%umesh%mesh%iface(if,1,1)%surface * dtexch)
+      zone1%defsolver%boco(zone1%gridlist%first%umesh%boco(nbc1)%idefboco)%boco_kdif%flux_nunif(if) = part_cor1 * zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal(2)%scal(i) / (zone1%gridlist%first%umesh%mesh%face_surf(if) * dtexch)
       zone1%coupling(ncoupl1)%zcoupling%etatcons%tabscal(3)%scal(i) = 0
     enddo
 
@@ -115,7 +113,7 @@ if (typ_cor1.eq.distributed) then
   case(solKDIF)
     do i=1,nfacelim
       if = zone1%gridlist%first%umesh%boco(nbc1)%iface(i)
-      zone2%defsolver%boco(zone1%gridlist%first%umesh%boco(nbc1)%idefboco)%boco_kdif%flux_nunif(if) = part_cor2 * zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal(2)%scal(i) / (zone2%gridlist%first%umesh%mesh%iface(if,1,1)%surface * dtexch)
+      zone2%defsolver%boco(zone1%gridlist%first%umesh%boco(nbc1)%idefboco)%boco_kdif%flux_nunif(if) = part_cor2 * zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal(2)%scal(i) / (zone2%gridlist%first%umesh%mesh%face_surf(if) * dtexch)
       zone2%coupling(ncoupl2)%zcoupling%etatcons%tabscal(3)%scal(i) = 0
     enddo
 

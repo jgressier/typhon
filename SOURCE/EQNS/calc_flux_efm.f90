@@ -1,13 +1,10 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_flux_efm                     Authors : Praveen. C
 !
-! Function
-!   Computation of Kinetic flux for Euler equations
-!
-! Defaults/Limitations/Misc :
+!> @brief Computation of Kinetic flux for Euler equations
 !
 !------------------------------------------------------------------------------!
-subroutine calc_flux_efm (defsolver, defspat, nflux, face, &
+subroutine calc_flux_efm (defsolver, defspat, nflux, fn, &
                           cell_l, cell_r, flux, ideb,      &
                           calc_jac, jacL, jacR)
 use TYPHMAKE
@@ -27,8 +24,7 @@ type(mnu_solver)      :: defsolver        ! solver parameters
 type(mnu_spat)        :: defspat          ! space integration parameters
 integer               :: nflux            ! number of fluxes
 integer               :: ideb             ! index of first flux
-type(st_face), dimension(1:nflux) &
-                      :: face             ! geom. data of faces
+type(v3d)             :: fn(1:nflux)      ! face normals
 type(st_nsetat)       :: cell_l, cell_r   ! primitive variables array
 logical               :: calc_jac         ! jacobian calculation boolean
 
@@ -40,7 +36,6 @@ type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 
 ! -- Internal variables --
 integer                 :: if
-type(v3d), dimension(nflux) :: fn
 real(krp), dimension(nflux) :: sl, sr
 real(krp)               :: vnl, vnr, al, ar
 real(krp)               :: cl, cr
@@ -61,16 +56,8 @@ f2  = 0.5_krp/sqrt(PIcst)
 !-------------------------------
 ! Flux computation
 
-fn(1:nflux)  = face(1:nflux)%normale
-
-!!vnl(1:nflux) = cell_l%velocity(1:nflux).scal.fn(1:nflux)       ! face normal velocity (left  state)
-!!vnr(1:nflux) = cell_r%velocity(1:nflux).scal.fn(1:nflux)       !                      (right state)
-!!al(1:nflux)  = sqrt(g*cell_l%pressure(1:nflux)/cell_l%density(1:nflux)) ! speed of sound       (left  state)
-!!ar(1:nflux)  = sqrt(g*cell_r%pressure(1:nflux)/cell_r%density(1:nflux)) !                      (right state)
-
 do if = 1, nflux
 
-  !!fn  = face(if)%normale
   vnl = cell_l%velocity(if).scal.fn(if)            ! face normal velocity (left  state)
   vnr = cell_r%velocity(if).scal.fn(if)            !                      (right state)
   al  = sqrt(g*cell_l%pressure(if)/cell_l%density(if)) ! speed of sound       (left  state)

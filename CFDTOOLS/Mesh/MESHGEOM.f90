@@ -1,8 +1,7 @@
 !------------------------------------------------------------------------------!
 ! MODULE : MESHGEOM                      Authors : J. Gressier
 ! 
-! Fonction
-!   Computation of geometrical mesh properties
+!> @brief Computation of geometrical mesh properties
 !
 !------------------------------------------------------------------------------!
 module MESHGEOM
@@ -96,8 +95,8 @@ do if = 1, nface !> @optim make packet and vectorize if possible
 !!$      cgface(if) = .5_krp*(vtex(1) + vtex(2))
 !!$      norm = v3d(0._krp,0._krp,1._krp) .vect. (vtex(2)-vtex(1))
 !!$      surf = abs(norm)
-!!$      mesh%iface(if,1,1)%normale = norm / surf
-!!$      mesh%iface(if,1,1)%surface = surf * (two_pi*cgface(if)%y)    ! axisymmetric correction
+!!$      mesh%face_normal(if,1) = norm / surf
+!!$      mesh%face_surf(if) = surf * (two_pi*cgface(if)%y)    ! axisymmetric correction
 !!$    case default
 !!$      call cfd_error("mesh property: only 2 vertices faces expected")
 !!$    endselect

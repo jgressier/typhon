@@ -1,8 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : hres_ns_muscluns                       Authors : J. Gressier
 !                                                    Created : Dec 2006
-! Fonction
-!   MUSCL interpolation of primitive quantities
+!> @brief MUSCL interpolation of primitive quantities
 !
 !------------------------------------------------------------------------------!
 subroutine hres_ns_muscluns(defspat, nf, ideb, umesh, fprim, fgrad, cell_l, cell_r, ic0)
@@ -53,8 +52,8 @@ do i = 1, nf
   icl = umesh%facecell%fils(if,1)
   icr = umesh%facecell%fils(if,2)
   uLR(i) = umesh%mesh%centre(icr, 1, 1) - umesh%mesh%centre(icl, 1, 1)
-  LF(i)  = umesh%mesh%iface(if,1,1)%centre  - umesh%mesh%centre(icl, 1, 1)
-  RF(i)  = umesh%mesh%iface(if,1,1)%centre  - umesh%mesh%centre(icr, 1, 1)
+  LF(i)  = umesh%mesh%face_center(if,1)  - umesh%mesh%centre(icl, 1, 1)
+  RF(i)  = umesh%mesh%face_center(if,1)  - umesh%mesh%centre(icr, 1, 1)
   dLR(i) = abs(uLR(i))
   uLR(i) = uLR(i)/dLR(i)
 enddo

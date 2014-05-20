@@ -1,11 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : setboco_kdif_hconv          Authors: J. Gressier/E. Radenac
 !                                         Date   : Juin 2004
-! Function                                Modif  : (cf Historique)
-!   Computation of non uniform convection boundary conditions for 
-!   the solid
-! Defauts/Limitations/Divers :
-!
+!> @brief Computation of non uniform convection boundary conditions for the solid
 !------------------------------------------------------------------------------!
 subroutine setboco_kdif_hconv(curtime, unif, ustboco, umesh, bccon, defsolver, bckdif, defspat)
 
@@ -59,9 +55,9 @@ case(uniform)
   
   do ifb = 1, nface
      if     = ustboco%iface(ifb)
-     call fct_env_set_real(blank_env, "x", umesh%mesh%iface(if,1,1)%centre%x)
-     call fct_env_set_real(blank_env, "y", umesh%mesh%iface(if,1,1)%centre%y)
-     call fct_env_set_real(blank_env, "z", umesh%mesh%iface(if,1,1)%centre%z)
+     call fct_env_set_real(blank_env, "x", umesh%mesh%face_center(if,1)%x)
+     call fct_env_set_real(blank_env, "y", umesh%mesh%face_center(if,1)%y)
+     call fct_env_set_real(blank_env, "z", umesh%mesh%face_center(if,1)%z)
      call fct_env_set_real(blank_env, "t", curtime)
      call fct_eval_real(blank_env, bckdif%h_conv, hloc(ifb))
   enddo
@@ -86,9 +82,9 @@ do ifb = 1, ustboco%nface
   ighost = bccon%irecv(ifb)
 
   ! Computation of distance cell center - face center
-  cgface = umesh%mesh%iface(if,1,1)%centre
+  cgface = umesh%mesh%face_center(if,1)
   ! cg     = umesh%mesh%centre(ic,1,1)
-  normale= umesh%mesh%iface(if,1,1)%normale
+  normale= umesh%mesh%face_normal(if,1)
   !! d    = (cgface - cg) .scal. (cgface - cg) / (abs((cgface - cg).scal.normale))
   ! d = abs((cgface - cg).scal.normale)
   ! dc = (cgface - cg) - ( (cgface - cg).scal.normale ) * normale

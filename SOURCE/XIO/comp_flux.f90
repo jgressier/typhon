@@ -1,13 +1,8 @@
 !------------------------------------------------------------------------------!
 ! Procedure : comp_flux                   Auteur : E. Radenac
 !                                         Date   : Juin 2003
-! Fonction                                Modif  : Juillet 2003
-!   Comparaison des flux de part et d'autre d'une interface de deux zones
-!
-! Defauts/Limitations/Divers :
-!
+!> @brief Comparaison des flux de part et d'autre d'une interface de deux zones
 !------------------------------------------------------------------------------!
-
 subroutine comp_flux(zone1, zone2, nbc1, nbc2, nfacelim, curtps, ncoupl)
 
 use DEFZONE
@@ -47,7 +42,7 @@ do i=1, nfacelim
   if1 = zone1%gridlist%first%umesh%boco(nbc1)%iface(i)
   if2 = zone2%gridlist%first%umesh%boco(nbc2)%iface(i)
    
-  cgface = zone1%gridlist%first%umesh%mesh%iface(if1,1,1)%centre
+  cgface = zone1%gridlist%first%umesh%mesh%face_center(if1,1)
   ic1 = zone1%gridlist%first%umesh%facecell%fils(if1,1)
   icg1 = zone1%gridlist%first%umesh%facecell%fils(if1,2)
   cg1 = zone1%gridlist%first%umesh%mesh%centre(ic1,1,1)

@@ -1,9 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : setboco_ns_inlet_sub        Auteur : J. Gressier
 !                                         Date   : July 2004
-! Fonction   
-!   Computation of supersonic inlet boundary conditions
-!   
+!> @brief Computation of supersonic inlet boundary conditions
 !------------------------------------------------------------------------------!
 subroutine setboco_ns_inlet_sub(defsolver, unif, boco_ns, ustboco, umesh, bccon, curtime)
 
@@ -76,9 +74,9 @@ block: do ib = 1, nblock
   if (boco_ns%xyz_depend) then
     do ifb = 1, buf
       if   = ustboco%iface(ista(ib)+ifb-1)
-      x(ifb) = umesh%mesh%iface(if,1,1)%centre%x
-      y(ifb) = umesh%mesh%iface(if,1,1)%centre%y
-      z(ifb) = umesh%mesh%iface(if,1,1)%centre%z
+      x(ifb) = umesh%mesh%face_center(if,1)%x
+      y(ifb) = umesh%mesh%face_center(if,1)%y
+      z(ifb) = umesh%mesh%face_center(if,1)%z
     enddo
 
     call fct_env_set_realarray(env, "x", x(1:buf))
@@ -118,7 +116,7 @@ block: do ib = 1, nblock
   if (defsolver%defmrf%type /= mrf_none .and. defsolver%defmrf%input == mrfdata_absolute) then
     do ifb = 1, buf
       if   = ustboco%iface(ista(ib)+ifb-1)
-      pos  = umesh%mesh%iface(if,1,1)%centre
+      pos  = umesh%mesh%face_center(if,1)
       call mrfvel_abs2rel(defsolver%defmrf, curtime, pos, nspri%velocity(ifb))    ! DEV: need to vectorize ?
     enddo
   endif

@@ -52,7 +52,7 @@ do ib = 1, nblock
   buf = iend(ib)-ista(ib)+1
 
   do ifa = ista(ib), iend(ib)
-    surf(ifa-ista(ib)+1) = umesh%mesh%iface(ifa,1,1)%surface
+    surf(ifa-ista(ib)+1) = umesh%mesh%face_surf(ifa)
   enddo
 
   ! -- flux surfaciques -> flux de surfaces --

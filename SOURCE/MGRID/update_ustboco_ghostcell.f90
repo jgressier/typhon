@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : update_ustboco_ghostcell               Authors : JG + A. Gardi
 !                                                    Created : Mars 2011
-! Fonction  
+! Fonction 
 !    Update the ghostcell parameters after mesh movement due to ALE
 !
 !------------------------------------------------------------------------------!
@@ -45,14 +45,14 @@ do if = 1, umesh%boco(ib)%nface
   select case(defboco%typ_boco)
 
   case(bc_geo_sym)
-    fn = umesh%mesh%iface(iface,1,1)%normale
+    fn = umesh%mesh%face_normal(iface,1)
     gc = umesh%mesh%centre(ic1,1,1)
     umesh%mesh%volume(ic2,1,1) = umesh%mesh%volume(ic1,1,1)
-    umesh%mesh%centre(ic2,1,1) = gc + (2._krp*((umesh%mesh%iface(iface,1,1)%centre-gc).scal.fn))*fn
+    umesh%mesh%centre(ic2,1,1) = gc + (2._krp*((umesh%mesh%face_center(iface,1)-gc).scal.fn))*fn
 
   case(bc_wall_isoth, bc_wall_flux, bc_wall_adiab)
     umesh%mesh%volume(ic2,1,1) = umesh%mesh%volume(ic1,1,1)
-    umesh%mesh%centre(ic2,1,1) = 2._krp*umesh%mesh%iface(iface,1,1)%centre - umesh%mesh%centre(ic1,1,1)
+    umesh%mesh%centre(ic2,1,1) = 2._krp*umesh%mesh%face_center(iface,1) - umesh%mesh%centre(ic1,1,1)
 
   case(bc_geo_period)
     call erreur("Development", "Initialization of periodic boundary conditions not yet implemented")

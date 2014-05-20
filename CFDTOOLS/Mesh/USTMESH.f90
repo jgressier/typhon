@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------!
 ! MODULE : USTMESH 
 !
-! Grid geometry and connectivity for unstructured mesh
+!> @brief Grid geometry and connectivity for unstructured mesh
 !------------------------------------------------------------------------------!
 
 module USTMESH
@@ -261,7 +261,7 @@ integer :: if, iface
 
 do if = 1, boco%nface
   iface = boco%iface(if)
-  center(if) = umesh%mesh%iface(iface,1,1)%centre
+  center(if) = umesh%mesh%face_center(iface,1)
 enddo
 
 endsubroutine get_bocofacecenter

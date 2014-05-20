@@ -78,7 +78,7 @@ do ib = 1, umesh%nboco          ! loop on boco in grid
 
     if   = umesh%boco(ib)%iface(i)        ! index of i-th boco face
     ig   = umesh%facecell%fils(if, 2)     ! associated ghost state
-    surf = umesh%mesh%iface(if, 1, 1)%surface
+    surf = umesh%mesh%face_surf(if)
 
     do isca = 1, nsca
       avgsca(isca,ithread)  = avgsca(isca,ithread)  + surf * field%etatprim%tabscal(isca)%scal(ig)

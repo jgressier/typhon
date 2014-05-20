@@ -1,8 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : setboco_ns_outlet_sub       Auteur : J. Gressier
 !                                         Date   : July 2004
-! Fonction                                Modif  : (cf Historique)
-!   Computation of supersonic inlet boundary conditions
+!> @brief Computation of supersonic inlet boundary conditions
 !   
 !------------------------------------------------------------------------------!
 subroutine setboco_ns_outlet_sub(defns, unif, bc_ns, ustboco, umesh, bccon, curtime)
@@ -74,9 +73,9 @@ call fct_env_set_real(blank_env, "t", curtime)
 
 do ifb = 1, nf
   if   = ustboco%iface(ifb)
-  call fct_env_set_real(blank_env, "x", umesh%mesh%iface(if,1,1)%centre%x)
-  call fct_env_set_real(blank_env, "y", umesh%mesh%iface(if,1,1)%centre%y)
-  call fct_env_set_real(blank_env, "z", umesh%mesh%iface(if,1,1)%centre%z)
+  call fct_env_set_real(blank_env, "x", umesh%mesh%face_center(if,1)%x)
+  call fct_env_set_real(blank_env, "y", umesh%mesh%face_center(if,1)%y)
+  call fct_env_set_real(blank_env, "z", umesh%mesh%face_center(if,1)%z)
   call fct_eval_real(blank_env, bc_ns%pstat, ps(ifb))
 enddo
 

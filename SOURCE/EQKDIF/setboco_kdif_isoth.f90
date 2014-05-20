@@ -1,11 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : setboco_kdif_isoth          Auteur : J. Gressier/E. Radenac
 !                                         Date   : Novembre 2003
-! Fonction                                Modif  : (cf Historique)
-!   Calcul des conditions aux limites non uniformes pour la conduction de la 
-!   chaleur
-! Defauts/Limitations/Divers :
-!
+!> @brief Calcul des conditions aux limites non uniformes pour la conduction de la chaleur
 !------------------------------------------------------------------------------!
 subroutine setboco_kdif_isoth(curtime, unif, ustboco, umesh, bccon, bckdif)
 
@@ -45,9 +41,9 @@ if (unif == uniform) then
   do ifb = 1, ustboco%nface
     if     = ustboco%iface(ifb)
     ighost = bccon%irecv(ifb)
-    call fct_env_set_real(blank_env, "x", umesh%mesh%iface(if,1,1)%centre%x)
-    call fct_env_set_real(blank_env, "y", umesh%mesh%iface(if,1,1)%centre%y)
-    call fct_env_set_real(blank_env, "z", umesh%mesh%iface(if,1,1)%centre%z)
+    call fct_env_set_real(blank_env, "x", umesh%mesh%face_center(if,1)%x)
+    call fct_env_set_real(blank_env, "y", umesh%mesh%face_center(if,1)%y)
+    call fct_env_set_real(blank_env, "z", umesh%mesh%face_center(if,1)%z)
     call fct_env_set_real(blank_env, "t", curtime)
     call fct_eval_real(blank_env, bckdif%wall_temp, tloc)
     do ip = 1, bccon%frecv%nscal

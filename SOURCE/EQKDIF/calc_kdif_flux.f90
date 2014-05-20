@@ -1,15 +1,14 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_kdif_flux              Auteur : J. Gressier
 !                                         Date   : Avril 2003
-! Fonction                                Modif  : (cf historique)
-!   Calcul des flux de conduction de la chaleur : trois methodes
+!> @brief Calcul des flux de conduction de la chaleur : trois methodes
 !
-! Defauts/Limitations/Divers :
-!   Les gradients sont censes etre ceux des variables primitives qui
-!   sont aussi passees en argument
+!> Defauts/Limitations/Divers :
+!>   Les gradients sont censes etre ceux des variables primitives qui
+!>   sont aussi passees en argument
 !
 !------------------------------------------------------------------------------!
-subroutine calc_kdif_flux(defsolver, defspat, nflux, face,   &
+subroutine calc_kdif_flux(defsolver, defspat, nflux, fc, fn,   &
                           cg_l, cell_l, grad_l,              &
                           cg_r, cell_r, grad_r, flux, ideb,  &
                           calc_jac, jacL, jacR)
@@ -32,8 +31,8 @@ implicit none
 type(mnu_solver)      :: defsolver        ! parametres de definition du solveur
 type(mnu_spat)        :: defspat          ! parametres d'integration spatiale
 integer               :: nflux            ! nombre de flux (face) a calculer
-type(st_face),     dimension(1:nflux) & 
-                      :: face             ! donnees geometriques des faces
+type(v3d),         dimension(1:nflux) &
+                      :: fc, fn           ! face center and normal
 type(v3d),         dimension(1:nflux) &
                       :: cg_l, cg_r       ! centres des cellules
 real(krp),         dimension(1:nflux) &
@@ -74,8 +73,8 @@ allocate(vLR(nflux))    ! vecteur  LR
 ! -- Calculs preliminaires --
 
 do if = 1, nflux
-  dHL(if) = abs(face(if)%centre - cg_l(if))
-  dHR(if) = abs(face(if)%centre - cg_r(if))
+  dHL(if) = abs(fc(if) - cg_l(if))
+  dHR(if) = abs(fc(if) - cg_r(if))
   id      = 1._krp/(dHL(if) + dHR(if))
   dHL(if) = id*dHL(if) 
   dHR(if) = id*dHR(if) 
@@ -120,19 +119,19 @@ case(matiso_ISO)
   case(dis_celldif2) ! formulation compacte, non consistance si vLR et n non alignes
     do if = 1, nflux
       flux(if,1)  = - kH(if) * (cell_r(if) - cell_l(if)) &
-                             * (vLR(if).scal.face(if)%normale) / (dLR(if)**2)
+                             * (vLR(if).scal.fn(if)) / (dLR(if)**2)
     enddo
 
   case(dis_cellavg2) ! formulation consistante, moyenne ponderee des gradients
     do if = 1, nflux
-      flux(if,1)  = - kH(if) * ((dHL(if)*grad_r(if) + dHR(if)*grad_l(if)).scal.face(if)%normale)
+      flux(if,1)  = - kH(if) * ((dHL(if)*grad_r(if) + dHR(if)*grad_l(if)).scal.fn(if))
     enddo
 
   case(dis_cellfull)
     do if = 1, nflux
-      pscal = (vLR(if).scal.face(if)%normale) / (dLR(if)**2)
+      pscal = (vLR(if).scal.fn(if)) / (dLR(if)**2)
       Fcomp = pscal * (cell_r(if) - cell_l(if))
-      vi    = face(if)%normale - (theta*pscal)*vLR(if)
+      vi    = fn(if) - (theta*pscal)*vLR(if)
       Favg  = (dHL(if)*grad_r(if) + dHR(if)*grad_l(if)).scal.vi
       flux(if,1)  = - kH(if) * (theta*Fcomp + Favg)
     enddo
@@ -152,10 +151,10 @@ case(matiso_UDF)
   call interp_facegradient_scal(nflux, defspat%sch_dis, dHL, dHR, vLR, &
                                 cell_l, cell_r, grad_l, grad_r, gradface)
 
-  call udf_kdif_aniso(nflux, face, anisok)
+  call udf_kdif_aniso(nflux, anisok)
 
   do if = 1, nflux
-    flux(if,1) = - kH(if)*( (anisok(if).scal.gradface(if)).scal.face(if)%normale )
+    flux(if,1) = - kH(if)*( (anisok(if).scal.gradface(if)).scal.fn(if))
   enddo
 
   deallocate(gradface)
@@ -170,7 +169,7 @@ endselect
 !--------------------------------------------------------------
 if (calc_jac) then
   do if = 1, nflux
-    jacR%mat(1,1,ideb-1+if) =  - kH(if) * (vLR(if).scal.face(if)%normale) &
+    jacR%mat(1,1,ideb-1+if) =  - kH(if) * (vLR(if).scal.fn(if)) &
                               / (defsolver%defkdif%materiau%Cp * dLR(if)**2)
     jacL%mat(1,1,ideb-1+if) = -jacR%mat(1,1,ideb-1+if)
   enddo

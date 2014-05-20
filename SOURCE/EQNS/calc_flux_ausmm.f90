@@ -1,11 +1,9 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_flux_ausmm                   Authors : J. Gressier
 !
-! Function
-!   Computation of AUSMM flux for Euler equations
-!
+!> @brief   Computation of AUSMM flux for Euler equations
 !------------------------------------------------------------------------------!
-subroutine calc_flux_ausmm(defsolver, defspat, nflux, face, &
+subroutine calc_flux_ausmm(defsolver, defspat, nflux, fn, &
                           cell_l, cell_r, flux, ideb,      &
                           calc_jac, jacL, jacR)
 use OUTPUT
@@ -24,8 +22,7 @@ type(mnu_solver)      :: defsolver        ! solver parameters
 type(mnu_spat)        :: defspat          ! space integration parameters
 integer               :: nflux            ! number of fluxes
 integer               :: ideb             ! index of first flux
-type(st_face), dimension(1:nflux) &
-                      :: face             ! geom. data of faces
+type(v3d)             :: fn(1:nflux)      ! face normals
 type(st_nsetat)       :: cell_l, cell_r   ! primitive variables array
 logical               :: calc_jac         ! jacobian calculation boolean
 
@@ -59,8 +56,8 @@ ar(1:nflux) = sqrt(g*cell_r%pressure(1:nflux)/cell_r%density(1:nflux)) !        
 ! -- Mach numbers --
 
 do if = 1, nflux
-  mnl(if) = (cell_l%velocity(if).scal.face(if)%normale)/al(if)    ! face normal velocity (left  state)
-  mnr(if) = (cell_r%velocity(if).scal.face(if)%normale)/ar(if)    !                      (right state)
+  mnl(if) = (cell_l%velocity(if).scal.fn(if))/al(if)    ! face normal velocity (left  state)
+  mnr(if) = (cell_r%velocity(if).scal.fn(if))/ar(if)    !                      (right state)
 enddo
 
 ! -- Mach numbers functions and Pressure upwinding functions (van Leer basic ones) --
@@ -107,7 +104,7 @@ do if = 1, nflux
   ! momentum flux
   flux%tabvect(1)%vect(ideb-1+if) = (mnl(if)*cell_l%density(if))*cell_l%velocity(if) &
                                   + (mnr(if)*cell_r%density(if))*cell_r%velocity(if) &
-                                  + (pp(if)*cell_l%pressure(if) + pm(if)*cell_r%pressure(if))*face(if)%normale
+                                  + (pp(if)*cell_l%pressure(if) + pm(if)*cell_r%pressure(if))*fn(if)
 enddo
 
 !--------------------------------------------------------------
@@ -130,7 +127,7 @@ if (calc_jac) then
     !                      cell_l, cell_r, sl, sr, vnl, vnr, ideb, jacL, jacR)
 
   case default ! --- errors will be checked in calc_jac_gencall
-    call calc_jac_gencall(defsolver, defspat, nflux, face,          &
+    call calc_jac_gencall(defsolver, defspat, nflux, fn,          &
                           cell_l, cell_r,  mnl, mnr, al, ar, ideb, jacL, jacR)
 
   endselect

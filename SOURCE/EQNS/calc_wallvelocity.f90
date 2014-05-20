@@ -1,13 +1,9 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_wallvelocity           Author : A. Gardi
 !                                         Date   : Apr 2011
-! Fonction                                Modif  : (cf Historique)
-!   Boundary conditions update to account for a moving wall in ALE and MRF
-!   analyses
-! Defauts/Limitations/Divers :
-!
+!> @brief Boundary conditions update to account for a moving wall in ALE and MRF analyses
 !------------------------------------------------------------------------------!
-subroutine calc_wallvelocity(defale, defmrf, wall_velocity, iface, indf, curtime)
+subroutine calc_wallvelocity(defale, defmrf, wall_velocity, face_center, indf, curtime)
 
 use TYPHMAKE
 use MENU_ALE
@@ -21,7 +17,7 @@ implicit none
 ! -- INPUTS --
 type(mnu_ale)          :: defale        ! ALE parametres
 type(mnu_mrf)          :: defmrf        ! MRF parametres
-type(st_face)          :: iface
+type(v3d)              :: face_center
 integer                :: indf
 real(krp)              :: curtime
 
@@ -34,7 +30,7 @@ type(v3d)              :: wall_velocity    ! fields
 
 ! MRF wall movement contributes
 if (defmrf%type /= mrf_none .and. defmrf%input == mrfdata_absolute) then
-  call mrfvel_abs2rel(defmrf, curtime, iface%centre, wall_velocity)
+  call mrfvel_abs2rel(defmrf, curtime, face_center, wall_velocity)
 endif
 
 ! ALE wall movement contributes
