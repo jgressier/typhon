@@ -21,34 +21,34 @@ implicit none
 
 
 !------------------------------------------------------------------------------!
-! Definition de la structure ST_USTMESH : Maillage non structure
+!> @struct st_ustmesh
+!> @brief derived type for unstructured mesh geometry and connectity
 !------------------------------------------------------------------------------!
 ! Organization of face arrays:
 !   SVM internal faces (1..nface_svmint)
 ! les elements limites.
 
 type st_ustmesh
-  integer(kip)          :: id                    ! domain id
-  integer(kip)          :: level                 ! multigrid level
-  !integer(kpp)          :: geotyp                ! mesh type (cf MESHGEOM)
-  integer(kpp)          :: elemdim               ! mesh dimension
-  integer(kip)          :: nvtex, nface, ncell   ! number of vertices, faces and cells
-  integer(kip)          :: nface_int, ncell_int  ! number of internal faces and cells
-  integer(kip)          :: nface_lim, ncell_lim  ! number of boundering faces and cells
-  type(st_mesh)         :: mesh                  ! mesh (geometrical data)
-  type(st_connect)      :: facevtex, &           ! connectivite face   -> sommets   par type
-                           facecell              ! connectivite face   -> cellules  par type
-                                                 ! SUPPOSED TO INDEX LOWER INDEX CELL FIRST
-  type(st_genconnect)   :: colors                ! independent set of faces
-  type(st_genconnect)   :: vtexface              ! VTEX-FACE connectivity
-  type(st_genelemvtex)  :: cellvtex              ! CELL-VTEX connectivity
+  integer(kip)          :: id                    !> domain id
+  integer(kip)          :: level                 !> multigrid level
+  integer(kpp)          :: elemdim               !> mesh dimension
+  integer(kip)          :: nvtex, nface, ncell   !> number of vertices, faces and cells
+  integer(kip)          :: nface_int, ncell_int  !> number of internal faces and cells
+  integer(kip)          :: nface_lim, ncell_lim  !> number of boundering faces and cells
+  type(st_mesh)         :: mesh                  !> mesh (geometrical data)
+  type(st_connect)      :: facevtex, &           !> connectivite face   -> sommets   par type
+                           facecell              !> connectivite face   -> cellules  par type
+                                                 !> SUPPOSED TO INDEX LOWER INDEX CELL FIRST
+  type(st_genconnect)   :: colors                !> independent set of faces
+  type(st_genconnect)   :: vtexface              !> VTEX-FACE connectivity
+  type(st_genelemvtex)  :: cellvtex              !> CELL-VTEX connectivity
   
-  integer               :: nboco                 ! number of boundary conditions
+  integer               :: nboco                 !> number of boundary conditions
   type(st_ustboco), dimension(:), pointer &
-                        :: boco                  ! liste des conditions aux limites
-  type(st_connect)      :: face_Ltag, face_Rtag  ! define Riemann face as a local Gauss pt index
+                        :: boco                  !> liste des conditions aux limites
+  type(st_connect)      :: face_Ltag, face_Rtag  !> define Riemann face as a local Gauss pt index
   ! --- specific SVM structure ---
-  integer(kip)          :: nface_intsvm          ! number of internal SVM faces
+  integer(kip)          :: nface_intsvm          !> number of internal SVM faces
 endtype st_ustmesh
 
 

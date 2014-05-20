@@ -39,7 +39,9 @@ ty2dmesh.f90
 )
 
 IF(${PROJECT_NAME}_USE_CGNS)
-SET(Kit_SRCS
+  SET(KIT_LIBS ${KIT_LIBS} "${CGNS_LIBRARY}" )
+  INCLUDE_DIRECTORIES(${CGNS_INCLUDE_DIR})
+  SET(Kit_SRCS
 ${Kit_SRCS}
 cgns/writecgns_ustmesh.f90
 cgns/writecgns_sol.f90

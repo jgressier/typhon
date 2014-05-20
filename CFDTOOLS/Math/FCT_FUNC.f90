@@ -5,7 +5,9 @@
 !   Definition of FUNCTION
 !
 !------------------------------------------------------------------------------!
-
+!> @ingroup FCT
+!> @brief FCT function definition
+!------------------------------------------------------------------------------!
 module FCT_FUNC
 
 use FCT_CONTAINER

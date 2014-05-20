@@ -15,12 +15,9 @@ use DEFFIELD
 use MENU_SOLVER
 use TYPHON_FMT
 use TYFMT_SOL
+use CGNS_STRUCT
 
 implicit none
-
-#ifdef CGNS
-include 'cgnslib_f.h'
-#endif/*CGNS*/
 
 ! -- INPUTS --
 type(mnu_solver) :: defsolver            ! parametres du solveur
@@ -92,7 +89,7 @@ do i = 1, defsolver%ninit
 
     call typhon_openread(trim(defsolver%defmesh%filename), deftyphon)
 
-    call typhonread_ustmesh(deftyphon, p_umesh) !! DEV: must SKIP reading
+    call typhonread_ustmesh(deftyphon, p_umesh) !> @dev must SKIP mesh reading
     !call delete_ustmesh_subelements(umesh)
     call delete_ustmesh(p_umesh)
 

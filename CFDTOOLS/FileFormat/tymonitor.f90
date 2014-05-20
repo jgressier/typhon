@@ -1,6 +1,11 @@
+!> @addtogroup Program
 !------------------------------------------------------------------------------!
-! TYMONITOR
-!
+!> @ingroup Program
+!> @brief post-processing using TYPHON monitors like probes
+!> features
+!> - processing of list of solutions
+!> - see monitor definition
+! doxygen limitation: cannot (mulitple) link to feature 'monitor'
 !------------------------------------------------------------------------------!
 program tymonitor
 

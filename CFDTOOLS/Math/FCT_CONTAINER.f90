@@ -6,7 +6,10 @@
 !   should represent any kind of variable
 !
 !------------------------------------------------------------------------------!
-
+!> @ingroup FCT
+!> @brief meta container for FCT node
+!> able to represent a variable, a real, or an array of reals
+!------------------------------------------------------------------------------!
 module FCT_CONTAINER
 
 use FCT_DEF     ! accuracy definition and error handlers

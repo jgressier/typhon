@@ -1,7 +1,10 @@
+!> @addtogroup Program
 !------------------------------------------------------------------------------!
-! TY3DMESH
-! creates an H structured mesh 
-!
+!> @ingroup Program
+!> @brief generation of 3D structured based mesh
+!> features
+!> - hexa
+!> - morphing functions
 !------------------------------------------------------------------------------!
 program ty3dmesh
 

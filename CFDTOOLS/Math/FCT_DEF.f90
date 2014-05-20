@@ -6,7 +6,9 @@
 !   Error handlers
 !
 !------------------------------------------------------------------------------!
-
+!> @ingroup FCT
+!> @brief FCT configuration and basic routines
+!------------------------------------------------------------------------------!
 module FCT_DEF
 
 implicit none

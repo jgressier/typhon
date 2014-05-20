@@ -4,7 +4,11 @@
 ! Evaluation of operations between FCT_CONTAINERs
 ! !!! most operations CREATE containers (which should be deleted at the end) !!!
 !------------------------------------------------------------------------------!
-
+!> @ingroup FCT
+!> @brief FCT containers specific definition and evaluation
+!> unary operators: functions
+!> binary operators
+!------------------------------------------------------------------------------!
 module FCT_MATH
 
 use FCT_DEF
