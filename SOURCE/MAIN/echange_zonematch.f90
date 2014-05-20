@@ -1,8 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : echange_zonematch           Auteur : E. Radenac
 !                                         Date   : Mai 2003
-! Fonction                                Modif  : Janvier 2004
-!   Echange des donnees entre deux zones
+!> @brief Echange des donnees entre deux zones
 !
 ! Defauts/Limitations/Divers : pour l'instant, une methode de calcul commune 
 !                               aux deux zones
@@ -95,9 +94,9 @@ do i=1, nfacelim
   if  = zone1%gridlist%first%umesh%boco(nbc1)%iface(i)
   if2 = zone2%gridlist%first%umesh%boco(nbc2)%iface(zone2%coupling(ncoupl2)%zcoupling%connface(i))
   
-  normale(i) = zone1%gridlist%first%umesh%mesh%iface(if,1,1)%normale
+  normale(i) = zone1%gridlist%first%umesh%mesh%face_normal(if,1)
  
-  cgface = zone1%gridlist%first%umesh%mesh%iface(if,1,1)%centre
+  cgface = zone1%gridlist%first%umesh%mesh%face_center(if,1)
   ic = zone1%gridlist%first%umesh%facecell%fils(if,1)
   cg1 = zone1%gridlist%first%umesh%mesh%centre(ic,1,1)
   ic = zone2%gridlist%first%umesh%facecell%fils(if2,1)

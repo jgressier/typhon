@@ -1,11 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : setboco_kdif_hconv          Auteur : J. Gressier/E. Radenac
 !                                         Date   : Juin 2004
-! Fonction                                Modif  : (cf Historique)
-!   Computation of non uniform "convection like" boundary conditions for 
-!   the fluid
-! Defauts/Limitations/Divers :
-!
+!> @brief Computation of non uniform "convection like" boundary conditions for the fluid
 !------------------------------------------------------------------------------!
 subroutine setboco_ns_hconv(defns, defale, defmrf, unif, ustboco, umesh, bccon, bcns, curtime)
 
@@ -60,9 +56,9 @@ do ifb = 1, ustboco%nface
   ic     = bccon%isend(ifb)
 
   ! Computation of "distance" cell center - face center
-  cgface = umesh%mesh%iface(if,1,1)%centre
+  cgface = umesh%mesh%face_center(if,1)
   cg     = umesh%mesh%centre(ic,1,1)
-  normale= umesh%mesh%iface(if,1,1)%normale
+  normale= umesh%mesh%face_normal(if,1)
   d = abs((cgface - cg).scal.normale)
 !  d    = (cgface - cg) .scal. (cgface - cg) / (abs((cgface - cg).scal.normale))
   dc = (cgface - cg) - ( (cgface - cg).scal.normale ) * normale
@@ -104,7 +100,7 @@ do ifb = 1, ustboco%nface
   ! velocity
   !bccon%fxx%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)  
   wallvelocity = bcns%wall_velocity
-  call calc_wallvelocity(defale, defmrf, wallvelocity, umesh%mesh%iface(if,1,1), if, curtime)
+  call calc_wallvelocity(defale, defmrf, wallvelocity, umesh%mesh%face_center(if,1), if, curtime)
   bccon%frecv%tabvect(1)%vect(ighost) = (2._krp*wallvelocity) - bccon%fsend%tabvect(1)%vect(ic)
 
 enddo

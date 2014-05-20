@@ -1,8 +1,7 @@
 !------------------------------------------------------------------------------!
 ! MODULE : MESHGEOM                      Authors : J. Gressier
 ! 
-! Fonction
-!   Computation of geometrical mesh properties
+!> @brief Computation of geometrical mesh properties
 !
 !------------------------------------------------------------------------------!
 module MESHGEOM
@@ -64,9 +63,11 @@ allocate(vtex(facevtex%nbfils))   ! nombre maximal de sommets par face
 ! Dans un premier temps, on se contente d'appliquer une methode specifique
 ! pour chaque type de face.
 
-do if = 1, nface
+do if = 1, nface !> @optim make packet and vectorize if possible
 
-  ns = count(facevtex%fils(if,1:facevtex%nbfils) /= 0)   ! number of actual nodes
+  if (mesh%nfgauss > 1) call cfd_error("cannot handle more than 1 Gauss point") !> @dev define Gauss points on faces
+
+  ns = count(facevtex%fils(if,1:facevtex%nbfils) /= 0)   ! number of actual nodes of this face
   do is = 1, ns
     vtex(is) = mesh%vertex(facevtex%fils(if,is),1,1)
   enddo
@@ -80,9 +81,9 @@ do if = 1, nface
     case(2)
       norm = v3d(0._krp,0._krp,1._krp) .vect. (vtex(2)-vtex(1))
       surf = abs(norm)
-      mesh%iface(if,1,1)%normale = norm / surf
-      mesh%iface(if,1,1)%surface = surf
-      mesh%iface(if,1,1)%centre  = .5_krp*(vtex(1) + vtex(2))
+      mesh%face_surf(if)     = surf
+      mesh%face_normal(if,1) = norm / surf
+      mesh%face_center(if,1) = .5_krp*(vtex(1) + vtex(2))
     case default
       call cfd_error("mesh property: only 2 vertices faces expected")
     endselect
@@ -94,8 +95,8 @@ do if = 1, nface
 !!$      cgface(if) = .5_krp*(vtex(1) + vtex(2))
 !!$      norm = v3d(0._krp,0._krp,1._krp) .vect. (vtex(2)-vtex(1))
 !!$      surf = abs(norm)
-!!$      mesh%iface(if,1,1)%normale = norm / surf
-!!$      mesh%iface(if,1,1)%surface = surf * (two_pi*cgface(if)%y)    ! axisymmetric correction
+!!$      mesh%face_normal(if,1) = norm / surf
+!!$      mesh%face_surf(if) = surf * (two_pi*cgface(if)%y)    ! axisymmetric correction
 !!$    case default
 !!$      call cfd_error("mesh property: only 2 vertices faces expected")
 !!$    endselect
@@ -106,9 +107,9 @@ do if = 1, nface
     case(3)
       norm = .5_krp * ( (vtex(2)-vtex(1)) .vect. (vtex(3)-vtex(1)) )
       surf = abs(norm)
-      mesh%iface(if,1,1)%normale = norm / surf
-      mesh%iface(if,1,1)%surface = surf
-      mesh%iface(if,1,1)%centre  = (vtex(1) + vtex(2) + vtex(3)) / 3._krp
+      mesh%face_surf(if)     = surf
+      mesh%face_normal(if,1) = norm / surf
+      mesh%face_center(if,1) = (vtex(1) + vtex(2) + vtex(3)) / 3._krp
     case(4)
       ! calcul du premier triangle elementaire
       norm = .5_krp * ( (vtex(2)-vtex(1)) .vect. (vtex(3)-vtex(1)) )
@@ -121,9 +122,9 @@ do if = 1, nface
       ! calcul des normales et surfaces
       norm = norm + pt
       surf = abs(norm)
-      mesh%iface(if,1,1)%normale = norm / surf
-      mesh%iface(if,1,1)%surface = surf
-      mesh%iface(if,1,1)%centre  = (s1*cg1 + s2*cg2)/(s1+s2)
+      mesh%face_surf(if)     = surf
+      mesh%face_normal(if,1) = norm / surf
+      mesh%face_center(if,1) = (s1*cg1 + s2*cg2)/(s1+s2)
     case default
       call cfd_error("mesh property: only 3 or 4 vertices faces expected")
     endselect
@@ -184,12 +185,12 @@ do if = 1, umesh%nface
   ic2 = umesh%facecell%fils(if,2)
 
   ! premiere cellule connectee
-  midcell(ic1) = midcell(ic1) + umesh%mesh%iface(if,1,1)%centre
+  midcell(ic1) = midcell(ic1) + umesh%mesh%face_center(if,1)
   nbface (ic1) = nbface (ic1) + 1
 
   ! seconde cellule connectee (si existante)
   if ((ic2 > 0).and.(ic2 <= umesh%ncell_int)) then
-    midcell(ic2) = midcell(ic2) + umesh%mesh%iface(if,1,1)%centre
+    midcell(ic2) = midcell(ic2) + umesh%mesh%face_center(if,1)
     nbface (ic2) = nbface (ic2) + 1
   endif
 
@@ -253,10 +254,15 @@ endselect
 
 do if = 1, umesh%nface
   ic = umesh%facecell%fils(if,1)
-  call subcalc_elemvol(midcell(ic), umesh%mesh%iface(if,1,1), cg_elem(if,1), vol_elem(if,1))
+  !> @optim vectorize
+  call subcalc_elemvol(midcell(ic), &
+        umesh%mesh%face_normal(if,1), umesh%mesh%face_center(if,1), umesh%mesh%face_surf(if), &
+        cg_elem(if,1), vol_elem(if,1))
   ic = umesh%facecell%fils(if,2)
   if ((ic > 0).and.(ic <= umesh%ncell_int)) then
-    call subcalc_elemvol(midcell(ic), umesh%mesh%iface(if,1,1), cg_elem(if,2), vol_elem(if,2))
+    call subcalc_elemvol(midcell(ic), &
+        umesh%mesh%face_normal(if,1), umesh%mesh%face_center(if,1), umesh%mesh%face_surf(if), &
+        cg_elem(if,2), vol_elem(if,2))
   else
     cg_elem (if,2) = v3d(0._krp, 0._krp, 0._krp)
     vol_elem(if,2) = 0._krp
@@ -266,22 +272,23 @@ enddo
 contains
 
   !---------------------------------------------------------------------------------
-  subroutine subcalc_elemvol(vK, face, cg, vol)
+  subroutine subcalc_elemvol(vK, fn, fc, fs, cg, vol)
     implicit none
-    ! --- entrees ---
-    type(v3d)       :: vK          ! coord. K (sommet) et H (centre de face) 
-    type(st_face)   :: face        ! face
-    ! --- sorties ---
-    type(v3d)       :: cg          ! centre de volume elementaire
-    real(krp)       :: vol         ! volume du volume elementaire
+    ! --- Inputs ---
+    type(v3d), intent(in) :: vK          ! coord. K (sommet) et H (centre de face) 
+    type(v3d), intent(in) :: fn, fc      ! face normal and center !> @todo handle Gauss points 
+    real(krp), intent(in) :: fs          ! face surface
+    ! --- Outputs ---
+    type(v3d), intent(out) :: cg          ! centre de volume elementaire
+    real(krp), intent(out) :: vol         ! volume du volume elementaire
     ! --- interne ---
     type(v3d)       :: vKH         ! vecteur KH (sommet-centre de face)
     real(krp)       :: hauteur     ! volume du volume elementaire
 
-      vKH     = face%centre - vK
-      hauteur = abs(vKH.scal.face%normale)
-      cg      = face%centre - kcg*vKH
-      vol     = kvol*hauteur*face%surface 
+      vKH     = fc - vK
+      hauteur = abs(vKH.scal.fn)
+      cg      = fc - kcg*vKH
+      vol     = kvol*hauteur*fs
 
   endsubroutine subcalc_elemvol
 
@@ -338,7 +345,7 @@ select case(defmesh%geo)
 case(geo_2d)
 case(geo_2daxi)
   do if = 1, umesh%nface
-    umesh%mesh%iface(if,1,1)%surface = two_pi * umesh%mesh%iface(if,1,1)%centre%y * umesh%mesh%iface(if,1,1)%surface 
+    umesh%mesh%face_surf(if) = two_pi * umesh%mesh%face_center(if,1)%y * umesh%mesh%face_surf(if)
   enddo
   do ic = 1, umesh%ncell_int
     umesh%mesh%volume(ic,1,1) = two_pi * umesh%mesh%volume(ic,1,1) * umesh%mesh%centre(ic,1,1)%y
@@ -395,14 +402,14 @@ do if = 1, facecell%nbnodes     ! boucle sur les faces
   if (ic2 /= 0) then
     v12 = mesh%centre(ic2,1,1) - mesh%centre(ic1,1,1)
   else
-    v12 = mesh%iface(if,1,1)%centre - mesh%centre(ic1,1,1)
+    v12 = mesh%face_center(if,1) - mesh%centre(ic1,1,1)
   endif
 
   ! si v12 et la normale sont inversees, on corrige la normale pour 
   ! etre en accord avec la convention des connectivites
 
-  if ((v12.scal.mesh%iface(if,1,1)%normale) < 0._krp) then
-    mesh%iface(if,1,1)%normale = - mesh%iface(if,1,1)%normale
+  if ((v12.scal.mesh%face_normal(if,1)) < 0._krp) then
+    mesh%face_normal(if,1) = - mesh%face_normal(if,1)
   endif
 
 enddo

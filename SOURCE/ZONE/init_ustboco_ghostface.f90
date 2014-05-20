@@ -1,10 +1,10 @@
 !------------------------------------------------------------------------------!
 ! Procedure : init_ustboco_ghostface                 Authors : J. Gressier
 !                                                    Created : March 2003
-! Fonction                                           Modif  :
-!   Affectation des connectivites entre faces limites et cellules limites
-!   pour le type "ghostface" (point fictif sur la face) : cela revient a
-!   avoir une cellule fictive de volume nul.
+!> @brief
+!>   Affectation des connectivites entre faces limites et cellules limites
+!>   pour le type "ghostface" (point fictif sur la face) : cela revient a
+!>   avoir une cellule fictive de volume nul.
 !
 !------------------------------------------------------------------------------!
 subroutine init_ustboco_ghostface(ib, defboco, umesh)
@@ -51,7 +51,7 @@ do if = 1, umesh%boco(ib)%nface
 
   ! definition geometrique de la cellule fictive
   umesh%mesh%volume(icell,1,1) = 0._krp
-  umesh%mesh%centre(icell,1,1) = umesh%mesh%iface(iface,1,1)%centre
+  umesh%mesh%centre(icell,1,1) = umesh%mesh%face_center(iface,1)
   if (umesh%facecell%fils(iface,2) == 0) then
     umesh%facecell%fils(iface,2) = icell    ! affectation de la cellule fictive
   else

@@ -5,17 +5,14 @@
 !   Calcul des flux de conduction de la chaleur : trois methodes
 !
 !------------------------------------------------------------------------------!
-subroutine udf_kdif_aniso(nf, face, tens)
+subroutine udf_kdif_aniso(nf, tens)
 
-use TYPHMAKE
-use MESHBASE
 use TENSOR3
 
 implicit none
 
 ! -- Declaration des entrees --
 integer        :: nf                 ! nb of faces to compute
-type(st_face)  :: face(1:nf)         ! geometrical faces
 
 ! -- Declaration des sorties --
 type(t3d)      :: tens(1:nf) 

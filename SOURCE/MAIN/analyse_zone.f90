@@ -47,7 +47,7 @@ do while(associated(pgrid))
     iub = pgrid%umesh%boco(ib)%idefboco      ! index of boco definition in defsolver
     do if = 1, pgrid%umesh%boco(ib)%nface
       ifa = pgrid%umesh%boco(ib)%iface(if)   ! absolute index of boco face in face array
-      write(600+iub, '(i6,3e20.12)') if, tab(pgrid%umesh%mesh%iface(ifa,1,1)%centre)
+      write(600+iub, '(i6,3e20.12)') if, tab(pgrid%umesh%mesh%face_center(ifa,1))
     enddo
   enddo
  

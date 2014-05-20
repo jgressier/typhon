@@ -1,8 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : ns_bocojacobian
 !
-! Function
-!   Jacobian correction due to BOundary COnditions
+!> @brief Jacobian correction due to BOundary COnditions
 !
 !------------------------------------------------------------------------------!
 subroutine ns_bocojacobian(defsolver, defspat, umesh, flux, prim, grad, jacL, jacR)
@@ -62,7 +61,7 @@ do ib = 1, umesh%nboco
         dQrdQl(i, i) = 1._krp
       enddo
       dQrdQl(3:5, 3:5) = dQrdQl(3:5, 3:5)&
-                   -2._krp*tab(umesh%mesh%iface(if,1,1)%normale.tens.umesh%mesh%iface(if,1,1)%normale)
+                   -2._krp*tab(umesh%mesh%face_normal(if,1).tens.umesh%mesh%face_normal(if,1))
       jacL%mat(1:dim, 1:dim, if) = jacL%mat(1:dim, 1:dim, if) +&
                             matmul(jacR%mat(1:dim, 1:dim, if), dQrdQl(1:dim, 1:dim) )
       jacR%mat(1:dim, 1:dim, if) = 0._krp

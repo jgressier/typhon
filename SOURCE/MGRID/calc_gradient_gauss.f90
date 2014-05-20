@@ -1,11 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_gradient_gauss              
 !                                         
-! Fonction                                Modif  : (cf historique)
-!   Calcul des gradients d'un champ generique Par théorème de Gauss
-!
-! Defauts/Limitations/Divers :
-!     les valeurs des variables sont aux faces
+!> @brief Calcul des gradients d'un champ generique Par Gauss theorem
 !------------------------------------------------------------------------------!
 subroutine calc_gradient_gauss(defsolver, defspat, grid, gfield, grad)
 
@@ -75,8 +71,8 @@ do if = 1, nf
 
   ic1  = grid%umesh%facecell%fils(if,1)
   ic2  = grid%umesh%facecell%fils(if,2)
-  surf = grid%umesh%mesh%iface(if,1,1)%surface 
-  fn = grid%umesh%mesh%iface(if,1,1)%normale
+  surf = grid%umesh%mesh%face_surf(if) 
+  fn = grid%umesh%mesh%face_normal(if,1)
   do is = 1, gfield%nscal
     dec = is-dim
     rhs(1, ic1*dim+dec) = rhs(1, ic1*dim+dec) + gfield%tabscal(is)%scal(ic1) * fn%x * surf

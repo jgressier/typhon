@@ -1,11 +1,9 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_jac_vlh                      Authors : J. Gressier
 !
-! Function
-!   Computes Jacobian matrices based on van Leer / Hanel flux
-!
+!> @brief Computes Jacobian matrices based on van Leer / Hanel flux
 !------------------------------------------------------------------------------!
-subroutine calc_jac_vlh(defsolver, defspat, nflux, face,        &
+subroutine calc_jac_vlh(defsolver, defspat, nflux, fn,        &
                         cell_l, cell_r, mnl, mnr, al, ar, ideb, jacL, jacR)
 use TYPHMAKE
 use OUTPUT
@@ -25,8 +23,7 @@ type(mnu_solver)      :: defsolver        ! solver parameters
 type(mnu_spat)        :: defspat          ! space integration parameters
 integer               :: nflux            ! number of fluxes
 integer               :: ideb             ! index of first flux (offset)
-type(st_face), dimension(1:nflux) &
-                      :: face             ! geom. data of faces
+type(v3d)             :: fn(nflux)        ! face normals
 type(st_nsetat)             :: cell_l, cell_r   ! primitive variables array
 real(krp), dimension(nflux) :: mnl, mnr, al, ar
 
@@ -83,7 +80,7 @@ dMdQ(1, 1:nflux) = -.5_krp*mnl(1:nflux)/cell_l%density(1:nflux)*(gg1sd*V2(1:nflu
 dMdQ(2, 1:nflux) = -.5_krp*g1*mnl(1:nflux)/cell_l%pressure(1:nflux) 
 
 do i = 1, nflux
-  dMdQ(3:5, i) = (tab(face(i)%normale)+(gg1sd*mnl(i)/al(i))*tab(cell_l%velocity(i))) / (cell_l%density(i)*al(i))
+  dMdQ(3:5, i) = (tab(fn(i))+(gg1sd*mnl(i)/al(i))*tab(cell_l%velocity(i))) / (cell_l%density(i)*al(i))
 enddo
 
 ! -- dKdQ = dM+/dM * a * [dMn/dQ] + M+ * [da/dQ] --
@@ -118,7 +115,7 @@ dKdQ(2, 1:nflux) = g1
 
 do i = 1, nflux
   dKdQ(3:5, i) = -g1*tab(cell_l%velocity(i))
-  QH  (3:5, i) = tab(face(i)%normale)
+  QH  (3:5, i) = tab(fn(i))
 enddo
 
 ! -- energy term : M+ * a * dp/dQ -- 
@@ -170,7 +167,7 @@ dMdQ(1, 1:nflux) = -.5_krp*mnr(1:nflux)/cell_r%density(1:nflux)*(gg1sd*V2(1:nflu
 dMdQ(2, 1:nflux) = -.5_krp*g1*mnr(1:nflux)/cell_r%pressure(1:nflux) 
 
 do i = 1, nflux
-  dMdQ(3:5, i) = (tab(face(i)%normale)+(gg1sd*mnr(i)/ar(i))*tab(cell_r%velocity(i)))/(cell_r%density(i)*ar(i))
+  dMdQ(3:5, i) = (tab(fn(i))+(gg1sd*mnr(i)/ar(i))*tab(cell_r%velocity(i)))/(cell_r%density(i)*ar(i))
 enddo
 
 ! -- dKdQ = dM-/dM * a * [dMn/dQ] + M- * [da/dQ] --
@@ -205,7 +202,7 @@ dKdQ(2, 1:nflux) = g1
 
 do i = 1, nflux
   dKdQ(3:5, i) = -g1*tab(cell_r%velocity(i))
-  QH  (3:5, i) = tab(face(i)%normale)
+  QH  (3:5, i) = tab(fn(i))
 enddo
 
 ! -- energy term : M- * a * dp/dQ -- 

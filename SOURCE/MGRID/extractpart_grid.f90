@@ -201,7 +201,10 @@ partgrid%umesh%mesh%info = fullgrid%umesh%mesh%info
 do if = 1, fullgrid%umesh%nface
   if (new_iface(if) /= 0) then        ! if the face is in the partition
     ! -- copy face (surface & normal vector) --
-    partgrid%umesh%mesh%iface(new_iface(if), 1, 1) = fullgrid%umesh%mesh%iface(if, 1, 1) 
+    !> @todo generalize with nfgauss points
+    partgrid%umesh%mesh%face_center(new_iface(if), 1) = fullgrid%umesh%mesh%face_center(if, 1) 
+    partgrid%umesh%mesh%face_normal(new_iface(if), 1) = fullgrid%umesh%mesh%face_normal(if, 1) 
+    partgrid%umesh%mesh%face_surf(new_iface(if)) = fullgrid%umesh%mesh%face_surf(if) 
   endif
 enddo
 
@@ -306,6 +309,21 @@ do ielem = 1, fullgrid%umesh%cellvtex%nsection
 
 enddo
 
+<<<<<<< HEAD
+=======
+! ---------------------------------------------
+! check cut faces orientation (ghost cell is facecell(if,2) index)
+
+do if = 1, nface_cut
+  if2 = new_iface(cutface(if))
+  if (partgrid%umesh%facecell%fils(if2,1) > partgrid%umesh%facecell%fils(if2,2)) then
+    new_ib = partgrid%umesh%facecell%fils(if2,2)
+    partgrid%umesh%facecell%fils(if2,2) = partgrid%umesh%facecell%fils(if2,1)
+    partgrid%umesh%facecell%fils(if2,1) = new_ib
+    partgrid%umesh%mesh%face_normal(if2,1) = -partgrid%umesh%mesh%face_normal(if2,1)
+  endif
+enddo
+>>>>>>> origin/spectral
 
 ! ---------------------------------------------
 ! extract/copy ustmesh boco connectivity

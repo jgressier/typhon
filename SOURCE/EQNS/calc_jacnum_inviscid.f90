@@ -1,11 +1,10 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_flux_inviscid                Authors : J. Gressier
 !
-! Function
-!   Computation of numerical jacobians from inviscid flux formulation
+!> @brief Computation of numerical jacobians from inviscid flux formulation
 !
 !------------------------------------------------------------------------------!
-subroutine calc_jacnum_inviscid(defsolver, defspat, nflux, ideb, face, &
+subroutine calc_jacnum_inviscid(defsolver, defspat, nflux, ideb, fn, &
                                 QL, QR, flux, calc_jac, jacL, jacR)
 use TYPHMAKE
 use OUTPUT
@@ -24,7 +23,7 @@ type(mnu_solver)      :: defsolver        ! solver parameters
 type(mnu_spat)        :: defspat          ! space integration parameters
 integer, intent(in)   :: nflux            ! number of fluxes
 integer               :: ideb             ! index of first flux
-type(st_face)         :: face(nflux)      ! geom. data of faces
+type(v3d)             :: fn(nflux)      ! geom. data of faces
 type(st_genericfield) :: flux
 type(st_nsetat)       :: QL, QR
 logical               :: calc_jac         ! jacobian calculation boolean
@@ -66,7 +65,7 @@ Qmod%pressure(1:nflux) = QL%pressure(1:nflux) + (.5_krp*g1)*sqrabs(QL%velocity(1
 Qmod%velocity(1:nflux) = (1._krp - drho/QL%density (1:nflux))*QL%velocity(1:nflux) 
 
 ! called with ideb=1 because of fluxmod sizes
-call calc_flux_inviscid(defsolver, defspat, nflux, 1, face, Qmod, QR, fluxmod, false, jacL, jacR)
+call calc_flux_inviscid(defsolver, defspat, nflux, 1, fn, Qmod, QR, fluxmod, false, jacL, jacR)
 
 jacL%mat(1, jjac, ideb:ifin) = (fluxmod%tabscal(1)%scal(1:nflux) -flux%tabscal(1)%scal(ideb:ifin)) &
                            / drho
@@ -88,7 +87,7 @@ Qmod%pressure(1:nflux) = QL%pressure(1:nflux) + g1*drhoe
 Qmod%velocity(1:nflux) = QL%velocity(1:nflux) 
 
 ! called with ideb=1 because of fluxmod sizes
-call calc_flux_inviscid(defsolver, defspat, nflux, 1, face, Qmod, QR, fluxmod, false, jacL, jacR)
+call calc_flux_inviscid(defsolver, defspat, nflux, 1, fn, Qmod, QR, fluxmod, false, jacL, jacR)
 
 jacL%mat(1, jjac, ideb:ifin) = (fluxmod%tabscal(1)%scal(1:nflux) -flux%tabscal(1)%scal(ideb:ifin)) &
                            / drhoe
@@ -116,7 +115,7 @@ do i = 1, nflux
 enddo
 
 ! called with ideb=1 because of fluxmod sizes
-call calc_flux_inviscid(defsolver, defspat, nflux, 1, face, Qmod, QR, fluxmod, false, jacL, jacR)
+call calc_flux_inviscid(defsolver, defspat, nflux, 1, fn, Qmod, QR, fluxmod, false, jacL, jacR)
 
 jacL%mat(1, jjac, ideb:ifin) = (fluxmod%tabscal(1)%scal(1:nflux) -flux%tabscal(1)%scal(ideb:ifin)) &
                            / drhov
@@ -137,7 +136,7 @@ do i = 1, nflux
 enddo
 
 ! called with ideb=1 because of fluxmod sizes
-call calc_flux_inviscid(defsolver, defspat, nflux, 1, face, Qmod, QR, fluxmod, false, jacL, jacR)
+call calc_flux_inviscid(defsolver, defspat, nflux, 1, fn, Qmod, QR, fluxmod, false, jacL, jacR)
 
 jacL%mat(1, jjac, ideb:ifin) = (fluxmod%tabscal(1)%scal(1:nflux) -flux%tabscal(1)%scal(ideb:ifin)) &
                            / drhov
@@ -158,7 +157,7 @@ do i = 1, nflux
 enddo
 
 ! called with ideb=1 because of fluxmod sizes
-call calc_flux_inviscid(defsolver, defspat, nflux, 1, face, Qmod, QR, fluxmod, false, jacL, jacR)
+call calc_flux_inviscid(defsolver, defspat, nflux, 1, fn, Qmod, QR, fluxmod, false, jacL, jacR)
 
 jacL%mat(1, jjac, ideb:ifin) = (fluxmod%tabscal(1)%scal(1:nflux) -flux%tabscal(1)%scal(ideb:ifin)) &
                            / drhov
@@ -182,7 +181,7 @@ Qmod%pressure(1:nflux) = QR%pressure(1:nflux) + (.5_krp*g1)*sqrabs(QR%velocity(1
 Qmod%velocity(1:nflux) = (1._krp - drho/QR%density (1:nflux))*QR%velocity(1:nflux) 
 
 ! called with ideb=1 because of fluxmod sizes
-call calc_flux_inviscid(defsolver, defspat, nflux, 1, face, QL, Qmod, fluxmod, false, jacL, jacR)
+call calc_flux_inviscid(defsolver, defspat, nflux, 1, fn, QL, Qmod, fluxmod, false, jacL, jacR)
 
 jacR%mat(1, jjac, ideb:ifin) = (fluxmod%tabscal(1)%scal(1:nflux) -flux%tabscal(1)%scal(ideb:ifin)) &
                            / drho
@@ -204,7 +203,7 @@ Qmod%pressure(1:nflux) = QR%pressure(1:nflux) + g1*drhoe
 Qmod%velocity(1:nflux) = QR%velocity(1:nflux) 
 
 ! called with ideb=1 because of fluxmod sizes
-call calc_flux_inviscid(defsolver, defspat, nflux, 1, face, QL, Qmod, fluxmod, false, jacL, jacR)
+call calc_flux_inviscid(defsolver, defspat, nflux, 1, fn, QL, Qmod, fluxmod, false, jacL, jacR)
 
 jacR%mat(1, jjac, ideb:ifin) = (fluxmod%tabscal(1)%scal(1:nflux) -flux%tabscal(1)%scal(ideb:ifin)) &
                            / drhoe
@@ -232,7 +231,7 @@ do i = 1, nflux
 enddo
 
 ! called with ideb=1 because of fluxmod sizes
-call calc_flux_inviscid(defsolver, defspat, nflux, 1, face, QL, Qmod, fluxmod, false, jacL, jacR)
+call calc_flux_inviscid(defsolver, defspat, nflux, 1, fn, QL, Qmod, fluxmod, false, jacL, jacR)
 
 jacR%mat(1, jjac, ideb:ifin) = (fluxmod%tabscal(1)%scal(1:nflux) -flux%tabscal(1)%scal(ideb:ifin)) &
                            / drhov
@@ -253,7 +252,7 @@ do i = 1, nflux
 enddo
 
 ! called with ideb=1 because of fluxmod sizes
-call calc_flux_inviscid(defsolver, defspat, nflux, 1, face, QL, Qmod, fluxmod, false, jacL, jacR)
+call calc_flux_inviscid(defsolver, defspat, nflux, 1, fn, QL, Qmod, fluxmod, false, jacL, jacR)
 
 jacR%mat(1, jjac, ideb:ifin) = (fluxmod%tabscal(1)%scal(1:nflux) -flux%tabscal(1)%scal(ideb:ifin)) &
                            / drhov
@@ -274,7 +273,7 @@ do i = 1, nflux
 enddo
 
 ! called with ideb=1 because of fluxmod sizes
-call calc_flux_inviscid(defsolver, defspat, nflux, 1, face, QL, Qmod, fluxmod, false, jacL, jacR)
+call calc_flux_inviscid(defsolver, defspat, nflux, 1, fn, QL, Qmod, fluxmod, false, jacL, jacR)
 
 jacR%mat(1, jjac, ideb:ifin) = (fluxmod%tabscal(1)%scal(1:nflux) -flux%tabscal(1)%scal(ideb:ifin)) &
                            / drhov

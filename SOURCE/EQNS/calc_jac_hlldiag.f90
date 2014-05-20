@@ -1,14 +1,10 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_jac_hlldiag                  Authors : J. Gressier
 !
-! Function
-!   Computes HLL Jacobian matrices of a numerical flux
-!   (diagonal simplified expression)
-!
-! Defaults/Limitations/Misc :
-!
+!> @brief Computes HLL Jacobian matrices of a numerical flux
+!>   (diagonal simplified expression)
 !------------------------------------------------------------------------------!
-subroutine calc_jac_hlldiag(defsolver, defspat, nflux, face,        &
+subroutine calc_jac_hlldiag(defsolver, defspat, nflux, fn,        &
                         cell_l, cell_r, sl, sr, vnl, vnr, ideb, jacL, jacR)
 use TYPHMAKE
 use OUTPUT
@@ -28,8 +24,7 @@ type(mnu_solver)      :: defsolver        ! solver parameters
 type(mnu_spat)        :: defspat          ! space integration parameters
 integer               :: nflux            ! number of fluxes
 integer               :: ideb             ! index of first flux
-type(st_face), dimension(1:nflux) &
-                      :: face             ! geom. data of faces
+type(v3d)             :: fn(nflux)        ! face normals
 type(st_nsetat)       :: cell_l, cell_r   ! primitive variables array
 real(krp), dimension(nflux) &
                       :: sl, sr, vnl, vnr

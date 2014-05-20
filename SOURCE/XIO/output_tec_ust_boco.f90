@@ -1,14 +1,9 @@
 !-----------------------------------------------------------------------------!
 ! Procedure : output_tec_ust_boco         Auteur : J. Gressier & A. Gardi
 !                                         Date   : Mars 2011
-! Fonction                                Modif  : 
-!   Ecriture fichier des champs NON STRUCTURES de chaque zone au format TECPLOT
-!   Valeurs au centre des faces limites (BOCO)
-!
-! Defauts/Limitations/Divers :
-!
+!> @brief Ecriture fichier des champs NON STRUCTURES de chaque zone au format TECPLOT
+!>   Valeurs au centre des faces limites (BOCO)
 !------------------------------------------------------------------------------!
-
 subroutine output_tec_ust_boco(uf, umesh, field, defsolver)
 
 use TYPHMAKE
@@ -45,8 +40,8 @@ do indboco = 1, umesh%nboco
     indf = umesh%boco(indboco)%iface(ifb)
     icella = umesh%facecell%fils(indf,1)
     icellb = umesh%facecell%fils(indf,2)
-    centre = umesh%mesh%iface(indf, 1, 1)%centre
-    surface = umesh%mesh%iface(indf, 1, 1)%surface
+    centre = umesh%mesh%face_center(indf,1)
+    surface = umesh%mesh%face_surf(indf)
     select case(defsolver%typ_solver)
     case(solKDIF)
       write(uf,'(5e18.8)') centre%x, centre%y, centre%z, ((field%etatprim%tabscal(1)%scal(icella)+field%etatprim%tabscal(1)%scal(icellb))/2), surface

@@ -1,11 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : setboco_ns_flux             Auteur : J. Gressier/E. Radenac
 !                                         Date   : June 2005
-! Fonction                                Modif  : (cf Historique)
-!   Calcul des conditions aux limites non uniformes pour la conduction de la 
-!   chaleur, mur ‡ flux imposÈ
-! Defauts/Limitations/Divers :
-!
+!> @brief Calcul des conditions aux limites non uniformes pour la conduction de la chaleur, mur à flux imposé
 !------------------------------------------------------------------------------!
 subroutine setboco_ns_flux(defns, defale, defmrf, unif, ustboco, umesh, bccon, bcns, curtime)
 
@@ -87,9 +83,9 @@ do ib = 1, nblock
     ighost = bccon%irecv(ifb)
     ic     = bccon%isend(ifb)
 
-    cgface = umesh%mesh%iface(if,1,1)%centre
+    cgface = umesh%mesh%face_center(if,1)
     cg     = umesh%mesh%centre(ic,1,1)
-    normale= umesh%mesh%iface(if,1,1)%normale
+    normale= umesh%mesh%face_normal(if,1)
     d    = (cgface - cg) .scal. (cgface - cg) / (abs((cgface - cg).scal.normale))
   
     TH(1) = bccon%fsend%tabscal(2)%scal(ic) / (r_PG * bccon%fsend%tabscal(1)%scal(ic) )
@@ -109,7 +105,7 @@ do ib = 1, nblock
     bccon%frecv%tabscal(1)%scal(ighost) = bccon%fsend%tabscal(2)%scal(ighost)/(r_PG*temp) 
     ! velocity
     wallvelocity = bcns%wall_velocity
-    call calc_wallvelocity(defale, defmrf, wallvelocity, umesh%mesh%iface(if,1,1), if, curtime)
+    call calc_wallvelocity(defale, defmrf, wallvelocity, umesh%mesh%face_center(if,1), if, curtime)
     bccon%frecv%tabvect(1)%vect(ighost) = (2._krp*wallvelocity) - bccon%fsend%tabvect(1)%vect(ic)
   enddo ! loop in face packet
 enddo ! loop on blocks
@@ -137,7 +133,7 @@ do ib = 1, nblock
     bccon%frecv%tabscal(2)%scal(ighost) = bccon%fsend%tabscal(2)%scal(ic)  ! pressure
     ! velocity
     wallvelocity = bcns%wall_velocity
-    call calc_wallvelocity(defale, defmrf, wallvelocity, umesh%mesh%iface(if,1,1), if, curtime)
+    call calc_wallvelocity(defale, defmrf, wallvelocity, umesh%mesh%face_center(if,1), if, curtime)
     bccon%frecv%tabvect(1)%vect(ighost) = (2._krp*wallvelocity) - bccon%fsend%tabvect(1)%vect(ic)
     
   enddo ! loop in face packet

@@ -48,13 +48,12 @@ type(v3d), dimension(1) :: gradTL, gradTR  ! left, right temp grad
 real(krp), dimension(1) :: TL, TR     ! left, right temperatures
 real(krp), dimension(1) :: TH, mu, gradTH ! temperature at H
 real(krp), dimension(1) :: rhoL, rhoR, rhoH
-type(st_face), dimension(1) :: face       ! geomtrical face array
 real(krp)                           :: r_PG, cp, conduct
 real(krp)                           :: id
 integer(kip)                        :: if, ib, i, ic
 real(krp)                           :: rflux, etatcons       
 
-! -- Debut de la procedure --
+! -- BODY --
 
 ! Accumulation of fluxes at the interface
 do ic =1, ncoupling
@@ -78,9 +77,9 @@ do ic =1, ncoupling
           cp = def_solver%defns%properties(1)%gamma * r_PG / &
                (def_solver%defns%properties(1)%gamma - 1)    ! heat capacity
 
-          dHL(1) = abs(umesh%mesh%iface(if,1,1)%centre - &
+          dHL(1) = abs(umesh%mesh%face_center(if,1) - &
                     umesh%mesh%centre(umesh%facecell%fils(if,1),1,1))
-          dHR(1) = abs(umesh%mesh%iface(if,1,1)%centre - &
+          dHR(1) = abs(umesh%mesh%face_center(if,1) - &
                     umesh%mesh%centre(umesh%facecell%fils(if,2),1,1))
           id      = 1._krp/(dHL(1) + dHR(1))
           dHL(1) = id*dHL(1)
@@ -111,15 +110,14 @@ do ic =1, ncoupling
           call calc_viscosity(def_solver%defns%properties(1), rhoH(1:1), TH(1:1), mu(1:1))
 
         ! temperature gradient at the face
-        face(1) = umesh%mesh%iface(if,1,1)
         call interp_facegradn_scal(1,defspat%sch_dis,dHL,dHR,vLR,&
-                                   face,TL,TR,gradTL,gradTR,gradTH)
+                                   umesh%mesh%face_normal(if,1),TL,TR,gradTL,gradTR,gradTH)
 
         ! viscous, heat flux
         ! thermal conductivity
         conduct = mu(1) * cp / def_solver%defns%properties(1)%prandtl
         rflux = - conduct * gradTH(1) * &
-                  umesh%mesh%iface(if,1,1)%surface
+                  umesh%mesh%face_surf(if)
         etatcons = coupling(ic)%zcoupling%etatcons%tabscal(1)%scal(i)
         coupling(ic)%zcoupling%etatcons%tabscal(1)%scal(i) = etatcons + &
                                                              rflux * dtloc(i)

@@ -47,19 +47,19 @@ do ifb = 1, ustboco%nface
   if     = ustboco%iface(ifb)
   icell  = bccon%isend(ifb)
   ighost = bccon%irecv(ifb)
-  fn     = umesh%mesh%iface(if,1,1)%normale                               ! normale face
+  fn     = umesh%mesh%face_normal(if,1)                               ! normale face
   
   do ip = 1, bccon%fsend%nscal
     bccon%frecv%tabscal(ip)%scal(ighost) = bccon%fsend%tabscal(ip)%scal(icell) 
   enddo
   
   ! assume symmetric positions of nodes
-  !dfc = umesh%mesh%iface(if,1,1)%centre - umesh%mesh%centre(icell,1,1) ! dist ctr. face - cell
+  !dfc = umesh%mesh%face_center(if,1) - umesh%mesh%centre(icell,1,1) ! dist ctr. face - cell
   !dgc = umesh%mesh%centre(ighost,1,1)   - umesh%mesh%centre(icell,1,1) ! dist ghostcell - cell
   !rap = (dgc.scal.fn)/(dfc.scal.fn)
 
   wallvelocity = v3d_zero
-  call calc_wallvelocity(defale, defmrf, wallvelocity, umesh%mesh%iface(if,1,1), if, curtime)
+  call calc_wallvelocity(defale, defmrf, wallvelocity, umesh%mesh%face_center(if,1), if, curtime)
 
   !! ip = 1 ! DEV: only velocity for the moment, will have to change in the future!
   do ip = 1, bccon%fsend%nvect

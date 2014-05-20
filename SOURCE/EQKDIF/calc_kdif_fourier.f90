@@ -1,11 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_kdif_fourier           Auteur : E. Radenac / J. Gressier
 !                                         Date   : Janvier 2004
-! Fonction                                Modif  : (cf historique)
-!   Calcul du nombre de Fourier global
-!
-! Defauts/Limitations/Divers :
-!
+!> @brief Calcul du nombre de Fourier global
 !------------------------------------------------------------------------------!
 
 subroutine calc_kdif_fourier(dt, mat, umesh, field, fourierloc, ncell)
@@ -51,16 +47,16 @@ fourierloc(1:ncell) = 0._krp
 
 do if = 1, umesh%nface_int
   ic  = umesh%facecell%fils(if,1)
-  fourierloc(ic) = fourierloc(ic) + umesh%mesh%iface(if,1,1)%surface **2
+  fourierloc(ic) = fourierloc(ic) + umesh%mesh%face_surf(if) **2
   ic  = umesh%facecell%fils(if,2)
-  fourierloc(ic) = fourierloc(ic) + umesh%mesh%iface(if,1,1)%surface **2
+  fourierloc(ic) = fourierloc(ic) + umesh%mesh%face_surf(if) **2
 enddo
 
 ! somme des surfaces de faces limites sur chaque cellule (boucle sur faces)
 
 do if = umesh%nface_int+1, umesh%nface
   ic  = umesh%facecell%fils(if,1)
-  fourierloc(ic) = fourierloc(ic) + umesh%mesh%iface(if,1,1)%surface **2
+  fourierloc(ic) = fourierloc(ic) + umesh%mesh%face_surf(if) **2
 enddo
 
 ! -- Calcul de somme_i S_i **2 dt /  V**2 

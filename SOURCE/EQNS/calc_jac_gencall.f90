@@ -1,11 +1,9 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_jac_gencall                      Authors : J. Gressier
 !
-! Function
-!   Generic call to jacobian matrices
-!
+!> @brief Generic call to jacobian matrices
 !------------------------------------------------------------------------------!
-subroutine calc_jac_gencall(defsolver, defspat, nflux, face,        &
+subroutine calc_jac_gencall(defsolver, defspat, nflux, fn,        &
                         cell_l, cell_r, mnl, mnr, al, ar, ideb, jacL, jacR)
 use TYPHMAKE
 use OUTPUT
@@ -25,8 +23,7 @@ type(mnu_solver)      :: defsolver        ! solver parameters
 type(mnu_spat)        :: defspat          ! space integration parameters
 integer               :: nflux            ! number of fluxes
 integer               :: ideb             ! index of first flux (offset)
-type(st_face), dimension(1:nflux) &
-                      :: face             ! geom. data of faces
+type(v3d)             :: fn(nflux)        ! face normals
 type(st_nsetat)             :: cell_l, cell_r   ! primitive variables array
 real(krp), dimension(nflux) :: mnl, mnr, al, ar
 
@@ -41,15 +38,13 @@ type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 
 select case(defspat%jac_hyp)
 case(jac_vlh) 
-  call calc_jac_vlh(defsolver, defspat, nflux, face,        &
+  call calc_jac_vlh(defsolver, defspat, nflux, fn,        &
                     cell_l, cell_r, mnl, mnr, al, ar, ideb, jacL, jacR)
 case default
-  call erreur("Internal error", "unknown jacobian expression for Euler hyperbolic fluxes")
+  call error_stop("Internal error: unknown jacobian expression for Euler hyperbolic fluxes")
 endselect
 
-
 endsubroutine calc_jac_gencall
-
 !------------------------------------------------------------------------------!
 ! Changes history
 !

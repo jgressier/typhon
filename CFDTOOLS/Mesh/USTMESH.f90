@@ -1,9 +1,15 @@
 !------------------------------------------------------------------------------!
+<<<<<<< HEAD
 !> @brief definition of unstructured mesh
 !! connectivity
 !! - cellvtex, facecell, facevtex
 !! - include mesh geometry from module MESHBASE
 !! - boco tags on boundaring faces
+=======
+! MODULE : USTMESH 
+!
+!> @brief Grid geometry and connectivity for unstructured mesh
+>>>>>>> origin/spectral
 !------------------------------------------------------------------------------!
 module USTMESH
 
@@ -266,7 +272,7 @@ integer :: if, iface
 
 do if = 1, boco%nface
   iface = boco%iface(if)
-  center(if) = umesh%mesh%iface(iface,1,1)%centre
+  center(if) = umesh%mesh%face_center(iface,1)
 enddo
 
 endsubroutine get_bocofacecenter

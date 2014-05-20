@@ -13,12 +13,9 @@ use VARCOM
 use DEFZONE
 use MENU_GEN
 use TYPHON_FMT
+use CGNS_STRUCT
 
 implicit none
-
-#ifdef CGNS
-include 'cgnslib_f.h'
-#endif/*CGNS*/
 
 ! -- INPUTS --
 type(mnu_output)      :: defio     ! output parameter

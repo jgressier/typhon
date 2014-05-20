@@ -1,13 +1,9 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_jac_rusanov                  Authors : J. Gressier
 !
-! Function
-!   Computes RUSANOV Jacobian matrices of a numerical flux
-!
-! Defaults/Limitations/Misc :
-!
+!> @brief Computes RUSANOV Jacobian matrices of a numerical flux
 !------------------------------------------------------------------------------!
-subroutine calc_jac_rusanov(defsolver, defspat, nflux, face,        &
+subroutine calc_jac_rusanov(defsolver, defspat, nflux, fn,        &
                         cell_l, cell_r, ray, vnl, vnr, ideb, jacL, jacR)
 use TYPHMAKE
 use OUTPUT
@@ -27,8 +23,7 @@ type(mnu_solver)      :: defsolver        ! solver parameters
 type(mnu_spat)        :: defspat          ! space integration parameters
 integer               :: nflux            ! number of fluxes
 integer               :: ideb             ! index of first flux
-type(st_face), dimension(1:nflux) &
-                      :: face             ! geom. data of faces
+type(v3d)             :: fn(nflux)        ! face normals
 type(st_nsetat)       :: cell_l, cell_r   ! primitive variables array
 real(krp), dimension(nflux) &
                       :: ray, vnl, vnr
@@ -43,8 +38,8 @@ integer(kip) :: i
 
 ! -- Body --
 
-call calc_jacflux(defsolver%defns, nflux, face, cell_l, vnl, ideb, jacL)
-call calc_jacflux(defsolver%defns, nflux, face, cell_r, vnr, ideb, jacR)
+call calc_jacflux(defsolver%defns, nflux, fn, cell_l, vnl, ideb, jacL)
+call calc_jacflux(defsolver%defns, nflux, fn, cell_r, vnr, ideb, jacR)
 
 do i = 1, 5
   jacL%mat(i, i, ideb:ideb-1+nflux) = jacL%mat(i, i, ideb:ideb-1+nflux) + ray(1:nflux)

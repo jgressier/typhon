@@ -1,8 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : update_ustboco_ghostface               Authors : JG + A. Gardi
 !                                                    Created : Mar 2011
-! Fonction                                           Modif  :
-!   Update the ghostcell parameters after mesh movement due to ALE
+!> @brief Update the ghostcell parameters after mesh movement due to ALE
 !
 !------------------------------------------------------------------------------!
 subroutine update_ustboco_ghostface(ib, defboco, umesh)
@@ -40,7 +39,7 @@ do if = 1, umesh%boco(ib)%nface
 
   ! definition geometrique de la cellule fictive
   umesh%mesh%volume(icell,1,1) = 0._krp
-  umesh%mesh%centre(icell,1,1) = umesh%mesh%iface(iface,1,1)%centre
+  umesh%mesh%centre(icell,1,1) = umesh%mesh%face_center(iface,1)
 enddo
 
 endsubroutine update_ustboco_ghostface

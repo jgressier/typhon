@@ -1,8 +1,13 @@
 !------------------------------------------------------------------------------!
+<<<<<<< HEAD
 !> @brief geometrical data of a mesh
 !! - centers and volumes of cells
 !! - normal vectors, centers and surface of faces
 !! - position of vertices
+=======
+!> @brief MESHBASE 
+!
+>>>>>>> origin/spectral
 !------------------------------------------------------------------------------!
 module MESHBASE
 
@@ -32,27 +37,25 @@ type info_mesh
 endtype
 
 !------------------------------------------------------------------------------!
-! Definition de la structure ST_FACE : face de cellule
-!------------------------------------------------------------------------------!
-type st_face
-  type(v3d)   :: normale        ! normale a la face, orientee indice croissant
-  type(v3d)   :: centre         ! centre de face
-  real(krp)   :: surface        ! valeur de la surface de la face
-endtype st_face
-
-!------------------------------------------------------------------------------!
 ! Definition de la structure ST_MESH : liste de vertex, faces, centres, volumes
 !------------------------------------------------------------------------------!
 type st_mesh
   type(info_mesh) :: info
+<<<<<<< HEAD
   integer         :: nvtex                 ! nombre de sommets
   integer         :: nface
+=======
+  integer         :: idim, jdim, kdim      ! indices max des cellules 
+  integer         :: nvtex                 ! nomber of vertices
+  integer         :: nface, nfgauss        ! number of faces and related gauss points
+>>>>>>> origin/spectral
   integer         :: ncell                 ! nombre de faces et cellules totales
   type(v3d), dimension(:,:,:), pointer &  ! coordonnees des sommets et centres
                   :: vertex, centre        ! de cellules (i,j,k)
   type(v3d), dimension(:,:,:), allocatable :: vertex_orig ! MRF addition: table of original vertex positions
-  type(st_face), dimension(:,:,:), pointer &
-                  :: iface !, jface, kface   ! tableaux de faces
+  type(v3d), pointer :: face_center(:,:)   ! (nface, ngauss)
+  type(v3d), pointer :: face_normal(:,:)   ! (nface, ngauss)
+  real(krp), pointer :: face_surf(:)
   real(krp), dimension(:,:,:), pointer &
                   :: volume                ! volume des cellules
   real(krp), dimension(:,:,:), pointer &
@@ -84,36 +87,54 @@ contains
 !------------------------------------------------------------------------------!
 ! Procedure : initialization and allocation of MESH structure
 !------------------------------------------------------------------------------!
-subroutine new_mesh(mesh, ncell, nface, nvtex)
+subroutine new_mesh(mesh, ncell, nface, nvtex, nfgauss)
 implicit none
 type(st_mesh) :: mesh
-integer       :: ncell, nface, nvtex
+integer(kip)           :: ncell, nface, nvtex
+integer(kip), optional :: nfgauss
 
   call init_mesh(mesh)
+<<<<<<< HEAD
   call alloc_mesh(mesh, ncell, nface, nvtex)
   
 end subroutine new_mesh
+=======
+  if (present(nfgauss)) then
+    call alloc_mesh(mesh, ncell, nface, nvtex, nfgauss)
+  else
+    call alloc_mesh(mesh, ncell, nface, nvtex)
+  endif
+endsubroutine new_mesh
+>>>>>>> origin/spectral
 
 
 !------------------------------------------------------------------------------!
 ! Procedure : (partial) allocation of MESH structure
 !------------------------------------------------------------------------------!
-subroutine alloc_mesh(mesh, ncell, nface, nvtex)
+subroutine alloc_mesh(mesh, ncell, nface, nvtex, nfgauss)
 implicit none
-type(st_mesh) :: mesh
-integer       :: ncell, nface, nvtex
+type(st_mesh)          :: mesh
+integer(kip)           :: ncell, nface, nvtex
+integer(kip), optional :: nfgauss
 
+  mesh%ncell = ncell
+  mesh%nface = nface
+  mesh%nvtex = nvtex
+  if (present(nfgauss)) then
+    mesh%nfgauss = nfgauss
+  else
+    mesh%nfgauss = 1
+  endif
   if (ncell /= 0) then
-    mesh%ncell = ncell
     allocate(mesh%centre(1:ncell, 1,1))
     allocate(mesh%volume(1:ncell, 1,1))
   endif
   if (nface /= 0) then
-    mesh%nface = nface
-    allocate(mesh% iface(1:nface, 1,1))
+    allocate(mesh%face_center(1:nface, mesh%nfgauss))
+    allocate(mesh%face_normal(1:nface, mesh%nfgauss))
+    allocate(mesh%face_surf(1:nface))
   endif
   if (nvtex /= 0) then
-    mesh%nvtex = nvtex
     allocate(mesh%vertex(1:nvtex, 1,1))
   endif
 
@@ -141,12 +162,22 @@ implicit none
 type(st_mesh) :: mesh
 integer       :: ncell, nface, nvtex
 
+<<<<<<< HEAD
   mesh%nface = 0
+=======
+  mesh%idim = 0
+  mesh%jdim = 0
+  mesh%kdim = 0
+  mesh%nface   = 0
+  mesh%nfgauss = 0
+>>>>>>> origin/spectral
   mesh%nvtex = 0
   mesh%ncell = 0
   nullify(mesh%centre)
   nullify(mesh%volume)
-  nullify(mesh%iface)
+  nullify(mesh%face_normal)
+  nullify(mesh%face_center)
+  nullify(mesh%face_surf)
   nullify(mesh%vertex)
 end subroutine init_mesh
 
@@ -160,7 +191,9 @@ type(st_mesh) :: mesh
 
   if (associated(mesh%centre)) deallocate(mesh%centre)
   if (associated(mesh%volume)) deallocate(mesh%volume)
-  if (associated(mesh%iface))  deallocate(mesh%iface) 
+  if (associated(mesh%face_normal)) deallocate(mesh%face_normal) 
+  if (associated(mesh%face_center)) deallocate(mesh%face_center) 
+  if (associated(mesh%face_surf))   deallocate(mesh%face_surf) 
   if (associated(mesh%vertex)) deallocate(mesh%vertex)
 end subroutine delete_mesh
 

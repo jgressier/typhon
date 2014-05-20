@@ -1,10 +1,10 @@
 !------------------------------------------------------------------------------!
 ! Procedure : integration_ns_ust  
 !      
-! Fonction  
-!   NS flux computation 
-!   - packet based computation
-!   - high order interpolation
+!> @brief Navier Stokes integration
+!>   NS flux computation 
+!>   - packet based computation
+!>   - high order interpolation
 !
 !------------------------------------------------------------------------------!
 subroutine integration_ns_ust(defsolver, defspat, umesh, field, flux, &
@@ -106,12 +106,12 @@ do ib = 1, nblock
   QR%velocity => field%cell_r%tabvect(1)%vect(ista(ib):iend(ib))
 
   call calc_flux_inviscid(defsolver, defspat,                             &
-                          buf, ista(ib), umesh%mesh%iface(ista(ib):iend(ib), 1, 1), &
+                          buf, ista(ib), umesh%mesh%face_normal(ista(ib):iend(ib), 1), &
                           QL, QR, flux, theo_jac, jacL, jacR)
 
   if (num_jac) then
     call calc_jacnum_inviscid(defsolver, defspat,                             &
-                            buf, ista(ib), umesh%mesh%iface(ista(ib):iend(ib), 1, 1), &
+                            buf, ista(ib), umesh%mesh%face_normal(ista(ib):iend(ib),1), &
                             QL, QR, flux, theo_jac, jacL, jacR)
   endif
 
@@ -153,8 +153,8 @@ do ib = 1, nblock
       call distrib_field(field%gradient, umesh%facecell, ista(ib), iend(ib), &
                        gradL, gradR, 1)
 
-      call calc_flux_viscous_cell(defsolver, defspat,                     &
-                           buf, ista(ib), umesh%mesh%iface(ista(ib):iend(ib), 1, 1), &
+      call calc_flux_viscous_cell(defsolver, defspat, buf, ista(ib), &
+                           umesh%mesh%face_center(ista(ib):iend(ib), 1), umesh%mesh%face_normal(ista(ib):iend(ib), 1), &
                            cg_l, cg_r, QL, QR, gradL, gradR, flux,        &
                            calc_jac, jacL, jacR)
 
@@ -168,8 +168,8 @@ do ib = 1, nblock
       QL%velocity => field%cell_l%tabvect(1)%vect(ista(ib):iend(ib))
       QR%velocity => field%cell_r%tabvect(1)%vect(ista(ib):iend(ib))
 
-      call calc_flux_viscous_face(defsolver, defspat,                        &
-                           buf, ista(ib), umesh%mesh%iface(ista(ib):iend(ib), 1, 1), &
+      call calc_flux_viscous_face(defsolver, defspat,buf, ista(ib), &
+                           umesh%mesh%face_center(ista(ib):iend(ib), 1), umesh%mesh%face_normal(ista(ib):iend(ib), 1), &
                            cg_l, cg_r, QL, QR, gradL, gradR, flux) 
 
     case default

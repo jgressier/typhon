@@ -1,8 +1,7 @@
 !------------------------------------------------------------------------------!
 ! MODULE : MESHCONNECT
 ! 
-! Fonction
-!   Computation of mesh connectivity
+!> @brief Computation of mesh connectivity
 !------------------------------------------------------------------------------!
 module MESHCONNECT
 
@@ -69,7 +68,7 @@ endif
 
 ! initialize face array
 
-nullify(umesh%mesh%iface)
+!nullify(umesh%mesh%iface)
 umesh%mesh%nface = 0
 
 if (iverb > 0) call cfd_print("  creating faces and associated connectivity")

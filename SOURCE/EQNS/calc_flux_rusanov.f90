@@ -1,13 +1,9 @@
 !------------------------------------------------------------------------------!
 ! Procedure : calc_flux_rusanov                 Authors : J. Gressier
 !
-! Function
-!   Computation of RUSANOV flux for Euler equations
-!
-! Defaults/Limitations/Misc :
-!
+!> @brief Computation of RUSANOV flux for Euler equations
 !------------------------------------------------------------------------------!
-subroutine calc_flux_rusanov(defsolver, defspat, nflux, face, &
+subroutine calc_flux_rusanov(defsolver, defspat, nflux, fn, &
                           cell_l, cell_r, flux, ideb,      &
                           calc_jac, jacL, jacR)
 use TYPHMAKE
@@ -27,8 +23,7 @@ type(mnu_solver)      :: defsolver        ! solver parameters
 type(mnu_spat)        :: defspat          ! space integration parameters
 integer               :: nflux            ! number of fluxes
 integer               :: ideb             ! index of first flux
-type(st_face), dimension(1:nflux) &
-                      :: face             ! geom. data of faces
+type(v3d)             :: fn(1:nflux)      ! face normals
 type(st_nsetat)       :: cell_l, cell_r   ! primitive variables array
 logical               :: calc_jac         ! jacobian calculation boolean
 
@@ -40,7 +35,6 @@ type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 
 ! -- Internal variables --
 integer                     :: if
-type(v3d), dimension(nflux) :: fn
 real(krp), dimension(nflux) :: ray, vnl, vnr
 real(krp)                   :: g, ig1, al, ar, rel, rer
 
@@ -53,10 +47,6 @@ ig1 = 1._krp/(g - 1._krp)
 
 !-------------------------------
 ! Flux computation
-
-do if = 1, nflux
-  fn(if)  = face(if)%normale
-enddo
 
 vnl(1:nflux) = cell_l%velocity(1:nflux).scal.fn(1:nflux)       ! face normal velocity (left  state)
 vnr(1:nflux) = cell_r%velocity(1:nflux).scal.fn(1:nflux)       !                      (right state)
@@ -93,14 +83,14 @@ if (calc_jac) then
     !call calc_jac_eqns(defsolver, defspat, nflux, face,        &
     !                   cell_l, cell_r, ideb, jacL, jacR))
   case(jac_rusanov)
-    call calc_jac_rusanov(defsolver, defspat, nflux, face,          &
+    call calc_jac_rusanov(defsolver, defspat, nflux, fn,          &
                       cell_l, cell_r, ray, vnl, vnr, ideb, jacL, jacR)
   case(jac_hll)
-    call erreur("Development", "HLL jacobian matrices not available with RUSANOV flux")
+    call error_stop("Development: HLL jacobian matrices not available with RUSANOV flux")
   case(jac_hlldiag)
-    call erreur("Development", "HLL diagonal jacobian matrices not available with RUSANOV flux")
+    call error_stop("Development: HLL diagonal jacobian matrices not available with RUSANOV flux")
   case default
-    call erreur("Internal error", "unknown jacobian expression for Euler hyperbolic fluxes")
+    call error_stop("Internal error: unknown jacobian expression for Euler hyperbolic fluxes")
   endselect
 
 endif

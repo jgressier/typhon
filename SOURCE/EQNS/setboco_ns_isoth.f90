@@ -1,11 +1,7 @@
 !------------------------------------------------------------------------------!
 ! Procedure : setboco_ns_isoth            Auteur : J. Gressier/E. Radenac
 !                                         Date   : June 2005
-! Fonction                                Modif  : (cf Historique)
-!   Calcul des conditions aux limites non uniformes pour la conduction de la 
-!   chaleur, mur isotherme
-! Defauts/Limitations/Divers :
-!
+!> @brief Calcul des conditions aux limites non uniformes pour la conduction de la chaleur, mur isotherme
 !------------------------------------------------------------------------------!
 subroutine setboco_ns_isoth(defns, defale, defmrf, unif, ustboco, umesh, bccon, bcns, curtime)
 
@@ -81,7 +77,7 @@ case(bccon_cell_state, bccon_face_state)
     ! velocity
     !bccon%fxx%tabvect(1)%vect(ighost) = v3d(0._krp,0._krp,0._krp)
     wallvelocity = bcns%wall_velocity
-    call calc_wallvelocity(defale, defmrf, wallvelocity, umesh%mesh%iface(if,1,1), if, curtime)
+    call calc_wallvelocity(defale, defmrf, wallvelocity, umesh%mesh%face_center(if,1), if, curtime)
     bccon%frecv%tabvect(1)%vect(ighost) = (2._krp*wallvelocity) - bccon%fsend%tabvect(1)%vect(ic)
 
   enddo
@@ -101,7 +97,7 @@ do ib = 1, nblock
     bccon%frecv%tabvect(1)%vect(ic) =  bccon%fsend%tabvect(1)%vect(is)   ! grad rho
     bccon%frecv%tabvect(2)%vect(ic) = -bccon%fsend%tabvect(2)%vect(is)   ! grad p - to be made symmetric
     bccon%frecv%tabtens(1)%tens(ic) =  bccon%fsend%tabtens(1)%tens(is)   ! grad V
-    call v3d_sym(bccon%frecv%tabvect(2)%vect(ic), umesh%mesh%iface(if,1,1)%normale)
+    call v3d_sym(bccon%frecv%tabvect(2)%vect(ic), umesh%mesh%face_normal(if,1))
   enddo
 enddo
 !$OMP END DO
