@@ -1,6 +1,9 @@
+!> @addtogroup Program
 !------------------------------------------------------------------------------!
-! TYMORPH
-!
+!> @ingroup Program
+!> @brief morphing of a mesh
+!> features
+!> - moves nodes according to FCT functions
 !------------------------------------------------------------------------------!
 program tymorph
 

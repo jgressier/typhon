@@ -44,7 +44,7 @@ do while (associated(pgrid))
     nc           = pgrid%umesh%ncell_int
     info%cur_res = 0._krp
 
-    !! DEV: put in DEFFIELD and OMP parallelize
+    !> @todo OMP parallelization
     
     do ip = 1, pfield%nscal
       info%cur_res = info%cur_res + sum(abs(pfield%residu%tabscal(ip)%scal(1:nc))) &

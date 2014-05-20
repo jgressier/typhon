@@ -84,7 +84,7 @@ type(st_deftyphon)       :: deftyphon
 type(st_xbindatasection) :: xbindata
 ! -- BODY --
 
-!! DEV : check consistency ?
+!> @todo check data before writing
 
 call xbin_defdatasection(xbindata, xbinty_filedef, "FILE_HEADER", &
      (/ xty_defaultver,          &    ! TYPHON internal format version
@@ -109,8 +109,6 @@ type(st_deftyphon)       :: deftyphon
 integer                       :: info
 type(st_xbindatasection)      :: xbindata
 ! -- BODY --
-
-!! DEV : check consistency ?
 
 call xbin_readdatahead(deftyphon%defxbin, xbindata)
 

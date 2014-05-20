@@ -1,6 +1,9 @@
+!> @addtogroup Program
 !------------------------------------------------------------------------------!
-! TYPART
-!
+!> @ingroup Program
+!> @brief generation of mesh partition
+!> features
+!> - METIS mode selection
 !------------------------------------------------------------------------------!
 program typart
 

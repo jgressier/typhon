@@ -2,11 +2,10 @@
 ! MODULE : FCT_PARSER                     Auteur : J. Gressier
 !                                         Date   : July 2004
 ! 
-! Create FCT_NODE tree from string
-!
-!
 !------------------------------------------------------------------------------!
-
+!> @ingroup FCT
+!> @brief string parsing for FCT tree node creation
+!------------------------------------------------------------------------------!
 module FCT_PARSER
 
 use FCT_DEF

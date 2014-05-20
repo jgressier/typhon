@@ -1,0 +1,15 @@
+/**
+* @defgroup Features Features
+*/
+
+/**
+* @defgroup Monitors Monitors and Probes
+* @ingroup Features
+* Stuff related to monitoring with probe definition
+*/
+
+/**
+* @defgroup FCT Symbolic Functions
+* @ingroup Features
+* Symbolic mathematical expression
+*/
