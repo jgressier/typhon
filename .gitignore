@@ -6,3 +6,4 @@ bin/shconf.sh
 # check
 check.log
 diff.log
+*~

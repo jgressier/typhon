@@ -53,6 +53,13 @@ lzone%info%end_cycle   = .false.
 
 ! -- CYCLE output header --
 
+!DEBUG : Affichage des initialisations : 
+!write (*,*) lzone%defsolver%nsim
+!write (*,*) lzone%gridlist%first%field%etatprim%tabscal(1)%dim
+
+!STOP
+
+
 select case(lzone%info%time_model)
 
 case(time_steady)

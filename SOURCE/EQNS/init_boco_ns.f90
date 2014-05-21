@@ -26,10 +26,12 @@ type(st_ustmesh)  :: umesh
 type(mnu_solver)  :: defsolver
 
 ! -- Declaration des variables internes --
-integer :: iboco, i, idef
+integer :: iboco, i, idef, nsim
+
 
 ! -- Debut de la procedure --
 
+nsim = defsolver%nsim
 ! On parcourt toutes les conditions limites du domaine
 
 do iboco = 1, umesh%nboco 
@@ -44,7 +46,7 @@ do iboco = 1, umesh%nboco
     case(bc_wall_isoth)
       ! nothing to do
     case(bc_wall_flux, bc_wall_hconv, bc_wall_hgen)
-      umesh%boco(iboco)%bocofield => insert_newgfield(umesh%boco(iboco)%bocofield, umesh%boco(iboco)%nface, 1, 0, 0)
+      umesh%boco(iboco)%bocofield => insert_newgfield(umesh%boco(iboco)%bocofield, umesh%boco(iboco)%nface*nsim, 1, 0, 0)
     !case default
     !  call erreur("Internal error","unknown boundary condition (init_boco_ns)")
     endselect

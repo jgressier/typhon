@@ -67,8 +67,8 @@ do i = 1, defsolver%ninit
   write(str_w,'(a,i3)') "  initialization #",i
   call print_info(10, str_w)
 
-  !> @todo [concurrent] specify ISIM to INIT block if right number
-  
+  !> @todo [concurrent] specify ISIM to INIT block if right number 
+
   select case(defsolver%init(i)%type)
 
   case(init_cgns) ! ----------- CGNS solution initialization ---------------
