@@ -27,6 +27,7 @@ type(st_grid), pointer :: pgrid
 integer                :: ig, ib, if
 integer                :: nsca, nvec, nten
 
+
 ! -- BODY --
 
 !-------------------------------------------------------------
@@ -79,8 +80,8 @@ do while (associated(pgrid))            ! loop on grids in a zone
 
     ! -- init field (dim=1 quantity ~ average/integral) and scal/vect size of main field --
 
-    call new_genericfield(pgrid%umesh%boco(ib)%avg_quant, 1, nsca, nvec, 0)
-    call new_genericfield(pgrid%umesh%boco(ib)%sum_flux,  1, nsca, nvec, 0)
+    call new_genericfield(pgrid%umesh%boco(ib)%avg_quant, 1*zone%defsolver%nsim, nsca, nvec, 0)
+    call new_genericfield(pgrid%umesh%boco(ib)%sum_flux,  1*zone%defsolver%nsim, nsca, nvec, 0)
     !call print_info(11, "initializing boco "//"")
   enddo
 

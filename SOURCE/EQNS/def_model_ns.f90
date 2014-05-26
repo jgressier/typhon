@@ -47,9 +47,10 @@ if (nkey /= 1) call error_stop("too many or missing MODEL block")
 ! -- concurrent simulations --
 
 call rpmgetkeyvalint(pcour, "NSIM", defsolver%nsim, 1)
+
 select case(defsolver%nsim)
 case(1)
-  ! default, nothing to do
+  ! Nothing to do
 case(2:)
   call print_info(5, "  Concurrent simulations set to "//trim(strof(defsolver%nsim)))
 case default
