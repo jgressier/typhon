@@ -41,6 +41,8 @@ integer               :: ib, icolor       ! block index
 integer               :: dim              ! dimension
 integer               :: buf, nblock      ! buffer size 
 integer, pointer      :: ista(:), iend(:) ! starting and ending index
+integer 	      :: nsim             ! Number of simulations
+integer               :: isim, ic, ind1, ind2
 
 ! -- Body --
 
@@ -59,13 +61,21 @@ do ib = 1, nblock
 
   do ip = 1, flux%nscal
     do ifa = ista(ib), iend(ib)
-      flux%tabscal(ip)%scal(ifa) = surf(ifa-ista(ib)+1) * flux%tabscal(ip)%scal(ifa)
+      ! Compute on nsim simulations
+      do isim = 1, nsim
+	ic = nsim*ifa + isim
+	flux%tabscal(ip)%scal(ic) = surf(ifa-ista(ib)+1) * flux%tabscal(ip)%scal(ifa)
+      enddo
     enddo
   enddo
 
   do ip = 1, flux%nvect
     do ifa = ista(ib), iend(ib)
-      flux%tabvect(ip)%vect(ifa) = surf(ifa-ista(ib)+1) * flux%tabvect(ip)%vect(ifa)
+      ! Compute on nsim simulations
+      do isim = 1, nsim
+	ic = nsim*ifa + isim
+	flux%tabvect(ip)%vect(ic) = surf(ifa-ista(ib)+1) * flux%tabvect(ip)%vect(ifa)
+      enddo
     enddo
     !call scale(flux%tabvect(ip)%vect, surf(:))
   enddo
@@ -97,14 +107,23 @@ do i = 1, umesh%colors%node(icolor)%nelem
   !print*,icolor, i, ifa, ic1, ic2
 
   do ip = 1, residu%nscal
-    residu%tabscal(ip)%scal(ic1) = residu%tabscal(ip)%scal(ic1) - flux%tabscal(ip)%scal(ifa)
-    residu%tabscal(ip)%scal(ic2) = residu%tabscal(ip)%scal(ic2) + flux%tabscal(ip)%scal(ifa)
+    ! Compute on nsim simulations
+    do isim = 1, nsim 
+      ind1 = nsim*ic1+isim 
+      ind2 = nsim*ic2+isim
+      residu%tabscal(ip)%scal(ind1) = residu%tabscal(ip)%scal(ind1) - flux%tabscal(ip)%scal(nsim*ifa+isim)
+      residu%tabscal(ip)%scal(ind2) = residu%tabscal(ip)%scal(ind2) + flux%tabscal(ip)%scal(nsim*ifa+isim)
+    enddo
   enddo
   do ip = 1, residu%nvect
-    call shift_sub(residu%tabvect(ip)%vect(ic1), flux%tabvect(ip)%vect(ifa))
-    call shift_add(residu%tabvect(ip)%vect(ic2), flux%tabvect(ip)%vect(ifa))
-    !residu%tabvect(ip)%vect(ic1) = residu%tabvect(ip)%vect(ic1) - flux%tabvect(ip)%vect(ifa)
-    !residu%tabvect(ip)%vect(ic2) = residu%tabvect(ip)%vect(ic2) + flux%tabvect(ip)%vect(ifa)
+    do isim = 1, nsim 
+      ind1 = nsim*ic1+isim 
+      ind2 = nsim*ic2+isim
+      call shift_sub(residu%tabvect(ip)%vect(ind1), flux%tabvect(ip)%vect(nsim*ifa+isim))
+      call shift_add(residu%tabvect(ip)%vect(ind2), flux%tabvect(ip)%vect(nsim*ifa+isim))
+      !residu%tabvect(ip)%vect(ic1) = residu%tabvect(ip)%vect(ic1) - flux%tabvect(ip)%vect(ifa)
+      !residu%tabvect(ip)%vect(ic2) = residu%tabvect(ip)%vect(ic2) + flux%tabvect(ip)%vect(ifa)
+    enddo
   enddo
 enddo
 !$OMP END PARALLEL DO
