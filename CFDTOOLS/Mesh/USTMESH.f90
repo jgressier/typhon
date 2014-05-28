@@ -42,7 +42,6 @@ type st_ustmesh
   type(st_genconnect)   :: colors                !> independent set of faces
   type(st_genconnect)   :: vtexface              !> VTEX-FACE connectivity
   type(st_genelemvtex)  :: cellvtex              !> CELL-VTEX connectivity
-  
   integer               :: nboco                 !> number of boundary conditions
   type(st_ustboco), dimension(:), pointer &
                         :: boco                  !> liste des conditions aux limites

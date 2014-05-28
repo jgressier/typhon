@@ -70,6 +70,26 @@ call set_closed_io_unit(iounit)
 
 endsubroutine close_io_unit
 
+!------------------------------------------------------------------------------!
+! test end of XBIN file
+!------------------------------------------------------------------------------!
+logical function io_eof(iunit)
+implicit none
+! -- INPUTS --
+integer :: iunit
+! -- private data --
+integer info
+
+#ifdef __INTEL_COMPILER
+  io_eof = eof(iunit)  ! intrinsic INTEL fortran
+#else
+  inquire(diunit, iostat=info)   ! fortran norm but does not work
+  io_eof = is_iostat_end(info)
+#endif
+
+endfunction io_eof
+
+
 
 endmodule IO_UNIT
 !------------------------------------------------------------------------------!

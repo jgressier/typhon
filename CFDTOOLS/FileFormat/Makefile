@@ -30,6 +30,7 @@ $(LDIR).f90MODFILES := \
     internal/TYPHON_FMT.f90 \
     internal/XBIN_DATA.f90  \
     internal/XBIN_IO.f90    \
+    gmsh/GMSH.f90           \
     cgns/CGNS_STRUCT.f90    \
     tecplot/TECFMT.f90      \
     tecplot/TECMESHSOL.f90  \
@@ -42,6 +43,8 @@ $(LDIR).f90files := \
     $($(LDIR).f90MODFILES) \
     internal/importtyphon_mesh.f90   \
     internal/typhonread_ustmesh.f90  \
+    gmsh/importgmsh_mesh.f90     \
+    gmsh/gmshread_ustmesh.f90    \
     cgns/importcgns_mesh.f90     \
     cgns/readcgns_sol.f90        \
     cgns/readcgns_ustboco.f90    \

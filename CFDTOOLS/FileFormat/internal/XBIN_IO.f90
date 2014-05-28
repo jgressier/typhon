@@ -60,16 +60,7 @@ logical function xbin_eof(defxbin)
 implicit none
 ! -- INPUTS --
 type(st_defxbin) :: defxbin
-! -- private data --
-integer info
-
-#ifdef __INTEL_COMPILER
-  xbin_eof = eof(defxbin%iunit)  ! intrinsic INTEL fortran
-#else
-  inquire(defxbin%iunit, iostat=info)   ! fortran norm but does not work
-  xbin_eof = is_iostat_end(info)
-#endif
-
+  xbin_eof = io_eof(defxbin%iunit)  
 endfunction xbin_eof
 
 

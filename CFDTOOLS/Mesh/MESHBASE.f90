@@ -43,10 +43,11 @@ endtype st_face
 !------------------------------------------------------------------------------!
 type st_mesh
   type(info_mesh) :: info
-  integer         :: idim, jdim, kdim      ! indices max des cellules 
-  integer         :: nvtex                 ! nombre de sommets
-  integer         :: nface
-  integer         :: ncell                 ! nombre de faces et cellules totales
+  integer(kip)          :: idim, jdim, kdim      ! indices max des cellules 
+  integer(kip)          :: nvtex, maxvtex        ! nb of vertices and max global index of vertex
+  integer(kip)          :: nface
+  integer(kip)          :: ncell                 ! nombre de faces et cellules totales
+  integer(kip), pointer :: ivtex(:)              ! global index of vertex (1..maxvtex)
   type(v3d), dimension(:,:,:), pointer &  ! coordonnees des sommets et centres
                   :: vertex, centre        ! de cellules (i,j,k)
   type(v3d), dimension(:,:,:), allocatable :: vertex_orig ! MRF addition: table of original vertex positions
