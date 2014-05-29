@@ -15,12 +15,9 @@ use DEFFIELD
 use MENU_SOLVER
 use TYPHON_FMT
 use TYFMT_SOL
+use CGNS_STRUCT
 
 implicit none
-
-#ifdef CGNS
-include 'cgnslib_f.h'
-#endif/*CGNS*/
 
 ! -- INPUTS --
 type(mnu_solver) :: defsolver            ! parametres du solveur
