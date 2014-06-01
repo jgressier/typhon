@@ -12,7 +12,8 @@ use IOCFD
 implicit none
 
 !------------------------------------------------------------------------------!
-! CONSTANTS for ELEMENT TYPE
+! CONSTANTS for ELEMENT TYPE 
+!> @todo documentation of cell vtex normalized connectivity
 !------------------------------------------------------------------------------!
 integer(kpp), parameter :: elem_null    = 0
 integer(kpp), parameter :: elem_node    = 1
@@ -36,6 +37,7 @@ integer(kpp), parameter :: elem_hexa20  = 145
 integer(kpp), parameter :: elem_hexa27  = 148
 integer(kpp), parameter :: elem_nedron  = 200
 
+integer(kpp), parameter :: elemname = 20
 
 !------------------------------------------------------------------------------!
 ! TYPES/STRUCTURES
@@ -91,6 +93,39 @@ case default
 endselect
 
 endfunction nvtex_element
+
+!------------------------------------------------------------------------------!
+! Function : compute number of VTEX in ELEMENT DEFINITION
+!------------------------------------------------------------------------------!
+character(len=elemname) function name_element(itype)
+implicit none
+! -- dummy arguments --
+integer(kpp),      intent(in)  :: itype
+
+select case(itype)
+case(elem_null)
+  name_element = 'None'
+case(elem_bar2)
+  name_element = 'Bar2'
+case(elem_tri3)
+  name_element = 'Tri3'
+case(elem_quad4)
+  name_element = 'Quad4'
+case(elem_ngon)
+  name_element = 'Polygon'
+case(elem_tetra4)
+  name_element = 'Tetra4'
+case(elem_pyra5)
+  name_element = 'Pyra5'
+case(elem_penta6)
+  name_element = 'Penta6'
+case(elem_hexa8)
+  name_element = 'Hexa8'
+case default
+  name_element = 'Not Found'
+endselect
+
+endfunction name_element
 
 !------------------------------------------------------------------------------!
 ! Function : compute number of FACES in ELEMENT DEFINITION

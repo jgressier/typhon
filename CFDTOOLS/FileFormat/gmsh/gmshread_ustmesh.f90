@@ -19,7 +19,7 @@ type(st_ustmesh)         :: umesh
 
 ! -- private data --
 integer       :: info, iunit
-logical       :: nodes, elements, marks
+logical       :: nodes, elements, marks, eof
 character(len=gmshlen) :: sectionline
 
 ! -- BODY --
@@ -30,8 +30,7 @@ nodes    = .false.
 elements = .false.
 marks    = .false.
 
-do while (.not.(elements.and.nodes.and.marks))
-
+do while (.not.eof)
   call gmshread_section(defgmsh, sectionline)
   
   select case(sectionline)
@@ -43,24 +42,32 @@ do while (.not.(elements.and.nodes.and.marks))
     umesh%nvtex = umesh%mesh%nvtex
 
   case("$Elements") ! ----- read ELEMENTS -----
-    if (nodes) call cfd_error("GMSH: too many elements section")
+    if (elements) call cfd_error("GMSH: too many elements section")
     call cfd_print("> cell elements")
-    call gmshread_elemvtex(defgmsh, umesh%cellvtex)
+    call gmshread_elemvtex(defgmsh, umesh)
     elements = .true.
 
-  case("$PhysicalNames") ! ----- read ELEMENTS -----
-    if (nodes) call cfd_error("GMSH: too many elements section")
+  case("$PhysicalNames") ! ----- read MARKS -----
+    if (marks) call cfd_error("GMSH: too many elements section")
     call cfd_print("> marks")
-    !call createboco(umesh, deftymesh2%nfacemark)
-    !
-    !do ib = 1, deftymesh2%nfacemark
-    !  call gmshread_bcmark(defgmsh2%defxbin, umesh%boco(ib))
-    !enddo
+    call gmshread_phynames(defgmsh)
+    marks = .true.
+
+  case("EOF") ! end of file
+    eof = .true.
+    
   case default
     call cfd_print("  . unused section "//trim(sectionline))
+    call gmshseek_section(defgmsh, trim(sectionline))
   endselect
 enddo
 
+if (.not.(elements.and.nodes)) then   ! marks are not necessary
+  call cfd_error("GMSH import: missing elements or nodes")
+endif
+
+call cfd_print("> match boundary condition and marks")
+call gmsh_match_phynames(defgmsh, umesh)
 call check_ustmesh_elements(umesh)
 
 endsubroutine gmshread_ustmesh

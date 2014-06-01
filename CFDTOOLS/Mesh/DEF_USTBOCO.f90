@@ -1,10 +1,6 @@
 !------------------------------------------------------------------------------!
-! MODULE : USTBOCO 
-!                  
-! BOundary COndition structure for USTMESH
-!
+!> @brief marks and boundary conditions
 !------------------------------------------------------------------------------!
-
 module DEF_USTBOCO
 
 use MESHPREC      ! machine accuracy
@@ -19,10 +15,11 @@ implicit none
 
 integer, parameter :: defboco_connect = -1       
 
-integer, parameter :: iloc_vtex     = 1
-integer, parameter :: iloc_elemcell = 2
-integer, parameter :: iloc_elemface = 3
-integer, parameter :: iloc_face     = 4
+! -- type of tags for boundary conditions --
+integer, parameter :: iloc_vtex     = 1   ! tags to vertex index
+integer, parameter :: iloc_elemcell = 2   ! tags to cell index in elemvtex (itag)
+integer, parameter :: iloc_elemface = 3   ! tags to face index in elemvtex (itag)
+integer, parameter :: iloc_face     = 4   ! tags to face index in facevtex (iface)
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
@@ -32,7 +29,8 @@ integer, parameter :: iloc_face     = 4
 !------------------------------------------------------------------------------!
 type st_ustboco
   character(len=shortname)       :: family     ! Family name or TAG
-  integer                        :: ilocation  ! type of connectivity
+  integer                        :: iexttag    ! external tag         (from external format)
+  integer                        :: ilocation  ! type of connectivity (from external format)
   integer                        :: idefboco   ! index pointer to defsolver boco definition
                                                !   if <= 0 then other definition (cf defboco_* constants)
   integer                        :: ntag       ! number of tags
@@ -91,8 +89,10 @@ type(st_ustboco), intent(out) :: bc
 character(len=*), intent(in)  :: nom
 integer,          intent(in)  :: n
 
-  bc%family = nom
-  bc%nface  = n
+  bc%family  = nom
+  bc%iexttag = -1
+  bc%ntag    = -1
+  bc%nface   = n
   if (n == 0) then
     nullify(bc%iface)
   else
