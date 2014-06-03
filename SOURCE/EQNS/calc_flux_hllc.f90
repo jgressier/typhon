@@ -40,7 +40,7 @@ type(st_genericfield) :: flux
 type(st_mattab)       :: jacL, jacR       ! flux jacobian matrices
 
 ! -- Internal variables --
-integer               :: if, nsim, ic, isim
+integer               :: if
 type(st_nsetat)       :: roe
 type(v3d)             :: rvst
 type(v3d), dimension(nflux) :: fn
@@ -57,7 +57,7 @@ real(krp)             :: rqL, rqR
 real(krp)             :: Sst, rst, pst, rest
 
 ! -- Body --
-nsim = defsolver%nsim
+
 g   = defsolver%defns%properties(1)%gamma
 ig1 = 1._krp/(g - 1._krp)
 f1  = sqrt(0.5_krp*g)
@@ -89,7 +89,6 @@ vnl(1:nflux) = cell_l%velocity(1:nflux).scal.fn(1:nflux)                ! face n
 vnr(1:nflux) = cell_r%velocity(1:nflux).scal.fn(1:nflux)                !                      (right state)
 al(1:nflux)  = sqrt(g*cell_l%pressure(1:nflux)/cell_l%density(1:nflux)) ! speed of sound       (left  state)
 ar(1:nflux)  = sqrt(g*cell_r%pressure(1:nflux)/cell_r%density(1:nflux)) !                      (right state)
-
 do if = 1, nflux
 
   !!fn  = face(if)%normale
@@ -124,22 +123,20 @@ case(sch_hllck, &
   sl(if) = min(cl*(modml*kinwl+kindl), vm-am)
   sr(if) = max(cr*(modmr*kinwr+kindr), vm+am)
 endselect
-  ! Loop on concurrent simulations
-  do isim = 1, nsim
-    ic = nsim*(ideb-1+if) + isim
+
   !-----------------------------
   ! FULLY UPWIND
   if (sl(if) >= 0._krp) then
-    flux%tabscal(1)%scal(ic) = vnl(if)*cell_l%density(if)             ! mass flux
-    flux%tabscal(2)%scal(ic) = vnl(if)*(rel + cell_l%pressure(if))    ! energy flux
-    flux%tabvect(1)%vect(ic) = (vnl(if)*cell_l%density(if))*cell_l%velocity(if) &
+    flux%tabscal(1)%scal(ideb-1+if) = vnl(if)*cell_l%density(if)             ! mass flux
+    flux%tabscal(2)%scal(ideb-1+if) = vnl(if)*(rel + cell_l%pressure(if))    ! energy flux
+    flux%tabvect(1)%vect(ideb-1+if) = (vnl(if)*cell_l%density(if))*cell_l%velocity(if) &
                                     + cell_l%pressure(if)*fn(if)             ! momentum flux
   !-----------------------------
   ! FULLY UPWIND
   elseif (sr(if) <= 0._krp) then
-    flux%tabscal(1)%scal(ic) = vnr(if)*cell_r%density(if)             ! mass flux
-    flux%tabscal(2)%scal(ic) = vnr(if)*(rer + cell_r%pressure(if))    ! energy flux
-    flux%tabvect(1)%vect(ic) = (vnr(if)*cell_r%density(if))*cell_r%velocity(if) &
+    flux%tabscal(1)%scal(ideb-1+if) = vnr(if)*cell_r%density(if)             ! mass flux
+    flux%tabscal(2)%scal(ideb-1+if) = vnr(if)*(rer + cell_r%pressure(if))    ! energy flux
+    flux%tabvect(1)%vect(ideb-1+if) = (vnr(if)*cell_r%density(if))*cell_r%velocity(if) &
                                     + cell_r%pressure(if)*fn(if)             ! momentum flux
   !-----------------------------
   ! COMPUTATION OF CONTACT WAVE
@@ -163,14 +160,13 @@ endselect
     endif
   
   ! mass flux
-    flux%tabscal(1)%scal(ic) = Sst*rst
+    flux%tabscal(1)%scal(ideb-1+if) = Sst*rst
   ! energy flux
-    flux%tabscal(2)%scal(ic) = Sst*(rest + pst)
+    flux%tabscal(2)%scal(ideb-1+if) = Sst*(rest + pst)
   ! momentum flux
-    flux%tabvect(1)%vect(ic) = (Sst*rvst) + (pst*fn(if))
+    flux%tabvect(1)%vect(ideb-1+if) = (Sst*rvst) + (pst*fn(if))
   endif
   
-  enddo ! loop on simulations
 
   
 

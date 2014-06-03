@@ -408,7 +408,6 @@ type(st_grid)           :: grid
 integer                 :: nscal, nvect, ncell, nface
 
   grid%nfield = grid%nfield + 1
-
   if (grid%nfield == 1) then
    allocate(pfield)
    call new_field(pfield, grid%nfield, nscal, nvect, ncell, nface)

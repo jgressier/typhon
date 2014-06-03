@@ -51,10 +51,8 @@ if (calc_jac) then
   call new(jacL, grid%umesh%nface, defsolver%nequat)
   call new(jacR, grid%umesh%nface, defsolver%nequat)
 endif
-
 ! -- source terms and flux allocation (structure similar to field%etatcons) --
-
-call new_genfield(flux, grid%umesh%nface, grid%info%field_loc%nscal, grid%info%field_loc%nvect, 0)
+call new_genfield(flux, grid%umesh%nface*defsolver%nsim, grid%info%field_loc%nscal, grid%info%field_loc%nvect, 0)
 call init_genericfield(grid%info%field_loc%residu, 0._krp, v3d(0._krp, 0._krp, 0._krp))
 
 ! The whole mesh can be split here into fixed sized blocks

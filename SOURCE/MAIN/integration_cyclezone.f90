@@ -39,6 +39,9 @@ integer     :: itimer
 !DEV
 integer :: cumulreste, oui, non
 
+!For DEBUG
+integer :: nsim, ct, isim
+type(st_genericfield) :: etat_prim
 ! -- BODY --
 
 !DEV
@@ -52,12 +55,6 @@ lzone%info%cycle_time  = 0._krp
 lzone%info%end_cycle   = .false.
 
 ! -- CYCLE output header --
-
-!DEBUG : Affichage des initialisations : 
-!write (*,*) lzone%defsolver%nsim
-!write (*,*) lzone%gridlist%first%field%etatprim%tabscal(1)%dim
-
-!STOP
 
 
 select case(lzone%info%time_model)
@@ -85,6 +82,32 @@ itimer = realtime_start()
 !----------------------------------
 
 do while (.not.(lzone%info%end_cycle.or.lzone%info%stop_integration))
+
+! -------------- DEBUG ------------- : 
+nsim = lzone%defsolver%nsim
+etat_prim = lzone%gridlist%first%field%etatprim
+
+!Affichage des initialisations : 
+!write (*,*) nsim
+!write (*,*) etat_prim%tabscal(1)%dim
+
+!Affichage des différentes valeurs
+!do isim = 1, nsim
+!  !write (*,*) "Simulation no"
+!  write (*,*) isim
+!  write (*,*) etat_prim%tabscal(1)%scal(nsim*1+isim)
+!  write (*,*) etat_prim%tabscal(1)%scal(nsim*2+isim)
+!  write (*,*) etat_prim%tabscal(1)%scal(nsim*3+isim)
+!  write (*,*) etat_prim%tabscal(1)%scal(nsim*4+isim)
+
+  !do ct = 1, (etat_prim%tabscal(1)%dim/nsim-1)
+  !  write (*,*) etat_prim%tabscal(1)%scal(nsim*ct+isim)
+  !enddo
+!enddo 
+
+!STOP
+
+! --------------FIN DEBUG -----------
 
   lzone%info%iter_loc = lzone%info%iter_loc + 1
   lzone%info%iter_tot = lzone%info%iter_tot + 1
