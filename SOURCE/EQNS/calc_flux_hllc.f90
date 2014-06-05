@@ -175,7 +175,6 @@ enddo ! loop on simulations
   
 
 enddo ! loop on nflux
-STOP
 call delete(roe)
 
 !--------------------------------------------------------------
