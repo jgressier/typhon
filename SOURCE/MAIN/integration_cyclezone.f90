@@ -95,9 +95,8 @@ etat_prim = lzone%gridlist%first%field%etatprim
 !do isim = 1, nsim
 !  !write (*,*) "Simulation no"
 !  write (*,*) isim
-!  write (*,*) etat_prim%tabscal(1)%scal(nsim*1+isim)
-!  write (*,*) etat_prim%tabscal(1)%scal(nsim*2+isim)
-!  write (*,*) etat_prim%tabscal(1)%scal(nsim*3+isim)
+! write (*,*) etat_prim%tabscal(1)%dim
+! write (*,*) etat_prim%tabscal(1)%scal(nsim*1+isim)
 !  write (*,*) etat_prim%tabscal(1)%scal(nsim*4+isim)
 
   !do ct = 1, (etat_prim%tabscal(1)%dim/nsim-1)

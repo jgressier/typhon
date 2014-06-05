@@ -182,9 +182,9 @@ do ib = 1, nblock
   nc = count(pstat(1:buf) <= 0._krp)
   if (nc > 0) call error_stop("Initialization: user parameters produce " &
                           //"negative pressures ("//trim(strof(nc))//" cells)" )
-  
   do iloc = 1, buf
     ic = nsim*(iloc+ista(ib)-2)+isim
+    write (*,*) ic
     field%etatprim%tabscal(1)%scal(ic) = density(iloc)  ! density
     field%etatprim%tabscal(2)%scal(ic) = pstat(iloc)    ! pressure
     field%etatprim%tabvect(1)%vect(ic) = velocity(iloc) ! velocity components if not already defined --
