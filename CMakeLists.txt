@@ -7,12 +7,13 @@ project(Typhon Fortran)
 #set(CMAKE_CXX_COMPILER mpiCC)
 
 SET(pName Typhon)
+#enable_language(Fortran)
 
 SET(${PROJECT_NAME}_CMAKE_DIR "${${PROJECT_NAME}_SOURCE_DIR}/CMake")
 SET(CMAKE_MODULE_PATH "${${PROJECT_NAME}_CMAKE_DIR}" ${CMAKE_MODULE_PATH})
 #get_filename_component (Fortran_COMPILER_NAME ${CMAKE_Fortran_COMPILER} NAME)
 
-#message(${CMAKE_Fortran_COMPILER_ID})
+#message(${CMAKE_Fortran_COMPILER_ID}) # to check cmake processing
 
 # Set default cmake build type to RelWithDebInfo
 # (None Debug Release RelWithDebInfo MinSizeRel)
@@ -21,37 +22,11 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "Setting build type to 'RelWithDebInfo' as none was specified.")
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Choose the type of build." FORCE)
   # Set the possible values of build type for cmake-gui
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "Profiling" "MinSizeRel" "RelWithDebInfo")
+  #set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "Profiling" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-#SET(CMAKE_Fortran_FLAGS "  " ${CMAKE_Fortran_FLAGS})
-if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-  SET(CMAKE_Fortran_FLAGS "-cpp -ffree-line-length-none -ffixed-line-length-none -fno-range-check" ${CMAKE_Fortran_FLAGS})
-  SET (CMAKE_Fortran_FLAGS_RELEASE "-O3 ")
-  set (CMAKE_Fortran_FLAGS_RELWITHDEBINFO "-g ${CMAKE_Fortran_FLAGS_RELEASE}")
-  set (CMAKE_Fortran_FLAGS_DEBUG   "-g -O0")
-  set (CMAKE_Fortran_FLAGS_PROFILING    "-p ${CMAKE_Fortran_FLAGS_RELEASE}")
-elseif (CMAKE_Fortran_COMPILER_ID STREQUAL  "Intel") 
-  SET(CMAKE_Fortran_FLAGS "-cpp " ${CMAKE_Fortran_FLAGS})
-  set (CMAKE_Fortran_FLAGS_RELEASE "-O3 -g -ip -xSSE4.2")
-  set (CMAKE_Fortran_FLAGS_RELWITHDEBINFO "-g ${CMAKE_Fortran_FLAGS_RELEASE}")
-  set (CMAKE_Fortran_FLAGS_DEBUG   "-g -fpe0 -CA -CB -CS -CV -traceback -debug all -ftrapuv -WB -warn unused")
-  set (CMAKE_Fortran_FLAGS_PROF    "-p ${CMAKE_Fortran_FLAGS_RELEASE}")
-elseif (CMAKE_Fortran_COMPILER_ID STREQUAL  "PGI") 
-  # cray compilers nersc
-  set (CMAKE_Fortran_FLAGS_RELEASE "-O3 -ip -xSSE4.2")
-  set (CMAKE_Fortran_FLAGS_RELWITHDEBINFO "-O3 -g -ip -xSSE4.2")
-  set (CMAKE_Fortran_FLAGS_DEBUG   "-g -CA -CB -CS -CV -traceback -debug all -ftrapuv -WB -warn unused")
-else (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-  message ("CMAKE_Fortran_COMPILER full path: " ${CMAKE_Fortran_COMPILER})
-  message ("Fortran compiler: " ${Fortran_COMPILER_NAME})
-  message ("No optimized Fortran compiler flags are known, we just try -O2...")
-  set (CMAKE_Fortran_FLAGS_RELEASE "-O2")
-  set (CMAKE_Fortran_FLAGS_DEBUG   "-O0 -g")
-  set (CMAKE_Fortran_FLAGS_RELWITHDEBINFO "-g ${CMAKE_Fortran_FLAGS_RELEASE}")
-  set (CMAKE_Fortran_FLAGS_PROFILING    "-p ${CMAKE_Fortran_FLAGS_RELEASE}")
-endif (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-
+# Fortran compiler flags
+INCLUDE(FortranCompilerFlags)
 
 MESSAGE(STATUS "build type set to ${CMAKE_BUILD_TYPE}")
 
@@ -71,8 +46,8 @@ MARK_AS_ADVANCED(${PROJECT_NAME}_USE_METIS)
 # Use CGNS library
 OPTION(${PROJECT_NAME}_USE_CGNS
        "Use CGNS library." 
-       OFF)
-MARK_AS_ADVANCED(${PROJECT_NAME}_USE_CGNS)
+       ON)
+#MARK_AS_ADVANCED(${PROJECT_NAME}_USE_CGNS)
 
 # Use Doxygen to generate documentation
 OPTION(${PROJECT_NAME}_USE_DOXYGEN
