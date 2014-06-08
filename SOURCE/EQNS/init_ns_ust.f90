@@ -61,6 +61,39 @@ case(init_def)  ! --- initialization through FCT functions ---
 
 call new_buf_index(ncell, fct_buffer, nblock, ista, iend, nthread)
 
+call fctset_initdependency(defsolver%fctenv)
+
+if (init%ns%is_pstat) then
+  call fctset_checkdependency(defsolver%fctenv, init%ns%pstat)
+else
+  call fctset_checkdependency(defsolver%fctenv, init%ns%ptot)
+endif
+
+if (init%ns%is_density) then
+  call fctset_checkdependency(defsolver%fctenv, init%ns%density)
+else
+  if (init%ns%is_tstat) then
+    call fctset_checkdependency(defsolver%fctenv, init%ns%tstat)
+  else
+    call fctset_checkdependency(defsolver%fctenv, init%ns%ttot)
+  endif
+endif
+
+if (init%ns%is_vcomponent) then
+  call fctset_checkdependency(defsolver%fctenv, init%ns%vx)
+  call fctset_checkdependency(defsolver%fctenv, init%ns%vy)
+  call fctset_checkdependency(defsolver%fctenv, init%ns%vz)
+else
+  if (init%ns%is_velocity) then
+    call fctset_checkdependency(defsolver%fctenv, init%ns%velocity)
+  else
+    call fctset_checkdependency(defsolver%fctenv, init%ns%mach)
+  endif
+  call fctset_checkdependency(defsolver%fctenv, init%ns%dir_x)
+  call fctset_checkdependency(defsolver%fctenv, init%ns%dir_y)
+  call fctset_checkdependency(defsolver%fctenv, init%ns%dir_z)
+endif
+
 !$OMP PARALLEL & 
 !$OMP private(ib, buf, iloc, ic, env, x, y, z, density, pstat, ptot, tstat, ttot, vel, velocity, mach, nc) &
 !$OMP shared(ista, iend, nblock, gam, gsgmu, gmusd, rcst) 
@@ -71,15 +104,17 @@ call new_fct_env(env)      ! temporary environment from FCT_EVAL
 do ib = 1, nblock
   buf = iend(ib)-ista(ib)+1
 
-  do iloc = 1, buf
-    ic = iloc+ista(ib)-1
-    x(iloc) = umesh%mesh%centre(ic,1,1)%x
-    y(iloc) = umesh%mesh%centre(ic,1,1)%y
-    z(iloc) = umesh%mesh%centre(ic,1,1)%z
-  enddo
-  call fct_env_set_realarray(env, "x", x(1:buf))
-  call fct_env_set_realarray(env, "y", y(1:buf))
-  call fct_env_set_realarray(env, "z", z(1:buf))
+  if (init%ns%xyz_depend) then
+    do iloc = 1, buf
+      ic = iloc+ista(ib)-1
+      x(iloc) = umesh%mesh%centre(ic,1,1)%x
+      y(iloc) = umesh%mesh%centre(ic,1,1)%y
+      z(iloc) = umesh%mesh%centre(ic,1,1)%z
+    enddo
+    call fct_env_set_realarray(env, "x", x(1:buf))
+    call fct_env_set_realarray(env, "y", y(1:buf))
+    call fct_env_set_realarray(env, "z", z(1:buf))
+  endif
 
   call fctset_compute_neededenv(defsolver%fctenv, env)
 
@@ -163,11 +198,8 @@ do ib = 1, nblock
   ! --- computation of velocity magnitude if needed ---  
   if (.not.init%ns%is_velocity) then   ! Mach number is defined
     vel(1:buf) = sqrt((gam*pstat(1:buf)/density(1:buf)))*mach(1:buf)
-    !print*,'ps :',sum(pstat(1:buf))/buf
-    !print*,'rho:',sum(density(1:buf))/buf
-    !print*,'vel:',sum(vel(1:buf))/buf
-    !print*,'m  :',sum(mach(1:buf))/buf
   endif
+
   ! -- velocity components if not already defined --
   if (.not.init%ns%is_vcomponent) then
     velocity(1:buf) = (vel(1:buf)/abs(velocity(1:buf)))*velocity(1:buf)

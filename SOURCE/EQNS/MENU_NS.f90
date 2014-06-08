@@ -69,6 +69,7 @@ endtype st_boco_ns
 !------------------------------------------------------------------------------!
 type st_init_ns
   ! multiple ways to define a state
+  logical :: xyz_depend
   logical :: is_density, is_pstat, is_tstat, is_velocity, is_vcomponent
   type(st_fct_node) :: density, pstat, ptot, tstat, ttot, mach, velocity    ! FCT functions
   type(st_fct_node) :: dir_x, dir_y, dir_z, vx, vy, vz                      ! FCT functions

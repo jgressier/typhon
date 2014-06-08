@@ -6,8 +6,13 @@
 !------------------------------------------------------------------------------!
 !> @ingroup FCT
 !> @brief FCT containers specific definition and evaluation
-!> unary operators: functions
-!> binary operators
+!> available unary operators:
+!> - inv, sqr, sqrt, exp, ln, log
+!> - sin, cos, tan, asin, acos, atan
+!> - sinh, cosh, tanh, asinh, acosh, atanh
+!> - erf, erfc, sign, step, ramp
+!> available binary operators:
+!> - "+", "-", "*", "/", "^"
 !------------------------------------------------------------------------------!
 module FCT_MATH
 

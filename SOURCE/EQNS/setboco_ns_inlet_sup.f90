@@ -55,6 +55,14 @@ select case(bccon%bccon_mode)
 ! --- State BC --------------------------------------
 case(bccon_cell_state, bccon_face_state)
 
+call fctset_initdependency(defsolver%fctenv)
+call fctset_checkdependency(defsolver%fctenv, boco_ns%ptot)
+call fctset_checkdependency(defsolver%fctenv, boco_ns%ttot)
+call fctset_checkdependency(defsolver%fctenv, boco_ns%mach)
+call fctset_checkdependency(defsolver%fctenv, boco_ns%dir_x)
+call fctset_checkdependency(defsolver%fctenv, boco_ns%dir_y)
+call fctset_checkdependency(defsolver%fctenv, boco_ns%dir_z)
+
 !$OMP PARALLEL & 
 !$OMP private(ifb, if, ic, ib, env, x, y, z, pi, mach, ti, buf, nspri, pos, dir, iloc, ighost) &
 !$OMP shared(ista, iend, nblock, curtime) 

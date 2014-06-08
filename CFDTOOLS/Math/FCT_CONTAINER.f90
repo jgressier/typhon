@@ -109,7 +109,8 @@ type(st_fct_container), intent(out) :: dest
 
   select case(source%type)
   case(cont_real)
-    dest%r = source%r
+    dest%r    = source%r
+    dest%size = source%size  ! must be 0
   case(cont_vect)
     dest%size = source%size
     allocate(dest%r_t(dest%size))

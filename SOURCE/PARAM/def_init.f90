@@ -94,7 +94,7 @@ do i = 1, n_init
     case(solVORTEX)
       call def_init_vortex(pcour, defsolver%init(i)%vortex)
     case(solNS)
-      call def_init_ns(pcour, defsolver%init(i)%ns)
+      call def_init_ns(pcour, defsolver, defsolver%init(i)%ns)
     case default
       call error_stop("Internal error (def_init): unknown solver")
     endselect

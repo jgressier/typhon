@@ -1,12 +1,5 @@
 !------------------------------------------------------------------------------!
-! Procedure : def_boco_ns                 Author : J. Gressier
-!                                         Date   : Novembre 2003
-! Function                                Modif  : (cf historique)
-!   Processing of main menu file parameters
-!   Main project parameters
-!
-! Faults/Limitations/Varia :
-!
+!> @brief definition of NS boundary conditions
 !------------------------------------------------------------------------------!
 subroutine def_boco_ns(block, type, defsolver, boco, unif)
 
@@ -150,12 +143,13 @@ boco%xyz_depend = boco%xyz_depend .or. &
              fctset_needed_dependency(defsolver%fctenv, "z")
 
 contains
-
+!------------------------------------------------------------------------------!
 subroutine parsefct(key, fct)
 implicit none
 type(st_fct_node) :: fct
 character(len=*)  :: key
 character(len=dimrpmlig)   :: strfct
+
   call rpmgetkeyvalstr(pblock, key, strfct)
   call convert_to_funct(strfct, fct, info)  
   if (info /= 0) call error_stop("menu definition: problem when parsing "//key//" (NS BC): "//trim(strfct)) 

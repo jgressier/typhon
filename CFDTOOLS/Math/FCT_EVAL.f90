@@ -169,14 +169,12 @@ type(st_fct_node), pointer :: p
 select case(fct%type_node)
 
 case(node_cst)
-  !print*,'node eval',fct%container%type, fct%container%size, fct%container%r
   call copy_fct_container(fct%container, res)
 
 case(node_var)
   ! should be evaluated in ENV
   call fct_env_seek_name(env, fct%container%name, p)
   if (associated(p)) then
-    !print*,'eval copy env',p%container%type, p%container%size
     call copy_fct_container(p%container, res)
   else 
     call set_fct_error(-1, "variable "//trim(fct%container%name)//" not found in environment")
