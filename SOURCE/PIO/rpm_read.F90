@@ -215,9 +215,8 @@ endsubroutine readrpmdata
 !   Processing a line of RPM file
 !   . Remove leading space in string
 !   . Remove string starting with ! or # (rpmcommentchar)
+!   . change tabs to space
 !   . Change to uppercase except for string between "quotes"
-!
-! Defaults/Limitations/Misc :
 !
 !------------------------------------------------------------------------------!
 function trait_rpmlig(strin) result(strout)
@@ -236,16 +235,18 @@ function trait_rpmlig(strin) result(strout)
 
 ! -- Body --
 
+  ! change tabs to space
+  s = chg_char(strin, char(9), ' ')
   ! Search for comment starting characters
-  ipos = scan(strin, rpmcommentchar)
+  ipos = scan(s, rpmcommentchar)
   if (ipos >= 1) then
     ! remove comments and change to uppercase
-    s = rpmuppercase(strin(1:ipos-1))
+    s = rpmuppercase(s(1:ipos-1))
     ! remove leading space
     s = adjustl(s)
   else
     ! change to uppercase and remove leading space
-    s = adjustl(rpmuppercase(strin))
+    s = adjustl(rpmuppercase(s))
   endif
   strout = s
 
