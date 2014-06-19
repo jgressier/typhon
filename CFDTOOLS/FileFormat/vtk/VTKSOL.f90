@@ -97,7 +97,7 @@ integer 	  :: isim 	   ! number of current simulation
 integer 	  :: nsim 	   ! Number of simulations
 ! -- OUTPUTS --
 ! -- Private Data --
-integer            :: i, q, nelem, ielem
+integer            :: i, q, nelem, ielem, ic
 integer            :: npaq, dimpaq, dimpaq1, dim, ista, iend
 real(8)            :: value(vtkbufsize)
 
@@ -114,7 +114,7 @@ case default
   call cfd_error("Internal error (writevtk_scal): unknown output format parameter")
 endselect
 
-do ielem = 1, umesh%cellvtex%nsection
+do ielem = 1, umesh%cellvtex%nsection   ! loop on element type
 
   nelem = umesh%cellvtex%elem(ielem)%nelem
   call calc_buffer(nelem, vtkbufsize, npaq, dimpaq, dimpaq1)
@@ -122,16 +122,18 @@ do ielem = 1, umesh%cellvtex%nsection
   ista = 1
   dim  = dimpaq1
 
-  do q = 1, npaq
+  do q = 1, npaq       ! loop on elements packet
     iend = ista-1+dim
 
-    value(1:dim) = scafld%scal(umesh%cellvtex%elem(ielem)%ielem(ista:iend))   ! indirection & real*8
+    do ic = ista, iend
+      value(ic-ista+1) = scafld%scal(isim+nsim*(umesh%cellvtex%elem(ielem)%ielem(ic)-1))   ! indirection & real*8
+    enddo
 
     select case(defvtk%type)
     case(vtk_asc)
       write(defvtk%iunit,'(1P,E17.8E3)') value(1:dim)
     case(vtk_bin)
-      write(defvtk%iunit) value(dim*isim:dim*(isim+1))
+      write(defvtk%iunit) value(1:dim)
     case default
       call cfd_error("Internal error (writevtk_vect): unknown output format parameter")
     endselect
@@ -192,13 +194,13 @@ do ielem = 1, umesh%cellvtex%nsection
   do q = 1, npaq
     iend = ista-1+dim
     do i = 1, dim
-      value(1:3, i) = tab(vecfld%vect(umesh%cellvtex%elem(ielem)%ielem(ista-1+i)))   ! indirection & real*8
+      value(1:3, i) = tab(vecfld%vect(isim+nsim*(umesh%cellvtex%elem(ielem)%ielem(ista-1+i)-1)))   ! indirection & real*8
     enddo
     select case(defvtk%type)
     case(vtk_asc)
       write(defvtk%iunit, '(:,1P,3E17.8E3)') value(1:3, 1:dim)
     case(vtk_bin)
-      write(defvtk%iunit) value(1:3, dim*isim:dim*(isim+1))
+      write(defvtk%iunit) value(1:3, 1:dim)
     case default
       call cfd_error("Internal error (writevtk_vect): unknown output format parameter")
     endselect
