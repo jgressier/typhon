@@ -32,6 +32,12 @@ function usage() {
   exit $1
 }
 
+function error() {
+  value=$1 ; shift
+  test ${#} -gt 0 && printf "%s\n" "$@"
+  usage $value
+}
+
 echo "$bar"
 echo "TYPHON non regression check"
 echo "$bar"
@@ -78,22 +84,25 @@ while [ ${#} -gt 0 ] ; do
   case "$1" in
     -h) usage 0 ;;
     -d|--diff-cmd) shift
-        if [ $# -gt 0 ] ; then
-          diffcmd=$1
-        else
-          echo "ERROR: no diff command:"
-          usage 1
-        fi ;;
+        test $# -eq 0 && error 1 "ERROR: no diff command:"
+        diffcmd=$1
+        : ;;
     -l) list=1 ;;
     -k) keeptmpdir=1 ;;
     -exe) shift
-        if [ $# -gt 0 ] ; then
-          typhonexe=$1
-          echo "force run with $typhonexe"
-        else
-          echo "ERROR: no typhon executable:"
-          usage 1
-        fi ;;
+        test $# -eq 0 && error 1 "ERROR: no typhon executable:"
+        typhonexe=$1
+        echo "force run with $typhonexe"
+        test ! -e "$typhonexe" && error 1 "ERROR: $typhonexe does not exist"
+        test ! -f "$typhonexe" && error 1 "ERROR: $typhonexe is not a regular file"
+        test ! -x "$typhonexe" && error 1 "ERROR: $typhonexe is not an executable file"
+        savedir=$(pwd)
+        typhondir=$(dirname "$typhonexe")
+        typhonexe=$(basename "$typhonexe")
+        cd "$typhondir"
+        typhonexe="$(pwd)/${typhonexe}"
+        cd "$savedir"
+        : ;;
     --) shift ; break ;;
     *)  break ;;
   esac
@@ -114,17 +123,29 @@ fi
 # --- initialization ---
 #
 cd $HOMEDIR
-. bin/shconf.sh
+#. bin/shconf.sh
+#
+difflist="ndiff diff"
+for diffcom in $difflist ; do
+  DIFF=$(which $diffcom) 2> /dev/null
+  if [ -n "$DIFF" ] ; then
+    break
+  fi
+done
+case $DIFF in
+  */ndiff) export DIFF="$DIFF -relerr 1.E-12" ;;
+  */diff)  export DIFF="$DIFF -bB" ;;
+  *)       echo "Not found: DIFF=$DIFF" ; export DIFF= ;;
+esac
+#
 if [ -n "$diffcmd" ] ; then
   {          cat $0 ;} | $diffcmd - $0 >/dev/null 2>&1 ; r=$?
   { echo a ; cat $0 ;} | $diffcmd - $0 >/dev/null 2>&1 ; r=$?$r
-  if [ $r != 10 ] ; then
-    echo "ERROR: check diff command:"
-    echo "$diffcmd"
-    usage 1
-  fi
+  test $r != 10 && error 1 "ERROR: check diff command: $diffcmd"
   export DIFF="$diffcmd"
 fi
+#
+test -z "$DIFF" && error 1 "ERROR: No diff command found"
 #
 export DIFFCOM=$DIFF
 export LD_LIBRARY_PATH=$EXEDIR/Lib:$LD_LIBRARY_PATH
