@@ -132,8 +132,8 @@ case default
 endselect
 
 call writevtk_ustmesh(defvtk, umesh)
-
-if (.not.onlymesh) call writevtk_sol(defvtk, umesh, gfield)
+! A adapter avec le nombre de simulations
+if (.not.onlymesh) call writevtk_sol(defvtk, umesh, gfield,1,1)
 
 !------------------------------
 ! close file and end program

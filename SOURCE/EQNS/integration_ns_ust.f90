@@ -141,7 +141,7 @@ do ib = 1, nblock
 
       ! -- redirection of states (cell to face)
       call distrib_field(field%etatprim, umesh%facecell, ista(ib), iend(ib), &
-                         cQL, cQR, 1)
+                         cQL, cQR, 1, defsolver%nsim)
       ! pointers links to cell values
       QL%density  => cQL%tabscal(1)%scal(1:buf)
       QR%density  => cQR%tabscal(1)%scal(1:buf)
@@ -151,7 +151,7 @@ do ib = 1, nblock
       QR%velocity => cQR%tabvect(1)%vect(1:buf)
       ! -- redirection of gradients (cell to face)
       call distrib_field(field%gradient, umesh%facecell, ista(ib), iend(ib), &
-                       gradL, gradR, 1)
+                       gradL, gradR, 1, defsolver%nsim)
 
       call calc_flux_viscous_cell(defsolver, defspat,                     &
                            buf, ista(ib), umesh%mesh%iface(ista(ib):iend(ib), 1, 1), &

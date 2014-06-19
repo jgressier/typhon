@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine calc_varprim_ns(defns, field)
+subroutine calc_varprim_ns(defns, field, nsim)
 
 use OUTPUT
 use VARCOM
@@ -19,7 +19,7 @@ implicit none
 
 ! -- Inputs --
 type(mnu_ns) :: defns                ! parameters of the solver
-
+integer      :: nsim 		     ! Number of simulations
 ! -- Inputs/Outputs --
 type(st_field)   :: field            ! prim/cons field
 
@@ -31,7 +31,7 @@ real(krp) :: g1
 type(v3d) :: vel
 integer               :: buf, nblock      ! buffer size 
 integer, pointer      :: ista(:), iend(:) ! starting and ending index
-
+integer 	      :: isim 
 ! -- Body --
 
 ncell = field%ncell    ! compute on all cells (ghost cells too even if not necessary)
@@ -39,21 +39,22 @@ g1    = defns%properties(1)%gamma - 1._krp
 
 call new_buf_index(ncell, cell_buffer, nblock, ista, iend, nthread)
 
+do isim= 1, nsim 	! loop on simulation number
 !$OMP PARALLEL DO private(rho, vel, ec, buf, i) shared(field, ista, iend, nblock)
 do ib = 1, nblock
   buf = iend(ib)-ista(ib)+1
 
   do i = ista(ib), iend(ib)
-    rho = field%etatcons%tabscal(1)%scal(i)
-    vel = field%etatcons%tabvect(1)%vect(i) / rho
+    rho = field%etatcons%tabscal(1)%scal(nsim*(i-1)+isim)
+    vel = field%etatcons%tabvect(1)%vect(nsim*(i-1)+isim) / rho
     ec  = .5_krp*rho*sqrabs(vel)
-    field%etatprim%tabscal(1)%scal(i) = rho
-    field%etatprim%tabscal(2)%scal(i) = g1*(field%etatcons%tabscal(2)%scal(i) - ec)
-    field%etatprim%tabvect(1)%vect(i) = vel
+    field%etatprim%tabscal(1)%scal(nsim*(i-1)+isim) = rho
+    field%etatprim%tabscal(2)%scal(nsim*(i-1)+isim) = g1*(field%etatcons%tabscal(2)%scal(i) - ec)
+    field%etatprim%tabvect(1)%vect(nsim*(i-1)+isim) = vel
   enddo
 enddo
 !$OMP END PARALLEL DO
-
+enddo 
 deallocate(ista, iend)
 
 !-----------------------------

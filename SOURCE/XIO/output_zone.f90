@@ -25,10 +25,12 @@ type(st_info)                :: winfo     ! world info
 
 ! -- Internal variables --
 type(st_grid), pointer :: pgrid
-
+integer  	       :: isim, nsim
+character(len=longname):: namefile
+character(len=shortname):: int_str
 ! -- BODY --
 
-
+nsim = zone%defsolver%nsim
 !------------------------------------------------------------------
 ! prepare DATA to save
 !------------------------------------------------------------------
@@ -105,12 +107,16 @@ select case(defio%format)
 case(fmt_TECPLOT)
   ! already saved
 case(fmt_CGNS, fmt_CGNS_linked, fmt_VTK, fmt_VTKBIN, fmt_TYPHON)
-
+namefile = defio%filename
+do isim = 1, nsim 
+  write (int_str,*) isim
+  defio%filename = trim(namefile) // "sim" // adjustl(int_str)
   call outputzone_open   (defio, zone)
   call outputzone_ustmesh(defio, zone)
-  call outputzone_sol    (defio, zone)
+  call outputzone_sol    (defio, zone, isim, nsim)
   call outputzone_close  (defio, zone)
-
+enddo
+defio%filename = trim(namefile)
 case default
   call error_stop("Internal error (output_zone): unknown output format parameter")
 endselect

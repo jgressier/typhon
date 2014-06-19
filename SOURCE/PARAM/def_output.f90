@@ -87,7 +87,6 @@ do io = 1, nkey   ! parse only BLOCK definition
   call print_info(10,"  . file"//strofr(io,3)//": "//trim(str)//" format")
 
   ! -- filename or basename
-
   call rpmgetkeyvalstr(pcour, "FILE", str)
   select case(world%output(io)%format)
   case(fmt_TYPHON)

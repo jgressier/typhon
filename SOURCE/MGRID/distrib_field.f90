@@ -7,7 +7,7 @@
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-subroutine distrib_field(field, facecell, ideb, ifin, fieldL, fieldR, istart)
+subroutine distrib_field(field, facecell, ideb, ifin, fieldL, fieldR, istart, nsim)
 
 use TYPHMAKE
 use OUTPUT
@@ -22,30 +22,31 @@ type(st_genericfield) :: field      ! cell field
 type(st_connect)      :: facecell   ! face to cell connectivity
 integer               :: ideb, ifin ! connectivity index for distribution
 integer               :: istart     ! starting index for fieldL and fieldR
-
+integer		      :: nsim       ! Number of simulations
 ! -- OUTPUTS --
 type(st_genericfield) :: fieldL, fieldR        ! left and right fields
 
 ! -- Internal Variables --
-integer :: if, k, icl, icr, iv
+integer :: if, k, icl, icr, iv, isim
 
 ! -- BODY --
-
-do if = ideb, ifin
-  k   = istart-ideb + if
-  icl = facecell%fils(if,1)
-  icr = facecell%fils(if,2)
-  do iv = 1, field%nscal
-    fieldL%tabscal(iv)%scal(k) = field%tabscal(iv)%scal(icl)
-    fieldR%tabscal(iv)%scal(k) = field%tabscal(iv)%scal(icr)
-  enddo
-  do iv = 1, field%nvect
-    fieldL%tabvect(iv)%vect(k) = field%tabvect(iv)%vect(icl)
-    fieldR%tabvect(iv)%vect(k) = field%tabvect(iv)%vect(icr)
-  enddo
-  do iv = 1, field%ntens
-    fieldL%tabtens(iv)%tens(k) = field%tabtens(iv)%tens(icl)
-    fieldR%tabtens(iv)%tens(k) = field%tabtens(iv)%tens(icr)
+do isim = 1, nsim ! loop on simulations 
+  do if = ideb, ifin
+    k   = istart-ideb + if
+    icl = facecell%fils(if,1)
+    icr = facecell%fils(if,2)
+    do iv = 1, field%nscal
+      fieldL%tabscal(iv)%scal(nsim*(k-1)+isim) = field%tabscal(iv)%scal(nsim*(icl-1)+isim)
+      fieldR%tabscal(iv)%scal(nsim*(k-1)+isim) = field%tabscal(iv)%scal(nsim*(icr-1)+isim)
+    enddo
+    do iv = 1, field%nvect
+      fieldL%tabvect(iv)%vect(nsim*(k-1)+isim) = field%tabvect(iv)%vect(nsim*(icl-1)+isim)
+      fieldR%tabvect(iv)%vect(nsim*(k-1)+isim) = field%tabvect(iv)%vect(nsim*(icr-1)+isim)
+    enddo
+    do iv = 1, field%ntens
+      fieldL%tabtens(iv)%tens(nsim*(k-1)+isim) = field%tabtens(iv)%tens(nsim*(icl-1)+isim)
+      fieldR%tabtens(iv)%tens(nsim*(k-1)+isim) = field%tabtens(iv)%tens(nsim*(icr-1)+isim)
+    enddo
   enddo
 enddo
 

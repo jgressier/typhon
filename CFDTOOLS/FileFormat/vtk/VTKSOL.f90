@@ -30,12 +30,14 @@ contains
 !-----------------------------------------------------------------------------!
 ! writevtk_sol: Write solution structure to legacy VTK file
 !------------------------------------------------------------------------------!
-subroutine writevtk_sol(defvtk, umesh, gfield)
+subroutine writevtk_sol(defvtk, umesh, gfield, isim, nsim)
 implicit none
 ! -- INPUTS --
 type(st_defvtk),       intent(in) :: defvtk        ! output parameter
 type(st_ustmesh),      intent(in) :: umesh         ! unstructured mesh
 type(st_genericfield), intent(in) :: gfield
+integer 	  :: isim 	   ! number of current simulation
+integer 	  :: nsim 	   ! Number of simulations
 ! -- OUTPUTS --
 ! -- Internal variables --
 integer   :: i, ncellint, isca, ivec
@@ -63,12 +65,12 @@ endselect
 
 do isca = 1, gfield%nscal
   qname = quantity_name(gfield%tabscal(isca)%quantity_id)
-  call writevtk_scal(defvtk, umesh, trim(qname),  gfield%tabscal(isca))
+  call writevtk_scal(defvtk, umesh, trim(qname),  gfield%tabscal(isca), isim, nsim)
 enddo
 
 do ivec = 1, gfield%nvect
   qname = quantity_name(gfield%tabvect(ivec)%quantity_id)
-  call writevtk_vect(defvtk, umesh, trim(qname),  gfield%tabvect(ivec))
+  call writevtk_vect(defvtk, umesh, trim(qname),  gfield%tabvect(ivec), isim, nsim)
 enddo
 
 endsubroutine writevtk_sol
@@ -84,13 +86,15 @@ endsubroutine writevtk_sol
 !-----------------------------------------------------------------------------!
 ! writevtk_scal: Write scalar field to legacy VTK format (ASCII or BINARY)
 !------------------------------------------------------------------------------!
-subroutine writevtk_scal(defvtk, umesh, name, scafld)
+subroutine writevtk_scal(defvtk, umesh, name, scafld, isim, nsim)
 implicit none
 ! -- INPUTS --
 type(st_defvtk)   :: defvtk        ! VTK output parameters
 type(st_ustmesh)  :: umesh         ! unstructured mesh
 type(st_scafield) :: scafld        ! scalar field
 character(len=*)  :: name          ! variable name
+integer 	  :: isim 	   ! number of current simulation
+integer 	  :: nsim 	   ! Number of simulations
 ! -- OUTPUTS --
 ! -- Private Data --
 integer            :: i, q, nelem, ielem
@@ -127,7 +131,7 @@ do ielem = 1, umesh%cellvtex%nsection
     case(vtk_asc)
       write(defvtk%iunit,'(1P,E17.8E3)') value(1:dim)
     case(vtk_bin)
-      write(defvtk%iunit) value(1:dim)
+      write(defvtk%iunit) value(dim*isim:dim*(isim+1))
     case default
       call cfd_error("Internal error (writevtk_vect): unknown output format parameter")
     endselect
@@ -151,13 +155,16 @@ endsubroutine writevtk_scal
 !-----------------------------------------------------------------------------!
 ! writevtk_vect: Write vector field to legacy VTK format (ASCII or BINARY)
 !------------------------------------------------------------------------------!
-subroutine writevtk_vect(defvtk, umesh, name, vecfld)
+subroutine writevtk_vect(defvtk, umesh, name, vecfld, isim, nsim)
 implicit none
 ! -- INPUTS --
 type(st_defvtk)   :: defvtk        ! VTK output parameter
 type(st_ustmesh)  :: umesh         ! unstructured mesh
 type(st_vecfield) :: vecfld        ! VECTOR field
 character(len=*)  :: name          ! variable name
+integer 	  :: isim 	   ! number of current simulation
+integer 	  :: nsim 	   ! Number of simulations
+
 ! -- Private Data --
 integer   :: i, ielem, q, nelem
 integer   :: npaq, dimpaq, dimpaq1, dim, ista, iend
@@ -191,7 +198,7 @@ do ielem = 1, umesh%cellvtex%nsection
     case(vtk_asc)
       write(defvtk%iunit, '(:,1P,3E17.8E3)') value(1:3, 1:dim)
     case(vtk_bin)
-      write(defvtk%iunit) value(1:3, 1:dim)
+      write(defvtk%iunit) value(1:3, dim*isim:dim*(isim+1))
     case default
       call cfd_error("Internal error (writevtk_vect): unknown output format parameter")
     endselect

@@ -54,7 +54,7 @@ do ib = 1, nblock
     ! -- no extrapolation, only direct copy of cell values --
 
     call distrib_field(field%etatprim, grid%umesh%facecell, ista(ib), iend(ib), &
-                       field%cell_l, field%cell_r, ista(ib))
+                       field%cell_l, field%cell_r, ista(ib), defsolver%nsim)
   
  
   !----------------------------------------------------------------------
