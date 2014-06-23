@@ -225,6 +225,7 @@ case(solNS)
     if (samestring(str,"3KRIS2"))  defspat%svm%sv_method = svm_3kris2
     if (samestring(str,"3Q3X3"))   defspat%svm%sv_method = svm_3q3x3b6
     if (samestring(str,"3Q3X3B6")) defspat%svm%sv_method = svm_3q3x3b6
+    if (samestring(str,"3Q3X3B9")) defspat%svm%sv_method = svm_3q3x3b9
     if (samestring(str,"4"))       defspat%svm%sv_method = svm_4wang
     if (samestring(str,"4WANG"))   defspat%svm%sv_method = svm_4wang
     if (samestring(str,"4KRIS"))   defspat%svm%sv_method = svm_4KRIS
@@ -254,6 +255,9 @@ case(solNS)
       defmesh%defsplit%splitmesh = split_svm3kris2
     case(svm_3q3x3b6)
       call print_info(7,"    third order, splitted into 3x3 quads (6 polynomials)")
+      defmesh%defsplit%splitmesh    = split_quad3x3lg
+    case(svm_3q3x3b9)
+      call print_info(7,"    third order, splitted into 3x3 quads (9 polynomials)")
       defmesh%defsplit%splitmesh    = split_quad3x3lg
     case(svm_4wang)
       call print_info(7,"    fourth order, splitted into 9 quads and 1 tri (defined as hexa) : original partition by Wang")
@@ -355,4 +359,5 @@ endsubroutine def_spat
 ! jan  2006 : basic parameter routines moved to MENU_NUM
 ! apr  2007 : add SVM method parameters
 ! Feb  2013 : kinetic/beta evaluations for hllc and hlle
+! June 2014 : added base 3x3b9
 !------------------------------------------------------------------------------!

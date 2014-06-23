@@ -6,6 +6,10 @@
 !   (compute residuals)
 !
 !------------------------------------------------------------------------------!
+
+include 'filter_svm_2x2b3.f90'
+include 'filter_svm_3x3b6.f90'
+
 subroutine update_field(info, defsolver, gridlist)
 
 use TYPHMAKE
@@ -26,7 +30,7 @@ type(st_gridlist) :: gridlist        ! list of grids
 ! -- Private Data --
 type(st_field), pointer :: pfield
 type(st_grid),  pointer :: pgrid
-integer                 :: nc, ip, ic
+integer                 :: nc, ip, ic, ncv, isv, nsv
 
 ! -- BODY --
 
@@ -36,6 +40,19 @@ do while (associated(pgrid))
   pfield => pgrid%info%field_loc
 
   call xeqxpy(pfield%etatcons, pfield%residu)
+
+
+  if (defsolver%defspat%svm%sv_method==svm_2q2x2b3) then
+     nc           = pgrid%umesh%ncell_int
+     ncv          = defsolver%defspat%svm%ncv
+     nsv          = nc/ncv
+     call filter_svm_2x2b3(pfield%etatcons,nsv,ncv)
+  elseif (defsolver%defspat%svm%sv_method==svm_3q3x3b6) then
+     nc           = pgrid%umesh%ncell_int
+     ncv          = defsolver%defspat%svm%ncv
+     nsv          = nc/ncv
+     call filter_svm_3x3b6(pfield%etatcons,nsv,ncv)   
+  endif
 
   ! -- Compute residuals if steady --
 
@@ -79,4 +96,5 @@ endsubroutine update_field
 ! sept 2003 : Residual computation
 ! oct  2005 : merge residual for all procs
 ! June 2009 : loop on grids, normalize residuals
+! June 2014 : add filter for CoreSVM
 !------------------------------------------------------------------------------!
