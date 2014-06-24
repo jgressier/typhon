@@ -9,7 +9,7 @@
 !     variables primitives
 !
 !------------------------------------------------------------------------------!
-subroutine calcboco_ust_sym(curtime, defboco, defale, defmrf, ustboco, umesh, bccon)
+subroutine calcboco_ust_sym(curtime, defboco, defale, defmrf, ustboco, umesh, bccon, nsim)
 
 use TYPHMAKE
 use OUTPUT
@@ -30,6 +30,7 @@ type(mnu_mrf)    :: defmrf           ! MRF parametres
 type(st_ustboco) :: ustboco          ! lieu d'application des conditions aux limites
 type(st_ustmesh) :: umesh            ! unstructured mesh
 real(krp)        :: curtime          ! current time
+integer 	 :: nsim	     ! Number of simulation
 
 ! -- Inputs/Outputs --
 type(st_bccon) :: bccon
@@ -40,6 +41,7 @@ integer    :: icell, ighost    ! index de cellule interieure, et de cellule fict
 type(v3d)  :: fn, dfc, dgc, vc
 real(krp)  :: rap 
 type(v3d)  :: wallvelocity
+integer    :: isim	       ! Current simulation
 
 ! -- BODY --
 
@@ -49,9 +51,13 @@ do ifb = 1, ustboco%nface
   ighost = bccon%irecv(ifb)
   fn     = umesh%mesh%iface(if,1,1)%normale                               ! normale face
   
+
   do ip = 1, bccon%fsend%nscal
-    bccon%frecv%tabscal(ip)%scal(ighost) = bccon%fsend%tabscal(ip)%scal(icell) 
+    do isim = 1, nsim
+      bccon%frecv%tabscal(ip)%scal(nsim*(ighost-1)+isim) = bccon%fsend%tabscal(ip)%scal(icell) 
+    enddo
   enddo
+
   
   ! assume symmetric positions of nodes
   !dfc = umesh%mesh%iface(if,1,1)%centre - umesh%mesh%centre(icell,1,1) ! dist ctr. face - cell
@@ -64,16 +70,20 @@ do ifb = 1, ustboco%nface
   !! ip = 1 ! DEV: only velocity for the moment, will have to change in the future!
   do ip = 1, bccon%fsend%nvect
     vc = bccon%fsend%tabvect(ip)%vect(icell)
-    if (bccon%fsend%tabvect(ip)%quantity_id == qv_velocity) then    
-      bccon%frecv%tabvect(ip)%vect(ighost) = vc - (2._krp*((vc-wallvelocity).scal.fn))*fn
-    else
-      bccon%frecv%tabvect(ip)%vect(ighost) = vc - (2._krp*(vc.scal.fn))*fn
-    endif
+    do isim = 1, nsim
+      if (bccon%fsend%tabvect(ip)%quantity_id == qv_velocity) then    
+	bccon%frecv%tabvect(ip)%vect(nsim*(ighost-1)+isim) = vc - (2._krp*((vc-wallvelocity).scal.fn))*fn
+      else
+	bccon%frecv%tabvect(ip)%vect(nsim*(ighost-1)+isim) = vc - (2._krp*(vc.scal.fn))*fn
+      endif
+    enddo
   enddo
 
   do ip = 1, bccon%fsend%ntens
-    bccon%frecv%tabtens(ip)%tens(ighost) = bccon%fsend%tabtens(ip)%tens(icell)
-    call t3d_sym(bccon%frecv%tabtens(ip)%tens(ighost), fn)
+    do isim =1, nsim
+      bccon%frecv%tabtens(ip)%tens(nsim*(ighost-1)+isim) = bccon%fsend%tabtens(ip)%tens(icell)
+      call t3d_sym(bccon%frecv%tabtens(ip)%tens(nsim*(ighost-1)+isim), fn)
+    enddo
   enddo
 
 enddo

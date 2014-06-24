@@ -70,7 +70,7 @@ do ib = 1, umesh%nboco
 
   case(bc_geo_sym)
     call calcboco_ust_sym(curtime, defsolver%boco(idef), defsolver%defale, defsolver%defmrf, &
-           umesh%boco(ib), umesh, bccon)
+           umesh%boco(ib), umesh, bccon, defsolver%nsim)
     
   case(bc_geo_period)
     call error_stop("not expected to manage 'bc_geo_period' in this routine")

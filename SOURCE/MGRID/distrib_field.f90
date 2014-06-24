@@ -30,25 +30,30 @@ type(st_genericfield) :: fieldL, fieldR        ! left and right fields
 integer :: if, k, icl, icr, iv, isim
 
 ! -- BODY --
-do isim = 1, nsim ! loop on simulations 
   do if = ideb, ifin
     k   = istart-ideb + if
     icl = facecell%fils(if,1)
     icr = facecell%fils(if,2)
     do iv = 1, field%nscal
-      fieldL%tabscal(iv)%scal(nsim*(k-1)+isim) = field%tabscal(iv)%scal(nsim*(icl-1)+isim)
-      fieldR%tabscal(iv)%scal(nsim*(k-1)+isim) = field%tabscal(iv)%scal(nsim*(icr-1)+isim)
+      do isim = 1, nsim
+	fieldL%tabscal(iv)%scal(nsim*(k-1)+isim) = field%tabscal(iv)%scal(nsim*(icl-1)+isim)
+	fieldR%tabscal(iv)%scal(nsim*(k-1)+isim) = field%tabscal(iv)%scal(nsim*(icr-1)+isim)
+      enddo 
     enddo
     do iv = 1, field%nvect
-      fieldL%tabvect(iv)%vect(nsim*(k-1)+isim) = field%tabvect(iv)%vect(nsim*(icl-1)+isim)
-      fieldR%tabvect(iv)%vect(nsim*(k-1)+isim) = field%tabvect(iv)%vect(nsim*(icr-1)+isim)
+      do isim = 1, nsim
+	fieldL%tabvect(iv)%vect(nsim*(k-1)+isim) = field%tabvect(iv)%vect(nsim*(icl-1)+isim)
+	fieldR%tabvect(iv)%vect(nsim*(k-1)+isim) = field%tabvect(iv)%vect(nsim*(icr-1)+isim)
+      enddo
     enddo
+  
     do iv = 1, field%ntens
-      fieldL%tabtens(iv)%tens(nsim*(k-1)+isim) = field%tabtens(iv)%tens(nsim*(icl-1)+isim)
-      fieldR%tabtens(iv)%tens(nsim*(k-1)+isim) = field%tabtens(iv)%tens(nsim*(icr-1)+isim)
+      do isim = 1, nsim
+	fieldL%tabtens(iv)%tens(nsim*(k-1)+isim) = field%tabtens(iv)%tens(nsim*(icl-1)+isim)
+	fieldR%tabtens(iv)%tens(nsim*(k-1)+isim) = field%tabtens(iv)%tens(nsim*(icr-1)+isim)
+      enddo
     enddo
   enddo
-enddo
 
 !-----------------------------
 endsubroutine distrib_field
