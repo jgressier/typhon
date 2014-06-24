@@ -30,6 +30,8 @@ character(len=100)   :: str_w   ! nom fantome
 
 ! -- BODY --
 
+#ifdef CGNS
+
 call cfd_print("- reading CGNS nodes :"//trim(strof(mesh%idim))//"x"//trim(strof(mesh%jdim))//"x"//trim(strof(mesh%kdim)))
 
 select case(cgns_size)
@@ -134,6 +136,11 @@ case(8)
 case default
   call cfd_error("(CGNS) internal error (definition of CGNS real size)")
 endselect
+
+#else
+  call cfd_error("CGNS has not been activated during compilation")
+#endif
+
 
 !------------------------------
 endsubroutine readcgnsvtex

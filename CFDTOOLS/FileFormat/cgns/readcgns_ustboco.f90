@@ -21,6 +21,8 @@ integer            :: ib, iz, ibc  ! numero de base, zone et condition aux limit
 ! -- OUTPUTS --
 type(st_ustboco) :: boco         ! structure "condition aux limites"
 
+#ifdef CGNS
+
 ! -- Internal Variables --                                        
 integer             :: ier         ! code erreur
 integer             :: bctyp       ! type   de condition aux limites
@@ -108,6 +110,11 @@ endselect
 
 call cfd_print("    type "//trim(BCTypeName(bctyp))//", "//strofr(npts,6)//" "//&
                trim(str_location(boco%ilocation))//" tags")
+
+#else
+  call cfd_error("CGNS has not been activated during compilation")
+#endif
+
 
 !------------------------------
 endsubroutine readcgns_ustboco

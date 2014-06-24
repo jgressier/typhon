@@ -10,10 +10,9 @@ subroutine writecgns_ustmesh(cgnsunit, ibase, izone, umesh)
 use MESHPREC
 use IOCFD
 use USTMESH
+use CGNS_STRUCT
 
 implicit none
-
-include 'cgnslib_f.h'
 
 ! -- INPUTS --
 integer               :: cgnsunit           ! unit number for cgns file
@@ -29,6 +28,8 @@ real(8),    allocatable  :: v(:)
 integer(4), allocatable  :: icell(:,:)  ! dynamic array for transpose to avoid stack problems
 
 ! -- BODY --
+
+#ifdef CGNS
 
 ! -- write vertices --
 
@@ -86,6 +87,11 @@ do ielem = 1, umesh%cellvtex%nsection
   deallocate(icell)
 
 enddo
+
+#else
+  call cfd_error("CGNS has not been activated during compilation")
+#endif
+
 
 endsubroutine writecgns_ustmesh
 !------------------------------------------------------------------------------!

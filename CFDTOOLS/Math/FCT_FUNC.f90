@@ -136,7 +136,7 @@ enddo
 endsubroutine
 
 !------------------------------------------------------------------------------!
-! Routine : compute environment for all needed definition
+!> @brief compute environment for all needed definition
 !------------------------------------------------------------------------------!
 subroutine fctset_compute_neededenv(fctenv, varenv)
 implicit none

@@ -22,6 +22,8 @@ use ELEMVTEX
 
 implicit none         
 
+#ifdef CGNS
+
 include 'cgnslib_f.h'
 
 ! -- Variables globales du module -------------------------------------------
@@ -285,6 +287,7 @@ endselect
 
 endfunction cgns2typhon_elemtype
 
+#endif
 
 endmodule CGNS_STRUCT
 

@@ -1,11 +1,6 @@
 !------------------------------------------------------------------------------!
-! MODULE : RPM                            Auteur : J. Gressier
-!                                         Date   : Fevrier 2002
-! Fonction                                Modif  : Novembre 2002 (cf historique)
-!   Bibliotheque de procedures pour la lecture de fichier de parametres
-!
-! Defauts/Limitations/Divers :
-!   cf VERSIONS
+!> @brief Read Parameter Module
+!> 
 !------------------------------------------------------------------------------!
 module RPM
 

@@ -10,10 +10,9 @@ subroutine writecgns_bocomesh(cgnsunit, ibase, izone, umesh)
 use MESHPREC
 use IOCFD
 use USTMESH
+use CGNS_STRUCT
 
 implicit none
-
-include 'cgnslib_f.h'
 
 ! -- INPUTS --
 integer               :: cgnsunit           ! unit number for cgns file
@@ -30,6 +29,8 @@ integer, allocatable  :: iface(:), nelem(:), newindex(:), elem(:,:)
 real(8), allocatable  :: v(:)
 
 ! -- BODY --
+
+#ifdef CGNS
 
 nelemtot = umesh%nface_lim
 
@@ -117,6 +118,10 @@ do ib = 1, umesh%nboco
    deallocate(iface)
 
 enddo
+
+#else
+  call cfd_error("CGNS has not been activated during compilation")
+#endif
 
 endsubroutine writecgns_bocomesh
 !------------------------------------------------------------------------------!
