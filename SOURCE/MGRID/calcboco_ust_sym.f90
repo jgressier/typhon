@@ -54,11 +54,10 @@ do ifb = 1, ustboco%nface
 
   do ip = 1, bccon%fsend%nscal
     do isim = 1, nsim
-      bccon%frecv%tabscal(ip)%scal(nsim*(ighost-1)+isim) = bccon%fsend%tabscal(ip)%scal(icell) 
+      bccon%frecv%tabscal(ip)%scal(nsim*(ighost-1)+isim) = bccon%fsend%tabscal(ip)%scal(nsim*(icell-1)+isim) 
     enddo
   enddo
 
-  
   ! assume symmetric positions of nodes
   !dfc = umesh%mesh%iface(if,1,1)%centre - umesh%mesh%centre(icell,1,1) ! dist ctr. face - cell
   !dgc = umesh%mesh%centre(ighost,1,1)   - umesh%mesh%centre(icell,1,1) ! dist ghostcell - cell
@@ -69,8 +68,8 @@ do ifb = 1, ustboco%nface
 
   !! ip = 1 ! DEV: only velocity for the moment, will have to change in the future!
   do ip = 1, bccon%fsend%nvect
-    vc = bccon%fsend%tabvect(ip)%vect(icell)
     do isim = 1, nsim
+      vc = bccon%fsend%tabvect(ip)%vect(nsim*(icell-1)+isim)
       if (bccon%fsend%tabvect(ip)%quantity_id == qv_velocity) then    
 	bccon%frecv%tabvect(ip)%vect(nsim*(ighost-1)+isim) = vc - (2._krp*((vc-wallvelocity).scal.fn))*fn
       else
@@ -81,7 +80,7 @@ do ifb = 1, ustboco%nface
 
   do ip = 1, bccon%fsend%ntens
     do isim =1, nsim
-      bccon%frecv%tabtens(ip)%tens(nsim*(ighost-1)+isim) = bccon%fsend%tabtens(ip)%tens(icell)
+      bccon%frecv%tabtens(ip)%tens(nsim*(ighost-1)+isim) = bccon%fsend%tabtens(ip)%tens(nsim*(icell-1)+isim)
       call t3d_sym(bccon%frecv%tabtens(ip)%tens(nsim*(ighost-1)+isim), fn)
     enddo
   enddo
