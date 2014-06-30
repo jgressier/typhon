@@ -33,26 +33,24 @@ integer               :: buf, nblock      ! buffer size
 integer, pointer      :: ista(:), iend(:) ! starting and ending index
 integer 	      :: isim 
 ! -- Body --
-
 ncell = field%ncell    ! compute on all cells (ghost cells too even if not necessary)
 g1    = defns%properties(1)%gamma - 1._krp
-
 call new_buf_index(ncell, cell_buffer, nblock, ista, iend, nthread)
 
-do isim= 1, nsim 	! loop on simulation number
-!$OMP PARALLEL DO private(rho, vel, ec, buf, i) shared(field, ista, iend, nblock)
+
+!$OMP PARALLEL DO private(rho, vel, ec, buf, i, isim) shared(field, ista, iend, nblock, nsim)
 do ib = 1, nblock
   buf = iend(ib)-ista(ib)+1
-
   do i = ista(ib), iend(ib)
-    rho = field%etatcons%tabscal(1)%scal(nsim*(i-1)+isim)
-    vel = field%etatcons%tabvect(1)%vect(nsim*(i-1)+isim) / rho
-    ec  = .5_krp*rho*sqrabs(vel)
-    field%etatprim%tabscal(1)%scal(nsim*(i-1)+isim) = rho
-    field%etatprim%tabscal(2)%scal(nsim*(i-1)+isim) = g1*(field%etatcons%tabscal(2)%scal(i) - ec)
-    field%etatprim%tabvect(1)%vect(nsim*(i-1)+isim) = vel
+    do isim= 1, nsim 	! loop on simulation number
+      rho = field%etatcons%tabscal(1)%scal(nsim*(i-1)+isim)
+      vel = field%etatcons%tabvect(1)%vect(nsim*(i-1)+isim) / rho
+      ec  = .5_krp*rho*sqrabs(vel)
+      field%etatprim%tabscal(1)%scal(nsim*(i-1)+isim) = rho
+      field%etatprim%tabscal(2)%scal(nsim*(i-1)+isim) = g1*(field%etatcons%tabscal(2)%scal(nsim*(i-1)+isim) - ec)
+      field%etatprim%tabvect(1)%vect(nsim*(i-1)+isim) = vel
+    enddo
   enddo
-enddo
 !$OMP END PARALLEL DO
 enddo 
 deallocate(ista, iend)

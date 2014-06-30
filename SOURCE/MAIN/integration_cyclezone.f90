@@ -77,7 +77,6 @@ itimer = realtime_start()
 !----------------------------------
 ! integration loop on timesteps
 !----------------------------------
-
 do while (.not.(lzone%info%end_cycle.or.lzone%info%stop_integration))
 
 

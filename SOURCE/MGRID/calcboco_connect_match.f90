@@ -33,7 +33,7 @@ integer(kip) :: nf, dim
 integer(kip) :: if, ic, ideb, var
 integer      :: idef                                     ! boundary condition definition index
 integer(kmpi) :: mpitag
-
+integer      :: nsim 		! Number of simulations
 ! -- BODY --
 
 nf  = boco%nface
