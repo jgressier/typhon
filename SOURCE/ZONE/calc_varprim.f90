@@ -5,10 +5,8 @@
 !   Compute primitive variables from conservative variables
 !   Redirect to solver-specific subroutines
 !
-! Defaults/Limitations/Misc :
-!
 !------------------------------------------------------------------------------!
-subroutine calc_varprim(def_solver, field)
+subroutine calc_varprim(defsolver, field)
 
 use TYPHMAKE
 use OUTPUT
@@ -19,7 +17,7 @@ use DEFFIELD
 implicit none
 
 ! -- Inputs --
-type(mnu_solver) :: def_solver       ! solver parameters
+type(mnu_solver) :: defsolver       ! solver parameters
 
 ! -- Inputs/Outputs --
 type(st_field)   :: field            ! prim/cons field
@@ -28,24 +26,22 @@ type(st_field)   :: field            ! prim/cons field
 
 ! -- Body --
 
-select case(def_solver%typ_solver)
+select case(defsolver%typ_solver)
 case(solKDIF)
-  call calc_varprim_kdif(def_solver%defkdif, field)
+  call calc_varprim_kdif(defsolver%defkdif, field)
 case(solNS)
-  call calc_varprim_ns(def_solver%defns, field)
+  call calc_varprim_ns(defsolver%defns, field, defsolver%nsim)
 case(solVORTEX)
   ! nothing to do
 case default
   call error_stop("Internal error (calc_varprim): unknown solver type: "// &
-              trim(strof(def_solver%typ_solver)))
+              trim(strof(defsolver%typ_solver)))
 endselect
-
 
 !-----------------------------
 endsubroutine calc_varprim
-
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! History
 !
 ! Jun 2003: creation
 ! Jul 2004: NS solver (calc_varprim_ns)
