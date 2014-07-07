@@ -32,8 +32,14 @@ type(v3d) :: vel
 integer               :: buf, nblock      ! buffer size 
 integer, pointer      :: ista(:), iend(:) ! starting and ending index
 integer 	      :: isim 
+
 ! -- Body --
+
 ncell = field%ncell    ! compute on all cells (ghost cells too even if not necessary)
+
+! @tado concurrent simulation: field%ncell contains mesh%ncell * nsim
+ncell = ncell/nsim
+
 g1    = defns%properties(1)%gamma - 1._krp
 call new_buf_index(ncell, cell_buffer, nblock, ista, iend, nthread)
 

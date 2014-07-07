@@ -33,7 +33,7 @@ if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
   set (CMAKE_Fortran_FLAGS_DEBUG   "-g -O0")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL  "Intel") 
   SET(CMAKE_Fortran_FLAGS "-cpp " ${CMAKE_Fortran_FLAGS})
-  set (CMAKE_Fortran_FLAGS_RELWITHDEBINFO "-O3 -g -ip -xSSE4.2")
+  set (CMAKE_Fortran_FLAGS_RELWITHDEBINFO "-O3 -g -ip -xSSE4.2 -traceback")
   set (CMAKE_Fortran_FLAGS_DEBUG   "-g -CA -CB -CS -CV -traceback -debug all -ftrapuv -WB -warn unused")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL  "PGI") 
   # cray compilers nersc
