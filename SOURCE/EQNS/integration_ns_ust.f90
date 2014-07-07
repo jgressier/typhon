@@ -50,8 +50,11 @@ type(st_genericfield) :: cQL, cQR, gradL, gradR         ! nblock size arrays of 
 type(v3d), dimension(:), allocatable &
                       :: cg_l, cg_r           ! tableau des centres de cellules a gauche et a droite   
 logical :: allocgrad
+integer :: nsim
 
 ! -- BODY --
+
+nsim = defsolver%nsim
 
 allocgrad = .false.
 if (.not.field%allocqhres) call error_stop("Internal error: Face extrapolated states not defined")
@@ -71,10 +74,10 @@ case(eqNSLam, eqRANS)
   viscscheme: select case(defspat%sch_dis)
   case(dis_celldif2, dis_cellavg2, dis_cellfull)
     allocgrad = .true.
-    call new_genfield(cQL,   face_buffer, field%etatcons%nscal, field%etatcons%nvect, 0)
-    call new_genfield(cQR,   face_buffer, field%etatcons%nscal, field%etatcons%nvect, 0)
-    call new_genfield(gradL, face_buffer, 0, field%etatcons%nscal, field%etatcons%nvect)
-    call new_genfield(gradR, face_buffer, 0, field%etatcons%nscal, field%etatcons%nvect)
+    call new_genfield(cQL,   face_buffer*nsim, field%etatcons%nscal, field%etatcons%nvect, 0)
+    call new_genfield(cQR,   face_buffer*nsim, field%etatcons%nscal, field%etatcons%nvect, 0)
+    call new_genfield(gradL, face_buffer*nsim, 0, field%etatcons%nscal, field%etatcons%nvect)
+    call new_genfield(gradR, face_buffer*nsim, 0, field%etatcons%nscal, field%etatcons%nvect)
   case(dis_facecentered, dis_facepenalty)
     ! nothing to do
   case default
@@ -98,12 +101,12 @@ do ib = 1, nblock
   num_jac  = (calc_jac).and.(defspat%jac_hyp == jac_diffnum)
 
   ! pointers links to face extrapolated values
-  QL%density  => field%cell_l%tabscal(1)%scal(ista(ib):iend(ib))
-  QR%density  => field%cell_r%tabscal(1)%scal(ista(ib):iend(ib))
-  QL%pressure => field%cell_l%tabscal(2)%scal(ista(ib):iend(ib))
-  QR%pressure => field%cell_r%tabscal(2)%scal(ista(ib):iend(ib))
-  QL%velocity => field%cell_l%tabvect(1)%vect(ista(ib):iend(ib))
-  QR%velocity => field%cell_r%tabvect(1)%vect(ista(ib):iend(ib))
+  QL%density  => field%cell_l%tabscal(1)%scal(nsim*(ista(ib)-1)+1:)
+  QR%density  => field%cell_r%tabscal(1)%scal(nsim*(ista(ib)-1)+1:)
+  QL%pressure => field%cell_l%tabscal(2)%scal(nsim*(ista(ib)-1)+1:)
+  QR%pressure => field%cell_r%tabscal(2)%scal(nsim*(ista(ib)-1)+1:)
+  QL%velocity => field%cell_l%tabvect(1)%vect(nsim*(ista(ib)-1)+1:)
+  QR%velocity => field%cell_r%tabvect(1)%vect(nsim*(ista(ib)-1)+1:)
 
   call calc_flux_inviscid(defsolver, defspat,                             &
                           buf, ista(ib), umesh%mesh%iface(ista(ib):iend(ib), 1, 1), &
