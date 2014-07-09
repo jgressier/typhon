@@ -80,12 +80,11 @@ endselect
 ! -- Pre-processing --
 
 call new(roe, nflux*nsim)
-call calc_roe_states(defsolver%defns%properties(1), nflux, cell_l, cell_r, roe)
+call calc_roe_states(defsolver%defns%properties(1), nflux*nsim, cell_l, cell_r, roe)
 
 fn(1:nflux)  = face(1:nflux)%normale
 
 do isim = 1, nsim
-
 !-------------------------------
 ! Flux computation
 
@@ -161,7 +160,7 @@ endselect
       rvst = iks*( (rqR*cell_r%velocity(is)) + (pst-cell_r%pressure(is))*fn(if) )
       rest = iks*(rer*(sr(if)-vnr(if)) - cell_r%pressure(is)*vnr(if) + pst*Sst)
     endif
-  
+
   ! mass flux
     flux%tabscal(1)%scal(ic) = Sst*rst
   ! energy flux
