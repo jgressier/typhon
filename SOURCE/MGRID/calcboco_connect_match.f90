@@ -33,11 +33,12 @@ integer(kip) :: nf, dim
 integer(kip) :: if, ic, ideb, var
 integer      :: idef                                     ! boundary condition definition index
 integer(kmpi) :: mpitag
-integer      :: nsim 		! Number of simulations
+integer      :: nsim            ! Number of simulations
+integer      :: isim 
 ! -- BODY --
-
+nsim = defsolver%nsim
 nf  = boco%nface
-dim = bccon%fsend%nscal + 3*bccon%fsend%nvect + 9*bccon%fsend%ntens
+dim = (bccon%fsend%nscal + 3*bccon%fsend%nvect + 9*bccon%fsend%ntens)*nsim
 
 allocate(bccon%isend(nf))
 allocate(bccon%irecv(nf))
@@ -62,23 +63,28 @@ boco%gridcon%nsend = nf*dim
 allocate(boco%gridcon%rsend(boco%gridcon%nsend))
 
 ! -- pack internal variables ( scal1 scal2 vec1%x vec1%y vec1%z ... )--
-
-do if = 1, boco%nface
-  ic   = bccon%isend(if)
-  ideb = (if-1)*dim
-  do var = 1, bccon%fsend%nscal
-    boco%gridcon%rsend(ideb+var) = bccon%fsend%tabscal(var)%scal(ic)
+! write (*,*) nf
+! write (*,*) nsim
+! write (*,*) bccon%fsend%nscal
+! write (*,*) dim
+! write (*,*) "Fin output"
+do isim = 1, nsim 
+  do if = 1, boco%nface
+    ic   = bccon%isend(if)
+    ideb = (if-1)*dim
+    do var = 1, bccon%fsend%nscal
+      boco%gridcon%rsend(nsim*(var-1)+isim+ideb) = bccon%fsend%tabscal(var)%scal(ic)
+    enddo
+    ideb = ideb+bccon%fsend%nscal*nsim
+    do var = 1, bccon%fsend%nvect
+      boco%gridcon%rsend(ideb +(nsim*(var-1)+isim-1)*3+1:ideb+(nsim*(var-1)+isim)*3) = tab(bccon%fsend%tabvect(var)%vect(ic))
+    enddo
+    ideb = ideb+3*bccon%fsend%nvect*nsim
+    do var = 1, bccon%fsend%ntens
+      boco%gridcon%rsend(ideb+(nsim*(var-1)+isim-1)*9+1:ideb+(nsim*(var-1)+isim)*9) = reshape(bccon%fsend%tabtens(var)%tens(ic)%mat, (/ 9 /))
+    enddo
   enddo
-  ideb = ideb+bccon%fsend%nscal
-  do var = 1, bccon%fsend%nvect
-    boco%gridcon%rsend(ideb+(var-1)*3+1:ideb+var*3) = tab(bccon%fsend%tabvect(var)%vect(ic))
-  enddo
-  ideb = ideb+3*bccon%fsend%nvect
-  do var = 1, bccon%fsend%ntens
-    boco%gridcon%rsend(ideb+(var-1)*9+1:ideb+var*9) = reshape(bccon%fsend%tabtens(var)%tens(ic)%mat, (/ 9 /))
-  enddo
-enddo
-
+enddo ! end simulation loop
 mpitag = mpitag_field !bccon%bccon_mode*100 + myprocid*10 + request_id()
 
 ! -- send internal variables --
@@ -100,22 +106,23 @@ call receivefromgrid(boco%gridcon%grid_id, boco%gridcon%nrecv, boco%gridcon%rrec
 case(igcon_recv)  ! ----- RECEIVE data ---------------------------------------------
 
 ! -- unpack boundary condition data - receipt requested between send and receive 
-
-do if = 1, boco%nface
-  ic   = bccon%irecv(if)
-  ideb = (if-1)*dim
-  do var = 1, bccon%frecv%nscal
-    bccon%frecv%tabscal(var)%scal(ic) = boco%gridcon%rrecv(ideb+var)
+do isim = 1, nsim
+  do if = 1, boco%nface
+    ic   = bccon%irecv(if)
+    ideb = (if-1)*dim
+    do var = 1, bccon%frecv%nscal
+      bccon%frecv%tabscal(var)%scal(ic) = boco%gridcon%rrecv(ideb+nsim*(var-1)+isim)
+    enddo
+    ideb = ideb+bccon%frecv%nscal*nsim
+    do var = 1, bccon%frecv%nvect
+      bccon%frecv%tabvect(var)%vect(ic) = v3d_of(boco%gridcon%rrecv(ideb+(nsim*(var-1)+isim-1)*3+1:ideb+(nsim*(var-1)+isim)*3))
+    enddo
+    ideb = ideb+3*bccon%frecv%nvect*nsim
+    do var = 1, bccon%frecv%ntens
+      bccon%frecv%tabtens(var)%tens(ic)%mat = reshape(boco%gridcon%rrecv(ideb+(nsim*(var-1)+isim-1)*9+1:ideb+(nsim*(var-1)+isim)*9), (/ 3, 3 /))
+    enddo
   enddo
-  ideb = ideb+bccon%frecv%nscal
-  do var = 1, bccon%frecv%nvect
-    bccon%frecv%tabvect(var)%vect(ic) = v3d_of(boco%gridcon%rrecv(ideb+(var-1)*3+1:ideb+var*3))
-  enddo
-  ideb = ideb+3*bccon%frecv%nvect
-  do var = 1, bccon%frecv%ntens
-    bccon%frecv%tabtens(var)%tens(ic)%mat = reshape(boco%gridcon%rrecv(ideb+(var-1)*9+1:ideb+var*9), (/ 3, 3 /))
-  enddo
-enddo
+enddo ! end loop simulation
 
 deallocate(boco%gridcon%rsend)
 deallocate(boco%gridcon%rrecv)
