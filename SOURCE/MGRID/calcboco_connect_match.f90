@@ -63,11 +63,7 @@ boco%gridcon%nsend = nf*dim
 allocate(boco%gridcon%rsend(boco%gridcon%nsend))
 
 ! -- pack internal variables ( scal1 scal2 vec1%x vec1%y vec1%z ... )--
-! write (*,*) nf
-! write (*,*) nsim
-! write (*,*) bccon%fsend%nscal
-! write (*,*) dim
-! write (*,*) "Fin output"
+
 do isim = 1, nsim 
   do if = 1, boco%nface
     ic   = bccon%isend(if)
