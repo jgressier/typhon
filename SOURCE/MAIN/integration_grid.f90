@@ -72,7 +72,7 @@ endselect
 
 ! -- flux surfaciques -> flux de surfaces et calcul des residus  --
 
-call flux_to_res(grid%dtloc, grid%umesh, flux, grid%info%field_loc%residu, calc_jac, jacL, jacR)
+call flux_to_res(defsolver, grid%dtloc, grid%umesh, flux, grid%info%field_loc%residu, calc_jac, jacL, jacR)
 
 call ale_correction(defsolver, grid%umesh, grid%info%field_loc)
 

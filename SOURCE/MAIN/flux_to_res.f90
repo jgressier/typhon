@@ -9,7 +9,7 @@
 !               ou non
 !
 !------------------------------------------------------------------------------!
-subroutine flux_to_res(dtloc, umesh, flux, residu, trait_jac, jacL, jacR)
+subroutine flux_to_res(defsolver, dtloc, umesh, flux, residu, trait_jac, jacL, jacR)
 
 use OUTPUT
 use PACKET
@@ -17,11 +17,12 @@ use USTMESH
 use DEFFIELD
 use MATRIX_ARRAY
 use VARCOM
-use VEC3D
+use MENU_SOLVER
 
 implicit none
 
 ! -- INPUTS --
+type(mnu_solver) :: defsolver        ! solver parameters
 type(st_ustmesh)      :: umesh                   ! mesh properties
 real(krp)             :: dtloc(1:umesh%ncell)    ! local ou global time step
 type(st_genericfield) :: flux                    ! face flux
@@ -34,7 +35,7 @@ type(st_mattab)         :: jacL, jacR
 ! -- Private DATA --
 real(krp)             :: surf(face_buffer) ! intermediate surface
 real(krp)             :: coef(cell_buffer) ! intermediate residual coefficient
-integer               :: ifa, i            ! index de face
+integer               :: ifa, i, ii, iff   ! index de face
 integer               :: ic1, ic2         ! index de cellules
 integer               :: ip               ! index de variables
 integer               :: ib, icolor       ! block index
@@ -45,6 +46,8 @@ integer 	      :: nsim             ! Number of simulations
 integer               :: isim, ic, ind1, ind2
 
 ! -- Body --
+
+nsim = defsolver%nsim
 
 call new_buf_index(umesh%nface, face_buffer, nblock, ista, iend, nthread)
 
@@ -61,23 +64,14 @@ do ib = 1, nblock
 
   do ip = 1, flux%nscal
     do ifa = ista(ib), iend(ib)
-      ! Compute on nsim simulations
-      do isim = 1, nsim
-	ic = nsim*ifa + isim
-	flux%tabscal(ip)%scal(ic) = surf(ifa-ista(ib)+1) * flux%tabscal(ip)%scal(ifa)
-      enddo
+      flux%tabscal(ip)%scal(nsim*(ifa-1)+1:nsim*ifa) = surf(ifa-ista(ib)+1) * flux%tabscal(ip)%scal(nsim*(ifa-1)+1:nsim*ifa)
     enddo
   enddo
 
   do ip = 1, flux%nvect
     do ifa = ista(ib), iend(ib)
-      ! Compute on nsim simulations
-      do isim = 1, nsim
-	ic = nsim*ifa + isim
-	flux%tabvect(ip)%vect(ic) = surf(ifa-ista(ib)+1) * flux%tabvect(ip)%vect(ifa)
-      enddo
+      flux%tabvect(ip)%vect(nsim*(ifa-1)+1:nsim*ifa) = surf(ifa-ista(ib)+1) * flux%tabvect(ip)%vect(nsim*(ifa-1)+1:nsim*ifa)
     enddo
-    !call scale(flux%tabvect(ip)%vect, surf(:))
   enddo
 
   ! -- idem traitement des jacobiennes
@@ -85,8 +79,8 @@ do ib = 1, nblock
   if (trait_jac) then
     dim = jacL%dim
     do ifa = ista(ib), iend(ib)
-      jacL%mat(1:dim,1:dim,ifa) = surf(ifa-ista(ib)+1) * jacL%mat(1:dim,1:dim,ifa)
-      jacR%mat(1:dim,1:dim,ifa) = surf(ifa-ista(ib)+1) * jacR%mat(1:dim,1:dim,ifa)
+      jacL%mat(1:dim,1:dim,nsim*(ifa-1)+1:nsim*ifa) = surf(ifa-ista(ib)+1) * jacL%mat(1:dim,1:dim,nsim*(ifa-1)+1:nsim*ifa)
+      jacR%mat(1:dim,1:dim,nsim*(ifa-1)+1:nsim*ifa) = surf(ifa-ista(ib)+1) * jacR%mat(1:dim,1:dim,nsim*(ifa-1)+1:nsim*ifa)
     enddo
   endif
 
@@ -99,7 +93,7 @@ deallocate(ista, iend)
 
 do icolor = 1, umesh%colors%nbnodes
 
-!$OMP PARALLEL DO private(ic1, ic2, ifa, ip) shared(residu, flux, umesh) 
+!$OMP PARALLEL DO private(ic1, ic2, ifa, ip, ind1, ind2, iff, isim) shared(residu, flux, umesh, nsim) 
 do i = 1, umesh%colors%node(icolor)%nelem
   ifa = umesh%colors%node(icolor)%elem(i)
   ic1 = umesh%facecell%fils(ifa,1)
@@ -109,18 +103,20 @@ do i = 1, umesh%colors%node(icolor)%nelem
   do ip = 1, residu%nscal
     ! Compute on nsim simulations
     do isim = 1, nsim 
-      ind1 = nsim*ic1+isim 
-      ind2 = nsim*ic2+isim
-      residu%tabscal(ip)%scal(ind1) = residu%tabscal(ip)%scal(ind1) - flux%tabscal(ip)%scal(nsim*ifa+isim)
-      residu%tabscal(ip)%scal(ind2) = residu%tabscal(ip)%scal(ind2) + flux%tabscal(ip)%scal(nsim*ifa+isim)
+      ind1 = nsim*(ic1-1)+isim 
+      ind2 = nsim*(ic2-1)+isim
+      iff  = nsim*(ifa-1)+isim
+      residu%tabscal(ip)%scal(ind1) = residu%tabscal(ip)%scal(ind1) - flux%tabscal(ip)%scal(iff)
+      residu%tabscal(ip)%scal(ind2) = residu%tabscal(ip)%scal(ind2) + flux%tabscal(ip)%scal(iff)
     enddo
   enddo
   do ip = 1, residu%nvect
     do isim = 1, nsim 
-      ind1 = nsim*ic1+isim 
-      ind2 = nsim*ic2+isim
-      call shift_sub(residu%tabvect(ip)%vect(ind1), flux%tabvect(ip)%vect(nsim*ifa+isim))
-      call shift_add(residu%tabvect(ip)%vect(ind2), flux%tabvect(ip)%vect(nsim*ifa+isim))
+      ind1 = nsim*(ic1-1)+isim 
+      ind2 = nsim*(ic2-1)+isim
+      iff  = nsim*(ifa-1)+isim
+      call shift_sub(residu%tabvect(ip)%vect(ind1), flux%tabvect(ip)%vect(iff))
+      call shift_add(residu%tabvect(ip)%vect(ind2), flux%tabvect(ip)%vect(iff))
       !residu%tabvect(ip)%vect(ic1) = residu%tabvect(ip)%vect(ic1) - flux%tabvect(ip)%vect(ifa)
       !residu%tabvect(ip)%vect(ic2) = residu%tabvect(ip)%vect(ic2) + flux%tabvect(ip)%vect(ifa)
     enddo
@@ -128,7 +124,6 @@ do i = 1, umesh%colors%node(icolor)%nelem
 enddo
 !$OMP END PARALLEL DO
 
-!deallocate(ista, iend)
 enddo ! color
 
 !!$OMP PARALLEL DO private(ic1, ip)
@@ -144,17 +139,23 @@ enddo ! color
  
 call new_buf_index(umesh%ncell_int, cell_buffer, nblock, ista, iend, nthread)
 
-!$OMP PARALLEL DO private(ic1, ip, buf, coef) shared(residu)
+!$OMP PARALLEL DO private(ii, ic1, ip, buf, coef) shared(residu)
 do ib = 1, nblock
 
   buf         = iend(ib)-ista(ib)+1
   coef(1:buf) = dtloc(ista(ib):iend(ib))/ umesh%mesh%volume(ista(ib):iend(ib),1,1)
 
   do ip = 1, residu%nscal
-    residu%tabscal(ip)%scal(ista(ib):iend(ib)) = coef(1:buf) * residu%tabscal(ip)%scal(ista(ib):iend(ib))
+    do ii = 1, buf         !> @optim can certainly be optimized
+      ic1 = ii-1+ista(ib)
+      residu%tabscal(ip)%scal(nsim*(ic1-1)+1:nsim*ic1) = coef(ii) * residu%tabscal(ip)%scal(nsim*(ic1-1)+1:nsim*ic1)
+    enddo
   enddo
   do ip = 1, residu%nvect
-    call scale(residu%tabvect(ip)%vect(ista(ib):iend(ib)), coef(1:buf))
+    do ii = 1, buf         !> @optim can certainly be optimized
+      ic1 = ii-1+ista(ib)
+      residu%tabvect(ip)%vect(nsim*(ic1-1)+1:nsim*ic1) = coef(ii) * residu%tabvect(ip)%vect(nsim*(ic1-1)+1:nsim*ic1)
+    enddo  
   enddo
   
 enddo
