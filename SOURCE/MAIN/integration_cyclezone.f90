@@ -173,7 +173,7 @@ enddo
 walltime = realtime_stop(itimer)
 call print_info(9,"    integration completed in "//trim(strof(lzone%info%iter_loc))//" iterations")
 write(str_w, "(a,f8.3,a)") "    normalized walltime:", &
-                         lzone%info%nbproc*nthread*walltime*1e6/lzone%info%iter_loc/lzone%info%totndof,&
+                         lzone%info%nbproc*nthread*walltime*1e6/lzone%info%iter_loc/lzone%info%totndof/lzone%defsolver%nsim,&
                          " µs/cell/it (*ncpu)"  
 call print_info(9,str_w)
 

@@ -24,9 +24,9 @@ type(st_info)                :: winfo     ! world info
 ! -- OUPUTS --
 
 ! -- Internal variables --
-type(st_grid), pointer :: pgrid
-integer  	       :: isim, nsim
-character(len=longname):: namefile
+type(st_grid), pointer  :: pgrid
+integer  	            :: isim, nsim
+character(len=longname) :: suffix
 character(len=shortname):: int_str
 ! -- BODY --
 
@@ -63,18 +63,27 @@ case default
   call error_stop("internal error(output_zone): unknown dataset parameter")
 endselect
 
-if (mpi_run) then
-  defio%filename = trim(defio%basename)//".p"//strof_full_int(myprocid,3)
-else
-  defio%filename = trim(defio%basename)
-endif
+! --- set filename suffix ---
 
-if (defio%index == 0) then
-  ! nothing to do
-else
-  defio%filename = trim(defio%filename)//"."//strof_full_int(defio%index, 4)
-endif
+do isim = 1, nsim ! ----- loop on all simulations -----
 
+  if (nsim > 1) then
+    suffix =  ".sim" // strof_full_int(isim,3)
+  else
+    suffix = ""
+  endif
+
+  if (mpi_run) suffix = ".p"//strof_full_int(myprocid,3)
+
+  ! cycle suffix 
+  if (defio%index == 0) then
+    ! nothing to do
+  else
+    suffix = trim(suffix)//"."//strof_full_int(defio%index, 4)
+  endif
+
+  defio%filename = trim(defio%basename)//trim(suffix)
+  
 select case(defio%format)
 case(fmt_TYPHON)
   call print_info(2,"* write TYPHON file: " // trim(defio%filename))
@@ -107,19 +116,15 @@ select case(defio%format)
 case(fmt_TECPLOT)
   ! already saved
 case(fmt_CGNS, fmt_CGNS_linked, fmt_VTK, fmt_VTKBIN, fmt_TYPHON)
-namefile = defio%filename
-do isim = 1, nsim 
-  write (int_str,*) isim
-  defio%filename = trim(namefile) // "sim" // adjustl(int_str)
   call outputzone_open   (defio, zone)
   call outputzone_ustmesh(defio, zone)
   call outputzone_sol    (defio, zone, isim, nsim)
   call outputzone_close  (defio, zone)
-enddo
-defio%filename = trim(namefile)
 case default
   call error_stop("Internal error (output_zone): unknown output format parameter")
 endselect
+
+enddo
 
 endsubroutine output_zone
 !------------------------------------------------------------------------------!
