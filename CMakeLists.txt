@@ -7,7 +7,6 @@ project(Typhon Fortran)
 #set(CMAKE_CXX_COMPILER mpiCC)
 
 SET(pName Typhon)
-#enable_language(Fortran)
 
 SET(${PROJECT_NAME}_CMAKE_DIR "${${PROJECT_NAME}_SOURCE_DIR}/CMake")
 SET(CMAKE_MODULE_PATH "${${PROJECT_NAME}_CMAKE_DIR}" ${CMAKE_MODULE_PATH})
@@ -26,6 +25,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Fortran compiler flags
+#enable_language(Fortran)
 INCLUDE(FortranCompilerFlags)
 
 MESSAGE(STATUS "build type set to ${CMAKE_BUILD_TYPE}")

@@ -28,6 +28,9 @@ tecplot/TECFMT.f90
 vtk/VTKSOL.f90
 vtk/VTKMESH.f90
 vtk/VTKFMT.f90
+)
+
+SET(Kit_EXESRCS
 xbininfo.f90
 typhon2vtk.f90
 typhon2tecplot.f90
@@ -78,3 +81,11 @@ TARGET_LINK_LIBRARIES(${pName}${KIT} ${KIT_LIBS})
 #ADD_SUBDIRECTORY(internal)
 #ADD_SUBDIRECTORY(tecplot)
 #ADD_SUBDIRECTORY(vtk)
+
+# ---------------------------------------------------------------------------/
+foreach( exesourcefile ${Kit_EXESRCS} )
+    get_filename_component(exename ${exesourcefile} NAME_WE)
+    #string( REPLACE ".f90" "" exename ${testsourcefile} )
+    add_executable(${exename} ${exesourcefile} )
+    target_link_libraries(${exename} ${KIT_LIBS} )
+endforeach( exesourcefile ${Kit_EXESRCS} )
