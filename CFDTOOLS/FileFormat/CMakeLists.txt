@@ -38,7 +38,7 @@ SET(Kit_EXESRCS
 xbininfo.f90
 typhon2vtk.f90
 typhon2tecplot.f90
-typhon2fluent.f90
+fluent2typhon.f90
 typart.f90
 tymorph.f90
 tymonitor.f90

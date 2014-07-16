@@ -5,7 +5,7 @@
 !> features
 !> - moves nodes according to FCT functions
 !------------------------------------------------------------------------------!
-program tymorph
+program fluent2typhon
 
 use IOCFD
 use FTNARGS
@@ -28,9 +28,10 @@ implicit none
 integer            :: nargs
 character(len=256) :: inputfile, outputfile, filename, str_opt, str_val
 !------------------------------------------------------------------------------!
-type(st_deftyphon)         :: deftyphon
-type(st_ustmesh)           :: umesh
-type(mnu_mesh)             :: defmesh
+type(st_deffluent) :: deffluent
+type(st_deftyphon) :: deftyphon
+type(st_ustmesh)   :: umesh
+type(mnu_mesh)     :: defmesh
 !---------------------------
 integer(kip)          :: ip, iarg
 logical               :: needgeom, fileread
@@ -41,14 +42,12 @@ integer :: i,k
 integer :: mypos
 real*8       :: x(262144),y(262144),z(262144)
 integer(kpf) :: elemlist(262144)
-character(len=64) :: filename
 character(len=64) :: str
 character(len=1)  :: c
 integer :: sctid
 integer :: spacedim
 integer :: f_zoneid, frstindx, lastindx, ntype, ctype, bctype, nd
-integer , parameter :: iunit1 = 11
-integer , parameter :: iunit2 = 12
+integer :: iunit1, iunit2
 integer :: iend
 !------------------------------------------------------------------------------!
 
@@ -94,28 +93,24 @@ endif
 ! read mesh
 !------------------------------------------------------------
 
-filename = trim(inputfile)//"."//xtyext_mesh
+filename = trim(inputfile)
 
 print*,'* Opening Fluent file: '//trim(filename)
 
-call typhon_openread(trim(filename), deftyphon)
+!call typhon_openread(trim(filename), deftyphon)
 
-call typhonread_ustmesh(deftyphon, umesh)
-!call delete_ustmesh_subelements(umesh)
-call typhon_close(deftyphon)
+!call typhonread_ustmesh(deftyphon, umesh)
+!!call delete_ustmesh_subelements(umesh)
+!call typhon_close(deftyphon)
 
 !------------------------------------------------------------
-! morph mesh
 
 write(6,'(a)') "files :"
 write(6,'(2x,a)') "f.msh"
 write(6,'(2x,a)') "cube.msh"
 write(6,'(2x,a)') "cone.msh"
 write(6,'(2x,a)') "tube.msh"
-write(6,'(2x,a)') "chbr.msh"
-
-write(6,'(a,$)') "Filename ? "
-read(5,*) filename
+write(6,'(2x,a)') "chbr.msh X not working"
 
 ! x = 1.0
 ! 
@@ -158,10 +153,10 @@ read(5,*) filename
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-OPEN(iunit1, FILE=filename, ACCESS="STREAM", FORM="FORMATTED")
-OPEN(iunit2, FILE=filename, ACCESS="STREAM", FORM="UNFORMATTED", &
-     CONVERT='LITTLE_ENDIAN')
+call fluent_openread(trim(filename), deffluent)
 
+iunit1 = deffluent%iu_form   ! must not be seen by main program
+iunit2 = deffluent%iu_bin
 indopt = 1
 namopt = "main_____"
 hedopt = 0
@@ -217,8 +212,8 @@ do while (.TRUE.)
   endif
 enddo
 !
-CLOSE(iunit1)
-CLOSE(iunit2)
+
+call fluent_close(deffluent)
 
 !------------------------------------------------------------
 ! Create mesh file

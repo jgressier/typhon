@@ -6,6 +6,9 @@
 ! f=readmsh ; m=cone.msh ; ifort -o $f $f.f90 && ./$f <<< $m
 module FLUENT
 
+use IO_UNIT
+use IOCFD
+
 implicit none
 
 ! -- Global Variables -------------------------------------------
@@ -19,8 +22,9 @@ character(len=4096) :: namoptlist
 character(len=64)   :: namopt
 integer             :: indopt
 integer             :: hedopt
-integer,parameter   :: lenopt = 10
+integer,parameter   :: lenopt   = 10
 integer             :: incopt
+integer,parameter   :: lennames = 30
 
 integer :: espion
 
@@ -91,9 +95,66 @@ interface str_to_int
   module procedure str_to_intkpf
 endinterface
 
+! -- Data types --
+
+!------------------------------------------------------------------------------!
+! ST_DEFFLUENT
+!------------------------------------------------------------------------------!
+type st_deffluent
+  integer      :: version
+  integer      :: iu_form, iu_bin
+  logical      :: binary
+  integer      :: nnodes, nelem, nbc
+  character(len=lennames), allocatable :: bcnames(:) 
+end type st_deffluent
+
+
 !------------------------------------------------------------------------------!
 contains
 
+!------------------------------------------------------------------------------!
+!> @brief open FLUENT file
+!------------------------------------------------------------------------------!
+subroutine fluent_openread(filename, deffluent)
+implicit none
+! -- INPUTS --
+integer            :: iunit
+character(len=*)   :: filename
+! -- OUTPUTS --
+type(st_deffluent) :: deffluent
+! -- private data --
+integer :: info
+! -- BODY --
+
+deffluent%iu_form = getnew_io_unit()
+OPEN(deffluent%iu_form, FILE=filename, ACCESS="STREAM", FORM="FORMATTED", iostat = info)
+if (info /= 0) call cfd_error("fluent: unable to open formatted file "//trim(filename))
+
+deffluent%iu_bin = getnew_io_unit()
+OPEN(deffluent%iu_bin, FILE=filename, ACCESS="STREAM", FORM="UNFORMATTED", CONVERT='LITTLE_ENDIAN', iostat = info)
+if (info /= 0) call cfd_error("fluent: unable to open unformatted file "//trim(filename))
+
+end subroutine fluent_openread
+
+!------------------------------------------------------------------------------!
+!> @brief close FLUENT file
+!------------------------------------------------------------------------------!
+subroutine fluent_close(deffluent)
+implicit none
+! -- INPUTS --
+type(st_deffluent) :: deffluent
+! -- OUTPUTS --
+! -- private data --
+integer :: info
+! -- BODY --
+
+call close_io_unit(deffluent%iu_form)
+call close_io_unit(deffluent%iu_bin)
+
+end subroutine fluent_close
+
+
+!------------------------------------------------------------------------------!
 subroutine dumpp()
 implicit none
 call flush(6)
@@ -101,6 +162,7 @@ write(6,'(a)') trim(stropt)
 call flush(6)
 endsubroutine dumpp
 
+!------------------------------------------------------------------------------!
 subroutine stopp()
 implicit none
 integer :: i
@@ -113,6 +175,7 @@ call dumpp()
 stop
 endsubroutine stopp
 
+!------------------------------------------------------------------------------!
 subroutine affstarp(optname)
 implicit none
 character(len=*) :: optname
