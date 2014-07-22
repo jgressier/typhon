@@ -105,6 +105,7 @@ type st_deffluent
   integer      :: iu_form, iu_bin
   logical      :: binary
   integer      :: nnodes, nelem, nbc
+  character(len=1) :: c                 ! one character read in advance
   character(len=lennames), allocatable :: bcnames(:) 
 end type st_deffluent
 
@@ -133,6 +134,8 @@ if (info /= 0) call cfd_error("fluent: unable to open formatted file "//trim(fil
 deffluent%iu_bin = getnew_io_unit()
 OPEN(deffluent%iu_bin, FILE=filename, ACCESS="STREAM", FORM="UNFORMATTED", CONVERT='LITTLE_ENDIAN', iostat = info)
 if (info /= 0) call cfd_error("fluent: unable to open unformatted file "//trim(filename))
+
+read(deffluent%iu_bin) deffluent%c
 
 end subroutine fluent_openread
 
@@ -597,16 +600,15 @@ endsubroutine fll_getstring
 !------------------------------------------------------------------------------!
 !> @brief FLUENT-low-level : read list
 !------------------------------------------------------------------------------!
-subroutine fll_getlist(iu, str, c)
+subroutine fll_getlist(def, str)
 implicit none
-integer           :: iu
+type(st_deffluent) :: def
 character(len=*)  :: str
-character(len=1)  :: c
-call affstar("get_list_", c)
-call fll_checknextchar(iu, '(', c)
-call fll_storeuptochar(iu, str, ')', c)
+call affstar("get_list_", def%c)
+call fll_checknextchar(def%iu_bin, '(', def%c)
+call fll_storeuptochar(def%iu_bin, str, ')', def%c)
 call affline("read list : '"//trim(str)//"'")
-call affexit("get_list_", c)
+call affexit("get_list_", def%c)
 endsubroutine fll_getlist
 
 !------------------------------------------------------------------------------!
@@ -644,46 +646,43 @@ endsubroutine fll_extractlist
 !------------------------------------------------------------------------------!
 !> @brief FLUENT : read section id (and leading '(')
 !------------------------------------------------------------------------------!
-subroutine fluent_get_sct_id(iu, sctid, c)
+subroutine fluent_get_sct_id(def, sctid)
 implicit none
-integer           :: iu
-integer           :: sctid
-character(len=1)  :: c
-character(len=64) :: str
-call affstar("get_s_id_", c)
-call fll_checknextchar(iu, '(', c)
-call fll_storeuptoblank(iu, str, c)
+type(st_deffluent) :: def
+integer            :: sctid
+character(len=64)  :: str
+call affstar("get_s_id_", def%c)
+call fll_checknextchar(def%iu_bin, '(', def%c)
+call fll_storeuptoblank(def%iu_bin, str, def%c)
 sctid = str_to_int(str, '(i)')
 call affline("read section head : '"//trim(str)//"'")
-call affexit("get_s_id_", c)
+call affexit("get_s_id_", def%c)
 endsubroutine fluent_get_sct_id
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT : read section : comment
 !------------------------------------------------------------------------------!
-subroutine fluent_get_sct_comment(iu, c)
+subroutine fluent_get_sct_comment(def)
 implicit none
-integer           :: iu
-character(len=1)  :: c
-character(len=64) :: str
-call affstar("get_s_com", c)
-call fll_getstring(iu, str, c)
+type(st_deffluent) :: def
+character(len=64)  :: str
+call affstar("get_s_com", def%c)
+call fll_getstring(def%iu_bin, str, def%c)
 write(6,'(3a)') "Comment   : '",trim(str),"'"
-call affexit("get_s_com", c)
+call affexit("get_s_com", def%c)
 endsubroutine fluent_get_sct_comment
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT : read section : header
 !------------------------------------------------------------------------------!
-subroutine fluent_get_sct_header(iu, c)
+subroutine fluent_get_sct_header(def)
 implicit none
-integer           :: iu
-character(len=1)  :: c
+type(st_deffluent) :: def
 character(len=64) :: str
-call affstar("get_s_hed", c)
-call fll_getstring(iu, str, c)
+call affstar("get_s_hed", def%c)
+call fll_getstring(def%iu_bin, str, def%c)
 write(6,'(3a)') "Header    : '",trim(str),"'"
-call affexit("get_s_hed", c)
+call affexit("get_s_hed", def%c)
 endsubroutine fluent_get_sct_header
 
 !------------------------------------------------------------------------------!
