@@ -69,15 +69,15 @@ do isim = 1, nsim
     ic   = bccon%isend(if)
     ideb = (if-1)*dim
     do var = 1, bccon%fsend%nscal
-      boco%gridcon%rsend(nsim*(var-1)+isim+ideb) = bccon%fsend%tabscal(var)%scal(ic)
+      boco%gridcon%rsend(nsim*(var-1)+isim+ideb) = bccon%fsend%tabscal(var)%scal(nsim*(ic-1)+isim)
     enddo
     ideb = ideb+bccon%fsend%nscal*nsim
     do var = 1, bccon%fsend%nvect
-      boco%gridcon%rsend(ideb +(nsim*(var-1)+isim-1)*3+1:ideb+(nsim*(var-1)+isim)*3) = tab(bccon%fsend%tabvect(var)%vect(ic))
+      boco%gridcon%rsend(ideb +(nsim*(var-1)+isim-1)*3+1:ideb+(nsim*(var-1)+isim)*3) = tab(bccon%fsend%tabvect(var)%vect(nsim*(ic-1)+isim))
     enddo
     ideb = ideb+3*bccon%fsend%nvect*nsim
     do var = 1, bccon%fsend%ntens
-      boco%gridcon%rsend(ideb+(nsim*(var-1)+isim-1)*9+1:ideb+(nsim*(var-1)+isim)*9) = reshape(bccon%fsend%tabtens(var)%tens(ic)%mat, (/ 9 /))
+      boco%gridcon%rsend(ideb+(nsim*(var-1)+isim-1)*9+1:ideb+(nsim*(var-1)+isim)*9) = reshape(bccon%fsend%tabtens(var)%tens(nsim*(ic-1)+isim)%mat, (/ 9 /))
     enddo
   enddo
 enddo ! end simulation loop
@@ -107,15 +107,15 @@ do isim = 1, nsim
     ic   = bccon%irecv(if)
     ideb = (if-1)*dim
     do var = 1, bccon%frecv%nscal
-      bccon%frecv%tabscal(var)%scal(ic) = boco%gridcon%rrecv(ideb+nsim*(var-1)+isim)
+      bccon%frecv%tabscal(var)%scal(nsim*(ic-1)+isim) = boco%gridcon%rrecv(ideb+nsim*(var-1)+isim)
     enddo
     ideb = ideb+bccon%frecv%nscal*nsim
     do var = 1, bccon%frecv%nvect
-      bccon%frecv%tabvect(var)%vect(ic) = v3d_of(boco%gridcon%rrecv(ideb+(nsim*(var-1)+isim-1)*3+1:ideb+(nsim*(var-1)+isim)*3))
+      bccon%frecv%tabvect(var)%vect(nsim*(ic-1)+isim) = v3d_of(boco%gridcon%rrecv(ideb+(nsim*(var-1)+isim-1)*3+1:ideb+(nsim*(var-1)+isim)*3))
     enddo
     ideb = ideb+3*bccon%frecv%nvect*nsim
     do var = 1, bccon%frecv%ntens
-      bccon%frecv%tabtens(var)%tens(ic)%mat = reshape(boco%gridcon%rrecv(ideb+(nsim*(var-1)+isim-1)*9+1:ideb+(nsim*(var-1)+isim)*9), (/ 3, 3 /))
+      bccon%frecv%tabtens(var)%tens(nsim*(ic-1)+isim)%mat = reshape(boco%gridcon%rrecv(ideb+(nsim*(var-1)+isim-1)*9+1:ideb+(nsim*(var-1)+isim)*9), (/ 3, 3 /))
     enddo
   enddo
 enddo ! end loop simulation
