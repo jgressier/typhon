@@ -80,19 +80,32 @@ call print_cfdtools_header("TY2DMESH")
 dimspl = nsplit-2
 strnsp = strof(dimspl)
 
+! Lengths
 lx = 1._krp
 ly = 1._krp
+! Functions
 fctscale = .false.
 cstscale = .false.
 strx = "x"
 stry = "y"
+! Dimensions
 ni = 0
 nj = 0
 filename  = ""
 ntype_mesh = 0
 
 nargs    = command_argument_count()
+
 iarg     = 1
+do while (iarg <= nargs)
+  call read_command_argument(iarg, str_opt, lincr)
+  if ( str_opt == "-h" &
+  .or. str_opt == "--help" ) then
+    call print_help()
+    stop
+  endif
+  iarg = iarg + 1
+enddo
 
 niwjmin = 0
 niwjmax = 0
@@ -112,11 +125,13 @@ fileread = .FALSE.
 niread = .FALSE.
 njread = .FALSE.
 
+iarg     = 1
 do while (iarg <= nargs)
   call read_command_argument(iarg, str_opt, lincr)
   select case(str_opt)
   ! number of cells or window sizes array
-  case ("-nx","-ny","-ni","-nj")
+  case ("-nx","-ny", &
+        "-ni","-nj")
     ! change to "ni" or "nj"
     str_ndir = str_tr(str_opt(2:), 'xy', 'ij')
     ! other direction
@@ -199,16 +214,16 @@ do while (iarg <= nargs)
     cstscale = .true.
     if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
     call read_command_argument(iarg, lx, lincr, ierr, str_val)
-    if (ierr/=0) &
-      call cfd_error("real expected after '"//trim(str_opt)//"'"//", found '"//trim(str_val)//"'")
+    if (ierr/=0) call cfd_error("real expected after '"//trim(str_opt)//"'" &
+                                          //", found '"//trim(str_val)//"'")
   ! length in y direction
   case ("-ly")
     ! read real
     cstscale = .true.
     if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
     call read_command_argument(iarg, ly, lincr, ierr, str_val)
-    if (ierr/=0) call cfd_error("real expected after '"//trim(str_opt)//"'"// &
-                                ", found '"//trim(str_val)//"'")
+    if (ierr/=0) call cfd_error("real expected after '"//trim(str_opt)//"'" &
+                                          //", found '"//trim(str_val)//"'")
   ! split positions array
   case ("-fx")   ! scaling function for x
     fctscale = .true.
@@ -577,36 +592,7 @@ if (spliterr) then
 endif
 
 if (filename == "") then
-  print*,"command line: ty2dmesh [options] filename.tym"
-  print*
-  print*,"available options:"
-  print*
-  print*,"  -nx|-ni NI : number of I-cells (ex.: -ni 128, default "//trim(strof(ni_default))//")"
-  print*,"  -ny|-nj NJ : number of J-cells (ex.: -nj  64, default "//trim(strof(nj_default))//")"
-  print*
-  print*,"  -nx|-ni jmin|jmax NI(1)"//sep//"..."//sep//"NI(NWI) :"
-  print*,"                   list of I-window lengths on jmin|jmax boundary"
-  print*,"  -ny|-nj imin|imax NJ(1)"//sep//"..."//sep//"NJ(NWJ) :"
-  print*,"                   list of J-window lengths on imin|imax boundary"
-  print*
-  print*,"  -lx LX     : domain length (ex.: -lx 2.5, default 1)"
-  print*,"  -ly LY     : domain height (ex.: -ly 1.5, default 1)"
-  print*
-  print*,"  -fx expr   : scaling function of x,y,z (instead of -lx)"
-  print*,"  -fy expr   : scaling function of x,y,z (instead of -ly)"
-  print*
-  print*,"  -nisjmin|--nisplitjmin NSI NI(1) ... NI(NSI) :"
-  print*,"  -nisjmax|--nisplitjmax NSI NI(1) ... NI(NSI) :"
-  print*,"  -njsimin|--njsplitimin NSJ NJ(1) ... NJ(NSJ) :"
-  print*,"  -njsimax|--njsplitimax NSJ NJ(1) ... NJ(NSI) :"
-  print*,"               number of I/J-dir-splits for the I/J-min/max boundary"
-  print*,"               and list of split positions"
-  print*
-  print*,"  -quad      : generates quad (default)"
-  print*,"  -tri       : generates tri  (split each quad)"
-  print*,"  -tri4      : generates tri  (split each quad into 4 tri)"
-  print*
-  print*,repeat('-',40)
+  call print_help()
   call cfd_error("missing file name")
 else
   filename = trim(filename)//"."//xtyext_mesh
@@ -815,6 +801,49 @@ call typhonwrite_ustmesh(deftyphon, umesh)
 
 call typhon_close(deftyphon)
 print*,'done.'
+
+contains
+
+subroutine print_help()
+  implicit none
+  print*,"command line: ty2dmesh [options] filename.tym"
+  print*
+  print*,"available options:"
+  print*
+  print*,"  -h|--help  : print this help"
+  print*
+  ! Dimensions
+  print*,"  -nx|-ni NI : number of I-cells (ex.: -ni 128, default "//trim(strof(ni_default))//")"
+  print*,"  -ny|-nj NJ : number of J-cells (ex.: -nj  64, default "//trim(strof(nj_default))//")"
+  print*
+  print*,"  -nx|-ni jmin|jmax NI(1)"//sep//"..."//sep//"NI(NWI) :"
+  print*,"                   list of I-window lengths on jmin|jmax boundary"
+  print*,"  -ny|-nj imin|imax NJ(1)"//sep//"..."//sep//"NJ(NWJ) :"
+  print*,"                   list of J-window lengths on imin|imax boundary"
+  print*
+  ! Lengths
+  print*,"  -lx LX     : domain length (ex.: -lx 1.5, default 1)"
+  print*,"  -ly LY     : domain height (ex.: -ly 2.5, default 1)"
+  print*
+  ! Functions
+  print*,"  -fx expr   : scaling function of x from [0:1] (instead of -lx)"
+  print*,"  -fy expr   : scaling function of y from [0:1] (instead of -ly)"
+  print*
+  ! Splits
+  print*,"  -nisjmin|--nisplitjmin NSI NI(1) ... NI(NSI) :"
+  print*,"  -nisjmax|--nisplitjmax NSI NI(1) ... NI(NSI) :"
+  print*,"  -njsimin|--njsplitimin NSJ NJ(1) ... NJ(NSJ) :"
+  print*,"  -njsimax|--njsplitimax NSJ NJ(1) ... NJ(NSI) :"
+  print*,"               number of I/J-dir-splits for the I/J-min/max boundary"
+  print*,"               and list of split positions"
+  print*
+  ! Cell type
+  print*,"  -quad      : generates quad (default)"
+  print*,"  -tri       : generates tri  (split each quad)"
+  print*,"  -tri4      : generates tri  (split each quad into 4 tri)"
+  print*
+  print*,repeat('-',40)
+endsubroutine print_help
 
 endprogram
 !------------------------------------------------------------------------------!

@@ -32,7 +32,7 @@ interface stroff ! decimal form
   module procedure strof_realf, strof_doublef, strofr_realf, strofr_doublef
 endinterface
 
-contains 
+contains
 
 !------------------------------------------------------------------------------!
 ! Fonction : newstring from character "array"
@@ -222,21 +222,50 @@ function basename(str, suffix) result(strout)
 endfunction basename
 
 !------------------------------------------------------------------------------!
-! Function : check if "str" consists of figures ONLY (NO ignore blank)
+! Function : check if "str" consists of dec/hex digits ONLY (NO ignore blank)
 !------------------------------------------------------------------------------!
-logical function all_figures(str)
+#define verify_decdigits(str) verify(str,"0123456789")
+#define verify_hexdigits(str) verify(str,"0123456789abcdef")
+#define all_decdigits(str) ( verify_decdigits(str) == 0 )
+#define all_hexdigits(str) ( verify_hexdigits(str) == 0 )
 
-  implicit none
-  character(len=*), intent(in) :: str
-  integer                      :: i
+!!------------------------------------------------------------------------------!
+!! Function : check if "str" consists of decimal digits ONLY (NO ignore blank)
+!!------------------------------------------------------------------------------!
+!logical function all_decdigits(str)
+!
+!  implicit none
+!  character(len=*), intent(in) :: str
+!  integer                      :: i
+!
+!  all_decdigits = ( verify(str,"0123456789") == 0 )
+!
+!!  all_decdigits = .false.
+!!  do i = 1, len(str)
+!!    if (index("0123456789", str(i:i)) == 0) return
+!!  enddo
+!!  all_decdigits = .true.
+!
+!endfunction all_decdigits
 
-  all_figures = .false.
-  do i = 1, len(str)
-    if (index("0123456789", str(i:i)) == 0) return
-  enddo
-  all_figures = .true.
-
-endfunction all_figures
+!!------------------------------------------------------------------------------!
+!! Function : check if "str" consists of hex digits ONLY (NO ignore blank)
+!!------------------------------------------------------------------------------!
+!logical function all_hexdigits(str)
+!
+!  implicit none
+!  character(len=*), intent(in) :: str
+!  integer                      :: i
+!
+!  all_hexdigits = ( verify(str,"0123456789abcdef") == 0 )
+!
+!!  all_hexdigits = .false.
+!!  do i = 1, len(str)
+!!    if (index("0123456789abcdef", str(i:i)) == 0) return
+!!  enddo
+!!  all_hexdigits = .true.
+!
+!endfunction all_hexdigits
 
 !------------------------------------------------------------------------------!
 ! Function : check if "str" is a readable integer value
@@ -246,16 +275,12 @@ logical function is_int(str)
   implicit none
   character(len=*), intent(in) :: str
   character(len=len(str))      :: wstr
-  integer                      :: i, is
+  integer                      :: is
 
   is_int = .false.
   wstr = adjustl(str)
-  is = 1
-  if (index("+-", wstr(1:1)) /= 0) is = is +1
-  do i = is, len_trim(wstr)
-    if (index("0123456789", wstr(i:i)) == 0) return
-  enddo
-  is_int = .true.
+  is = 1 + scan(wstr(1:1), "+-")
+  is_int = all_decdigits(wstr(is:len_trim(wstr)))
 
 endfunction is_int
 
@@ -267,49 +292,50 @@ logical function is_real(str)
   implicit none
   character(len=*), intent(in) :: str
   character(len=len(str))      :: wstr
-  integer                      :: i, is, idot, iexp, nch
-  logical                      :: afterdot
+  integer                      :: i, is, idot, iexp, lstr
+  logical                      :: fractpart
 
   is_real = .false.             ! to return early if not real
   wstr = adjustl(str)
-  nch  = len_trim(wstr)         ! length of useful string
-  iexp = scan(wstr, "dDeE")     ! index of Ennn ~ 10^nnn
-  if (iexp == 0) iexp = nch+1   ! if no E then default index at the end of string (+1)
-  idot = index(wstr, '.')       ! index of dot separation
-  if (idot == 0) idot = iexp    ! if no dot then default index at same index as iexp
+  lstr = len_trim(wstr)         ! length of useful string
+
+  iexp = scan(wstr, "dDeE")     ! index of exponent separator (e.g. "E")
+  if (iexp == 0) iexp = lstr+1  ! if no expsep then default index at (end of string)+1
+  idot = index(wstr, ".")       ! index of decimal separator (".")
+  if (idot == 0) idot = iexp    ! if no decsep then default index at iexp
 
   ! -- check string after "." and before "E" --
 
   if (idot+1 <= iexp-1) then
-    ! -- all characters must be figures
-    if (.NOT. all_figures(wstr(idot+1:iexp-1))) return
-    afterdot = .true.
+    ! -- all characters must be decimal digits
+    if (.NOT. all_decdigits(wstr(idot+1:iexp-1))) return
+    fractpart = .true.
   else
-    afterdot = .false.
+    fractpart = .false.
   endif
 
   ! -- check string after "E" --
 
-  if (iexp == nch) return                  ! ending "E" not allowed
-  if ((iexp+1 <= nch)) then
-    is = iexp+1
-    ! -- if character is not the last, then it can be a sign -> increase index
-    if ((is /= nch).and.(index("+-", wstr(is:is)) /= 0)) is = is +1
-    ! -- all characters must be figures
-    if (.NOT. all_figures(wstr(is:nch))) return
+  if (iexp == lstr) return      ! trailing "E" not allowed
+  if (iexp+1 <= lstr) then
+    is = iexp + 1
+    ! -- if character is not the last, check optional sign
+    if (is /= lstr) is = is + scan(wstr(is:is), "+-")
+    ! -- all remaining characters must be decimal digits
+    if (.NOT. all_decdigits(wstr(is:lstr))) return
   endif
 
-  ! -- check "main" string (before dot) --
+  ! -- check string before "." --
 
-  is = 1
-  ! -- if character is a sign -> increase starting index
-  if (index("+-", wstr(is:is)) /= 0) is = is +1
-  if ((idot-1 >= is)) then
-    ! -- all characters must be figures
-    if (.NOT. all_figures(wstr(is:idot-1))) return
+  ! -- check optional leading sign --
+  is = 1 + scan(wstr(1:1), "+-")
+
+  if (idot-1 >= is) then
+    ! -- all characters must be decimal digits
+    if (.NOT. all_decdigits(wstr(is:idot-1))) return
   else
-    ! there is no main string : there should be a valid "afterdot" string
-    if (.NOT. afterdot) return
+    ! -- no integer part : there should be a valid "fractpart" string
+    if (.NOT. fractpart) return
   endif
   is_real = .true.
 
@@ -325,7 +351,7 @@ function strofr_int2(nb, l) result(strout)
   character(len=l)    :: strout   ! string
   character(len=3) :: sform
 
-  write(sform,'(i3)') l   
+  write(sform,'(i3)') l
   write(strout,'(i'//trim(adjustl(sform))//')') nb
 endfunction strofr_int2
 
@@ -339,7 +365,7 @@ function strofr_int4(nb, l) result(strout)
   character(len=l)    :: strout   ! string
   character(len=3) :: sform
 
-  write(sform,'(i3)') l   
+  write(sform,'(i3)') l
   write(strout,'(i'//trim(adjustl(sform))//')') nb
 endfunction strofr_int4
 
@@ -419,7 +445,7 @@ function strof_realf(nb, d) result(strout)
 endfunction strof_realf
 
 !------------------------------------------------------------------------------!
-! Fonction : tranformation real -> chaine de caracteres 
+! Fonction : tranformation real -> chaine de caracteres
 !------------------------------------------------------------------------------!
 function strofr_reale(nb, l, d) result(strout)
   implicit none
@@ -431,7 +457,7 @@ function strofr_reale(nb, l, d) result(strout)
 endfunction strofr_reale
 
 !------------------------------------------------------------------------------!
-! Fonction : tranformation real -> chaine de caracteres 
+! Fonction : tranformation real -> chaine de caracteres
 !------------------------------------------------------------------------------!
 function strofr_realf(nb, l, d) result(strout)
   implicit none
@@ -481,7 +507,7 @@ function strof_doublee(nb, d) result(strout)
 endfunction strof_doublee
 
 !------------------------------------------------------------------------------!
-! Fonction : tranformation real -> chaine de caracteres 
+! Fonction : tranformation real -> chaine de caracteres
 !------------------------------------------------------------------------------!
 function strofr_doublee(nb, l, d) result(strout)
   implicit none
@@ -493,7 +519,7 @@ function strofr_doublee(nb, l, d) result(strout)
 endfunction strofr_doublee
 
 !------------------------------------------------------------------------------!
-! Fonction : tranformation real -> chaine de caracteres 
+! Fonction : tranformation real -> chaine de caracteres
 !------------------------------------------------------------------------------!
 function strofr_doublef(nb, l, d) result(strout)
   implicit none
@@ -511,7 +537,7 @@ function samestring(str1, str2)
   implicit none
   character(len=*), intent(in) :: str1, str2
   logical                      :: samestring
-  
+
   !print*,"samestring: ",index(trim(str1),trim(str2))," ",&
   !index(trim(str2),trim(str1))
   !print*,"samestring:",trim(str1),"#",trim(str2)
@@ -525,10 +551,10 @@ endfunction samestring
 !------------------------------------------------------------------------------!
 function fill(str, l)  result(strout)
   implicit none
-  character(len=l) :: strout  
+  character(len=l) :: strout
   character(len=*), intent(in) :: str
   integer                      :: l, lstr
- 
+
   lstr = len(str)
   if (l > lstr) then
     strout = str//repeat(' ',l-lstr)
@@ -538,7 +564,7 @@ function fill(str, l)  result(strout)
 endfunction fill
 
 !------------------------------------------------------------------------------!
-! Fonction : Donne le nombre d'un caractere donne dans un chaine
+! Fonction : Donne le nombre d'occurrences d'un caractere donne dans une chaine
 !------------------------------------------------------------------------------!
 function numbchar(str, c)
   implicit none
@@ -547,7 +573,7 @@ function numbchar(str, c)
   integer                      :: numbchar
 
   integer ideb, ipos, nb
-  
+
   nb   = 0
   ideb = 1
   ipos = index(str(ideb:),c)
@@ -562,7 +588,7 @@ endfunction numbchar
 !------------------------------------------------------------------------------!
 ! Procedure : Renvoie un tableau des elements (chaines) separes de la chaine
 !             Le separateur optionnel est l'espace par defaut
-!             Les elements vides sont ignores                  
+!             Les elements vides sont ignores
 !------------------------------------------------------------------------------!
 subroutine splitstring_string(strin, nw, strout, ierr, separator)
 
@@ -571,13 +597,12 @@ subroutine splitstring_string(strin, nw, strout, ierr, separator)
   character(len=*), intent(in)                   :: strin      ! chaine entree
   character(len=*), intent(in), optional, target :: separator  ! separateur de mot
 ! -- sorties --
-  integer, intent(out)                        :: nw     ! nombre de mots
-  character(len=*), dimension(:), intent(out) :: strout ! tableau de chaine resultat
-  integer, intent(out), optional              :: ierr   ! -1 si erreur
+  integer         , intent(out)               :: nw     ! nombre de mots
+  character(len=*), intent(out), dimension(:) :: strout ! tableau de chaine resultat
+  integer         , intent(out), optional     :: ierr   ! -1 si erreur
 ! -- variables internes --
   integer       :: id, is, lstr      ! entiers provisoires
   integer       :: nwmax
-  character(len=256) :: strtmp, stritem
   character, target  :: sepstr = ':'
   character, pointer :: sep
 
@@ -590,31 +615,30 @@ subroutine splitstring_string(strin, nw, strout, ierr, separator)
   id   = 1
   nw   = 0
   nwmax = size(strout)
-  strtmp = strin
-  lstr   = len_trim(strtmp)
+  lstr   = len_trim(strin)
   do while (ierr == 0 .AND. id<lstr)
-    is = scan(strtmp(id:), separator)           ! recherche des separateurs
+    is = scan(strin(id:), separator)            ! recherche des separateurs
     if (is==0) then                             ! si pas de separateur
       is = lstr + 1                             !   le mot restant est retenu
     else                                        ! si separateur
       is = is + id - 1                          !   le mot est retenu
     endif
-    if (len_trim(strtmp(id:is-1))/=0) then              ! si le mot est non vide
-      nw = nw + 1                               !   l index est incremente
-      if (nw<=nwmax) then                       !   si l index convient
-        strout(nw) = adjustl(strtmp(id:is-1))           !     le mot est ajoute
+    if (len_trim(strin(id:is-1))/=0) then       ! si le mot est non vide
+      nw = nw + 1                               !   index est incremente
+      if (nw<=nwmax) then                       !   si index convient
+        strout(nw) = adjustl(strin(id:is-1))    !     le mot est ajoute
       endif
     endif
     id = is + 1
   enddo
-  if (nw>nwmax) nw = -nw
+  if (nw>nwmax) nw = -nw                        ! si index superieur au max, signe -
 
 endsubroutine splitstring_string
 
 !------------------------------------------------------------------------------!
 ! Procedure : Renvoie un tableau des elements (entiers) separes de la chaine
 !             Le separateur optionnel est l'espace par defaut
-!             Les elements vides sont ignores                  
+!             Les elements vides sont ignores
 !------------------------------------------------------------------------------!
 subroutine splitstring_integer(strin, nw, intout, ierr, separator)
 
@@ -624,12 +648,11 @@ subroutine splitstring_integer(strin, nw, intout, ierr, separator)
   character(len=*), intent(in), optional, target :: separator  ! separateur de mot
 ! -- sorties --
   integer, intent(out)               :: nw     ! nombre de mots
-  integer, dimension(:), intent(out) :: intout ! tableau d entier resultat
+  integer, intent(out), dimension(:) :: intout ! tableau d entier resultat
   integer, intent(out), optional     :: ierr   ! -1 si erreur
 ! -- variables internes --
-  integer       :: i, n       ! entiers provisoires
+  integer       :: id, is, lstr      ! entiers provisoires
   integer       :: nwmax
-  character(len=160) :: strtmp, stritem
   character, target  :: sepstr = ':'
   character, pointer :: sep
 
@@ -639,28 +662,28 @@ subroutine splitstring_integer(strin, nw, intout, ierr, separator)
     sep => sepstr
   endif
   ierr = 0
-  n    = 1
+  id   = 1
   nw   = 0
   nwmax = size(intout)
-  strtmp = adjustl(strin)                       ! la chaine restante est initialisee
-  do while (ierr == 0 .AND. n/=0)
-    n = scan(strtmp, separator)                 ! recherche des separateurs
-    if (n==0) then                              ! si pas de separateur
-      stritem = strtmp                          !   le mot restant est retenu
+  lstr   = len_trim(strin)
+  do while (ierr == 0 .AND. id<=lstr)
+    is = scan(strin(id:), separator)            ! recherche des separateurs
+    if (is==0) then                             ! si pas de separateur
+      is = lstr + 1                             !   le mot restant est retenu
     else                                        ! si separateur
-      stritem = adjustl(strtmp(1:n-1))          !   le mot est retenu
-      strtmp = adjustl(strtmp(n+1:))            !   la chaine restante est extraite
+      is = is + id - 1                          !   le mot est retenu
     endif
-    if (len_trim(stritem)/=0) then              ! si le mot est non vide
-      nw = nw+1                                 !   index est incremente
+    if (len_trim(strin(id:is-1))/=0) then       ! si le mot est non vide
+      nw = nw + 1                               !   index est incremente
       if (nw<=nwmax) then                       !   si index inferieur au max
-        if (is_int(stritem)) then               !     si on a un entier
-          read(stritem,*,iostat=ierr) intout(nw)!       le nbre entier est ajoute
+        if (is_int(strin(id:is-1))) then        !     si on a un entier
+          read(strin(id:is-1),*,iostat=ierr) intout(nw)!le nbre entier est ajoute
         else                                    !     sinon
           ierr = 1                              !       erreur
         endif
       endif
     endif
+    id = is + 1
   enddo
   if (nw>nwmax) nw = -nw                        ! si index superieur au max, signe -
 
@@ -703,7 +726,7 @@ subroutine nthword(nw, strin, strout, info, separator)
       n      = n + 1                       ! on coupe le mot courant
       strout = adjustl(strout(i+1:len(strout)))
     endif
-  enddo  
+  enddo
 
   if (info == 0) then                    ! on doit couper le reste de la chaine
     i = scan(strout, separator)            ! recherche de separateurs
@@ -731,7 +754,7 @@ integer function index_rightpar (str, ip, info)
   integer                      :: i, ipl, ipr  ! index de chaine
 
   len    = len_trim(str)
-  np     = 1         
+  np     = 1
   i      = ip+1
   do while ((i <= len).and.(np > 0))
     select case(str(i:i))

@@ -1,7 +1,8 @@
 !------------------------------------------------------------------------------!
 ! Routine: typhonread_ustmesh
 !
-! Read a USTMESH structure to XBIN format
+! Function
+!   Read a XBIN format to USTMESH structure
 !------------------------------------------------------------------------------!
 subroutine typhonread_ustmesh(deftyphon, umesh)
 
@@ -15,12 +16,12 @@ use USTMESH
 implicit none
 
 ! -- INPUTS --
-type(st_deftyphon)       :: deftyphon
-type(st_ustmesh)         :: umesh
+type(st_deftyphon) , intent(in)  :: deftyphon
 
 ! -- OUTPUTS --
+type(st_ustmesh)   , intent(out) :: umesh
 
-! -- private data --
+! -- Internal variables --
 integer                       :: info, iunit
 type(st_deftyphon)            :: deftyphon2
 type(st_xbindatasection)      :: xbindata
@@ -30,6 +31,9 @@ type(st_deftymesh)            :: deftymesh, deftymesh2
 integer(xbinkip)              :: ielem, ib
 
 ! -- BODY --
+
+!-----------------------------------------------------------------
+! Initialization of USTMESH
 
 call init_ustmesh(umesh, 1)   ! default values initialization
 
@@ -45,7 +49,7 @@ call typhonread_umeshheader(deftyphon, umesh, deftymesh)
 ! -- if shared mesh --
 
 select case(deftyphon%meshdef)
-case(mesh_full) 
+case(mesh_full)
   deftyphon2 = deftyphon
   deftymesh2 = deftymesh
 case(mesh_shared, mesh_sharedcon)

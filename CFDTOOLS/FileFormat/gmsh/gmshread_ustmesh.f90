@@ -1,7 +1,8 @@
 !------------------------------------------------------------------------------!
 ! Routine: gmshread_ustmesh
 !
-! Read a GMSH format to USTMESH structure
+! Function
+!   Read a GMSH format to USTMESH structure
 !------------------------------------------------------------------------------!
 subroutine gmshread_ustmesh(defgmsh, umesh)
 
@@ -12,17 +13,20 @@ use USTMESH
 implicit none
 
 ! -- INPUTS --
-type(st_defgmsh)       :: defgmsh
-type(st_ustmesh)         :: umesh
+type(st_defgmsh) , intent(inout) :: defgmsh
 
 ! -- OUTPUTS --
+type(st_ustmesh) , intent(out)   :: umesh
 
-! -- private data --
+! -- Internal variables --
 integer       :: info, iunit
 logical       :: nodes, elements, marks, eof
 character(len=gmshlen) :: sectionline
 
 ! -- BODY --
+
+!-----------------------------------------------------------------
+! Initialization of USTMESH
 
 call init_ustmesh(umesh, 1)   ! default values initialization
 
@@ -32,7 +36,7 @@ marks    = .false.
 
 do while (.not.eof)
   call gmshread_section(defgmsh, sectionline)
-  
+
   select case(sectionline)
   case("$Nodes") ! ----- read NODES -----
     if (nodes) call cfd_error("GMSH: too many nodes section")
@@ -55,7 +59,7 @@ do while (.not.eof)
 
   case("EOF") ! end of file
     eof = .true.
-    
+
   case default
     call cfd_print("  . unused section "//trim(sectionline))
     call gmshseek_section(defgmsh, trim(sectionline))
@@ -68,6 +72,7 @@ endif
 
 call cfd_print("> match boundary condition and marks")
 call gmsh_match_phynames(defgmsh, umesh)
+
 call check_ustmesh_elements(umesh)
 
 endsubroutine gmshread_ustmesh

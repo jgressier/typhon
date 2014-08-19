@@ -1,11 +1,11 @@
 !------------------------------------------------------------------------------!
-! Procedure : readcgns_ustconnect 
-!                                 
-! Function                        
+! Procedure : readcgns_ustconnect
+!
+! Function
 !   Read CGNS connectivity in TYPHON structure
 !
 !------------------------------------------------------------------------------!
-subroutine readcgns_ustconnect(unit, ib, iz, umesh)
+subroutine readcgns_ustconnect(iunit, ib, iz, umesh)
 
 use IOCFD
 use STRING
@@ -15,18 +15,18 @@ use CGNS_STRUCT
 implicit none
 
 ! -- INPUTS --
-integer             :: unit       ! numero d'unite pour la lecture
-integer             :: ib, iz     ! numero de base et de zone
+integer             :: iunit      ! i/o unit for reading
+integer             :: ib, iz     ! base and zone numbers
 
 ! -- OUTPUTS --
-type(st_ustmesh)    :: umesh      ! connectivity cell->vertex, face->vertex
+type(st_ustmesh)    :: umesh      ! cell->vertex, face->vertex connectivity
 
-! -- Internal variables --                                        
-integer             :: ier        ! code erreur
-integer             :: ifam, nfam ! indice de famille et nombre total de familles
-integer             :: ideb, ifin ! indice des cellules repertoriees dans la section
+! -- Internal variables --
+integer             :: ier        ! error code
+integer             :: ifam, nfam ! family index and total number of families
+integer             :: ideb, ifin ! cell indices in the section
 integer             :: itype      ! CGNS element type
-integer             :: nbd, ip    ! unused integers
+integer             :: nbd, ip    ! CGNS unused integers
 integer, dimension(:,:), allocatable &
                     :: elem       ! intermediate CGNS connectivity
 character(len=cgnslen) :: cgnsname ! cgns   string
@@ -35,11 +35,11 @@ integer, parameter  :: nmax_cell = 20        ! max nb of cells in vtex->cell con
 type(st_connect)    :: face_vtex, &          ! temporary face->vtex connectivity
                        face_cell, &          ! temporary face->cell connectivity
                        face_Ltag, face_Rtag  ! left & right tag for face
-integer              :: ntotcell              ! calcul du nombre total de cellules
-integer              :: maxvtex, maxface      ! nombre de sommets/face, face/cellule
-integer              :: nface                 ! estimation du nombre de faces
-integer              :: iconn, icell, ivtex   ! indices courants
-integer              :: ielem, nelem , nvtex    
+integer              :: ntotcell              ! total number of cells
+integer              :: maxvtex, maxface      ! max number of vtex/face, face/cell
+integer              :: nface                 ! estimated number of faces
+integer              :: iconn, icell, ivtex   ! indices
+integer              :: ielem, nelem , nvtex
 integer              :: ElementDataSize       ! size of data element
 integer, allocatable :: imixedtype(:)         ! type  of element in MIXED section
 integer, allocatable :: imixedindex(:)        ! index of element in MIXED section
@@ -49,10 +49,10 @@ integer              :: iv, if, nelem_mixed, ie, ind
 ! -- BODY --
 
 !-----------------------------------------------------------------
-! Number of CGNS element section
-! (les cellules sont regroupees par section selon leur type)
+! Number of CGNS element sections
+! (cells are gathered in sections by type)
 
-call cg_nsections_f(unit, ib, iz, nfam, ier)
+call cg_nsections_f(iunit, ib, iz, nfam, ier)
 if (ier /= 0) call cfd_error("(CGNS) cannot read number of element sections")
 
 call cfd_print("* reading CGNS element connectivity: "//trim(strof(nfam))//" sections")
@@ -64,28 +64,29 @@ nface = 0
 
 do ifam = 1, nfam               ! LOOP on CGNS sections
 
-  call cg_section_read_f(unit, ib, iz, ifam, cgnsname, icgnstype, ideb, ifin, nbd, ip, ier)
+  call cg_section_read_f(iunit, ib, iz, ifam, cgnsname, icgnstype, ideb, ifin, nbd, ip, ier)
   if (ier /= 0) call cfd_error("(CGNS) cannot read section information")
 
   !-----------------------------------------------------------------
   ! read CGNS section
- 
+
   call cg_npe_f(icgnstype, nvtex, ier)
   if (ier /= 0)    call cfd_error("(CGNS) cannot get number of vertex per element")
 
   nelem = ifin - ideb + 1
-  
-  write(str_w,'(a,i8,a,i2,a)') ". section "//cgnsname(1:10)//":",nelem," "//trim(ElementTypeName(icgnstype))//" elements (",nvtex," vertices)"
+
+  write(str_w,'(a,i8,a,i2,a)') ". section "//cgnsname(1:10)//":",nelem, &
+    " "//trim(ElementTypeName(icgnstype))//" elements (",nvtex," vertices)"
   call cfd_print(adjustl(str_w))
 
   if (nvtex == 0) then ! for special elements
-    call cg_ElementDataSize_f(unit, ib, iz, ifam, ElementDataSize, ier)
-    allocate(elem(1,ElementDataSize))  
+    call cg_ElementDataSize_f(iunit, ib, iz, ifam, ElementDataSize, ier)
+    allocate(elem(1,ElementDataSize))
   else
     allocate(elem(nvtex,nelem))  ! temporary array (help to swap dimensions)
   endif
   elem = 0
-  call cg_elements_read_f(unit, ib, iz, ifam, elem, ip, ier)       ! lecture
+  call cg_elements_read_f(iunit, ib, iz, ifam, elem, ip, ier)       ! lecture
   if (ier /= 0) call cfd_error("(CGNS) cannot read element->vertex connectivity")
 
   select case(icgnstype)
@@ -116,14 +117,14 @@ do ifam = 1, nfam               ! LOOP on CGNS sections
                  max(BAR_2, TRI_3, QUAD_4, TETRA_4, PYRA_5, PENTA_6, HEXA_8)
       nelem = count(imixedtype(1:nelem_mixed) == icgtype)
       if (nelem > 0) then
-        nvtex       = nvtex_cgnselement(icgtype)  
+        nvtex       = nvtex_cgnselement(icgtype)
         ityphontype = cgns2typhon_elemtype(icgtype)
         call cfd_print("  . create new element section: "//strofr(nelem,7)//" "//trim(ElementTypeName(icgtype)))
         call addelem_genelemvtex(umesh%cellvtex)
         ielem = umesh%cellvtex%nsection
         call new_elemvtex(umesh%cellvtex%elem(ielem), nelem, ityphontype)
         icell = 0
-        do ie = 1, nelem_mixed  
+        do ie = 1, nelem_mixed
           if (imixedtype(ie) == icgtype) then
             icell = icell + 1
             ind   = imixedindex(ie)
@@ -141,11 +142,11 @@ do ifam = 1, nfam               ! LOOP on CGNS sections
 
   case default
     call cfd_error("Unknown CGNS element")
-  endselect 
+  endselect
 
   deallocate(elem)
 
-enddo ! fin de la boucle sur les sections
+enddo ! End of LOOP on CGNS sections
 
 !------------------------------
 contains
@@ -170,7 +171,7 @@ do while (ie <= dim)
   ielem         = ielem + 1
   iindex(ielem) = ie                 ! index of element
   itype(ielem)  = element(1,ie)      ! type  of element
-  nvtex         = nvtex_cgnselement(itype(ielem))  
+  nvtex         = nvtex_cgnselement(itype(ielem))
   !print*,ie,ielem,itype(ielem),nvtex
   if (nvtex <= 0)  &
     call cfd_error("Unexpected CGNS element in MIXED section: "//trim(strof(itype(ielem))))

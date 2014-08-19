@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------!
 !> @brief GMSH module, definition, reading routines
-!! GMSH ( http://geuz.org/gmsh/ )format is detailed on 
+!! GMSH ( http://geuz.org/gmsh/ ) format is detailed on
 !! http://geuz.org/gmsh/doc/texinfo/gmsh.html#File-formats
 !! the current implementation can read
 !! NODES section
@@ -88,25 +88,44 @@ contains
 !------------------------------------------------------------------------------!
 !> @brief open GMSH file
 !------------------------------------------------------------------------------!
-subroutine gmsh_openread(iunit, filename, defgmsh)
+subroutine gmsh_openread(filename, defgmsh)
 implicit none
 ! -- INPUTS --
-integer            :: iunit
-character(len=*)   :: filename
+character(len=*) , intent(in)  :: filename
 ! -- OUTPUTS --
-type(st_defgmsh) :: defgmsh
-! -- private data --
+type(st_defgmsh) , intent(out) :: defgmsh
+! -- Internal variables --
 integer :: info
 ! -- BODY --
 
-  open(unit=iunit, file=trim(filename), form='formatted', iostat = info)
+  defgmsh%iunit = getnew_io_unit()
+  open(unit   = defgmsh%iunit, &
+       file   = trim(filename), &
+       form   = 'formatted', &
+       iostat = info)
   if (info /= 0) &
     call cfd_error("GMSH: unable to open file "//trim(filename))
   call gmshread_filedef(defgmsh)
   if (defgmsh%version > gmsh_maxver) &
     call cfd_error("GMSH: unable to handle this GMSH format version number")
 
-end subroutine gmsh_openread
+endsubroutine gmsh_openread
+
+!------------------------------------------------------------------------------!
+!> @brief close GMSH file
+!------------------------------------------------------------------------------!
+subroutine gmsh_close(defgmsh)
+implicit none
+! -- INPUTS --
+type(st_defgmsh) , intent(in)  :: defgmsh
+! -- OUTPUTS --
+! -- Internal variables --
+integer :: info
+! -- BODY --
+
+  call close_io_unit(defgmsh%iunit)
+
+endsubroutine gmsh_close
 
 !------------------------------------------------------------------------------!
 !> @brief reads up to seeked section
@@ -114,9 +133,9 @@ end subroutine gmsh_openread
 recursive subroutine gmshseek_section(defgmsh, section)
 implicit none
 ! -- INPUTS/OUTPUTS --
-type(st_defgmsh)       :: defgmsh
-character(len=*)       :: section
-! -- private data --
+type(st_defgmsh) , intent(in) :: defgmsh
+character(len=*) , intent(in) :: section
+! -- Internal variables --
 integer                :: info
 character(len=gmshlen) :: line
 logical                :: found
@@ -124,7 +143,7 @@ logical                :: found
 
 found = .false.
 do while (.not.found)
-  read(defgmsh%iunit,*) line 
+  read(defgmsh%iunit,*) line
   if (samestring(line, section)) then
     found = .true.
     print*,'gmsh found '//trim(section)
@@ -142,7 +161,7 @@ do while (.not.found)
 enddo
 if (.not.found) call cfd_error("GMSH: bad header, expecting "//section)
 
-end subroutine gmshseek_section
+endsubroutine gmshseek_section
 
 !------------------------------------------------------------------------------!
 !> @brief reads up to gmsh section (or EOF) and return it ($* or EOF)
@@ -150,9 +169,9 @@ end subroutine gmshseek_section
 subroutine gmshread_section(defgmsh, section)
 implicit none
 ! -- INPUTS/OUTPUTS --
-type(st_defgmsh)                    :: defgmsh
-character(len=gmshlen), intent(out) :: section
-! -- private data --
+type(st_defgmsh)       , intent(in)  :: defgmsh
+character(len=gmshlen) , intent(out) :: section
+! -- Internal variables --
 integer                :: info
 character(len=gmshlen) :: line
 logical                :: found
@@ -160,14 +179,14 @@ logical                :: found
 
 found = .false.
 do while (.not.found)
-  read(defgmsh%iunit,*) line 
+  read(defgmsh%iunit,*) line
   if (samestring(line, '$Comments')) then
     print*,'gmsh comment section'
     do while (.not.samestring(line, '$EndComment'))
       read(defgmsh%iunit,*) line
       if (io_eof(defgmsh%iunit)) call cfd_error("GMSH: unexpected end of file in comment section")
     enddo
-  elseif (line(1:1) == '$') then 
+  elseif (line(1:1) == '$') then
     found = .true.
   elseif (samestring(line, '')) then   ! empty line
     ! nothing to do
@@ -182,7 +201,7 @@ if (found) then
 else
   call cfd_error("GMSH: no section found")
 endif
-end subroutine gmshread_section
+endsubroutine gmshread_section
 
 !------------------------------------------------------------------------------!
 !> @brief read gmsh header definition
@@ -190,8 +209,8 @@ end subroutine gmshread_section
 subroutine gmshread_filedef(defgmsh)
 implicit none
 ! -- INPUTS/OUTPUTS --
-type(st_defgmsh)       :: defgmsh
-! -- private data --
+type(st_defgmsh) , intent(inout) :: defgmsh
+! -- Internal variables --
 integer                :: info, ftype, kprec
 character(len=gmshlen) :: line
 character(len=10)      :: word
@@ -234,7 +253,7 @@ endselect
 
 call gmshseek_section(defgmsh, '$EndMeshFormat')
 
-end subroutine gmshread_filedef
+endsubroutine gmshread_filedef
 
 !------------------------------------------------------------------------------!
 ! read gmsh NODES
@@ -242,9 +261,9 @@ end subroutine gmshread_filedef
 subroutine gmshread_nodes(defgmsh, mesh)
 implicit none
 ! -- INPUTS/OUTPUTS --
-type(st_defgmsh)       :: defgmsh
-type(st_mesh)          :: mesh
-! -- private data --
+type(st_defgmsh) , intent(inout) :: defgmsh
+type(st_mesh)    , intent(out)   :: mesh
+! -- Internal variables --
 integer                   :: info, i
 character(len=gmshlen)    :: line
 integer(kip), allocatable :: ivtex(:)
@@ -263,9 +282,9 @@ allocate(ivtex(mesh%nvtex))
 do i = 1, mesh%nvtex
   read(defgmsh%iunit,*) ivtex(i), vtex
   if (ivtex(i) <= mesh%nvtex) then
-    mesh%vertex(ivtex(i),1,1)%x = vtex(1,1) 
-    mesh%vertex(ivtex(i),1,1)%y = vtex(2,1) 
-    mesh%vertex(ivtex(i),1,1)%z = vtex(3,1) 
+    mesh%vertex(ivtex(i),1,1)%x = vtex(1,1)
+    mesh%vertex(ivtex(i),1,1)%y = vtex(2,1)
+    mesh%vertex(ivtex(i),1,1)%z = vtex(3,1)
   else
     call cfd_error("GMSH: vertex sparse filling not allowed")
   endif
@@ -276,7 +295,7 @@ deallocate(vtex, ivtex)
 
 call gmshseek_section(defgmsh, '$EndNodes')
 
-end subroutine gmshread_nodes
+endsubroutine gmshread_nodes
 
 !------------------------------------------------------------------------------!
 ! read gmsh ELEMENTS
@@ -286,7 +305,7 @@ implicit none
 ! -- INPUTS/OUTPUTS --
 type(st_defgmsh)      :: defgmsh
 type(st_ustmesh)      :: umesh        ! mesh connectivity
-! -- private data --
+! -- Internal variables --
 integer, parameter        :: maxntag  = 3
 integer, parameter        :: maxnnode = 27   ! second order hexa
 integer                   :: info, i, ic, it, n, nnode, ntag, null(10), maxtag
@@ -338,7 +357,7 @@ do it = 1, maxelem
         n = n+1
         pelem%ielem(n)  = ielem(ic)
         call set_elem(null(1), pelem%elemvtex(n,:), it, elem(ic,:))
-      endif 
+      endif
     enddo
     pelem%nelem = n
     print*,'  found',n
@@ -365,7 +384,7 @@ do it = 1, maxtag    ! loop on all tags, create all boco, even empty to link wit
       if (itag(1,ic) == it) then  ! and copy element if matching tag
         n = n+1
         umesh%boco(it)%itag(intag) = ielem(ic)
-      endif 
+      endif
     enddo
     if (n /= intag) call cfd_error("mismatch number of tags")
   endif
@@ -377,7 +396,7 @@ deallocate(ielem, itype, itag, elem, nelem)
 
 call gmshseek_section(defgmsh, '$EndElements')
 
-end subroutine gmshread_elemvtex
+endsubroutine gmshread_elemvtex
 
 !------------------------------------------------------------------------------!
 !> @brief read gmsh marks (physical names)
@@ -386,7 +405,7 @@ subroutine gmshread_phynames(defgmsh)
 implicit none
 ! -- INPUTS/OUTPUTS --
 type(st_defgmsh)       :: defgmsh
-! -- private data --
+! -- Internal variables --
 integer                   :: info, i, idim, inum
 character(len=gmshname)   :: name
 integer(kip), allocatable :: ivtex(:)
@@ -412,7 +431,7 @@ endif
 
 call gmshseek_section(defgmsh, '$EndPhysicalNames')
 
-end subroutine gmshread_phynames
+endsubroutine gmshread_phynames
 
 !------------------------------------------------------------------------------!
 !> @brief define boco tags/family names with gmsh marks (physical names)
@@ -422,7 +441,7 @@ implicit none
 ! -- INPUTS/OUTPUTS --
 type(st_defgmsh)       :: defgmsh
 type(st_ustmesh)       :: umesh
-! -- private data --
+! -- Internal variables --
 integer                   :: ib, itag
 ! -- BODY --
 
@@ -434,7 +453,7 @@ do ib = 1, umesh%nboco
   endif
 enddo
 
-end subroutine gmsh_match_phynames
+endsubroutine gmsh_match_phynames
 
 !------------------------------------------------------------------------------!
 ! Function : compute number of VTEX in ELEMENT DEFINITION
@@ -442,7 +461,7 @@ end subroutine gmsh_match_phynames
 integer function nvtex_gmshelement(itype)
 implicit none
 ! -- dummy arguments --
-integer(kpp), intent(in)  :: itype
+integer(kpp) , intent(in)  :: itype
 
 select case(itype)
 case(gmsh_node1)
@@ -507,7 +526,7 @@ case default
   nvtex_gmshelement = -1
 endselect
 
-end function nvtex_gmshelement
+endfunction nvtex_gmshelement
 
 !------------------------------------------------------------------------------!
 ! Function : equivalent typhon type of GMSH element
@@ -515,8 +534,8 @@ end function nvtex_gmshelement
 integer(kpp) function elemtype_gmshelem(gtype)
 implicit none
 ! -- dummy arguments --
-integer(kpp), intent(in)  :: gtype
-integer(kpp)              :: itype
+integer(kpp) , intent(in)  :: gtype
+integer(kpp)               :: itype
 integer(kip), dimension(maxnbnodes) :: elem1, elem2
 
 call set_elem_gmshelem(itype, elem1, gtype, elem2)  ! dummy elems
@@ -530,10 +549,10 @@ endfunction elemtype_gmshelem
 subroutine set_elem_gmshelem(itype, elem, gtype, gmshelem)
 implicit none
 ! -- dummy arguments --
-integer(kpp), intent(in)  :: gtype
-integer(kip), intent(in)  :: gmshelem(:)
-integer(kpp), intent(out) :: itype
-integer(kip), intent(out) :: elem(:)
+integer(kpp) , intent(in)  :: gtype
+integer(kip) , intent(in)  :: gmshelem(:)
+integer(kpp) , intent(out) :: itype
+integer(kip) , intent(out) :: elem(:)
 
 select case(gtype)
 case(gmsh_node1)
@@ -578,7 +597,7 @@ endsubroutine set_elem_gmshelem
 
 
 
-endmodule
+endmodule GMSH
 !------------------------------------------------------------------------------!
 ! history:
 ! Mar  2014: creation

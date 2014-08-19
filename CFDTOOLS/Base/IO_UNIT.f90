@@ -9,18 +9,14 @@ implicit none
 
 ! -- PUBLIC DATA -------------------------------------------------------------
 
-!integer :: getnew_io_unit
-
 ! -- PRIVATE DATA -------------------------------------------------------------
 
-integer, private, parameter ::io_unit_min = 100
-integer, private, parameter ::io_unit_max = 500
+integer, private, parameter :: io_unit_min = 100
+integer, private, parameter :: io_unit_max = 500
 
-logical, private, dimension(io_unit_min:io_unit_max) :: io_unit_state = .false.
+logical, private, dimension(io_unit_min:io_unit_max) :: io_unit_opened = .false.
 
 ! -- INTERFACES -------------------------------------------------------------
-
-
 
 ! -- IMPLEMENTATION ---------------------------------------------------------
 contains
@@ -28,68 +24,58 @@ contains
 !------------------------------------------------------------------------------!
 ! getnew_io_unit: get first unused unit, -1 if not found
 !------------------------------------------------------------------------------!
-
 integer function getnew_io_unit()
 implicit none
-integer :: i 
+! -- INPUTS --
+! -- Internal variables --
+integer :: i
+! -- BODY --
 
-i = io_unit_min
-do while (i <= io_unit_max)
-  if (.not.io_unit_state(i)) exit   ! if not used
-  i = i + 1
+getnew_io_unit   = -1
+do i = io_unit_min, io_unit_max
+  if (.not.io_unit_opened(i)) then
+    io_unit_opened(i) = .true.
+    getnew_io_unit   = i
+    exit
+  endif
 enddo
-if (i <= io_unit_max) then
-  io_unit_state(i) = .true.
-  getnew_io_unit   = i
-else
-  getnew_io_unit   = -1
-endif
 
-endfunction
-
-!------------------------------------------------------------------------------!
-! set_closed_io_unit
-!------------------------------------------------------------------------------!
-subroutine set_closed_io_unit(iounit)
-implicit none
-integer :: iounit
-
-io_unit_state(iounit) = .false.
-
-endsubroutine set_closed_io_unit
+endfunction getnew_io_unit
 
 !------------------------------------------------------------------------------!
 ! close_io_unit
 !------------------------------------------------------------------------------!
 subroutine close_io_unit(iounit)
 implicit none
+! -- INPUTS --
 integer :: iounit
+! -- Internal variables --
+! -- BODY --
 
 close(iounit)
-call set_closed_io_unit(iounit)
+io_unit_opened(iounit) = .false.
 
 endsubroutine close_io_unit
 
 !------------------------------------------------------------------------------!
 ! test end of XBIN file
 !------------------------------------------------------------------------------!
-logical function io_eof(iunit)
+logical function io_eof(iounit)
 implicit none
 ! -- INPUTS --
-integer :: iunit
-! -- private data --
+integer :: iounit
+! -- Internal variables --
 integer info
+! -- BODY --
 
 #ifdef __INTEL_COMPILER
-  io_eof = eof(iunit)  ! intrinsic INTEL fortran
+  io_eof = eof(iounit)  ! intrinsic INTEL fortran
 #else
-  inquire(diunit, iostat=info)   ! fortran norm but does not work
+  inquire(iounit, iostat=info)   ! fortran norm but does not work
   io_eof = is_iostat_end(info)
 #endif
 
 endfunction io_eof
-
-
 
 endmodule IO_UNIT
 !------------------------------------------------------------------------------!

@@ -5,7 +5,7 @@
 !   Lecture des sommets d'une zone
 !
 !------------------------------------------------------------------------------!
-subroutine readcgnsvtex(unit, ib, iz, mesh)                 
+subroutine readcgnsvtex(unit, ib, iz, mesh)
 
 use CGNS_STRUCT   ! Definition des structures CGNS
 use IOCFD        ! Sorties standard TYPHON
@@ -18,10 +18,10 @@ integer             :: unit       ! numero d'unite pour la lecture
 integer             :: ib, iz     ! numero de base et de zone
 
 ! -- OUTPUTS --
-type(st_mesh)  :: mesh       ! MESH verticees
+type(st_mesh)  :: mesh       ! MESH vertices
 
 ! -- Internal variables --
-integer, parameter   :: cgns_size = 8                                      
+integer, parameter   :: cgns_size = 8
 integer              :: ier               ! code erreur
 real(4), allocatable :: vs(:,:,:)         ! intermediate SINGLE array
 real(8), allocatable :: vd(:,:,:)         ! intermediate DOUBLE array
@@ -30,7 +30,7 @@ character(len=100)   :: str_w   ! nom fantome
 
 ! -- BODY --
 
-call cfd_print("- reading CGNS nodes :"//trim(strof(mesh%idim))//"x"//trim(strof(mesh%jdim))//"x"//trim(strof(mesh%kdim)))
+call cfd_print("- reading CGNS nodes: "//trim(strof(mesh%idim))//"x"//trim(strof(mesh%jdim))//"x"//trim(strof(mesh%kdim)))
 
 select case(cgns_size)
 case(4)
@@ -39,7 +39,7 @@ case(4)
   ! Lecture de X
   call cg_coord_read_f(unit, ib, iz, 'CoordinateX', RealSingle, (/ 1, 1, 1/), &
        (/ mesh%idim,mesh%jdim,mesh%kdim /), vs, ier)
-  if (ier /= 0) call cfd_error("(CGNS) unable read X coordinate")
+  if (ier /= 0) call cfd_error("(CGNS) unable to read X coordinate")
 
   ! retranscription
   do k = 1, mesh%kdim
@@ -53,7 +53,7 @@ case(4)
   ! Lecture de Y
   call cg_coord_read_f(unit, ib, iz, 'CoordinateY', RealSingle, (/ 1, 1, 1/), &
        (/ mesh%idim,mesh%jdim,mesh%kdim /), vs, ier)
-  if (ier /= 0) call cfd_error("(CGNS) unable read Y coordinate")
+  if (ier /= 0) call cfd_error("(CGNS) unable to read Y coordinate")
 
   ! retranscription
   do k = 1, mesh%kdim
@@ -88,7 +88,7 @@ case(8)
   ! Lecture de X
   call cg_coord_read_f(unit, ib, iz, 'CoordinateX', RealDouble, (/ 1, 1, 1/), &
        (/ mesh%idim,mesh%jdim,mesh%kdim /), vd, ier)
-  if (ier /= 0) call cfd_error("(CGNS) unable read X coordinate")
+  if (ier /= 0) call cfd_error("(CGNS) unable to read X coordinate")
 
   ! retranscription
   do k = 1, mesh%kdim
@@ -102,7 +102,7 @@ case(8)
   ! Lecture de Y
   call cg_coord_read_f(unit, ib, iz, 'CoordinateY', RealDouble, (/ 1, 1, 1/), &
        (/ mesh%idim,mesh%jdim,mesh%kdim /), vd, ier)
-  if (ier /= 0) call cfd_error("(CGNS) unable read Y coordinate")
+  if (ier /= 0) call cfd_error("(CGNS) unable to read Y coordinate")
 
   ! retranscription
   do k = 1, mesh%kdim

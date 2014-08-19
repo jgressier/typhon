@@ -48,15 +48,16 @@ type st_mesh
   integer(kip)          :: nface
   integer(kip)          :: ncell                 ! nombre de faces et cellules totales
   integer(kip), pointer :: ivtex(:)              ! global index of vertex (1..maxvtex)
-  type(v3d), dimension(:,:,:), pointer &  ! coordonnees des sommets et centres
-                  :: vertex, centre        ! de cellules (i,j,k)
-  type(v3d), dimension(:,:,:), allocatable :: vertex_orig ! MRF addition: table of original vertex positions
-  type(st_face), dimension(:,:,:), pointer &
-                  :: iface !, jface, kface   ! tableaux de faces
-  real(krp), dimension(:,:,:), pointer &
-                  :: volume                ! volume des cellules
-  real(krp), dimension(:,:,:), pointer &
-                  :: metricsvm                ! transformation of a triangular cell (SV) to a standard triangle
+  type(v3d),     dimension(:,:,:), &                            ! coordonnees des sommets et centres
+                   pointer           :: vertex, centre          !   de cellules (i,j,k)
+  type(v3d),     dimension(:,:,:), &                            ! MRF addition:
+                   allocatable       :: vertex_orig             !   table of original vertex positions
+  type(st_face), dimension(:,:,:), &                            ! tableaux de faces
+                   pointer           :: iface !, jface, kface
+  real(krp),     dimension(:,:,:), &                            ! volume des cellules
+                   pointer           :: volume
+  real(krp),     dimension(:,:,:), &                            ! transformation of a triangular cell (SV)
+                   pointer           :: metricsvm               !   to a standard triangle
 endtype st_mesh
 
 ! -- INTERFACES -------------------------------------------------------------
