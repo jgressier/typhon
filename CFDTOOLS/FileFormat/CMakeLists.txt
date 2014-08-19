@@ -24,6 +24,8 @@ internal/TYFMT_PART.f90
 internal/TYFMT_MESH.f90
 internal/importtyphon_mesh.f90
 fluent/FLUENT.f90
+fluent/fluentread_ustmesh.f90
+fluent/importfluent_mesh.f90
 gmsh/GMSH.f90
 gmsh/importgmsh_mesh.f90
 gmsh/gmshread_ustmesh.f90

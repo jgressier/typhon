@@ -38,16 +38,15 @@ logical               :: needgeom, fileread
 type(st_fctfuncset)   :: fctenv
 !------------------------------------------------------------------------------!
 ! Gilles fluent/readmsh variables
-integer :: i,k
-integer :: mypos
+!integer :: i
 real*8       :: x(262144),y(262144),z(262144)
-integer(kpf) :: elemlist(262144)
+integer(kfp) :: elemlist(262144)
 character(len=64) :: str
-integer :: sctid
-integer :: spacedim
-integer :: f_zoneid, frstindx, lastindx, ntype, ctype, bctype, nd
-integer :: iunit1, iunit2
-integer :: iend
+!integer :: sctid
+!integer :: spacedim
+!integer :: f_zoneid, frstindx, lastindx, ntype, ctype, bctype, ndim
+!integer :: iunit1, iunit2
+logical :: iend
 !------------------------------------------------------------------------------!
 
 call print_cfdtools_header("fluent2typhon")
@@ -76,7 +75,7 @@ do while (iarg <= nargs)
       call cfd_error("too many filenames ("//trim(inputfile)//", "//trim(str_opt)//")")
     endif
     inputfile = trim(str_opt)
-    fileread  = .TRUE.
+    fileread  = .true.
   endselect
 enddo
 
@@ -94,7 +93,7 @@ endif
 
 filename = trim(inputfile)
 
-print*,'* Opening Fluent file: '//trim(filename)
+write(6,'(2a)') "* Opening Fluent file: ",trim(filename)
 
 !call typhon_openread(trim(filename), deftyphon)
 
@@ -104,133 +103,39 @@ print*,'* Opening Fluent file: '//trim(filename)
 
 !------------------------------------------------------------
 
-write(6,'(a)') "files :"
-write(6,'(2x,a)') "f.msh"
-write(6,'(2x,a)') "cube.msh"
-write(6,'(2x,a)') "cone.msh"
-write(6,'(2x,a)') "tube.msh"
-write(6,'(2x,a)') "chbr.msh X not working"
-
-! x = 1.0
-! 
-! OPEN(iunit1, FILE="mystream", STATUS="REPLACE", ACCESS="STREAM", FORM="FORMATTED")
-! WRITE(iunit1, "(4A)") "frst line", NEW_LINE("x"), "second line"
-! CLOSE(iunit1)
-! OPEN(iunit1, FILE="mystream", POSITION="APPEND", ACCESS="STREAM", FORM="UNFORMATTED")
-! do i = 1, 4
-!   y = sin(x*i/16.0d0)
-!   write(iunit1) y ; write(6,*) y
-! enddo
-! INQUIRE(iunit1, POS=mypos)
-! CLOSE(iunit1)
-! OPEN(iunit1, FILE="mystream", POSITION="APPEND", ACCESS="STREAM", FORM="FORMATTED")
-! WRITE(iunit1, "(A)") "last line"
-! WRITE(iunit1, "(A)") "very last line"
-! CLOSE(iunit1)
-! 
-! OPEN(iunit1, FILE="mystream", ACCESS="STREAM", FORM="FORMATTED")
-! OPEN(iunit2, FILE="mystream", ACCESS="STREAM", FORM="UNFORMATTED")
-! READ (iunit1, '(A)') str ; write(6,*) str
-! READ (iunit1, '(A)') str ; write(6,*) str
-! INQUIRE(iunit1, POS=mypos)
-! write(6,*) mypos
-! READ (iunit2, POS=mypos)
-! INQUIRE(iunit2, POS=mypos)
-! write(6,*) mypos
-! do i = 1, 4
-!   read(iunit2) x ; write(6,*) x
-! enddo
-! INQUIRE(iunit1, POS=mypos)
-! write(6,*) mypos
-! INQUIRE(iunit2, POS=mypos)
-! write(6,*) mypos
-! read(iunit1, '(a32,$)') str ; write(6,*) str
-! !READ (iunit1, '()', ADVANCE='NO', POS=mypos)
-! READ (iunit1, '(A)') str ; write(6,*) str
-! CLOSE(iunit1)
+!write(6,'(a)') "files :"
+!write(6,'(2x,a)') "f.msh"
+!write(6,'(2x,a)') "cube.msh"
+!write(6,'(2x,a)') "cone.msh"
+!write(6,'(2x,a)') "tube.msh"
+!write(6,'(2x,a)') "chbr.msh X not working"
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-call fluent_openread(trim(filename), deffluent)
+defmesh%filename = trim(filename)
 
-iunit1 = deffluent%iu_form   ! must not be seen by main program
-iunit2 = deffluent%iu_bin
-indopt = 1
-namopt = "main_____"
-hedopt = 0
-
-espion = 0
-
-do while (.TRUE.)
-  stropt = " "
-  indopt = 1
-  call fluent_get_sct_id(deffluent, sctid)
-  select case(sctid)
-  case(fluent_sct_comment)      ! Section : Comment
-    call fluent_get_sct_comment(deffluent)
-  case(fluent_sct_header)       ! Section : Header
-    call fluent_get_sct_header(deffluent)
-  case(fluent_sct_dim)          ! Section : Dimension
-    call fluent_get_sct_dim(iunit2, spacedim, deffluent%c)
-  case (fluent_sct_ignore1)     ! Section : ignore1 (ignored)
-    call fll_getlist(deffluent, str)
-    write(6,'(3a)') "ignore1   : '",trim(str),"'"
-  case(fluent_sct_nodes, &
-       fluent_sct_spbinnodes, &
-       fluent_sct_dpbinnodes)   ! Section : Nodes
-    call fluent_get_sct_nodes(iunit2, sctid, f_zoneid, &   ! todo: FILL deffluent structure
-                              x, y, z, &
-                              frstindx, lastindx, ntype, nd, spacedim, deffluent%c)
-  case(fluent_sct_cells, &
-       fluent_sct_bincells)     ! Section : Cells
-    call fluent_get_sct_cells(iunit2, sctid, f_zoneid, &   ! todo: FILL deffluent structure
-                              elemlist, &
-                              frstindx, lastindx, ctype, deffluent%c)
-  case(fluent_sct_faces, &
-       fluent_sct_binfaces)     ! Section : Cells
-    call fluent_get_sct_faces(iunit2, sctid, f_zoneid, &    ! todo: FILL deffluent structure
-                              elemlist, &
-                              frstindx, lastindx, bctype, deffluent%c)
-  case(fluent_sct_zone, &
-       fluent_sct_zoneb)        ! Section : Zone
-    call fll_getlist(deffluent, str)
-    call fll_getlist(deffluent, str)
-  case default                  ! Section : UNKNOWN
-    write(6,'(a)') "Error !"
-    write(str,'(i)') sctid
-    call affline("sctid="//trim(str))
-    call affline("c    ='"//deffluent%c//"'")
-    call stopp()
-  endselect
-  call fluent_get_sct_end(iunit2, iend, deffluent%c)
-  if ( iend .ne. 0 ) then
-    exit
-  endif
-enddo
-!
-
-call fluent_close(deffluent)
+call importfluent_mesh(defmesh, umesh)
 
 !------------------------------------------------------------
 ! Create mesh file
 !------------------------------------------------------------
-!
+
 !filename = trim(outputfile)//"."//xtyext_mesh
-!print*
-!print*,'* Writing TYPHON file: '//trim(filename)
-!!------------------------------
-!! open xbin file
-!
+write(6,'()')
+write(6,'(2a)') "* Writing TYPHON file: ",trim(filename)
+write(6,'(a)') "* FILE IS NOT WRITTEN !!!"
+!------------------------------
+! open xbin file
+
 !call typhon_openwrite(trim(filename), deftyphon, 1)
-!
+
 !call typhonwrite_ustmesh(deftyphon, umesh)
-!
-!!------------------------------
-!! close files and end program
-!
+
+!------------------------------
+! close files and end program
+
 !call typhon_close(deftyphon)
-!print*,'done.'
+write(6,'(a)') "* Done"
 
 contains
 
@@ -238,10 +143,10 @@ contains
 subroutine cfdtool_error(str)
   implicit none
   character(len=*) :: str
-  print*,'command line: tymorph [options] inputfile[.tym]'
-  print*
-  print*,'where options are:'
-  print*,'  -o filename      : output typhon mesh (default: morphed_inputfile)'
+  write(6,'(a)') 'command line: fluent2typhon [options] inputfile[.msh]'
+  write(6,'()')
+  write(6,'(a)') 'where options are:'
+  write(6,'(a)') '  -o filename : output typhon mesh (default: inputfile.tym)'
   call cfd_error(str)
 endsubroutine cfdtool_error
 

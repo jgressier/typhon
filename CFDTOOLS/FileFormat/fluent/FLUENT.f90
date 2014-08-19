@@ -8,6 +8,8 @@ module FLUENT
 
 use IO_UNIT
 use IOCFD
+use STRING
+use USTMESH
 
 implicit none
 
@@ -15,7 +17,7 @@ implicit none
 
 ! -- DECLARATIONS -----------------------------------------------------------
 
-integer, parameter :: kpf = 8
+integer, parameter :: kfp = 4
 
 character(len=262144):: stropt
 character(len=4096) :: namoptlist
@@ -28,71 +30,74 @@ integer,parameter   :: lennames = 30
 
 integer :: espion
 
+character,parameter :: nl_char = achar(10)
+character,parameter :: cr_char = achar(13)
+
 !------------------------------------------------------------------------------!
 ! CONSTANTS for FLUENT ELEMENT TYPE
 !------------------------------------------------------------------------------!
 
 ! Section headers
-integer(kpf), parameter :: fluent_sct_comment   =  0
-integer(kpf), parameter :: fluent_sct_header    =  1
-integer(kpf), parameter :: fluent_sct_dim       =  2
-integer(kpf), parameter :: fluent_sct_nodes     = 10
-integer(kpf), parameter :: fluent_sct_spbinnodes = 2010
-integer(kpf), parameter :: fluent_sct_dpbinnodes = 3010
-integer(kpf), parameter :: fluent_sct_cells     = 12
-integer(kpf), parameter :: fluent_sct_bincells  = 2012
-integer(kpf), parameter :: fluent_sct_faces     = 13
-integer(kpf), parameter :: fluent_sct_binfaces  = 2013
-integer(kpf), parameter :: fluent_sct_per       = 18
-integer(kpf), parameter :: fluent_sct_zone      = 39
-integer(kpf), parameter :: fluent_sct_zoneb     = 45
-integer(kpf), parameter :: fluent_sct_ctree     = 58
-integer(kpf), parameter :: fluent_sct_ftree     = 59
-integer(kpf), parameter :: fluent_sct_fparent   = 61
+integer(kfp), parameter :: fluent_sct_comment   =  0
+integer(kfp), parameter :: fluent_sct_header    =  1
+integer(kfp), parameter :: fluent_sct_dim       =  2
+integer(kfp), parameter :: fluent_sct_nodes      =   10
+integer(kfp), parameter :: fluent_sct_spbinnodes = 2010
+integer(kfp), parameter :: fluent_sct_dpbinnodes = 3010
+integer(kfp), parameter :: fluent_sct_cells      =   12
+integer(kfp), parameter :: fluent_sct_spbincells = 2012
+integer(kfp), parameter :: fluent_sct_faces      =   13
+integer(kfp), parameter :: fluent_sct_spbinfaces = 2013
+integer(kfp), parameter :: fluent_sct_per       = 18
+integer(kfp), parameter :: fluent_sct_zonebcs   = 39
+integer(kfp), parameter :: fluent_sct_zonebnd   = 45
+integer(kfp), parameter :: fluent_sct_ctree     = 58
+integer(kfp), parameter :: fluent_sct_ftree     = 59
+integer(kfp), parameter :: fluent_sct_fparent   = 61
 
 ! Ignored section headers
-integer(kpf), parameter :: fluent_sct_ignore1   =  4
+integer(kfp), parameter :: fluent_sct_ignore1   =  4
 
 ! Cell types
-integer(kpf), parameter :: fluent_cells_mixed   =  0
-integer(kpf), parameter :: fluent_cells_tri     =  1
-integer(kpf), parameter :: fluent_cells_tetra   =  2
-integer(kpf), parameter :: fluent_cells_quad    =  3
-integer(kpf), parameter :: fluent_cells_hexa    =  4
-integer(kpf), parameter :: fluent_cells_pyram   =  5
-integer(kpf), parameter :: fluent_cells_wedge   =  6
-integer(kpf), parameter :: fluent_cells_polyh   =  7
+integer(kfp), parameter :: fluent_cells_mixed   =  0
+integer(kfp), parameter :: fluent_cells_tri     =  1
+integer(kfp), parameter :: fluent_cells_tetra   =  2
+integer(kfp), parameter :: fluent_cells_quad    =  3
+integer(kfp), parameter :: fluent_cells_hexa    =  4
+integer(kfp), parameter :: fluent_cells_pyram   =  5
+integer(kfp), parameter :: fluent_cells_wedge   =  6
+integer(kfp), parameter :: fluent_cells_polyh   =  7
 
 ! BC types
-integer(kpf), parameter :: fluent_bc_interior   =  2
-integer(kpf), parameter :: fluent_bc_wall       =  3
-integer(kpf), parameter :: fluent_bc_p_inlet    =  4
-integer(kpf), parameter :: fluent_bc_p_outlet   =  5
-integer(kpf), parameter :: fluent_bc_symmetry   =  7
-integer(kpf), parameter :: fluent_bc_per_sdow   =  8
-integer(kpf), parameter :: fluent_bc_p_farfld   =  9
-integer(kpf), parameter :: fluent_bc_v_inlet    = 10
-integer(kpf), parameter :: fluent_bc_periodic   = 12
-integer(kpf), parameter :: fluent_bc_fan        = 14
-integer(kpf), parameter :: fluent_bc_mflow_in   = 20
-integer(kpf), parameter :: fluent_bc_interfce   = 24
-integer(kpf), parameter :: fluent_bc_parent     = 31
-integer(kpf), parameter :: fluent_bc_outflow    = 36
-integer(kpf), parameter :: fluent_bc_axis       = 37
+integer(kfp), parameter :: fluent_bc_interior   =  2
+integer(kfp), parameter :: fluent_bc_wall       =  3
+integer(kfp), parameter :: fluent_bc_p_inlet    =  4
+integer(kfp), parameter :: fluent_bc_p_outlet   =  5
+integer(kfp), parameter :: fluent_bc_symmetry   =  7
+integer(kfp), parameter :: fluent_bc_per_sdow   =  8
+integer(kfp), parameter :: fluent_bc_p_farfld   =  9
+integer(kfp), parameter :: fluent_bc_v_inlet    = 10
+integer(kfp), parameter :: fluent_bc_periodic   = 12
+integer(kfp), parameter :: fluent_bc_fan        = 14
+integer(kfp), parameter :: fluent_bc_mflow_in   = 20
+integer(kfp), parameter :: fluent_bc_interfce   = 24
+integer(kfp), parameter :: fluent_bc_parent     = 31
+integer(kfp), parameter :: fluent_bc_outflow    = 36
+integer(kfp), parameter :: fluent_bc_axis       = 37
 
 ! Face types
-integer(kpf), parameter :: fluent_faces_mixed   =  0
-integer(kpf), parameter :: fluent_faces_linear  =  2
-integer(kpf), parameter :: fluent_faces_tri     =  3
-integer(kpf), parameter :: fluent_faces_quad    =  4
-integer(kpf), parameter :: fluent_faces_polyg   =  5
+integer(kfp), parameter :: fluent_faces_mixed   =  0
+integer(kfp), parameter :: fluent_faces_linear  =  2
+integer(kfp), parameter :: fluent_faces_tri     =  3
+integer(kfp), parameter :: fluent_faces_quad    =  4
+integer(kfp), parameter :: fluent_faces_polyg   =  5
 
 ! -- Private data --
 
 ! -- Parameters --
 
 interface str_to_int
-  module procedure str_to_intkpf
+  module procedure str_to_intkfp
 endinterface
 
 ! -- Data types --
@@ -101,12 +106,19 @@ endinterface
 ! ST_DEFFLUENT
 !------------------------------------------------------------------------------!
 type st_deffluent
-  integer      :: version
-  integer      :: iu_form, iu_bin
-  logical      :: binary
-  integer      :: nnodes, nelem, nbc
-  character(len=1) :: c                 ! one character read in advance
-  character(len=lennames), allocatable :: bcnames(:) 
+  integer       :: version
+  integer       :: iu_bin
+  logical       :: binary
+  integer       :: spcdim
+  integer       :: inmin, inmax, nnodes
+  !integer       :: icmin, icmax, ncells
+  real*4, allocatable :: xyzsp(:,:)
+  real*8, allocatable :: xyzdp(:,:)
+  !integer*4, allocatable :: celltype(:)
+  integer       :: nelem, nbc
+  character(len=64) :: zonename !WARNING: MAY HAVE TO BE AN ARRAY
+  character         :: c        ! one character read in advance
+  character(len=lennames), allocatable :: bcnames(:)
 end type st_deffluent
 
 
@@ -114,927 +126,1558 @@ end type st_deffluent
 contains
 
 !------------------------------------------------------------------------------!
+! @brief transfer element type
+!------------------------------------------------------------------------------!
+integer function fluent2typhon_elemtype(etype)
+
+  implicit none
+  ! -- INPUTS --
+  integer(kpp),      intent(in)  :: etype
+  ! -- OUTPUTS --
+  ! -- Internal variables --
+  ! -- BODY --
+
+  select case(etype)
+  case(fluent_cells_tri)
+    fluent2typhon_elemtype = elem_tri3
+  case(fluent_cells_quad)
+    fluent2typhon_elemtype = elem_quad4
+  case(fluent_cells_polyh)
+    fluent2typhon_elemtype = elem_ngon
+  case(fluent_cells_tetra)
+    fluent2typhon_elemtype = elem_tetra4
+  case(fluent_cells_pyram)
+    fluent2typhon_elemtype = elem_pyra5
+  case(fluent_cells_wedge)
+    fluent2typhon_elemtype = elem_penta6
+  case(fluent_cells_hexa)
+    fluent2typhon_elemtype = elem_hexa8
+  case default
+    fluent2typhon_elemtype = -1
+  endselect
+
+endfunction fluent2typhon_elemtype
+
+!------------------------------------------------------------------------------!
 !> @brief open FLUENT file
 !------------------------------------------------------------------------------!
 subroutine fluent_openread(filename, deffluent)
-implicit none
-! -- INPUTS --
-integer            :: iunit
-character(len=*)   :: filename
-! -- OUTPUTS --
-type(st_deffluent) :: deffluent
-! -- private data --
-integer :: info
-! -- BODY --
 
-deffluent%iu_form = getnew_io_unit()
-OPEN(deffluent%iu_form, FILE=filename, ACCESS="STREAM", FORM="FORMATTED", iostat = info)
-if (info /= 0) call cfd_error("fluent: unable to open formatted file "//trim(filename))
+  implicit none
+  ! -- INPUTS --
+  character(len=*)   , intent(in)  :: filename
+  ! -- OUTPUTS --
+  type(st_deffluent) , intent(out) :: deffluent
+  ! -- Internal variables --
+  integer :: info
+  ! -- BODY --
 
-deffluent%iu_bin = getnew_io_unit()
-OPEN(deffluent%iu_bin, FILE=filename, ACCESS="STREAM", FORM="UNFORMATTED", CONVERT='LITTLE_ENDIAN', iostat = info)
-if (info /= 0) call cfd_error("fluent: unable to open unformatted file "//trim(filename))
+  deffluent%iu_bin = getnew_io_unit()
+  OPEN(UNIT   = deffluent%iu_bin, &
+       FILE   = filename, &
+       ACCESS = "STREAM", &
+       FORM   = "UNFORMATTED", CONVERT = 'LITTLE_ENDIAN', &
+       IOSTAT = info)
+  if (info /= 0) then
+    call cfd_error("(fluent) unable to open unformatted file "//trim(filename))
+  endif
 
-read(deffluent%iu_bin) deffluent%c
+  read(deffluent%iu_bin) deffluent%c
 
-end subroutine fluent_openread
+endsubroutine fluent_openread
 
 !------------------------------------------------------------------------------!
 !> @brief close FLUENT file
 !------------------------------------------------------------------------------!
 subroutine fluent_close(deffluent)
-implicit none
-! -- INPUTS --
-type(st_deffluent) :: deffluent
-! -- OUTPUTS --
-! -- private data --
-integer :: info
-! -- BODY --
 
-call close_io_unit(deffluent%iu_form)
-call close_io_unit(deffluent%iu_bin)
+  implicit none
+  ! -- INPUTS --
+  type(st_deffluent) , intent(in) :: deffluent
+  ! -- OUTPUTS --
+  ! -- Internal variables --
+  ! -- BODY --
 
-end subroutine fluent_close
+  call close_io_unit(deffluent%iu_bin)
 
+endsubroutine fluent_close
+
+
+!------------------------------------------------------------------------------!
+character        function chnl(c)
+  implicit none
+  character        :: c
+  select case(ichar(c))
+  case(0)
+    chnl = " "
+  case(10, 13)
+    chnl = "\"
+  case default
+    chnl = c
+  endselect
+endfunction chnl
 
 !------------------------------------------------------------------------------!
 subroutine dumpp()
-implicit none
-call flush(6)
-write(6,'(a)') trim(stropt)
-call flush(6)
+  implicit none
+  call flush(6)
+  write(6,'(a)') trim(stropt)
+  call flush(6)
 endsubroutine dumpp
 
 !------------------------------------------------------------------------------!
-subroutine stopp()
-implicit none
-integer :: i
-character(len=1) :: c
-do i = 1,16
-  read(12) c
-  call affline("follow: c='"//chnl(c)//"'")
-enddo
-call dumpp()
-stop
+subroutine stopp(iu, c)
+  implicit none
+  integer :: i, iu
+  character        :: c
+  character(len=2) :: str
+  do i = 1,16
+    read(iu) c
+    write(str,'(z0.2)') ichar(c)
+    call affline("follow: c='"//chnl(c)//"'" &
+               //" (0x"//str//")")
+  enddo
+  call dumpp()
+  stop
 endsubroutine stopp
 
 !------------------------------------------------------------------------------!
 subroutine affstarp(optname)
-implicit none
-character(len=*) :: optname
-hedopt = hedopt+1
-write(namopt,'(a)') " "//optname
-write(namoptlist(lenopt* hedopt+1 : &
-                 lenopt*(hedopt+1)),'(a)') namopt(1:lenopt)
-incopt = 1
-call affline("(start)")
-incopt = 0
+  implicit none
+  character(len=*) :: optname
+  hedopt = hedopt+1
+  write(namopt,'(a)') " "//optname
+  write(namoptlist(lenopt* hedopt+1 : &
+                   lenopt*(hedopt+1)),'(a)') namopt(1:lenopt)
+  incopt = 1
+  call affline("(start)")
+  incopt = 0
 endsubroutine affstarp
 
+!------------------------------------------------------------------------------!
 subroutine affexitp(optname)
-implicit none
-character(len=*) :: optname
-incopt = 1
-call affline("(exit)")
-incopt = 0
-hedopt = hedopt-1
-write(namopt,'(a)') namoptlist(lenopt* hedopt+1 : &
-                               lenopt*(hedopt+1))
+  implicit none
+  character(len=*) :: optname
+  incopt = 1
+  call affline("(exit)")
+  incopt = 0
+  hedopt = hedopt-1
+  write(namopt,'(a)') namoptlist(lenopt* hedopt+1 : &
+                                 lenopt*(hedopt+1))
 endsubroutine affexitp
 
+!------------------------------------------------------------------------------!
 subroutine affstar(optname, c)
-implicit none
-character(len=*) :: optname
-character(len=1) :: c
-hedopt = hedopt+1
-write(namopt,'(a)') " "//optname
-write(namoptlist(lenopt* hedopt+1 : &
-                 lenopt*(hedopt+1)),'(a)') namopt(1:lenopt)
-incopt = 1
-call affline("(start: c='"//chnl(c)//"')")
-incopt = 0
+  implicit none
+  character(len=*) :: optname
+  character        :: c
+  hedopt = hedopt+1
+  write(namopt,'(a)') " "//optname
+  write(namoptlist(lenopt* hedopt+1 : &
+                   lenopt*(hedopt+1)),'(a)') namopt(1:lenopt)
+  incopt = 1
+  call affline("(start: c='"//chnl(c)//"')")
+  incopt = 0
 endsubroutine affstar
 
+!------------------------------------------------------------------------------!
 subroutine affexit(optname, c)
-implicit none
-character(len=*) :: optname
-character(len=1) :: c
-incopt = 1
-call affline("(exit:  c='"//chnl(c)//"')")
-incopt = 0
-hedopt = hedopt-1
-write(namopt,'(a)') namoptlist(lenopt* hedopt+1 : &
-                               lenopt*(hedopt+1))
+  implicit none
+  character(len=*) :: optname
+  character        :: c
+  incopt = 1
+  call affline("(exit:  c='"//chnl(c)//"')")
+  incopt = 0
+  hedopt = hedopt-1
+  write(namopt,'(a)') namoptlist(lenopt* hedopt+1 : &
+                                 lenopt*(hedopt+1))
 endsubroutine affexit
 
+!------------------------------------------------------------------------------!
 subroutine affline(str)
-implicit none
-character(len=*) :: str
-character(len=1024), parameter :: blkstr = " "
-write(stropt(indopt:len(stropt)),'(7a)') &
-  blkstr(1:2*hedopt),"[",namopt(1+incopt:lenopt+incopt),"] ", &
-  blkstr(1:2*hedopt),trim(str),achar(10)
-indopt = indopt + len(str) + lenopt + 3 + 4*hedopt + 1
+  implicit none
+  character(len=*) :: str
+  character(len=1024), parameter :: blkstr = " "
+  write(stropt(indopt:len(stropt)),'(7a)') &
+    blkstr(1:2*hedopt),"[",namopt(1+incopt:lenopt+incopt),"] ", &
+    blkstr(1:2*hedopt),trim(str),nl_char
+  indopt = indopt &
+         + 2*hedopt + 1 + lenopt + 2 &
+         + 2*hedopt + len(str) + 1
 endsubroutine affline
 
+!------------------------------------------------------------------------------!
 subroutine affhead(str)
-implicit none
-character(len=*) :: str
-character(len=1024), parameter :: blkstr = " "
-write(stropt(indopt:len(stropt)),'(6a)') &
-  blkstr(1:2*hedopt),"[",namopt(1+incopt:lenopt+incopt),"] ", &
-  blkstr(1:2*hedopt),trim(str)
-indopt = indopt + len(str) + lenopt + 3 + 4*hedopt
+  implicit none
+  character(len=*) :: str
+  character(len=1024), parameter :: blkstr = " "
+  write(stropt(indopt:len(stropt)),'(6a)') &
+    blkstr(1:2*hedopt),"[",namopt(1+incopt:lenopt+incopt),"] ", &
+    blkstr(1:2*hedopt),trim(str)
+  indopt = indopt &
+         + 2*hedopt + 1 + lenopt + 2 &
+         + 2*hedopt + len(str)
 endsubroutine affhead
 
+!------------------------------------------------------------------------------!
 subroutine affcont(str)
-implicit none
-character(len=*) :: str
-write(stropt(indopt:len(stropt)),'(a)') &
-  trim(str)
-indopt = indopt + len(str)
+  implicit none
+  character(len=*) :: str
+  write(stropt(indopt:len(stropt)),'(a)') &
+    trim(str)
+  indopt = indopt + len(str)
 endsubroutine affcont
 
+!------------------------------------------------------------------------------!
 subroutine afftail(str)
-implicit none
-character(len=*) :: str
-write(stropt(indopt:len(stropt)),'(2a)') &
-  trim(str), achar(10)
-indopt = indopt + len(str) + 1
+  implicit none
+  character(len=*) :: str
+  write(stropt(indopt:len(stropt)),'(2a)') &
+    trim(str), nl_char
+  indopt = indopt + len(str) + 1
 endsubroutine afftail
 
+!------------------------------------------------------------------------------!
 subroutine str_index_spc(str, indspc, nspc)
-implicit none
-character(len=*) :: str
-integer          :: indspc(*)
-integer          :: nspc
-integer          :: i, prevspc
-nspc = 0
-prevspc = 0
-do i = 1,len_trim(str)
-  if ( str(i:i) .eq. ' ' ) then
-    if ( prevspc .eq. 0 ) then
-      nspc = nspc+1
-      indspc(nspc) = i
+  implicit none
+  character(len=*) , intent(in)  :: str
+  integer          , intent(out) :: indspc(*)
+  integer          , intent(out) :: nspc
+  integer          :: i, prevspc
+  nspc = 0
+  prevspc = 1
+
+  i = 1
+  !do while (.true.)
+  !  do while ( str(i:i) /= ' ' )
+  !    i = i + 1
+  !    if (i>len_trim(str) return
+  !  enddo
+  !enddo
+
+  do i = 1,len_trim(str)
+    if ( str(i:i) == ' ' ) then
+      if ( prevspc == 0 ) then
+        nspc = nspc+1
+        !if 
+        indspc(nspc) = i
+      endif
+      prevspc = 1
+    else
+      prevspc = 0
     endif
-    prevspc = 1
-  else
-    prevspc = 0
+  enddo
+  if ( prevspc == 0 ) then
+    nspc=nspc+1
+    indspc(nspc) = i-1
   endif
-enddo
-if ( prevspc .eq. 0 ) then
-  nspc=nspc+1
-  indspc(nspc) = i-1
-endif
 endsubroutine str_index_spc
 
-subroutine str_read_ints(str, ilist, inb, formt)
-implicit none
-character(len=*) :: str
-integer(kpf)     :: ilist(*)
-integer          :: inb
-character(len=*) :: formt
-integer          :: indspc(64), nspc
-integer          :: ispc, ii
-!call affstarp("str_read_ints")
-!write(6,'(a)') "'"//trim(str)//"'"
-call str_index_spc(str, indspc, nspc)
-ii = 1
-inb = 0
-do ispc = 1, nspc
-  inb = inb+1
-  ilist(inb) = str_to_intkpf(str(ii:indspc(ispc)), formt)
-!write(6,'(i4,$)') ilist(inb)
-  ii =indspc(ispc)+1
-enddo
-!write(6,'()')
-!call affexitp("str_read_ints")
+!------------------------------------------------------------------------------!
+subroutine str_read_ints(str, formt, inb, ilist, ierr)
+  implicit none
+  character(len=*) , intent(in)  :: str
+  character(len=*) , intent(in)  :: formt
+  integer          , intent(out) :: inb
+  integer(kfp)     , intent(out) :: ilist(*)
+  integer          , intent(out) :: ierr
+  integer          :: indspc(64), nspc
+  integer          :: ispc, ii
+  call str_index_spc(str, indspc, nspc)
+  ii = 1
+  inb = 0
+  do ispc = 1, nspc
+    inb = inb+1
+    ilist(inb) = str_to_intkfp(str(ii:indspc(ispc)), formt, ierr)
+    if ( ierr /= 0 ) then
+      call cfd_warning("could not read integer #"//trim(strof(ispc)) &
+                     //" from: '"//trim(str)//"'")
+      return
+    endif
+    ii =indspc(ispc)+1
+  enddo
 endsubroutine str_read_ints
 
-integer(kpf) function str_to_intkpf(str, formt)
-implicit none
-character(len=*) :: str
-character(len=*) :: formt
-integer(kpf) :: ivalue
-integer :: ierr
-call affstarp("str_to_intkpf")
-call affline("str = '"//trim(str)//"'")
-call affline("fmt = '"//trim(formt)//"'")
-read(str,formt,iostat=ierr) ivalue
-if ( ierr /= 0 ) then
-  write(6,'(a)') "Error !"
-  call stopp()
-endif
-str_to_intkpf = ivalue
-call affexitp("str_to_intkpf")
-endfunction str_to_intkpf
+!------------------------------------------------------------------------------!
+integer(kfp) function str_to_intkfp(str, formt, ierr)
+  implicit none
+  character(len=*) :: str
+  character(len=*) :: formt
+  integer(kfp) :: ivalue
+  integer :: ierr
+  read(str,formt,iostat=ierr) ivalue
+  if ( ierr /= 0 ) then
+    call cfd_warning("could not read integer" &
+                   //" from: '"//trim(str)//"'" &
+                   //" by:   '"//trim(formt)//"'")
+    return
+  endif
+  str_to_intkfp = ivalue
+endfunction str_to_intkfp
 
-character(len=1) function chnl(c)
-implicit none
-character(len=1) :: c
-chnl = c
-if ( c .eq. achar(10) ) then
-  chnl = "\"
-endif
-endfunction chnl
-
+!------------------------------------------------------------------------------!
 character(len=16) function chardesc(c)
-implicit none
-character(len=1) :: c
-select case(c)
-case(' ')
-  chardesc = "space"
-case(achar(10))
-  chardesc = "nline"
-case default
-  chardesc = "char"
-endselect
+  implicit none
+  character        :: c
+  select case(c)
+  case(' ')
+    chardesc = "space"
+  case(nl_char)
+    chardesc = "nline"
+  case(cr_char)
+    chardesc = "cgrtn"
+  case default
+    chardesc = "char"
+  endselect
 endfunction chardesc
+
+!------------------------------------------------------------------------------!
+!> @brief FLUENT-low-level subroutines
+!------------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT-low-level : skip blank (space or newline)
 !------------------------------------------------------------------------------!
 subroutine fll_ignore_blank(iu, c)
-implicit none
-integer           :: iu
-character(len=1)  :: c
-call affstar("ignore_b_", c)
-do while ( c .eq. ' ' &
-      .or. c .eq. achar(10) )
-  call affline("'"//chnl(c)//"'"// &
-               " "//trim(chardesc(c))//" skipped")
-  read(iu) c
-enddo
-call affexit("ignore_b_", c)
+  implicit none
+  ! -- INPUTS --
+  integer          , intent(in)    :: iu
+  character        , intent(inout) :: c
+  ! -- OUTPUTS --
+  ! -- Internal variables --
+  ! -- BODY --
+  call affstar("ignore_b_", c)
+  do while ( c == ' ' &
+        .or. c == nl_char &
+        .or. c == cr_char )
+    call affline("'"//chnl(c)//"'"// &
+                 " "//trim(chardesc(c))//" skipped")
+    read(iu) c
+  enddo
+  call affexit("ignore_b_", c)
 endsubroutine fll_ignore_blank
+
+!------------------------------------------------------------------------------!
+!> @brief FLUENT-low-level : store char list
+!------------------------------------------------------------------------------!
+subroutine fll_storecharlist(iu, c, clist, str)
+  implicit none
+  ! -- INPUTS --
+  integer          , intent(in)    :: iu
+  character        , intent(inout) :: c
+  character(len=*) , intent(in)    :: clist
+  ! -- OUTPUTS --
+  character(len=*) , intent(out)   :: str
+  ! -- Internal variables --
+  integer :: i
+  ! -- BODY --
+  !call affstar("store_dec", c)
+  str = ""
+  i = 0
+  !call affhead("'")
+  do while ( scan(clist,c) /= 0 )
+  !call affcont(c)
+    i = i+1
+    str(i:i) = c
+    read(iu) c
+  enddo
+  !call afftail("' stored")
+  !call affexit("store_dec", c)
+endsubroutine fll_storecharlist
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT-low-level : store decimal digits
 !------------------------------------------------------------------------------!
-subroutine fll_storedecdigits(iu, str, c)
-implicit none
-integer           :: iu
-character(len=*)  :: str
-character(len=1)  :: c
-integer :: i
-call affstar("store_dec", c)
-str = ""
-i = 0
-call affhead("'")
-do while ( c .ge. '0' .and. c .le. '9' )
-call affcont(c)
-  i = i+1
-  str(i:i) = c
-  read(iu) c
-enddo
-call afftail("' stored")
-call affexit("store_dec", c)
-endsubroutine fll_storedecdigits
+#define fll_storedecdigits(iu, c, str) fll_storecharlist(iu, c, "0123456789", str)
+!subroutine fll_storedecdigits(iu, c, str)
+!  implicit none
+!  ! -- INPUTS --
+!  integer          , intent(in)    :: iu
+!  character        , intent(inout) :: c
+!  ! -- OUTPUTS --
+!  character(len=*) , intent(out)   :: str
+!  ! -- Internal variables --
+!  !integer :: i
+!  ! -- BODY --
+!  call fll_storecharlist(iu, c, "0123456789", str)
+!!  !call affstar("store_dec", c)
+!!  str = ""
+!!  i = 0
+!!  !call affhead("'")
+!!  do while ( c >= '0' .and. c <= '9' )
+!!  !call affcont(c)
+!!    i = i+1
+!!    str(i:i) = c
+!!    read(iu) c
+!!  enddo
+!!  !call afftail("' stored")
+!!  !call affexit("store_dec", c)
+!endsubroutine fll_storedecdigits
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT-low-level : store hexadecimal digits
 !------------------------------------------------------------------------------!
-subroutine fll_storehexdigits(iu, str, c)
-implicit none
-integer           :: iu
-character(len=*)  :: str
-character(len=1)  :: c
-integer :: i
-call affstar("store_hex", c)
-str = ""
-i = 0
-call affhead("'")
-do while ( ( c .ge. '0' .and. c .le. '9' ) &
-     .and. ( c .ge. 'a' .and. c .le. 'f' ) )
-call affcont(c)
-  i = i+1
-  str(i:i) = c
-  read(iu) c
-enddo
-call afftail("' stored")
-call affexit("store_hex", c)
-endsubroutine fll_storehexdigits
+#define fll_storehexdigits(iu, c, str) fll_storecharlist(iu, c, "0123456789abcdef", str)
+!subroutine fll_storehexdigits(iu, c, str)
+!  implicit none
+!  ! -- INPUTS --
+!  integer          , intent(in)    :: iu
+!  character        , intent(inout) :: c
+!  ! -- OUTPUTS --
+!  character(len=*) , intent(out)   :: str
+!  ! -- Internal variables --
+!  !integer :: i
+!  ! -- BODY --
+!  call fll_storecharlist(iu, c, "0123456789abcdef", str)
+!!  !call affstar("store_hex", c)
+!!  str = ""
+!!  i = 0
+!!  !call affhead("'")
+!!  do while ( ( c >= '0' .and. c <= '9' ) &
+!!        .or. ( c >= 'a' .and. c <= 'f' ) )
+!!  !call affcont(c)
+!!    i = i+1
+!!    str(i:i) = c
+!!    read(iu) c
+!!  enddo
+!!  !call afftail("' stored")
+!!  !call affexit("store_hex", c)
+!endsubroutine fll_storehexdigits
+
+!------------------------------------------------------------------------------!
+!> @brief FLUENT-low-level : store up to list of chars
+!------------------------------------------------------------------------------!
+subroutine fll_storeuptocharlist(iu, c, clist, str)
+  implicit none
+  ! -- INPUTS --
+  integer          , intent(in)    :: iu
+  character        , intent(inout) :: c
+  character(len=*) , intent(in)    :: clist
+  ! -- OUTPUTS --
+  character(len=*) , intent(out)   :: str
+  ! -- Internal variables --
+  integer :: i, lstr
+  ! -- BODY --
+  !call affstar("store_chl", c)
+  str = ""
+  lstr = len(str)
+  i = 0
+  !call affhead("'")
+  do while ( scan(clist,c) == 0 )
+  !call affcont(c)
+    i = i+1
+    if ( i > lstr ) then
+      call stopp(iu, c)
+    endif
+    str(i:i) = c
+    read(iu) c
+  enddo
+  !call affcont("' stored")
+  !call afftail(" ; str='"//trim(str)//"'")
+  !call affexit("store_chl", c)
+endsubroutine fll_storeuptocharlist
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT-low-level : store up to separator (blank or bracket)
 !------------------------------------------------------------------------------!
-subroutine fll_storeuptosepbb(iu, str, c)
-implicit none
-integer           :: iu
-character(len=*)  :: str
-character(len=1)  :: c
-integer :: i
-call affstar("store_sep", c)
-str = ""
-i = 0
-call affhead("'")
-do while ( c .ne. ' ' &
-     .and. c .ne. achar(10) &
-     .and. c .ne. '(' &
-     .and. c .ne. ')' )
-call affcont(c)
-  i = i+1
-  str(i:i) = c
-  read(iu) c
-enddo
-call affcont("' stored")
-call afftail(" ; str='"//trim(str)//"'")
-call affexit("store_sep", c)
-endsubroutine fll_storeuptosepbb
+#define fll_storeuptosepbb(iu, c, str) fll_storeuptocharlist(iu, c, "() "//nl_char//cr_char, str)
+!subroutine fll_storeuptosepbb(iu, c, str)
+!  implicit none
+!  ! -- INPUTS --
+!  integer          , intent(in)    :: iu
+!  character        , intent(inout) :: c
+!  ! -- OUTPUTS --
+!  character(len=*) , intent(out)   :: str
+!  ! -- Internal variables --
+!  integer :: i
+!  ! -- BODY --
+!  !call affstar("store_sep", c)
+!  str = ""
+!  i = 0
+!  !call affhead("'")
+!  do while ( c /= ' ' &
+!       .and. c /= nl_char &
+!       .and. c /= cr_char &
+!       .and. c /= '(' &
+!       .and. c /= ')' )
+!  !call affcont(c)
+!    i = i+1
+!    str(i:i) = c
+!    read(iu) c
+!  enddo
+!  !call affcont("' stored")
+!  !call afftail(" ; str='"//trim(str)//"'")
+!  !call affexit("store_sep", c)
+!endsubroutine fll_storeuptosepbb
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT-low-level : store up to blank (space or newline)
 !------------------------------------------------------------------------------!
-subroutine fll_storeuptoblank(iu, str, c)
-implicit none
-integer           :: iu
-character(len=*)  :: str
-character(len=1)  :: c
-integer :: i
-call affstar("store_nb_", c)
-str = ""
-i = 0
-call affhead("'")
-do while ( c .ne. ' ' &
-     .and. c .ne. achar(10) )
-call affcont(c)
-  i = i+1
-  str(i:i) = c
-  read(iu) c
-enddo
-call afftail("' stored")
-call affexit("store_nb_", c)
-endsubroutine fll_storeuptoblank
+#define fll_storeuptoblank(iu, c, str) fll_storeuptocharlist(iu, c, " "//nl_char//cr_char, str)
+!subroutine fll_storeuptoblank(iu, c, str)
+!  implicit none
+!  ! -- INPUTS --
+!  integer          , intent(in)    :: iu
+!  character        , intent(inout) :: c
+!  ! -- OUTPUTS --
+!  character(len=*) , intent(out)   :: str
+!  ! -- Internal variables --
+!  integer :: i
+!  ! -- BODY --
+!  !call affstar("store_nb_", c)
+!  str = ""
+!  i = 0
+!  !call affhead("'")
+!  do while ( c /= ' ' &
+!       .and. c /= nl_char &
+!       .and. c /= cr_char )
+!  !call affcont(c)
+!    i = i+1
+!    str(i:i) = c
+!    read(iu) c
+!  enddo
+!  !call affcont("' stored")
+!  !call afftail(" ; str='"//trim(str)//"'")
+!  !call affexit("store_nb_", c)
+!endsubroutine fll_storeuptoblank
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT-low-level : store up to some given character
 !! and DO NOT step on
 !------------------------------------------------------------------------------!
-subroutine fll_storeuptocharnostep(iu, str, cc, c)
-implicit none
-integer           :: iu
-character(len=*)  :: str
-character(len=1)  :: cc
-character(len=1)  :: c
-integer :: i
-!call affstar("store_chr", c)
-str = ""
-i = 0
-!call affhead("'")
-do while ( c .ne. cc )
-  i = i+1
-  if ( i .gt. len(str) ) then
-    call stopp()
-  endif
-  str(i:i) = c
-  read(iu) c
-enddo
-!call afftail("' stored")
-!call affline("'"//chnl(c)//"' checked up to")
+subroutine fll_storeuptocharnostep(iu, c, cc, str)
+  implicit none
+  ! -- INPUTS --
+  integer          , intent(in)    :: iu
+  character        , intent(inout) :: c
+  character        , intent(in)    :: cc
+  ! -- OUTPUTS --
+  character(len=*) , intent(out)   :: str
+  ! -- Internal variables --
+  integer :: i, lstr
+  ! -- BODY --
+  !call affstar("store_chr", c)
+  str = ""
+  lstr = len(str)
+  i = 0
+  !call affhead("'")
+  do while ( c /= cc )
+  !call affcont(c)
+    i = i+1
+    if ( i > lstr ) then
+      call stopp(iu, c)
+    endif
+    str(i:i) = c
+    read(iu) c
+  enddo
+  !call affcont("' stored")
+  !call afftail(" ; str='"//trim(str)//"'")
+  !call affexit("store_chr", c)
 endsubroutine fll_storeuptocharnostep
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT-low-level : store up to some given character
 !------------------------------------------------------------------------------!
-subroutine fll_storeuptochar(iu, str, cc, c)
-implicit none
-integer           :: iu
-character(len=*)  :: str
-character(len=1)  :: cc
-character(len=1)  :: c
-call affstar("store_chr", c)
-call fll_storeuptocharnostep(iu, str, cc, c)
-read(iu) c
-call affline("next : '"//c//"'")
-call affexit("store_chr", c)
+subroutine fll_storeuptochar(iu, c, cc, str)
+  implicit none
+  ! -- INPUTS --
+  integer          , intent(in)    :: iu
+  character        , intent(inout) :: c
+  character        , intent(in)    :: cc
+  ! -- OUTPUTS --
+  character(len=*) , intent(out)   :: str
+  ! -- Internal variables --
+  ! -- BODY --
+  !call affstar("store_chr", c)
+  call fll_storeuptocharnostep(iu, c, cc, str)
+  read(iu) c
+  !call affline("next : '"//c//"'")
+  !call affexit("store_chr", c)
 endsubroutine fll_storeuptochar
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT-low-level : check next non-blank is some given character
 !! and DO NOT step on
 !------------------------------------------------------------------------------!
-subroutine fll_checknextcharnostep(iu, cc, c)
-implicit none
-integer           :: iu
-character(len=1)  :: cc
-character(len=1)  :: c
-integer :: i
-call affstar("check_nxt", c)
-call fll_ignore_blank(iu, c)
-if ( c .ne. cc ) then
-  call affline("cc = '"//cc//"'")
-  call affline("c  = '"//c //"'")
-  write(6,'(a)') "Error !"
-  call stopp()
-endif
-call affline("'"//chnl(c)//"' checked")
-call affexit("check_nxt", c)
+subroutine fll_checknextcharnostep(iu, c, cc)
+  implicit none
+  ! -- INPUTS --
+  integer          , intent(in)    :: iu
+  character        , intent(inout) :: c
+  character        , intent(in)    :: cc
+  ! -- OUTPUTS --
+  ! -- Internal variables --
+  ! -- BODY --
+  call affstar("chknxnstp", c)
+  call fll_ignore_blank(iu, c)
+  if ( c /= cc ) then
+    call affline("cc = '"//cc//"'")
+    call affline("c  = '"//c //"'")
+    write(6,'(a)') "Error !"
+    call stopp(iu, c)
+  endif
+  call affline("'"//chnl(c)//"' checked")
+  call affexit("chknxnstp", c)
 endsubroutine fll_checknextcharnostep
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT-low-level : check next non-blank is some given character
 !------------------------------------------------------------------------------!
-subroutine fll_checknextchar(iu, cc, c)
-implicit none
-integer           :: iu
-character(len=1)  :: cc
-character(len=1)  :: c
-call affstar("check_nxt", c)
-call fll_checknextcharnostep(iu, cc, c)
-read(iu) c
-call affexit("check_nxt", c)
+subroutine fll_checknextchar(iu, c, cc)
+  implicit none
+  ! -- INPUTS --
+  integer          , intent(in)    :: iu
+  character        , intent(inout) :: c
+  character        , intent(in)    :: cc
+  ! -- OUTPUTS --
+  ! -- Internal variables --
+  ! -- BODY --
+  call affstar("check_nxt", c)
+  call fll_checknextcharnostep(iu, c, cc)
+  read(iu) c
+  call affexit("check_nxt", c)
 endsubroutine fll_checknextchar
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT-low-level : read integer
 !------------------------------------------------------------------------------!
-subroutine fll_getint(iu, val, c)
-implicit none
-integer           :: iu
-integer           :: val
-character(len=1)  :: c
-character(len=64) :: str
-call affstar("get_int__", c)
-call fll_ignore_blank(iu, c)
-call fll_storedecdigits(iu, str, c)
-call affline("read integer from string : '"//trim(str)//"'")
-val = str_to_int(str, '(i)')
-call affline("integer read : "//trim(str))
-call affexit("get_int__", c)
+subroutine fll_getint(iu, c, val)
+  implicit none
+  ! -- INPUTS --
+  integer          , intent(in)    :: iu
+  character        , intent(inout) :: c
+  ! -- OUTPUTS --
+  integer          , intent(out)   :: val
+  ! -- Internal variables --
+  character(len=256) :: str
+  integer :: ierr
+  ! -- BODY --
+  call affstar("get_int__", c)
+  call fll_ignore_blank(iu, c)
+  call fll_storedecdigits(iu, c, str)
+  call affline("read integer from string : '"//trim(str)//"'")
+  val = str_to_int(str, '(i)', ierr)
+  ! Error could be put inside str_to_int
+  if ( ierr /= 0 ) then
+    write(6,'(a)') "Error !"
+    call stopp(iu, c)
+  endif
+  call affline("integer read : "//trim(str))
+  call affexit("get_int__", c)
 endsubroutine fll_getint
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT-low-level : read hexadecimal integer
 !------------------------------------------------------------------------------!
-subroutine fll_gethexint(iu, val, c)
-implicit none
-integer           :: iu
-integer           :: val
-character(len=1)  :: c
-character(len=64) :: str
-call affstar("get_hex__", c)
-call fll_ignore_blank(iu, c)
-call fll_storeuptoblank(iu, str, c)
-call affline("read integer from string : '"//trim(str)//"'")
-val = str_to_int(str, '(z)')
-write(str,'(i)') val
-call affline("integer read : "//trim(str))
-call affexit("get_hex__", c)
+subroutine fll_gethexint(iu, c, val)
+  implicit none
+  ! -- INPUTS --
+  integer          , intent(in)    :: iu
+  character        , intent(inout) :: c
+  ! -- OUTPUTS --
+  integer(kfp)     , intent(out)   :: val
+  ! -- Internal variables --
+  character(len=256) :: str
+  integer :: ierr
+  ! -- BODY --
+  call affstar("get_hex__", c)
+  call fll_ignore_blank(iu, c)
+  call fll_storeuptoblank(iu, c, str)
+  call affline("read integer from string : '"//trim(str)//"'")
+  val = str_to_int(str, '(z)', ierr)
+  if ( ierr /= 0 ) then
+    write(6,'(a)') "Error !"
+    call stopp(iu, c)
+  endif
+  write(str,'(i)') val
+  call affline("integer read : "//trim(str))
+  call affexit("get_hex__", c)
 endsubroutine fll_gethexint
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT-low-level : read string
 !------------------------------------------------------------------------------!
-subroutine fll_getstring(iu, str, c)
-implicit none
-integer           :: iu
-character(len=*)  :: str
-character(len=1)  :: c
-call affstar("get_str__", c)
-call fll_checknextchar(iu, '"', c)
-call fll_storeuptochar(iu, str, '"', c)
-call affline("read string : '"//trim(str)//"'")
-call affexit("get_str__", c)
+subroutine fll_getstring(iu, c, str)
+  implicit none
+  ! -- INPUTS --
+  integer          , intent(in)    :: iu
+  character        , intent(inout) :: c
+  ! -- OUTPUTS --
+  character(len=*) , intent(out)   :: str
+  ! -- Internal variables --
+  ! -- BODY --
+  call affstar("get_str__", c)
+  call fll_checknextchar(iu, c, '"')
+  call fll_storeuptochar(iu, c, '"', str)
+  call affline("read string : '"//trim(str)//"'")
+  call affexit("get_str__", c)
 endsubroutine fll_getstring
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT-low-level : read list
 !------------------------------------------------------------------------------!
-subroutine fll_getlist(def, str)
-implicit none
-type(st_deffluent) :: def
-character(len=*)  :: str
-call affstar("get_list_", def%c)
-call fll_checknextchar(def%iu_bin, '(', def%c)
-call fll_storeuptochar(def%iu_bin, str, ')', def%c)
-call affline("read list : '"//trim(str)//"'")
-call affexit("get_list_", def%c)
+subroutine fll_getlist(iu, c, str)
+  implicit none
+  ! -- INPUTS --
+  integer          , intent(in)    :: iu
+  character        , intent(inout) :: c
+  ! -- OUTPUTS --
+  character(len=*) , intent(out)   :: str
+  ! -- Internal variables --
+  ! -- BODY --
+  call affstar("getlist_", c)
+  call fll_checknextchar(iu, c, '(')
+  call fll_storeuptochar(iu, c, ')', str)
+  call affline("read list : '"//trim(str)//"'")
+  call affexit("getlist_", c)
 endsubroutine fll_getlist
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT-low-level : extract list
 !------------------------------------------------------------------------------!
-subroutine fll_extractlist(iu, strlistsize, strlist, c)
-implicit none
-integer           :: iu
-integer           :: strlistsize
-character(len=*)  :: strlist(strlistsize)
-integer           :: nstr, inst, lstr
-character(len=1)  :: c
-character(len=1)  :: s
-call affstar("extract__", c)
-call fll_checknextchar(iu, '(', c)
-do nstr = 1,strlistsize
-  inst = 0
-  strlist(nstr) = ""
-  call fll_ignore_blank(iu, c)
-  if ( c .eq. ')' ) then
-    exit
-  endif
-  call fll_storeuptosepbb(iu, strlist(nstr), c)
-write(s,'(i1)') nstr
-call affline("strl["//s//"] = '"//trim(strlist(nstr))//"'")
-  inst = len_trim(strlist(nstr))
-enddo
-nstr = nstr-1
-write(6,'(a,i4,a,$)') "nstr =",nstr,"    "
-strlistsize = nstr
-call fll_checknextchar(iu, ')', c)
-call affexit("extract__", c)
+subroutine fll_extractlist(iu, c, strlistsize, strlist)
+  implicit none
+  ! -- INPUTS --
+  integer          , intent(in)    :: iu
+  character        , intent(inout) :: c
+  integer          , intent(inout) :: strlistsize
+  ! -- OUTPUTS --
+  character(len=*) , intent(out)   :: strlist(strlistsize)
+  ! -- Internal variables --
+  integer           :: nstr, inst, lstr
+  character         :: s
+  ! -- BODY --
+  call affstar("extract__", c)
+  call fll_checknextchar(iu, c, '(')
+  do nstr = 1,strlistsize
+    inst = 0
+    strlist(nstr) = ""
+    call fll_ignore_blank(iu, c)
+    if ( c == ')' ) exit
+    call fll_storeuptosepbb(iu, c, strlist(nstr))
+  write(s,'(i1)') nstr
+  call affline("strl["//s//"] = '"//trim(strlist(nstr))//"'")
+    inst = len_trim(strlist(nstr))
+  enddo
+  nstr = nstr-1
+  write(6,'(a,i4,a,$)') "nstr =",nstr,"    "
+  strlistsize = nstr
+  call fll_checknextchar(iu, c, ')')
+  call affexit("extract__", c)
 endsubroutine fll_extractlist
+
+!------------------------------------------------------------------------------!
+!> @brief FLUENT-low-level subroutines end
+!------------------------------------------------------------------------------!
+
+!------------------------------------------------------------------------------!
+!> @brief FLUENT : read string list
+!------------------------------------------------------------------------------!
+subroutine fluent_read_strlist(def, str)
+
+  implicit none
+  ! -- INPUTS --
+  type(st_deffluent) , intent(inout) :: def
+  ! -- OUTPUTS --
+  character(len=*)   , intent(out)   :: str
+  ! -- Internal variables --
+  ! -- BODY --
+  call affstar("get_list_", def%c)
+  call fll_getlist(def%iu_bin, def%c, str)
+  call affexit("get_list_", def%c)
+
+endsubroutine fluent_read_strlist
+
+!------------------------------------------------------------------------------!
+!> @brief FLUENT : read integer list
+!------------------------------------------------------------------------------!
+subroutine fluent_read_intlist(def, formt, inb, ilist, str)
+
+  implicit none
+  ! -- INPUTS --
+  type(st_deffluent) , intent(inout) :: def
+  character(len=*)   , intent(in)    :: formt
+  ! -- OUTPUTS --
+  integer            , intent(out)   :: inb
+  integer(kfp)       , intent(out)   :: ilist(*)
+  character(len=*)   , intent(out)   :: str
+  ! -- Internal variables --
+  integer :: ierr
+  ! -- BODY --
+  call affstar("get_list_", def%c)
+  call fll_getlist(def%iu_bin, def%c, str)
+  call str_read_ints(str, formt, inb, ilist, ierr)
+  if ( ierr /= 0 ) then
+    call cfd_error("(fluent) could not read integer list")
+  endif
+  call affexit("get_list_", def%c)
+
+endsubroutine fluent_read_intlist
+
+!------------------------------------------------------------------------------!
+!> @brief FLUENT : check space dimension
+!------------------------------------------------------------------------------!
+subroutine fluent_check_spcdim(spcdim, iswrite)
+
+  implicit none
+  ! -- INPUTS --
+  integer , intent(in) :: spcdim
+  integer , intent(in) , optional :: iswrite
+  ! -- OUTPUTS --
+  ! -- Internal variables --
+  ! -- BODY --
+  select case(spcdim)
+  case(2)
+    if ( present(iswrite) .and. iswrite == 1 ) &
+    call cfd_print("    mesh is 2D (planar)")
+  case(3)
+    if ( present(iswrite) .and. iswrite == 1 ) &
+    call cfd_print("    mesh is 3D")
+  case default
+    call cfd_error("(fluent) unknown space dimension: " &
+                   //trim(strof(spcdim)))
+  endselect
+
+endsubroutine fluent_check_spcdim
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT : read section id (and leading '(')
 !------------------------------------------------------------------------------!
-subroutine fluent_get_sct_id(def, sctid)
-implicit none
-type(st_deffluent) :: def
-integer            :: sctid
-character(len=64)  :: str
-call affstar("get_s_id_", def%c)
-call fll_checknextchar(def%iu_bin, '(', def%c)
-call fll_storeuptoblank(def%iu_bin, str, def%c)
-sctid = str_to_int(str, '(i)')
-call affline("read section head : '"//trim(str)//"'")
-call affexit("get_s_id_", def%c)
-endsubroutine fluent_get_sct_id
+subroutine fluent_get_sctid(def, sctid)
+
+  implicit none
+  ! -- INPUTS --
+  type(st_deffluent) , intent(inout) :: def
+  ! -- OUTPUTS --
+  integer            , intent(out)   :: sctid
+  ! -- Internal variables --
+  character(len=64)  :: str
+  integer :: ierr
+  ! -- BODY --
+  call affstar("get_s_id_", def%c)
+  call fll_checknextchar(def%iu_bin, def%c, '(')
+  call fll_getint(def%iu_bin, def%c, sctid)
+  call affline("read section head : '"//trim(strof(sctid))//"'")
+  call affexit("get_s_id_", def%c)
+
+endsubroutine fluent_get_sctid
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT : read section : comment
 !------------------------------------------------------------------------------!
-subroutine fluent_get_sct_comment(def)
-implicit none
-type(st_deffluent) :: def
-character(len=64)  :: str
-call affstar("get_s_com", def%c)
-call fll_getstring(def%iu_bin, str, def%c)
-write(6,'(3a)') "Comment   : '",trim(str),"'"
-call affexit("get_s_com", def%c)
-endsubroutine fluent_get_sct_comment
+subroutine fluent_get_comment(def)
+
+  implicit none
+  ! -- INPUTS --
+  type(st_deffluent) , intent(inout) :: def
+  ! -- OUTPUTS --
+  ! -- Internal variables --
+  character(len=64)  :: str
+  integer            :: isname = 0
+  ! -- BODY --
+  call fll_getstring(def%iu_bin, def%c, str)
+  if ( str(1:22) == "Interior faces of zone" ) then
+    def%zonename = trim(str(24:))
+    isname = 1
+  elseif ( str(1:13) == "Faces of zone" ) then
+    def%zonename = trim(str(15:))
+    isname = 1
+  endif
+  if ( isname == 1 ) then
+    call cfd_print(' '//trim(str))
+  else
+    call cfd_write('"'//trim(str)//'"')
+  endif
+
+endsubroutine fluent_get_comment
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT : read section : header
 !------------------------------------------------------------------------------!
-subroutine fluent_get_sct_header(def)
-implicit none
-type(st_deffluent) :: def
-character(len=64) :: str
-call affstar("get_s_hed", def%c)
-call fll_getstring(def%iu_bin, str, def%c)
-write(6,'(3a)') "Header    : '",trim(str),"'"
-call affexit("get_s_hed", def%c)
-endsubroutine fluent_get_sct_header
+subroutine fluent_get_header(def)
+
+  implicit none
+  ! -- INPUTS --
+  type(st_deffluent) , intent(inout) :: def
+  ! -- OUTPUTS --
+  ! -- Internal variables --
+  character(len=64) :: str
+  ! -- BODY --
+  call fll_getstring(def%iu_bin, def%c, str)
+  write(6,'(3a)') "Header    : '",trim(str),"'"
+
+endsubroutine fluent_get_header
 
 !------------------------------------------------------------------------------!
-!> @brief FLUENT : read section : dimension
+!> @brief FLUENT : read section : space dimension
 !------------------------------------------------------------------------------!
-subroutine fluent_get_sct_dim(iu, spacedim, c)
-implicit none
-integer           :: iu
-integer           :: spacedim
-character(len=1)  :: c
-call affstar("get_s_dim", c)
-call fll_getint(iu, spacedim, c)
-write(6,'(a,i)') "Dimension : ",spacedim
-call affexit("get_s_dim", c)
-endsubroutine fluent_get_sct_dim
+subroutine fluent_get_spcdim(def, umesh)
+
+  implicit none
+  ! -- INPUTS --
+  type(st_deffluent) , intent(inout) :: def
+  ! -- OUTPUTS --
+  type(st_ustmesh)   , intent(inout) :: umesh
+  ! -- Internal variables --
+  ! -- BODY --
+  call fll_getint(def%iu_bin, def%c, def%spcdim)
+  if ( umesh%elemdim == 0 ) then
+    continue
+  elseif ( umesh%elemdim == def%spcdim ) then
+    call cfd_warning("space dimension already set")
+  else
+    call cfd_warning("space dimension already set to " &
+                     //trim(strof(umesh%elemdim)))
+  endif
+  umesh%elemdim = def%spcdim
+  call fluent_check_spcdim(def%spcdim, 1)
+
+endsubroutine fluent_get_spcdim
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT : read section : nodes
 !------------------------------------------------------------------------------!
-subroutine fluent_get_sct_nodes(iu, sctid, zoneid, &
-                                x, y, z, &
-                                frstindx, lastindx, ntype, nd, ndim, c)
-implicit none
-integer           :: iu, sctid
-integer           :: zoneid, frstindx, lastindx, ntype, nd, ndim
-real*8            :: x(*),y(*),z(*)
-integer           :: ntyperef
-character(len=1)  :: c
-character(len=64) :: lstr
-character(len=64) :: str, strref
-integer,parameter :: strsize=8
-character(len=64) :: strlist(strsize)
-integer           :: i, nstr, nstrref
-call affstar("get_s_nod", c)
-nstrref = 5
-nstr = nstrref
-call fll_extractlist(iu, nstr, strlist, c)
-if ( nstr .ne. nstrref ) then
-  write(str,'(a,i)') "exp nb of fields = ",nstrref ; call affline(trim(str))
-  write(str,'(a,i)') "number of fields = ",nstr    ; call affline(trim(str))
-  call affline("'"//trim(lstr)//"'")
-  call stopp()
-endif
-write(6,'(5(1x,1H|,a,1H|),$)') (trim(strlist(i)),i=1,5)
-read(strlist(1),'(z)') zoneid
-read(strlist(2),'(z)') frstindx
-read(strlist(3),'(z)') lastindx
-read(strlist(4),'(i)') ntype
-read(strlist(5),'(i)') nd
-write(6,'(5(1H,,i8))') zoneid, frstindx, lastindx, ntype, nd
-if ( zoneid .eq. 0 ) then
-  ntyperef = 0
-else
-  ntyperef = 1
-endif
-if ( ntype .ne. ntyperef ) then
-  write(str,'(a,i)') "ntyperef = ",ntyperef ; call affline(trim(str))
-  write(str,'(a,i)') "ntype    = ",ntype    ; call affline(trim(str))
-  write(6,'(a)') "Error !"
-  call stopp()
-endif
-if ( ndim .ne. 0 ) then
-if ( nd .ne. ndim ) then
-  write(str,'(a,i)') "ndim = ",ndim ; call affline(trim(str))
-  write(str,'(a,i)') "nd   = ",nd   ; call affline(trim(str))
-  write(6,'(a)') "Error !"
-  call stopp()
-endif
-endif
-if ( zoneid .ne. 0 ) then
-  call affline("'"//chnl(c)//"' in bag")
-  !!!! fll_checknextcharnostep instead of fll_checknextchar
-  call fll_checknextcharnostep(iu, '(', c)
-  !!!! '(' is to be checked then leave next char unread
-  select case(ndim)
-  case(2)
+subroutine fluent_get_nodes(def, sctid, umesh)
+
+  implicit none
+  ! -- INPUTS --
+  type(st_deffluent) , intent(inout) :: def
+  integer            , intent(in)    :: sctid
+  ! -- OUTPUTS --
+  type(st_ustmesh)   , intent(inout) :: umesh
+  ! -- Internal variables --
+  integer           :: zoneid
+  integer           :: inmin, inmax, ndim
+  integer           :: itype
+  integer           :: ityperef
+  character(len=64) :: strzone
+  character(len=64) :: strtype
+  character(len=64) :: str, strref
+  integer           :: i, inb
+  integer           :: j
+  integer(kfp)      :: ilist(5)
+  ! -- BODY --
+
+  !-----------------------------------------------
+  ! Read parameters
+  call fluent_read_intlist(def, '(z)', inb, ilist, str)
+
+  ! Check number of parameters
+  if ( inb == 4 ) then
+    ilist(5) = def%spcdim
+  elseif ( inb /= 5 ) then
+    call cfd_write("Error: string = '"//trim(str)//"'")
+    call cfd_write("       expected number of fields = 5")
+    call cfd_write("       actual   number of fields = "//trim(strof(inb)))
+    call cfd_write("       wrong    number of fields !")
+    call cfd_error("Stop")
+  endif
+  zoneid = ilist(1)
+  inmin  = ilist(2)
+  inmax  = ilist(3)
+  itype  = ilist(4)
+  ndim   = ilist(5)
+
+  ! Print parameters
+  if ( zoneid == 0 ) then
+    write(strzone,'(a9)')    "all zones"
+  else
+    write(strzone,'(a5,z4)') "zone ",zoneid
+    if ( ndim == 2 .or. def%spcdim == 2 ) then
+      strtype = " x, y"
+    elseif ( ndim == 2 .or. def%spcdim == 3 ) then
+      strtype = " x, y, z"
+    else
+      strtype = ""
+    endif
+  endif
+  write(str,'(3a,2(i8,a))') "(",trim(strzone),"): (",inmin,":",inmax,")"
+  call cfd_print(" - reading FLUENT nodes "//trim(str)//trim(strtype))
+
+  ! Check itype
+  if ( zoneid == 0 ) then
+    ityperef = 0
+  else
+    ityperef = 1
+  endif
+  if ( itype /= ityperef ) then
+    call cfd_warning("(fluent) type = "//trim(strof(itype)) &
+                        //" /= typeref = "//trim(strof(ityperef)))
+  endif
+
+  ! Check space dimension
+  if ( def%spcdim == 0 ) then
+    if ( ndim == 0 ) then
+      if ( zoneid == 0 ) then
+        call cfd_warning("(fluent) spcdim = 0 and ndim = 0")
+      else
+        call cfd_error("(fluent) spcdim = 0 and ndim = 0")
+      endif
+    else
+      if ( zoneid == 0 ) then
+        call cfd_warning("(fluent) spcdim = 0 , set to ndim ="//trim(strof(ndim)))
+        def%spcdim = ndim
+        umesh%elemdim = def%spcdim
+      else
+        call cfd_warning("(fluent) spcdim = 0 , use ndim ="//trim(strof(ndim)))
+      endif
+    endif
+  elseif ( ndim /= def%spcdim ) then
+    call cfd_write("Error: spcdim = "//trim(strof(def%spcdim)))
+    call cfd_write("       ndim   = "//trim(strof(ndim)))
+    call cfd_error("wrong space dimension of zone"//trim(strzone))
+  endif
+
+  !-----------------------------------------------
+  ! Case global parameters
+  if ( zoneid == 0 ) then
+
+    def%inmin = inmin
+    def%inmax = inmax
+    def%nnodes = inmax-inmin+1
+
+    umesh%nvtex = inmax-inmin+1
+    umesh%mesh%nvtex = umesh%nvtex
+    umesh%mesh%idim = umesh%nvtex
+    umesh%mesh%jdim = 1
+    umesh%mesh%kdim = 1
+
+    ! Allocate umesh vertices
+    allocate(umesh%mesh%vertex(umesh%mesh%idim, umesh%mesh%jdim, umesh%mesh%kdim))
+
+  !-----------------------------------------------
+  ! Case specific zone
+  else ! if ( zoneid /= 0 ) then
+
+    ! Check allocation of vertex array
+    if ( umesh%mesh%nvtex /= umesh%nvtex ) then
+      call cfd_error("umesh%mesh%vertex is not allocated")
+    elseif ( inmax > umesh%nvtex ) then
+      call cfd_write("Error: nvtex = "//trim(strof(umesh%nvtex)))
+      call cfd_write("       inmax = "//trim(strof(inmax))//" > nvtex")
+      call cfd_error("wrong dimension of vertex array")
+    endif
+
+    ! Allocate local xyz array
     select case(sctid)
-    case(fluent_sct_nodes)
-      read(iu) c
-      do i = frstindx,lastindx
-      read(iu) c
-      call fll_storeuptocharnostep(iu, str, achar(10), c)
-  !write(6,'(a,$)') str(1:20)
-  !call flush(6)
-      read(str,*) x(i),y(i)
-  !write(6,'(2e20.12)') x(i),y(i)
-      enddo
     case(fluent_sct_spbinnodes)
-      read(iu) (x(i),y(i),i=frstindx,lastindx)
-    case(fluent_sct_dpbinnodes)
-      read(iu) (x(i),y(i),i=frstindx,lastindx)
+      allocate(def%xyzsp(2,inmax-inmin+1))
+    case(fluent_sct_nodes, &
+         fluent_sct_dpbinnodes)
+      allocate(def%xyzdp(2,inmax-inmin+1))
     endselect
-  case(3)
+
+    ! Read opening parenthesis
+    !!!! fll_checknextcharnostep instead of fll_checknextchar
+    call fll_checknextcharnostep(def%iu_bin, def%c, '(')
+    !!!! '(' is to be checked then leave next char unread
+
+    ! Read vertices
     select case(sctid)
+    ! Ascii values
     case(fluent_sct_nodes)
-      read(iu) c
-      do i = frstindx,lastindx
-      read(iu) c
-      call fll_storeuptocharnostep(iu, str, achar(10), c)
-  !write(6,'(a,$)') str(1:20)
-  !call flush(6)
-      read(str,*) x(i),y(i),z(i)
-  !write(6,'(3e20.12)') x(i),y(i),z(i)
+      !!!! next char was left unread
+      read(def%iu_bin) def%c
+      !!!! it is read now
+      call fll_ignore_blank(def%iu_bin, def%c)
+      do i = 1,inmax-inmin+1
+        call fll_storeuptochar(def%iu_bin, def%c, nl_char, str)
+        read(str,*) (def%xyzdp(j,i),j=1,ndim)
       enddo
+    ! Binary values (simple precision)
     case(fluent_sct_spbinnodes)
-      read(iu) (x(i),y(i),z(i),i=frstindx,lastindx)
+      read(def%iu_bin) ((def%xyzsp(i,j),j=1,ndim),i=1,inmax-inmin+1)
+      !!!! next char was left unread
+      read(def%iu_bin) def%c
+      !!!! it is read now
+    ! Binary values (double precision)
     case(fluent_sct_dpbinnodes)
-      read(iu) (x(i),y(i),z(i),i=frstindx,lastindx)
+      read(def%iu_bin) ((def%xyzdp(i,j),j=1,ndim),i=1,inmax-inmin+1)
+      !!!! next char was left unread
+      read(def%iu_bin) def%c
+      !!!! it is read now
     endselect
+    call fll_checknextchar(def%iu_bin, def%c, ')')
+
+    ! Transfer vertices
+    select case(sctid)
+    case(fluent_sct_spbinnodes)
+      do i = inmin, inmax
+        umesh%mesh%vertex(i,1,1)%x = def%xyzsp(1,i-inmin+1)
+        umesh%mesh%vertex(i,1,1)%y = def%xyzsp(2,i-inmin+1)
+        if ( ndim == 3 ) &
+        umesh%mesh%vertex(i,1,1)%z = def%xyzsp(3,i-inmin+1)
+      enddo
+    case(fluent_sct_nodes, &
+         fluent_sct_dpbinnodes)
+      do i = inmin, inmax
+        umesh%mesh%vertex(i,1,1)%x = def%xyzdp(1,i-inmin+1)
+        umesh%mesh%vertex(i,1,1)%y = def%xyzdp(2,i-inmin+1)
+        if ( ndim == 3 ) &
+        umesh%mesh%vertex(i,1,1)%z = def%xyzdp(3,i-inmin+1)
+      enddo
+    endselect
+
+    ! Deallocate local xyz array
+    select case(sctid)
+    case(fluent_sct_spbinnodes)
+      deallocate(def%xyzsp)
+    case(fluent_sct_nodes, &
+         fluent_sct_dpbinnodes)
+      deallocate(def%xyzdp)
+    endselect
+
+  endif
+
+  ! Read end of section
+  call fll_ignore_blank(def%iu_bin, def%c)
+  call fll_storeuptocharnostep(def%iu_bin, def%c, ')', str)
+  select case(sctid)
+  case(fluent_sct_nodes)
+    strref = " "
+  case(fluent_sct_spbinnodes, &
+       fluent_sct_dpbinnodes)
+    write(strref,'(a,i04)') "End of Binary Section ",sctid
   endselect
-  !write(6,'(2z20)') x(frstindx),y(frstindx)
-  !write(6,'(2z20)') x(lastindx),y(lastindx)
-  !write(6,'(2e20.12)') x(frstindx),y(frstindx)
-  !write(6,'(2e20.12)') x(lastindx),y(lastindx)
-  call affline("(x,y) list read")
-  !!!! next char was left unread
-  read(iu) c
-  !!!! it is read now
-  call fll_checknextchar(iu, ')', c)
-endif
-call fll_ignore_blank(iu, c)
-call fll_storeuptocharnostep(iu, str, ')', c)
-select case(sctid)
-case(fluent_sct_nodes)
-  strref = " "
-case(fluent_sct_spbinnodes, &
-     fluent_sct_dpbinnodes)
-  write(strref,'(a,i04)') "End of Binary Section ",sctid
-endselect
-if ( trim(str) .ne. trim(strref) ) then
-  call affline("strref = '"//trim(strref)//"'")
-  call affline("str    = '"//trim(str   )//"'")
-  call stopp()
-endif
-call affexit("get_s_nod", c)
-endsubroutine fluent_get_sct_nodes
+  if ( trim(str) /= trim(strref) ) then
+    call cfd_write("Error: expected : '"//trim(strref)//"'")
+    call cfd_write("       found    : '"//trim(str)//"'")
+    call cfd_error("wrong end of section")
+  endif
+
+endsubroutine fluent_get_nodes
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT : read section : cells
 !------------------------------------------------------------------------------!
-subroutine fluent_get_sct_cells(iu, sctid, zoneid, &
-                                celllist, &
-                                frstindx, lastindx, ctype, c)
-implicit none
-integer           :: iu, sctid
-integer           :: zoneid, frstindx, lastindx, ctype
-integer           :: elemtype
-integer(kpf)      :: celllist(*)
-integer           :: ctyperef
-character(len=1)  :: c
-character(len=64) :: lstr
-character(len=64) :: str, strref
-integer,parameter :: strsize=8
-character(len=64) :: strlist(strsize)
-integer           :: i, nstr, nstrref, indx, inb
-call affstar("get_s_cel", c)
-nstrref = 5
-nstr = nstrref
-call fll_extractlist(iu, nstr, strlist, c)
-if ( nstr .ne. nstrref ) then
-  write(str,'(a,i)') "exp nb of fields = ",nstrref ; call affline(trim(str))
-  write(str,'(a,i)') "number of fields = ",nstr    ; call affline(trim(str))
-  call affline("'"//trim(lstr)//"'")
-  call stopp()
-endif
-write(6,'(5(1x,1H|,a,1H|),$)') (trim(strlist(i)),i=1,5)
-read(strlist(1),'(z)') zoneid
-read(strlist(2),'(z)') frstindx
-read(strlist(3),'(z)') lastindx
-read(strlist(4),'(i)') ctype
-read(strlist(5),'(i)') elemtype
-write(6,'(5(1H,,i8))') zoneid, frstindx, lastindx, ctype, elemtype
-if ( zoneid .eq. 0 ) then
-  ctyperef = 0
-else
-  ctyperef = 1
-endif
-if ( ctype .ne. ctyperef ) then
-  write(str,'(a,i)') "ctyperef = ",ctyperef ; call affline(trim(str))
-  write(str,'(a,i)') "ctype    = ",ctype    ; call affline(trim(str))
-  write(6,'(a)') "Error !"
-  call stopp()
-endif
-if ( zoneid .ne. 0 ) then
-if ( elemtype .eq. fluent_cells_mixed ) then
-  call affline("'"//chnl(c)//"' in bag")
-  !!!! fll_checknextcharnostep instead of fll_checknextchar
-  call fll_checknextcharnostep(iu, '(', c)
-  !!!! '(' is to be checked then leave next char unread
+subroutine fluent_get_cells(def, sctid, umesh)
+
+  implicit none
+  ! -- INPUTS --
+  type(st_deffluent) , intent(inout) :: def
+  integer            , intent(in)    :: sctid
+  ! -- OUTPUTS --
+  type(st_ustmesh)   , intent(inout) :: umesh
+  ! -- Internal variables --
+  integer*4, allocatable :: celltype(:)
+  integer           :: zoneid
+  integer           :: icmin, icmax
+  integer           :: ctype
+  integer           :: itype
+  integer           :: ityperef
+  character(len=64) :: strzone
+  character(len=64) :: strtype
+  character(len=64) :: str, strref
+  integer           :: i, inb
+  integer           :: indx
+  integer(kfp)      :: ilist(5)
+  integer :: ierr
+  ! -- BODY --
+
+  !-----------------------------------------------
+  ! Read parameters
+  call fluent_read_intlist(def, '(z)', inb, ilist, str)
+
+  ! Check number of parameters
+  if ( inb == 4 ) then
+    ilist(5) = 0
+  elseif ( inb /= 5 ) then
+    call cfd_write("Error: string = '"//trim(str)//"'")
+    call cfd_write("       expected number of fields = 5")
+    call cfd_write("       actual   number of fields = "//trim(strof(inb)))
+    call cfd_write("       wrong    number of fields !")
+    call cfd_error("Stop")
+  endif
+  zoneid = ilist(1)
+  icmin  = ilist(2)
+  icmax  = ilist(3)
+  itype  = ilist(4)
+  ctype  = ilist(5)
+
+  ! Print parameters
+  if ( zoneid == 0 ) then
+    write(strzone,'(a9)')    "all zones"
+    write(strtype,'()')
+  else
+    write(strzone,'(a5,z4)') "zone ",zoneid
+    if ( ctype == fluent_cells_mixed ) then
+      write(str,'(a)') "Mixed"
+    else
+      write(str,'(a)') name_element(fluent2typhon_elemtype(ctype))
+    endif
+    write(strtype,'(2a)') " of type ",trim(str)
+  endif
+  write(str,'(3a,2(i8,a))') "(",trim(strzone),"): (",icmin,":",icmax,")"
+  call cfd_print(" - reading FLUENT cells "//trim(str)//trim(strtype))
+
+  ! Check itype
+  if ( zoneid == 0 ) then
+    ityperef = 0
+  else
+    ityperef = 1
+  endif
+  if ( itype /= ityperef ) then
+    call cfd_warning("(fluent) type = "//trim(strof(itype)) &
+                        //" /= typeref = "//trim(strof(ityperef)))
+  endif
+
+  ! Check ctype
+  ! will be checked in celltype array
+
+  !-----------------------------------------------
+  ! Case global parameters
+  if ( zoneid == 0 ) then
+
+
+  !-----------------------------------------------
+  ! Case specific zone
+  else ! if ( zoneid /= 0 ) then
+
+
+    ! Allocate local celltype array
+    ! WARNING : Could be used (globally) for checking
+    allocate(celltype(icmin:icmax))
+
+  ! If mixed cells then a list follows
+  if ( ctype == fluent_cells_mixed ) then
+
+    ! Read opening parenthesis
+    !!!! fll_checknextcharnostep instead of fll_checknextchar
+    call fll_checknextcharnostep(def%iu_bin, def%c, '(')
+    !!!! '(' is to be checked then leave next char unread
+
+    ! Read cells
+    select case(sctid)
+    ! Ascii values
+    case(fluent_sct_cells)
+      !!!! next char was left unread
+      read(def%iu_bin) def%c
+      !!!! it is read now
+      call fll_ignore_blank(def%iu_bin, def%c)
+      indx = icmin
+      do while ( indx < icmax )
+        call fll_storeuptochar(def%iu_bin, def%c, nl_char, str)
+        call str_read_ints(str, '(i)', inb, celltype(indx+1:icmax), ierr)
+        if ( ierr /= 0 ) then
+          call cfd_error("(fluent) could not read integer list")
+        endif
+        indx = indx + inb
+      enddo
+    ! Binary values (simple precision)
+    case(fluent_sct_spbincells)
+      read(def%iu_bin) (celltype(i),i=icmin,icmax)
+      !!!! next char was left unread
+      read(def%iu_bin) def%c
+      !!!! it is read now
+    endselect
+    call fll_checknextchar(def%iu_bin, def%c, ')')
+  endif
+
+    ! Transfer cells
+
+    ! Deallocate local celltype array
+    ! WARNING : Could be used (globally) for checking
+    deallocate(celltype)
+
+  endif
+
+  ! Read end of section
+  call fll_ignore_blank(def%iu_bin, def%c)
+  call fll_storeuptocharnostep(def%iu_bin, def%c, ')', str)
   select case(sctid)
   case(fluent_sct_cells)
-
-
-    read(iu) c
-    indx = 0
-    do while ( indx .lt. lastindx )
-      read(iu) c
-      call fll_storeuptocharnostep(iu, str, achar(10), c)
-write(6,'(a,$)') str(1:20)
-call flush(6)
-      call str_read_ints(str, celllist(indx+1:lastindx), inb, '(i)')
-write(6,'(i)') celllist(indx+1:indx+inb)
-      indx = indx + inb
-    enddo
-
-
-  case(fluent_sct_bincells)
-    read(iu) (celllist(i),i=frstindx,lastindx)
+    strref = " "
+  case(fluent_sct_spbincells)
+    write(strref,'(a,i04)') "End of Binary Section ",sctid
   endselect
-  call affline("elemtype list read")
-  !!!! next char was left unread
-  read(iu) c
-  !!!! it is read now
-  call fll_checknextchar(iu, ')', c)
-endif
-endif
-call fll_ignore_blank(iu, c)
-call fll_storeuptocharnostep(iu, str, ')', c)
-select case(sctid)
-case(fluent_sct_cells)
-  strref = " "
-case(fluent_sct_bincells)
-  write(strref,'(a,i04)') "End of Binary Section ",sctid
-endselect
-if ( trim(str) .ne. trim(strref) ) then
-  call affline("strref = '"//trim(strref)//"'")
-  call affline("str    = '"//trim(str   )//"'")
-  call stopp()
-endif
-call affexit("get_s_cel", c)
-endsubroutine fluent_get_sct_cells
+  if ( trim(str) /= trim(strref) ) then
+    call cfd_write("Error: expected : '"//trim(strref)//"'")
+    call cfd_write("       found    : '"//trim(str)//"'")
+    call cfd_error("wrong end of section")
+  endif
+
+endsubroutine fluent_get_cells
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT : read section : faces
 !------------------------------------------------------------------------------!
-subroutine fluent_get_sct_faces(iu, sctid, zoneid, &
-                                facelist, &
-                                frstindx, lastindx, bctype, c)
-implicit none
-integer           :: iu, sctid
-integer           :: zoneid, frstindx, lastindx, bctype
-integer           :: facetype
-integer(kpf)      :: facelist(*)
-integer           :: bctyperef
-integer           :: facetyperef
-character(len=1)  :: c
-character(len=64) :: lstr
-character(len=64) :: str, strref
-integer,parameter :: strsize=8
-character(len=64) :: strlist(strsize)
-integer(kpf)      :: inttab(64)
-integer           :: inb
-integer           :: i, nstr, nstrref
-call affstar("get_s_fac", c)
-nstrref = 5
-nstr = nstrref
-call fll_extractlist(iu, nstr, strlist, c)
-if ( nstr .ne. nstrref ) then
-  write(str,'(a,i)') "exp nb of fields = ",nstrref ; call affline(trim(str))
-  write(str,'(a,i)') "number of fields = ",nstr    ; call affline(trim(str))
-  call affline("'"//trim(lstr)//"'")
-  call stopp()
-endif
-write(6,'(5(1x,1H|,a,1H|),$)') (trim(strlist(i)),i=1,5)
-read(strlist(1),'(z)') zoneid
-read(strlist(2),'(z)') frstindx
-read(strlist(3),'(z)') lastindx
-read(strlist(4),'(z)') bctype
-read(strlist(5),'(i)') facetype
-write(6,'(5(1H,,i8))') zoneid, frstindx, lastindx, bctype, facetype
-if ( zoneid .eq. 0 ) then
-  bctyperef = 0
-  if ( bctype .ne. bctyperef ) then
-    write(str,'(a,i)') "bctyperef = ",bctyperef ; call affline(trim(str))
-    write(str,'(a,i)') "bctype    = ",bctype    ; call affline(trim(str))
-    write(6,'(a)') "Error !"
-    call stopp()
+subroutine fluent_get_faces(def, sctid, umesh)
+
+  implicit none
+  ! -- INPUTS --
+  type(st_deffluent) , intent(inout) :: def
+  integer            , intent(in)    :: sctid
+  ! -- OUTPUTS --
+  type(st_ustmesh)   , intent(inout) :: umesh
+  ! -- Internal variables --
+  integer           :: zoneid
+  integer           :: ifmin, ifmax
+  integer           :: bctype
+  integer           :: bctyperef
+  integer           :: ftype
+  integer           :: ftyperef
+  character(len=64) :: strzone
+  character(len=64) :: str, strref
+  integer,parameter :: nstrl = 256
+  character(len=64) :: strl(1:nstrl)
+  integer           :: nstrm, j
+  integer(kfp)      :: inttab(64)
+  integer           :: i, inb
+  integer           :: tmpa, tmpb
+  integer(kfp)      :: ilist(5)
+  integer           :: nfvtex, cell1, cell2
+  integer           :: lvtex(64)
+  integer :: ierr
+  ! -- BODY --
+
+  !-----------------------------------------------
+  ! Read parameters
+  call fluent_read_intlist(def, '(z)', inb, ilist, str)
+
+  ! Check number of parameters
+  if ( inb == 4 ) then
+    ilist(5) = 0
+  elseif ( inb /= 5 ) then
+    call cfd_write("Error: string = '"//trim(str)//"'")
+    call cfd_write("       expected number of fields = 5")
+    call cfd_write("       actual   number of fields = "//trim(strof(inb)))
+    call cfd_write("       wrong    number of fields !")
+    call cfd_error("Stop")
   endif
-  facetyperef = 0
-  if ( facetype .ne. facetyperef ) then
-    write(str,'(a,i)') "facetyperef = ",facetyperef ; call affline(trim(str))
-    write(str,'(a,i)') "facetype    = ",facetype    ; call affline(trim(str))
-    write(6,'(a)') "Error !"
-    call stopp()
+  zoneid = ilist(1)
+  ifmin  = ilist(2)
+  ifmax  = ilist(3)
+  bctype = ilist(4)
+  ftype  = ilist(5)
+
+  ! Print parameters
+  if ( zoneid == 0 ) then
+    write(strzone,'(a9)')    "all zones"
+  else
+    write(strzone,'(a5,z4)') "zone ",zoneid
   endif
-endif
-if ( zoneid .ne. 0 ) then
-!if ( facetype .eq. fluent_faces_mixed ) then
-  call affline("'"//chnl(c)//"' in bag")
-  !!!! fll_checknextcharnostep instead of fll_checknextchar
-  call fll_checknextcharnostep(iu, '(', c)
-  !!!! '(' is to be checked then leave next char unread
+  write(str,'(3a,2(i8,a))') "(",trim(strzone),"): (",ifmin,":",ifmax,")"
+  write(str,'(a,2(a,z2.2))') trim(str)," bctype=",bctype," ftype=",ftype
+  call cfd_print(" - reading FLUENT faces "//trim(str))
+
+  ! Check bctype
+  if ( zoneid == 0 ) then
+    bctyperef = 0
+  else
+    bctyperef = bctype
+  endif
+  if ( bctype /= bctyperef ) then
+    call cfd_warning("(fluent) bctype = "//trim(strof(bctype)) &
+                        //" /= bctyperef = "//trim(strof(bctyperef)))
+  endif
+
+  ! Check ftype
+  if ( zoneid == 0 ) then
+    ftyperef = 0
+  else
+    ftyperef = ftype
+  endif
+  if ( ftype /= ftyperef ) then
+    call cfd_warning("(fluent) ftype = "//trim(strof(ftype)) &
+                        //" /= ftyperef = "//trim(strof(ftyperef)))
+  endif
+
+  if ( ftype == fluent_faces_polyg ) then
+    call cfd_warning("(fluent) polygonal faces read procedure was not checked")
+  endif
+
+  !-----------------------------------------------
+  ! Case global parameters
+  if ( zoneid == 0 ) then
+
+
+  !-----------------------------------------------
+  ! Case specific zone
+  else ! if ( zoneid /= 0 ) then
+
+  !if ( ftype == fluent_faces_mixed ) then
+    ! Read opening parenthesis
+    !!!! fll_checknextcharnostep instead of fll_checknextchar
+    call fll_checknextcharnostep(def%iu_bin, def%c, '(')
+    !!!! '(' is to be checked then leave next char unread
+
+    call cfd_warning("Faces are read but NOT STORED !!!")
+    ! Read faces
+    select case(sctid)
+    ! Ascii values
+    case(fluent_sct_faces)
+      !!!! next char was left unread
+      read(def%iu_bin) def%c
+      !!!! it is read now
+      call fll_ignore_blank(def%iu_bin, def%c)
+
+      !!! ALL THIS IS TO READ FASTER CHAR BY CHAR...
+      tmpa = ifmin - 1 + nstrl*16
+      tmpb = ifmin - 1 + nstrl*16*64
+      i = ifmin-1
+      do while ( i < ifmax )
+        if ( i+nstrl > ifmax ) then
+          nstrm = ifmax - i
+        else
+          nstrm = nstrl
+        endif
+        do j = 1,nstrm
+          call fll_storeuptochar(def%iu_bin, def%c, nl_char, strl(j))
+        enddo
+        if ( i >= tmpa ) then
+          write(6,'(a,$)') "." ; call flush(6)
+          tmpa = tmpa + nstrl*16
+        endif
+        if ( i >= tmpb ) then
+          write(6,'()') ; call flush(6)
+          tmpb = tmpb + nstrl*1024
+        endif
+        do j = 1,nstrm
+        call str_read_ints(strl(j), '(z)', inb, inttab, ierr)
+        if ( ierr /= 0 ) then
+          call cfd_error("(fluent) could not read integer list")
+        endif
+        enddo
+        i = i + nstrm
+      stropt = " "
+      indopt = 1
+      enddo
+      if ( tmpa > tmpb ) then
+        write(6,'()') ; call flush(6)
+      endif
+      !!!... YES UP TO HERE
+
+      !do i = ifmin,ifmax
+      !  call fll_storeuptochar(def%iu_bin, def%c, nl_char, str)
+      !  call str_read_ints(str, '(z)', inb, inttab, ierr)
+      !  if ( ierr /= 0 ) then
+      !    call cfd_error("(fluent) could not read integer list")
+      !  endif
+      !stropt = " "
+      !indopt = 1
+      !enddo
+
+    ! Binary values (simple precision)
+    case(fluent_sct_spbinfaces)
+      if ( ftype == fluent_faces_mixed &
+      .or. ftype == fluent_faces_polyg ) then
+        read(def%iu_bin) &
+          ((nfvtex, &
+            (lvtex(j),j=1,nfvtex), &
+            cell1,cell2),i=ifmin,ifmax)
+      else
+        read(def%iu_bin) &
+          (((lvtex(j),j=1,ftype), &
+            cell1,cell2),i=ifmin,ifmax)
+      endif
+      !!!! next char was left unread
+      read(def%iu_bin) def%c
+      !!!! it is read now
+    endselect
+    call fll_checknextchar(def%iu_bin, def%c, ')')
+  !endif
+
+    ! Transfer faces
+
+  endif
+
+  ! Read end of section
+  call fll_ignore_blank(def%iu_bin, def%c)
+  call fll_storeuptocharnostep(def%iu_bin, def%c, ')', str)
   select case(sctid)
   case(fluent_sct_faces)
-    read(iu) c
-    do i = frstindx,lastindx
-      read(iu) c
-      call fll_storeuptocharnostep(iu, str, achar(10), c)
-      call str_read_ints(str, inttab, inb, '(z)')
-  stropt = " "
-  indopt = 1
-    enddo
-    select case(facetype)
-    case(fluent_faces_mixed, &
-         fluent_faces_polyg)
-      facelist(i) = inttab(1)
-    case default
-      facelist(i) = facetype
-    endselect
-  case(fluent_sct_binfaces)
-    read(iu) (facelist(i),i=frstindx,lastindx)
+    strref = " "
+  case(fluent_sct_spbinfaces)
+    write(strref,'(a,i04)') "End of Binary Section ",sctid
+    ! "Section" may be followed by two spaces...
+    ! (for "2013" in tested msh files)
+    if ( str(22:23) == "  " ) then
+      strref(23:) = strref(22:)
+    endif
   endselect
-  call affline("facetype list read")
-  !!!! next char was left unread
-  read(iu) c
-  !!!! it is read now
-  call fll_checknextchar(iu, ')', c)
-!endif
-endif
-call fll_ignore_blank(iu, c)
-call fll_storeuptocharnostep(iu, str, ')', c)
-select case(sctid)
-case(fluent_sct_faces)
-  strref = " "
-case(fluent_sct_binfaces)
-  write(strref,'(a,i04)') "End of Binary Section ",sctid
-endselect
-if ( trim(str) .ne. trim(strref) ) then
-  call affline("strref = '"//trim(strref)//"'")
-  call affline("str    = '"//trim(str   )//"'")
-  call stopp()
-endif
-call affexit("get_s_fac", c)
-endsubroutine fluent_get_sct_faces
+  if ( trim(str) /= trim(strref) ) then
+    call cfd_write("Error: expected : '"//trim(strref)//"'")
+    call cfd_write("       found    : '"//trim(str)//"'")
+    call cfd_error("wrong end of section")
+  endif
+
+endsubroutine fluent_get_faces
+
+!------------------------------------------------------------------------------!
+!> @brief FLUENT : read zone boundary and bcs
+!------------------------------------------------------------------------------!
+subroutine fluent_get_zonebcs(def, sctid)
+
+  implicit none
+  ! -- INPUTS --
+  type(st_deffluent) , intent(inout) :: def
+  integer            , intent(in)    :: sctid
+  ! -- OUTPUTS --
+  ! -- Internal variables --
+  character(len=256) :: str
+  ! -- BODY --
+  call fluent_read_strlist(def, str)
+  call fluent_read_strlist(def, str)
+
+endsubroutine fluent_get_zonebcs
+
+!------------------------------------------------------------------------------!
+!> @brief FLUENT : read zone boundary
+!------------------------------------------------------------------------------!
+subroutine fluent_get_zonebnd(def, sctid)
+
+  implicit none
+  ! -- INPUTS --
+  type(st_deffluent) , intent(inout) :: def
+  integer            , intent(in)    :: sctid
+  ! -- OUTPUTS --
+  ! -- Internal variables --
+  character(len=256) :: str
+  ! -- BODY --
+  call fluent_read_strlist(def, str)
+
+endsubroutine fluent_get_zonebnd
+
+!------------------------------------------------------------------------------!
+!> @brief FLUENT : ignored section
+!------------------------------------------------------------------------------!
+subroutine fluent_get_ignored(def, sctid)
+
+  implicit none
+  ! -- INPUTS --
+  type(st_deffluent) , intent(inout) :: def
+  integer            , intent(in)    :: sctid
+  ! -- OUTPUTS --
+  ! -- Internal variables --
+  character(len=256) :: str
+  ! -- BODY --
+  call fluent_read_strlist(def, str)
+  write(6,'(3a)') "(ignored   : '",trim(str),"')"
+
+endsubroutine fluent_get_ignored
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT : read section end (trailing ')')
 !------------------------------------------------------------------------------!
-subroutine fluent_get_sct_end(iu, ierr, c)
-implicit none
-integer           :: iu
-integer           :: sctval
-character(len=1)  :: c
-character(len=64) :: str
-integer :: ierr
-call affstar("get_s_end", c)
-call fll_checknextchar(iu, ')', c)
-read(iu,iostat=ierr) c
-if ( ierr /= 0 ) then
-  write(6,'(a)') "End of file..." ; call flush(6)
-endif
-call affexit("get_s_end", c)
-endsubroutine fluent_get_sct_end
+subroutine fluent_get_sctend(def, ieof)
 
-end module
+  implicit none
+  ! -- INPUTS --
+  type(st_deffluent) , intent(inout) :: def
+  ! -- OUTPUTS --
+  logical            , intent(out)   :: ieof
+  ! -- Internal variables --
+  integer :: ierr
+  ! -- BODY --
+  call affstar("get_s_end", def%c)
+  call fll_checknextchar(def%iu_bin, def%c, ')')
+  read(def%iu_bin,iostat=ierr) def%c
+  ieof = ( ierr /= 0 )
+  if ( ieof ) then
+    write(6,'(a)') "(fluent) End of file..." ; call flush(6)
+  endif
+  call affexit("get_s_end", def%c)
+
+endsubroutine fluent_get_sctend
+
+endmodule FLUENT
