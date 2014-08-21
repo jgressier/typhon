@@ -377,7 +377,7 @@ subroutine print_help()
   ! Lengths
   print*,"  -lx LX     : domain length (ex.: -lx 1.5, default 1)"
   print*,"  -ly LY     : domain height (ex.: -ly 2.5, default 1)"
-  print*,"  -lz LZ     : domain depth  (ez.: -lz 3.5, default 1)"
+  print*,"  -lz LZ     : domain depth  (ex.: -lz 3.5, default 1)"
   print*
   ! Functions
   print*,"  -fx expr   : scaling function of x from [0:1] (instead of -lx)"

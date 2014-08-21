@@ -325,7 +325,7 @@ logical function is_real(str)
     if (.NOT. all_decdigits(wstr(is:lstr))) return
   endif
 
-  ! -- check string before "." --
+  ! -- check integer part (string before ".") --
 
   ! -- check optional leading sign --
   is = 1 + scan(wstr(1:1), "+-")
@@ -616,7 +616,7 @@ subroutine splitstring_string(strin, nw, strout, ierr, separator)
   nw   = 0
   nwmax = size(strout)
   lstr   = len_trim(strin)
-  do while (ierr == 0 .AND. id<lstr)
+  do while (ierr == 0 .and. id<=lstr)
     is = scan(strin(id:), separator)            ! recherche des separateurs
     if (is==0) then                             ! si pas de separateur
       is = lstr + 1                             !   le mot restant est retenu
@@ -666,7 +666,7 @@ subroutine splitstring_integer(strin, nw, intout, ierr, separator)
   nw   = 0
   nwmax = size(intout)
   lstr   = len_trim(strin)
-  do while (ierr == 0 .AND. id<=lstr)
+  do while (ierr == 0 .and. id<=lstr)
     is = scan(strin(id:), separator)            ! recherche des separateurs
     if (is==0) then                             ! si pas de separateur
       is = lstr + 1                             !   le mot restant est retenu

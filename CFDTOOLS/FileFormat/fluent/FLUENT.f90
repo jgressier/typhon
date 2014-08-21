@@ -28,7 +28,6 @@ integer,parameter   :: lenopt   = 10
 integer             :: incopt
 integer,parameter   :: lennames = 30
 
-integer :: espion
 
 character,parameter :: nl_char = achar(10)
 character,parameter :: cr_char = achar(13)
@@ -179,7 +178,7 @@ subroutine fluent_openread(filename, deffluent)
        FORM   = "UNFORMATTED", CONVERT = 'LITTLE_ENDIAN', &
        IOSTAT = info)
   if (info /= 0) then
-    call cfd_error("(fluent) unable to open unformatted file "//trim(filename))
+    call cfd_error("(fluent) unable to open file "//trim(filename))
   endif
 
   read(deffluent%iu_bin) deffluent%c
@@ -333,7 +332,7 @@ subroutine afftail(str)
   implicit none
   character(len=*) :: str
   write(stropt(indopt:len(stropt)),'(2a)') &
-    trim(str), nl_char
+    trim(str),nl_char
   indopt = indopt + len(str) + 1
 endsubroutine afftail
 
@@ -388,7 +387,7 @@ subroutine str_read_ints(str, formt, inb, ilist, ierr)
   inb = 0
   do ispc = 1, nspc
     inb = inb+1
-    ilist(inb) = str_to_intkfp(str(ii:indspc(ispc)), formt, ierr)
+    ilist(inb) = str_to_int(str(ii:indspc(ispc)), formt, ierr)
     if ( ierr /= 0 ) then
       call cfd_warning("could not read integer #"//trim(strof(ispc)) &
                      //" from: '"//trim(str)//"'")
@@ -469,15 +468,19 @@ subroutine fll_storecharlist(iu, c, clist, str)
   ! -- OUTPUTS --
   character(len=*) , intent(out)   :: str
   ! -- Internal variables --
-  integer :: i
+  integer :: i, lstr
   ! -- BODY --
   !call affstar("store_dec", c)
   str = ""
+  lstr = len(str)
   i = 0
   !call affhead("'")
   do while ( scan(clist,c) /= 0 )
   !call affcont(c)
     i = i+1
+    if ( i > lstr ) then
+      call cfd_error("(fluent internal) string length "//trim(strof(lstr))//" exceeded")
+    endif
     str(i:i) = c
     read(iu) c
   enddo
@@ -497,16 +500,20 @@ endsubroutine fll_storecharlist
 !  ! -- OUTPUTS --
 !  character(len=*) , intent(out)   :: str
 !  ! -- Internal variables --
-!  !integer :: i
+!!  integer :: i, lstr
 !  ! -- BODY --
 !  call fll_storecharlist(iu, c, "0123456789", str)
 !!  !call affstar("store_dec", c)
 !!  str = ""
+!!  lstr = len(str)
 !!  i = 0
 !!  !call affhead("'")
 !!  do while ( c >= '0' .and. c <= '9' )
 !!  !call affcont(c)
 !!    i = i+1
+!!    if ( i > lstr ) then
+!!      call cfd_error("(fluent internal) string length "//trim(strof(lstr))//" exceeded")
+!!    endif
 !!    str(i:i) = c
 !!    read(iu) c
 !!  enddo
@@ -526,10 +533,11 @@ endsubroutine fll_storecharlist
 !  ! -- OUTPUTS --
 !  character(len=*) , intent(out)   :: str
 !  ! -- Internal variables --
-!  !integer :: i
+!!  integer :: i, lstr
 !  ! -- BODY --
 !  call fll_storecharlist(iu, c, "0123456789abcdef", str)
 !!  !call affstar("store_hex", c)
+!!  lstr = len(str)
 !!  str = ""
 !!  i = 0
 !!  !call affhead("'")
@@ -537,6 +545,9 @@ endsubroutine fll_storecharlist
 !!        .or. ( c >= 'a' .and. c <= 'f' ) )
 !!  !call affcont(c)
 !!    i = i+1
+!!    if ( i > lstr ) then
+!!      call cfd_error("(fluent internal) string length "//trim(strof(lstr))//" exceeded")
+!!    endif
 !!    str(i:i) = c
 !!    read(iu) c
 !!  enddo
@@ -567,7 +578,7 @@ subroutine fll_storeuptocharlist(iu, c, clist, str)
   !call affcont(c)
     i = i+1
     if ( i > lstr ) then
-      call stopp(iu, c)
+      call cfd_error("(fluent internal) string length "//trim(strof(lstr))//" exceeded")
     endif
     str(i:i) = c
     read(iu) c
@@ -589,10 +600,11 @@ endsubroutine fll_storeuptocharlist
 !  ! -- OUTPUTS --
 !  character(len=*) , intent(out)   :: str
 !  ! -- Internal variables --
-!  integer :: i
+!  integer :: i, lstr
 !  ! -- BODY --
 !  !call affstar("store_sep", c)
 !  str = ""
+!  lstr = len(str)
 !  i = 0
 !  !call affhead("'")
 !  do while ( c /= ' ' &
@@ -602,6 +614,9 @@ endsubroutine fll_storeuptocharlist
 !       .and. c /= ')' )
 !  !call affcont(c)
 !    i = i+1
+!    if ( i > lstr ) then
+!      call cfd_error("(fluent internal) string length "//trim(strof(lstr))//" exceeded")
+!    endif
 !    str(i:i) = c
 !    read(iu) c
 !  enddo
@@ -622,10 +637,11 @@ endsubroutine fll_storeuptocharlist
 !  ! -- OUTPUTS --
 !  character(len=*) , intent(out)   :: str
 !  ! -- Internal variables --
-!  integer :: i
+!  integer :: i, lstr
 !  ! -- BODY --
 !  !call affstar("store_nb_", c)
 !  str = ""
+!  lstr = len(str)
 !  i = 0
 !  !call affhead("'")
 !  do while ( c /= ' ' &
@@ -633,6 +649,9 @@ endsubroutine fll_storeuptocharlist
 !       .and. c /= cr_char )
 !  !call affcont(c)
 !    i = i+1
+!    if ( i > lstr ) then
+!      call cfd_error("(fluent internal) string length "//trim(strof(lstr))//" exceeded")
+!    endif
 !    str(i:i) = c
 !    read(iu) c
 !  enddo
@@ -711,10 +730,7 @@ subroutine fll_checknextcharnostep(iu, c, cc)
   call affstar("chknxnstp", c)
   call fll_ignore_blank(iu, c)
   if ( c /= cc ) then
-    call affline("cc = '"//cc//"'")
-    call affline("c  = '"//c //"'")
-    write(6,'(a)') "Error !"
-    call stopp(iu, c)
+    call cfd_error("(fluent) unexpected character ("//cc//") : '"//c//"'")
   endif
   call affline("'"//chnl(c)//"' checked")
   call affexit("chknxnstp", c)
@@ -741,16 +757,16 @@ endsubroutine fll_checknextchar
 !------------------------------------------------------------------------------!
 !> @brief FLUENT-low-level : read integer
 !------------------------------------------------------------------------------!
-subroutine fll_getint(iu, c, val)
+subroutine fll_getint(iu, c, val, ierr)
   implicit none
   ! -- INPUTS --
   integer          , intent(in)    :: iu
   character        , intent(inout) :: c
   ! -- OUTPUTS --
   integer          , intent(out)   :: val
+  integer          , intent(out)   :: ierr
   ! -- Internal variables --
   character(len=256) :: str
-  integer :: ierr
   ! -- BODY --
   call affstar("get_int__", c)
   call fll_ignore_blank(iu, c)
@@ -759,26 +775,27 @@ subroutine fll_getint(iu, c, val)
   val = str_to_int(str, '(i)', ierr)
   ! Error could be put inside str_to_int
   if ( ierr /= 0 ) then
-    write(6,'(a)') "Error !"
-    call stopp(iu, c)
+    call cfd_warning("could not read integer" &
+                   //" from: '"//trim(str)//"'")
+  else
+    call affline("integer read : "//trim(str))
   endif
-  call affline("integer read : "//trim(str))
   call affexit("get_int__", c)
 endsubroutine fll_getint
 
 !------------------------------------------------------------------------------!
 !> @brief FLUENT-low-level : read hexadecimal integer
 !------------------------------------------------------------------------------!
-subroutine fll_gethexint(iu, c, val)
+subroutine fll_gethexint(iu, c, val, ierr)
   implicit none
   ! -- INPUTS --
   integer          , intent(in)    :: iu
   character        , intent(inout) :: c
   ! -- OUTPUTS --
-  integer(kfp)     , intent(out)   :: val
+  integer          , intent(out)   :: val
+  integer          , intent(out)   :: ierr
   ! -- Internal variables --
   character(len=256) :: str
-  integer :: ierr
   ! -- BODY --
   call affstar("get_hex__", c)
   call fll_ignore_blank(iu, c)
@@ -786,11 +803,12 @@ subroutine fll_gethexint(iu, c, val)
   call affline("read integer from string : '"//trim(str)//"'")
   val = str_to_int(str, '(z)', ierr)
   if ( ierr /= 0 ) then
-    write(6,'(a)') "Error !"
-    call stopp(iu, c)
+    call cfd_warning("could not read hex integer" &
+                   //" from: '"//trim(str)//"'")
+  else
+    write(str,'(i)') val
+    call affline("integer read : "//trim(str))
   endif
-  write(str,'(i)') val
-  call affline("integer read : "//trim(str))
   call affexit("get_hex__", c)
 endsubroutine fll_gethexint
 
@@ -956,7 +974,10 @@ subroutine fluent_get_sctid(def, sctid)
   ! -- BODY --
   call affstar("get_s_id_", def%c)
   call fll_checknextchar(def%iu_bin, def%c, '(')
-  call fll_getint(def%iu_bin, def%c, sctid)
+  call fll_getint(def%iu_bin, def%c, sctid, ierr)
+  if ( ierr /= 0 ) then
+    call cfd_error("could not read section id")
+  endif
   call affline("read section head : '"//trim(strof(sctid))//"'")
   call affexit("get_s_id_", def%c)
 
@@ -1019,8 +1040,12 @@ subroutine fluent_get_spcdim(def, umesh)
   ! -- OUTPUTS --
   type(st_ustmesh)   , intent(inout) :: umesh
   ! -- Internal variables --
+  integer :: ierr
   ! -- BODY --
-  call fll_getint(def%iu_bin, def%c, def%spcdim)
+  call fll_getint(def%iu_bin, def%c, def%spcdim, ierr)
+  if ( ierr /= 0 ) then
+    call cfd_error("could not read space dimension")
+  endif
   if ( umesh%elemdim == 0 ) then
     continue
   elseif ( umesh%elemdim == def%spcdim ) then
@@ -1418,12 +1443,14 @@ subroutine fluent_get_faces(def, sctid, umesh)
   integer           :: ftyperef
   character(len=64) :: strzone
   character(len=64) :: str, strref
+  !!! ALL THIS IS TO READ FASTER CHAR BY CHAR...
   integer,parameter :: nstrl = 256
   character(len=64) :: strl(1:nstrl)
-  integer           :: nstrm, j
-  integer(kfp)      :: inttab(64)
-  integer           :: i, inb
+  integer           :: nstrm
   integer           :: tmpa, tmpb
+  !!!... YES UP TO HERE
+  integer(kfp)      :: inttab(64)
+  integer           :: i, inb, j
   integer(kfp)      :: ilist(5)
   integer           :: nfvtex, cell1, cell2
   integer           :: lvtex(64)
