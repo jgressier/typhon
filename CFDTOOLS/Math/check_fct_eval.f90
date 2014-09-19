@@ -190,6 +190,6 @@ print form, str, cont%r, x, err
 call delete(cont)
 call delete(func)
 
-endsubroutine
+endsubroutine test_real
 
-endprogram
+endprogram test_fct

@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------!
 ! MODULE : MODINFO
-! 
+!
 ! Fonction
 !   Definition des structures de donnees generales pour l'integration (gestion)
 !
@@ -60,9 +60,9 @@ type st_infozone
   integer, pointer &
             :: proc(:)              ! list of proc. which are computing this zone
   ! -- outputs --
-  integer   :: itfreq_screen = 10          
+  integer   :: itfreq_screen = 10
   integer   :: itfreq_file   = 1
-  logical   :: mon_it, mon_time, mon_res, mon_cflmax, mon_dtmin         
+  logical   :: mon_it, mon_time, mon_res, mon_cflmax, mon_dtmin
 endtype st_infozone
 
 ! -- INTERFACES -------------------------------------------------------------
@@ -86,7 +86,7 @@ write(iunit,*) info%curtps,     "# current time"
 write(iunit,*) info%residu_ref, "# reference residual"
 write(iunit,*) info%cur_res,    "# current residual"
 
-endsubroutine
+endsubroutine writedef_prjinfo
 
 !------------------------------------------------------------------------------!
 ! Procedure : read project file
@@ -107,7 +107,7 @@ case default
   print*,'unknown version'//prjdef_name
 end select
 
-endsubroutine
+endsubroutine readdef_prjinfo
 
 !------------------------------------------------------------------------------!
 ! Procedure : write zone info
@@ -120,10 +120,10 @@ type(st_infozone) :: infozone
 write(iunit, *) "# ZONE information"
 write(iunit, *) infozone%time_model,        "# steady, unsteady, etc"
 write(iunit, *) infozone%iter_tot,          "# total number of iterations"
-write(iunit, *) infozone%residu_ref,        "# reference residual" 
+write(iunit, *) infozone%residu_ref,        "# reference residual"
 write(iunit, *) infozone%residu_reforigine, "# very first reference residual"
 
-endsubroutine
+endsubroutine writedef_zoneinfo
 
 !------------------------------------------------------------------------------!
 ! Procedure : read zone info
@@ -135,7 +135,7 @@ type(st_infozone) :: infozone
 
 select case(ver)
 case(1)
-  read(iunit, *) 
+  read(iunit, *)
   read(iunit, *) infozone%time_model
   read(iunit, *) infozone%iter_tot
   read(iunit, *) infozone%residu_ref
@@ -144,7 +144,7 @@ case default
   print*,'unknown version of '//prjdef_name
 end select
 
-endsubroutine
+endsubroutine readdef_zoneinfo
 
 !------------------------------------------------------------------------------!
 ! Procedure : moninfo_header
@@ -163,7 +163,7 @@ if (zinfo%mon_res)    call addstr(str, '  residuals ', pos)
 if (zinfo%mon_cflmax) call addstr(str, ' cfl_max',     pos)
 if (zinfo%mon_dtmin)  call addstr(str, '    dt_min  ', pos)
 
-endsubroutine
+endsubroutine moninfo_header
 
 !------------------------------------------------------------------------------!
 ! Procedure : moninfo_monitor
@@ -182,7 +182,7 @@ if (zinfo%mon_res)    call addstr(str, strofe(log10(zinfo%cur_res), 12, 4), pos)
 if (zinfo%mon_cflmax) call addstr(str, stroff(zinfo%cflmax, 8, 2), pos)
 if (zinfo%mon_dtmin)  call addstr(str, strofe(zinfo%dtmin, 12, 4), pos)
 
-endsubroutine
+endsubroutine moninfo_monitor
 
 
 
@@ -191,7 +191,7 @@ endmodule MODINFO
 !------------------------------------------------------------------------------!
 ! Change history
 !
-! mars 2003 : creation du module
-! sept 2003 : informations specifiques pour l'integration d'un cycle
-! oct 2003  : ajout de residu_ref_origine
+! Mar 2003 : creation du module
+! Sep 2003 : informations specifiques pour l'integration d'un cycle
+! Oct 2003 : ajout de residu_ref_origine
 !------------------------------------------------------------------------------!

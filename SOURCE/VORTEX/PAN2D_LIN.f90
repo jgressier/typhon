@@ -26,7 +26,7 @@ integer, parameter :: sng_vortexlin = 10  ! repartition lineaire de vorticite
 type pan2dlin
   type(v2d) :: center, normal
   real(krp) :: intensity
-endtype
+endtype pan2dlin
 
 ! -- INTERFACES -------------------------------------------------------------
 
@@ -128,8 +128,8 @@ endsubroutine coef_induc_pvortlin2d
 endmodule PAN2D_LIN
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Change history
 !
-! fev  2004 : creation du module (vel + coef induits par panneau vortex lineaire)
-! avr  2004 : correction et validation des procedures
+! Feb 2004 : creation du module (vel + coef induits par panneau vortex lineaire)
+! Apr 2004 : correction et validation des procedures
 !------------------------------------------------------------------------------!

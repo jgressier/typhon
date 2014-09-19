@@ -8,7 +8,6 @@ module COLOR
 
 use MESHPREC        ! accuracy definition
 use CONNECTIVITY 
-use IOCFD 
 
 implicit none
 
@@ -81,14 +80,12 @@ do jf = 1, nedge
 enddo
 call delete(vertexcolor)
 
-endsubroutine
+endsubroutine coo_colorgroup
 
 endmodule COLOR
 !------------------------------------------------------------------------------!
-! Changes history
+! Change history
 !
-! May  2013: Created
+! May 2013 : Created
 !------------------------------------------------------------------------------!
-
-
 

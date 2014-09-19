@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------!
 ! MODULE : VEC3D
-! 
+!
 ! Definition of 3D vector and associated functions
 !------------------------------------------------------------------------------!
 module VEC3D
@@ -13,7 +13,7 @@ use STRING
 
 type v3d
   real(krp) :: x, y, z
-endtype
+endtype v3d
 
 ! -- Constants    -----------------------------------------------------------
 
@@ -134,7 +134,7 @@ integer :: id, if
   info = 0
   id   = scan(str, '(')
   if   = scan(str, ')')
-  pstr = chg_char(str(id+1:if-1),',',' ') 
+  pstr = chg_char(str(id+1:if-1),',',' ')
   read(pstr,*,iostat=info) v3d_fromstr !%x, v3d_fromstr%z, v3d_fromstr%y
 
 endfunction v3d_fromstr
@@ -146,9 +146,9 @@ type(v3d) function v3d_add(v1, v2)
 implicit none
 type(v3d), intent(in) :: v1, v2
 
-  v3d_add%x = v1%x + v2%x 
-  v3d_add%y = v1%y + v2%y 
-  v3d_add%z = v1%z + v2%z 
+  v3d_add%x = v1%x + v2%x
+  v3d_add%y = v1%y + v2%y
+  v3d_add%z = v1%z + v2%z
 
 endfunction v3d_add
 
@@ -164,9 +164,9 @@ integer :: i, n
   n = size(v1)
   if (size(v2) /= n) stop
   do i = 1, n
-    tv(i)%x = v1(i)%x + v2(i)%x 
-    tv(i)%y = v1(i)%y + v2(i)%y 
-    tv(i)%z = v1(i)%z + v2(i)%z 
+    tv(i)%x = v1(i)%x + v2(i)%x
+    tv(i)%y = v1(i)%y + v2(i)%y
+    tv(i)%z = v1(i)%z + v2(i)%z
   enddo
 
 endfunction v3d_add_t
@@ -227,9 +227,9 @@ type(v3d) function v3d_sub(v1, v2)
 implicit none
 type(v3d), intent(in) :: v1, v2
 
-  v3d_sub%x = v1%x - v2%x 
-  v3d_sub%y = v1%y - v2%y 
-  v3d_sub%z = v1%z - v2%z 
+  v3d_sub%x = v1%x - v2%x
+  v3d_sub%y = v1%y - v2%y
+  v3d_sub%z = v1%z - v2%z
 
 endfunction v3d_sub
 
@@ -245,9 +245,9 @@ integer :: i, n
   n = size(v1)
   if (size(v2) /= n) stop
   do i = 1, n
-    tv(i)%x = v1(i)%x - v2(i)%x 
-    tv(i)%y = v1(i)%y - v2(i)%y 
-    tv(i)%z = v1(i)%z - v2(i)%z 
+    tv(i)%x = v1(i)%x - v2(i)%x
+    tv(i)%y = v1(i)%y - v2(i)%y
+    tv(i)%z = v1(i)%z - v2(i)%z
   enddo
 
 endfunction v3d_sub_t
@@ -307,9 +307,9 @@ type(v3d) function v3d_opp(v)
 implicit none
 type(v3d), intent(in) :: v
 
-  v3d_opp%x = - v%x 
-  v3d_opp%y = - v%y 
-  v3d_opp%z = - v%z 
+  v3d_opp%x = - v%x
+  v3d_opp%y = - v%y
+  v3d_opp%z = - v%z
 
 endfunction v3d_opp
 
@@ -323,9 +323,9 @@ type(v3d), dimension(size(v))      :: tv
 integer :: i
 
   do i = 1, size(v)
-    tv(i)%x = - v(i)%x 
-    tv(i)%y = - v(i)%y 
-    tv(i)%z = - v(i)%z 
+    tv(i)%x = - v(i)%x
+    tv(i)%y = - v(i)%y
+    tv(i)%z = - v(i)%z
   enddo
 
 endfunction v3d_opp_t
@@ -338,9 +338,9 @@ implicit none
 real(krp),   intent(in) :: x
 type(v3d), intent(in) :: v
 
-  v3d_mult%x = x * v%x 
-  v3d_mult%y = x * v%y 
-  v3d_mult%z = x * v%z 
+  v3d_mult%x = x * v%x
+  v3d_mult%y = x * v%y
+  v3d_mult%z = x * v%z
 
 endfunction v3d_mult
 
@@ -352,9 +352,9 @@ implicit none
 real(krp), intent(in)    :: a
 type(v3d), intent(inout) :: v
 
-  v%x = a * v%x 
-  v%y = a * v%y 
-  v%z = a * v%z 
+  v%x = a * v%x
+  v%y = a * v%y
+  v%z = a * v%z
 
 end subroutine v3d_eq_mult
 
@@ -369,9 +369,9 @@ type(v3d), dimension(size(v))       :: tv
 integer :: i
 
   do i = 1, size(v)
-    tv(i)%x = x * v(i)%x 
-    tv(i)%y = x * v(i)%y 
-    tv(i)%z = x * v(i)%z 
+    tv(i)%x = x * v(i)%x
+    tv(i)%y = x * v(i)%y
+    tv(i)%z = x * v(i)%z
   enddo
 
 endfunction v3d_mult_t2
@@ -387,9 +387,9 @@ type(v3d), dimension(size(x))       :: tv
 integer :: i
 
   do i = 1, size(x)
-    tv(i)%x = x(i) * v%x 
-    tv(i)%y = x(i) * v%y 
-    tv(i)%z = x(i) * v%z 
+    tv(i)%x = x(i) * v%x
+    tv(i)%y = x(i) * v%y
+    tv(i)%z = x(i) * v%z
   enddo
 
 endfunction v3d_mult_t1
@@ -404,9 +404,9 @@ type(v3d), intent(inout) :: v(:)
 integer :: i
 
   do i = 1, size(v)
-    v(i)%x = a * v(i)%x 
-    v(i)%y = a * v(i)%y 
-    v(i)%z = a * v(i)%z 
+    v(i)%x = a * v(i)%x
+    v(i)%y = a * v(i)%y
+    v(i)%z = a * v(i)%z
   enddo
 
 end subroutine v3d_eq_mult_t
@@ -422,9 +422,9 @@ type(v3d), dimension(size(v))       :: tv
 integer :: i
 
   do i = 1, size(v)
-    tv(i)%x = x(i) * v(i)%x 
-    tv(i)%y = x(i) * v(i)%y 
-    tv(i)%z = x(i) * v(i)%z 
+    tv(i)%x = x(i) * v(i)%x
+    tv(i)%y = x(i) * v(i)%y
+    tv(i)%z = x(i) * v(i)%z
   enddo
 
 endfunction v3d_mult_tt
@@ -439,9 +439,9 @@ type(v3d), intent(inout) :: v(:)
 integer :: i
 
   do i = 1, size(v)
-    v(i)%x = a(i) * v(i)%x 
-    v(i)%y = a(i) * v(i)%y 
-    v(i)%z = a(i) * v(i)%z 
+    v(i)%x = a(i) * v(i)%x
+    v(i)%y = a(i) * v(i)%y
+    v(i)%z = a(i) * v(i)%z
   enddo
 
 end subroutine v3d_eq_mult_tt
@@ -457,7 +457,7 @@ type(v3d), intent(in) :: v
 
   v3d_div%x = v%x / x   ! DEV / a optimiser
   v3d_div%y = v%y / x
-  v3d_div%z = v%z / x 
+  v3d_div%z = v%z / x
 
 endfunction v3d_div
 
@@ -609,7 +609,7 @@ integer :: i
 endfunction v3d_sum
 
 !------------------------------------------------------------------------------!
-! Assignment : rotation v  
+! Assignment : rotation v
 !------------------------------------------------------------------------------!
 subroutine v3d_rot(v, axis, angle)
 implicit none
@@ -694,7 +694,7 @@ real(krp), intent(out) :: msym(3,3)
 end subroutine calc_symn
 
 !------------------------------------------------------------------------------!
-! Assignment : rotation v(:) 
+! Assignment : rotation v(:)
 !------------------------------------------------------------------------------!
 subroutine v3d_rot_t(v, axis, angle)
 implicit none
@@ -716,11 +716,11 @@ end subroutine v3d_rot_t
 
 endmodule VEC3D
 !------------------------------------------------------------------------------!
-! Changes history
+! Change history
 !
-! mai  2002 : creation du module
-! juil 2003 : compatibilite des operateurs toute precision
-! mar  2006 : subroutine transformers for vector array shifting and scaling
-! Oct  2009 : fork from TYPHON (GEO3D.f90)
+! May 2002 : creation du module
+! Jul 2003 : compatibilite des operateurs toute precision
+! Mar 2006 : subroutine transformers for vector array shifting and scaling
+! Oct 2009 : fork from TYPHON (GEO3D.f90)
 !------------------------------------------------------------------------------!
 

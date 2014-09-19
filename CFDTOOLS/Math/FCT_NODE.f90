@@ -77,13 +77,13 @@ integer(ipar), parameter :: max_op = op_pow  ! TO BE checked if operator added
 ! -- associated strings --
 
 integer(ipar), parameter :: fct_len = 5
-character(len=fct_len), dimension(fct_inv:max_fct), parameter :: op1name = & 
+character(len=fct_len), dimension(fct_inv:max_fct), parameter :: op1name = &
   (/ "inv  ", "sqr  ", "sqrt ", "exp  ", "ln   ", "log  ", &
      "sin  ", "cos  ", "tan  ", "sinh ", "cosh ", "tanh ", &
      "asin ", "acos ", "atan ", "asinh", "acosh", "atanh", &
      "erf  ", "erfc ", &
      "abs  ", "sign ", "step ", "ramp " /)
-     
+
 integer(ipar), parameter :: op_len = 2
 character(len=op_len), dimension(min_op:max_op), parameter :: op2name = &
   (/ "&&", "||", "!=", "==", "< ", "> ", "<=", ">=", &
@@ -91,7 +91,7 @@ character(len=op_len), dimension(min_op:max_op), parameter :: op2name = &
 
 !integer(ipar), dimension(op_add:max_op), parameter :: op2priority = &
 !  (/   50,   51,   60,   61,  100,   40,   40, &
-!       30,   30,   30,   30,   30,   30 /) 
+!       30,   30,   30,   30,   30,   30 /)
 
 integer(ipar), parameter :: fct_ncst = 2
 
@@ -182,9 +182,9 @@ integer(iprc),     optional    :: size
 
   if (present(size)) then
     call new_fct_container(node%container, cont_vect, name, size)
-  else  
+  else
     call new_fct_container(node%container, cont_real, name)
-  endif  
+  endif
 
 endsubroutine new_fct_node_cst
 
@@ -207,7 +207,7 @@ integer(ipar),     optional    :: oper
 
   select case(type)
   case(node_cst, node_var)
-    call set_fct_error(type, "internal error: unexpected constant or variable selection in new_fct_node_oper")  
+    call set_fct_error(type, "internal error: unexpected constant or variable selection in new_fct_node_oper")
   case(node_opunit)
     node%type_oper = oper
     allocate(node%left)
@@ -225,7 +225,7 @@ endsubroutine new_fct_node_oper
 !------------------------------------------------------------------------------!
 ! delete_fct_node : remove FCT_NODE structure
 !------------------------------------------------------------------------------!
-recursive subroutine delete_fct_node(node) 
+recursive subroutine delete_fct_node(node)
 implicit none
 ! - parameters
 type(st_fct_node) :: node
@@ -250,9 +250,9 @@ endsubroutine delete_fct_node
 
 
 !------------------------------------------------------------------------------!
-! fct_node_to_str : 
+! fct_node_to_str :
 !------------------------------------------------------------------------------!
-recursive subroutine fct_node_to_str(node, str) 
+recursive subroutine fct_node_to_str(node, str)
 implicit none
 ! -- parameters --
 type(st_fct_node) :: node
@@ -303,7 +303,7 @@ character(len=*)  :: name
     call set_fct_error(node%type_node, "unknown type of node in fct_dependency")
   endselect
 
-endfunction
+endfunction fct_dependency
 
 !------------------------------------------------------------------------------!
 ! fct_xyzdependency : check is node function depends on "X", "Y", or "Z"
@@ -314,14 +314,14 @@ implicit none
 type(st_fct_node) :: node
 ! -- internal variables --
   fct_xyzdependency = fct_dependency(node, "X").or.fct_dependency(node, "Y").or.fct_dependency(node, "Z")
-endfunction
+endfunction fct_xyzdependency
 
 
 endmodule FCT_NODE
 !------------------------------------------------------------------------------!
-! Changes history
+! Change history
 !
-! July  2006 : module creation
-! Sept  2006 : node tree string expression added 
-! Mar   2013 : check variable name dependency
+! Jul 2006 : module creation
+! Sep 2006 : node tree string expression added
+! Mar 2013 : check variable name dependency
 !------------------------------------------------------------------------------!

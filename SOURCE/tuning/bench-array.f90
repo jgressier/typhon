@@ -94,10 +94,10 @@ end subroutine cpustart
 subroutine cpuend(deltat)
 real :: deltat
   call cpu_time(time)
-  deltat = time-itime 
+  deltat = time-itime
 endsubroutine cpuend
 
-endprogram
+endprogram bench
 
 
 subroutine calc_buffer(ntot, maxbuffer, nblock, resbuffer, partbuffer)
@@ -106,10 +106,10 @@ subroutine calc_buffer(ntot, maxbuffer, nblock, resbuffer, partbuffer)
   integer, intent(out) :: nblock                   ! number of packs/blocks
   integer, intent(out) :: resbuffer                ! computed buffer (for almost all blocks)
   integer, intent(out) :: partbuffer               ! small block (residue of distribution)
-  
+
   nblock     = 1 + (ntot-1) / maxbuffer
-  resbuffer  = 1 + (ntot-1) / nblock        
+  resbuffer  = 1 + (ntot-1) / nblock
   partbuffer = 1 + mod(ntot-1, resbuffer)
 
-endsubroutine
+endsubroutine calc_buffer
 

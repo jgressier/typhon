@@ -8,8 +8,8 @@
 module LIBRLE
 
 use MESHPREC        ! accuracy definition
-use CONNECTIVITY 
-use IOCFD 
+use CONNECTIVITY
+use IOCFD
 
 implicit none
 
@@ -77,8 +77,7 @@ type(st_connect), intent(in) :: rlearray
 integer(kip), intent(out) :: array(:)
 ! -- private data --
 integer(kip), parameter :: buf = 1000
-integer(kip)            :: val
-integer(kip)            :: ia, irle, lrle
+integer(kip)            :: ia, irle
 
 ! -- BODY --
 
@@ -100,14 +99,14 @@ type(st_connect), intent(in) :: rlearray
 ! -- private data --
 ! -- BODY --
   rle_length = sum(rlearray%fils(1:rlearray%nbnodes, 2))
-endfunction
+endfunction rle_length
 
 
 endmodule LIBRLE
 !------------------------------------------------------------------------------!
-! Changes history
+! Change history
 !
-! Apr  2014: Created
+! Apr 2014 : Created
 !------------------------------------------------------------------------------!
 
 

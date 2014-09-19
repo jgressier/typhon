@@ -12,7 +12,7 @@ use IOCFD
 implicit none
 
 !------------------------------------------------------------------------------!
-! CONSTANTS for ELEMENT TYPE 
+! CONSTANTS for ELEMENT TYPE
 !> @todo documentation of cell vtex normalized connectivity
 !------------------------------------------------------------------------------!
 integer(kpp), parameter :: elem_null    = 0
@@ -37,7 +37,7 @@ integer(kpp), parameter :: elem_hexa20  = 145
 integer(kpp), parameter :: elem_hexa27  = 148
 integer(kpp), parameter :: elem_nedron  = 200
 
-integer(kpp), parameter :: elemname = 20
+integer(kpp), parameter :: elem_nlen = 8
 
 !------------------------------------------------------------------------------!
 ! TYPES/STRUCTURES
@@ -70,26 +70,16 @@ implicit none
 integer(kpp),      intent(in)  :: itype
 
 select case(itype)
-case(elem_null)
-  nvtex_element = 0
-case(elem_bar2)
-  nvtex_element = 2
-case(elem_tri3)
-  nvtex_element = 3
-case(elem_quad4)
-  nvtex_element = 4
-case(elem_ngon)
-  nvtex_element = 0
-case(elem_tetra4)
-  nvtex_element = 4
-case(elem_pyra5)
-  nvtex_element = 5
-case(elem_penta6)
-  nvtex_element = 6
-case(elem_hexa8)
-  nvtex_element = 8
-case default
-  nvtex_element = -1
+case(elem_null)   ; nvtex_element = 0
+case(elem_bar2)   ; nvtex_element = 2
+case(elem_tri3)   ; nvtex_element = 3
+case(elem_quad4)  ; nvtex_element = 4
+case(elem_ngon)   ; nvtex_element = 0
+case(elem_tetra4) ; nvtex_element = 4
+case(elem_pyra5)  ; nvtex_element = 5
+case(elem_penta6) ; nvtex_element = 6
+case(elem_hexa8)  ; nvtex_element = 8
+case default      ; nvtex_element = -1
 endselect
 
 endfunction nvtex_element
@@ -97,32 +87,22 @@ endfunction nvtex_element
 !------------------------------------------------------------------------------!
 ! Function : compute number of VTEX in ELEMENT DEFINITION
 !------------------------------------------------------------------------------!
-character(len=elemname) function name_element(itype)
+character(len=elem_nlen) function name_element(itype)
 implicit none
 ! -- dummy arguments --
 integer(kpp),      intent(in)  :: itype
 
 select case(itype)
-case(elem_null)
-  name_element = 'None'
-case(elem_bar2)
-  name_element = 'Bar2'
-case(elem_tri3)
-  name_element = 'Tri3'
-case(elem_quad4)
-  name_element = 'Quad4'
-case(elem_ngon)
-  name_element = 'Polygon'
-case(elem_tetra4)
-  name_element = 'Tetra4'
-case(elem_pyra5)
-  name_element = 'Pyra5'
-case(elem_penta6)
-  name_element = 'Penta6'
-case(elem_hexa8)
-  name_element = 'Hexa8'
-case default
-  name_element = 'Not Found'
+case(elem_null)   ; name_element = 'None'
+case(elem_bar2)   ; name_element = 'Bar2'
+case(elem_tri3)   ; name_element = 'Tri3'
+case(elem_quad4)  ; name_element = 'Quad4'
+case(elem_ngon)   ; name_element = 'Polygon'
+case(elem_tetra4) ; name_element = 'Tetra4'
+case(elem_pyra5)  ; name_element = 'Pyra5'
+case(elem_penta6) ; name_element = 'Penta6'
+case(elem_hexa8)  ; name_element = 'Hexa8'
+case default      ; name_element = 'Unknown'
 endselect
 
 endfunction name_element
@@ -136,26 +116,16 @@ implicit none
 integer(kpp),      intent(in)  :: itype
 
 select case(itype)
-case(elem_null)
-  nface_element = 0
-case(elem_bar2)
-  nface_element = 2
-case(elem_tri3)
-  nface_element = 3
-case(elem_quad4)
-  nface_element = 4
-case(elem_ngon)
-  nface_element = 0
-case(elem_tetra4)
-  nface_element = 4
-case(elem_pyra5)
-  nface_element = 5
-case(elem_penta6)
-  nface_element = 5
-case(elem_hexa8)
-  nface_element = 6
-case default
-  nface_element = -1
+case(elem_null)   ; nface_element = 0
+case(elem_bar2)   ; nface_element = 2
+case(elem_tri3)   ; nface_element = 3
+case(elem_quad4)  ; nface_element = 4
+case(elem_ngon)   ; nface_element = 0
+case(elem_tetra4) ; nface_element = 4
+case(elem_pyra5)  ; nface_element = 5
+case(elem_penta6) ; nface_element = 5
+case(elem_hexa8)  ; nface_element = 6
+case default      ; nface_element = -1
 endselect
 
 endfunction nface_element
@@ -169,26 +139,16 @@ implicit none
 integer(kpp),      intent(in)  :: itype
 
 select case(itype)
-case(elem_null)
-  nvtexperface_element = 0
-case(elem_bar2)
-  nvtexperface_element = 1
-case(elem_tri3)
-  nvtexperface_element = 2
-case(elem_quad4)
-  nvtexperface_element = 2
-case(elem_ngon)
-  nvtexperface_element = 2
-case(elem_tetra4)
-  nvtexperface_element = 3
-case(elem_pyra5)
-  nvtexperface_element = 4
-case(elem_penta6)
-  nvtexperface_element = 4
-case(elem_hexa8)
-  nvtexperface_element = 4
-case default
-  nvtexperface_element = -1
+case(elem_null)   ; nvtexperface_element = 0
+case(elem_bar2)   ; nvtexperface_element = 1
+case(elem_tri3)   ; nvtexperface_element = 2
+case(elem_quad4)  ; nvtexperface_element = 2
+case(elem_ngon)   ; nvtexperface_element = 2
+case(elem_tetra4) ; nvtexperface_element = 3
+case(elem_pyra5)  ; nvtexperface_element = 4
+case(elem_penta6) ; nvtexperface_element = 4
+case(elem_hexa8)  ; nvtexperface_element = 4
+case default      ; nvtexperface_element = -1
 endselect
 
 endfunction nvtexperface_element
@@ -202,16 +162,16 @@ implicit none
 integer(kpp),      intent(in)  :: itype
 
 select case(itype)
-case(elem_node)
-  dim_elemtype = 0
-case(elem_bar2)
-  dim_elemtype = 1
-case(elem_tri3, elem_quad4, elem_ngon)
-  dim_elemtype = 2
-case(elem_tetra4, elem_pyra5, elem_penta6, elem_hexa8)
-  dim_elemtype = 3
-case default
-  dim_elemtype = -1
+case(elem_node)   ; dim_elemtype = 0
+case(elem_bar2)   ; dim_elemtype = 1
+case(elem_tri3, &
+     elem_quad4, &
+     elem_ngon)   ; dim_elemtype = 2
+case(elem_tetra4, &
+     elem_pyra5, &
+     elem_penta6, &
+     elem_hexa8)  ; dim_elemtype = 3
+case default      ; dim_elemtype = -1
 endselect
 
 endfunction dim_elemtype
@@ -371,27 +331,27 @@ endfunction number_element
 !------------------------------------------------------------------------------!
 ! GET index of type in genelemvtex
 !------------------------------------------------------------------------------!
-function getindex_genelemvtex(genelemvtex, itype, istart) result(index)
+function getindex_genelemvtex(genelemvtex, itype, istart) result(isection)
 implicit none
-integer                           :: index  
+integer                           :: isection
 ! -- dummy arguments --
 type(st_genelemvtex), intent(in)  :: genelemvtex
 integer,              intent(in)  :: itype
 integer, optional,    intent(in)  :: istart
 
 ! -- internal variables --
-integer :: i 
+integer :: i
 
 if (present(istart)) then
-  index = istart
+  isection = istart
 else
-  index = 1
+  isection = 1
 endif
-do while (index <= genelemvtex%nsection)
-  if (genelemvtex%elem(index)%elemtype == itype) exit
-  index = index + 1
+do while (isection <= genelemvtex%nsection)
+  if (genelemvtex%elem(isection)%elemtype == itype) exit
+  isection = isection + 1
 enddo
-if (index > genelemvtex%nsection) index = 0
+if (isection > genelemvtex%nsection) isection = 0
 
 endfunction getindex_genelemvtex
 
@@ -474,11 +434,11 @@ endsubroutine pack_genelemvtex
 
 
 !------------------------------------------------------------------------------!
-endmodule
+endmodule ELEMVTEX
 !------------------------------------------------------------------------------!
-! History
-! Apr  2008: creation, element/vtex connectivity (derived from USTMESH)
-! Oct  2009: transfered from TYPHON sources
-! Dec  2010: merge same element sections
+! Change history
+! Apr 2008 : creation, element/vtex connectivity (derived from USTMESH)
+! Oct 2009 : transfered from TYPHON sources
+! Dec 2010 : merge same element sections
 !------------------------------------------------------------------------------!
 

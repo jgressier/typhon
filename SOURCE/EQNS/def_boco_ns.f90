@@ -162,16 +162,16 @@ character(len=dimrpmlig)   :: strfct
   call print_info(10, "    . parsing "//key//"="//strfct)
   call fctset_checkdependency(defsolver%fctenv, fct)
   boco%xyz_depend = boco%xyz_depend.or.fct_xyzdependency(fct)
-endsubroutine
+endsubroutine parsefct
 
 endsubroutine def_boco_ns
 !------------------------------------------------------------------------------!
-! Changes history
+! Change history
 !
-! nov  2003 : creation
-! june 2004 : definition and reading of boundary conditions(inlet/outlet)
-! june 2005 : wall conditions
-! nov  2006 : NS wall conditions with WALL_VELOCITY
-! fev  2007 : English translation
-! feb  2011 : symbolic funcions support added for inlet DIRECTION (A. Gardi)
+! Nov 2003 : creation
+! Jun 2004 : definition and reading of boundary conditions(inlet/outlet)
+! Jun 2005 : wall conditions
+! Nov 2006 : NS wall conditions with WALL_VELOCITY
+! Feb 2007 : English translation
+! Feb 2011 : symbolic functions support added for inlet DIRECTION (A. Gardi)
 !------------------------------------------------------------------------------!

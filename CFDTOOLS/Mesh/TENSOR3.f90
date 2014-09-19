@@ -17,7 +17,7 @@ use VEC3D
 
 type t3d
   real(krp), dimension(3,3) :: mat
-endtype
+endtype t3d
 
 ! -- INTERFACES -------------------------------------------------------------
 
@@ -34,7 +34,7 @@ interface operator(+)
 endinterface
 
 interface operator(-)
-  module procedure t3d_substraction, t3d_opp, t3d_substraction_t 
+  module procedure t3d_substraction, t3d_opp, t3d_substraction_t
 endinterface
 
 interface operator(*)
@@ -108,7 +108,7 @@ type(t3d) function t3d_substraction(v1, v2)
 implicit none
 type(t3d), intent(in) :: v1, v2
 
-  t3d_substraction%mat = v1%mat - v2%mat 
+  t3d_substraction%mat = v1%mat - v2%mat
 
 endfunction t3d_substraction
 
@@ -299,7 +299,7 @@ implicit none
 type(v3d), intent(in) :: v1(:), v2(:)
 type(t3d), dimension(size(v1)) :: tr
 integer :: i
- 
+
   do i = 1, size(v1)
     tr(i)%mat(1,:) = v1(i)%x * tab(v2(i))
     tr(i)%mat(2,:) = v1(i)%y * tab(v2(i))
@@ -340,7 +340,7 @@ real(krp) :: rot(3,3)
 end subroutine t3d_rot
 
 !------------------------------------------------------------------------------!
-! Assignment : rotation t(:) 
+! Assignment : rotation t(:)
 !------------------------------------------------------------------------------!
 subroutine t3d_rot_t(t, axis, angle)
 implicit none
@@ -386,10 +386,10 @@ endsubroutine t3d_adddiag
 
 endmodule TENSOR3
 !------------------------------------------------------------------------------!
-! Changes history
+! Change history
 !
-! july 2003 : created, structure definition
-! nov  2004 : basic operators
-! jun 2005  : trace operator
+! Jul 2003 : created, structure definition
+! Nov 2004 : basic operators
+! Jun 2005 : trace operator
 !------------------------------------------------------------------------------!
 

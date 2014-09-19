@@ -37,12 +37,12 @@ integer(kpp), parameter :: part_metisrecursive = 11
   integer, parameter :: metis_numbering = 18
 #elif defined(METIS4)
   integer, parameter :: nometisoptions = 5
-  integer, parameter :: metisint       = 4  
+  integer, parameter :: metisint       = 4
   ! nothing to define
-#else 
+#else /*NO METIS METIS4*/
   integer, parameter :: nometisoptions = 5
   ! nothing to define
-#endif
+#endif/*METIS METIS4*/
 
 #ifdef METIS
 interface
@@ -53,7 +53,7 @@ interface
     use ISO_C_BINDING ! MAKE#NODEPENDENCY # do not remove
     integer :: nvtx, ncon, xadj(*), adjncy(*), nparts, options(*), edgecut, part(*)
     type(c_ptr), value :: vwght, vsize, adjwgt, tpwgts, ubvec
-  endsubroutine
+  endsubroutine METIS_PartGraphKway
   subroutine METIS_PartGraphRecursive(nvtx, ncon, xadj, adjncy, &
                                       vwght, vsize, adjwgt, &
                                       nparts, tpwgts, ubvec, &
@@ -61,13 +61,13 @@ interface
     use ISO_C_BINDING ! MAKE#NODEPENDENCY # do not remove
     integer :: nvtx, ncon, xadj(*), adjncy(*), nparts, options(*), edgecut, part(*)
     type(c_ptr), value :: vwght, vsize, adjwgt, tpwgts, ubvec
-  endsubroutine
+  endsubroutine METIS_PartGraphRecursive
 endinterface
 #elif defined(METIS4)
   ! nothing to define
-#else 
+#else /*NO METIS METIS4*/
   ! nothing to define
-#endif
+#endif/*METIS METIS4*/
 
 contains
 !------------------------------------------------------------------------------!
@@ -129,7 +129,7 @@ select case(part_method)
 case(part_auto)
   if (npart >= 8) then
     imeth = part_metiskway
-  else  
+  else
     imeth = part_metisrecursive
   endif
 case(part_metiskway, part_metisrecursive)
@@ -188,9 +188,9 @@ endselect
 deallocate(adjwgt, vwgt)
 
 ! ------------------------------------------------
-#else 
+#else /*NO METIS METIS4*/
   call cfd_error("Internal error: METIS library was not activated at configuration time")
-#endif
+#endif/*NO METIS METIS4*/
 
 call delete(csr)
 
@@ -214,11 +214,11 @@ deallocate(tab_parts)
 
 endsubroutine ustmesh_partition
 
-endmodule
+endmodule MESHPART
 !------------------------------------------------------------------------------!
 ! Change history
 !
-! Sept 2005: initial subroutine from DIVISION/division_zone in pamr branch (J. Rodriguez)
-! Oct  2005: optimize CSR computation (JG)
-! Apr  2014: move from SOURCE/MGRID/getpart_grid to CFDTOOLS as a module
+! Sep 2005 : initial subroutine from DIVISION/division_zone in pamr branch (J. Rodriguez)
+! Oct 2005 : optimize CSR computation (JG)
+! Apr 2014 : move from SOURCE/MGRID/getpart_grid to CFDTOOLS as a module
 !------------------------------------------------------------------------------!

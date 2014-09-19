@@ -34,7 +34,7 @@ do i = 1, n10
   nzer(i:i) = "0"
 enddo
 
-i = 0 
+i = 0
 
 write(6,fmt="(2a1,a12,a,2x,a1,a,a1)") ' ',char(13),' ',spc(1:n10),'|',spc(1:ni),'|'
 do while (.true.)
@@ -54,4 +54,4 @@ do while (.true.)
   write(6,fmt="(2a1,i12,a,2x,a1,a)") '+',char(13),i,nzer(1:n10),'|',bar(1:imod)
 enddo
 
-endprogram
+endprogram test_fct

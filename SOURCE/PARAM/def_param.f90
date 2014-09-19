@@ -109,11 +109,11 @@ subroutine print_help()
   call print_info(1,"  -v|--verbose: increase outputs")
   call print_info(1,"  --analyze   : pre-processing only and save boundary nodes")
   call print_info(1,"")
-endsubroutine
+endsubroutine print_help
 
 endsubroutine def_param
 !------------------------------------------------------------------------------!
-! change history
+! Change history
 !
-! July 2003: created
+! Jul 2003 : created
 !------------------------------------------------------------------------------!

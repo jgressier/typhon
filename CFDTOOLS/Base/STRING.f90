@@ -14,7 +14,7 @@ integer, parameter :: iposzmaj = iachar('Z')
 type st_string
   integer            :: len
   character, pointer :: c(:)
-endtype
+endtype st_string
 
 interface strof ! adjust left
   module procedure strof_int2, strof_int4, strof_real, strof_double !, strof_realf, strof_doublef, strof_reale
@@ -45,7 +45,7 @@ subroutine newstring_s(string, str)
   string%len = len(str)
   allocate(string%c(string%len))
   string%c = str
-endsubroutine
+endsubroutine newstring_s
 
 !------------------------------------------------------------------------------!
 ! Fonction : newstring from character "array"
@@ -57,7 +57,7 @@ subroutine newstring_n(string, l)
   ! -- body --
   string%len = l
   allocate(string%c(l))
-endsubroutine
+endsubroutine newstring_n
 
 !------------------------------------------------------------------------------!
 ! Fonction : delete string
@@ -66,7 +66,7 @@ subroutine deletestring(string)
   implicit none
   type(st_string)              :: string
   deallocate(string%c)
-endsubroutine
+endsubroutine deletestring
 
 !------------------------------------------------------------------------------!
 ! Fonction : Mise en minuscule d'un caractere
@@ -201,8 +201,7 @@ subroutine addstr(base, suff, pos)
   l = len(suff)
   base(pos:pos+l-1) = suff(1:l)
   pos = pos+l
-endsubroutine
-
+endsubroutine addstr
 
 !------------------------------------------------------------------------------!
 ! Function : get root/base name and remove suffix
@@ -292,7 +291,7 @@ logical function is_real(str)
   implicit none
   character(len=*), intent(in) :: str
   character(len=len(str))      :: wstr
-  integer                      :: i, is, idot, iexp, lstr
+  integer                      :: is, idot, iexp, lstr
   logical                      :: fractpart
 
   is_real = .false.             ! to return early if not real
@@ -744,14 +743,14 @@ integer function index_rightpar (str, ip, info)
 
   implicit none
 ! -- entrees --
-  character(len=*), intent(in) :: str        ! chaine entree
-  integer                      :: ip         ! index de parenthese ouvrante
+  character(len=*), intent(in) :: str   ! chaine entree
+  integer                      :: ip    ! index de parenthese ouvrante
 ! -- sorties --
-  integer                      :: info       ! nombre de parentheses non fermees
+  integer                      :: info  ! nombre de parentheses non fermees
 ! -- variables internes --
-  integer                      :: np           ! nombre de parentheses ouvrantes
-  integer                      :: len          ! longueur totale de chaine
-  integer                      :: i, ipl, ipr  ! index de chaine
+  integer                      :: np    ! nombre de parentheses ouvrantes
+  integer                      :: len   ! longueur totale de chaine
+  integer                      :: i     ! index de chaine
 
   len    = len_trim(str)
   np     = 1
@@ -770,8 +769,7 @@ integer function index_rightpar (str, ip, info)
 
 endfunction index_rightpar
 
-
 endmodule STRING
 !------------------------------------------------------------------------------!
-! Changes
+! Change history
 !------------------------------------------------------------------------------!

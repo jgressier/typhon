@@ -21,11 +21,11 @@ implicit none
 ! -- Constants -------------------------------------------
 
 
-     
+
 ! -- DECLARATIONS -----------------------------------------------------------
 
 !------------------------------------------------------------------------------!
-! structure ST_FCT_FUNC : 
+! structure ST_FCT_FUNC :
 !------------------------------------------------------------------------------!
 type st_fct_func
   character(len=cont_str) :: name
@@ -34,7 +34,7 @@ type st_fct_func
 endtype st_fct_func
 
 !------------------------------------------------------------------------------!
-! structure ST_FCTFUNCSET : 
+! structure ST_FCTFUNCSET :
 !------------------------------------------------------------------------------!
 type st_fctfuncset
   integer(kip)               :: nfct      ! number of functions
@@ -98,7 +98,7 @@ else
   allocate(fset%fct(fset%nfct))
 endif
 
-endsubroutine
+endsubroutine new_fctfuncset
 
 !------------------------------------------------------------------------------!
 ! delete_fct_func : remove FCTFUNCSET structure
@@ -114,9 +114,9 @@ integer             :: i
       call delete_fct_node(fctenv%fct(i)%func)
     enddo
     deallocate(fctenv%fct)
-  endif  
+  endif
 
-endsubroutine 
+endsubroutine delete_fctfuncset
 
 !------------------------------------------------------------------------------!
 ! Routine : compute environment
@@ -133,7 +133,7 @@ do i = 1, fctenv%nfct
   call fct_env_set_real(varenv, fctenv%fct(i)%name, x)
 enddo
 
-endsubroutine
+endsubroutine fctset_compute_allenv
 
 !------------------------------------------------------------------------------!
 ! Routine : compute environment for all needed definition
@@ -150,15 +150,15 @@ real(krp)        :: x
 do i = 1, fctenv%nfct
   if (fctenv%fct(i)%needed) then
     call fct_node_eval(varenv, fctenv%fct(i)%func, res)
-    call fct_env_set_container(varenv, fctenv%fct(i)%name, res)  
+    call fct_env_set_container(varenv, fctenv%fct(i)%name, res)
     ! no delete of res since it is linked to environment
-  endif  
+  endif
 enddo
 
-endsubroutine
+endsubroutine fctset_compute_neededenv
 
 !------------------------------------------------------------------------------!
-! Routine : check dependency of at least one env function 
+! Routine : check dependency of at least one env function
 !------------------------------------------------------------------------------!
 function fctset_all_dependency(fctenv, name) result(depend)
 implicit none
@@ -172,7 +172,7 @@ do i = 1, fctenv%nfct
   depend = depend .or. fct_dependency(fctenv%fct(i)%func, name)
 enddo
 
-endfunction
+endfunction fctset_all_dependency
 
 !------------------------------------------------------------------------------!
 ! Routine : check dependency
@@ -189,7 +189,7 @@ do i = 1, fctenv%nfct
   if (fctenv%fct(i)%needed) depend = depend .or. fct_dependency(fctenv%fct(i)%func, name)
 enddo
 
-endfunction
+endfunction fctset_needed_dependency
 
 !------------------------------------------------------------------------------!
 ! Routine : init_dependency
@@ -203,7 +203,7 @@ do i = 1, fctenv%nfct
   fctenv%fct(i)%needed = .false.
 enddo
 
-endsubroutine
+endsubroutine fctset_initdependency
 
 !------------------------------------------------------------------------------!
 ! Routine : check dependency of fct function on fctenv definitions
@@ -217,18 +217,18 @@ integer             :: i
 do i = 1, fctenv%nfct
   if (fctenv%fct(i)%needed) then
     ! useless to test
-  else  
+  else
     fctenv%fct(i)%needed = fct_dependency(fct, fctenv%fct(i)%name)
     if (fctenv%fct(i)%needed) call fctset_checkdependency(fctenv, fctenv%fct(i)%func)
   endif
 enddo
 
-endsubroutine
+endsubroutine fctset_checkdependency
 
 endmodule FCT_FUNC
 !------------------------------------------------------------------------------!
-! Changes history
+! Change history
 !
-! Feb  2006 : module creation
-! Mar  2013 : name of function
+! Feb 2006 : module creation
+! Mar 2013 : name of function
 !------------------------------------------------------------------------------!

@@ -2,10 +2,18 @@
 #
 # Check non-regression of all NRG cases containing nrgconf.sh
 #
-bar=$(printf "%79s" | tr ' ' =)
+
+SCRIPTDIR=$(cd $(dirname $0) ; pwd)
+SCRIPTNAME=$(basename $0)
+SCRIPTSPCE=${SCRIPTNAME//?/ }
 
 # --- print usage ---
 #
+function writebar() {
+  printf "%79s\n" | tr ' ' '='
+}
+bar=$(printf "%79s" | tr ' ' =)
+
 function usage() {
   if [ $1 = 1 ] ; then
     echo "$bar"
@@ -13,21 +21,24 @@ function usage() {
     echo "$bar"
   fi
   echo
-  echo "Usage: $SCRIPTNAME [-h] [-d|--diff-cmd <diff-command>]"
-  echo "       $SCRIPTSPCE [-l] [--] [<pattern> ...]"
+  echo "Usage:"
+  echo "  $SCRIPTNAME [options] [--] [builddir] [pattern ...]"
   echo
-  echo "       -h:      prints this help"
-  echo "       -exe <typhon-exe>:"
-  echo "                uses <typhon-exe> (default is given by CASE/$REFCONF)"
-  echo "       -d|--diff-cmd <diff-command>:"
-  echo "                uses <diff-command>"
-  echo "       -l:      prints list of cases"
-  echo "       -k:      keep (do not delete) TMPDIR and cases"
-  echo "       --:      end of options"
+  echo "Options:"
+  echo "  -h            prints this help"
+  echo "  -exe typhon-exe"
+  echo "                uses typhon-exe (default is given by CASE/$REFCONF)"
+  echo "  -d|--diff-cmd diff-command"
+  echo "                uses diff-command"
+  echo "  -l            prints list of cases"
+  echo "  -k            keep (do not delete) TMPDIR and cases"
+  echo "  --            end of options"
   echo
-  echo "       <pattern>: selects cases with name matching <pattern>"
+  echo "  builddir      build directory is ../builddir"
+  echo "                (default is build)"
+  echo "  pattern       selects cases with name matching pattern"
   echo
-  echo "       default: runs cases"
+  echo "  default runs cases"
   echo
   exit $1
 }
@@ -45,9 +56,7 @@ echo "$bar"
 # --- directory initialization ---
 #
 ORIGDIR=$PWD
-SCRIPTNAME=$(basename $0)
-SCRIPTSPCE=${SCRIPTNAME//?/ }
-export HOMEDIR=$(cd $(dirname $0) ; pwd)
+export HOMEDIR=$SCRIPTDIR
 export  EXEDIR=$HOMEDIR/SOURCE
 export  BINDIR=$HOMEDIR/bin
 export  NRGDIR=$HOMEDIR/NRG
@@ -84,30 +93,40 @@ while [ ${#} -gt 0 ] ; do
   case "$1" in
     -h) usage 0 ;;
     -d|--diff-cmd) shift
-        test $# -eq 0 && error 1 "ERROR: no diff command:"
+        test $# -eq 0 && error 1 "ERROR: no diff command"
         diffcmd=$1
-        : ;;
+        ;;
     -l) list=1 ;;
     -k) keeptmpdir=1 ;;
     -exe) shift
-        test $# -eq 0 && error 1 "ERROR: no typhon executable:"
+        test $# -eq 0 && error 1 "ERROR: no typhon executable"
         typhonexe=$1
-        echo "force run with $typhonexe"
-        test ! -e "$typhonexe" && error 1 "ERROR: $typhonexe does not exist"
-        test ! -f "$typhonexe" && error 1 "ERROR: $typhonexe is not a regular file"
-        test ! -x "$typhonexe" && error 1 "ERROR: $typhonexe is not an executable file"
-        savedir=$(pwd)
-        typhondir=$(dirname "$typhonexe")
-        typhonexe=$(basename "$typhonexe")
-        cd "$typhondir"
-        typhonexe="$(pwd)/${typhonexe}"
-        cd "$savedir"
-        : ;;
+        ;;
     --) shift ; break ;;
     *)  break ;;
   esac
   shift
 done
+
+# --- check exe
+#
+if [ -n "$typhonexe" ] ; then
+  if [ $typhonexe = $(basename $typhonexe) ] ; then
+    test ${#} = 0 && error 1 "ERROR: build directory is required"
+    build=$1 ; shift
+    typhonexe="../$build/SOURCE/$typhonexe"
+  fi
+  echo "force run with $typhonexe"
+  test ! -e "$typhonexe" && error 1 "ERROR: $typhonexe does not exist"
+  test ! -f "$typhonexe" && error 1 "ERROR: $typhonexe is not a regular file"
+  test ! -x "$typhonexe" && error 1 "ERROR: $typhonexe is not an executable file"
+  savedir=$(pwd)
+  typhondir=$(dirname "$typhonexe")
+  typhonexe=$(basename "$typhonexe")
+  cd "$typhondir"
+  typhonexe="$(pwd)/${typhonexe}"
+  cd "$savedir"
+fi
 
 # --- check patterns ---
 #

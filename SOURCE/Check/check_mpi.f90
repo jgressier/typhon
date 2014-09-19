@@ -40,4 +40,4 @@ endif
 print*,"[",my_id,"]","finalize MPI exchanges"
 call MPI_Finalize(ierr)
 
-endprogram
+endprogram check

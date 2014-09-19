@@ -36,17 +36,17 @@ type rpmblock
                             :: txt       ! contenu du bloc, par ligne
   type(rpmblock), pointer   :: next      ! pointeur sur le bloc suivant
   type(rpmdata),  pointer   :: data      ! pointeur sur le premier bloc DATA
-endtype
+endtype rpmblock
 
 type rpmdata
-  integer                :: nbvar       ! nombre de variables       
+  integer                :: nbvar       ! nombre de variables
   integer                :: nbpts       ! nombre de points
   character(len=dimrpmname), dimension(:), pointer &
                          :: name        ! noms des variables
   real, dimension(:,:), pointer &
                          :: tab         ! tableau de valeurs (nbvar,nbpts)
   type(rpmdata), pointer :: next        ! pointeur sur un eventuel bloc suivant
-endtype
+endtype rpmdata
 
 ! -- INTERFACES -------------------------------------------------------------
 
@@ -86,7 +86,7 @@ endinterface
 ! subroutine rpmgetkeyvalreal (block, key, res)
 ! subroutine rpmgetkeyvalstr  (block, key, res)
 ! subroutine rpmgetkeyvalint  (block, key, res)
-! 
+!
 !integer numvar_inrpmdata
 !interface numvar_inrpmdata
 !  function numvar_inrpmdata (strvar, data)
@@ -97,7 +97,7 @@ endinterface
 !endinterface
 
 !------------------------------------------------------------------------------!
-!    IMPLEMENTATION 
+!    IMPLEMENTATION
 !------------------------------------------------------------------------------!
 contains
 
@@ -113,7 +113,7 @@ contains
   include "rpm_read.F90"
 
   include "rpm_seek.F90"
- 
+
   include "rpm_get.F90"
 
 !------------------------------------------------------------------------------!
@@ -122,9 +122,9 @@ contains
 endmodule RPM
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Change history
 !
-! fev  2002 (v0.0.1b): creation du module
-! juil 2003          : ajout des procedures "get" double precision
+! Feb 2002 (v0.0.1b): creation du module
+! Jul 2003          : ajout des procedures "get" double precision
 !------------------------------------------------------------------------------!
 

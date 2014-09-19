@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------!
 ! MODULE : VEC2D
-! 
+!
 ! Definition of 2D vector and associated functions
 !------------------------------------------------------------------------------!
 module VEC2D
@@ -11,7 +11,7 @@ use MESHPREC
 
 type v2d
   real(krp) :: x, y
-endtype
+endtype v2d
 
 ! -- INTERFACES -------------------------------------------------------------
 
@@ -121,8 +121,8 @@ type(v2d) function v2d_addition(v1, v2)
 implicit none
 type(v2d), intent(in) :: v1, v2
 
-  v2d_addition%x = v1%x + v2%x 
-  v2d_addition%y = v1%y + v2%y 
+  v2d_addition%x = v1%x + v2%x
+  v2d_addition%y = v1%y + v2%y
 
 endfunction v2d_addition
 
@@ -133,8 +133,8 @@ type(v2d) function v2d_substraction(v1, v2)
 implicit none
 type(v2d), intent(in) :: v1, v2
 
-  v2d_substraction%x = v1%x - v2%x 
-  v2d_substraction%y = v1%y - v2%y 
+  v2d_substraction%x = v1%x - v2%x
+  v2d_substraction%y = v1%y - v2%y
 
 endfunction v2d_substraction
 
@@ -145,8 +145,8 @@ type(v2d) function v2d_opp(v)
 implicit none
 type(v2d), intent(in) :: v
 
-  v2d_opp%x = - v%x 
-  v2d_opp%y = - v%y 
+  v2d_opp%x = - v%x
+  v2d_opp%y = - v%y
 
 endfunction v2d_opp
 
@@ -158,8 +158,8 @@ implicit none
 real(4),   intent(in) :: x
 type(v2d), intent(in) :: v
 
-  v2d_multiplysp%x = x * v%x 
-  v2d_multiplysp%y = x * v%y 
+  v2d_multiplysp%x = x * v%x
+  v2d_multiplysp%y = x * v%y
 
 endfunction v2d_multiplysp
 
@@ -171,8 +171,8 @@ implicit none
 real(8),   intent(in) :: x
 type(v2d), intent(in) :: v
 
-  v2d_multiplydp%x = x * v%x 
-  v2d_multiplydp%y = x * v%y 
+  v2d_multiplydp%x = x * v%x
+  v2d_multiplydp%y = x * v%y
 
 endfunction v2d_multiplydp
 
@@ -184,7 +184,7 @@ implicit none
 real(4),   intent(in) :: x
 type(v2d), intent(in) :: v
 
-  v2d_divisionsp%x = v%x / x 
+  v2d_divisionsp%x = v%x / x
   v2d_divisionsp%y = v%y / x
 
 endfunction v2d_divisionsp
@@ -197,7 +197,7 @@ implicit none
 real(8),   intent(in) :: x
 type(v2d), intent(in) :: v
 
-  v2d_divisiondp%x = v%x / x 
+  v2d_divisiondp%x = v%x / x
   v2d_divisiondp%y = v%y / x
 
 endfunction v2d_divisiondp
@@ -242,8 +242,8 @@ type(v2d) function v2d_rot(v)
 implicit none
 type(v2d), intent(in) :: v
 
-  v2d_rot%x = - v%y 
-  v2d_rot%y =   v%x 
+  v2d_rot%x = - v%y
+  v2d_rot%y =   v%x
 
 endfunction v2d_rot
 
@@ -266,10 +266,10 @@ endfunction v2d_rot_a
 
 endmodule VEC2D
 !------------------------------------------------------------------------------!
-! History
+! Change history
 !
-! fev  2004 : creation du module (a partir de GEO3D)
-! mars 2004 : rotation angulaire 2D (v2d_rot_a)
-! Oct  2009 : fork from TYPHON (GEO2D.f90)
+! Feb 2004 : creation du module (a partir de GEO3D)
+! Mar 2004 : rotation angulaire 2D (v2d_rot_a)
+! Oct 2009 : fork from TYPHON (GEO2D.f90)
 !------------------------------------------------------------------------------!
 

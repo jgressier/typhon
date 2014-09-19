@@ -24,7 +24,7 @@ real(krp), parameter :: i2pi = .5_krp/PIcst   !   1/(2*pi)
 type sng_vortex2d
   type(v2d) :: center
   real(krp) :: intensity
-endtype
+endtype sng_vortex2d
 
 ! -- INTERFACES -------------------------------------------------------------
 
@@ -57,7 +57,7 @@ endfunction vel_induc_vort2d
 endmodule VORTEX2D
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Change history
 !
-! fev  2004 : creation du module
+! Feb 2004 : creation du module
 !------------------------------------------------------------------------------!

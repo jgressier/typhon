@@ -206,7 +206,7 @@ type mnu_svm
   integer(kpp)      :: sv_method                   ! SV method / partition (cf constants)
   integer(kpp)      :: sv_flux                     ! Type of flux integration on gauss points for SVM method
   integer(kip)      :: ncv                         ! number of Control Volume (CV subcell) in a SV
-  integer(kip)      :: ncvface                     ! number of sub faces      (by cell) (internal + original*split)  
+  integer(kip)      :: ncvface                     ! number of sub faces      (by cell) (internal + original*split)
   integer(kip)      :: nfgauss                     ! number of integration points by face
   real(krp),pointer :: interp_weights(:,:)         ! weights for cell to face Gauss points interpolation
   real(krp),pointer :: grad_interp_weights(:,:,:)  ! weights for gradients evaluation on Gauss points
@@ -252,7 +252,7 @@ character(len=dimrpmlig)      :: str            ! chaine RPM intermediaire
 
 select case(defspat%method)
 case(hres_none)
-  call rpmgetkeyvalstr(pcour, keyword, str, "FULL") 
+  call rpmgetkeyvalstr(pcour, keyword, str, "FULL")
 case(hres_muscl, hres_muscluns,hres_musclfast)
   call rpmgetkeyvalstr(pcour, keyword, str, "FULL")
 case(hres_svm)
@@ -363,7 +363,7 @@ endsubroutine get_gradientmethod
 
 !-------------------------------------------------------------------------
 ! init Runge-Kutta parameters
-!   U(p) = Un 
+!   U(p) = Un
 !-------------------------------------------------------------------------
 subroutine init_rungekutta(method, rk)
 implicit none
@@ -411,21 +411,21 @@ case(tps_lsrk25bb)
   allocate(rk%coef(1:rk%nstage, 1:rk%nstage))
   rk%coef(:, :) = 0._krp
   rk%coef(1, 1) = 0.1815754863270908_krp
-  rk%coef(2, 2) = 0.238260222208392_krp 
+  rk%coef(2, 2) = 0.238260222208392_krp
   rk%coef(3, 3) = 0.330500707328_krp
   rk%coef(4, 4) = 0.5_krp
-  rk%coef(5, 5) = 1._krp 
+  rk%coef(5, 5) = 1._krp
 case(tps_lsrk26bb)
   rk%order  = 2
   rk%nstage = 6
   allocate(rk%coef(1:rk%nstage, 1:rk%nstage))
   rk%coef(:, :) = 0._krp
   rk%coef(1, 1) = 0.11797990162882_krp
-  rk%coef(2, 2) = 0.18464696649448_krp 
-  rk%coef(3, 3) = 0.24662360430959_krp 
-  rk%coef(4, 4) = 0.33183954253762_krp 
-  rk%coef(5, 5) = 0.5_krp 
-  rk%coef(6, 6) = 1._krp 
+  rk%coef(2, 2) = 0.18464696649448_krp
+  rk%coef(3, 3) = 0.24662360430959_krp
+  rk%coef(4, 4) = 0.33183954253762_krp
+  rk%coef(5, 5) = 0.5_krp
+  rk%coef(6, 6) = 1._krp
 case(tps_lsrk12bs)
   rk%order  = 1
   rk%nstage = 2
@@ -460,7 +460,7 @@ integer       :: ipf
 real(krp)     :: sqrt3
 real(krp)     :: k1(5)
 real(krp)     :: k(7,6)
-real(krp)     :: k4(10,10) 
+real(krp)     :: k4(10,10)
 real(krp)     :: kk4(12,10)
 real(krp)     :: k2(4)
 real(krp)     :: delta, sumcoef, dev, maxdev
@@ -500,7 +500,7 @@ case(svm_2q2x2b3)
   k2(1) = -1._krp / 2._krp
   k2(2) =  0._krp
   k2(3) =  1._krp / 2._krp
-  k2(4) =  1._krp 
+  k2(4) =  1._krp
   defsvm%interp_weights(  1, 1:defsvm%ncv) = (/ k2(4), k2(2), k2(3), k2(1) /)
   defsvm%interp_weights(  2, 1:defsvm%ncv) = (/ k2(3), k2(3), k2(2), k2(2) /)
   defsvm%interp_weights(  3, 1:defsvm%ncv) = (/ k2(2), k2(4), k2(1), k2(3) /)
@@ -523,7 +523,7 @@ case(svm_2q2x2b4)
   k2(1) =  1.5_krp
   k2(2) = -0.5_krp
   k2(3) =  0._krp
-  k2(4) =  0.5_krp 
+  k2(4) =  0.5_krp
   defsvm%interp_weights(  1, 1:defsvm%ncv) = (/ k2(1), k2(2), k2(3), k2(3) /)
   defsvm%interp_weights(  2, 1:defsvm%ncv) = (/ k2(4), k2(4), k2(3), k2(3) /)
   defsvm%interp_weights(  3, 1:defsvm%ncv) = (/ k2(2), k2(1), k2(3), k2(3) /)
@@ -1412,7 +1412,7 @@ real(krp)     :: k(7,6)
   defsvm%interp_weights( 36, 1:defsvm%ncv) = (/ k(7,3), k(7,2), k(7,1) , k(7,5), k(7,4), k(7,6)/)
 
   if (size(defsvm%interp_weights, 1) /= 36) call error_stop("SVM initialization: bad array size")
-endsubroutine  
+endsubroutine distrib_svmweights_tri3
 
 !-------------------------------------------------------------------------
 ! init SVM gradient weights
@@ -1464,14 +1464,14 @@ case(svm_3wang) !weights for alpha=1/4 and beta =1/3 : ORIGINAL PARTITION BY WAN
   k(4,4,1:2) = (/5.041075429 ,-5.357478387 /)
   k(4,5,1:2) = (/-1.105807864 ,1.656973898 /)
   k(4,6,1:2) = (/.2185785882 ,7.990148473 /)
-!Gauss point20 coefficients 
+!Gauss point20 coefficients
   k(5,1,1:2) = (/-3.415354039 ,-1.948346848 /)
   k(5,2,1:2) = (/-.9311732206 ,.7836108122 /)
   k(5,3,1:2) = (/.1926811053 ,-1.740292566 /)
   k(5,4,1:2) = (/5.041075429 ,-4.600196833 /)
   k(5,5,1:2) = (/-.0502787680 ,.586025429 /)
   k(5,6,1:2) = (/-.8369505076 ,6.919200004 /)
-!Gauss point31 coefficients 
+!Gauss point31 coefficients
   k(6,1,1:2) = (/-2.622767426 ,-1.514255480 /)
   k(6,2,1:2) = (/-.8052305455 ,.6403715957 /)
   k(6,3,1:2) = (/.1519627967 ,-1.017535906 /)
@@ -1485,7 +1485,7 @@ case(svm_3wang) !weights for alpha=1/4 and beta =1/3 : ORIGINAL PARTITION BY WAN
   k(7,4,1:2) = (/1.065304587 ,-3.288546707 /)
   k(7,5,1:2) = (/2.127819089 ,1.228496925 /)
   k(7,6,1:2) = (/-2.315312696 ,2.566854188 /)
- 
+
   call distrib_svmgradweights_tri3(defsvm, k)
 
 case(svm_3kris) !weights for alpha=91/1000 and beta=18/100 : OPTIMISED PARTITION BY ABEELE
@@ -1497,28 +1497,28 @@ case(svm_3kris) !weights for alpha=91/1000 and beta=18/100 : OPTIMISED PARTITION
   k(1,4,1:2) = (/8.216144480 ,-6.070980043 /)
   k(1,5,1:2) = (/-1.815780046 ,-.8585994887 /)
   k(1,6,1:2) = (/-.9303084890 ,10.21404192 /)
-!Gauss point2 coefficients 
+!Gauss point2 coefficients
   k(2,1,1:2) = (/-4.025394440 ,-2.272774312 /)
   k(2,2,1:2) = (/-1.376939116 ,1.458313173 /)
   k(2,3,1:2) = (/.5300497658 ,-2.470001255 /)
   k(2,4,1:2) = (/7.318277540 ,-6.070980043 /)
   k(2,5,1:2) = (/-1.665732654 ,-.2535858661 /)
   k(2,6,1:2) = (/-.7802610964 ,9.609028302 /)
-!Gauss point3 coefficients 
+!Gauss point3 coefficients
   k(3,1,1:2) = (/-2.813713645 ,-1.435934639 /)
   k(3,2,1:2) = (/-.165258321 ,.621473500 /)
   k(3,3,1:2) = (/.2922817292 ,-2.470001255 /)
   k(3,4,1:2) = (/4.035467899 ,-6.070980043 /)
   k(3,5,1:2) = (/-1.117124609 ,1.958484168 /)
   k(3,6,1:2) = (/-.2316530517 ,7.396958268 /)
- !Gauss point19 coefficients 
+ !Gauss point19 coefficients
   k(4,1,1:2) = (/-3.773686954 ,-2.127450927 /)
   k(4,2,1:2) = (/-1.268741415 ,1.355070318 /)
   k(4,3,1:2) = (/.4947376812 ,-2.324677870 /)
   k(4,4,1:2) = (/6.830731553 ,-5.914431180 /)
   k(4,5,1:2) = (/-1.394582069 ,-.0970370031 /)
   k(4,6,1:2) = (/-.8884587971 ,9.108526661 /)
-!Gauss point20 coefficients 
+!Gauss point20 coefficients
   k(5,1,1:2) = (/-3.417410840 ,-1.959300424 /)
   k(5,2,1:2) = (/-1.304541327 ,1.301885961 /)
   k(5,3,1:2) = (/.4632941700 ,-1.927647000 /)
@@ -1539,7 +1539,7 @@ case(svm_3kris) !weights for alpha=91/1000 and beta=18/100 : OPTIMISED PARTITION
   k(7,4,1:2) = (/1.318179888 ,-3.750548541 /)
   k(7,5,1:2) = (/2.309978322 ,1.240381656 /)
   k(7,6,1:2) = (/-2.750554639 ,3.016851542 /)
- 
+
   call distrib_svmgradweights_tri3(defsvm, k)
 
 case(svm_4wang)   ! 10 independent points
@@ -1554,7 +1554,7 @@ case(svm_4wang)   ! 10 independent points
   k4(1,8,1:2) =(/-.026156644 , -7.9486713/)
   k4(1,9,1:2) =(/1.3118652   , 15.728525 /)
   k4(1,10,1:2)=(/-2.0706844  , -.16534599/)
-!Gauss point2 coefficients           
+!Gauss point2 coefficients
   k4(2,1,1:2) =(/-8.5550812  , -4.8514533/)
   k4(2,2,1:2) =(/1.4592683   , -.80099442/)
   k4(2,3,1:2) =(/-.040106053 , 2.9632647 /)
@@ -1655,7 +1655,7 @@ case(svm_4wang)   ! 10 independent points
   k4(10,10,1:2)=(/.38805585   ,12.778370  /)
 
   call distrib_svmgradweights_tri4wang(defsvm, kk4)
-  
+
 case(svm_4kris)   ! 12 independent points
  !Gauss point1 coefficients
   kk4(1,1,1:2) =(/-8.8134792  , -5.0076949  /)
@@ -1791,7 +1791,7 @@ case(svm_4kris)   ! 12 independent points
   kk4(12,10,1:2)=(/.1743960    , 12.727225  /)
 
   call distrib_svmgradweights_tri4kris(defsvm, kk4)
-  
+
 case(svm_4kris2)   ! 12 independent points ... to be continued ...
   call error_stop("gradient weights not implemented for SVM4KRIS2 (init_gradsvmweights)")
 
@@ -1834,7 +1834,7 @@ do i=1,2
 
   defsvm%grad_interp_weights( 19, 1:defsvm%ncv,i) = (/ k(4,1,i), k(4,2,i), k(4,3,i) , k(4,4,i), k(4,5,i), k(4,6,i)/)!
   defsvm%grad_interp_weights( 20, 1:defsvm%ncv,i) = (/ k(5,1,i), k(5,2,i), k(5,3,i) , k(5,4,i), k(5,5,i), k(5,6,i)/)!
-                                                   
+
   defsvm%grad_interp_weights( 21, 1:defsvm%ncv,i) = (/ k(4,2,i), k(4,1,i), k(4,3,i) , k(4,4,i), k(4,6,i), k(4,5,i)/)
   defsvm%grad_interp_weights( 22, 1:defsvm%ncv,i) = (/ k(5,2,i), k(5,1,i), k(5,3,i) , k(5,4,i), k(5,6,i), k(5,5,i)/)
   defsvm%grad_interp_weights( 23, 1:defsvm%ncv,i) = (/ k(4,3,i), k(4,1,i), k(4,2,i) , k(4,6,i), k(4,4,i), k(4,5,i)/)
@@ -1845,10 +1845,10 @@ do i=1,2
   defsvm%grad_interp_weights( 28, 1:defsvm%ncv,i) = (/ k(5,2,i), k(5,3,i), k(5,1,i) , k(5,5,i), k(5,6,i), k(5,4,i)/)
   defsvm%grad_interp_weights( 29, 1:defsvm%ncv,i) = (/ k(4,1,i), k(4,3,i), k(4,2,i) , k(4,6,i), k(4,5,i), k(4,4,i)/)
   defsvm%grad_interp_weights( 30, 1:defsvm%ncv,i) = (/ k(5,1,i), k(5,3,i), k(5,2,i) , k(5,6,i), k(5,5,i), k(5,4,i)/)
-                                                   
+
   defsvm%grad_interp_weights( 31, 1:defsvm%ncv,i) = (/ k(6,1,i), k(6,2,i), k(6,3,i) , k(6,4,i), k(6,5,i), k(6,6,i)/)!
   defsvm%grad_interp_weights( 32, 1:defsvm%ncv,i) = (/ k(7,1,i), k(7,2,i), k(7,3,i) , k(7,4,i), k(7,5,i), k(7,6,i)/)!
-                                                    
+
   defsvm%grad_interp_weights( 33, 1:defsvm%ncv,i) = (/ k(6,2,i), k(6,1,i), k(6,3,i) , k(6,4,i), k(6,6,i), k(6,5,i)/)
   defsvm%grad_interp_weights( 34, 1:defsvm%ncv,i) = (/ k(7,2,i), k(7,1,i), k(7,3,i) , k(7,4,i), k(7,6,i), k(7,5,i)/)
   defsvm%grad_interp_weights( 35, 1:defsvm%ncv,i) = (/ k(6,3,i), k(6,2,i), k(6,1,i) , k(6,5,i), k(6,4,i), k(6,6,i)/)
@@ -1857,7 +1857,7 @@ enddo
 
 if (size(defsvm%grad_interp_weights, 1) /= 36) call error_stop("SVM initialization: bad array size (tri3)")
 
-endsubroutine  
+endsubroutine distrib_svmgradweights_tri3
 
 !-------------------------------------------------------------------------
 ! distribute SVM 4 of gradient coefficients on tri
@@ -1869,14 +1869,14 @@ type(mnu_svm) :: defsvm
 real(krp)     :: k4(10,10,2)
 integer       :: i
 
-do i=1,2    
+do i=1,2
   defsvm%grad_interp_weights(1, 1:defsvm%ncv,i)  = (/ k4(1,1,i), k4(1,2,i), k4(1,3,i) , k4(1,4,i), k4(1,5,i), k4(1,6,i),k4(1,7,i),k4(1,8,i),k4(1,9,i),k4(1,10,i)/)!
   defsvm%grad_interp_weights(8, 1:defsvm%ncv,i)  = (/ k4(1,2,i), k4(1,1,i), k4(1,3,i) , k4(1,5,i), k4(1,4,i), k4(1,9,i),k4(1,8,i),k4(1,7,i),k4(1,6,i),k4(1,10,i)/)
   defsvm%grad_interp_weights(9, 1:defsvm%ncv,i)  = (/ k4(1,3,i), k4(1,1,i), k4(1,2,i) , k4(1,8,i), k4(1,9,i), k4(1,4,i),k4(1,5,i),k4(1,6,i),k4(1,7,i),k4(1,10,i)/)
   defsvm%grad_interp_weights(16, 1:defsvm%ncv,i) = (/ k4(1,3,i), k4(1,2,i), k4(1,1,i) , k4(1,7,i), k4(1,6,i), k4(1,5,i),k4(1,4,i),k4(1,9,i),k4(1,8,i),k4(1,10,i)/)
   defsvm%grad_interp_weights(17, 1:defsvm%ncv,i) = (/ k4(1,2,i), k4(1,3,i), k4(1,1,i) , k4(1,6,i), k4(1,7,i), k4(1,8,i),k4(1,9,i),k4(1,4,i),k4(1,5,i),k4(1,10,i)/)
   defsvm%grad_interp_weights(24, 1:defsvm%ncv,i) = (/ k4(1,1,i), k4(1,3,i), k4(1,2,i) , k4(1,9,i), k4(1,8,i), k4(1,7,i),k4(1,6,i),k4(1,5,i),k4(1,4,i),k4(1,10,i)/)
-         
+
   defsvm%grad_interp_weights(2, 1:defsvm%ncv,i)  = (/ k4(2,1,i), k4(2,2,i), k4(2,3,i) , k4(2,4,i), k4(2,5,i), k4(2,6,i),k4(2,7,i),k4(2,8,i),k4(2,9,i),k4(2,10,i)/)!
   defsvm%grad_interp_weights(7, 1:defsvm%ncv,i)  = (/ k4(2,2,i), k4(2,1,i), k4(2,3,i) , k4(2,5,i), k4(2,4,i), k4(2,9,i),k4(2,8,i),k4(2,7,i),k4(2,6,i),k4(2,10,i)/)
   defsvm%grad_interp_weights(10, 1:defsvm%ncv,i) = (/ k4(2,3,i), k4(2,1,i), k4(2,2,i) , k4(2,8,i), k4(2,9,i), k4(2,4,i),k4(2,5,i),k4(2,6,i),k4(2,7,i),k4(2,10,i)/)
@@ -1915,7 +1915,7 @@ do i=1,2
   defsvm%grad_interp_weights(27, 1:defsvm%ncv,i) = (/ k4(7,1,i), k4(7,2,i), k4(7,3,i) , k4(7,4,i), k4(7,5,i), k4(7,6,i),k4(7,7,i),k4(7,8,i),k4(7,9,i),k4(7,10,i)/)!
   defsvm%grad_interp_weights(33, 1:defsvm%ncv,i) = (/ k4(7,3,i), k4(7,1,i), k4(7,2,i) , k4(7,8,i), k4(7,9,i), k4(7,4,i),k4(7,5,i),k4(7,6,i),k4(7,7,i),k4(7,10,i)/)
   defsvm%grad_interp_weights(39, 1:defsvm%ncv,i) = (/ k4(7,1,i), k4(7,3,i), k4(7,2,i) , k4(7,9,i), k4(7,8,i), k4(7,7,i),k4(7,6,i),k4(7,5,i),k4(7,4,i),k4(7,10,i)/)
-                                                               
+
   defsvm%grad_interp_weights(28, 1:defsvm%ncv,i) = (/ k4(8,1,i), k4(8,2,i), k4(8,3,i) , k4(8,4,i), k4(8,5,i), k4(8,6,i),k4(8,7,i),k4(8,8,i),k4(8,9,i),k4(8,10,i)/)!
   defsvm%grad_interp_weights(34, 1:defsvm%ncv,i) = (/ k4(8,3,i), k4(8,1,i), k4(8,2,i) , k4(8,8,i), k4(8,9,i), k4(8,4,i),k4(8,5,i),k4(8,6,i),k4(8,7,i),k4(8,10,i)/)
   defsvm%grad_interp_weights(40, 1:defsvm%ncv,i) = (/ k4(8,1,i), k4(8,3,i), k4(8,2,i) , k4(8,9,i), k4(8,8,i), k4(8,7,i),k4(8,6,i),k4(8,5,i),k4(8,4,i),k4(8,10,i)/)
@@ -1926,7 +1926,7 @@ do i=1,2
   defsvm%grad_interp_weights(50, 1:defsvm%ncv,i) = (/ k4(9,3,i), k4(9,2,i), k4(9,1,i) , k4(9,7,i), k4(9,6,i), k4(9,5,i),k4(9,4,i),k4(9,9,i),k4(9,8,i),k4(9,10,i)/)
   defsvm%grad_interp_weights(51, 1:defsvm%ncv,i) = (/ k4(9,2,i), k4(9,3,i), k4(9,1,i) , k4(9,6,i), k4(9,7,i), k4(9,8,i),k4(9,9,i),k4(9,4,i),k4(9,5,i),k4(9,10,i)/)
   defsvm%grad_interp_weights(54, 1:defsvm%ncv,i) = (/ k4(9,1,i), k4(9,3,i), k4(9,2,i) , k4(9,9,i), k4(9,8,i), k4(9,7,i),k4(9,6,i),k4(9,5,i),k4(9,4,i),k4(9,10,i)/)
-                                                  
+
   defsvm%grad_interp_weights(44, 1:defsvm%ncv,i) = (/ k4(10,1,i), k4(10,2,i), k4(10,3,i) , k4(10,4,i), k4(10,5,i), k4(10,6,i),k4(10,7,i),k4(10,8,i),k4(10,9,i),k4(10,10,i)/)!
   defsvm%grad_interp_weights(45, 1:defsvm%ncv,i) = (/ k4(10,2,i), k4(10,1,i), k4(10,3,i) , k4(10,5,i), k4(10,4,i), k4(10,9,i),k4(10,8,i),k4(10,7,i),k4(10,6,i),k4(10,10,i)/)
   defsvm%grad_interp_weights(48, 1:defsvm%ncv,i) = (/ k4(10,3,i), k4(10,1,i), k4(10,2,i) , k4(10,8,i), k4(10,9,i), k4(10,4,i),k4(10,5,i),k4(10,6,i),k4(10,7,i),k4(10,10,i)/)
@@ -1937,7 +1937,7 @@ do i=1,2
 enddo
 if (size(defsvm%grad_interp_weights, 1) /= 54) call error_stop("SVM initialization: bad array size (tri4wang)")
 
-endsubroutine
+endsubroutine distrib_svmgradweights_tri4wang
 
 !-------------------------------------------------------------------------
 ! distribute SVM 4 of gradient coefficients on tri
@@ -1995,11 +1995,11 @@ do i=1,2
   defsvm%grad_interp_weights(27, 1:defsvm%ncv,i) = (/ kk4(7,1,i), kk4(7,2,i), kk4(7,3,i) , kk4(7,4,i), kk4(7,5,i), kk4(7,6,i),kk4(7,7,i),kk4(7,8,i),kk4(7,9,i),kk4(7,10,i)/)!
   defsvm%grad_interp_weights(33, 1:defsvm%ncv,i) = (/ kk4(7,3,i), kk4(7,1,i), kk4(7,2,i) , kk4(7,8,i), kk4(7,9,i), kk4(7,4,i),kk4(7,5,i),kk4(7,6,i),kk4(7,7,i),kk4(7,10,i)/)
   defsvm%grad_interp_weights(39, 1:defsvm%ncv,i) = (/ kk4(7,1,i), kk4(7,3,i), kk4(7,2,i) , kk4(7,9,i), kk4(7,8,i), kk4(7,7,i),kk4(7,6,i),kk4(7,5,i),kk4(7,4,i),kk4(7,10,i)/)
-                                                        
+
   defsvm%grad_interp_weights(28, 1:defsvm%ncv,i) = (/ kk4(8,1,i), kk4(8,2,i), kk4(8,3,i) , kk4(8,4,i), kk4(8,5,i), kk4(8,6,i),kk4(8,7,i),kk4(8,8,i),kk4(8,9,i),kk4(8,10,i)/)!
   defsvm%grad_interp_weights(34, 1:defsvm%ncv,i) = (/ kk4(8,3,i), kk4(8,1,i), kk4(8,2,i) , kk4(8,8,i), kk4(8,9,i), kk4(8,4,i),kk4(8,5,i),kk4(8,6,i),kk4(8,7,i),kk4(8,10,i)/)
   defsvm%grad_interp_weights(40, 1:defsvm%ncv,i) = (/ kk4(8,1,i), kk4(8,3,i), kk4(8,2,i) , kk4(8,9,i), kk4(8,8,i), kk4(8,7,i),kk4(8,6,i),kk4(8,5,i),kk4(8,4,i),kk4(8,10,i)/)
-                                                  
+
   defsvm%grad_interp_weights(43, 1:defsvm%ncv,i) = (/ kk4(9,1,i), kk4(9,2,i), kk4(9,3,i) , kk4(9,4,i), kk4(9,5,i), kk4(9,6,i),kk4(9,7,i),kk4(9,8,i),kk4(9,9,i),kk4(9,10,i)/)!
   defsvm%grad_interp_weights(45, 1:defsvm%ncv,i) = (/ kk4(9,3,i), kk4(9,1,i), kk4(9,2,i) , kk4(9,8,i), kk4(9,9,i), kk4(9,4,i),kk4(9,5,i),kk4(9,6,i),kk4(9,7,i),kk4(9,10,i)/)
   defsvm%grad_interp_weights(47, 1:defsvm%ncv,i) = (/ kk4(9,2,i), kk4(9,3,i), kk4(9,1,i) , kk4(9,6,i), kk4(9,7,i), kk4(9,8,i),kk4(9,9,i),kk4(9,4,i),kk4(9,5,i),kk4(9,10,i)/)
@@ -2026,19 +2026,19 @@ do i=1,2
 enddo
 if (size(defsvm%grad_interp_weights, 1) /= 60) call error_stop("SVM initialization: bad array size (tri4)")
 
-endsubroutine  
+endsubroutine distrib_svmgradweights_tri4kris
 
 
 
 endmodule MENU_NUM
 !------------------------------------------------------------------------------!
-! Changes history
+! Change history
 !
-! May  2002 : creation du module
-! Aug  2003 : parametres pour l'integration temporelle (Fourier, residu)
-! Sep  2003 : parametres pour l'integration spatiale (calcul de gradients)
-! Jan  2006 : gradient computation method (local routine to get parameters)
-! Nov  2007 : Runge-Kutta parameters
-! Jul  2010 : number of Krylov vectors
-! Feb  2013 : kinetic/beta evaluations for hllc and hlle
+! May 2002 : creation du module
+! Aug 2003 : parametres pour l'integration temporelle (Fourier, residu)
+! Sep 2003 : parametres pour l'integration spatiale (calcul de gradients)
+! Jan 2006 : gradient computation method (local routine to get parameters)
+! Nov 2007 : Runge-Kutta parameters
+! Jul 2010 : number of Krylov vectors
+! Feb 2013 : kinetic/beta evaluations for hllc and hlle
 !------------------------------------------------------------------------------!

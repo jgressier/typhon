@@ -143,9 +143,9 @@ if (.not.onlymesh) call writevtk_sol(defvtk, umesh, gfield)
 call close_io_unit(iunit2)
 print*,'done.'
 
-endprogram
+endprogram typhon2vtk
 !------------------------------------------------------------------------------!
-! Changes
+! Change history
 !
-! May  2011: created
+! May 2011 : created
 !------------------------------------------------------------------------------!

@@ -1052,7 +1052,7 @@ subroutine fluent_get_spcdim(def, umesh)
     call cfd_warning("space dimension already set")
   else
     call cfd_warning("space dimension already set to " &
-                     //trim(strof(umesh%elemdim)))
+                     //trim(strof(umesh%elemdim))//" (will be reset)")
   endif
   umesh%elemdim = def%spcdim
   call fluent_check_spcdim(def%spcdim, 1)
@@ -1117,7 +1117,7 @@ subroutine fluent_get_nodes(def, sctid, umesh)
     endif
   endif
   write(str,'(3a,2(i8,a))') "(",trim(strzone),"): (",inmin,":",inmax,")"
-  call cfd_print(" - reading FLUENT nodes "//trim(str)//trim(strtype))
+  call cfd_print("- reading FLUENT nodes "//trim(str)//trim(strtype))
 
   ! Check itype
   if ( zoneid == 0 ) then
@@ -1126,8 +1126,8 @@ subroutine fluent_get_nodes(def, sctid, umesh)
     ityperef = 1
   endif
   if ( itype /= ityperef ) then
-    call cfd_warning("(fluent) type = "//trim(strof(itype)) &
-                        //" /= typeref = "//trim(strof(ityperef)))
+    call cfd_warning("(fluent) type"   //" = "//trim(strof(itype)) &
+                        //" /= typeref"//" = "//trim(strof(ityperef)))
   endif
 
   ! Check space dimension
@@ -1186,10 +1186,10 @@ subroutine fluent_get_nodes(def, sctid, umesh)
     ! Allocate local xyz array
     select case(sctid)
     case(fluent_sct_spbinnodes)
-      allocate(def%xyzsp(2,inmax-inmin+1))
+      allocate(def%xyzsp(ndim,inmax-inmin+1))
     case(fluent_sct_nodes, &
          fluent_sct_dpbinnodes)
-      allocate(def%xyzdp(2,inmax-inmin+1))
+      allocate(def%xyzdp(ndim,inmax-inmin+1))
     endselect
 
     ! Read opening parenthesis
@@ -1205,19 +1205,19 @@ subroutine fluent_get_nodes(def, sctid, umesh)
       read(def%iu_bin) def%c
       !!!! it is read now
       call fll_ignore_blank(def%iu_bin, def%c)
-      do i = 1,inmax-inmin+1
+      do i = 1, inmax-inmin+1
         call fll_storeuptochar(def%iu_bin, def%c, nl_char, str)
         read(str,*) (def%xyzdp(j,i),j=1,ndim)
       enddo
     ! Binary values (simple precision)
     case(fluent_sct_spbinnodes)
-      read(def%iu_bin) ((def%xyzsp(i,j),j=1,ndim),i=1,inmax-inmin+1)
+      read(def%iu_bin) ((def%xyzsp(j,i),j=1,ndim),i=1,inmax-inmin+1)
       !!!! next char was left unread
       read(def%iu_bin) def%c
       !!!! it is read now
     ! Binary values (double precision)
     case(fluent_sct_dpbinnodes)
-      read(def%iu_bin) ((def%xyzdp(i,j),j=1,ndim),i=1,inmax-inmin+1)
+      read(def%iu_bin) ((def%xyzdp(j,i),j=1,ndim),i=1,inmax-inmin+1)
       !!!! next char was left unread
       read(def%iu_bin) def%c
       !!!! it is read now

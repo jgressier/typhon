@@ -1,5 +1,5 @@
 !------------------------------------------------------------------------------!
-! MODULE : MESHBASE 
+! MODULE : MESHBASE
 !
 !------------------------------------------------------------------------------!
 module MESHBASE
@@ -27,7 +27,7 @@ type info_mesh
   real(krp) :: minscale, maxscale  ! echelle de longueur (min et max)
   real(krp) :: minvol,   maxvol    ! cell volumes        (min et max)
   real(krp) :: totvol              ! total volume
-endtype
+endtype info_mesh
 
 !------------------------------------------------------------------------------!
 ! Definition de la structure ST_FACE : face de cellule
@@ -43,7 +43,7 @@ endtype st_face
 !------------------------------------------------------------------------------!
 type st_mesh
   type(info_mesh) :: info
-  integer(kip)          :: idim, jdim, kdim      ! indices max des cellules 
+  integer(kip)          :: idim, jdim, kdim      ! indices max des cellules
   integer(kip)          :: nvtex, maxvtex        ! nb of vertices and max global index of vertex
   integer(kip)          :: nface
   integer(kip)          :: ncell                 ! nombre de faces et cellules totales
@@ -88,7 +88,7 @@ integer       :: ncell, nface, nvtex
 
   call init_mesh(mesh)
   call alloc_mesh(mesh, ncell, nface, nvtex)
-  
+
 endsubroutine new_mesh
 
 
@@ -161,9 +161,9 @@ type(st_mesh) :: mesh
 
   if (associated(mesh%centre)) deallocate(mesh%centre)
   if (associated(mesh%volume)) deallocate(mesh%volume)
-  if (associated(mesh%iface))  deallocate(mesh%iface) 
+  if (associated(mesh%iface))  deallocate(mesh%iface)
   if (associated(mesh%vertex)) deallocate(mesh%vertex)
-  
+
 endsubroutine delete_mesh
 
 !------------------------------------------------------------------------------!
@@ -192,7 +192,7 @@ integer(kip)  :: i
 endsubroutine calc_mesh_info
 
 !------------------------------------------------------------------------------!
-! Procedure : morph_vertex 
+! Procedure : morph_vertex
 !------------------------------------------------------------------------------!
 subroutine morph_vertex(fctenv, mesh, morphx, morphy, morphz)
 implicit none
@@ -201,10 +201,10 @@ implicit none
 type(st_fctfuncset) :: fctenv
 type(st_fct_node)   :: morphx, morphy, morphz
 ! -- Inputs/Ouputs --
-type(st_mesh) :: mesh     
+type(st_mesh) :: mesh
 ! -- private data --
 integer, pointer                 :: ista(:), iend(:) ! starting and ending index
-integer                          :: ib, buf, nblock  ! buffer size 
+integer                          :: ib, buf, nblock  ! buffer size
 real(krp), dimension(fct_buffer) :: x, y, z
 integer                          :: iv
 type(st_fct_env)                 :: env
@@ -218,10 +218,10 @@ type(st_fct_env)                 :: env
 
   call new_buf_index(mesh%nvtex, fct_buffer, nblock, ista, iend)
 
-  !$OMP PARALLEL & 
+  !$OMP PARALLEL &
   !$OMP private(iv, env, x, y, z, buf) &
   !$OMP shared(ista, iend, nblock)
-  
+
   call new_fct_env(env)      ! temporary environment from FCT_EVAL
 
   !$OMP DO
@@ -250,10 +250,10 @@ type(st_fct_env)                 :: env
     enddo
 
   enddo block
-  
+
   !$OMP END DO
   call delete_fct_env(env)      ! temporary environment from FCT_EVAL
-  !$OMP END PARALLEL 
+  !$OMP END PARALLEL
 
   deallocate(ista, iend)
 
@@ -262,12 +262,12 @@ endsubroutine morph_vertex
 endmodule MESHBASE
 
 !------------------------------------------------------------------------------!
-! Changes history
+! Change history
 !
-! oct  2002 : creation du module
-! fev  2004 : suppression de certains elements propres au structure
-!             structure information de MESH
-!             redefintion de new_mesh (allocation de non structure)
-! Oct  2009 : transfered from TYPHON sources
-! Apr  2013 : internal scaling mesh routine
+! Oct 2002 : creation du module
+! Feb 2004 : suppression de certains elements propres au structure
+!            structure information de MESH
+!            redefintion de new_mesh (allocation de non structure)
+! Oct 2009 : transferred from TYPHON sources
+! Apr 2013 : internal scaling mesh routine
 !------------------------------------------------------------------------------!

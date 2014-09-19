@@ -7,7 +7,7 @@
 !> @mainpage
 !> description
 !> @todo short description of typhon
-!   
+!
 !------------------------------------------------------------------------------!
 !> @ingroup Program
 !> @brief Typhon main program
@@ -31,7 +31,9 @@ include 'mpif.h'
 type(st_world) :: world      ! structure encapsulant toutes les donnees TYPHON
 integer        :: itimer_init, itimer_tot
 
+#ifdef MPICOMPIL
 integer        :: ierr
+#endif /*MPICOMPIL*/
 
 #include "TyphonConfigure.h"
 
@@ -47,7 +49,7 @@ integer        :: ierr
   call MPI_Comm_size(MPI_COMM_WORLD, world%info%nbproc, ierr)
   myprocid   = myprocid+1    ! mpi_comm_rank starts from 0
   tympi_real = MPI_REAL8
-  tympi_int  = MPI_INTEGER4  
+  tympi_int  = MPI_INTEGER4
 
 #else  /*NO MPICOMPIL*/
   mpi_run           = .false.
@@ -72,7 +74,7 @@ itimer_init = realtime_start()
 call init_varcom()
 if (omp_run) call print_info(0, "Open-MP computation "//trim(strof(nthread))//" threads")
 
-!###### PARAMETERS PARSING 
+!###### PARAMETERS PARSING
 
 call def_param(world)
 
@@ -118,7 +120,7 @@ endselect
 
 !###### FIN D'EXECUTION
 
-call output_result(world, end_calc) 
+call output_result(world, end_calc)
 
 call delete(world)
 
@@ -134,11 +136,11 @@ call MPI_Finalize(ierr)
 #endif /*MPICOMPIL*/
 
 !#########
-endprogram
+endprogram typhon
 
 !------------------------------------------------------------------------------!
 ! Change history
 !
-! july  2002 : creation
-! may   2005 : add switch option to "analyse" instead of "integration"
+! Jul 2002 : creation
+! May 2005 : add switch option to "analyse" instead of "integration"
 !------------------------------------------------------------------------------!

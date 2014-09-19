@@ -1,30 +1,66 @@
 #!/bin/bash -u
 
+SCRIPTDIR=$(cd $(dirname $0) ; pwd)
+SCRIPTNAME=$(basename $0)
+SCRIPTSPCE=${SCRIPTNAME//?/ }
+
+DEFAULT_SOURCE_DIR=../$(basename $(pwd))
+
+DEFAULT_FC=$(which ifort)
+
+DEFAULT_CGNS__HOME=/volume/v1/local/Typhon_deps
+DEFAULT_METIS_HOME=/volume/v1/local/CharlesX_dep
+
+DEFAULT_USE__MPI=No
+DEFAULT_USE_CGNS=Yes
+
+# --- print usage ---
+#
+function writebar() {
+  printf "%79s\n" | tr ' ' '='
+}
+
+function usage() {
+  echo "Usage:"
+  echo "  $SCRIPTNAME [options] [builddir]"
+  echo
+  echo "Options:"
+  echo "  -h            print this help"
+  echo "  -j n          parallel make with n processes"
+  echo "  -Debug, -Release, -RelWithDebInfo"
+  echo "                options to cmake"
+  echo "                (default is -RelWithDebInfo)"
+  echo
+  echo "  builddir      build directory is ../builddir"
+  echo "                (default is build)"
+}
+
 function error() {
   echo -e "!!!  ERROR  !!! $@  !!!" | sed 's/./@/g'
   echo -e "!!!  ERROR  !!! $@  !!!"
   echo -e "!!!  ERROR  !!! $@  !!!" | sed 's/./@/g'
-  build_help
+  usage
   exit 1
 }
 
-function build_help() {
-  echo "no help available"
-}
-
+cmakeopt=
+makeopt=()
 nb=0
-BUILD_DIR=build
+BUILD_DIR_NAME=build
 while [ ${#} -gt 0 ] ; do
   case "$1" in
-    -h) build_help ; exit 0 ;;
-    -j) test ${#} -gt 1 || error "$1 option : <nbproc> required"
+    -h) usage ; exit 0 ;;
+    -j) test ${#} -gt 1 || error "$1 option: nproc required"
         shift
-        makeopt="-j $1"
+        makeopt+=( -j "$1" )
+        ;;
+    -Debug|-Release|-RelWithDebInfo)
+        cmakeopt="-DCMAKE_BUILD_TYPE=${1#-}"
         ;;
     *)  case $nb in
-          0) nb=1 ; BUILD_DIR=$1 ;;
+          0) nb=1 ; BUILD_DIR_NAME=$1 ;;
           #1) nb=1 ; SOURCE_DIR=$1 ;;
-          *) error "multiple build dirs:" "$BUILD_DIR" "$1"
+          *) error "multiple build dirs:" "$BUILD_DIR_NAME" "$1" ;;
         esac
         ;;
   esac
@@ -33,20 +69,26 @@ done
 
 #SOURCE_DIR=$(cd $(dirname $0) ; pwd)
 
-SOURCE_DIR=../$(basename $(pwd))
+SOURCE_DIR=$DEFAULT_SOURCE_DIR
 
-FC=$(which ifort)
+FC=$DEFAULT_FC
 
-CGNS_HOME=/volume/v1/local/Typhon_deps
-METIS_HOME=/volume/v1/local/CharlesX_dep
+CGNS__HOME=$DEFAULT_CGNS__HOME
+METIS_HOME=$DEFAULT_METIS_HOME
 
-Typhon_USE_MPI=No
-Typhon_USE_CGNS=Yes
+USE__MPI=$DEFAULT_USE__MPI
+USE_CGNS=$DEFAULT_USE_CGNS
 
-cd ../$BUILD_DIR && \
-FC=$(which ifort) \
-  CGNSHOME=$CGNS_HOME \
+BUILD_DIR=../$BUILD_DIR_NAME
+
+makeopt+=( -- )
+
+cd $BUILD_DIR && \
+        FC=$FC \
+  CGNSHOME=$CGNS__HOME \
  METISHOME=$METIS_HOME \
- cmake -DTyphon_USE_MPI=$Typhon_USE_MPI \
-      -DTyphon_USE_CGNS=$Typhon_USE_CGNS \
-    $SOURCE_DIR && make $makeopt
+ cmake $cmakeopt \
+          -DTyphon_USE_MPI=$USE__MPI \
+         -DTyphon_USE_CGNS=$USE_CGNS \
+         $SOURCE_DIR && \
+ make "${makeopt[@]}"

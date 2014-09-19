@@ -1,6 +1,6 @@
 !------------------------------------------------------------------------------!
 ! TY2DMESH
-! creates an H structured mesh 
+! creates an H structured mesh
 !
 !------------------------------------------------------------------------------!
 program xbininfo
@@ -60,7 +60,7 @@ do while (.not.xbin_eof(defxbin))
 
   idatasec = idatasec + 1
   print*,fill('DATA SECTION', tab1),'#',strof(idatasec)
-  
+
   call xbin_readdatahead(defxbin, xbindata)
 
   print*,fill('  name',       tab1),': ',trim(xbindata%name)
@@ -88,9 +88,9 @@ print*,fill('nb of data section', tab1),': ',trim(strof(idatasec))
 
 call xbin_close(defxbin)
 
-endprogram
+endprogram xbininfo
 !------------------------------------------------------------------------------!
-! Changes
+! Change history
 !
-! May  2010: 
+! May 2010 :
 !------------------------------------------------------------------------------!

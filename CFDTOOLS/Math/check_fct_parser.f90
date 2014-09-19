@@ -24,6 +24,7 @@ call test_parse(str)
 str="cos(_pi)"
 call test_parse(str)
 
+
 contains 
 
 subroutine test_parse(str)
@@ -38,6 +39,6 @@ call fct_node_to_str(func, str2)
 print*,trim(str)," -> ",trim(str2)
 call delete(func)
 
-endsubroutine
+endsubroutine test_parse
 
-endprogram
+endprogram test_fct

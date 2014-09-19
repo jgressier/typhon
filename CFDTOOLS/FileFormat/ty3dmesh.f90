@@ -24,14 +24,18 @@ implicit none
 !------------------------------------------------------------------------------!
 integer            :: nargs
 character(len=256) :: filename, str_opt, str_val
+character(len=16)  :: str_ndir
 type(st_deftyphon) :: deftyphon
-integer(kip)       :: nx, ny, nz
-real(krp)          :: lx, ly, lz
+integer(kip), target  :: ni, nj, nk
+integer(kip), pointer :: ndir
+real(krp), target  :: lx, ly, lz
+real(krp), pointer :: ldir
 type(st_ustmesh)   :: umesh
 type(v3d), dimension(:,:,:), pointer :: vertex
 type(st_elemvtex), pointer :: elem
 integer(kpp)       :: itype, ielem, ntype_mesh
-character(len=256)  :: strx, stry, strz
+character(len=256), target  :: strx, stry, strz
+character(len=256), pointer :: strdir
 type(st_fct_node)   :: morphx, morphy, morphz
 type(st_fctfuncset) :: fctenv
 logical             :: fctscale, cstscale
@@ -40,8 +44,12 @@ logical             :: fctscale, cstscale
 logical, parameter :: lincr = .TRUE.
 integer(kip)       :: ierr
 !---------------------------
-integer(kip)       :: i, j, k, iv, ivc, ic, nelem, nvtex, iarg, offset, dim, iloc
+integer(kip)       :: i, j, k
+integer(kip)       :: iv, ic, nelem, nvtex, iarg, offset, dim, iloc
 !------------------------------------------------------------------------------!
+integer(kpp), parameter :: ni_default = 50
+integer(kpp), parameter :: nj_default = 50
+integer(kpp), parameter :: nk_default = 50
 integer(kpp), parameter :: mesh_hexa = 1
 logical                 :: fileread
 
@@ -63,9 +71,9 @@ strx = "x"
 stry = "y"
 strz = "z"
 ! Dimensions
-nx = 50
-ny = 50
-nz = 50
+ni = 50
+nj = 50
+nk = 50
 filename  = ""
 ntype_mesh = mesh_hexa
 
@@ -88,57 +96,48 @@ iarg     = 1
 do while (iarg <= nargs)
   call read_command_argument(iarg, str_opt, lincr)
   select case(str_opt)
-  ! number of cells in x direction
-  case ("-nx")
+  ! number of cells in x, y, z directions
+  case ("-nx","-ny","-nz", &
+        "-ni","-nj","-nk")
+    if (iarg>nargs) call cfd_error("missing argument(s) after '"//trim(str_opt)//"'")
+    ! change to "ni", "nj", "nk"
+    str_ndir = str_tr(str_opt(2:), 'xyz', 'ijk')
+    ! pointers
+    select case(str_ndir)
+    case("ni")
+      ndir => ni
+    case("nj")
+      ndir => nj
+    case("nk")
+      ndir => nk
+    endselect
     ! read integer
+    call read_command_argument(iarg, ndir, lincr, ierr, str_val)
+    if (ierr/=0) call cfd_error("expected integer after '"//trim(str_opt)//"', found '"//trim(str_val)//"'")
+  ! lengths in x, y, z directions
+  case ("-lx", "-ly", "-lz")
     if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
-    call read_command_argument(iarg, nx, lincr, ierr, str_val)
-    if (ierr/=0) call cfd_error("expected integer after '-nx', found '"//trim(str_val)//"'")
-  ! number of cells in y direction
-  case ("-ny")
-    ! read integer
-    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
-    call read_command_argument(iarg, ny, lincr, ierr, str_val)
-    if (ierr/=0) call cfd_error("expected integer after '-ny', found '"//trim(str_val)//"'")
-  ! number of cells in z direction
-  case ("-nz")
-    ! read integer
-    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
-    call read_command_argument(iarg, nz, lincr, ierr, str_val)
-    if (ierr/=0) call cfd_error("expected integer after '-nz', found '"//trim(str_val)//"'")
-  ! length in x direction
-  case ("-lx")
+    ! pointers
+    select case(str_opt)
+    case("-lx") ; ldir => lx
+    case("-ly") ; ldir => ly
+    case("-lz") ; ldir => lz
+    endselect
     ! read real
-    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
-    call read_command_argument(iarg, lx, lincr, ierr, str_val)
+    call read_command_argument(iarg, ldir, lincr, ierr, str_val)
     if (ierr/=0) call cfd_error("real expected after '"//trim(str_opt)//"'" &
                                           //", found '"//trim(str_val)//"'")
-  ! length in y direction
-  case ("-ly")
-    ! read real
-    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
-    call read_command_argument(iarg, ly, lincr, ierr, str_val)
-    if (ierr/=0) call cfd_error("real expected after '"//trim(str_opt)//"'" &
-                                          //", found '"//trim(str_val)//"'")
-  ! length in z direction
-  case ("-lz")
-    ! read real
-    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
-    call read_command_argument(iarg, lz, lincr, ierr, str_val)
-    if (ierr/=0) call cfd_error("real expected after '"//trim(str_opt)//"'" &
-                                          //", found '"//trim(str_val)//"'")
-  case ("-fx")   ! scaling function for x
+  ! scaling functions for x, y, z
+  case ("-fx", "-fy", "-fz")
     fctscale = .true.
     if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
-    call read_command_argument(iarg, strx, lincr)
-  case ("-fy")   ! scaling function for y
-    fctscale = .true.
-    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
-    call read_command_argument(iarg, stry, lincr)
-  case ("-fz")   ! scaling function for z
-    fctscale = .true.
-    if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
-    call read_command_argument(iarg, strz, lincr)
+    ! pointers
+    select case(str_opt)
+    case("-fx") ; strdir => strx
+    case("-fy") ; strdir => stry
+    case("-fz") ; strdir => strz
+    endselect
+    call read_command_argument(iarg, strdir, lincr)
   ! mesh types
   case ("-hexa")
     ntype_mesh = mesh_hexa
@@ -162,14 +161,13 @@ if (fctscale) then
   call string_to_funct(strz, morphz, ierr)
 endif
 
-
 !------------------------------------------------------------
 ! default: creates a 50x50x50 uniform mesh in 1x1x1 box
 !------------------------------------------------------------
 
 select case(ntype_mesh)
 case(mesh_hexa)
-  print*,'creating '//trim(strof(nx))//'x'//trim(strof(ny))//'x'//trim(strof(nz))//' 3D hexa mesh'
+  print*,'creating '//trim(strof(ni))//'x'//trim(strof(nj))//'x'//trim(strof(nk))//' 3D hexa mesh'
 case default
   call cfd_error("unknown mesh type")
 endselect
@@ -190,7 +188,7 @@ print*,'. vertices'
 
 select case(ntype_mesh)
 case(mesh_hexa)
-  umesh%mesh%nvtex  = (nx+1)*(ny+1)*(nz+1)
+  umesh%mesh%nvtex  = (ni+1)*(nj+1)*(nk+1)
 case default
   call cfd_error("unknown mesh type")
 endselect
@@ -200,20 +198,20 @@ umesh%nvtex       = umesh%mesh%nvtex                   ! nb of vertices (redunda
 allocate(umesh%mesh%vertex(1:umesh%mesh%nvtex, 1, 1))
 vertex => umesh%mesh%vertex
 
-do i = 1, nx+1
-  do j = 1, ny+1
-    do k = 1, nz+1
+do i = 1, ni+1
+  do j = 1, nj+1
+    do k = 1, nk+1
       iv = unsnode(i, j, k)
-      vertex(iv, 1, 1) = v3d( (i-1)*(lx/nx), (j-1)*(ly/ny), (k-1)*(lz/nz) )
+      vertex(iv, 1, 1) = v3d( (i-1)*(lx/ni), (j-1)*(ly/nj), (k-1)*(lz/nk) )
     enddo
   enddo
 enddo
 
 if (fctscale) then
-  print*,'  mesh morphing computation...'
+  print*,'    mesh morphing computation...'
   call new_fctfuncset(fctenv)
   call morph_vertex(fctenv, umesh%mesh, morphx, morphy, morphz)
-  print*,'  done'
+  print*,'    done'
   call delete_fctfuncset(fctenv)
   call delete_fct_node(morphx)
   call delete_fct_node(morphy)
@@ -227,7 +225,7 @@ select case(ntype_mesh)
 case(mesh_hexa)
   print*,'. HEXA elements'
   itype = elem_hexa8
-  nelem = nx*ny*nz
+  nelem = ni*nj*nk
 case default
   call cfd_error("unknown mesh type")
 endselect
@@ -242,10 +240,10 @@ call new_elemvtex(umesh%cellvtex%elem(ielem), nelem, itype)
 elem => umesh%cellvtex%elem(ielem)
 nvtex = elem%nvtex
 
-do i = 1, nx
-  do j = 1, ny
-    do k = 1, nz
-      ic = ((i-1)*ny+j-1)*nz+k             ! HEXA cell index
+do i = 1, ni
+  do j = 1, nj
+    do k = 1, nk
+      ic = ((i-1)*nj+j-1)*nk+k             ! HEXA cell index
       select case(ntype_mesh)
       case(mesh_hexa)
         elem%ielem   (ic)    = ic
@@ -267,7 +265,7 @@ enddo
 !------------------------------
 print*,'. BC faces'
 
-nelem = 2*(nx*ny)+2*(nx*nz)+2*(ny*nz)
+nelem = 2*(ni*nj)+2*(ni*nk)+2*(nj*nk)
 nvtex = 4                                  ! faces are quads
 call new(umesh%facevtex, nelem, nvtex)
 umesh%nface     = nelem
@@ -278,62 +276,69 @@ umesh%nface_lim = nelem
 !------------------------------
 print*,'. BC marks (IMIN, IMAX, JMIN, JMAX, KMIN, KMAX)'
 
+! create bocos
 call createboco(umesh, 6)       ! creates 6 boco (IMIN, IMAX, JMIN, JMAX, KMIN, KMAX)
 
 offset = 0
-dim    = ny*nz
+dim    = nj*nk
 call new_ustboco(umesh%boco(1), "IMIN", dim)
 call new_ustboco(umesh%boco(2), "IMAX", dim)
-do j = 1, ny
-  do k = 1, nz
-    iloc = (j-1)*nz+k
+do j = 1, nj
+  do k = 1, nk
+    iloc = (j-1)*nk+k
     ! IMIN faces
     umesh%facevtex%fils(offset+iloc, 1:nvtex) = &
       (/ unsnode(1,j,k), unsnode(1,j,k+1), unsnode(1,j+1,k+1), unsnode(1,j+1,k) /)
     ! IMAX faces
     umesh%facevtex%fils(offset+dim+iloc, 1:nvtex) = &
-      (/ unsnode(nx+1,j,k), unsnode(nx+1,j,k+1), unsnode(nx+1,j+1,k+1), unsnode(nx+1,j+1,k) /)
+      (/ unsnode(ni+1,j,k), unsnode(ni+1,j,k+1), unsnode(ni+1,j+1,k+1), unsnode(ni+1,j+1,k) /)
     ! MARKS
     umesh%boco(1)%iface(iloc) = offset+iloc
     umesh%boco(2)%iface(iloc) = offset+dim+iloc
   enddo
 enddo
+  print*,"    IMIN"
+  print*,"    IMAX"
 offset = offset + 2*dim
-dim    = nx*nz
+dim    = ni*nk
 call new_ustboco(umesh%boco(3), "JMIN", dim)
 call new_ustboco(umesh%boco(4), "JMAX", dim)
-do i = 1, nx
-  do k = 1, nz
-    iloc = (i-1)*nz+k
+do i = 1, ni
+  do k = 1, nk
+    iloc = (i-1)*nk+k
     ! JMIN faces
     umesh%facevtex%fils(offset+iloc, 1:nvtex) = &
       (/ unsnode(i,1,k), unsnode(i,1,k+1), unsnode(i+1,1,k+1), unsnode(i+1,1,k) /)
     ! JMAX faces
     umesh%facevtex%fils(offset+dim+iloc, 1:nvtex) = &
-      (/ unsnode(i,ny+1,k), unsnode(i,ny+1,k+1), unsnode(i+1,ny+1,k+1), unsnode(i+1,ny+1,k) /)
+      (/ unsnode(i,nj+1,k), unsnode(i,nj+1,k+1), unsnode(i+1,nj+1,k+1), unsnode(i+1,nj+1,k) /)
     ! MARKS
     umesh%boco(3)%iface(iloc) = offset+iloc
     umesh%boco(4)%iface(iloc) = offset+dim+iloc
   enddo
 enddo
+  print*,"    JMIN"
+  print*,"    JMAX"
 offset = offset + 2*dim
-dim    = nx*ny
+dim    = ni*nj
 call new_ustboco(umesh%boco(5), "KMIN", dim)
 call new_ustboco(umesh%boco(6), "KMAX", dim)
-do i = 1, nx
-  do j = 1, ny
-    iloc = (i-1)*ny+j
+do i = 1, ni
+  do j = 1, nj
+    iloc = (i-1)*nj+j
     ! KMIN faces
     umesh%facevtex%fils(offset+iloc, 1:nvtex) = &
       (/ unsnode(i,j,1), unsnode(i+1,j,1), unsnode(i+1,j+1,1), unsnode(i,j+1,1) /)
     ! KMAX faces
     umesh%facevtex%fils(offset+dim+iloc, 1:nvtex) = &
-      (/ unsnode(i,j,nz+1), unsnode(i+1,j,nz+1), unsnode(i+1,j+1,nz+1), unsnode(i,j+1,nz+1) /)
+      (/ unsnode(i,j,nk+1), unsnode(i+1,j,nk+1), unsnode(i+1,j+1,nk+1), unsnode(i,j+1,nk+1) /)
     ! MARKS
     umesh%boco(5)%iface(iloc) = offset+iloc
     umesh%boco(6)%iface(iloc) = offset+dim+iloc
   enddo
 enddo
+  print*,"    KMIN"
+  print*,"    JMAX"
 
 !------------------------------------------------------------
 ! Create mesh file
@@ -358,7 +363,7 @@ contains
 integer function unsnode(i, j, k)
 implicit none
 integer :: i, j, k
-  unsnode = ((i-1)*(ny+1)+(j-1))*(nz+1)+k   ! nx, ny, nz are public number of cells in each direction
+  unsnode = ((i-1)*(nj+1)+(j-1))*(nk+1)+k   ! ni, nj, nk are public number of cells in each direction
 endfunction unsnode
 
 subroutine print_help()
@@ -370,9 +375,9 @@ subroutine print_help()
   print*,"  -h|--help  : print this help"
   print*
   ! Dimensions
-  print*,"  -nx 50     : number of I-cells"
-  print*,"  -ny 50     : number of J-cells"
-  print*,"  -nz 50     : number of K-cells"
+  print*,"  -nx|-ni 50     : number of I-cells"
+  print*,"  -ny|-nj 50     : number of J-cells"
+  print*,"  -nz|-nk 50     : number of K-cells"
   print*
   ! Lengths
   print*,"  -lx LX     : domain length (ex.: -lx 1.5, default 1)"
@@ -390,10 +395,10 @@ subroutine print_help()
   print*,repeat('-',40)
 endsubroutine print_help
 
-endprogram
+endprogram ty3dmesh
 !------------------------------------------------------------------------------!
-! Changes
+! Change history
 !
-! May  2010: created, write cartesian 100x100 cells mesh of 1x1 box
-! Apr  2011: command line parameters
+! May 2010 : created, write cartesian 100x100 cells mesh of 1x1 box
+! Apr 2011 : command line parameters
 !------------------------------------------------------------------------------!

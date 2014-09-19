@@ -30,6 +30,7 @@ r  = (1.+(gamma-1)/2*mach**2)**(gamma/(gamma-1))
 str="(1.+(gamma-1)/2*sqr(mach))^(gamma/(gamma-1))"
 call test_real(str, r)
 
+
 contains
 
 subroutine test_real(str, x)
@@ -61,6 +62,6 @@ print form, str, ":", cont%r, x, err
 call delete(cont)
 call delete(func)
 
-endsubroutine
+endsubroutine test_real
 
-endprogram
+endprogram test_fct

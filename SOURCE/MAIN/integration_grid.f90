@@ -154,11 +154,11 @@ case default
   call cfd_error("unknown ALE parameter (integration_grid)")
 endselect
 
-endsubroutine
+endsubroutine ale_correction
 
 endsubroutine integration_grid
 !------------------------------------------------------------------------------!
-! Changes history
+! Change history
 !
 ! Apr 2003 : creation
 ! Jul 2003 : ajout corrections de  flux

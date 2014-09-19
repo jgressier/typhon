@@ -142,4 +142,4 @@ print*,"fct cst     loop - cpu:",t1-t0
 call delete(func)
 
 
-endprogram
+endprogram test_fct

@@ -80,7 +80,7 @@ type st_defgmsh
   integer(kip) :: nnodes, nelem, nphy
   integer(kip) :: maxivtex, maxielem       ! maximum index of node and elem
   character(len=gmshname), allocatable :: phynames(:)   ! size nphy
-end type st_defgmsh
+endtype st_defgmsh
 
 !------------------------------------------------------------------------------!
 contains
@@ -599,6 +599,6 @@ endsubroutine set_elem_gmshelem
 
 endmodule GMSH
 !------------------------------------------------------------------------------!
-! history:
-! Mar  2014: creation
+! Change history
+! Mar 2014 : creation
 !------------------------------------------------------------------------------!

@@ -160,7 +160,6 @@ subroutine realloc_connect(conn, nbnodes, nbfils)
 implicit none
 type(st_connect) :: conn, prov
 integer             :: i, j, nbnodes, nbfils      ! nouvelle taille
-integer             :: old_nbnodes, old_nbfils   ! ancienne taille
 integer             :: min_nbnodes, min_nbfils   ! ancienne taille
 
   prov = copy(conn)
@@ -330,7 +329,7 @@ subroutine genconnect_addnode(conn, nelem, initdim)
   conn%node(conn%nbnodes)%nelem = idim   ! allocate new elemc
   allocate(conn%node(conn%nbnodes)%elem(nelem))
 
-endsubroutine
+endsubroutine genconnect_addnode
 
 !------------------------------------------------------------------------------!
 ! Procedure : add element "ielem" to inode of genconnect "conn"
@@ -401,15 +400,15 @@ endfunction index_int
 !------------------------------------------------------------------------------!
 ! Fonction : index d'un entier dans une liste d'entiers
 !------------------------------------------------------------------------------!
-integer function elemc_index_int(int, elemc)
+integer function elemc_index_int(valint, elemc)
   implicit none
-  integer        :: int      ! entier a rechercher
-  type(st_elemc) :: elemc    ! liste d'entier pour la recherche
-  integer :: i, dim
+  integer        :: valint      ! entier a rechercher
+  type(st_elemc) :: elemc       ! liste d'entier pour la recherche
+  integer        :: i
 
-  elemc_index_int = 0          ! valeur par defaut si index introuvable
+  elemc_index_int = 0           ! valeur par defaut si index introuvable
   do i = 1, elemc%nelem
-    if (elemc%elem(i)==int) then
+    if (elemc%elem(i)==valint) then
       elemc_index_int = i
       exit
     endif
@@ -422,13 +421,11 @@ endfunction elemc_index_int
 endmodule CONNECTIVITY
 
 !------------------------------------------------------------------------------!
-! History
+! Change history
 !
-! juil 2003 : creation du module, connectivite simple et generalisee
-! juin 2004 : new et delete pour st_elemc
-! Oct  2009 : transfered from TYPHON
-! May  2013 : search function and add node in genconnect
+! Jul 2003 : creation du module, connectivite simple et generalisee
+! Jun 2004 : new et delete pour st_elemc
+! Oct 2009 : transfered from TYPHON
+! May 2013 : search function and add node in genconnect
 !------------------------------------------------------------------------------!
-
-
 

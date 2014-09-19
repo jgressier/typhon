@@ -436,15 +436,14 @@ endfunction getfromtabtdp
 
 ! -- Debut de la procedure --
   
-!endsubroutine
+!endfunction interlin
 !------------------------------------------------------------------------------!
 
 
 endmodule INTERPOL
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Change history
 !
-! fev  2002 : creation de la procedure
-!
+! Feb 2002 : creation de la procedure
 !------------------------------------------------------------------------------!

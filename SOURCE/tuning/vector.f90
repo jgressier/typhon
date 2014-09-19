@@ -87,11 +87,4 @@ r(1:n) = sum(xv1*xv2, dim=1)
 call cpu_time(time) ; dt = time-itime
 print*,"v(1:3,i) .scal. vectorize ",dt
 
- 
-
-endprogram
-
-
-
-
-
+endprogram testvector

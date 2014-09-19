@@ -65,15 +65,17 @@ implicit none
 ! -- INPUTS --
 integer :: iounit
 ! -- Internal variables --
+#ifndef __INTEL_COMPILER
 integer info
+#endif /*__INTEL_COMPILER*/
 ! -- BODY --
 
 #ifdef __INTEL_COMPILER
   io_eof = eof(iounit)  ! intrinsic INTEL fortran
-#else
+#else  /*NO __INTEL_COMPILER*/
   inquire(iounit, iostat=info)   ! fortran norm but does not work
   io_eof = is_iostat_end(info)
-#endif
+#endif /*__INTEL_COMPILER*/
 
 endfunction io_eof
 
@@ -81,5 +83,5 @@ endmodule IO_UNIT
 !------------------------------------------------------------------------------!
 ! Change history
 !
-! June 2009: created
+! Jun 2009 : created
 !------------------------------------------------------------------------------!

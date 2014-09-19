@@ -9,7 +9,7 @@
 !------------------------------------------------------------------------------!
 
 module LAPACK
-  
+
 !------------------------------------------------------------------------------!
 ! Liste des routines interfaces
 !------------------------------------------------------------------------------!
@@ -25,24 +25,24 @@ module LAPACK
 !------------------------------------------------------------------------------!
 ! GEGV : Calcul de valeurs propres generalisees a partir d'une matrice generale
 !------------------------------------------------------------------------------!
-  interface lapack_gegv    
-    
+  interface lapack_gegv
+
     subroutine sgegv(jobvl, jobvr, n, a, lda, b, ldb, alphar, alphai, &
                      beta, vl, ldvl, vr, ldvr, work, lwork, info )
       character jobvl, jobvr
       integer   info, lda, ldb, ldvl, ldvr, lwork, n
       real      a(lda,*), alphai(*), alphar(*), b(ldb,*), &
                 beta(*), vl(ldvl,*), vr(ldvr,*), work(*)
-    endsubroutine
-    
+    endsubroutine sgegv
+
     subroutine dgegv(jobvl, jobvr, n, a, lda, b, ldb, alphar, alphai, &
                      beta, vl, ldvl, vr, ldvr, work, lwork, info )
       character        jobvl, jobvr
       integer          info, lda, ldb, ldvl, ldvr, lwork, n
       double precision a(lda,*), alphai(*), alphar(*), b(ldb,*), &
                        beta(*), vl(ldvl,*), vr(ldvr,*), work(*)
-    endsubroutine
-    
+    endsubroutine dgegv
+
     subroutine cgegv(jobvl, jobvr, n, a, lda, b, ldb, alpha, beta,  &
                      vl, ldvl, vr, ldvr, work, lwork, rwork, info )
       character jobvl, jobvr
@@ -50,8 +50,8 @@ module LAPACK
       real      rwork(:)
       complex   a(lda,*), b(ldb,*)
       complex   alpha(*), beta(*), vl(ldvl,*), vr(ldvr,*), work(*)
-    endsubroutine
-    
+    endsubroutine cgegv
+
     subroutine zgegv(jobvl, jobvr, n, a, lda, b, ldb, alpha, beta,  &
                      vl, ldvl, vr, ldvr, work, lwork, rwork, info)
       character  jobvl, jobvr
@@ -59,8 +59,8 @@ module LAPACK
       real(8)    rwork(*)
       complex(8) a(lda,*), b(ldb,*)
       complex(8) alpha(*), beta(*), vl(ldvl,*), vr(ldvr,*), work(*)
-    endsubroutine
-  
+    endsubroutine zgegv
+
   endinterface
 
 
@@ -68,10 +68,10 @@ module LAPACK
 ! GESV : Resolution d'un systeme lineaire A.X=B
 !   Decomposition LU de A, solution X dans B
 !------------------------------------------------------------------------------!
-  interface lapack_gesv    
+  interface lapack_gesv
     ! Resolution d'un systeme lineaire A.X=B
     ! Decomposition LU de A, solution X dans B
-    
+
     subroutine sgesv(n, nrhs, a, lda, ipiv, b, ldb, info)
       integer info, lda, ldb, n, nrhs, ipiv(*)
       real    a(lda,*), b(ldb,*)
@@ -94,20 +94,20 @@ module LAPACK
 
   endinterface
 
-  
+
 !------------------------------------------------------------------------------!
 ! GESVX : Resolution (expert) d'un systeme lineaire A.X=B
 !   Decomposition LU de A, solution X dans B
 !   Estimation des erreurs commises et calcul du nombre de condition
 !------------------------------------------------------------------------------!
   interface lapack_gesvx
-    
+
     subroutine sgesvx(fact, trans, n, nrhs, a, lda, af, ldaf, ipiv, equed, &
                       r, c, b, ldb, x, ldx, rcond, ferr, berr, work,       &
                       irwork, info)
       character fact, trans, equed
       integer   info, lda, ldaf, ldb, ldx, n, nrhs, ipiv(*)
-      real(4)   rcond, berr(*), c(*), ferr(*), r(*) 
+      real(4)   rcond, berr(*), c(*), ferr(*), r(*)
       integer   irwork(*)
       real(4)   a(lda,*), af(ldaf,*), b(ldb,*), work(*), x(ldx,*)
     endsubroutine sgesvx
@@ -117,7 +117,7 @@ module LAPACK
                       irwork, info)
       character fact, trans, equed
       integer   info, lda, ldaf, ldb, ldx, n, nrhs, ipiv(*)
-      real(8)   rcond, berr(*), c(*), ferr(*), r(*) 
+      real(8)   rcond, berr(*), c(*), ferr(*), r(*)
       integer   irwork(*)
       real(8)   a(lda,*), af(ldaf,*), b(ldb,*), work(*), x(ldx,*)
     endsubroutine dgesvx
@@ -127,7 +127,7 @@ module LAPACK
                       irwork, info)
       character  fact, trans, equed
       integer    info, lda, ldaf, ldb, ldx, n, nrhs, ipiv(*)
-      real(4)    rcond, berr(*), c(*), ferr(*), r(*) 
+      real(4)    rcond, berr(*), c(*), ferr(*), r(*)
       real(4)    irwork(*)
       complex(4) a(lda,*), af(ldaf,*), b(ldb,*), work(*), x(ldx,*)
     endsubroutine cgesvx
@@ -137,7 +137,7 @@ module LAPACK
                       irwork, info)
       character  fact, trans, equed
       integer    info, lda, ldaf, ldb, ldx, n, nrhs, ipiv(*)
-      real(8)    rcond, berr(*), c(*), ferr(*), r(*) 
+      real(8)    rcond, berr(*), c(*), ferr(*), r(*)
       real(8)    irwork(*)
       complex(8) a(lda,*), af(ldaf,*), b(ldb,*), work(*), x(ldx,*)
     endsubroutine zgesvx
@@ -148,7 +148,7 @@ module LAPACK
 !------------------------------------------------------------------------------!
 ! GETRF : Decomposition LU d'une matrice generale
 !------------------------------------------------------------------------------!
-  interface lapack_getrf   
+  interface lapack_getrf
 
     subroutine sgetrf(m, n, a, lda, piv, info)
       integer :: lda, m, n, info, piv(*)
@@ -176,7 +176,7 @@ module LAPACK
 !------------------------------------------------------------------------------!
 ! GETRS : Resolution A.X=B a partir d'une decomposition LU preliminaire
 !------------------------------------------------------------------------------!
-  interface lapack_getrs   
+  interface lapack_getrs
 
     subroutine sgetrs(trans, n, nrhs, a, lda, piv, b, ldb, info)
       character :: trans
@@ -211,12 +211,12 @@ module LAPACK
 !   si uplo='U', seul triang. sup. de A est utilisee en entree
 !   si uplo='L', seul triang. inf. de A est utilisee en entree
 !------------------------------------------------------------------------------!
-  interface lapack_potrf   
+  interface lapack_potrf
 
     subroutine spotrf(uplo, n, a, lda, info)
-      character :: uplo                
+      character :: uplo
       integer   :: lda, n, info
-      real      :: a(lda,*)    
+      real      :: a(lda,*)
     endsubroutine spotrf
 
     subroutine dpotrf(uplo, n, a, lda, info)
@@ -246,7 +246,7 @@ module LAPACK
 !   si uplo='U', seul triang. sup. de A est utilisee en entree
 !   si uplo='L', seul triang. inf. de A est utilisee en entree
 !------------------------------------------------------------------------------!
-  interface lapack_potrs   
+  interface lapack_potrs
 
     subroutine spotrs(uplo, n, nrhs, a, lda, b, ldb, info)
       character :: uplo
@@ -276,14 +276,14 @@ module LAPACK
 
 
 !
-!  interface lapack_gesvd   ! Calcul de valeurs singulieres 
+!  interface lapack_gesvd   ! Calcul de valeurs singulieres
 !  endinterface
 !
 
 endmodule LAPACK
 
 !------------------------------------------------------------------------------!
-! Historique des modifications
+! Change history
 !
-! sept 2003 : creation du module, interfaces GExxx et POxxx
+! Sep 2003 : creation du module, interfaces GExxx et POxxx
 !------------------------------------------------------------------------------!

@@ -14,8 +14,8 @@ use TYPHMAKE
 
 type st_mattab
   integer            :: dim, nb        ! dim of each matrix, and number of matrices
-  real(krp), pointer :: mat(:,:,:)    
-endtype
+  real(krp), pointer :: mat(:,:,:)
+endtype st_mattab
 
 ! -- INTERFACES -------------------------------------------------------------
 
@@ -57,14 +57,14 @@ type(st_mattab) :: mattab
   mattab%dim = 0
   mattab%nb  = 0
   deallocate(mattab%mat)
-  
+
 endsubroutine delete_mattab
 
 
 endmodule MATRIX_ARRAY
 !------------------------------------------------------------------------------!
-! Changes history
+! Change history
 !
-! july 2005 : created, structure definition
+! Jul 2005 : created, structure definition
 !------------------------------------------------------------------------------!
 

@@ -21,13 +21,11 @@ double precision, parameter :: PIcst = 3.141592653589793238462643
 
 ! -- INTERFACES -------------------------------------------------------------
 
-!interface rpmgetval
-!  module procedure rpmgetvalreal, rpmgetvalstr, rpmgetvalint
+!interface subname
+!  module procedure subnamereal, subnamestr, subnameint
 !endinterface
 
 ! -- Procedures, Fonctions et Operateurs ------------------------------------
-!
-! subroutine rpmerr(message)
 
 !------------------------------------------------------------------------------!
 !    IMPLEMENTATION 
@@ -46,7 +44,7 @@ double precision, parameter :: PIcst = 3.141592653589793238462643
 ! Defauts/Limitations/Divers :
 !
 !------------------------------------------------------------------------------!
-!subroutine
+!subroutine subname
 
 !  use 
 !  implicit none 
@@ -59,7 +57,7 @@ double precision, parameter :: PIcst = 3.141592653589793238462643
 
 ! -- Debut de la procedure --
   
-!endsubroutine
+!endsubroutine subname
 !------------------------------------------------------------------------------!
 
 
