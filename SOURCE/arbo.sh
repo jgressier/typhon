@@ -2,52 +2,45 @@
 
 SCRIPTDIR=$(cd $(dirname $0) ; pwd)
 SCRIPTNAME=$(basename $0)
-SCRIPTVOID=${SCRIPTNAME//?/ }
+SCRIPTSPCE=${SCRIPTNAME//?/ }
 
-########################################################################
-# --- print usage ---
-########################################################################
+# --- print bar ---
+#
 function writebar() {
-  echo "================================================================"
+  printf "%79s\n" | tr ' ' "${1:-=}"
 }
 
+# --- print usage ---
+#
 function usage() {
-  if [ $1 = 1 ] ; then
-    writebar
-    echo "ERROR"
-    writebar
-  fi
-  echo "$SCRIPTNAME"
+  echo
+  echo "Name:"
+  echo "  $SCRIPTNAME"
   echo
   echo "Usage:"
   echo "  $SCRIPTNAME [-h] [-l <nblevl>] [-d <srcdir>] \\"
-  echo "  $SCRIPTVOID [-p [-r] [-n <nbcols>]] [-o <outfile>] \\"
-  echo "  $SCRIPTVOID [-x <patlist>] [-X] [-L] \\"
-  echo "  $SCRIPTVOID [--] <subroutinename> [...]"
+  echo "  $SCRIPTSPCE [-p [-r] [-n <nbcols>]] [-o <outfile>] \\"
+  echo "  $SCRIPTSPCE [-x <patlist>] [-X] [-L] \\"
+  echo "  $SCRIPTSPCE [--] <subroutinename> [...]"
   echo
-  echo "  -h: prints this help"
-  echo "  -a: unwrap all subroutines"
-  echo "  -l <nblevl>:  levels of descent (default is all)"
-  echo "  -d <srcdir>: typhon directory (default is $SCRIPTNAME dir)"
-  echo "  -p: postscript output (default is utf-8)"
-  echo "  -r: landscape (default portrait) (only if postscript output)"
-  echo "  -n <nbcols>:  number of postscript columns"
-  echo "  -o <outfile>: prints in <outputfile> (default is stdout)"
-  echo "                (required if postscript output)"
-  echo "  -x <patlist>: excludes comma-separated pattern list"
-  echo "  -X: ignores builtin exclude pattern list"
-  echo "  -L: prints exclude pattern list"
-  echo "  -v: verbose"
-  echo "  --: end of options"
+  echo "Options:"
+  echo "  -h                prints this help"
+  echo "  -a                unwrap all subroutines"
+  echo "  -l <nblevl>       levels of descent (default is all)"
+  echo "  -d <srcdir>       typhon directory (default is $SCRIPTNAME dir)"
+  echo "  -p                postscript output (default is utf-8)"
+  echo "    -r                landscape (default portrait) (only if postscript output)"
+  echo "    -n <nbcols>       number of postscript columns"
+  echo "  -o <outfile>      prints in <outfile> (default is stdout)"
+  echo "                      (required if postscript output)"
+  echo "  -x <patlist>      excludes comma-separated pattern list"
+  echo "  -X                ignores builtin exclude pattern list"
+  echo "  -L                prints exclude pattern list"
+  echo "  -v                verbose"
+  echo "  --                end of options"
   echo
-  echo "  <subroutinename>: to be processed"
+  echo "  <subroutinename>  to be processed"
   echo
-  if [ $1 = 1 ] ; then
-    writebar
-    echo "ERROR"
-    writebar
-  fi
-  exit $1
 }
 
 function info() {
@@ -57,29 +50,40 @@ function info() {
     echo "$SCRIPTNAME:"
   else
     if [ $# -ne 1 ] ; then head="$1" ; shift ; fi
-    printf "$SCRIPTVOID  $head%s\n" "$@"
+    printf "$SCRIPTSPCE  $head%s\n" "$@"
   fi
 }
 
+function publish() {
+  echo   "$SCRIPTNAME: $1" ; shift
+  test $# -gt 0 && \
+  printf "$SCRIPTSPCE  %s\n" "$@"
+}
+
+# --- print warning ---
+#
 function warning() {
   echo
-  echo "$SCRIPTNAME: warning"
-  [[ $# -gt 0 ]] && printf "$SCRIPTVOID  %s\n" "$@"
+  publish "warning" "$@"
   writebar
 }
 
+# --- print error ---
+#
 function error() {
+  usage
   echo
-  echo "$SCRIPTNAME: ERROR"
-  [[ $# -gt 0 ]] && printf "$SCRIPTVOID  %s\n" "$@"
-  usage 1
+  writebar @
+  publish "ERROR" "$@"
+  writebar @
+  exit 1
 }
 
-########################################################################
 # --- list of excluded subroutine names ---
-########################################################################
+#
   #new_fct_env
 excludebtin=(
+  cfd_{print,warning,error}
   erreur
   error_stop
   print_info
@@ -99,14 +103,15 @@ excludebtin=(
 excludebtin=( "${excludebtin[@]/#/^}" )
 excludebtin=( "${excludebtin[@]/%/$}" )
 
-excludeargs=()
-
+# --- Definitions for tree display ---
+#
 print0=0
 print1=1
 print2=2
 islast0=0
 islast1=1
 islast2=2
+isepare=0
 
 header[$print0$islast0]="├── "
 headnx[$print0$islast0]="│   "
@@ -114,19 +119,19 @@ header[$print0$islast1]="└── "
 headnx[$print0$islast1]="    "
 header[$print0$islast2]=""
 headnx[$print0$islast2]=""
-separe[$print0        ]="────"
+separe[$print0$isepare]="────"
 header[$print1$islast0]="@@|="
 headnx[$print1$islast0]="@@|@"
 header[$print1$islast1]="@@@="
 headnx[$print1$islast1]="@@@@"
 header[$print1$islast2]=""
 headnx[$print1$islast2]=""
-separe[$print1        ]="@@--"
+separe[$print1$isepare]="@@--"
 header[$print2$islast0]=nexthd
 headnx[$print2$islast0]=passhd
 header[$print2$islast1]=lasthd
 headnx[$print2$islast1]=voidhd
-separe[$print2        ]=linehd
+separe[$print2$isepare]=linehd
 
 ########################################################################
 # --- definition of arbo function ---
@@ -180,14 +185,23 @@ function arbo() {
     fi
   fi
 #
-# -- header print --
+# -- header string --
 #
-  printf "$myhead${header[$print$islast]}"
-  myhead="$myhead${headnx[$print$islast]}"
+  s="$myhead${header[$print$islast]}"
 #
 # -- subroutine name print --
 #
-  echo "$myname${app:-}"
+  if [ -z "$file" -o -z "${verbose}" ] ; then
+    printf "%s%s\n" "$s" "$myname${app:-}"
+  else
+    # For multi-byte characters
+    n=$((72+$(echo "$s"|wc -c)-$(echo "$s"|wc -m)))
+    printf "%-${n}s %s\n" "$s$myname${app:-}" "file:${file#$SOURCEDIR/}"
+  fi
+#
+# -- next header --
+#
+  myhead="$myhead${headnx[$print$islast]}"
 #
 # -- check called subroutines if current subroutine not already processed --
 #
@@ -204,9 +218,9 @@ function arbo() {
     tabl=()
     for f in "${list[@]}" ; do
       for h in "${tabl[@]:-}" ; do
-        [[ "$h" = $f ]] && f="" && break
+        [ "$h" = "$f" ] && f="" && break
       done
-      [[ ! -z "$f" ]] && tabl+=($f)
+      [ ! -z "$f" ] && tabl+=( "$f" )
     done
 #
 # -- call arbo with adequate arguments (1 for last subroutine) --
@@ -221,12 +235,14 @@ function arbo() {
 ########################################################################
 # --- get options ---
 ########################################################################
+shortopts=hal:d:prn:o:x:XLv
 if [ -z "$(getopt -T)" ] ; then
-  OPTS=$(getopt -o hal:d:prn:o:x:XLv -n "$SCRIPTNAME" -- "$@")
+  getoptopts=( -o "$shortopts" -n "$SCRIPTNAME" -- )
 else
-  OPTS=$(getopt    hal:d:prn:o:x:XLv                     "$@")
+  getoptopts=(    "$shortopts"                     )
 fi
-test $? = 0 || usage 1
+OPTS=$(getopt "${getoptopts[@]}" "$@")
+test $? = 0 || error
 eval set -- "$OPTS"
 
 ########################################################################
@@ -245,23 +261,26 @@ output=
 btnexc=
 lstexc=
 verbose=
+excludeargs=()
 while true ; do
   case "$1" in
     -h) usage 0 ;;
     -a) nowrap=1 ;;
-    -l) shift ; nblevl=$1 ; dlevl=1 ;;
+    -l) shift ;
+        nblevl=$1 ; dlevl=1 ;;
     -d) shift ; srcdir=$1 ;;
     -p) print=1 ;;
-    -r) psopt="-r" ;;
-    -n) shift ; nbcols=$1 ; isnbcl=is_set ;;
+    -r) psopt="--landscape" ;;
+    -n) shift ;
+        nbcols=$1 ; isnbcl='is_set' ;;
     -o) shift ; output=$1 ;;
     -x) shift ; IFS=',' read -a x <<< "$1"
                 # plus de pb reconnaissance syntaxe...
                 # eval IFS="','" read -a x '<<<' "'$1'"
                 excludeargs+=("${x[@]}") ;;
-    -X) btnexc=is_set ;;
-    -L) lstexc=is_set ;;
-    -v) verbose=is_set ;;
+    -X) btnexc='is_set' ;;
+    -L) lstexc='is_set' ;;
+    -v) verbose='is_set' ;;
     --) shift ; break ;;
   esac
   shift
@@ -270,16 +289,19 @@ done
 wrapstr="*${verbose:+ : previously unwrapped}"
 unknstr="?${verbose:+ : not found}"
 
+SOURCEDIR=
 if [ ! -z "$srcdir" ] ; then
   if [ ! -d "$srcdir" ] ; then
     error "<srcdir> does not exist :" \
           "\"$srcdir\""
   fi
-  d=.
-  for i in $(seq 4) ; do
-    dd="$srcdir/$d/SOURCE"
-    [[ -d "$dd" ]] && SOURCEDIR=$(cd $dd ; pwd) && break
-    d=../$d
+  d=$(cd "$srcdir" ; pwd)
+  while [ -d "$d" ] ; do
+    dd=$d/SOURCE
+    [ -d "$dd" ] && SOURCEDIR=$dd && break
+    nd=$(cd "$d/.." && pwd)
+    [ "$nd" = "$d" ] && break
+    d=$nd
   done
   if [ -z "${SOURCEDIR:-}" ] ; then
     error "<srcdir> is not in a valid typhon directory" \
@@ -314,15 +336,14 @@ if [ ${#excludeargs[@]} -gt 0 ] ; then
   done
 fi
 
-if [ "$isnbcl" ] && [ $print = 0 ] ; then
+if [ "$isnbcl" -a $print = 0 ] ; then
   warning "<nbcols> is ignored in default output"
 fi
 if [ $print = 1 ] ; then
   if [ -z "$output" ] ; then
     error "<outfile> must be provided for postscript output"
-  else
-    output="${output%.ps}.ps"
   fi
+  output="${output%.ps}.ps"
 fi
 if [ -n "$output" ] ; then
   if [ -f "$output" ] ; then
@@ -350,14 +371,17 @@ if [ ${#} -eq 0 ] ; then
   usage 0
 fi
 
-listsub=$(grep 'subroutine ' */*.f90 | grep '.f90: *subroutine ')
+#ORIGDIR=$(pwd)
+#cd $SOURCEDIR
 
-listsub=( $(echo "$listsub" | sed 's/\.f90:/.f90 /;s/ *(.*//' | awk '{print $3,$1}' | sort | awk '{print $1}') )
+#listsub=$(grep 'subroutine ' */*.f90 | grep '.f90: *subroutine ')
+
+#listsub=( $(echo "$listsub" | sed 's/\.f90:/.f90 /;s/ *(.*//' | awk '{print $3,$1}' | sort | awk '{print $1}') )
 
 #listcal=( $(echo "${listsub[@]:-}" | sed 's/\.f90:/.f90 /;s/ *(.*//' | awk '{print $3,$1}' | sort | awk '{print $2}') )
 
 for i in $(seq 20) ; do
-  sep=$(printf "%s%s" "${sep:-}" "${separe[$print]}")
+  sep=$(printf "%s%s" "${sep:-}" "${separe[$print$isepare]}")
 done
 {
   printf "$sep\n"
@@ -381,11 +405,16 @@ if [ $print = 0 ] ; then
   exit 0
 fi
 
-enscript $psopt -B --columns=$nbcols --mark-wrapped-lines=plus -o \
-         "$output" "$tmpout" ; mv "$output" "$tmpout"
+ev=
+ee=$(enscript $psopt -B --columns=$nbcols --mark-wrapped-lines=plus -o \
+         "$output" "$tmpout" 2>&1) || \
+ev=$(vim -e "$tmpout" < <(echo "set popt+=header:0"
+                          echo "hardcopy > $output") 2>&1)
 if [ $? != 0 ] ; then
-  error "enscript error"
+  error "$ee" "$ev" "enscript and vim failures"
 fi
+echo "${ee:+enscript failed, tried vim}"
+mv "$output" "$tmpout"
 
 sep=""
 for i in $islast0 $islast1 ; do
@@ -393,15 +422,18 @@ for i in $islast0 $islast1 ; do
   sep="$sep\|${headnx[$print1$i]}"
 done
 sep=$(echo "$sep" | sed 's/^\\|//')
+spq=${separe[$print1$isepare]}
+sed "s:^(\(\($sep\)\+\)\(.* m\)s$:(\3 \1 s:g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
+sed "s:^(\(\($spq\)\+\)\(.* m\)s$:(\3 \1 s:g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
 sed "s:^(\(\($sep\)\+\):\1(:g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
-sed "s:^(\(\(${separe[$print1]}\)\+\):\1(:g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
+sed "s:^(\(\($spq\)\+\):\1(:g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
 
 # Postscript macros
 sed 's:%%EndSetup$:%\n'\
 '/bgr { gsave currentpoint translate 0.7 0.7 0.9 setrgbcolor\n'\
 '       (M) stringwidth pop dup scale 0 -0.6 translate\n'\
 '       exec grestore (MMMM) stringwidth rmoveto } def\n'\
-'/slw { 0.05 setlinewidth } def\n'\
+'/slw { 0.15 setlinewidth } def\n'\
 '/vertfull { slw 0.5 0 moveto 0.5 2 lineto stroke } def\n'\
 '/verthlfu { slw 0.5 1 moveto 0.5 2 lineto stroke } def\n'\
 '/horifull { slw 0.5 1 moveto 3   1 lineto stroke } def\n'\
@@ -417,9 +449,11 @@ for i in $islast0 $islast1 ; do
   sed "s:${header[1$i]}:${header[2$i]} :g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
   sed "s:${headnx[1$i]}:${headnx[2$i]} :g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
 done
-sed "s:${separe[1]}:${separe[2]} :g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
+i=$isepare
+sed "s:${separe[1$i]}:${separe[2$i]} :g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
 
 mv "$tmpout" "$output"
+echo "file: $output"
 
 #'/slw { 0.10 setlinewidth } def\n'\
 #'/dlw { 0.20 setlinewidth } def\n'\
@@ -427,3 +461,5 @@ mv "$tmpout" "$output"
 #'/verthlfu { dlw 0.3 0.85 moveto 0.3 2   lineto stroke } def\n'\
 #'/horifull { slw 0.3 0.9  moveto 3.5 0.9 lineto stroke } def\n'\
 #'/horiline { dlw 0   1    moveto 4   1   lineto stroke } def\n'\
+
+#cd $ORIGDIR

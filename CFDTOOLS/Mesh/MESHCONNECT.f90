@@ -217,8 +217,8 @@ do ib = 1, umesh%nboco
 
   umesh%boco(ib)%family = uppercase(umesh%boco(ib)%family)
   if (iverb > 0) &
-    call cfd_print("  . linking boundary condition marks"//strof(ib)//"/"//trim(strof(umesh%nboco))// &
-                    ": "//trim(umesh%boco(ib)%family))
+    call cfd_print("  . linking boundary condition marks "//trim(strof(ib))//" / "//trim(strof(umesh%nboco))// &
+                   " : "//trim(umesh%boco(ib)%family))
 
   select case(umesh%boco(ib)%ilocation)
   case(iloc_vtex)

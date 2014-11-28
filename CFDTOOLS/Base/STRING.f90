@@ -17,10 +17,15 @@ type st_string
 endtype st_string
 
 interface strof ! adjust left
-  module procedure strof_int2, strof_int4, strof_real, strof_double !, strof_realf, strof_doublef, strof_reale
+  module procedure strof_int2, strof_int4, strof_real, strof_double
+                   !, strof_realf, strof_doublef, strof_reale
 endinterface
 
-interface strofr ! adjust right
+interface strofl ! adjust left (with length)
+  module procedure strofl_str
+endinterface
+
+interface strofr ! adjust right (with length)
   module procedure strofr_int2, strofr_int4
 endinterface
 
@@ -367,6 +372,20 @@ function strofr_int4(nb, l) result(strout)
   write(sform,'(i3)') l
   write(strout,'(i'//trim(adjustl(sform))//')') nb
 endfunction strofr_int4
+
+!------------------------------------------------------------------------------!
+! Fonction : tranformation chaine -> chaine (ajuste a gauche, len=l)
+!------------------------------------------------------------------------------!
+function strofl_str(strin, l) result(strout)
+  implicit none
+  character(len=*), intent(in) :: strin      ! string to convert
+  integer,          intent(in) :: l          ! string length
+  character(len=len(strin)) :: strtmp        ! temp string
+  character(len=l) :: strout  ! string
+
+  write(strtmp,'(a)') adjustl(strin)
+  write(strout,'(a)') strtmp(1:min(l,len(strin)))
+endfunction strofl_str
 
 !------------------------------------------------------------------------------!
 ! Fonction : tranformation entier -> chaine de caracteres (ajuste a gauche)

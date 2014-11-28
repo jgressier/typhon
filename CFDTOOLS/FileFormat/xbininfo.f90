@@ -26,11 +26,11 @@ integer                     :: idatasec
 call print_cfdtools_header("XBININFO")
 
 select case(native_endianness())
-case(fmt_littleendian)
+case(endian_little)
   print*,'native byte order: little endian'
-case(fmt_bigendian)
+case(endian_big)
   print*,'native byte order: big endian'
-case(fmt_unknown)
+case(endian_unknown)
   print*,'native byte order: unknown representation'
 endselect
 

@@ -25,26 +25,20 @@ type(st_ustmesh)    :: umesh      ! cell->vertex, face->vertex connectivity
 integer             :: ier        ! error code
 integer             :: ifam, nfam ! family index and total number of families
 integer             :: ideb, ifin ! cell indices in the section
-integer             :: itype      ! CGNS element type
 integer             :: nbd, ip    ! CGNS unused integers
 integer, dimension(:,:), allocatable &
                     :: elem       ! intermediate CGNS connectivity
 character(len=cgnslen) :: cgnsname ! cgns   string
 character(len=100)     :: str_w    ! output string
-integer, parameter  :: nmax_cell = 20        ! max nb of cells in vtex->cell connectivity
-type(st_connect)    :: face_vtex, &          ! temporary face->vtex connectivity
-                       face_cell, &          ! temporary face->cell connectivity
-                       face_Ltag, face_Rtag  ! left & right tag for face
-integer              :: ntotcell              ! total number of cells
-integer              :: maxvtex, maxface      ! max number of vtex/face, face/cell
+integer, parameter   :: nmax_cell = 20        ! max nb of cells in vtex->cell connectivity
 integer              :: nface                 ! estimated number of faces
-integer              :: iconn, icell, ivtex   ! indices
+integer              :: icell                 ! indices
 integer              :: ielem, nelem , nvtex
 integer              :: ElementDataSize       ! size of data element
 integer, allocatable :: imixedtype(:)         ! type  of element in MIXED section
 integer, allocatable :: imixedindex(:)        ! index of element in MIXED section
-integer              :: ista, iend, icgnstype, ityphontype, icgtype
-integer              :: iv, if, nelem_mixed, ie, ind
+integer              :: icgnstype, ityphontype, icgtype
+integer              :: nelem_mixed, ie, ind
 
 ! -- BODY --
 
@@ -98,7 +92,7 @@ do ifam = 1, nfam               ! LOOP on CGNS sections
 
   case(BAR_2, TRI_3, QUAD_4, TETRA_4, PYRA_5, PENTA_6, HEXA_8)
     ityphontype = cgns2typhon_elemtype(icgnstype)
-    call cfd_print("  . create new element section")
+    call cfd_print("  . create new element section: "//strofr(nelem,7)//" "//trim(ElementTypeName(icgnstype)))
     call addelem_genelemvtex(umesh%cellvtex)
     ielem = umesh%cellvtex%nsection
     call new_elemvtex(umesh%cellvtex%elem(ielem), nelem, ityphontype)
@@ -137,7 +131,7 @@ do ifam = 1, nfam               ! LOOP on CGNS sections
     enddo
     deallocate(imixedindex, imixedtype)
 
-  case(NGON_n)
+  case(NGON_N)
     call cfd_error("Unexpected type of CGNS element (NGON_N)")
 
   case default
@@ -159,7 +153,7 @@ integer, intent(in)  :: element(1,dim)               ! MIXED element connectivit
 integer, intent(in)  :: nelem                        ! number of element
 integer, intent(out) :: iindex(nelem), itype(nelem)  ! index and type of MIXED element connectivity
 ! -- internal variables --
-integer :: ie, it, nvtex, ielem
+integer :: ie, nvtex, ielem
 
 ! -- BODY --
 

@@ -59,7 +59,8 @@ endsubroutine xbin_error
 logical function xbin_eof(defxbin)
 implicit none
 ! -- INPUTS --
-type(st_defxbin) :: defxbin
+type(st_defxbin) , intent(IN) :: defxbin
+! -- private data --
   xbin_eof = io_eof(defxbin%iunit)  
 endfunction xbin_eof
 
@@ -70,7 +71,7 @@ endfunction xbin_eof
 subroutine xbin_readend(defxbin)
 implicit none
 ! -- INPUTS --
-type(st_defxbin) :: defxbin
+type(st_defxbin) , intent(IN) :: defxbin
 ! -- private data --
 character(len=len(xbin_endsection)) :: str
 
@@ -84,7 +85,7 @@ endsubroutine xbin_readend
 subroutine xbin_writeend(defxbin)
 implicit none
 ! -- INPUTS --
-type(st_defxbin) :: defxbin
+type(st_defxbin) , intent(IN) :: defxbin
 ! -- private data --
 
   write(defxbin%iunit) xbin_endsection
@@ -97,7 +98,7 @@ endsubroutine xbin_writeend
 subroutine xbin_writeheader(defxbin)
 implicit none
 ! -- INPUTS --
-type(st_defxbin) :: defxbin
+type(st_defxbin) , intent(IN) :: defxbin
 ! -- private data --
 
   write(defxbin%iunit) xbin_strheader
@@ -112,7 +113,7 @@ subroutine xbin_readheader(defxbin)
 implicit none
 ! -- INPUTS --
 ! -- INPUTS/OUTPUTS --
-type(st_defxbin) :: defxbin
+type(st_defxbin) , intent(INOUT) :: defxbin
 ! -- private data --
 character(len=len(xbin_strheader)) :: strcheck
 integer(1)                         :: endiancheck(kendian), ver(2)
@@ -141,12 +142,12 @@ endsubroutine xbin_readheader
 subroutine xbin_openread(filename, defxbin)
 implicit none
 ! -- INPUTS --
-character(len=*)   :: filename
+character(len=*) , intent(IN)  :: filename
 ! -- OUTPUTS --
-type(st_defxbin) :: defxbin
+type(st_defxbin) , intent(OUT) :: defxbin
 ! -- private data --
 integer           :: info, current_byteorder
-character(len=15) :: strbyteorder
+character(len=endianstr_len) :: strbyteorder
 
 defxbin%iunit = getnew_io_unit()
 
@@ -177,10 +178,10 @@ endsubroutine xbin_openread
 subroutine xbin_openwrite(filename, defxbin, byteorder)
 implicit none
 ! -- INPUTS --
-character(len=*)   :: filename
-integer, optional  :: byteorder
+character(len=*) , intent(IN)            :: filename
+integer          , intent(IN) , optional :: byteorder
 ! -- OUTPUTS --
-type(st_defxbin) :: defxbin
+type(st_defxbin) , intent(OUT)           :: defxbin
 ! -- private data --
 integer :: iunit
 integer :: info

@@ -1,5 +1,9 @@
 #!/bin/sh
 
+SCRIPTDIR=$(cd $(dirname $0) ; pwd)
+SCRIPTNAME=$(basename $0)
+SCRIPTSPCE=${SCRIPTNAME//?/ }
+
 version=752
 nbproc=""
 nbthread=""
@@ -8,6 +12,10 @@ meshdir=/stck-sup/mesh_repository
 
 # --- print usage ---
 #
+function writebar() {
+  printf "%79s\n" | tr ' ' '='
+}
+
 function usage() {
   if [ $1 = 1 ] ; then
     echo "$bar"
@@ -15,7 +23,7 @@ function usage() {
     echo "$bar"
   fi
   echo
-  echo "Usage: $(basename $0) [-h] [-v xxx] [-n nb]|[-t nb] <list of main files>"
+  echo "Usage: $SCRIPTNAME [-h] [-v xxx] [-n nb]|[-t nb] <list of main files>"
   echo
   echo "       -h                : prints this help"
   echo "       -v version-number : define TYPHON version"

@@ -16,12 +16,8 @@ use IOCFD
 
 ! -- PUBLIC Variables -------------------------------------------
 
-!integer, parameter :: fmt_unknown      = 0
-
-
 ! -- PRIVATE Variables -------------------------------------------
 
-!integer            :: timersize
 integer, private, pointer   :: realtimer(:)
 real(8), private, pointer   :: cputimer(:)
 integer, private, parameter :: buffer = 20

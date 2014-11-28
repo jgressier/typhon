@@ -81,7 +81,7 @@ contains
 function xbindataname(xbindata) result(strout)
 implicit none
 ! -- INPUTS --
-type(st_xbindatasection) :: xbindata
+type(st_xbindatasection) , intent(IN) :: xbindata
 ! -- OUTPUTS --
 character(len=30) :: strout
 ! -- private data --
@@ -111,7 +111,7 @@ subroutine delete_xbindata(xbindata)
 implicit none
 ! -- INPUTS --
 ! -- OUTPUTS --
-type(st_xbindatasection) :: xbindata
+type(st_xbindatasection) , intent(INOUT) :: xbindata
 ! -- private data --
 
 xbindata%groupindex      = 0
@@ -129,13 +129,14 @@ endsubroutine delete_xbindata
 subroutine xbin_defdatasection(xbindata, usertype, name, param, string)
 implicit none
 ! -- INPUTS --
-integer(xbinkpp)           :: usertype
-character(len=*)           :: name
-integer(xbinkip), optional :: param(:)
-character(len=*), optional :: string
+integer(xbinkpp)           , intent(IN) :: usertype
+character(len=*)           , intent(IN) :: name
+integer(xbinkip), optional , intent(IN) :: param(:)
+character(len=*), optional , intent(IN) :: string
 ! -- OUTPUTS --
 type(st_xbindatasection) :: xbindata
 ! -- private data --
+integer(xbinkpp) :: sparam
 
 xbindata%name            = name
 xbindata%groupindex      = 0
@@ -143,9 +144,10 @@ xbindata%intsize         = xbinkip
 xbindata%realsize        = xbinkrp
 xbindata%usertype        = usertype
 if (present(param)) then
-  xbindata%nparam          = size(param)
-  allocate(xbindata%param(1:xbindata%nparam))
-  xbindata%param(1:xbindata%nparam) = param(1:xbindata%nparam)
+  sparam = size(param)
+  xbindata%nparam          = sparam
+  allocate(xbindata%param(1:sparam))
+  xbindata%param(1:sparam) = param(1:sparam)
 else
   xbindata%nparam          = 0
   nullify(xbindata%param)
@@ -157,6 +159,7 @@ else
   xbindata%strlen = 0
   xbindata%string = ""
 endif
+
 endsubroutine xbin_defdatasection
 
 
@@ -166,15 +169,19 @@ endsubroutine xbin_defdatasection
 subroutine xbin_readdatahead(defxbin, xbindata)
 implicit none
 ! -- INPUTS --
-type(st_defxbin)         :: defxbin
-type(st_xbindatasection) :: xbindata
+type(st_defxbin)         , intent(IN)  :: defxbin
 ! -- OUTPUTS --
+type(st_xbindatasection) , intent(OUT) :: xbindata
 ! -- private data --
 integer :: info
 
-  read(defxbin%iunit, iostat=info) xbindata%datatype,   xbindata%name,      &
-                                   xbindata%groupindex, xbindata%usertype,  &
-                                   xbindata%intsize,    xbindata%realsize
+  read(defxbin%iunit, iostat=info) &
+                       xbindata%datatype,   &
+                       xbindata%name,       &
+                       xbindata%groupindex, &
+                       xbindata%usertype,   &
+                       xbindata%intsize,    &
+                       xbindata%realsize
   ! -- check --
  
   if (info /= 0) call xbin_error("unable to read data header 2") 

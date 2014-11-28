@@ -78,7 +78,7 @@ contains
 subroutine typhonwrite_filedef(deftyphon)
 implicit none
 ! -- INPUTS --
-type(st_deftyphon)       :: deftyphon
+type(st_deftyphon) , intent(IN) :: deftyphon
 ! -- OUTPUTS --
 ! -- private data --
 type(st_xbindatasection) :: xbindata
@@ -104,10 +104,10 @@ endsubroutine typhonwrite_filedef
 subroutine typhonread_filedef(deftyphon)
 implicit none
 ! -- INPUTS/OUTPUTS --
-type(st_deftyphon)       :: deftyphon
+type(st_deftyphon) , intent(OUT) :: deftyphon
 ! -- private data --
-integer                       :: info
-type(st_xbindatasection)      :: xbindata
+integer                  :: info
+type(st_xbindatasection) :: xbindata
 ! -- BODY --
 
 call xbin_readdatahead(deftyphon%defxbin, xbindata)
@@ -166,12 +166,12 @@ endsubroutine typhon_openread
 subroutine typhon_openwrite(filename, deftyphon, nbmesh, nbsol, meshdef)
 implicit none
 ! -- INPUTS --
-character(len=*)            :: filename
-integer(xbinkip)            :: nbmesh
-integer(xbinkip), optional  :: nbsol
-integer(xbinkpp), optional  :: meshdef
+character(len=*)           , intent(IN)  :: filename
+integer(xbinkip)           , intent(IN)  :: nbmesh
+integer(xbinkip), optional , intent(IN)  :: nbsol
+integer(xbinkpp), optional , intent(IN)  :: meshdef
 ! -- OUTPUTS --
-type(st_deftyphon) :: deftyphon
+type(st_deftyphon)         , intent(OUT) :: deftyphon
 ! -- private data --
 ! -- BODY --
 
@@ -207,7 +207,7 @@ subroutine typhon_close(deftyphon)
 implicit none
 ! -- INPUTS --
 ! -- OUTPUTS --
-type(st_deftyphon) :: deftyphon
+type(st_deftyphon) , intent(IN) :: deftyphon
 ! -- private data --
 ! -- BODY --
   call xbin_close(deftyphon%defxbin)
