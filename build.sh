@@ -54,6 +54,7 @@ function usage() {
   echo "Options:"
   echo "  -h|--help     prints this help"
   echo "  -f|--force    force creation and use of build directory"
+  echo "  -c|--cmake    execute cmake"
   echo "  -j n          parallel make with n processes"
   echo "  -s srcdir     source directory (default=\$(pwd))"
   echo "  -n|--dryrun   writes and checks name of build directory only"
@@ -89,6 +90,7 @@ function write() {
 # --- Default options ---
 #
 force=
+cmkdo=
 buildopt=()
 builddef=
 makeopt=()
@@ -107,6 +109,8 @@ while [ ${#} -gt 0 ] ; do
         usage ; exit 0 ;;
     -f|--force)
         force=1 ;;
+    -c|--cmake)
+        cmkdo=1 ;;
     -j) test ${#} -gt 1 || error "\`$1' option: nproc required"
         shift
         makeopt+=( "-j $1" )
@@ -121,12 +125,13 @@ while [ ${#} -gt 0 ] ; do
     -r|--Release|\
     -w|--RelWithDebInfo)
         case $1 in
-          -d) buildopt+=( --Debug          ) ;;
-          -r) buildopt+=( --Release        ) ;;
-          -w) buildopt+=( --RelWithDebInfo ) ;;
-          *)  buildopt+=( "${1}" ) ;;
+          -d) bdopt=--Debug          ;;
+          -r) bdopt=--Release        ;;
+          -w) bdopt=--RelWithDebInfo ;;
+          *)  bdopt="${1}" ;;
         esac
-        builddef="-DCMAKE_BUILD_TYPE=${1#--}"
+        buildopt+=( "$bdopt" )
+        builddef="-DCMAKE_BUILD_TYPE=${bdopt#--}"
         ;;
     --cgns)   use_cgns=( Yes${use_cgns#Yes}  ) ;;
     --nocgns) use_cgns=(    ${use_cgns%No}No ) ;;
@@ -148,7 +153,7 @@ done
 
 # --- Multiple option processing ---
 #
-function multipleopt() {
+function errmultopt() {
   local msg tab
   msg="$1" ; shift
   for i in "$@" ; do
@@ -160,7 +165,7 @@ function multipleopt() {
 # --- Check at most one src dir option is given ---
 #
 if [ "${#SRC_DIR[@]}" -gt 1 ] ; then
-  multipleopt "source directories" "${SRC_DIR[@]}"
+  errmultopt "source directories" "${SRC_DIR[@]}"
 fi
 
 # --- Define source directory ---
@@ -184,48 +189,49 @@ DEFAULT_CMAKE_BUILD_TYPE=$(grep set'('CMAKE_BUILD_TYPE CMakeLists.txt | awk '{pr
 # --- Check at most one -j option is given ---
 #
 if [ "${#makeopt[@]}" -gt 1 ] ; then
-  multipleopt "make build options" "${makeopt[@]}"
+  errmultopt "make build options" "${makeopt[@]}"
 fi
 
 # --- Check at most one cgns option is given ---
 #
 if [ "$use_cgns" = YesNo ] ; then
-  multipleopt "cgns options" yes no
+  errmultopt "cgns options" --{,no}cgns
 fi
 use_cgns=${use_cgns/$DEFAULT_USE_CGNS} # Remove the default option
 
 # --- Check at most one mpi option is given ---
 #
 if [ "$use__mpi" = YesNo ] ; then
-  multipleopt "mpi options" yes no
+  errmultopt "mpi options" --{,no}mpi
 fi
 use__mpi=${use__mpi/$DEFAULT_USE__MPI} # Remove the default option
 
 # --- Check at most one cmake build option is given ---
 #
 if [ ${#buildopt[@]} -gt 1 ] ; then
-  multipleopt "cmake build options" "${buildopt[@]}"
+  errmultopt "cmake build options" "${buildopt[@]}"
 fi
 
 # --- Default build directory is given ---
 #
 if [ ${#BUILD_DIR[@]} -eq 0 ] ; then
+  BUILD_DIR=build
   case "${buildopt:-}" in
-    --Debug)          BUILD_DIR=build_debug ;;
-    --Release)        BUILD_DIR=build_release ;;
-    --RelWithDebInfo) BUILD_DIR=build_rdb ;;
-    '')               BUILD_DIR=build ;;
+    --Debug)          BUILD_SUF=_debug ;;
+    --Release)        BUILD_SUF=_release ;;
+    --RelWithDebInfo) BUILD_SUF=_rdb ;;
+    '')               BUILD_SUF= ;;
     *) error "Unknown cmake option: \`$buildopt'" ;;
   esac
   BUILD_DIR+=${use_cgns:+_$OTHER_USE_CGNS}
   BUILD_DIR+=${use__mpi:+_$OTHER_USE__MPI}
-  BUILD_DIR=../$BUILD_DIR
+  BUILD_DIR=../$BUILD_DIR$BUILD_SUF
 fi
 
 # --- Check at most one build directory is given ---
 #
 if [ ${#BUILD_DIR[@]} -gt 1 ] ; then
-  multipleopt "build dirs" "${BUILD_DIR[@]}"
+  errmultopt "build dirs" "${BUILD_DIR[@]}"
 fi
 
 # --- Disable force if dryrun ---
@@ -311,16 +317,21 @@ makeopt+=( -- )
 cd $BUILD_DIR
 test $? = 0 || error "Could not chdir to \`$BUILD_DIR'"
 
-echo FC=$FC
-echo SRC_DIR=$SRC_DIR
-echo BUILD_DIR=$BUILD_DIR
+echo "Compiler FC = \`$FC'"
+echo "SOURCE_DIR = \`$SRC_DIR'"
+echo "BUILD_DIR  = \`$BUILD_DIR'"
 
-        FC=$FC \
-  CGNSHOME=$CGNS__HOME \
- METISHOME=$METIS_HOME \
- $CMAKE $builddef \
-         -DTyphon_USE_CGNS=$USE_CGNS \
-          -DTyphon_USE_MPI=$USE__MPI \
-         $SOURCE_DIR && \
- make ${makeopt[@]}
+echo "builddef=$builddef"
+
+  # if $cmkdo empty then make
+  # else cmake and if ok then make
+  test -z "$cmkdo" || \
+         FC=$FC \
+   CGNSHOME=$CGNS__HOME \
+  METISHOME=$METIS_HOME \
+  $CMAKE $builddef \
+          -DTyphon_USE_CGNS=$USE_CGNS \
+           -DTyphon_USE_MPI=$USE__MPI \
+          $SOURCE_DIR && \
+  make ${makeopt[@]}
 

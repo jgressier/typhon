@@ -27,11 +27,11 @@ call print_cfdtools_header("XBININFO")
 
 select case(native_endianness())
 case(endian_little)
-  print*,'native byte order: little endian'
+  print '(a)','native byte order: little endian'
 case(endian_big)
-  print*,'native byte order: big endian'
+  print '(a)','native byte order: big endian'
 case(endian_unknown)
-  print*,'native byte order: unknown representation'
+  print '(a)','native byte order: unknown representation'
 endselect
 
 !------------------------------
@@ -50,38 +50,41 @@ endif
 
 call xbin_openread(trim(filename), defxbin)
 
-print*,fill('file',        tab1),': ',trim(filename)
-print*,fill('XBIN version',tab1),': ',trim(strof(defxbin%xbin_version)),&
-                                 ' (max:',trim(strof(xbin_maxver)),')'
-print*,fill('endianness',  tab1),': ',trim(byteorder_str(defxbin%byteorder))
+print '(3a)',fill('file',        tab1),': ',trim(filename)
+print '(6a)',fill('XBIN version',tab1),': ',trim(strof(defxbin%xbin_version)),&
+                                   ' (max:',trim(strof(xbin_maxver)),')'
+print '(3a)',fill('endianness',  tab1),': ',trim(byteorder_str(defxbin%byteorder))
 
 idatasec = 0
 do while (.not.xbin_eof(defxbin))
 
   idatasec = idatasec + 1
-  print*,fill('DATA SECTION', tab1),'#',strof(idatasec)
+  print '(a,i3,a,$)','DATA SECTION [ ',idatasec,' ]'
 
   call xbin_readdatahead(defxbin, xbindata)
 
-  print*,fill('  name',       tab1),': ',trim(xbindata%name)
-  print*,fill('  user type',  tab1),': ',trim(strof(xbindata%usertype))
-  print*,fill('  parameters', tab1),': ',trim(strof(xbindata%nparam))
+  print '(2a,$)',' - ',fill('"'//trim(xbindata%name)//'"', 8)
+  print '(2a)'  ,' - type : ',trim(strof(xbindata%usertype))
+  print '(3a,$)',fill('    parameters', tab1),': ',strofr(xbindata%nparam,4)
   if (xbindata%nparam >= 1) then
-    print*,fill('', tab1),': ',xbindata%param(:)
+    print '(a,$)','  [ '
+    print '(i6,$)',xbindata%param(:)
+    print '(a,$)',' ]'
   endif
-  print*,fill('  string', tab1),': ',trim(xbindata%string)
-  print*,fill('  data type', tab1),': ',trim(xbindataname(xbindata))
+  print '()'
+  print '(2a)'  ,fill('    string', tab1),': "'//trim(xbindata%string)//'"'
+  print '(3a,$)',fill('    data type', tab1),': ',fill(trim(xbindataname(xbindata)),22)
   if (xbindata%dim == 0) then
-    print*,fill('  data size', tab1),': ',trim(strof(xbindata%nelem))
+    print '(3a)',fill('  - data size', tab1),': ',trim(strof(xbindata%nelem))
   else
-    print*,fill('  data size', tab1),': ',trim(strof(xbindata%nelem)),'x',trim(strof(xbindata%dim))
+    print '(5a)',fill('  - data size', tab1),': ',trim(strof(xbindata%nelem)),'x',trim(strof(xbindata%dim))
   endif
 
   call xbin_skipdata(defxbin, xbindata)
   call delete_xbindata(xbindata)
 enddo
 
-print*,fill('nb of data section', tab1),': ',trim(strof(idatasec))
+print '(3a)',fill('nb data sections', tab1),': ',trim(strof(idatasec))
 
 !------------------------------
 ! close file and end program

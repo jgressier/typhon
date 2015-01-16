@@ -71,7 +71,7 @@ endsubroutine cfd_write
 
 !------------------------------------------------------------------------------!
 ! Procedure : print_cfdtools_header
-! Fonction  : print information from CFDtools libraries
+! Fonction  : print header
 !------------------------------------------------------------------------------!
 subroutine print_cfdtools_header(str)
 implicit none
@@ -84,6 +84,19 @@ write(print_unit,'(1a)') trim(str)
 write(print_unit,'(1a)') repeat('-',40)
 
 endsubroutine print_cfdtools_header
+
+!------------------------------------------------------------------------------!
+! Procedure : print_cfdtools_tailer
+! Fonction  : print tailer
+!------------------------------------------------------------------------------!
+subroutine print_cfdtools_tailer()
+implicit none
+! -- INPUTS --
+! -- BODY --
+
+write(print_unit,'(1a)') repeat('-',40)
+
+endsubroutine print_cfdtools_tailer
 
 
 

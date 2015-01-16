@@ -24,7 +24,7 @@ type(st_ustmesh)   , intent(out)   :: umesh
 
 ! -- Internal variables --
 integer :: sctid
-!integer :: iunit1, iunit2
+integer :: ierr
 logical :: ieof
 
 ! -- BODY --
@@ -43,6 +43,14 @@ ieof = .false.
 do while (.not.ieof)
   stropt = " "
   indopt = 1
+
+  ! Check end of file
+  read(deffluent%iu_bin,iostat=ierr) deffluent%c
+  ieof = ( ierr /= 0 )
+  if ( ieof ) then
+    call cfd_print("(fluent) End of file...")
+    cycle
+  endif
 
   ! todo: check section order...
 
@@ -78,7 +86,7 @@ do while (.not.ieof)
 ! Ignored FLUENT section
 
   case(fluent_sct_ignore1)      ! Section : ignore1 (ignored)
-  call fluent_get_ignored(deffluent, sctid)
+  call fluent_get_ignored(deffluent)
 
 !-----------------------------------------------------------------
 ! Read FLUENT nodes (xy[z] coordinates)
@@ -100,19 +108,19 @@ do while (.not.ieof)
 
   case(fluent_sct_faces, &
        fluent_sct_spbinfaces)   ! Section : Faces
-  call fluent_get_faces(deffluent, sctid, umesh)    ! todo: FILL (deffluent &) mesh structure
+  call fluent_get_faces(deffluent, sctid)    ! todo: FILL (deffluent &) mesh structure
 
 !-----------------------------------------------------------------
 ! Read FLUENT boundary definitions & conditions
 
   case(fluent_sct_zonebcs)      ! Section : Zone boundary and bcs
-  call fluent_get_zonebcs(deffluent, sctid, umesh)    ! todo: FILL (deffluent &) mesh structure
+  call fluent_get_zonebcs(deffluent)    ! todo: FILL (deffluent &) mesh structure
 
 !-----------------------------------------------------------------
 ! Read FLUENT boundary definitions
 
   case(fluent_sct_zonebnd)      ! Section : Zone boundary
-  call fluent_get_zonebnd(deffluent, sctid, umesh)    ! todo: FILL (deffluent &) mesh structure
+  call fluent_get_zonebnd(deffluent)    ! todo: FILL (deffluent &) mesh structure
 
 !-----------------------------------------------------------------
 ! Unknown FLUENT section
@@ -124,10 +132,14 @@ do while (.not.ieof)
 !-----------------------------------------------------------------
 ! End of FLUENT section
 
-  call fluent_get_sctend(deffluent, ieof)
+  call fluent_get_sctend(deffluent)
 enddo
 
 call fluent2typhon_facecells(deffluent, umesh)
+
+call fluent2typhon_createbocos(deffluent, umesh)
+
+call display(umesh)
 
 !------------------------------------------------------------------------------!
 ! Check MESH

@@ -10,6 +10,7 @@ use IO_UNIT
 use IOCFD
 use STRING
 use USTMESH
+use CONNECTIVITY
 
 implicit none
 
@@ -102,6 +103,13 @@ interface str_to_int
   module procedure str_to_intkfp
 endinterface
 
+interface display
+  module procedure display_ustmesh, display_mesh, &
+                   display_connect, display_genconnect, &
+                   display_elemvtex, display_genelemvtex, &
+                   display_ustboco
+endinterface
+
 ! -- Data types --
 
 type st_flucellsection
@@ -116,9 +124,19 @@ type st_flubczone
   character(len=64) :: bczonename ! each face section : zonename
   integer :: bczoneid
   integer :: bczonetype
-  integer :: ifmin, ifmax, nfaces
+  integer :: ifmin, ifmax, nfaces, isbctym
   integer :: off
+  type(st_connect), pointer :: facevtex
+  type(st_genconnect), pointer :: fvtxmixd
 end type st_flubczone
+
+type st_flufacevtexsection
+  integer :: nbnodes
+  integer :: nbfils
+  integer, pointer :: fils(:,:)
+  type(st_flufacevtexsection), pointer :: prev
+  type(st_flufacevtexsection), pointer :: next
+end type st_flufacevtexsection
 
 !------------------------------------------------------------------------------!
 ! ST_DEFFLUENT
@@ -131,18 +149,18 @@ type st_deffluent
   integer       :: inmin, inmax, nnodes
   integer       :: icmin, icmax, ncells
   integer       :: ifmin, ifmax, nfaces
-  integer       :: nsection
-  integer       :: nbczone
+  integer       :: nsect
+  integer       :: nbczone, nbctym
+  integer       :: max_nvtexface
+  integer       :: nfacevtex
   real*4, allocatable :: xyzsp(:,:)
   real*8, allocatable :: xyzdp(:,:)
-  integer*4, allocatable :: celltype(:) ! each absolute cell : fluent cell type
-  integer*4, allocatable :: ielem(:)    ! each absolute cell : section number
-  integer*4, allocatable :: icell(:)    ! each absolute cell : cell number in section
-  type(st_flucellsection), pointer :: cellsection(:)
-  !GG!ALL_THIS_MIGHT_BE_(VERY)_UNNECESSARY!!
-  !GG!FOR_GOOD_DEALLOCATION!!
-  !GG!FOR_GOOD_DEALLOCATION!!type(st_flucellsection), allocatable :: cellsection(:)
-  !GG!FOR_GOOD_DEALLOCATION!!
+  integer*4, allocatable :: celltype(:) ! for each absolute cell : fluent cell type
+  integer*4, allocatable :: ielem(:)    ! for each absolute cell : section number
+  integer*4, allocatable :: icell(:)    ! for each absolute cell : cell number in section
+  type(st_flucellsection), pointer :: cellsect(:)
+  type(st_flufacevtexsection), pointer :: facevtexhead, facevtextail
+  type(st_flufacevtexsection), pointer :: facevtex(:)
   type(st_flubczone), pointer :: bczone(:)
   character(len=64) :: zonename = " "
   character(len=64) :: interiorname = " "
@@ -189,122 +207,74 @@ subroutine fluent_addcellsection(def)
   type(st_deffluent) , intent(inout) :: def
   ! -- OUTPUTS --
   ! -- Internal variables --
-  type(st_flucellsection), pointer :: cellsection(:)
-  !GG!ALL_THIS_MIGHT_BE_(VERY)_UNNECESSARY!!
-  !GG!FOR_GOOD_DEALLOCATION!!
-  !GG!FOR_GOOD_DEALLOCATION!!type(st_flucellsection), allocatable :: cellsection(:)
-  !GG!FOR_GOOD_DEALLOCATION!!type(st_flucellsection), allocatable :: ctmpsection(:)
-  !GG!FOR_GOOD_DEALLOCATION!!
+  type(st_flucellsection), pointer :: cellsect(:)
   integer                    :: nsect
-  !GG!FOR_GOOD_DEALLOCATION!!
-  !GG!FOR_GOOD_DEALLOCATION!!integer :: i
-  !GG!FOR_GOOD_DEALLOCATION!!character(len=256) :: str
-  !GG!FOR_GOOD_DEALLOCATION!!
   ! -- BODY --
 
-  nsect = def%nsection
+  nsect = def%nsect
 
-!GG!FOR_GOOD_DEALLOCATION!!
-!GG!FOR_GOOD_DEALLOCATION!!do i = 1,nsect
-!GG!FOR_GOOD_DEALLOCATION!!write(str,'(a,i2.2,a,z16.16)') 'def%cellsect(',i,'): ',loc(def%cellsection(i))
-!GG!FOR_GOOD_DEALLOCATION!!call cfd_write(trim(str))
-!GG!FOR_GOOD_DEALLOCATION!!enddo
-!GG!FOR_GOOD_DEALLOCATION!!
-
-  allocate(cellsection(nsect+1))
+  allocate(cellsect(nsect+1))
 
   if ( nsect >= 1 ) then
-    cellsection(1:nsect) = def%cellsection(1:nsect)
-    deallocate(def%cellsection)
+    cellsect(1:nsect) = def%cellsect(1:nsect)
+    deallocate(def%cellsect)
   endif
 
-  !GG!FOR_GOOD_DEALLOCATION!!
-  !GG!FOR_GOOD_DEALLOCATION!!if ( nsect >= 1 ) then
-  !GG!FOR_GOOD_DEALLOCATION!!  allocate(ctmpsection(nsect))
-  !GG!FOR_GOOD_DEALLOCATION!!  ctmpsection(1:nsect) = def%cellsection(1:nsect)
-!GG!FOR_GOOD_DEALLOCATION!!do i = 1,nsect
-!GG!FOR_GOOD_DEALLOCATION!!write(str,'(a,i2.2,a,z16.16)') 'ctmpsection (',i,'): ',loc(ctmpsection(i))
-!GG!FOR_GOOD_DEALLOCATION!!call cfd_write(trim(str))
-!GG!FOR_GOOD_DEALLOCATION!!enddo
-  !GG!FOR_GOOD_DEALLOCATION!!endif
-  !GG!FOR_GOOD_DEALLOCATION!!
-
-  !GG!FOR_GOOD_DEALLOCATION!!
-  !GG!FOR_GOOD_DEALLOCATION!!if ( nsect >= 1 ) then
-  !GG!FOR_GOOD_DEALLOCATION!!  do i = 1,nsect
-  !GG!FOR_GOOD_DEALLOCATION!!    call fluent_deletecellsection(def%cellsection(i))
-  !GG!FOR_GOOD_DEALLOCATION!!  enddo
-  !GG!FOR_GOOD_DEALLOCATION!!  deallocate(def%cellsection)
-  !GG!FOR_GOOD_DEALLOCATION!!endif
-  !GG!FOR_GOOD_DEALLOCATION!!allocate(def%cellsection(1:nsect+1))
-  !GG!FOR_GOOD_DEALLOCATION!!if ( nsect >= 1 ) then
-  !GG!FOR_GOOD_DEALLOCATION!!  def%cellsection(1:nsect) = ctmpsection(1:nsect)
-  !GG!FOR_GOOD_DEALLOCATION!!  deallocate(ctmpsection)
-  !GG!FOR_GOOD_DEALLOCATION!!endif
-  !GG!FOR_GOOD_DEALLOCATION!!
-
-  def%cellsection => cellsection
-  def%nsection = nsect + 1
-
-!GG!FOR_GOOD_DEALLOCATION!!
-!GG!FOR_GOOD_DEALLOCATION!!do i = 1,nsect+1
-!GG!FOR_GOOD_DEALLOCATION!!write(str,'(a,i2.2,a,z16.16)') 'def%cellsect(',i,'): ',loc(def%cellsection(i))
-!GG!FOR_GOOD_DEALLOCATION!!call cfd_write(trim(str))
-!GG!FOR_GOOD_DEALLOCATION!!enddo
-!GG!FOR_GOOD_DEALLOCATION!!
+  def%cellsect => cellsect
+  def%nsect = nsect + 1
 
 endsubroutine fluent_addcellsection
 
 !------------------------------------------------------------------------------!
 ! @brief new fluent cell section
 !------------------------------------------------------------------------------!
-subroutine fluent_newcellsection(cellsection, celltype, ncell, nface, nvtex)
+subroutine fluent_newcellsection(cellsect, celltype, ncell, nface, nvtex)
 
   implicit none
   ! -- INPUTS --
-  type(st_flucellsection), intent(inout) :: cellsection
+  type(st_flucellsection), intent(inout) :: cellsect
   integer,           intent(in)    :: celltype, ncell, nface, nvtex
   ! -- OUTPUTS --
   ! -- Internal variables --
   ! -- BODY --
 
-  cellsection%celltype = celltype
-  cellsection%ncell    = ncell
-  cellsection%nface    = nface
-  cellsection%nvtex    = nvtex
+  cellsect%celltype = celltype
+  cellsect%ncell    = ncell
+  cellsect%nface    = nface
+  cellsect%nvtex    = nvtex
 
-  allocate(cellsection%dface(ncell))
-  allocate(cellsection%face(ncell,nface))
-  allocate(cellsection%nvtx(ncell,nface))
-  allocate(cellsection%vtex(ncell,nface,nvtex))
+  allocate(cellsect%dface(ncell))
+  allocate(cellsect%face(ncell,nface))
+  allocate(cellsect%nvtx(ncell,nface))
+  allocate(cellsect%vtex(ncell,nface,nvtex))
 
-  cellsection%dface(1:ncell) = 0
+  cellsect%dface(1:ncell) = 0
 
 endsubroutine fluent_newcellsection
 
 !------------------------------------------------------------------------------!
 ! @brief delete fluent cell section
 !------------------------------------------------------------------------------!
-subroutine fluent_deletecellsection(cellsection)
+subroutine fluent_delcellsection(cellsect)
 
   implicit none
   ! -- INPUTS --
-  type(st_flucellsection), intent(inout) :: cellsection
+  type(st_flucellsection), intent(inout) :: cellsect
   ! -- OUTPUTS --
   ! -- Internal variables --
   ! -- BODY --
 
-  cellsection%celltype = 0
-  cellsection%ncell    = 0
-  cellsection%nface    = 0
-  cellsection%nvtex    = 0
+  cellsect%celltype = 0
+  cellsect%ncell    = 0
+  cellsect%nface    = 0
+  cellsect%nvtex    = 0
 
-  deallocate(cellsection%dface)
-  deallocate(cellsection%face)
-  deallocate(cellsection%nvtx)
-  deallocate(cellsection%vtex)
+  deallocate(cellsect%dface)
+  deallocate(cellsect%face)
+  deallocate(cellsect%nvtx)
+  deallocate(cellsect%vtex)
 
-endsubroutine fluent_deletecellsection
+endsubroutine fluent_delcellsection
 
 !------------------------------------------------------------------------------!
 ! @brief add bc zone
@@ -337,13 +307,15 @@ endsubroutine fluent_addbczone
 !------------------------------------------------------------------------------!
 ! @brief new fluent cell section
 !------------------------------------------------------------------------------!
-subroutine fluent_newbczone(bczone, bczonename, bczoneid, bczonetype)
+subroutine fluent_newbczone(bczone, bczonename, bczoneid, bczonetype, &
+                            ifmin, ifmax, nfaces)
 
   implicit none
   ! -- INPUTS --
   type(st_flubczone), intent(inout) :: bczone
   character(len=64) :: bczonename
   integer, intent(in) :: bczoneid, bczonetype
+  integer, intent(in) :: ifmin, ifmax, nfaces
   ! -- OUTPUTS --
   ! -- Internal variables --
   ! -- BODY --
@@ -351,6 +323,10 @@ subroutine fluent_newbczone(bczone, bczonename, bczoneid, bczonetype)
   bczone%bczonename = bczonename
   bczone%bczoneid   = bczoneid
   bczone%bczonetype = bczonetype
+  bczone%ifmin = ifmin
+  bczone%ifmax = ifmax
+  bczone%nfaces = nfaces
+  bczone%isbctym = 0
   bczone%off = 0
 
 endsubroutine fluent_newbczone
@@ -517,11 +493,20 @@ subroutine fluent_openread(filename, def)
   type(st_deffluent) , intent(out) :: def
   ! -- Internal variables --
   integer :: info
+  logical :: lexist
   ! -- BODY --
+
+  INQUIRE( &
+       FILE   = filename, &
+       EXIST  = lexist)
+  if (.not. lexist) then
+    call cfd_error("(fluent) file does not exist: "//trim(filename))
+  endif
 
   def%iu_bin = getnew_io_unit()
   OPEN(UNIT   = def%iu_bin, &
        FILE   = filename, &
+       STATUS = "old", &
        ACCESS = "STREAM", &
        FORM   = "UNFORMATTED", CONVERT = 'LITTLE_ENDIAN', &
        IOSTAT = info)
@@ -529,10 +514,12 @@ subroutine fluent_openread(filename, def)
     call cfd_error("(fluent) unable to open file "//trim(filename))
   endif
 
-  read(def%iu_bin) def%c
+  !read(def%iu_bin) def%c
+  call cfd_print("(fluent) Start of file...")
 
-  def%nsection = 0
+  def%nsect = 0
   def%nbczone = 0
+  def%nbctym = 0
 
 endsubroutine fluent_openread
 
@@ -1755,7 +1742,7 @@ subroutine fluent_get_cells(def, sctid, umesh)
       endif
       write(str,'(a)') name_element(fluent2typhon_elemtype(ctype))
     endif
-    write(strtype,'(1x,4a)') str(1:len(name_element(-1))), &
+    write(strtype,'(1X,4a)') str(1:len(name_element(-1))), &
                              " (fluent:",trim(fluent_cell_name(ctype)),")"
   endif
   write(str,'(3a,2(i8,a))') "(",strzone(1:9),"): (",icmin,":",icmax,")"
@@ -1882,7 +1869,7 @@ subroutine fluent_get_cells(def, sctid, umesh)
                               //" (fluent:"//trim(fluent_cell_name(ictype))//")")
           ! copy old section to new section
           elem_old = umesh%cellvtex%elem(ielem)
-          cell_old = def%cellsection(ielem)
+          cell_old = def%cellsect(ielem)
           nelem_old = elem_old%nelem
 !          write(6,*) "re-allocated elem(",ielem,")" &
 !                     //"%elemvtex(",nelem_old+nelem,",",elem_new%nvtex,")"
@@ -1893,10 +1880,10 @@ subroutine fluent_get_cells(def, sctid, umesh)
           elem_new%ielem(1:nelem_old) = elem_old%ielem(1:nelem_old)
           ! pointer to copy
           umesh%cellvtex%elem(ielem) = elem_new
-          def%cellsection(ielem) = cell_new
+          def%cellsect(ielem) = cell_new
           ! delete old section
           call delete_elemvtex(elem_old)
-          call fluent_deletecellsection(cell_old)
+          call fluent_delcellsection(cell_old)
         ! Create section if section does not already exist
         else ! if ( ielem == umesh%cellvtex%nsection + 1 ) then
           call cfd_print("  . create new      element section:  "//strofr(nelem,16) &
@@ -1910,7 +1897,7 @@ subroutine fluent_get_cells(def, sctid, umesh)
           call new_elemvtex(umesh%cellvtex%elem(ielem), nelem, ityphontype)
 !          write(6,*) "allocated    elem(",ielem,")" &
 !                     //"%elemvtex(",nelem,",",umesh%cellvtex%elem(ielem)%nvtex,")"
-          call fluent_newcellsection(def%cellsection(ielem), ictype, nelem, &
+          call fluent_newcellsection(def%cellsect(ielem), ictype, nelem, &
                                      nface_element(ityphontype), &
                                      nvtexperface_element(ityphontype))
           nelem_old = 0
@@ -1965,14 +1952,13 @@ endsubroutine fluent_get_cells
 !------------------------------------------------------------------------------!
 !> @brief FLUENT : read section : faces
 !------------------------------------------------------------------------------!
-subroutine fluent_get_faces(def, sctid, umesh)
+subroutine fluent_get_faces(def, sctid)
 
   implicit none
   ! -- INPUTS --
   type(st_deffluent) , intent(inout) :: def
   integer            , intent(in)    :: sctid
   ! -- OUTPUTS --
-  type(st_ustmesh)   , intent(inout) :: umesh
   ! -- Internal variables --
   integer           :: zoneid
   integer           :: ifmin, ifmax, nfaces
@@ -1993,15 +1979,20 @@ subroutine fluent_get_faces(def, sctid, umesh)
   integer           :: bkread
   integer           :: bkidot, bkipct, bkilin
   !!!... YES UP TO HERE
+  integer           :: max_nvtexface
   integer(kfp)      :: ftab(64)
   integer           :: i, inb, j, itabmin, ntab, ntabref
   integer           :: ic, icell, ielem, nface
   integer(kfp)      :: ilist(5)
   integer           :: nvtex
+  integer           :: ncell
+  integer           :: nbfils
   integer           :: ierr
   integer, allocatable :: nvtexface(:)
   integer, allocatable :: lvtexface(:,:)
   integer, allocatable :: cellface(:,:)
+  type(st_connect), pointer :: facevtexhdle
+  type(st_genconnect), pointer :: fvtxmixdhdle
   ! -- BODY --
 
   !-----------------------------------------------
@@ -2085,6 +2076,10 @@ subroutine fluent_get_faces(def, sctid, umesh)
     ! Allocate umesh vertices
     !allocate(umesh%mesh%vertex(umesh%mesh%idim, umesh%mesh%jdim, umesh%mesh%kdim))
 
+    def%nfacevtex = 0
+    allocate(def%facevtexhead)
+    def%facevtextail => def%facevtexhead
+
   !-----------------------------------------------
   ! Case specific zone
   else ! if ( zoneid /= 0 ) then
@@ -2093,7 +2088,8 @@ subroutine fluent_get_faces(def, sctid, umesh)
 
     ! Create bc zone
     call fluent_addbczone(def)
-    call fluent_newbczone(def%bczone(def%nbczone), def%zonename, zoneid, bctype)
+    call fluent_newbczone(def%bczone(def%nbczone), def%zonename, zoneid, bctype, &
+                          ifmin, ifmax, nfaces)
     def%zonename = ""
 
     allocate(nvtexface(1:nfaces))
@@ -2132,10 +2128,10 @@ subroutine fluent_get_faces(def, sctid, umesh)
         enddo
         ! Print dots and line
         if ( i >= bkidot ) then
-        call bkprintdotsln(i, bkidot, bksdot, bkprnl, 1, '(1H.,$)')
-        call bkprintdotsln(i, bkipct, bkspct, bkprnl, 1, '(i2.2,1H%,$)', &
-                           int((100.*(i+bkread))/nfaces+.5))
-        call bkprintdotsln(i, bkilin, bkslin, bkprnl, 0, '()')
+          call bkprintdotsln(i, bkidot, bksdot, bkprnl, 1, '(1H.,$)')
+          call bkprintdotsln(i, bkipct, bkspct, bkprnl, 1, '(i2.2,1H%,$)', &
+                             int((100.*(i+bkread))/nfaces+.5))
+          call bkprintdotsln(i, bkilin, bkslin, bkprnl, 0, '()')
         endif
         ! Process data read
         do j = 1, bkread
@@ -2200,25 +2196,50 @@ subroutine fluent_get_faces(def, sctid, umesh)
     call fll_checknextchar(def%iu_bin, def%c, ')')
   !endif
 
+    max_nvtexface = 0
     ! Transfer faces to cells
     do i = 1, nfaces
       do ic = 1, 2
-!    write(6,'(5a,$)') "access cellface(",trim(strof(i)),",",trim(strof(ic)),")"
         icell = cellface(i,ic)
         if ( icell /= 0 ) then
-!    print*,"access def%ielem(",trim(strof(icell)),")"
           ielem = def%ielem(icell)
-          nface = def%cellsection(ielem)%dface(def%icell(icell)) + 1
-          def%cellsection(ielem)%dface(def%icell(icell)) = nface
-          def%cellsection(ielem)%face(def%icell(icell),nface) = i
-          def%cellsection(ielem)%nvtx(def%icell(icell),nface) = nvtexface(i)
-          def%cellsection(ielem)%vtex(def%icell(icell),nface,:) = lvtexface(i,:)
-!          write(6,'(4(a,i4),a,4i4)') &
-!            "def%cellsection(",ielem,")%vtex(cl:",def%icell(icell), &
-!            ", nf:",nface,", af:",i,") = vtx: ",lvtexface(i,:)
+          ncell = def%icell(icell)
+          nface = def%cellsect(ielem)%dface(ncell) + 1
+          def%cellsect(ielem)%dface(ncell) = nface
+          def%cellsect(ielem)%face(ncell,nface) = i
+          def%cellsect(ielem)%nvtx(ncell,nface) = nvtexface(i)
+          def%cellsect(ielem)%vtex(ncell,nface,1:nvtexface(i)) = lvtexface(i,1:nvtexface(i))
+          max_nvtexface = max(max_nvtexface, nvtexface(i))
         endif
       enddo
     enddo
+
+    if ( ftype == fluent_faces_mixed ) then
+      allocate(def%bczone(def%nbczone)%fvtxmixd)
+      fvtxmixdhdle => def%bczone(def%nbczone)%fvtxmixd
+      call new_genconnect_arraynelem(fvtxmixdhdle, nfaces, nvtexface)
+      !write(6,*) 'bczone = ',def%nbczone
+      !write(6,*) 'nbndes = ',nfaces
+      !write(6,*) 'nbfils = (array)'
+      call flush(6)
+      do i = 1, nfaces
+        nbfils = nvtexface(i)
+        call new_elemc(fvtxmixdhdle%node(i), nbfils)
+        fvtxmixdhdle%node(i)%elem(1:nbfils) = lvtexface(i,1:nbfils)
+      enddo
+    else
+      allocate(def%bczone(def%nbczone)%facevtex)
+      facevtexhdle => def%bczone(def%nbczone)%facevtex
+      nbfils = max_nvtexface
+      call new_connect(facevtexhdle,nfaces,nbfils)
+      !write(6,*) 'bczone = ',def%nbczone
+      !write(6,*) 'nbndes = ',nfaces
+      !write(6,*) 'nbfils = ',nbfils
+      call flush(6)
+      facevtexhdle%fils(1:nfaces,1:nbfils) = lvtexface(1:nfaces,1:nbfils)
+    endif
+
+    def%max_nvtexface = max(def%max_nvtexface, max_nvtexface)
 
   endif
 
@@ -2292,12 +2313,12 @@ endfunction addcheckvtex
 !------------------------------------------------------------------------------!
 !> @brief FLUENT : locate tri nodes
 !------------------------------------------------------------------------------!
-subroutine fluent2typhon_locate_trinodes(def, isection, umesh)
+subroutine fluent2typhon_locate_trinodes(def, isect, umesh)
 
   implicit none
   ! -- INPUTS --
   type(st_deffluent) , intent(inout) :: def
-  integer            , intent(in)    :: isection
+  integer            , intent(in)    :: isect
   ! -- OUTPUTS --
   type(st_ustmesh)   , intent(inout) :: umesh
   ! -- Internal variables --
@@ -2313,9 +2334,9 @@ subroutine fluent2typhon_locate_trinodes(def, isection, umesh)
   character(len=16) :: str
   ! -- BODY --
 
-    celllist = def%cellsection(isection)
+    celllist = def%cellsect(isect)
 
-    umesh_vtex => umesh%cellvtex%elem(isection)%elemvtex
+    umesh_vtex => umesh%cellvtex%elem(isect)%elemvtex
 
     ! Loop on cells
     do icell = 1, celllist%ncell
@@ -2358,19 +2379,18 @@ subroutine fluent2typhon_locate_trinodes(def, isection, umesh)
 
       if ( .not. isok ) then
         call cfd_print("errortag: "//strofr(errortag,4))
-        call cfd_print("in section: "//strofr(isection,4))
+        call cfd_print("in section: "//strofr(isect,4))
         call cfd_print("of type:    fluent:"//trim(fluent_cell_name(celllist%celltype)))
         call cfd_print("with cell:  "//strofr(icell,8))
         str = "vertices:"
-        do icvn = 1, 4
+        do icvn = 1, 3
           call cfd_print(str(1:12)//strofr(cvtex(icvn),10))
           str = " "
         enddo
-        do iface = 1, 4
+        do iface = 1, 3
           call cfd_print("face "//trim(strof(iface))//":" &
                          //strofr(celllist%vtex(icell,iface,1),10) &
                          //strofr(celllist%vtex(icell,iface,2),10) &
-                         //strofr(celllist%vtex(icell,iface,3),10) &
                          )
         enddo
         call cfd_error("Cell cannot be reconstructed")
@@ -2384,12 +2404,12 @@ endsubroutine fluent2typhon_locate_trinodes
 !------------------------------------------------------------------------------!
 !> @brief FLUENT : locate tetra nodes
 !------------------------------------------------------------------------------!
-subroutine fluent2typhon_locate_tetranodes(def, isection, umesh)
+subroutine fluent2typhon_locate_tetranodes(def, isect, umesh)
 
   implicit none
   ! -- INPUTS --
   type(st_deffluent) , intent(inout) :: def
-  integer            , intent(in)    :: isection
+  integer            , intent(in)    :: isect
   ! -- OUTPUTS --
   type(st_ustmesh)   , intent(inout) :: umesh
   ! -- Internal variables --
@@ -2405,9 +2425,9 @@ subroutine fluent2typhon_locate_tetranodes(def, isection, umesh)
   character(len=16) :: str
   ! -- BODY --
 
-    celllist = def%cellsection(isection)
+    celllist = def%cellsect(isect)
 
-    umesh_vtex => umesh%cellvtex%elem(isection)%elemvtex
+    umesh_vtex => umesh%cellvtex%elem(isect)%elemvtex
 
     ! Loop on cells
     do icell = 1, celllist%ncell
@@ -2466,18 +2486,19 @@ subroutine fluent2typhon_locate_tetranodes(def, isection, umesh)
 
       if ( .not. isok ) then
         call cfd_print("errortag: "//strofr(errortag,4))
-        call cfd_print("in section: "//strofr(isection,4))
+        call cfd_print("in section: "//strofr(isect,4))
         call cfd_print("of type:    fluent:"//trim(fluent_cell_name(celllist%celltype)))
         call cfd_print("with cell:  "//strofr(icell,8))
         str = "vertices:"
-        do icvn = 1, 3
+        do icvn = 1, 4
           call cfd_print(str(1:12)//strofr(cvtex(icvn),10))
           str = " "
         enddo
-        do iface = 1, 3
+        do iface = 1, 4
           call cfd_print("face "//trim(strof(iface))//":" &
                          //strofr(celllist%vtex(icell,iface,1),10) &
                          //strofr(celllist%vtex(icell,iface,2),10) &
+                         //strofr(celllist%vtex(icell,iface,3),10) &
                          )
         enddo
         call cfd_error("Cell cannot be reconstructed")
@@ -2491,12 +2512,12 @@ endsubroutine fluent2typhon_locate_tetranodes
 !------------------------------------------------------------------------------!
 !> @brief FLUENT : locate quad nodes
 !------------------------------------------------------------------------------!
-subroutine fluent2typhon_locate_quadnodes(def, isection, umesh)
+subroutine fluent2typhon_locate_quadnodes(def, isect, umesh)
 
   implicit none
   ! -- INPUTS --
   type(st_deffluent) , intent(inout) :: def
-  integer            , intent(in)    :: isection
+  integer            , intent(in)    :: isect
   ! -- OUTPUTS --
   type(st_ustmesh)   , intent(inout) :: umesh
   ! -- Internal variables --
@@ -2512,9 +2533,9 @@ subroutine fluent2typhon_locate_quadnodes(def, isection, umesh)
   character(len=16) :: str
   ! -- BODY --
 
-    celllist = def%cellsection(isection)
+    celllist = def%cellsect(isect)
 
-    umesh_vtex => umesh%cellvtex%elem(isection)%elemvtex
+    umesh_vtex => umesh%cellvtex%elem(isect)%elemvtex
 
     ! Loop on cells
     do icell = 1, celllist%ncell
@@ -2556,7 +2577,7 @@ subroutine fluent2typhon_locate_quadnodes(def, isection, umesh)
 
       if ( .not. isok ) then
         call cfd_print("errortag: "//strofr(errortag,4))
-        call cfd_print("in section: "//strofr(isection,4))
+        call cfd_print("in section: "//strofr(isect,4))
         call cfd_print("of type:    fluent:"//trim(fluent_cell_name(celllist%celltype)))
         call cfd_print("with cell:  "//strofr(icell,8))
         str = "vertices:"
@@ -2581,12 +2602,12 @@ endsubroutine fluent2typhon_locate_quadnodes
 !------------------------------------------------------------------------------!
 !> @brief FLUENT : locate hexa nodes
 !------------------------------------------------------------------------------!
-subroutine fluent2typhon_locate_hexanodes(def, isection, umesh)
+subroutine fluent2typhon_locate_hexanodes(def, isect, umesh)
 
   implicit none
   ! -- INPUTS --
   type(st_deffluent) , intent(inout) :: def
-  integer            , intent(in)    :: isection
+  integer            , intent(in)    :: isect
   ! -- OUTPUTS --
   type(st_ustmesh)   , intent(inout) :: umesh
   ! -- Internal variables --
@@ -2602,9 +2623,9 @@ subroutine fluent2typhon_locate_hexanodes(def, isection, umesh)
   character(len=16) :: str
   ! -- BODY --
 
-    celllist = def%cellsection(isection)
+    celllist = def%cellsect(isect)
 
-    umesh_vtex => umesh%cellvtex%elem(isection)%elemvtex
+    umesh_vtex => umesh%cellvtex%elem(isect)%elemvtex
 
     ! Loop on cells
     do icell = 1, celllist%ncell
@@ -2684,7 +2705,7 @@ subroutine fluent2typhon_locate_hexanodes(def, isection, umesh)
 
       if ( .not. isok ) then
         call cfd_print("errortag: "//strofr(errortag,4))
-        call cfd_print("in section: "//strofr(isection,4))
+        call cfd_print("in section: "//strofr(isect,4))
         call cfd_print("of type:    fluent:"//trim(fluent_cell_name(celllist%celltype)))
         call cfd_print("with cell:  "//strofr(icell,8))
         str = "vertices:"
@@ -2711,12 +2732,12 @@ endsubroutine fluent2typhon_locate_hexanodes
 !------------------------------------------------------------------------------!
 !> @brief FLUENT : locate penta nodes
 !------------------------------------------------------------------------------!
-subroutine fluent2typhon_locate_pentanodes(def, isection, umesh)
+subroutine fluent2typhon_locate_pentanodes(def, isect, umesh)
 
   implicit none
   ! -- INPUTS --
   type(st_deffluent) , intent(inout) :: def
-  integer            , intent(in)    :: isection
+  integer            , intent(in)    :: isect
   ! -- OUTPUTS --
   type(st_ustmesh)   , intent(inout) :: umesh
   ! -- Internal variables --
@@ -2732,9 +2753,9 @@ subroutine fluent2typhon_locate_pentanodes(def, isection, umesh)
   character(len=16) :: str
   ! -- BODY --
 
-    celllist = def%cellsection(isection)
+    celllist = def%cellsect(isect)
 
-    umesh_vtex => umesh%cellvtex%elem(isection)%elemvtex
+    umesh_vtex => umesh%cellvtex%elem(isect)%elemvtex
 
     ! Loop on cells
     do icell = 1, celllist%ncell
@@ -2821,7 +2842,7 @@ subroutine fluent2typhon_locate_pentanodes(def, isection, umesh)
 
       if ( .not. isok ) then
         call cfd_print("errortag: "//strofr(errortag,4))
-        call cfd_print("in section: "//strofr(isection,4))
+        call cfd_print("in section: "//strofr(isect,4))
         call cfd_print("of type:    fluent:"//trim(fluent_cell_name(celllist%celltype)))
         call cfd_print("with cell:  "//strofr(icell,8))
         str = "vertices:"
@@ -2865,51 +2886,30 @@ subroutine fluent2typhon_facecells(def, umesh)
   type(st_ustmesh)   , intent(inout) :: umesh
   ! -- Internal variables --
   integer           :: celltype
-  integer           :: isection
+  integer           :: isect
   ! -- BODY --
 
-  do isection = 1, def%nsection
-
-    celltype = def%cellsection(isection)%celltype
-
+  do isect = 1, def%nsect
+    celltype = def%cellsect(isect)%celltype
     select case(celltype)
-
   ! TRI_3
-
     case(fluent_cell_tri)
-
-    call fluent2typhon_locate_trinodes(def, isection, umesh)
-
+    call fluent2typhon_locate_trinodes(def, isect, umesh)
   ! TETRA_4
-
     case(fluent_cell_tetra)
-
-    call fluent2typhon_locate_tetranodes(def, isection, umesh)
-
+    call fluent2typhon_locate_tetranodes(def, isect, umesh)
   ! QUAD_4
-
     case(fluent_cell_quad)
-
-    call fluent2typhon_locate_quadnodes(def, isection, umesh)
-
+    call fluent2typhon_locate_quadnodes(def, isect, umesh)
   ! HEXA_8
-
     case(fluent_cell_hexa)
-
-    call fluent2typhon_locate_hexanodes(def, isection, umesh)
-
+    call fluent2typhon_locate_hexanodes(def, isect, umesh)
   ! PENTA_6
-
     case(fluent_cell_wedge)
-
-    call fluent2typhon_locate_pentanodes(def, isection, umesh)
-
+    call fluent2typhon_locate_pentanodes(def, isect, umesh)
   ! Default
-
     case default
-
       call cfd_error("cell type fluent:"//trim(fluent_cell_name(celltype))//" is not implemented")
-
     endselect
 
   enddo
@@ -2917,20 +2917,138 @@ subroutine fluent2typhon_facecells(def, umesh)
 endsubroutine fluent2typhon_facecells
 
 !------------------------------------------------------------------------------!
+!> @brief FLUENT : create cells from faces
+!------------------------------------------------------------------------------!
+subroutine fluent2typhon_createbocos(def, umesh)
+
+  implicit none
+  ! -- INPUTS --
+  type(st_deffluent) , intent(in) :: def
+  ! -- OUTPUTS --
+  type(st_ustmesh)   , intent(inout) :: umesh
+  ! -- Internal variables --
+  integer       :: nbcfaces, nfaces, iboco
+  integer       :: nbnodes, nbfils
+  integer       :: nnnodes
+  integer       :: i, j, ibc
+  integer       :: ismixed
+  type(st_connect), pointer :: facevtexhdle
+  type(st_genconnect), pointer :: fvtxmixdhdle
+  ! -- BODY --
+
+  call createboco(umesh, def%nbctym)
+
+  iboco = 0
+  nbcfaces = 0
+  ismixed = 0
+  ! Loop on bczones
+  do ibc = 1,def%nbczone
+    ! if bczone was flagged as typhon bc
+    if ( def%bczone(ibc)%isbctym == 1 ) then
+      iboco = iboco + 1
+      ! This should not happen
+      if ( iboco > def%nbctym ) cycle
+      nfaces = def%bczone(ibc)%nfaces
+      call new_ustboco(umesh%boco(iboco), trim(def%bczone(ibc)%bczonename), nfaces)
+      call cfd_print("creating boco("//strofr(nfaces,6)//" faces) : "//trim(def%bczone(ibc)%bczonename))
+      !!call new_ustboco(umesh%boco(iboco), trim(def%bczone(ibc)%bczonename), 0)
+      !!umesh%boco(iboco)%ilocation = iloc_elemface
+      !!umesh%boco(iboco)%ntag = nfaces
+      !!allocate(umesh%boco(iboco)%itag(nfaces))
+      !!umesh%boco(iboco)%itag(1:nfaces) = (/ (nbcfaces+j, j=1,nfaces) /)
+      umesh%boco(iboco)%iface(1:nfaces) = (/ (nbcfaces+j, j=1,nfaces) /)
+      nbcfaces = nbcfaces+nfaces
+      if ( associated(def%bczone(ibc)%fvtxmixd) .or. &
+           def%bczone(ibc)%facevtex%nbfils /= def%max_nvtexface ) then
+        ismixed = 1
+      endif
+    endif
+  enddo
+
+  ! EITHER (count internal faces)
+  !umesh%nface     = def%nfaces
+  !umesh%nface_int = def%nfaces - nbcfaces
+  !umesh%nface_lim = nbcfaces
+  ! OR (do NOT count internal faces)
+  umesh%nface     = nbcfaces
+  umesh%nface_lim = nbcfaces
+
+  ! If this happened
+  if ( iboco > def%nbctym ) then
+    call cfd_write("(fluent) nbocotym = "//trim(strof(iboco)))
+    call cfd_write("(fluent) nbocodef = "//trim(strof(def%nbctym)))
+    call cfd_error("         unmatching numbers of bocos...")
+  endif
+
+  if ( ismixed == 0 ) then
+    ! Only zones of faces with same number of vertices
+    nbfils = def%max_nvtexface
+    call new_connect(umesh%facevtex, nbcfaces, nbfils)
+    ! Fill umesh%facevtex%fils(nbcfaces,nbfils)
+    nnnodes = 0
+    do ibc = 1,def%nbczone
+      if ( def%bczone(ibc)%isbctym /= 1 ) cycle
+      facevtexhdle => def%bczone(ibc)%facevtex
+      nbnodes = facevtexhdle%nbnodes
+      !write(6,*) 'bczone = ',ibc, '/', def%nbczone
+      !write(6,*) 'nbndes = ',nbnodes
+      !write(6,*) 'nbfils = ',def%max_nvtexface
+      call flush(6)
+      umesh%facevtex%fils(nnnodes+1:nnnodes+nbnodes,1:nbfils) = facevtexhdle%fils(1:nbnodes,1:nbfils)
+      nnnodes = nnnodes + nbnodes
+    enddo
+  else
+    ! Zones of faces with varying numbers of vertices
+    call new_genconnect(umesh%vtexface, nbcfaces, def%max_nvtexface)
+    ! Fill umesh%fvtxmixd%fils(nbnodes,nbfils)
+    nnnodes = 0
+    do ibc = 1,def%nfacevtex
+      if ( def%bczone(ibc)%isbctym /= 1 ) cycle
+      if ( associated(def%bczone(ibc)%fvtxmixd) ) then
+        ! Zone of faces with mixed numbers of vertices
+        fvtxmixdhdle => def%bczone(ibc)%fvtxmixd
+        nbnodes = fvtxmixdhdle%nbnodes
+        !write(6,*) 'bczone = ',ibc, '/', def%nbczone
+        !write(6,*) 'nbndes = ',nbnodes
+        !write(6,*) 'nbfils = (array)'
+        call flush(6)
+        do i = 1, nbnodes
+          nnnodes = nnnodes + 1
+          call new_elemc_copy(umesh%vtexface%node(nnnodes), fvtxmixdhdle%node(i))
+        enddo
+      else
+        ! Zone of faces with same number of vertices
+        facevtexhdle => def%bczone(ibc)%facevtex
+        nbnodes = facevtexhdle%nbnodes
+        nbfils = facevtexhdle%nbfils
+        !write(6,*) 'bczone = ',ibc, '/', def%nbczone
+        !write(6,*) 'nbndes = ',nbnodes
+        !write(6,*) 'nbfils = ',nbfils
+        call flush(6)
+        do i = 1, nbnodes
+          nnnodes = nnnodes + 1
+          call new_elemc(umesh%vtexface%node(nnnodes), nbfils)
+          umesh%vtexface%node(nnnodes)%elem(1:nbfils) = facevtexhdle%fils(i,1:nbfils)
+        enddo
+      endif
+    enddo
+  endif
+
+endsubroutine fluent2typhon_createbocos
+
+!------------------------------------------------------------------------------!
 !> @brief FLUENT : read zone boundary and bcs
 !------------------------------------------------------------------------------!
-subroutine fluent_get_zonebcs(def, sctid, umesh)
+subroutine fluent_get_zonebcs(def)
 
   implicit none
   ! -- INPUTS --
   type(st_deffluent) , intent(inout) :: def
-  integer            , intent(in)    :: sctid
   ! -- OUTPUTS --
-  type(st_ustmesh)   , intent(inout) :: umesh
   ! -- Internal variables --
   character(len=256) :: str
   ! -- BODY --
-  call fluent_get_zonebnd(def, sctid, umesh)
+  call fluent_get_zonebnd(def)
   call fluent_read_strlist(def, str)
 
 endsubroutine fluent_get_zonebcs
@@ -2938,14 +3056,12 @@ endsubroutine fluent_get_zonebcs
 !------------------------------------------------------------------------------!
 !> @brief FLUENT : read zone boundary
 !------------------------------------------------------------------------------!
-subroutine fluent_get_zonebnd(def, sctid, umesh)
+subroutine fluent_get_zonebnd(def)
 
   implicit none
   ! -- INPUTS --
   type(st_deffluent) , intent(inout) :: def
-  integer            , intent(in)    :: sctid
   ! -- OUTPUTS --
-  type(st_ustmesh)   , intent(inout) :: umesh
   ! -- Internal variables --
   character(len=256) :: str
   character(len=64) :: strtab(4)
@@ -2973,7 +3089,7 @@ subroutine fluent_get_zonebnd(def, sctid, umesh)
   bczonquote = '"'//trim(bczonename)//'"'
   str = "( "//bczonquote(1:max(12,len_trim(bczonquote))) &
      //" , "//bctypename(1:max(15,len_trim(bctypename)))//" )"
-  call cfd_print("- reading FLUENT zone "//strofr(zoneid,4) &
+  call cfd_print("- reading FLUENT bzone "//strofr(zoneid,4) &
                //": "//trim(str))
 
   ifound = 0
@@ -2982,7 +3098,14 @@ subroutine fluent_get_zonebnd(def, sctid, umesh)
     ! If bczone already processed then proceed to next bczone
     if ( def%bczone(i)%off == 1 ) cycle
     ! If bczone corresponds to other zone then proceed to next bczone
-    if ( def%bczone(i)%bczoneid /= zoneid ) cycle
+    if ( def%bczone(i)%bczoneid /= zoneid ) then
+      if ( fluent_bc_type(bctypename) .ne. fluent_bc_interior ) then
+        call cfd_warning("(fluent) bczone "//trim(bczonename)// &
+                                        "("//trim(bctypename)//") is skipped")
+        call cfd_write("         bcs might be wrong numbered")
+      endif
+      cycle
+    endif
     ! If bczone is interior then change printed zonename
     if ( bctypename .eq. fluent_bc_name(fluent_bc_interior) .and. &
          bczonename .eq. "int_"//def%bczone(i)%bczonename ) then
@@ -2990,9 +3113,6 @@ subroutine fluent_get_zonebnd(def, sctid, umesh)
     else
       prtbczonename = def%bczone(i)%bczonename
     endif
-    !write(6,'(2a)') 'bctypename = ', bctypename
-    !write(6,'(3a)') trim(bczonename) ,'?=', trim(prtbczonename)
-    !write(6,'(i2,a,i2)') fluent_bc_type(bctypename) ,'?=', def%bczone(i)%bczonetype
     if ( bczonename /= prtbczonename .or. &
          fluent_bc_type(bctypename) /= def%bczone(i)%bczonetype ) then
       prtbctypename = fluent_bc_name(def%bczone(i)%bczonetype)
@@ -3000,7 +3120,11 @@ subroutine fluent_get_zonebnd(def, sctid, umesh)
       prtbczonquote = '"'//trim(prtbczonename)//'"'
       str = "( "//prtbczonquote(1:max(12,len_trim(prtbczonquote))) &
          //" , "//prtbctypename(1:max(15,len_trim(prtbctypename)))//" )"
-      call cfd_print("                            "//trim(str)//" ignored")
+      call cfd_print("                             "//trim(str)//" ignored")
+    endif
+    if ( bctypename .ne. fluent_bc_name(fluent_bc_interior) ) then
+      def%nbctym = def%nbctym+1
+      def%bczone(i)%isbctym = 1
     endif
     def%bczone(i)%off = 1
     ifound = 1
@@ -3012,7 +3136,7 @@ subroutine fluent_get_zonebnd(def, sctid, umesh)
   if ( ifound == 0 .and. &
        ( fluent_bc_type(bctypename) /= fluent_bc_interior .or. &
          fluent_bc_name(fluent_bc_type(bctypename)) == bctypename) ) then
-    call cfd_warning("Boundary zone is ignored")
+    call cfd_print("                 Boundary zone is ignored")
   endif
 
 endsubroutine fluent_get_zonebnd
@@ -3020,12 +3144,11 @@ endsubroutine fluent_get_zonebnd
 !------------------------------------------------------------------------------!
 !> @brief FLUENT : ignored section
 !------------------------------------------------------------------------------!
-subroutine fluent_get_ignored(def, sctid)
+subroutine fluent_get_ignored(def)
 
   implicit none
   ! -- INPUTS --
   type(st_deffluent) , intent(inout) :: def
-  integer            , intent(in)    :: sctid
   ! -- OUTPUTS --
   ! -- Internal variables --
   character(len=256) :: str
@@ -3038,26 +3161,214 @@ endsubroutine fluent_get_ignored
 !------------------------------------------------------------------------------!
 !> @brief FLUENT : read section end (trailing ')')
 !------------------------------------------------------------------------------!
-subroutine fluent_get_sctend(def, ieof)
+subroutine fluent_get_sctend(def)
 
   implicit none
   ! -- INPUTS --
   type(st_deffluent) , intent(inout) :: def
   ! -- OUTPUTS --
-  logical            , intent(out)   :: ieof
   ! -- Internal variables --
   integer :: ierr
   ! -- BODY --
   call affstar("get_s_end", def%c)
   call fll_checknextchar(def%iu_bin, def%c, ')')
-  read(def%iu_bin,iostat=ierr) def%c
-  ieof = ( ierr /= 0 )
-  if ( ieof ) then
-    call cfd_print("(fluent) End of file...")
-    call cfd_warning("Faces are read but NOT STORED !!!")
-  endif
   call affexit("get_s_end", def%c)
 
 endsubroutine fluent_get_sctend
+
+!------------------------------------------------------------------------------!
+! Printing subroutines
+!------------------------------------------------------------------------------!
+subroutine display_mesh(mesh)
+
+  implicit none
+  ! -- INPUTS --
+  type(st_mesh), intent(in) :: mesh
+  ! -- OUTPUTS --
+  ! -- Internal variables --
+  ! -- BODY --
+
+  !type(info_mesh) :: info
+  write(6,'(a,3(1X,i4))') "  idim, jdim, kdim =", mesh%idim, mesh%jdim, mesh%kdim
+  write(6,'(a,2(1X,i4))') "  nvtex, maxvtex   =", mesh%nvtex, mesh%maxvtex
+  write(6,'(a,  1X,i4 )') "  nface =", mesh%nface
+  write(6,'(a,  1X,i4 )') "  ncell =", mesh%ncell
+  !integer(kip), pointer :: mesh%ivtex(:)              ! global index of vertex (1..maxvtex)
+  !type(v3d),     pointer     :: mesh%vertex(:,:,:),mesh% centre(:,:,:) ! coordonnees des sommets et centres de cellules (i,j,k)
+  !type(v3d),     allocatable :: mesh%vertex_orig(:,:,:)           ! MRF addition: table of original vertex positions
+  !type(st_face), pointer     :: mesh%iface(:,:,:) !, jface, kface ! tableaux de faces
+  !real(krp),     pointer     :: mesh%volume(:,:,:)                ! volume des cellules
+  !real(krp),     pointer     :: mesh%metricsvm(:,:,:)             ! transformation of a triangular cell (SV) to a standard triangle
+
+endsubroutine display_mesh
+
+subroutine display_connect(connect)
+
+  implicit none
+  ! -- INPUTS --
+  type(st_connect), intent(in) :: connect
+  ! -- OUTPUTS --
+  ! -- Internal variables --
+  integer :: nn,nf,i,j
+  ! -- BODY --
+
+  nn = connect%nbnodes
+  nf = connect%nbfils
+  write(6,'(a,2i4,$)') "  nbnodes, nbfils =", nn, nf
+  if ( associated(connect%fils) ) then
+  write(6,'()')
+  do i = 1, min(nn,64)
+    write(6,'(a,i4,a,i4,a,$)') "     fils(",i,",1:",nf,") = ["
+    write(6,'(i4,$)') (connect%fils(i,j),j=1,nf)
+    write(6,'(a)') "]"
+  enddo
+  if ( nn > 64 ) then
+    write(6,'(a)') "..."
+  endif
+  else
+  write(6,'(a)') " - fils: unassociated"
+  endif
+
+endsubroutine display_connect
+
+subroutine display_genconnect(genconnect)
+
+  implicit none
+  ! -- INPUTS --
+  type(st_genconnect), intent(in) :: genconnect
+  ! -- OUTPUTS --
+  ! -- Internal variables --
+  ! -- BODY --
+
+  write(6,'(a,i4,$)') "  nbnodes =", genconnect%nbnodes
+  if ( associated(genconnect%node) ) then
+  write(6,'(a,i4,a)') " - node: (",size(genconnect%node),")"
+  else
+  write(6,'(a)') " - node: unassociated"
+  endif
+
+endsubroutine display_genconnect
+
+subroutine display_elemvtex(elem)
+
+  implicit none
+  ! -- INPUTS --
+  type(st_elemvtex), intent(in) :: elem
+  ! -- OUTPUTS --
+  ! -- Internal variables --
+  integer :: ne,nv,i,j
+  ! -- BODY --
+
+  ne = elem%nelem
+  nv = elem%nvtex
+  write(6,'(a,1i4)') "    elemtype     =", elem%elemtype
+  write(6,'(a,2i4)') "    nelem, nvtex =", ne, nv
+  do i = 1, min(ne,64)
+    write(6,'(a,3(i4,a),$)') "      elem(",i,"::",elem%ielem(i),",1:",nv,") = ["
+    write(6,'(i4,$)') (elem%elemvtex(i,j),j=1,nv)
+    write(6,'(a)') "]"
+  enddo
+  if ( ne > 64 ) then
+    write(6,'(a)') "..."
+  endif
+  !integer(kip), pointer :: ielem(:)       ! element global index
+  !integer(kip), pointer :: elemvtex(:,:)  ! element to vtex connectivity (1:nelem, 1:nvtex)
+
+endsubroutine display_elemvtex
+
+subroutine display_genelemvtex(gelem)
+
+  implicit none
+  ! -- INPUTS --
+  type(st_genelemvtex), intent(in) :: gelem
+  ! -- OUTPUTS --
+  ! -- Internal variables --
+  integer :: i
+  ! -- BODY --
+
+  write(6,'(a,i4)') "  nsection =", gelem%nsection
+  do i = 1, gelem%nsection
+  write(6,'(3a)') "  section",strofr(i,4),": [elemvtex]"
+  call display(gelem%elem(i))
+  enddo
+
+endsubroutine display_genelemvtex
+
+subroutine display_ustboco(boco)
+
+  implicit none
+  ! -- INPUTS --
+  type(st_ustboco), intent(in) :: boco
+  ! -- OUTPUTS --
+  ! -- Internal variables --
+  ! -- BODY --
+
+  write(6,'(a, 1a)') "  family = ", trim(boco%family)
+  !write(6,'(a,1i4)') "  iexttag   =", boco%iexttag
+  !write(6,'(a,1i4)') "  ilocation =", boco%ilocation
+  !write(6,'(a,1i4)') "  idefboco  =", boco%idefboco
+  write(6,'(a,1i4,$)') "  ntag   =", boco%ntag
+  if ( associated(boco%itag) ) then
+  write(6,'(a,i4,a)') " - itag: (",size(boco%itag),")"
+  else
+  write(6,'(a)') " - itag: unassociated"
+  endif
+  write(6,'(a,1i4,$)') "  nface  =", boco%nface
+  if ( associated(boco%iface) ) then
+  write(6,'(a,i4,a)') " - iface: (",size(boco%iface),")"
+  else
+  write(6,'(a)') " - iface: unassociated"
+  endif
+  !write(6,'(a,e)') "  area  =", boco%area
+  !type(st_genericfield), pointer :: bocofield  ! pointer to chained list of boco fields (in MGRID)
+  !type(st_genericfield)          :: avg_quant  ! average quantity on boco 
+  !type(st_genericfield)          :: sum_flux   ! sum of fluxes    on boco
+  !type(st_gridconnect)           :: gridcon    ! connectivity to grid
+
+endsubroutine display_ustboco
+
+subroutine display_ustmesh(umesh)
+
+  implicit none
+  ! -- INPUTS --
+  type(st_ustmesh), intent(in) :: umesh
+  ! -- OUTPUTS --
+  ! -- Internal variables --
+  integer :: i
+  ! -- BODY --
+
+  write(6,'(a)') "--- ustmesh >>>"
+  write(6,'(a,1i4)') "id      =", umesh%id
+  write(6,'(a,1i4)') "level   =", umesh%level
+  write(6,'(a,1i4)') "elemdim =", umesh%elemdim
+  write(6,'(a,3i4)') "nvtex, nface, ncell  =", umesh%nvtex, umesh%nface, umesh%ncell
+  write(6,'(a,2i4)') "nface_int, ncell_int =", umesh%nface_int, umesh%ncell_int
+  write(6,'(a,2i4)') "nface_lim, ncell_lim =", umesh%nface_lim, umesh%ncell_lim
+  write(6,'(a)') "mesh: [mesh]"
+  call display(umesh%mesh)                  !> mesh (geometrical data)
+  write(6,'(a)') "facevtex: [connect]"
+  call display(umesh%facevtex)
+  write(6,'(a)') "facecell: [connect]"
+  call display(umesh%facecell)
+  write(6,'(a)') "umesh%colors: [genconnect]"
+  call display(umesh%colors)
+  write(6,'(a)') "umesh%vtexface: [genconnect]"
+  call display(umesh%vtexface)
+  write(6,'(a)') "umesh%cellvtex: [genelemvtex]"
+  call display(umesh%cellvtex)
+  write(6,'(a,1i4)') "umesh%nboco =", umesh%nboco
+  do i = 1, umesh%nboco
+  write(6,'(a,2a)') "umesh%boco(",strofr(i,4),"): [ustboco]"
+  call display(umesh%boco(i))
+  enddo
+  write(6,'(a)') "umesh%face_Ltag: [connect]"
+  call display(umesh%face_Ltag)
+  write(6,'(a)') "umesh%face_Rtag: [connect]"
+  call display(umesh%face_Rtag)
+  ! --- specific SVM structure ---
+  !write(6,'(a,1i4)') "nface_intsvm =", umesh%nface_intsvm
+  write(6,'(a)') "--- ustmesh <<<"
+
+endsubroutine display_ustmesh
 
 endmodule FLUENT

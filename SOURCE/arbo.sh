@@ -4,23 +4,53 @@ SCRIPTDIR=$(cd $(dirname $0) ; pwd)
 SCRIPTNAME=$(basename $0)
 SCRIPTSPCE=${SCRIPTNAME//?/ }
 
+# For multi-byte characters
+#symbolkind=1
+symbolkind=2
+if [ $symbolkind == 1 ] ; then
+  esc=''
+  escseq='('
+fi
+# Counting multi-byte characters
+function multicount() {
+    if [ $symbolkind == 1 ] ; then
+      n=3*$(echo "$1" | sed "s/\([^$esc]\)/\1\n/g" \
+                      | grep -c "$escseq")
+    else
+      n=$(echo "$1"|wc -mc|xargs printf "-%s+%s")
+    fi
+    echo $n
+    }
+
+########################################################################
+# --- print commands ---
+########################################################################
+
 # --- print bar ---
 #
 function writebar() {
   printf "%79s\n" | tr ' ' "${1:-=}"
 }
 
+# --- error banner ---
+#
+function errorbanner() {
+  test "${1:-}" != a && writebar
+  echo "ERROR"
+  test "${1:-}" != b && writebar
+}
+
 # --- print usage ---
 #
 function usage() {
-  echo
+  writebar
   echo "Name:"
   echo "  $SCRIPTNAME"
   echo
   echo "Usage:"
   echo "  $SCRIPTNAME [-h] [-l <nblevl>] [-d <srcdir>] \\"
   echo "  $SCRIPTSPCE [-p [-r] [-n <nbcols>]] [-o <outfile>] \\"
-  echo "  $SCRIPTSPCE [-x <patlist>] [-X] [-L] \\"
+  echo "  $SCRIPTSPCE [-x <patlist>] [-z] [-L] \\"
   echo "  $SCRIPTSPCE [--] <subroutinename> [...]"
   echo
   echo "Options:"
@@ -34,15 +64,19 @@ function usage() {
   echo "  -o <outfile>      prints in <outfile> (default is stdout)"
   echo "                      (required if postscript output)"
   echo "  -x <patlist>      excludes comma-separated pattern list"
-  echo "  -X                ignores builtin exclude pattern list"
+  echo "  -z                ignores builtin exclude pattern list"
+  echo "  -X patlist        excludes comma-separated pattern list for filenames"
   echo "  -L                prints exclude pattern list"
   echo "  -v                verbose"
   echo "  --                end of options"
   echo
   echo "  <subroutinename>  to be processed"
   echo
+  writebar
 }
 
+# --- print info ---
+#
 function info() {
   local head=
   if [ $# -eq 0 ] ; then
@@ -54,8 +88,11 @@ function info() {
   fi
 }
 
+# --- print anything ---
+#
 function publish() {
-  echo   "$SCRIPTNAME: $1" ; shift
+  printf "$SCRIPTNAME:%s\n" "${1:+ $1}"
+  shift
   test $# -gt 0 && \
   printf "$SCRIPTSPCE  %s\n" "$@"
 }
@@ -64,26 +101,38 @@ function publish() {
 #
 function warning() {
   echo
-  publish "warning" "$@"
   writebar
+  publish "Warning" "$@"
+  writebar
+  echo
 }
 
 # --- print error ---
 #
 function error() {
   usage
-  echo
-  writebar @
+  errorbanner a
   publish "ERROR" "$@"
-  writebar @
+  errorbanner
   exit 1
 }
 
+# get lines between $1 and $2 from file $3
+function between_tags() {
+  awk "BEGIN{ok=0}
+    (ok==1&&\$0~/${2//\//\\/}/){ok=0;print;next}
+    (ok==1                    ){     print;next}
+    (ok==0&&\$0~/${1//\//\\/}/){ok=1;print;next}
+  " $3; }
+
+########################################################################
 # --- list of excluded subroutine names ---
-#
+########################################################################
   #new_fct_env
 excludebtin=(
-  cfd_{print,warning,error}
+  flush
+  get_command_argument
+  cfd_{print,write,warning,error}
   erreur
   error_stop
   print_info
@@ -111,27 +160,40 @@ print2=2
 islast0=0
 islast1=1
 islast2=2
-isepare=0
 
+# For multi-byte characters
+if [ $symbolkind == 1 ] ; then
+header[$print0$islast0]=${escseq}0"tqq "${escseq}B
+headnx[$print0$islast0]=${escseq}0"x   "${escseq}B
+header[$print0$islast1]=${escseq}0"mqq "${escseq}B
+headnx[$print0$islast1]="    "
+else
 header[$print0$islast0]="├── "
 headnx[$print0$islast0]="│   "
 header[$print0$islast1]="└── "
 headnx[$print0$islast1]="    "
+fi
 header[$print0$islast2]=""
 headnx[$print0$islast2]=""
-separe[$print0$isepare]="────"
+if [ $symbolkind == 1 ] ; then
+separe[$print0        ]=${escseq}0"qqqq"${escseq}B
+else
+separe[$print0        ]="────"
+fi
+#
 header[$print1$islast0]="@@|="
 headnx[$print1$islast0]="@@|@"
 header[$print1$islast1]="@@@="
 headnx[$print1$islast1]="@@@@"
 header[$print1$islast2]=""
 headnx[$print1$islast2]=""
-separe[$print1$isepare]="@@--"
+separe[$print1        ]="@@--"
+#
 header[$print2$islast0]=nexthd
 headnx[$print2$islast0]=passhd
 header[$print2$islast1]=lasthd
 headnx[$print2$islast1]=voidhd
-separe[$print2$isepare]=linehd
+separe[$print2        ]=linehd
 
 ########################################################################
 # --- definition of arbo function ---
@@ -155,23 +217,33 @@ function arbo() {
 # -- check calls if level not too high --
 #
   if [ $levl -lt $nblevl ] ; then
-    file=$(echo $SOURCEDIR/*/${myname}.f90)
-    if [ -f "$file" ] ; then
+    #file=$(echo $SOURCEDIR/*/${myname}.f90)
+    # If file with subroutine name exists
+    file=( $(ls $SOURCEDIR/{,../CFDTOOLS/{,*/}}*/${myname}.f90 2>/dev/null) )
+    # Else if file containing subroutine definition exists
+    if [ -z "${file:-}" ] ; then
+      file=( $(grep -l "subroutine  *${myname}" $SOURCEDIR/{../CFDTOOLS/{,*/},}*/*.f90 2>/dev/null \
+             | grep -v "${exclfileopts[@]}") )
+    fi
+    # If either file exists (possibly many)
+    if [ -f "${file:-}" ] ; then
 #
 # -- build call list if subroutine file exists
 #    ($'string' is for escaping characters \\ and \n)
 #
-      list=( $(grep '^\([^!]*[) ]\)*call ' $file 2>/dev/null \
+      list=( $(between_tags "^ *(subroutine|program) *$myname" \
+                       "^ *end *(subroutine|program) *$myname" "${file[@]}" \
+               | grep '^\([^!]*[) ]\)*call ' 2>/dev/null \
                | sed 's/"[^"]*"//g'         $(: remove strings) \
                | sed 's/(/ (/g'             $(: add space before opening paren) \
-               | sed $'s/call /\\\ncall /g' $(: move call on next line) \
+               | sed $'s/ call /\\\ncall /g' $(: move call on next line) \
                | grep '^call '              $(: keep leading call) \
                | awk '{print $2}'           $(: get subroutine name) \
                | grep -v "${excludeopts[@]}") )
 #
 # -- append (*) if subroutine already processed and wrappable --
 #
-      if [ ${#list[@]} -gt 0 ] && [ -n "${isprocessed:-}" ] ; then
+      if [ ${#list[@]} -gt 0 -a -n "${isprocessed:-}" ] ; then
         app=" ($wrapstr)"
         wrapstr="*"
       fi
@@ -191,12 +263,23 @@ function arbo() {
 #
 # -- subroutine name print --
 #
-  if [ -z "$file" -o -z "${verbose}" ] ; then
+  if [ -z "${file:-}" -o -z "$verbose" ] ; then
     printf "%s%s\n" "$s" "$myname${app:-}"
   else
     # For multi-byte characters
-    n=$((72+$(echo "$s"|wc -c)-$(echo "$s"|wc -m)))
-    printf "%-${n}s %s\n" "$s$myname${app:-}" "file:${file#$SOURCEDIR/}"
+    n=$((72+$(multicount "$s")))
+    ##printf "%-${n}s file:%s\n" "$s$myname${app:-}" "${file[@]#$SOURCEDIR/}"
+    t="$s$myname${app:-}"
+    for f in "${file[@]}" ; do
+      printf "%-${n}s file:%s\n" "$t" "${f#$SOURCEDIR/}"
+      t="$myhead${headnx[$print$islast]}"
+      # Empty header if more than one file
+      if [ $levl -lt $nblevl -a \
+           ${#list[@]} -gt 0 -a -z "${isprocessed:-}" ] ; then
+      t="$t${headnx[$print$islast0]}"
+      fi
+      n=$((72+$(multicount "$t")))
+    done
   fi
 #
 # -- next header --
@@ -205,11 +288,11 @@ function arbo() {
 #
 # -- check called subroutines if current subroutine not already processed --
 #
-  if [ $levl -lt $nblevl ] && [ ${#list[@]} -gt 0 ] && [ -z ${isprocessed:-} ] ; then
+  if [ $levl -lt $nblevl -a ${#list[@]} -gt 0 -a -z "${isprocessed:-}" ] ; then
 #
 # -- add subroutine to table of already processed subroutines --
 #
-    if [ -z ${isprocessed:-} ] ; then
+    if [ -z "${isprocessed:-}" ] ; then
       wasprocessed+=("$myname")
     fi
 #
@@ -218,9 +301,9 @@ function arbo() {
     tabl=()
     for f in "${list[@]}" ; do
       for h in "${tabl[@]:-}" ; do
-        [ "$h" = "$f" ] && f="" && break
+        test "$h" = "$f" && f="" && break
       done
-      [ ! -z "$f" ] && tabl+=( "$f" )
+      test ! -z "$f" && tabl+=( "$f" )
     done
 #
 # -- call arbo with adequate arguments (1 for last subroutine) --
@@ -235,15 +318,25 @@ function arbo() {
 ########################################################################
 # --- get options ---
 ########################################################################
-shortopts=hal:d:prn:o:x:XLv
+shortopts=hal:d:prn:o:x:zX:Lv
 if [ -z "$(getopt -T)" ] ; then
   getoptopts=( -o "$shortopts" -n "$SCRIPTNAME" -- )
 else
   getoptopts=(    "$shortopts"                     )
 fi
-OPTS=$(getopt "${getoptopts[@]}" "$@")
-test $? = 0 || error
+OPTS=$(getopt "${getoptopts[@]}" "$@" 2>    /dev/null)
+OERR=$(getopt "${getoptopts[@]}" "$@" 2>&1 >/dev/null)
+if [ $? != 0 ] ; then
+  error "$OERR"
+fi
 eval set -- "$OPTS"
+
+function intexpectedafter() {
+  opt="$1" ; shift
+  if [ -n "${@//[0-9]}" ] ; then
+    error "integer expected after \`$opt' (found \`$@')"
+  fi
+}
 
 ########################################################################
 # --- parse options ---
@@ -262,23 +355,28 @@ btnexc=
 lstexc=
 verbose=
 excludeargs=()
+exclfileargs=()
 while true ; do
   case "$1" in
-    -h) usage 0 ;;
+    -h) usage ; exit 0 ;;
     -a) nowrap=1 ;;
-    -l) shift ;
+    -l) intexpectedafter $1 $2 ; shift
         nblevl=$1 ; dlevl=1 ;;
     -d) shift ; srcdir=$1 ;;
     -p) print=1 ;;
     -r) psopt="--landscape" ;;
-    -n) shift ;
+    -n) intexpectedafter $1 $2 ; shift
         nbcols=$1 ; isnbcl='is_set' ;;
     -o) shift ; output=$1 ;;
     -x) shift ; IFS=',' read -a x <<< "$1"
                 # plus de pb reconnaissance syntaxe...
                 # eval IFS="','" read -a x '<<<' "'$1'"
                 excludeargs+=("${x[@]}") ;;
-    -X) btnexc='is_set' ;;
+    -z) btnexc='is_set' ;;
+    -X) shift ; IFS=',' read -a x <<< "$1"
+                # plus de pb reconnaissance syntaxe...
+                # eval IFS="','" read -a x '<<<' "'$1'"
+                exclfileargs+=("${x[@]}") ;;
     -L) lstexc='is_set' ;;
     -v) verbose='is_set' ;;
     --) shift ; break ;;
@@ -296,11 +394,14 @@ if [ ! -z "$srcdir" ] ; then
           "\"$srcdir\""
   fi
   d=$(cd "$srcdir" ; pwd)
+  home=$(cd ; pwd)
   while [ -d "$d" ] ; do
     dd=$d/SOURCE
-    [ -d "$dd" ] && SOURCEDIR=$dd && break
+    test -d "$dd" && SOURCEDIR=$dd && break
     nd=$(cd "$d/.." && pwd)
-    [ "$nd" = "$d" ] && break
+    # break if home or /
+    test "$nd" = "$d" && break
+    test "$nd" = "$home" && break
     d=$nd
   done
   if [ -z "${SOURCEDIR:-}" ] ; then
@@ -336,6 +437,13 @@ if [ ${#excludeargs[@]} -gt 0 ] ; then
   done
 fi
 
+exclfileopts=("-e" "^$")
+if [ ${#exclfileargs[@]} -gt 0 ] ; then
+  for pat in "${exclfileargs[@]}" ; do
+    exclfileopts+=("-e" "$pat")
+  done
+fi
+
 if [ "$isnbcl" -a $print = 0 ] ; then
   warning "<nbcols> is ignored in default output"
 fi
@@ -368,7 +476,7 @@ else
 fi
 
 if [ ${#} -eq 0 ] ; then
-  usage 0
+  usage ; exit 0
 fi
 
 #ORIGDIR=$(pwd)
@@ -380,9 +488,7 @@ fi
 
 #listcal=( $(echo "${listsub[@]:-}" | sed 's/\.f90:/.f90 /;s/ *(.*//' | awk '{print $3,$1}' | sort | awk '{print $2}') )
 
-for i in $(seq 20) ; do
-  sep=$(printf "%s%s" "${sep:-}" "${separe[$print$isepare]}")
-done
+sep=$(for i in $(seq 20) ; do printf "%s" "${separe[$print]}" ; done)
 {
   printf "$sep\n"
   echo $SOURCEDIR :
@@ -422,7 +528,7 @@ for i in $islast0 $islast1 ; do
   sep="$sep\|${headnx[$print1$i]}"
 done
 sep=$(echo "$sep" | sed 's/^\\|//')
-spq=${separe[$print1$isepare]}
+spq=${separe[$print1]}
 sed "s:^(\(\($sep\)\+\)\(.* m\)s$:(\3 \1 s:g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
 sed "s:^(\(\($spq\)\+\)\(.* m\)s$:(\3 \1 s:g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
 sed "s:^(\(\($sep\)\+\):\1(:g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
@@ -433,7 +539,7 @@ sed 's:%%EndSetup$:%\n'\
 '/bgr { gsave currentpoint translate 0.7 0.7 0.9 setrgbcolor\n'\
 '       (M) stringwidth pop dup scale 0 -0.6 translate\n'\
 '       exec grestore (MMMM) stringwidth rmoveto } def\n'\
-'/slw { 0.15 setlinewidth } def\n'\
+'/slw { 0.05 setlinewidth } def\n'\
 '/vertfull { slw 0.5 0 moveto 0.5 2 lineto stroke } def\n'\
 '/verthlfu { slw 0.5 1 moveto 0.5 2 lineto stroke } def\n'\
 '/horifull { slw 0.5 1 moveto 3   1 lineto stroke } def\n'\
@@ -449,8 +555,7 @@ for i in $islast0 $islast1 ; do
   sed "s:${header[1$i]}:${header[2$i]} :g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
   sed "s:${headnx[1$i]}:${headnx[2$i]} :g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
 done
-i=$isepare
-sed "s:${separe[1$i]}:${separe[2$i]} :g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
+sed "s:${separe[1]}:${separe[2]} :g" "$tmpout" > "$output" ; mv "$output" "$tmpout"
 
 mv "$tmpout" "$output"
 echo "file: $output"

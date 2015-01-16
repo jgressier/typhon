@@ -519,6 +519,8 @@ type(st_xbindatasection) :: xbindata
 call xbin_readdatahead(defxbin, xbindata)
 
 if (xbindata%usertype /= xbinty_marks) then
+  write(6,*) '    xbinty_marks =',xbinty_marks
+  write(6,*) 'found : usertype =',xbindata%usertype
   call cfd_error("XBIN/TYPHON error: expecting BC MARK data section")
 endif
 

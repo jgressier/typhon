@@ -88,7 +88,7 @@ endif
 ltf = len_trim(outputfile)
 if (outputfile == "") then
   outputfile = trim(filebase)//"."//xtyext_mesh
-elseif ( outputfile(ltf-len(xtyext_mesh):ltf) /= "."//xtyext_mesh ) then
+elseif ( outputfile(max(1,ltf-len(xtyext_mesh)):ltf) /= "."//xtyext_mesh ) then
   ! Add suffix to outputfile
   outputfile = trim(outputfile)//"."//xtyext_mesh
 endif  
@@ -107,7 +107,6 @@ call importfluent_mesh(defmesh, umesh)
 
 write(6,'()')
 write(6,'(a)') "* Writing TYPHON file: "//trim(outputfile)
-write(6,'(a)') "* FILE IS NOT COMPLETE (BCs MISSING) !!!"
 !------------------------------
 ! open xbin file
 

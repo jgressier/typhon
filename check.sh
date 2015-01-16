@@ -10,9 +10,9 @@ SCRIPTSPCE=${SCRIPTNAME//?/ }
 # --- print bar ---
 #
 function ebar() {
-  printf "%79s\n" | tr ' ' "${1:-=}"
+  printf "%79s\n" | tr ' ' "${1:--}"
 }
-bar=$(ebar)
+bar=$(ebar =)
 function earg() {
   # Print each remaining argument on a line
   test ${#} -gt 0 && printf "%s\n" "$@"
@@ -42,14 +42,17 @@ function usage() {
   echo "  -f|--force    force execution of $REFCONF or force cleanup"
   echo "  -d|--diff-cmd <diff-command>"
   echo "                uses specified diff command (use quotes in case of options)"
+  echo "                (${DIFFERRMSG:-"default is \`$DIFF'"})"
   echo "  -e|--rel-err <rel-err>"
   echo "                uses specified relative error"
   echo "  -l|--list     prints list of cases"
   echo "  -k|--keep     keep (do not delete) TMPDIR and cases"
+  echo "  -n|--dry-run  no execution, only checks $REFCONF files"
   echo "  -b|--build <b-dir>"
   echo "                name of build directory (default is \`../build')"
   echo "                (../<b-dir> if <b-dir> is not a path)"
   echo "                (<b-dir> if <b-dir> is a path)"
+  echo "  --mpi         short for \`--build $mpidefblddir'"
   echo "  -x|--exe <typhon-exe>"
   echo "                uses specified typhon exe (default is Typhon_Solver)" # (default is given by CASE/$REFCONF)"
   echo "                (uses build directory if given or if <typhon-exe> is not a path)"
@@ -59,6 +62,14 @@ function usage() {
   echo
   echo "Default:"
   echo "  runs selected cases (stop with <ctrl>-\`)"
+}
+
+# --- print warning ---
+#
+function warning() {
+  echo "WARNING${1:+:}"
+  espc "$@"
+  ebar
 }
 
 # --- print error ---
@@ -73,9 +84,40 @@ function error() {
   exit 1
 }
 
-ebar
+ebar =
 echo "TYPHON non regression check"
-ebar
+ebar =
+
+# --- Set default diff command and options ---
+#
+# Choose diff command
+difflist="ndiff diff"
+if [ -z "${DIFF:=}" ] ; then
+  for diffcom in $difflist ; do
+    DIFF=$(which $diffcom 2>/dev/null)
+    test -n "$DIFF" && break
+  done
+else
+  diffcom=${DIFF%% *}
+  diffopt=${DIFF#$diffcom}
+  DIFF=$(which ${diffcom} 2>/dev/null)
+  if [ -z "$DIFF" ] ; then
+    export DIFFERRMSG="Diff command from env not found: DIFF=\`${DIFF:=$diffcom$diffopt}'"
+  else
+    DIFF="$DIFF$diffopt"
+  fi
+fi
+if [ -z "$DIFF" ] ; then
+  export DIFFERRMSG="No default diff command found from $(printf " \`%s'" $difflist)"
+fi
+
+# Set options to diff command
+case $DIFF in
+  */ndiff) export DIFF="$DIFF -relerr ${rel_err:-1.E-12}" ;;
+  */diff)  export DIFF="$DIFF -bB" ;;
+  "")      ;;
+  *)       export DIFFERRMSG=${DIFFERRMSG:-"Default diff command unknown: \`$DIFF'"} ;;
+esac
 
 # --- Set directories (except TMPDIR)---
 #
@@ -91,6 +133,7 @@ MSHDIR=$PRJDIR/NRG/COMMON
 REFCONF=nrgconf.sh
 PRJDIRWIPE=
 test $ORIGDIR = $PRJDIR && PRJDIRWIPE=$PRJDIR/
+mpidefblddir=build_mpi
 
 # --- Check directory ---
 #
@@ -101,7 +144,8 @@ fi
 
 # --- Set options ---
 #
-#OPTS=$(getopt -o b:hfd:e:lkx -l build:,help,force,diff-cmd:,rel-err:,list,keep,exe,cleanup -n "$SCRIPTNAME" -- "$@")
+#OPTS=$(getopt -o b:hfd:e:lknx \
+#              -l build:,mpi,help,force,diff-cmd:,rel-err:,list,keep,dry-run,exe,cleanup -n "$SCRIPTNAME" -- "$@")
 #test $? != 0 && usage 1
 #eval set -- "$OPTS"
 
@@ -113,6 +157,7 @@ typhexe=
 diffcmd=
 list=0
 keeptmp=0
+dry_run=0
 patlist=()
 rel_err=
 cleanup=0
@@ -141,10 +186,15 @@ while [ ${#} -gt 0 ] ; do
         list=1 ;;
     -k|--keep)
         keeptmp=1 ;;
+    -n|--dry-run)
+        dry_run=1 ;;
     -b|--build)
         test ${#} -gt 1 || error "missing argument to \`$1': build directory required"
         shift
         mustbeequal "${build:=$1}" "$1" "multiple values for build directory"
+        ;;
+    --mpi)
+        mustbeequal "${build:=$mpidefblddir}" "$build" "multiple values for build directory ($1 implies $mpidefblddir)"
         ;;
     -x|--exe)
         test ${#} -gt 1 || error "missing argument to \`$1': typhon executable required"
@@ -170,6 +220,20 @@ while [ ${#} -gt 0 ] ; do
   shift
 done
 
+# --- Check dry_run and keeptmp ---
+#
+if [ $keeptmp = 1 -a $dry_run = 1 -a $force != 1 ] ; then
+  echo "\`--keep' option is ignored with \`--dry-run' when without \`--force'"
+  ebar
+  keeptmp=0
+fi
+
+# Set dry run command prefix
+case $dry_run in
+  1) dry_run=: ;;
+  *) dry_run=  ;;
+esac
+
 # --- Cleanup temp directories ---
 #
 tmpdirlist=()
@@ -187,7 +251,7 @@ case "${#tmpdirlist[@]}" in
           ;;
      esac
      ;;
-  *) ls -l -d -F --color=always "${tmpdirlist[@]}"
+  *) ls -l -d -F --color=auto "${tmpdirlist[@]}"
      ebar
      case "$cleanup" in
        0) echo "You may consider option \`--cleanup' to remove these temporary directories"
@@ -274,11 +338,20 @@ cd "$savedir"
 #
 compiler=$(cd /tmp ; mpirun -np 1 $typhexe 2>&1 | grep Compiled | tail -1)
 case "${compiler##*/}" in
-  ifort)  compiler=seq ;;
-  mpif90) compiler=mpi ;;
+  ifort)  exetype=seq ;;
+  mpif90) exetype=mpi ;;
   *)      error "Unknown type for \`typhexe'" "  $compiler" ;;
 esac
-echo "TYPE_EXE=$compiler is imposed"
+if [ $exetype = mpi ] ; then
+  if [ -z "${MPIPROCS:-}" ] ; then
+    mpistr="(default MPIPROCS=${MPIPROCSDEF:=1}, may be overriden by env or conf)"
+  else
+    mpistr="(MPIPROCS=${MPIPROCSDEF:=$MPIPROCS}, may be overriden by conf)"
+  fi
+else
+  mpistr=
+fi
+echo "TYPE_EXE=$exetype is imposed${mpistr:+ $mpistr}"
 ebar
 # To be fixed with test on build ...
 
@@ -286,27 +359,13 @@ ebar
 #
 cd $PRJDIR
 
-# --- Set default diff command ---
+# --- Set user-defined diff command and options ---
 #
-# Choose diff command
-difflist="ndiff diff"
-for diffcom in $difflist ; do
-  DIFF=$(which $diffcom) 2>/dev/null
-  test -n "$DIFF" && break
-done
-
 # Check diff-cmd xor rel-err
 if [ -n "$diffcmd" -a -n "$rel_err" ] ; then
   error "\`--diff-comd' ($diffcmd) and \`--rel-err' ($rel_err) options may not both be specified" \
         "Options to the specific diff command must be appended to it"
 fi
-
-# Set options to diff command
-case $DIFF in
-  */ndiff) export DIFF="$DIFF -relerr ${rel_err:-1.E-12}" ;;
-  */diff)  export DIFF="$DIFF -bB" ;;
-  *)       echo "Not found: DIFF=$DIFF" ; export DIFF= ;;
-esac
 
 # Check user diff command execution
 if [ -n "$diffcmd" ] ; then
@@ -315,7 +374,11 @@ if [ -n "$diffcmd" ] ; then
   test $r != 10 && error "Check diff command: $diffcmd"
   export DIFF="$diffcmd"
 fi
-test -z "$DIFF" && error "No diff command found"
+
+# Check diff is defined
+if [ -z "$DIFF" ] ; then
+  error "$DIFFERRMSG"
+fi
 
 # --- Set log files ---
 #
@@ -340,14 +403,14 @@ ncol2=24
 # --- Tests ---
 #
 echo "diffing with DIFF : $DIFF"
-ebar
+ebar =
 
 function iserror() {
   test $? -ne 0 # "$@"
 }
 
 function next_case() {
-  test "${1:--}" = -n && echo && remain= && shift
+  test "${1:--}" = -n && remain="\n         " && shift
   test ${#}     -gt 0 && printf "$remain%s\n" "$@"
   test $keeptmp -eq 0 && rm -f $TMPDIR/$CASE/*
   continue
@@ -363,16 +426,72 @@ function next_fic() {
   continue
 }
 
+checkrefconf() {
+  grep -e '^export  *[A-Za-z_][A-Za-z0-9_]*=' $1 \
+    | diff -q $1 - >/dev/null 2>&1
+}
+
+catrefconf() {
+    echo "file: \`${1#$PRJDIRWIPE}'" "(between '---')"
+    echo "---"
+    cat $1
+    echo "---"
+}
+
+# --- Read "y" or exit
+#
+read_y_or_exit() {
+  local y ; read y ; test "$y" != y && exit 1
+}
+
+# --- Check commands in $REFCONF for all cases ---
+#
+halt=0
+forceexec=0
+for CASE in "${LISTCASES[@]}" ; do
+  CASEDIR=$NRGDIR/$CASE
+  file=$CASEDIR/$REFCONF
+  checkrefconf $file
+  if iserror ; then
+    catrefconf $file
+    echo "${file#$PRJDIRWIPE}: unsafe commands"
+    ebar
+    if [ $force = 1 ] ; then
+      printf "Are you sure you want to force execution [y|N] ? "
+      read_y_or_exit
+      echo "Execution will be forced !"
+      ebar
+      forceexec=1
+    else
+      halt=1
+    fi
+  fi
+done
+
+if [ $halt = 1 ] ; then
+  echo "You may consider option \`--force'"
+  ebar
+fi
+
+if [ $forceexec = 1 ] ; then
+  ebar '!'
+  printf "Are you REALLY sure you want to force execution [y|N] ? "
+  read_y_or_exit
+  echo "EXECUTION WILL BE FORCED !"
+  ebar
+fi
+
 # --- Define and create TMPDIR and trap remove if not keeptmp ---
 #
 if ! TMPDIR=$(mktemp -d $TMPTMPL 2>&1) ; then
-  T=${TMPDIR%% \`/*}
-  T1=${T%% « /*}
+  T=${TMPDIR%% \`/*} # For C/EN locale
+  T1=${T%% « /*}     # For Fr locale (with nbsp " " after "«")
   T2=${TMPDIR#$T1}
   error "$T1" "  ${T2# }" "Could not create temporary directory"
 fi
 test $keeptmp -eq 0 && trap "rm -Rf $TMPDIR" EXIT SIGINT
-trap "exit 63" SIGQUIT # ctrl-\ or ctrl-` stop the script
+trap "exit 63" SIGQUIT           # ctrl-\ or ctrl-` stop the script
+echo "  ( ctrl-c to stop one run ; ctrl-\ or ctrl-\` to stop the whole script)"
 
 echo diff-command : $DIFF >> $PRJDIR/diff.log
 
@@ -389,12 +508,44 @@ for CASE in "${LISTCASES[@]}" ; do
   #
   string="checking $CASE ..."
   printf "$string" ; repl=${string//?/?} ; remain=${scol1/$repl/}
+  ${dry_run:+ebar} >> $PRJDIR/check.log 2>&1
+
+  MPIPROCS=${MPIPROCSDEF:-}
 
   # --- Configure ---
   #
   file=$CASEDIR/$REFCONF
-  . $file
-  iserror && next_case -n "source NRG/$CASE/$REFCONF: command failed"
+  checkrefconf $file
+  if iserror ; then
+    catrefconf $file >> $PRJDIR/check.log
+    if [ $force = 1 ] ; then
+      $dry_run echo "Execution forced !" >> $PRJDIR/check.log
+      ${dry_run:+wontdo} . $file         >> $PRJDIR/check.log 2>&1
+      iserror && next_case "$REFCONF: source command failed"
+    else
+      # This should not be executed (already checked and exited)
+      next_case "$REFCONF: unsafe commands, consider option \`--force'"
+    fi
+  else
+  {
+    # Read every line in file
+    readarray -t confline < $file
+    # For each line
+    for line in "${confline[@]}" ; do
+      line=$(echo "$line" | sed 's/^ *export  *//')
+      var=${line%=*}
+      value=${line#$var=}
+      # Remove enclosing quotes (\x22:double, \x27:single)
+      for s in "\x22" "\x27" ; do
+        nvalue=$(echo "$value" | sed "s/^$s\(.*\)$s$/\1/")
+        test "$nvalue" != "$value" && break
+      done
+      value=$nvalue
+      ${dry_run:+echo} export "$var"="$value"
+    done
+  } >> $PRJDIR/check.log 2>&1
+  fi
+  ${dry_run:+next_case "$REFCONF checked"}
 
   # --- Create dir ---
   #
@@ -420,22 +571,24 @@ for CASE in "${LISTCASES[@]}" ; do
 
   # --- Check executable type ---
   #
-  TYPE_EXE=$compiler
+  TYPE_EXE=$exetype
   case $TYPE_EXE in
     seq) exehead="" ;;
-    mpi) exehead="mpirun -np ${MPIPROCS:-2} -machinefile hostfile" ;;
+    mpi) exehead="mpirun -np ${MPIPROCS:-1} -machinefile hostfile" ;;
     *)   next_case "\`$TYPE_EXE': unknown typhon executable type" ;;
   esac
 
   # --- Check executable ---
   #
-  EXE=${typhexe:-$EXEDIR/typhon-$TYPE_EXE}
+  ## THIS IS NO MORE USED
+  ## EXE=${typhexe:-$EXEDIR/typhon-$TYPE_EXE}
+  EXE=${typhexe}
 
   # --- Execute ---
   #
   echo run: \
-  $exehead $EXE >> $PRJDIR/check.log
-  $exehead $EXE >> $PRJDIR/check.log 2>&1
+  $dry_run $exehead $EXE >> $PRJDIR/check.log
+  $dry_run $exehead $EXE >> $PRJDIR/check.log 2>&1
   iserror && next_case "??   computation failed"
 
   # --- Get file list ---
@@ -485,6 +638,7 @@ ebar
 # --- Print name of keep tmp dir
 #
 if [ $keeptmp -eq 1 ] ; then
-  echo "files kept in   : $TMPDIR"
+  printf "%s" "files kept in   : "
+  ls -d -F --color=auto "$TMPDIR"
   ebar
 fi

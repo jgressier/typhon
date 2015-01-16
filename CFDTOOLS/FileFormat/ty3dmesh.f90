@@ -9,15 +9,14 @@
 program ty3dmesh
 
 use IOCFD
-use IO_UNIT
 use VEC3D
 use USTMESH
 use XBIN_IO
 use TYPHON_FMT
 use TYFMT_MESH
 use FTNARGS
-use FCT_FUNC
 use FCT_PARSER
+!use FLUENT
 
 implicit none
 
@@ -28,18 +27,23 @@ character(len=16)  :: str_ndir
 type(st_deftyphon) :: deftyphon
 integer(kip), target  :: ni, nj, nk
 integer(kip), pointer :: ndir
+logical, target    :: niread, njread, nkread
+logical, pointer   :: ndread
 real(krp), target  :: lx, ly, lz
 real(krp), pointer :: ldir
-type(st_ustmesh)   :: umesh
-type(v3d), dimension(:,:,:), pointer :: vertex
-type(st_elemvtex), pointer :: elem
-integer(kpp)       :: itype, ielem, ntype_mesh
+logical, target    :: lxread, lyread, lzread
+logical, pointer   :: ldread
 character(len=256), target  :: strx, stry, strz
 character(len=256), pointer :: strdir
-type(st_fct_node)   :: morphx, morphy, morphz
-type(st_fctfuncset) :: fctenv
-logical             :: fctscale, cstscale
-
+logical, target    :: strxread, stryread, strzread
+logical, pointer   :: strdread
+type(st_ustmesh)      :: umesh
+type(v3d), dimension(:,:,:), pointer :: vertex
+type(st_elemvtex), pointer :: elem
+integer(kpp)          :: itype, ielem, ntype_mesh
+type(st_fct_node)     :: morphx, morphy, morphz
+type(st_fctfuncset)   :: fctenv
+logical               :: fctscale, cstscale
 !---------------------------
 logical, parameter :: lincr = .TRUE.
 integer(kip)       :: ierr
@@ -51,7 +55,9 @@ integer(kpp), parameter :: ni_default = 50
 integer(kpp), parameter :: nj_default = 50
 integer(kpp), parameter :: nk_default = 50
 integer(kpp), parameter :: mesh_hexa = 1
-logical                 :: fileread
+logical            :: fileread
+
+! BODY
 
 call print_cfdtools_header("TY3DMESH")
 
@@ -90,6 +96,9 @@ do while (iarg <= nargs)
   iarg = iarg + 1
 enddo
 
+niread = .FALSE.
+njread = .FALSE.
+nkread = .FALSE.
 fileread = .FALSE.
 
 iarg     = 1
@@ -104,40 +113,57 @@ do while (iarg <= nargs)
     str_ndir = str_tr(str_opt(2:), 'xyz', 'ijk')
     ! pointers
     select case(str_ndir)
-    case("ni")
-      ndir => ni
-    case("nj")
-      ndir => nj
-    case("nk")
-      ndir => nk
+    case("ni") ; ndir => ni ; ndread => niread
+    case("nj") ; ndir => nj ; ndread => njread
+    case("nk") ; ndir => nk ; ndread => nkread
     endselect
     ! read integer
     call read_command_argument(iarg, ndir, lincr, ierr, str_val)
-    if (ierr/=0) call cfd_error("expected integer after '"//trim(str_opt)//"', found '"//trim(str_val)//"'")
+    ! if number
+    if (ierr==0) then
+      ! check no redefinition
+      if (ndread) call cfd_error("too many "//trim(str_opt)//" definitions")
+      ! set size read
+      ndread = .TRUE.
+    ! if not number
+    else
+      call cfd_error("expected integer after '"//trim(str_opt)//"', found '"//trim(str_val)//"'")
+    endif
   ! lengths in x, y, z directions
   case ("-lx", "-ly", "-lz")
     if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
     ! pointers
     select case(str_opt)
-    case("-lx") ; ldir => lx
-    case("-ly") ; ldir => ly
-    case("-lz") ; ldir => lz
+    case("-lx") ; ldir => lx ; ldread => lxread
+    case("-ly") ; ldir => ly ; ldread => lyread
+    case("-lz") ; ldir => lz ; ldread => lzread
     endselect
     ! read real
     call read_command_argument(iarg, ldir, lincr, ierr, str_val)
-    if (ierr/=0) call cfd_error("real expected after '"//trim(str_opt)//"'" &
-                                          //", found '"//trim(str_val)//"'")
+    ! if real
+    if (ierr==0) then
+      ! check no redefinition
+      if (ldread) call cfd_error("too many "//trim(str_opt)//" definitions")
+      ! set size read
+      ldread = .TRUE.
+    ! if not real
+    else
+      call cfd_error("real expected after '"//trim(str_opt)//"'" &
+                               //", found '"//trim(str_val)//"'")
+    endif
   ! scaling functions for x, y, z
   case ("-fx", "-fy", "-fz")
     fctscale = .true.
     if (iarg>nargs) call cfd_error("missing argument after '"//trim(str_opt)//"'")
     ! pointers
     select case(str_opt)
-    case("-fx") ; strdir => strx
-    case("-fy") ; strdir => stry
-    case("-fz") ; strdir => strz
+    case("-fx") ; strdir => strx ; strdread => strxread
+    case("-fy") ; strdir => stry ; strdread => stryread
+    case("-fz") ; strdir => strz ; strdread => strzread
     endselect
     call read_command_argument(iarg, strdir, lincr)
+    ! set string read
+    strdread = .TRUE.
   ! mesh types
   case ("-hexa")
     ntype_mesh = mesh_hexa
@@ -288,7 +314,7 @@ do j = 1, nj
     iloc = (j-1)*nk+k
     ! IMIN faces
     umesh%facevtex%fils(offset+iloc, 1:nvtex) = &
-      (/ unsnode(1,j,k), unsnode(1,j,k+1), unsnode(1,j+1,k+1), unsnode(1,j+1,k) /)
+      (/ unsnode(   1,j,k), unsnode(   1,j,k+1), unsnode(   1,j+1,k+1), unsnode(   1,j+1,k) /)
     ! IMAX faces
     umesh%facevtex%fils(offset+dim+iloc, 1:nvtex) = &
       (/ unsnode(ni+1,j,k), unsnode(ni+1,j,k+1), unsnode(ni+1,j+1,k+1), unsnode(ni+1,j+1,k) /)
@@ -308,7 +334,7 @@ do i = 1, ni
     iloc = (i-1)*nk+k
     ! JMIN faces
     umesh%facevtex%fils(offset+iloc, 1:nvtex) = &
-      (/ unsnode(i,1,k), unsnode(i,1,k+1), unsnode(i+1,1,k+1), unsnode(i+1,1,k) /)
+      (/ unsnode(i,   1,k), unsnode(i,   1,k+1), unsnode(i+1,   1,k+1), unsnode(i+1,   1,k) /)
     ! JMAX faces
     umesh%facevtex%fils(offset+dim+iloc, 1:nvtex) = &
       (/ unsnode(i,nj+1,k), unsnode(i,nj+1,k+1), unsnode(i+1,nj+1,k+1), unsnode(i+1,nj+1,k) /)
@@ -328,7 +354,7 @@ do i = 1, ni
     iloc = (i-1)*nj+j
     ! KMIN faces
     umesh%facevtex%fils(offset+iloc, 1:nvtex) = &
-      (/ unsnode(i,j,1), unsnode(i+1,j,1), unsnode(i+1,j+1,1), unsnode(i,j+1,1) /)
+      (/ unsnode(i,j,   1), unsnode(i+1,j,   1), unsnode(i+1,j+1,   1), unsnode(i,j+1,   1) /)
     ! KMAX faces
     umesh%facevtex%fils(offset+dim+iloc, 1:nvtex) = &
       (/ unsnode(i,j,nk+1), unsnode(i+1,j,nk+1), unsnode(i+1,j+1,nk+1), unsnode(i,j+1,nk+1) /)
@@ -344,9 +370,11 @@ enddo
 ! Create mesh file
 !------------------------------------------------------------
 print*
-print*,'opening file '//trim(filename)
+print*,'creating file '//trim(filename)
 !------------------------------
 ! open xbin file
+
+!call display(umesh)
 
 call typhon_openwrite(trim(filename), deftyphon, 1)
 
@@ -357,6 +385,7 @@ call typhonwrite_ustmesh(deftyphon, umesh)
 
 call typhon_close(deftyphon)
 print*,'done.'
+call print_cfdtools_tailer()
 
 contains
 
@@ -391,8 +420,9 @@ subroutine print_help()
   print*
   ! Cell type
   print*,"  -hexa      : generates hexa (default)"
-  print*
   print*,repeat('-',40)
+
+  call print_cfdtools_tailer()
 endsubroutine print_help
 
 endprogram ty3dmesh
